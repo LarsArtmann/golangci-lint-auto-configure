@@ -21,14 +21,13 @@ type Config struct {
 }
 
 type RunConfig struct {
-	Timeout        string            `yaml:"timeout"`
-	Go             string            `yaml:"go"`
-	BuildTags       string            `yaml:"build-tags"`
-	ModulesDownloadMode string         `yaml:"modules-download-mode"`
-	AllowParallelRunners bool          `yaml:"allow-parallel-runners"`
-	AllowSerialRunners   bool          `yaml:"allow-serial-runners"`
-	GoVersion string            `yaml:"go"`
-	Env      []string          `yaml:"env"`
+	Timeout           string            `yaml:"timeout"`
+	Go                string            `yaml:"go"`
+	BuildTags         string            `yaml:"build-tags"`
+	ModulesDownloadMode string            `yaml:"modules-download-mode"`
+	AllowParallelRunners bool             `yaml:"allow-parallel-runners"`
+	AllowSerialRunners   bool             `yaml:"allow-serial-runners"`
+	Env               []string          `yaml:"env"`
 }
 
 type OutputConfig struct {
