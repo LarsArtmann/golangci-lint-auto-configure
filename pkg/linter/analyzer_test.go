@@ -122,8 +122,8 @@ var _ = Describe("Analyzer", func() {
 
 		It("should format recommendations with high value linters", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount:    0,
-				HighValueCount:   1,
+				CriticalCount:  0,
+				HighValueCount: 1,
 				Recommendations: []types.LinterRecommendation{
 					{Name: "wrapcheck", Priority: types.LinterPriorityHigh, Reason: "Error wrapping"},
 				},

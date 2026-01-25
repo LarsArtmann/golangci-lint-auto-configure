@@ -36,7 +36,7 @@ var _ = Describe("Fixer", func() {
     - gosec
     - errcheck
 `)
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
 			result, err := fixer.FixConfig(testConfig, types.LinterPriorityCritical, true)
 
@@ -53,7 +53,7 @@ var _ = Describe("Fixer", func() {
 		It("should handle invalid YAML", func() {
 			configContent := `linters:
   enable: [unclosed bracket`
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
 			_, err := fixer.FixConfig(testConfig, types.LinterPriorityCritical, true)
 

@@ -119,7 +119,7 @@ func (l *Loader) SaveConfig(config *Config, path string) error {
 		return fmt.Errorf("failed to marshal config: %w", err)
 	}
 
-	if err := os.WriteFile(path, data, 0644); err != nil {
+	if err := os.WriteFile(path, data, 0o644); err != nil {
 		return fmt.Errorf("failed to write config file %s: %w", path, err)
 	}
 
@@ -136,7 +136,7 @@ func (l *Loader) CreateBackup(filePath string) (string, error) {
 		return "", fmt.Errorf("failed to read file for backup: %w", err)
 	}
 
-	if err := os.WriteFile(backupPath, data, 0644); err != nil {
+	if err := os.WriteFile(backupPath, data, 0o644); err != nil {
 		return "", fmt.Errorf("failed to create backup: %w", err)
 	}
 
@@ -176,7 +176,7 @@ func (l *Loader) RestoreConfig(backupPath, targetPath string) error {
 		return fmt.Errorf("failed to read backup file %s: %w", backupPath, err)
 	}
 
-	if err := os.WriteFile(targetPath, data, 0644); err != nil {
+	if err := os.WriteFile(targetPath, data, 0o644); err != nil {
 		return fmt.Errorf("failed to restore config to %s: %w", targetPath, err)
 	}
 

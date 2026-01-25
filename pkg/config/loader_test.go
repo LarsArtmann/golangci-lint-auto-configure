@@ -44,7 +44,7 @@ linters:
     - gosec
     - errcheck
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
 			cfg, err := loader.LoadConfig(testConfig)
 
@@ -69,7 +69,7 @@ output:
     - colored-line-number
     - json
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
 			cfg, err := loader.LoadConfig(testConfig)
 
@@ -107,7 +107,7 @@ output:
 					Go:      "1.21",
 				},
 				Linters: config.LintersConfig{
-					Enable: []string{"gosec", "errcheck"},
+					Enable:  []string{"gosec", "errcheck"},
 					Disable: []string{"unused"},
 				},
 			}
@@ -130,7 +130,7 @@ linters:
   enable:
     - gosec
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
 			backupPath, err := loader.CreateBackup(testConfig)
 
@@ -148,7 +148,7 @@ linters:
   enable:
     - gosec
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
 			backupPath1, err := loader.CreateBackup(testConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -167,7 +167,7 @@ linters:
 
 	Context("FindConfigFile", func() {
 		It("should find .golangci.yml", func() {
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0644)).To(Succeed())
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0o644)).To(Succeed())
 
 			found, err := loader.FindConfigFile(testDir)
 
@@ -176,7 +176,7 @@ linters:
 		})
 
 		It("should find .golangci.yaml", func() {
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yaml"), []byte("version: 1"), 0644)).To(Succeed())
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yaml"), []byte("version: 1"), 0o644)).To(Succeed())
 
 			found, err := loader.FindConfigFile(testDir)
 

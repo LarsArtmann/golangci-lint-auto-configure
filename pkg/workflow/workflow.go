@@ -127,7 +127,7 @@ func NewBuilder(logger *log.Logger, analyzer *linter.Analyzer) *Builder {
 }
 
 // BuildAutoConfigureWorkflow creates a workflow for auto-configuring golangci-lint
-func (b *Builder) BuildAutoConfigureWorkflow(configPath string, dryRun bool, generateHTML bool, outputPath string) (workflowpkg.WorkflowLike, error) {
+func (b *Builder) BuildAutoConfigureWorkflow(configPath string, dryRun, generateHTML bool, outputPath string) (workflowpkg.WorkflowLike, error) {
 	workflowID := types.WorkflowID("golangci-lint-auto-configure")
 	workflowName := types.WorkflowName("Automatically analyze and configure golangci-lint")
 
@@ -165,7 +165,7 @@ func (b *Builder) BuildAutoConfigureWorkflow(configPath string, dryRun bool, gen
 }
 
 // ExecuteAutoConfigureWorkflow executes the auto-configure workflow
-func (b *Builder) ExecuteAutoConfigureWorkflow(ctx context.Context, configPath string, dryRun bool, generateHTML bool, outputPath string) (workflowpkg.WorkflowRun, error) {
+func (b *Builder) ExecuteAutoConfigureWorkflow(ctx context.Context, configPath string, dryRun, generateHTML bool, outputPath string) (workflowpkg.WorkflowRun, error) {
 	wf, err := b.BuildAutoConfigureWorkflow(configPath, dryRun, generateHTML, outputPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build workflow: %w", err)

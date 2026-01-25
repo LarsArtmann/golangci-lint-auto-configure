@@ -20,7 +20,7 @@ var (
 	generateHTML bool
 	outputReport string
 	priority     string
-	reportFormat  string
+	reportFormat string
 )
 
 // NewRootCommand creates the root CLI command
