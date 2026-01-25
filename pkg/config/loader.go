@@ -168,3 +168,18 @@ func (l *Loader) GetLintersEnabled(config *Config) []string {
 func (l *Loader) GetLintersDisabled(config *Config) []string {
 	return config.Linters.Disable
 }
+
+// RestoreConfig restores a configuration from a backup file to target path
+func (l *Loader) RestoreConfig(backupPath, targetPath string) error {
+	data, err := os.ReadFile(backupPath)
+	if err != nil {
+		return fmt.Errorf("failed to read backup file %s: %w", backupPath, err)
+	}
+
+	if err := os.WriteFile(targetPath, data, 0644); err != nil {
+		return fmt.Errorf("failed to restore config to %s: %w", targetPath, err)
+	}
+
+	l.logger.Infof("Restored configuration from %s to %s", backupPath, targetPath)
+	return nil
+}

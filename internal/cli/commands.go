@@ -20,6 +20,7 @@ var (
 	generateHTML bool
 	outputReport string
 	priority     string
+	reportFormat  string
 )
 
 // NewRootCommand creates the root CLI command
@@ -51,6 +52,7 @@ actionable recommendations to improve your Go code quality.`,
 		newMigrateCommand(logger, configLoader),
 		newValidateCommand(logger, configLoader),
 		newReportCommand(logger, analyzer, configLoader),
+		newRestoreCommand(logger, configLoader),
 	)
 
 	// Global flags
@@ -59,6 +61,8 @@ actionable recommendations to improve your Go code quality.`,
 	cmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
 	cmd.PersistentFlags().BoolVar(&generateHTML, "html", false, "Generate HTML report")
 	cmd.PersistentFlags().StringVar(&outputReport, "output", "report.html", "Output path for HTML report")
+	cmd.PersistentFlags().StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
+	cmd.PersistentFlags().StringVar(&reportFormat, "format", "html", "Output format (html, json)")
 
 	return cmd
 }
@@ -287,7 +291,7 @@ func newReportCommand(
 				}
 			}
 
-			logger.Infof("Generating report for: %s", configFile)
+			logger.Infof("Generating %s report for: %s", reportFormat, configFile)
 
 			// Analyze configuration
 			analysis, err := analyzer.AnalyzeConfig(configFile)
@@ -295,15 +299,87 @@ func newReportCommand(
 				return fmt.Errorf("analysis failed: %w", err)
 			}
 
-			// Generate HTML report
-			generator := report.NewGenerator(logger)
-			if err := generator.GenerateReport(analysis, outputReport); err != nil {
-				return fmt.Errorf("failed to generate report: %w", err)
+			// Determine output path
+			outputPath := outputReport
+			if outputPath == "report.html" {
+				if reportFormat == "json" {
+					outputPath = "report.json"
+				}
+			}
+
+			// Generate report based on format
+			if reportFormat == "json" {
+				jsonGenerator := report.NewJSONGenerator(logger)
+				if err := jsonGenerator.GenerateJSONReport(analysis, outputPath); err != nil {
+					return fmt.Errorf("failed to generate JSON report: %w", err)
+				}
+			} else {
+				htmlGenerator := report.NewGenerator(logger)
+				if err := htmlGenerator.GenerateReport(analysis, outputPath); err != nil {
+					return fmt.Errorf("failed to generate HTML report: %w", err)
+				}
 			}
 
 			return nil
 		},
 	}
+
+	return cmd
+}
+
+// newRestoreCommand creates the restore command
+func newRestoreCommand(
+	logger *log.Logger,
+	configLoader *config.Loader,
+) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "restore",
+		Short: "Restore configuration from backup",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if verbose {
+				logger.SetLevel(log.DebugLevel)
+			}
+
+			// Get backup path from flag or argument
+			backupPath, _ := cmd.Flags().GetString("backup-path")
+			if backupPath == "" && len(args) > 0 {
+				return fmt.Errorf("backup path required (use --backup-path flag or provide as argument)")
+			}
+			if backupPath == "" {
+				backupPath = args[0]
+			}
+
+			logger.Infof("Restoring configuration from: %s", backupPath)
+
+			// Check if backup file exists
+			if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+				return fmt.Errorf("backup file not found: %s", backupPath)
+			}
+
+			// Determine target config path
+			targetPath := configPath
+			if targetPath == "" {
+				var err error
+				targetPath, err = configLoader.FindConfigFile(".")
+				if err != nil {
+					return fmt.Errorf("no config file found to restore to: %w", err)
+				}
+			}
+
+			logger.Infof("Restoring to: %s", targetPath)
+
+			// Perform restore
+			if err := configLoader.RestoreConfig(backupPath, targetPath); err != nil {
+				return fmt.Errorf("failed to restore configuration: %w", err)
+			}
+
+			logger.Infof("Configuration restored successfully")
+
+			return nil
+		},
+	}
+
+	cmd.Flags().String("backup-path", "", "Path to backup file to restore from")
 
 	return cmd
 }
