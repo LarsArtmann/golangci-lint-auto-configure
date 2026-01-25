@@ -14,21 +14,21 @@ import (
 // Analyzer analyzes golangci-lint configurations and provides recommendations
 type Analyzer struct {
 	golangciLintPath string
-	logger          *log.Logger
+	logger           *log.Logger
 }
 
 // NewAnalyzer creates a new linter analyzer
 func NewAnalyzer(logger *log.Logger) *Analyzer {
 	return &Analyzer{
 		golangciLintPath: "",
-		logger:          logger,
+		logger:           logger,
 	}
 }
 
 // golangciLintOutput represents JSON output from golangci-lint linters/formatters commands
 type golangciLintOutput struct {
-	Enabled  []types.LinterInfo   `json:"Enabled"`
-	Disabled []types.LinterInfo   `json:"Disabled"`
+	Enabled  []types.LinterInfo `json:"Enabled"`
+	Disabled []types.LinterInfo `json:"Disabled"`
 }
 
 // FindBinary finds the golangci-lint binary in PATH
@@ -58,10 +58,10 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 	}
 
 	analysis := &types.ConfigAnalysis{
-		ConfigPath:       configPath,
-		EnabledLinters:    jsonOutput.Enabled,
-		DisabledLinters:   jsonOutput.Disabled,
-		Recommendations:    a.categorizeLinters(jsonOutput.Disabled),
+		ConfigPath:      configPath,
+		EnabledLinters:  jsonOutput.Enabled,
+		DisabledLinters: jsonOutput.Disabled,
+		Recommendations: a.categorizeLinters(jsonOutput.Disabled),
 	}
 
 	a.calculateRecommendationCounts(analysis)

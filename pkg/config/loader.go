@@ -11,53 +11,53 @@ import (
 
 // Config represents a golangci-lint configuration file
 type Config struct {
-	Version     string                   `yaml:"version"`
-	Run         RunConfig                `yaml:"run"`
-	Output      OutputConfig             `yaml:"output"`
-	Linters     LintersConfig            `yaml:"linters"`
-	LintersSettings LintersSettings       `yaml:"linters-settings,omitempty"`
-	Issues      IssuesConfig             `yaml:"issues"`
-	Servers     ServersConfig            `yaml:"servers"`
+	Version         string          `yaml:"version"`
+	Run             RunConfig       `yaml:"run"`
+	Output          OutputConfig    `yaml:"output"`
+	Linters         LintersConfig   `yaml:"linters"`
+	LintersSettings LintersSettings `yaml:"linters-settings,omitempty"`
+	Issues          IssuesConfig    `yaml:"issues"`
+	Servers         ServersConfig   `yaml:"servers"`
 }
 
 type RunConfig struct {
-	Timeout           string            `yaml:"timeout"`
-	Go                string            `yaml:"go"`
-	BuildTags         string            `yaml:"build-tags"`
-	ModulesDownloadMode string            `yaml:"modules-download-mode"`
-	AllowParallelRunners bool             `yaml:"allow-parallel-runners"`
-	AllowSerialRunners   bool             `yaml:"allow-serial-runners"`
-	Env               []string          `yaml:"env"`
+	Timeout              string   `yaml:"timeout"`
+	Go                   string   `yaml:"go"`
+	BuildTags            string   `yaml:"build-tags"`
+	ModulesDownloadMode  string   `yaml:"modules-download-mode"`
+	AllowParallelRunners bool     `yaml:"allow-parallel-runners"`
+	AllowSerialRunners   bool     `yaml:"allow-serial-runners"`
+	Env                  []string `yaml:"env"`
 }
 
 type OutputConfig struct {
-	Formats         []string `yaml:"formats"`
-	PrintIssuedLines bool     `yaml:"print-issued-lines"`
-	PrintLinterName  bool     `yaml:"print-linter-name"`
-	SortResults     bool     `yaml:"sort-results"`
-	PrintWelcomeMessage bool `yaml:"print-welcome-message"`
+	Formats             []string `yaml:"formats"`
+	PrintIssuedLines    bool     `yaml:"print-issued-lines"`
+	PrintLinterName     bool     `yaml:"print-linter-name"`
+	SortResults         bool     `yaml:"sort-results"`
+	PrintWelcomeMessage bool     `yaml:"print-welcome-message"`
 }
 
 type LintersConfig struct {
-	Enable     []string `yaml:"enable"`
-	Disable    []string `yaml:"disable"`
-	Fast       bool     `yaml:"fast"`
-	Presets    []string `yaml:"presets"`
+	Enable  []string `yaml:"enable"`
+	Disable []string `yaml:"disable"`
+	Fast    bool     `yaml:"fast"`
+	Presets []string `yaml:"presets"`
 }
 
 type LintersSettings map[string]interface{}
 
 type IssuesConfig struct {
-	Exclude           []string            `yaml:"exclude"`
-	ExcludeRules      []string            `yaml:"exclude-rules,omitempty"`
-	ExcludeGenerated  bool               `yaml:"exclude-generated"`
-	ExcludeFiles      []string            `yaml:"exclude-files,omitempty"`
-	ExcludeDirs       []string            `yaml:"exclude-dirs,omitempty"`
-	MaxIssuesPerLinter int               `yaml:"max-issues-per-linter"`
-	MaxSameIssues     int                `yaml:"max-same-issues"`
-	NewFromRev       string              `yaml:"new-from-rev"`
-	NewFromPatch     string              `yaml:"new-from-patch"`
-	UseDefaultExcludes bool                `yaml:"use-default-excludes"`
+	Exclude            []string `yaml:"exclude"`
+	ExcludeRules       []string `yaml:"exclude-rules,omitempty"`
+	ExcludeGenerated   bool     `yaml:"exclude-generated"`
+	ExcludeFiles       []string `yaml:"exclude-files,omitempty"`
+	ExcludeDirs        []string `yaml:"exclude-dirs,omitempty"`
+	MaxIssuesPerLinter int      `yaml:"max-issues-per-linter"`
+	MaxSameIssues      int      `yaml:"max-same-issues"`
+	NewFromRev         string   `yaml:"new-from-rev"`
+	NewFromPatch       string   `yaml:"new-from-patch"`
+	UseDefaultExcludes bool     `yaml:"use-default-excludes"`
 }
 
 type ServersConfig struct {

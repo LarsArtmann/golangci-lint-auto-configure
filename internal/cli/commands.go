@@ -5,11 +5,11 @@ import (
 	"os"
 
 	"github.com/charmbracelet/log"
-	"github.com/spf13/cobra"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -24,9 +24,9 @@ var (
 // NewRootCommand creates the root CLI command
 func NewRootCommand() *cobra.Command {
 	logger := log.NewWithOptions(os.Stdout, log.Options{
-		ReportCaller:    false,
-		TimeFormat:       "15:04:05",
-		Level:           log.InfoLevel,
+		ReportCaller: false,
+		TimeFormat:   "15:04:05",
+		Level:        log.InfoLevel,
 	})
 
 	cmd := &cobra.Command{

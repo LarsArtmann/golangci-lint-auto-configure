@@ -3,10 +3,10 @@ package config_test
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestConfig(t *testing.T) {

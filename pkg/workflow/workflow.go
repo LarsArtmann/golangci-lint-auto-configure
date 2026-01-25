@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/charmbracelet/log"
 	"github.com/LarsArtmann/universal-workflow/pkg/types"
 	workflowpkg "github.com/LarsArtmann/universal-workflow/pkg/workflow"
+	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 )
 
 // ActivityContext provides context for workflow activities
 type ActivityContext struct {
-	ConfigPath    string
-	Analyzer      *linter.Analyzer
-	Logger        *log.Logger
-	DryRun        bool
-	GenerateHTML  bool
-	OutputReport  string
+	ConfigPath   string
+	Analyzer     *linter.Analyzer
+	Logger       *log.Logger
+	DryRun       bool
+	GenerateHTML bool
+	OutputReport string
 }
 
 // AnalysisActivity analyzes golangci-lint configuration
@@ -114,14 +114,14 @@ func ReportActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, err
 // Builder constructs the golangci-lint configuration workflow
 type Builder struct {
 	logger   *log.Logger
-	analyzer  *linter.Analyzer
+	analyzer *linter.Analyzer
 	config   *ActivityContext
 }
 
 // NewBuilder creates a new workflow builder
 func NewBuilder(logger *log.Logger, analyzer *linter.Analyzer) *Builder {
 	return &Builder{
-		logger:  logger,
+		logger:   logger,
 		analyzer: analyzer,
 	}
 }
