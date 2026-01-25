@@ -1,6 +1,8 @@
 package config_test
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/charmbracelet/log"
@@ -15,11 +17,17 @@ func TestConfig(t *testing.T) {
 }
 
 var _ = Describe("Loader", func() {
-	var loader *config.Loader
+	var (
+		loader     *config.Loader
+		testDir    string
+		testConfig string
+	)
 
 	BeforeEach(func() {
-		logger := log.NewWithOptions(log.Options{Level: log.ErrorLevel})
+		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
 		loader = config.NewLoader(logger)
+		testDir = GinkgoT().TempDir()
+		testConfig = filepath.Join(testDir, ".golangci.yml")
 	})
 
 	Context("LoadConfig", func() {
@@ -27,11 +35,157 @@ var _ = Describe("Loader", func() {
 			_, err := loader.LoadConfig("/non/existent/path.yml")
 			Expect(err).To(HaveOccurred())
 		})
+
+		It("should load valid config file", func() {
+			configContent := `
+version: "1"
+linters:
+  enable:
+    - gosec
+    - errcheck
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+
+			cfg, err := loader.LoadConfig(testConfig)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg.Version).To(Equal("1"))
+			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
+		})
+
+		It("should parse all config sections", func() {
+			configContent := `
+version: "1"
+run:
+  timeout: 5m
+  go: 1.21
+linters:
+  enable:
+    - gosec
+  disable:
+    - unused
+output:
+  formats:
+    - colored-line-number
+    - json
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+
+			cfg, err := loader.LoadConfig(testConfig)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg.Run.Timeout).To(Equal("5m"))
+			Expect(cfg.Run.Go).To(Equal("1.21"))
+			Expect(cfg.Output.Formats).To(HaveLen(2))
+		})
+	})
+
+	Context("SaveConfig", func() {
+		It("should save config to file", func() {
+			cfg := &config.Config{
+				Version: "1",
+				Linters: config.LintersConfig{
+					Enable: []string{"gosec", "errcheck"},
+				},
+			}
+
+			err := loader.SaveConfig(cfg, testConfig)
+
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("gosec"))
+			Expect(string(content)).To(ContainSubstring("errcheck"))
+		})
+
+		It("should preserve complex config structure", func() {
+			cfg := &config.Config{
+				Version: "1",
+				Run: config.RunConfig{
+					Timeout: "5m",
+					Go:      "1.21",
+				},
+				Linters: config.LintersConfig{
+					Enable: []string{"gosec", "errcheck"},
+					Disable: []string{"unused"},
+				},
+			}
+
+			err := loader.SaveConfig(cfg, testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			loaded, err := loader.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(loaded.Run.Timeout).To(Equal("5m"))
+			Expect(loaded.Linters.Enable).To(HaveLen(2))
+			Expect(loaded.Linters.Disable).To(HaveLen(1))
+		})
+	})
+
+	Context("CreateBackup", func() {
+		It("should create backup file", func() {
+			configContent := `version: "1"
+linters:
+  enable:
+    - gosec
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+
+			backupPath, err := loader.CreateBackup(testConfig)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(backupPath).To(Equal(testConfig + ".backup"))
+
+			backupContent, err := os.ReadFile(backupPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(backupContent)).To(Equal(configContent))
+		})
+
+		It("should create multiple backups with different names", func() {
+			configContent := `version: "1"
+linters:
+  enable:
+    - gosec
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0644)).To(Succeed())
+
+			backupPath1, err := loader.CreateBackup(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			backupPath2, err := loader.CreateBackup(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(backupPath1).To(Equal(backupPath2))
+		})
+
+		It("should return error for non-existent file", func() {
+			_, err := loader.CreateBackup("/non/existent/file.yml")
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
 	Context("FindConfigFile", func() {
+		It("should find .golangci.yml", func() {
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0644)).To(Succeed())
+
+			found, err := loader.FindConfigFile(testDir)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(found).To(Equal(filepath.Join(testDir, ".golangci.yml")))
+		})
+
+		It("should find .golangci.yaml", func() {
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yaml"), []byte("version: 1"), 0644)).To(Succeed())
+
+			found, err := loader.FindConfigFile(testDir)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(found).To(Equal(filepath.Join(testDir, ".golangci.yaml")))
+		})
+
 		It("should return error when no config file exists", func() {
-			_, err := loader.FindConfigFile("/tmp/nonexistent")
+			_, err := loader.FindConfigFile(testDir)
 			Expect(err).To(HaveOccurred())
 		})
 	})
@@ -41,6 +195,59 @@ var _ = Describe("Loader", func() {
 			cfg := &config.Config{}
 			errors := loader.ValidateConfig(cfg)
 			Expect(errors).To(BeEmpty())
+		})
+
+		It("should validate valid config", func() {
+			cfg := &config.Config{
+				Run: config.RunConfig{
+					Timeout: "5m",
+				},
+				Linters: config.LintersConfig{
+					Enable: []string{"gosec"},
+				},
+			}
+			errors := loader.ValidateConfig(cfg)
+			Expect(errors).To(BeEmpty())
+		})
+
+		It("should accept config with no linters", func() {
+			cfg := &config.Config{
+				Run: config.RunConfig{
+					Timeout: "5m",
+				},
+			}
+			errors := loader.ValidateConfig(cfg)
+			Expect(errors).To(BeEmpty())
+		})
+	})
+
+	Context("GetLintersEnabled", func() {
+		It("should return enabled linters", func() {
+			cfg := &config.Config{
+				Linters: config.LintersConfig{
+					Enable: []string{"gosec", "errcheck", "staticcheck"},
+				},
+			}
+
+			enabled := loader.GetLintersEnabled(cfg)
+
+			Expect(enabled).To(HaveLen(3))
+			Expect(enabled).To(ContainElements("gosec", "errcheck", "staticcheck"))
+		})
+	})
+
+	Context("GetLintersDisabled", func() {
+		It("should return disabled linters", func() {
+			cfg := &config.Config{
+				Linters: config.LintersConfig{
+					Disable: []string{"unused", "varcheck"},
+				},
+			}
+
+			disabled := loader.GetLintersDisabled(cfg)
+
+			Expect(disabled).To(HaveLen(2))
+			Expect(disabled).To(ContainElements("unused", "varcheck"))
 		})
 	})
 })

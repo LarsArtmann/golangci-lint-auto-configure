@@ -1,0 +1,156 @@
+package report
+
+import (
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
+)
+
+// ReportData contains analysis data for the report
+type ReportData struct {
+	Analysis *types.ConfigAnalysis
+}
+
+templ Report(data ReportData) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>golangci-lint Configuration Report</title>
+			<style>
+				* { margin: 0; padding: 0; box-sizing: border-box; }
+				body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+				.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+				.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+				.header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+				.header p { opacity: 0.9; }
+				.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+				.summary-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+				.summary-card h3 { font-size: 3rem; margin-bottom: 0.5rem; }
+				.summary-card.critical h3 { color: #dc3545; }
+				.summary-card.high h3 { color: #fd7e14; }
+				.summary-card.medium h3 { color: #ffc107; }
+				.summary-card.optional h3 { color: #17a2b8; }
+				.summary-card.enabled h3 { color: #28a745; }
+				.summary-card.disabled h3 { color: #6c757d; }
+				.section { background: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+				.section h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+				.linter-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+				.linter-card { padding: 1rem; border-radius: 6px; border-left: 4px solid; background: #f8f9fa; }
+				.linter-card.critical { border-left-color: #dc3545; background: #ffe5e5; }
+				.linter-card.high { border-left-color: #fd7e14; background: #fff3e5; }
+				.linter-card.medium { border-left-color: #ffc107; background: #fffbe5; }
+				.linter-card.optional { border-left-color: #17a2b8; background: #e5f5f8; }
+				.linter-card h4 { color: #333; margin-bottom: 0.5rem; }
+				.linter-card p { color: #666; font-size: 0.9rem; }
+				.badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.5rem; }
+				.badge.critical { background: #dc3545; color: white; }
+				.badge.high { background: #fd7e14; color: white; }
+				.badge.medium { background: #ffc107; color: #212529; }
+				.badge.optional { background: #17a2b8; color: white; }
+			</style>
+		</head>
+		<body>
+			<div class="container">
+				<div class="header">
+					<h1>🔍 golangci-lint Configuration Report</h1>
+					<p>Analysis of { data.Analysis.ConfigPath }</p>
+				</div>
+
+				<div class="summary-grid">
+					<div class="summary-card critical">
+						<h3>{ data.Analysis.CriticalCount }</h3>
+						<p>Critical</p>
+					</div>
+					<div class="summary-card high">
+						<h3>{ data.Analysis.HighValueCount }</h3>
+						<p>High Priority</p>
+					</div>
+					<div class="summary-card medium">
+						<h3>{ data.Analysis.MediumValueCount }</h3>
+						<p>Medium Priority</p>
+					</div>
+					<div class="summary-card optional">
+						<h3>{ data.Analysis.OptionalCount }</h3>
+						<p>Optional</p>
+					</div>
+					<div class="summary-card enabled">
+						<h3>{ len(data.Analysis.EnabledLinters) }</h3>
+						<p>Enabled Linters</p>
+					</div>
+					<div class="summary-card disabled">
+						<h3>{ len(data.Analysis.DisabledLinters) }</h3>
+						<p>Disabled Linters</p>
+					</div>
+				</div>
+
+				if len(data.Analysis.Recommendations) > 0 {
+					<div class="section">
+						<h2>🚨 Critical Linters</h2>
+						<div class="linter-grid">
+							for _, rec := range data.Analysis.Recommendations {
+								if rec.Priority == 0 {
+									<div class="linter-card critical">
+										<span class="badge critical">CRITICAL</span>
+										<h4>{ rec.Name }</h4>
+										<p>{ constants.LinterReasons[rec.Name] }</p>
+									</div>
+								}
+							}
+						</div>
+					</div>
+
+					<div class="section">
+						<h2>⚠️ High Priority Linters</h2>
+						<div class="linter-grid">
+							for _, rec := range data.Analysis.Recommendations {
+								if rec.Priority == 1 {
+									<div class="linter-card high">
+										<span class="badge high">HIGH</span>
+										<h4>{ rec.Name }</h4>
+										<p>{ constants.LinterReasons[rec.Name] }</p>
+									</div>
+								}
+							}
+						</div>
+					</div>
+
+					<div class="section">
+						<h2>ℹ️ Medium Priority Linters</h2>
+						<div class="linter-grid">
+							for _, rec := range data.Analysis.Recommendations {
+								if rec.Priority == 2 {
+									<div class="linter-card medium">
+										<span class="badge medium">MEDIUM</span>
+										<h4>{ rec.Name }</h4>
+										<p>{ constants.LinterReasons[rec.Name] }</p>
+									</div>
+								}
+							}
+						</div>
+					</div>
+
+					<div class="section">
+						<h2>💡 Optional Linters</h2>
+						<div class="linter-grid">
+							for _, rec := range data.Analysis.Recommendations {
+								if rec.Priority == 3 {
+									<div class="linter-card optional">
+										<span class="badge optional">OPTIONAL</span>
+										<h4>{ rec.Name }</h4>
+										<p>{ constants.LinterReasons[rec.Name] }</p>
+									</div>
+								}
+							}
+						</div>
+					</div>
+				} else {
+					<div class="section">
+						<h2>✅ Perfect Configuration</h2>
+						<p>All recommended linters are already enabled!</p>
+					</div>
+				}
+			</div>
+		</body>
+	</html>
+}

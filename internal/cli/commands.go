@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/report"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow"
 	"github.com/spf13/cobra"
@@ -294,10 +295,11 @@ func newReportCommand(
 				return fmt.Errorf("analysis failed: %w", err)
 			}
 
-			logger.Infof("Report would be saved to: %s", outputReport)
-			logger.Debugf("Analysis: %+v", analysis)
-
-			logger.Infof("HTML report generation complete")
+			// Generate HTML report
+			generator := report.NewGenerator(logger)
+			if err := generator.GenerateReport(analysis, outputReport); err != nil {
+				return fmt.Errorf("failed to generate report: %w", err)
+			}
 
 			return nil
 		},
