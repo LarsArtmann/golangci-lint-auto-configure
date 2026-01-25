@@ -15,7 +15,7 @@ type Config struct {
 	Run         RunConfig                `yaml:"run"`
 	Output      OutputConfig             `yaml:"output"`
 	Linters     LintersConfig            `yaml:"linters"`
-	Linters     LintersSettings         `yaml:"linters-settings,omitempty"`
+	LintersSettings LintersSettings       `yaml:"linters-settings,omitempty"`
 	Issues      IssuesConfig             `yaml:"issues"`
 	Servers     ServersConfig            `yaml:"servers"`
 }

@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/charmbracelet/fang"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow"
-	"github.com/larsartmann/universal-workflow/pkg/types"
 )
 
 var (
@@ -19,17 +18,18 @@ var (
 	verbose      bool
 	generateHTML bool
 	outputReport string
+	priority     string
 )
 
 // NewRootCommand creates the root CLI command
-func NewRootCommand() *fang.Command {
-	logger := log.NewWithOptions(log.Options{
+func NewRootCommand() *cobra.Command {
+	logger := log.NewWithOptions(os.Stdout, log.Options{
 		ReportCaller:    false,
 		TimeFormat:       "15:04:05",
 		Level:           log.InfoLevel,
 	})
 
-	cmd := &fang.Command{
+	cmd := &cobra.Command{
 		Use:   "golangci-linter-auto-configure",
 		Short: "Automatically configure and optimize golangci-lint",
 		Long: `A tool that automatically analyzes golangci-lint configurations,
@@ -72,6 +72,12 @@ func newConfigureCommand(
 	cmd := &cobra.Command{
 		Use:   "configure",
 		Short: "Auto-configure golangci-lint (default command)",
+		Long: `Automatically configures golangci-lint by enabling recommended linters.
+Use --priority to filter which linters to enable:
+  - critical: Only enable critical linters (security, correctness)
+  - high: Enable critical and high-value linters (recommended)
+  - medium: Enable all except optional linters
+  - optional: Enable all linters (may be too strict)`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if verbose {
 				logger.SetLevel(log.DebugLevel)
@@ -83,38 +89,44 @@ func newConfigureCommand(
 				var err error
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
-					logger.Warnf("No config file found, using defaults")
-					configFile = ".golangci.yml"
+					return fmt.Errorf("no config file found: %w", err)
 				}
 			}
 
 			logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
-			ctx := cmd.Context()
+			// Create fixer and apply fixes
+			fixer := linter.NewFixer(logger, analyzer)
 
-			// Execute workflow
-			result, err := workflowBuilder.ExecuteAutoConfigureWorkflow(
-				ctx,
-				configFile,
-				dryRun,
-				generateHTML,
-				outputReport,
-			)
+			var linterPriority types.LinterPriority
+			switch priority {
+			case "critical":
+				linterPriority = types.LinterPriorityCritical
+			case "high":
+				linterPriority = types.LinterPriorityHigh
+			case "medium":
+				linterPriority = types.LinterPriorityMedium
+			case "optional":
+				linterPriority = types.LinterPriorityOptional
+			default:
+				linterPriority = types.LinterPriorityHigh
+			}
 
+			result, err := fixer.FixConfig(configFile, linterPriority, dryRun)
 			if err != nil {
-				return fmt.Errorf("workflow execution failed: %w", err)
+				return fmt.Errorf("failed to fix configuration: %w", err)
 			}
 
-			// Check result
-			if result.GetStatus() != types.WorkflowStatusCompleted {
-				return fmt.Errorf("workflow did not complete successfully: %s", result.GetStatus())
+			logger.Infof("%s", result.Message)
+			if result.BackupPath != "" {
+				logger.Infof("Backup created: %s", result.BackupPath)
 			}
-
-			logger.Successf("Configuration completed successfully!")
 
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
 
 	return cmd
 }
@@ -241,7 +253,7 @@ func newValidateCommand(
 				return fmt.Errorf("configuration has %d validation errors", len(errors))
 			}
 
-			logger.Successf("Configuration is valid")
+			logger.Infof("Configuration is valid")
 
 			return nil
 		},
@@ -285,7 +297,7 @@ func newReportCommand(
 			logger.Infof("Report would be saved to: %s", outputReport)
 			logger.Debugf("Analysis: %+v", analysis)
 
-			logger.Successf("HTML report generation complete")
+			logger.Infof("HTML report generation complete")
 
 			return nil
 		},

@@ -23,7 +23,7 @@ type ActivityContext struct {
 
 // AnalysisActivity analyzes golangci-lint configuration
 func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
-	activityCtx, ok := ctx.Data.(*ActivityContext)
+	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
 		return nil, fmt.Errorf("invalid activity context type")
 	}
@@ -60,7 +60,7 @@ func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, e
 
 // ValidationActivity validates golangci-lint configuration
 func ValidationActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
-	activityCtx, ok := ctx.Data.(*ActivityContext)
+	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
 		return nil, fmt.Errorf("invalid activity context type")
 	}
@@ -69,7 +69,7 @@ func ValidationActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult,
 
 	// This would typically run `golangci-lint config verify`
 	// For now, we'll simulate successful validation
-	activityCtx.Logger.Successf("Configuration is valid")
+	activityCtx.Logger.Infof("Configuration is valid")
 
 	return &types.ActivityResult{
 		Status:    types.ActivityStatusCompleted,
@@ -81,7 +81,7 @@ func ValidationActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult,
 
 // ReportActivity generates HTML report of the analysis
 func ReportActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
-	activityCtx, ok := ctx.Data.(*ActivityContext)
+	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
 		return nil, fmt.Errorf("invalid activity context type")
 	}
@@ -101,7 +101,7 @@ func ReportActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, err
 	// HTML generation would be implemented with templ components
 	activityCtx.Logger.Debugf("HTML report would be saved to: %s", activityCtx.OutputReport)
 
-	activityCtx.Logger.Successf("HTML report generated: %s", activityCtx.OutputReport)
+	activityCtx.Logger.Infof("HTML report generated: %s", activityCtx.OutputReport)
 
 	return &types.ActivityResult{
 		Status:    types.ActivityStatusCompleted,
@@ -127,7 +127,7 @@ func NewBuilder(logger *log.Logger, analyzer *linter.Analyzer) *Builder {
 }
 
 // BuildAutoConfigureWorkflow creates a workflow for auto-configuring golangci-lint
-func (b *Builder) BuildAutoConfigureWorkflow(configPath string, dryRun bool, generateHTML bool, outputPath string) (workflowpkg.Workflow, error) {
+func (b *Builder) BuildAutoConfigureWorkflow(configPath string, dryRun bool, generateHTML bool, outputPath string) (workflowpkg.WorkflowLike, error) {
 	workflowID := types.WorkflowID("golangci-lint-auto-configure")
 	workflowName := types.WorkflowName("Automatically analyze and configure golangci-lint")
 
