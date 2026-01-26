@@ -151,8 +151,8 @@ var FormatterInfo = map[types.FormatterName]types.FormatterInfo{
 // FormatterPriorities defines priority levels for formatters
 var FormatterPriorities = map[types.FormatterName]types.FormatterPriority{
 	// High priority - recommended for most projects
-	"gofumpt": types.FormatterPriorityHigh,
-	"gofmt":   types.FormatterPriorityMedium,
+	"gofumpt":   types.FormatterPriorityHigh,
+	"gofmt":     types.FormatterPriorityMedium,
 	"goimports": types.FormatterPriorityMedium,
 }
 

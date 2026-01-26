@@ -34,56 +34,56 @@ type RunConfig struct {
 }
 
 type OutputConfig struct {
-	Formats      map[string]interface{} `yaml:"formats"`
-	PathPrefix   string                 `yaml:"path-prefix,omitempty"`
-	PathMode     string                 `yaml:"path-mode,omitempty"`
-	SortOrder    []string               `yaml:"sort-order,omitempty"`
-	ShowStats    bool                   `yaml:"show-stats,omitempty"`
+	Formats    map[string]interface{} `yaml:"formats"`
+	PathPrefix string                 `yaml:"path-prefix,omitempty"`
+	PathMode   string                 `yaml:"path-mode,omitempty"`
+	SortOrder  []string               `yaml:"sort-order,omitempty"`
+	ShowStats  bool                   `yaml:"show-stats,omitempty"`
 }
 
 type LintersConfig struct {
-	Enable    []string                  `yaml:"enable,omitempty"`
-	Disable   []string                  `yaml:"disable,omitempty"`
-	Default   string                    `yaml:"default,omitempty"`
-	Settings  map[string]interface{}    `yaml:"settings,omitempty"`
-	Exclusions LintersExclusionsConfig  `yaml:"exclusions,omitempty"`
+	Enable     []string                `yaml:"enable,omitempty"`
+	Disable    []string                `yaml:"disable,omitempty"`
+	Default    string                  `yaml:"default,omitempty"`
+	Settings   map[string]interface{}  `yaml:"settings,omitempty"`
+	Exclusions LintersExclusionsConfig `yaml:"exclusions,omitempty"`
 }
 
 type LintersSettings map[string]interface{}
 
 type LintersExclusionsConfig struct {
-	Generated  string                 `yaml:"generated,omitempty"`
-	WarnUnused bool                   `yaml:"warn-unused,omitempty"`
-	Presets    []string               `yaml:"presets,omitempty"`
-	Rules      []ExclusionRuleConfig  `yaml:"rules,omitempty"`
-	Paths      []string               `yaml:"paths,omitempty"`
+	Generated   string                `yaml:"generated,omitempty"`
+	WarnUnused  bool                  `yaml:"warn-unused,omitempty"`
+	Presets     []string              `yaml:"presets,omitempty"`
+	Rules       []ExclusionRuleConfig `yaml:"rules,omitempty"`
+	Paths       []string              `yaml:"paths,omitempty"`
 	PathsExcept []string              `yaml:"paths-except,omitempty"`
 }
 
 type ExclusionRuleConfig struct {
-	Path        []string `yaml:"path,omitempty"`
-	PathExcept  []string `yaml:"path-except,omitempty"`
-	Text        []string `yaml:"text,omitempty"`
-	Source      []string `yaml:"source,omitempty"`
-	Linters     []string `yaml:"linters,omitempty"`
+	Path       []string `yaml:"path,omitempty"`
+	PathExcept []string `yaml:"path-except,omitempty"`
+	Text       []string `yaml:"text,omitempty"`
+	Source     []string `yaml:"source,omitempty"`
+	Linters    []string `yaml:"linters,omitempty"`
 }
 
 type IssuesConfig struct {
-	MaxIssuesPerLinter  int                     `yaml:"max-issues-per-linter,omitempty"`
-	MaxSameIssues       int                     `yaml:"max-same-issues,omitempty"`
-	NewFromRev          string                  `yaml:"new-from-rev,omitempty"`
-	NewFromPatch        string                  `yaml:"new-from-patch,omitempty"`
-	New                 bool                    `yaml:"new,omitempty"`
-	NewFromMergeBase    string                  `yaml:"new-from-merge-base,omitempty"`
-	WholeFiles          bool                    `yaml:"whole-files,omitempty"`
-	Fix                 bool                    `yaml:"fix,omitempty"`
-	UniqByLine          bool                    `yaml:"uniq-by-line,omitempty"`
+	MaxIssuesPerLinter int    `yaml:"max-issues-per-linter,omitempty"`
+	MaxSameIssues      int    `yaml:"max-same-issues,omitempty"`
+	NewFromRev         string `yaml:"new-from-rev,omitempty"`
+	NewFromPatch       string `yaml:"new-from-patch,omitempty"`
+	New                bool   `yaml:"new,omitempty"`
+	NewFromMergeBase   string `yaml:"new-from-merge-base,omitempty"`
+	WholeFiles         bool   `yaml:"whole-files,omitempty"`
+	Fix                bool   `yaml:"fix,omitempty"`
+	UniqByLine         bool   `yaml:"uniq-by-line,omitempty"`
 }
 
 type FormattersConfig struct {
-	Enable    []string                    `yaml:"enable,omitempty"`
-	Disable   []string                    `yaml:"disable,omitempty"`
-	Settings  map[string]interface{}      `yaml:"settings,omitempty"`
+	Enable     []string                   `yaml:"enable,omitempty"`
+	Disable    []string                   `yaml:"disable,omitempty"`
+	Settings   map[string]interface{}     `yaml:"settings,omitempty"`
 	Exclusions FormattersExclusionsConfig `yaml:"exclusions,omitempty"`
 }
 
@@ -92,9 +92,6 @@ type FormattersExclusionsConfig struct {
 	WarnUnused bool     `yaml:"warn-unused,omitempty"`
 	Paths      []string `yaml:"paths,omitempty"`
 }
-
-
-
 
 // Loader handles loading golangci-lint configuration files
 type Loader struct {

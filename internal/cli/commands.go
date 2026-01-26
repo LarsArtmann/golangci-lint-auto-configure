@@ -42,8 +42,8 @@ func NewRootCommand() *cobra.Command {
 	})
 
 	cmd := &cobra.Command{
-		Use:     "golangci-linter-auto-configure",
-		Short:   "Automatically configure and optimize golangci-lint",
+		Use:   "golangci-linter-auto-configure",
+		Short: "Automatically configure and optimize golangci-lint",
 		Long: `A tool that automatically analyzes golangci-lint configurations,
 detects missing linters with smart categorization, and provides
 actionable recommendations to improve your Go code quality.`,

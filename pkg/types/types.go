@@ -100,17 +100,17 @@ type FormatterRecommendation struct {
 
 // ConfigAnalysis represents the analysis results of a golangci-lint configuration
 type ConfigAnalysis struct {
-	ConfigPath             string                  `json:"config_path"`
-	EnabledLinters         []LinterInfo            `json:"enabled_linters"`
-	DisabledLinters        []LinterInfo            `json:"disabled_linters"`
-	EnabledFormatters      []FormatterInfo         `json:"enabled_formatters"`
-	DisabledFormatters     []FormatterInfo         `json:"disabled_formatters"`
-	LinterRecommendations  []LinterRecommendation  `json:"linter_recommendations"`
+	ConfigPath               string                    `json:"config_path"`
+	EnabledLinters           []LinterInfo              `json:"enabled_linters"`
+	DisabledLinters          []LinterInfo              `json:"disabled_linters"`
+	EnabledFormatters        []FormatterInfo           `json:"enabled_formatters"`
+	DisabledFormatters       []FormatterInfo           `json:"disabled_formatters"`
+	LinterRecommendations    []LinterRecommendation    `json:"linter_recommendations"`
 	FormatterRecommendations []FormatterRecommendation `json:"formatter_recommendations"`
-	CriticalCount          int                     `json:"critical_count"`
-	HighValueCount         int                     `json:"high_value_count"`
-	MediumValueCount       int                     `json:"medium_value_count"`
-	OptionalCount          int                     `json:"optional_count"`
+	CriticalCount            int                       `json:"critical_count"`
+	HighValueCount           int                       `json:"high_value_count"`
+	MediumValueCount         int                       `json:"medium_value_count"`
+	OptionalCount            int                       `json:"optional_count"`
 }
 
 // MigrationResult represents the result of a configuration migration

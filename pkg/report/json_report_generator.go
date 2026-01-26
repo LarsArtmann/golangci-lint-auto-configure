@@ -23,11 +23,11 @@ func NewJSONGenerator(logger *log.Logger) *JSONGenerator {
 
 // JSONReport represents the structure of the JSON report output
 type JSONReport struct {
-	ConfigPath      string                           `json:"configPath"`
-	Summary         JSONSummary                      `json:"summary"`
-	Recommendations []types.LinterRecommendation     `json:"recommendations"`
-	EnabledLinters  []string                         `json:"enabledLinters"`
-	DisabledLinters []string                         `json:"disabledLinters"`
+	ConfigPath      string                       `json:"configPath"`
+	Summary         JSONSummary                  `json:"summary"`
+	Recommendations []types.LinterRecommendation `json:"recommendations"`
+	EnabledLinters  []string                     `json:"enabledLinters"`
+	DisabledLinters []string                     `json:"disabledLinters"`
 }
 
 // JSONSummary contains summary statistics

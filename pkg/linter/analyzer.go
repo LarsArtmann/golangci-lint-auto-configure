@@ -66,7 +66,7 @@ func (a *Analyzer) CheckVersion() error {
 		// Fallback to text parsing if --json not supported
 		return a.checkVersionText()
 	}
-	
+
 	// Parse JSON output
 	var versionInfo golangciLintVersion
 	if err := json.Unmarshal(output, &versionInfo); err != nil {
@@ -74,23 +74,23 @@ func (a *Analyzer) CheckVersion() error {
 		a.logger.Debugf("Failed to parse JSON version output, falling back to text: %v", err)
 		return a.checkVersionText()
 	}
-	
+
 	if versionInfo.Version == "" {
 		return errors.NewAnalysisError("could not parse golangci-lint version from JSON", "", fmt.Errorf("output: %s", string(output)))
 	}
-	
+
 	version := versionInfo.Version
-	
+
 	// Ensure version has 'v' prefix for semver
 	if !strings.HasPrefix(version, "v") {
 		version = "v" + version
 	}
-	
+
 	// Validate semver format
 	if !semver.IsValid(version) {
 		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
 	}
-	
+
 	// Compare with minimum required version (v2.8.0)
 	minVersion := "v2.8.0"
 	if semver.Compare(version, minVersion) < 0 {
@@ -100,7 +100,7 @@ func (a *Analyzer) CheckVersion() error {
 			fmt.Errorf("minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", minVersion),
 		)
 	}
-	
+
 	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
 	return nil
 }
@@ -113,24 +113,24 @@ func (a *Analyzer) checkVersionText() error {
 	if err != nil {
 		return errors.NewAnalysisError("failed to check golangci-lint version", "", err)
 	}
-	
+
 	// Parse version from output (format: "golangci-lint has version 2.8.0 built with...")
 	outputStr := string(output)
 	version := a.parseVersionText(outputStr)
 	if version == "" {
 		return errors.NewAnalysisError("could not parse golangci-lint version from output", "", fmt.Errorf("output: %s", outputStr))
 	}
-	
+
 	// Ensure version has 'v' prefix for semver
 	if !strings.HasPrefix(version, "v") {
 		version = "v" + version
 	}
-	
+
 	// Validate semver format
 	if !semver.IsValid(version) {
 		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
 	}
-	
+
 	// Compare with minimum required version (v2.8.0)
 	minVersion := "v2.8.0"
 	if semver.Compare(version, minVersion) < 0 {
@@ -140,7 +140,7 @@ func (a *Analyzer) checkVersionText() error {
 			fmt.Errorf("minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", minVersion),
 		)
 	}
-	
+
 	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
 	return nil
 }
@@ -162,7 +162,7 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 	if err := a.FindBinary(); err != nil {
 		return nil, err
 	}
-	
+
 	// Check version meets minimum requirement
 	if err := a.CheckVersion(); err != nil {
 		return nil, err
@@ -195,12 +195,12 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 	}
 
 	analysis := &types.ConfigAnalysis{
-		ConfigPath:             configPath,
-		EnabledLinters:         jsonLinterOutput.Enabled,
-		DisabledLinters:        jsonLinterOutput.Disabled,
-		EnabledFormatters:      jsonFormatOutput.Enabled,
-		DisabledFormatters:     jsonFormatOutput.Disabled,
-		LinterRecommendations:  a.categorizeLinters(jsonLinterOutput.Disabled),
+		ConfigPath:               configPath,
+		EnabledLinters:           jsonLinterOutput.Enabled,
+		DisabledLinters:          jsonLinterOutput.Disabled,
+		EnabledFormatters:        jsonFormatOutput.Enabled,
+		DisabledFormatters:       jsonFormatOutput.Disabled,
+		LinterRecommendations:    a.categorizeLinters(jsonLinterOutput.Disabled),
 		FormatterRecommendations: a.categorizeFormatters(jsonFormatOutput.Disabled),
 	}
 

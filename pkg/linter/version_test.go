@@ -52,13 +52,13 @@ func TestParseVersion(t *testing.T) {
 func TestCheckVersion_Success(t *testing.T) {
 	// This test requires golangci-lint v2.8.0+ to be installed
 	analyzer := NewAnalyzer(log.Default())
-	
+
 	// First find the binary
 	err := analyzer.FindBinary()
 	if err != nil {
 		t.Skipf("golangci-lint not found in PATH: %v", err)
 	}
-	
+
 	// Then check version (should pass with v2.8.0+)
 	err = analyzer.CheckVersion()
 	assert.NoError(t, err, "Version check should pass with golangci-lint v2.8.0 or newer")
