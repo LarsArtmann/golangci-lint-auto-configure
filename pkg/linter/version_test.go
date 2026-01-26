@@ -43,7 +43,7 @@ func TestParseVersion(t *testing.T) {
 	analyzer := NewAnalyzer(log.Default())
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := analyzer.parseVersion(tt.output)
+			result := analyzer.parseVersionText(tt.output)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
