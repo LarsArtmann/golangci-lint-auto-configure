@@ -1,0 +1,24 @@
+version: "2"
+
+run:
+  timeout: 10m
+  
+linters:
+  default: all
+  disable:
+    - nlreturn      # Forces newline before return (overly strict)
+    - testpackage   # Forces separate test packages
+    - gochecknoglobals  # Globals sometimes necessary
+    - gochecknoinits    # Init functions sometimes necessary
+    - forbidigo     # Forbids identifiers (too strict)
+    - depguard      # Import restrictions (not needed)
+    - varnamelen    # Variable name length (annoying)
+    - ireturn       # Return concrete types (overkill)
+    - nonamedreturns  # Named returns sometimes improve clarity
+    - exhaustruct   # Struct field init (too strict)
+    - musttag       # Struct tags (context-dependent)
+    - promlinter    # Prometheus (not a service)
+    - noctx         # HTTP context (not an HTTP server)
+    - gocritic      # Style checks (too opinionated)
+    - godox         # TODO/FIXME (should be allowed)
+    - tagliatelle   # Struct tag naming (too strict)
