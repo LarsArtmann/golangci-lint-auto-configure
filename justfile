@@ -13,6 +13,7 @@ help:
     @echo "  just run          - Run the CLI (default command)"
     @echo "  just clean        - Clean build artifacts"
     @echo "  just install      - Install the CLI to GOPATH/bin"
+    @echo "  just install-local - Install locally with version ldflags"
 
 build:
     @echo "Building CLI..."
@@ -69,6 +70,15 @@ clean:
 install: build
     @echo "Installing CLI..."
     @go install ./cmd/golangci-linter-auto-configure
+
+# Install locally with version ldflags
+install-local:
+    #!/bin/bash
+    echo "Installing locally with version..."
+    VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
+    GOPATH=$(go env GOPATH)
+    go build -ldflags "-X main.version=$VERSION" -o "$GOPATH/bin/golangci-linter-auto-configure" ./cmd/golangci-linter-auto-configure
+    echo "Installed golangci-linter-auto-configure v$VERSION to $GOPATH/bin/"
 
 fmt:
     @echo "Formatting code..."

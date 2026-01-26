@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/charmbracelet/fang"
@@ -14,6 +15,9 @@ import (
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow"
 	"github.com/spf13/cobra"
 )
+
+// Version is set by main package via ldflags
+var Version = "dev"
 
 var (
 	configPath   string
@@ -27,6 +31,10 @@ var (
 
 // NewRootCommand creates the root CLI command
 func NewRootCommand() *cobra.Command {
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})))
+
 	logger := log.NewWithOptions(os.Stdout, log.Options{
 		ReportCaller: false,
 		TimeFormat:   "15:04:05",
@@ -34,11 +42,12 @@ func NewRootCommand() *cobra.Command {
 	})
 
 	cmd := &cobra.Command{
-		Use:   "golangci-linter-auto-configure",
-		Short: "Automatically configure and optimize golangci-lint",
+		Use:     "golangci-linter-auto-configure",
+		Short:   "Automatically configure and optimize golangci-lint",
 		Long: `A tool that automatically analyzes golangci-lint configurations,
 detects missing linters with smart categorization, and provides
 actionable recommendations to improve your Go code quality.`,
+		Version: Version,
 	}
 
 	// Create analyzer and workflow builder
@@ -389,13 +398,17 @@ func newRestoreCommand(
 // Execute runs the CLI using fang for enhanced CLI features
 func Execute() error {
 	cmd := NewRootCommand()
-	return fang.Execute(context.Background(), cmd)
+	return fang.Execute(context.Background(), cmd, fang.WithVersion(Version))
 }
 
 // Main is the entry point
 func Main() {
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})))
+
 	if err := Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		slog.Error("CLI execution failed", "error", err)
 		os.Exit(1)
 	}
 }

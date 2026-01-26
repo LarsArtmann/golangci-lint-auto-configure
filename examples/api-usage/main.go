@@ -2,7 +2,7 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/client"
@@ -10,8 +10,7 @@ import (
 )
 
 func main() {
-	fmt.Println("🔍 golangci-linter-auto-configure API Usage Example")
-	fmt.Println()
+	slog.Info("golangci-linter-auto-configure API Usage Example")
 
 	// Create client with verbose logging
 	c := client.New(client.Options{
@@ -22,18 +21,17 @@ func main() {
 	configPath := ".golangci.yml"
 	analysis, err := c.AnalyzeConfig(configPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Analysis failed: %v\n", err)
+		slog.Error("Analysis failed", "error", err)
 		os.Exit(1)
 	}
 
 	// Print results
-	fmt.Printf("✅ Analysis complete: %s\n", configPath)
-	fmt.Printf("   - Enabled linters: %d\n", len(analysis.EnabledLinters))
-	fmt.Printf("   - Disabled linters: %d\n", len(analysis.DisabledLinters))
-	fmt.Printf("   - Enabled formatters: %d\n", len(analysis.EnabledFormatters))
-	fmt.Printf("   - Disabled formatters: %d\n", len(analysis.DisabledFormatters))
-	fmt.Printf("   - Recommendations: %d\n", len(analysis.LinterRecommendations))
-	fmt.Println()
+	slog.Info("Analysis complete", "path", configPath,
+		"enabled_linters", len(analysis.EnabledLinters),
+		"disabled_linters", len(analysis.DisabledLinters),
+		"enabled_formatters", len(analysis.EnabledFormatters),
+		"disabled_formatters", len(analysis.DisabledFormatters),
+		"recommendations", len(analysis.LinterRecommendations))
 
 	// Show critical recommendations
 	var critical []types.LinterRecommendation
@@ -49,22 +47,17 @@ func main() {
 	}
 
 	if len(critical) > 0 {
-		fmt.Println("🚨 Critical linters (should ALWAYS be enabled):")
 		for _, rec := range critical {
-			fmt.Printf("   - %s\n", rec.Name)
+			slog.Warn("Critical linter (should ALWAYS be enabled)", "name", rec.Name)
 		}
-		fmt.Println()
 	}
 
 	if len(high) > 0 {
-		fmt.Println("⚠️  High priority linters (recommended):")
 		for _, rec := range high {
-			fmt.Printf("   - %s: %s\n", rec.Name, rec.Reason)
+			slog.Info("High priority linter", "name", rec.Name, "reason", rec.Reason)
 		}
-		fmt.Println()
 	}
 
 	// Show summary
-	fmt.Println("📊 Summary:")
-	fmt.Println(c.GetSummary(analysis))
+	slog.Info("Summary", "message", c.GetSummary(analysis))
 }
