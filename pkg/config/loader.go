@@ -12,58 +12,75 @@ import (
 
 // Config represents a golangci-lint configuration file
 type Config struct {
-	Version         string          `yaml:"version"`
-	Run             RunConfig       `yaml:"run"`
-	Output          OutputConfig    `yaml:"output"`
-	Linters         LintersConfig   `yaml:"linters"`
-	LintersSettings LintersSettings `yaml:"linters-settings,omitempty"`
-	Issues          IssuesConfig    `yaml:"issues"`
-	Servers         ServersConfig   `yaml:"servers"`
+	Version  string         `yaml:"version"`
+	Run      RunConfig      `yaml:"run"`
+	Output   OutputConfig   `yaml:"output"`
+	Linters  LintersConfig  `yaml:"linters"`
+	Issues   IssuesConfig   `yaml:"issues"`
 }
 
 type RunConfig struct {
 	Timeout              string   `yaml:"timeout"`
 	Go                   string   `yaml:"go"`
-	BuildTags            string   `yaml:"build-tags"`
-	ModulesDownloadMode  string   `yaml:"modules-download-mode"`
+	BuildTags            []string `yaml:"build-tags"`
+	ModulesDownloadMode  string   `yaml:"modules-download-mode,omitempty"`
 	AllowParallelRunners bool     `yaml:"allow-parallel-runners"`
 	AllowSerialRunners   bool     `yaml:"allow-serial-runners"`
-	Env                  []string `yaml:"env"`
+	IssuesExitCode       int      `yaml:"issues-exit-code,omitempty"`
+	Tests                bool     `yaml:"tests,omitempty"`
+	Concurrency          int      `yaml:"concurrency,omitempty"`
+	RelativePathMode     string   `yaml:"relative-path-mode,omitempty"`
 }
 
 type OutputConfig struct {
-	Formats             []string `yaml:"formats"`
-	PrintIssuedLines    bool     `yaml:"print-issued-lines"`
-	PrintLinterName     bool     `yaml:"print-linter-name"`
-	SortResults         bool     `yaml:"sort-results"`
-	PrintWelcomeMessage bool     `yaml:"print-welcome-message"`
+	Formats      map[string]interface{} `yaml:"formats"`
+	PathPrefix   string                 `yaml:"path-prefix,omitempty"`
+	PathMode     string                 `yaml:"path-mode,omitempty"`
+	SortOrder    []string               `yaml:"sort-order,omitempty"`
+	ShowStats    bool                   `yaml:"show-stats,omitempty"`
 }
 
 type LintersConfig struct {
-	Enable  []string `yaml:"enable"`
-	Disable []string `yaml:"disable"`
-	Fast    bool     `yaml:"fast"`
-	Presets []string `yaml:"presets"`
+	Enable    []string                  `yaml:"enable,omitempty"`
+	Disable   []string                  `yaml:"disable,omitempty"`
+	Default   string                    `yaml:"default,omitempty"`
+	Settings  map[string]interface{}    `yaml:"settings,omitempty"`
+	Exclusions LintersExclusionsConfig  `yaml:"exclusions,omitempty"`
 }
 
 type LintersSettings map[string]interface{}
 
-type IssuesConfig struct {
-	Exclude            []string `yaml:"exclude"`
-	ExcludeRules       []string `yaml:"exclude-rules,omitempty"`
-	ExcludeGenerated   bool     `yaml:"exclude-generated"`
-	ExcludeFiles       []string `yaml:"exclude-files,omitempty"`
-	ExcludeDirs        []string `yaml:"exclude-dirs,omitempty"`
-	MaxIssuesPerLinter int      `yaml:"max-issues-per-linter"`
-	MaxSameIssues      int      `yaml:"max-same-issues"`
-	NewFromRev         string   `yaml:"new-from-rev"`
-	NewFromPatch       string   `yaml:"new-from-patch"`
-	UseDefaultExcludes bool     `yaml:"use-default-excludes"`
+type LintersExclusionsConfig struct {
+	Generated  string                 `yaml:"generated,omitempty"`
+	WarnUnused bool                   `yaml:"warn-unused,omitempty"`
+	Presets    []string               `yaml:"presets,omitempty"`
+	Rules      []ExclusionRuleConfig  `yaml:"rules,omitempty"`
+	Paths      []string               `yaml:"paths,omitempty"`
+	PathsExcept []string              `yaml:"paths-except,omitempty"`
 }
 
-type ServersConfig struct {
-	HTTPHeaders map[string]string `yaml:"http-headers"`
+type ExclusionRuleConfig struct {
+	Path        []string `yaml:"path,omitempty"`
+	PathExcept  []string `yaml:"path-except,omitempty"`
+	Text        []string `yaml:"text,omitempty"`
+	Source      []string `yaml:"source,omitempty"`
+	Linters     []string `yaml:"linters,omitempty"`
 }
+
+type IssuesConfig struct {
+	MaxIssuesPerLinter  int                     `yaml:"max-issues-per-linter,omitempty"`
+	MaxSameIssues       int                     `yaml:"max-same-issues,omitempty"`
+	NewFromRev          string                  `yaml:"new-from-rev,omitempty"`
+	NewFromPatch        string                  `yaml:"new-from-patch,omitempty"`
+	New                 bool                    `yaml:"new,omitempty"`
+	NewFromMergeBase    string                  `yaml:"new-from-merge-base,omitempty"`
+	WholeFiles          bool                    `yaml:"whole-files,omitempty"`
+	Fix                 bool                    `yaml:"fix,omitempty"`
+	UniqByLine          bool                    `yaml:"uniq-by-line,omitempty"`
+}
+
+
+
 
 // Loader handles loading golangci-lint configuration files
 type Loader struct {
@@ -153,7 +170,7 @@ func (l *Loader) ValidateConfig(config *Config) []error {
 		errs = append(errs, errors.NewConfigError("run.timeout cannot be empty", "", nil))
 	}
 
-	if len(config.Linters.Enable) == 0 && len(config.Linters.Disable) == 0 && !config.Linters.Fast {
+	if len(config.Linters.Enable) == 0 && len(config.Linters.Disable) == 0 && config.Linters.Default == "" {
 		l.logger.Debugf("No linter configuration specified, using defaults")
 	}
 

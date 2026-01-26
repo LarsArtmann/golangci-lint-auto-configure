@@ -1,9 +1,11 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/fang"
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
@@ -384,10 +386,10 @@ func newRestoreCommand(
 	return cmd
 }
 
-// Execute runs the CLI
+// Execute runs the CLI using fang for enhanced CLI features
 func Execute() error {
 	cmd := NewRootCommand()
-	return cmd.Execute()
+	return fang.Execute(context.Background(), cmd)
 }
 
 // Main is the entry point

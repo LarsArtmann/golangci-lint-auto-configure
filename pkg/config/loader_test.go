@@ -55,10 +55,10 @@ linters:
 
 		It("should parse all config sections", func() {
 			configContent := `
-version: "1"
+version: "2"
 run:
   timeout: 5m
-  go: 1.21
+  go: "1.21"
 linters:
   enable:
     - gosec
@@ -66,8 +66,9 @@ linters:
     - unused
 output:
   formats:
-    - colored-line-number
-    - json
+    text:
+      path: stdout
+      colors: true
 `
 			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
@@ -76,7 +77,8 @@ output:
 			Expect(err).NotTo(HaveOccurred())
 			Expect(cfg.Run.Timeout).To(Equal("5m"))
 			Expect(cfg.Run.Go).To(Equal("1.21"))
-			Expect(cfg.Output.Formats).To(HaveLen(2))
+			Expect(cfg.Output.Formats).ToNot(BeNil())
+			Expect(cfg.Output.Formats).To(HaveKey("text"))
 		})
 	})
 
