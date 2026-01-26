@@ -99,14 +99,21 @@ Use --priority to filter which linters to enable:
 				logger.SetLevel(log.DebugLevel)
 			}
 
-			// Find config file if not specified
+			// Find config file if not specified, or use default path
 			configFile := configPath
 			if configFile == "" {
-				var err error
-				configFile, err = configLoader.FindConfigFile(".")
-				if err != nil {
-					return fmt.Errorf("no config file found: %w", err)
+				configFile = configLoader.FindOrGetDefaultConfigPath(".")
+			}
+
+			// Check if config file exists, create default if not
+			if _, err := os.Stat(configFile); os.IsNotExist(err) {
+				logger.Infof("No config file found, creating default: %s", configFile)
+				defaultConfig := configLoader.CreateDefaultConfig()
+				if err := configLoader.SaveConfig(defaultConfig, configFile); err != nil {
+					return fmt.Errorf("failed to create default config: %w", err)
 				}
+			} else if err != nil {
+				return fmt.Errorf("failed to check config file: %w", err)
 			}
 
 			logger.Infof("Configuring golangci-lint with config: %s", configFile)

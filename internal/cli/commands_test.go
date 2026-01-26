@@ -64,7 +64,11 @@ linters:
 linters:
   enable:
     - errcheck
-`
+  disable:
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused`
 			configPath := filepath.Join(testDir, ".golangci.yml")
 			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
@@ -137,7 +141,11 @@ linters:
 linters:
   enable:
     - errcheck
-`
+  disable:
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused`
 			configPath := filepath.Join(testDir, ".golangci.yml")
 			backupPath := configPath + ".backup"
 			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
@@ -283,7 +291,7 @@ linters:
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(output)).To(ContainSubstring("golangci-linter-auto-configure"))
-			Expect(string(output)).To(ContainSubstring("Available Commands"))
+			Expect(string(output)).To(ContainSubstring("COMMANDS"))
 		})
 
 		It("should show command-specific help", func() {

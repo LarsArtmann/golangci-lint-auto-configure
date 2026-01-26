@@ -169,7 +169,7 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 	}
 
 	// Analyze linters
-	lintOutput, err := a.runLintersCommand()
+	lintOutput, err := a.runLintersCommand(configPath)
 	if err != nil {
 		return nil, errors.NewAnalysisError("failed to run golangci-lint linters", "", err)
 	}
@@ -180,7 +180,7 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 	}
 
 	// Analyze formatters
-	formatOutput, err := a.runFormattersCommand()
+	formatOutput, err := a.runFormattersCommand(configPath)
 	if err != nil {
 		// Formatters command may not exist in older versions, log but don't fail
 		a.logger.Debugf("Formatters analysis skipped: %v", err)
@@ -210,8 +210,8 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 }
 
 // runLintersCommand runs `golangci-lint linters` and returns JSON output
-func (a *Analyzer) runLintersCommand() ([]byte, error) {
-	cmd := exec.Command(a.golangciLintPath, "linters", "--json")
+func (a *Analyzer) runLintersCommand(configPath string) ([]byte, error) {
+	cmd := exec.Command(a.golangciLintPath, "linters", "--config", configPath, "--json")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		a.logger.Debugf("golangci-lint linters command failed: %v", err)
@@ -222,8 +222,8 @@ func (a *Analyzer) runLintersCommand() ([]byte, error) {
 }
 
 // runFormattersCommand runs `golangci-lint formatters` and returns JSON output
-func (a *Analyzer) runFormattersCommand() ([]byte, error) {
-	cmd := exec.Command(a.golangciLintPath, "formatters", "--json")
+func (a *Analyzer) runFormattersCommand(configPath string) ([]byte, error) {
+	cmd := exec.Command(a.golangciLintPath, "formatters", "--config", configPath, "--json")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		// Command may not exist in older golangci-lint versions

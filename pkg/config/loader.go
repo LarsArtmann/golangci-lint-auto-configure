@@ -141,6 +141,43 @@ func (l *Loader) FindConfigFile(startDir string) (string, error) {
 	return "", errors.NewConfigError(fmt.Sprintf("no golangci-lint config file found in %s", startDir), startDir, nil)
 }
 
+// FindOrGetDefaultConfigPath searches for a config file and returns a default path if none exists
+func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string {
+	configFile, err := l.FindConfigFile(startDir)
+	if err == nil {
+		return configFile
+	}
+
+	// Return default path if no config found
+	return filepath.Join(startDir, ".golangci.yml")
+}
+
+// CreateDefaultConfig creates a default golangci-lint configuration
+func (l *Loader) CreateDefaultConfig() *Config {
+	return &Config{
+		Version: "2",
+		Run: RunConfig{
+			Timeout:        "5m",
+			IssuesExitCode: 1,
+			Tests:          true,
+		},
+		Linters: LintersConfig{
+			Enable: []string{
+				// Critical security linters
+				"gosec",
+				"errcheck",
+				"staticcheck",
+				"govet",
+				"ineffassign",
+			},
+		},
+		Issues: IssuesConfig{
+			MaxIssuesPerLinter: 50,
+			MaxSameIssues:      10,
+		},
+	}
+}
+
 // SaveConfig saves a golangci-lint configuration to the given path
 func (l *Loader) SaveConfig(config *Config, path string) error {
 	data, err := yaml.Marshal(config)
