@@ -114,13 +114,55 @@ var DefaultConfigFileNames = []string{
 	".golangci.json",
 }
 
+// FormatterInfo provides metadata about formatters
+var FormatterInfo = map[types.FormatterName]types.FormatterInfo{
+	"gci": {
+		Name:        "gci",
+		Description: "Organizes import statements with additional rules",
+		AutoFix:     true,
+	},
+	"gofmt": {
+		Name:        "gofmt",
+		Description: "Standard Go code formatting",
+		AutoFix:     true,
+	},
+	"gofumpt": {
+		Name:        "gofumpt",
+		Description: "Enhanced Go formatting with stricter rules",
+		AutoFix:     true,
+	},
+	"goimports": {
+		Name:        "goimports",
+		Description: "Formats code and manages import statements",
+		AutoFix:     true,
+	},
+	"golines": {
+		Name:        "golines",
+		Description: "Formats code and fixes long lines",
+		AutoFix:     true,
+	},
+	"swaggo": {
+		Name:        "swaggo",
+		Description: "Formats Swagger/OpenAPI documentation comments",
+		AutoFix:     true,
+	},
+}
+
+// FormatterPriorities defines priority levels for formatters
+var FormatterPriorities = map[types.FormatterName]types.FormatterPriority{
+	// High priority - recommended for most projects
+	"gofumpt": types.FormatterPriorityHigh,
+	"gofmt":   types.FormatterPriorityMedium,
+	"goimports": types.FormatterPriorityMedium,
+}
+
 // FormattersManagedByBuildFlow are formatters that should be run by buildflow, not golangci-lint
-var FormattersManagedByBuildFlow = []types.LinterName{
+var FormattersManagedByBuildFlow = []types.FormatterName{
 	"goimports",
 	"gofumpt",
 }
 
 // RedundantFormatters are formatters that are superseded by other formatters
-var RedundantFormatters = map[types.LinterName]string{
+var RedundantFormatters = map[types.FormatterName]string{
 	"gofmt": "redundant when gofumpt is enabled",
 }

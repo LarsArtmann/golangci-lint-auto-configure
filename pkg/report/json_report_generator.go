@@ -59,9 +59,9 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 			TotalLinters:         len(analysis.EnabledLinters) + len(analysis.DisabledLinters),
 			EnabledCount:         len(analysis.EnabledLinters),
 			DisabledCount:        len(analysis.DisabledLinters),
-			RecommendationsCount: len(analysis.Recommendations),
+			RecommendationsCount: len(analysis.LinterRecommendations),
 		},
-		Recommendations: analysis.Recommendations,
+		Recommendations: analysis.LinterRecommendations,
 		EnabledLinters:  enabledLinterNames,
 		DisabledLinters: disabledLinterNames,
 	}

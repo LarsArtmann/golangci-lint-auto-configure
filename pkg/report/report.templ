@@ -84,11 +84,11 @@ templ Report(data ReportData) {
 					</div>
 				</div>
 
-				if len(data.Analysis.Recommendations) > 0 {
+				if len(data.Analysis.LinterRecommendations) > 0 {
 					<div class="section">
 						<h2>🚨 Critical Linters</h2>
 						<div class="linter-grid">
-							for _, rec := range data.Analysis.Recommendations {
+							for _, rec := range data.Analysis.LinterRecommendations {
 								if rec.Priority == 0 {
 									<div class="linter-card critical">
 										<span class="badge critical">CRITICAL</span>
@@ -103,7 +103,7 @@ templ Report(data ReportData) {
 					<div class="section">
 						<h2>⚠️ High Priority Linters</h2>
 						<div class="linter-grid">
-							for _, rec := range data.Analysis.Recommendations {
+							for _, rec := range data.Analysis.LinterRecommendations {
 								if rec.Priority == 1 {
 									<div class="linter-card high">
 										<span class="badge high">HIGH</span>
@@ -118,7 +118,7 @@ templ Report(data ReportData) {
 					<div class="section">
 						<h2>ℹ️ Medium Priority Linters</h2>
 						<div class="linter-grid">
-							for _, rec := range data.Analysis.Recommendations {
+							for _, rec := range data.Analysis.LinterRecommendations {
 								if rec.Priority == 2 {
 									<div class="linter-card medium">
 										<span class="badge medium">MEDIUM</span>
@@ -133,7 +133,7 @@ templ Report(data ReportData) {
 					<div class="section">
 						<h2>💡 Optional Linters</h2>
 						<div class="linter-grid">
-							for _, rec := range data.Analysis.Recommendations {
+							for _, rec := range data.Analysis.LinterRecommendations {
 								if rec.Priority == 3 {
 									<div class="linter-card optional">
 										<span class="badge optional">OPTIONAL</span>

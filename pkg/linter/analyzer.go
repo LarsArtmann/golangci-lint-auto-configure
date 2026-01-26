@@ -27,10 +27,16 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 	}
 }
 
-// golangciLintOutput represents JSON output from golangci-lint linters/formatters commands
+// golangciLintOutput represents JSON output from golangci-lint linters command
 type golangciLintOutput struct {
 	Enabled  []types.LinterInfo `json:"Enabled"`
 	Disabled []types.LinterInfo `json:"Disabled"`
+}
+
+// golangciLintFormattersOutput represents JSON output from golangci-lint formatters command
+type golangciLintFormattersOutput struct {
+	Enabled  []types.FormatterInfo `json:"Enabled"`
+	Disabled []types.FormatterInfo `json:"Disabled"`
 }
 
 // golangciLintVersion represents JSON output from `golangci-lint version --json`
@@ -162,21 +168,40 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 		return nil, err
 	}
 
-	output, err := a.runLintersCommand()
+	// Analyze linters
+	lintOutput, err := a.runLintersCommand()
 	if err != nil {
 		return nil, errors.NewAnalysisError("failed to run golangci-lint linters", "", err)
 	}
 
-	var jsonOutput golangciLintOutput
-	if err := json.Unmarshal(output, &jsonOutput); err != nil {
-		return nil, errors.NewAnalysisError("failed to parse golangci-lint JSON output", "", err)
+	var jsonLinterOutput golangciLintOutput
+	if err := json.Unmarshal(lintOutput, &jsonLinterOutput); err != nil {
+		return nil, errors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err)
+	}
+
+	// Analyze formatters
+	formatOutput, err := a.runFormattersCommand()
+	if err != nil {
+		// Formatters command may not exist in older versions, log but don't fail
+		a.logger.Debugf("Formatters analysis skipped: %v", err)
+		formatOutput = []byte(`{"Enabled": [], "Disabled": []}`) // Empty output
+	}
+
+	var jsonFormatOutput golangciLintFormattersOutput
+	if err := json.Unmarshal(formatOutput, &jsonFormatOutput); err != nil {
+		// Don't fail if formatters JSON parsing fails
+		a.logger.Debugf("Failed to parse formatters JSON, skipping: %v", err)
+		jsonFormatOutput = golangciLintFormattersOutput{Enabled: []types.FormatterInfo{}, Disabled: []types.FormatterInfo{}}
 	}
 
 	analysis := &types.ConfigAnalysis{
-		ConfigPath:      configPath,
-		EnabledLinters:  jsonOutput.Enabled,
-		DisabledLinters: jsonOutput.Disabled,
-		Recommendations: a.categorizeLinters(jsonOutput.Disabled),
+		ConfigPath:             configPath,
+		EnabledLinters:         jsonLinterOutput.Enabled,
+		DisabledLinters:        jsonLinterOutput.Disabled,
+		EnabledFormatters:      jsonFormatOutput.Enabled,
+		DisabledFormatters:     jsonFormatOutput.Disabled,
+		LinterRecommendations:  a.categorizeLinters(jsonLinterOutput.Disabled),
+		FormatterRecommendations: a.categorizeFormatters(jsonFormatOutput.Disabled),
 	}
 
 	a.calculateRecommendationCounts(analysis)
@@ -192,6 +217,17 @@ func (a *Analyzer) runLintersCommand() ([]byte, error) {
 		a.logger.Debugf("golangci-lint linters command failed: %v", err)
 		a.logger.Debugf("Output: %s", string(output))
 		return output, errors.NewAnalysisError("golangci-lint linters command failed", "", err)
+	}
+	return output, nil
+}
+
+// runFormattersCommand runs `golangci-lint formatters` and returns JSON output
+func (a *Analyzer) runFormattersCommand() ([]byte, error) {
+	cmd := exec.Command(a.golangciLintPath, "formatters", "--json")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		// Command may not exist in older golangci-lint versions
+		return nil, fmt.Errorf("formatters command not available: %w", err)
 	}
 	return output, nil
 }
@@ -219,6 +255,36 @@ func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo) []types
 	return recommendations
 }
 
+// categorizeFormatters categorizes disabled formatters by priority
+func (a *Analyzer) categorizeFormatters(disabledFormatters []types.FormatterInfo) []types.FormatterRecommendation {
+	var recommendations []types.FormatterRecommendation
+
+	for _, formatter := range disabledFormatters {
+		name := types.FormatterName(formatter.Name)
+		rec := types.FormatterRecommendation{
+			Name:   name,
+			Reason: a.getFormatterReason(formatter.Name),
+		}
+
+		// Get priority from constants, default to Low if not found
+		if priority, ok := constants.FormatterPriorities[name]; ok {
+			rec.Priority = priority
+		} else {
+			rec.Priority = types.FormatterPriorityLow
+		}
+
+		recommendations = append(recommendations, rec)
+	}
+
+	return recommendations
+}
+
+// getFormatterReason returns the human-readable reason for a formatter recommendation
+func (a *Analyzer) getFormatterReason(name string) string {
+	// Add specific reasons for formatters as needed
+	return "Formatter is disabled but may be useful"
+}
+
 // getLinterReason returns the human-readable reason for a linter recommendation
 func (a *Analyzer) getLinterReason(name string) string {
 	if reason, ok := constants.LinterReasons[types.LinterName(name)]; ok {
@@ -229,7 +295,7 @@ func (a *Analyzer) getLinterReason(name string) string {
 
 // calculateRecommendationCounts calculates counts by priority level
 func (a *Analyzer) calculateRecommendationCounts(analysis *types.ConfigAnalysis) {
-	for _, rec := range analysis.Recommendations {
+	for _, rec := range analysis.LinterRecommendations {
 		switch rec.Priority {
 		case types.LinterPriorityCritical:
 			analysis.CriticalCount++
@@ -258,10 +324,10 @@ func (a *Analyzer) GetLintersByPriority(recommendations []types.LinterRecommenda
 func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string {
 	var builder strings.Builder
 
-	critical := a.GetLintersByPriority(analysis.Recommendations, types.LinterPriorityCritical)
-	highValue := a.GetLintersByPriority(analysis.Recommendations, types.LinterPriorityHigh)
-	mediumValue := a.GetLintersByPriority(analysis.Recommendations, types.LinterPriorityMedium)
-	optional := a.GetLintersByPriority(analysis.Recommendations, types.LinterPriorityOptional)
+	critical := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityCritical)
+	highValue := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityHigh)
+	mediumValue := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityMedium)
+	optional := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityOptional)
 
 	if len(critical) > 0 {
 		builder.WriteString(fmt.Sprintf("🚨 %d CRITICAL linter(s) are disabled (should ALWAYS be enabled):\n", len(critical)))
@@ -319,7 +385,7 @@ func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string {
 	}
 
 	return fmt.Sprintf("Found %d disabled linters: %s (see details above)",
-		len(analysis.Recommendations),
+		len(analysis.LinterRecommendations),
 		strings.Join(parts, ", "),
 	)
 }

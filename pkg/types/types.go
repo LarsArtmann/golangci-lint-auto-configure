@@ -29,6 +29,28 @@ func (p LinterPriority) String() string {
 	}
 }
 
+// FormatterPriority represents the priority level for a formatter
+type FormatterPriority int
+
+const (
+	FormatterPriorityHigh FormatterPriority = iota
+	FormatterPriorityMedium
+	FormatterPriorityLow
+)
+
+func (p FormatterPriority) String() string {
+	switch p {
+	case FormatterPriorityHigh:
+		return "HIGH"
+	case FormatterPriorityMedium:
+		return "MEDIUM"
+	case FormatterPriorityLow:
+		return "LOW"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 // LinterInfo contains information about a golangci-lint linter
 type LinterInfo struct {
 	Name        string   `json:"name"`
@@ -55,6 +77,13 @@ func (ln LinterName) String() string {
 	return string(ln)
 }
 
+// FormatterName is a strongly-typed formatter name to prevent typos
+type FormatterName string
+
+func (fn FormatterName) String() string {
+	return string(fn)
+}
+
 // FormatterInfo contains information about a golangci-lint formatter
 type FormatterInfo struct {
 	Name        string `json:"name"`
@@ -62,18 +91,26 @@ type FormatterInfo struct {
 	AutoFix     bool   `json:"autoFix,omitempty"`
 }
 
+// FormatterRecommendation represents a formatter with its priority and reason
+type FormatterRecommendation struct {
+	Name     FormatterName     `json:"name"`
+	Priority FormatterPriority `json:"priority"`
+	Reason   string            `json:"reason"`
+}
+
 // ConfigAnalysis represents the analysis results of a golangci-lint configuration
 type ConfigAnalysis struct {
-	ConfigPath         string                 `json:"config_path"`
-	EnabledLinters     []LinterInfo           `json:"enabled_linters"`
-	DisabledLinters    []LinterInfo           `json:"disabled_linters"`
-	EnabledFormatters  []FormatterInfo        `json:"enabled_formatters"`
-	DisabledFormatters []FormatterInfo        `json:"disabled_formatters"`
-	Recommendations    []LinterRecommendation `json:"recommendations"`
-	CriticalCount      int                    `json:"critical_count"`
-	HighValueCount     int                    `json:"high_value_count"`
-	MediumValueCount   int                    `json:"medium_value_count"`
-	OptionalCount      int                    `json:"optional_count"`
+	ConfigPath             string                  `json:"config_path"`
+	EnabledLinters         []LinterInfo            `json:"enabled_linters"`
+	DisabledLinters        []LinterInfo            `json:"disabled_linters"`
+	EnabledFormatters      []FormatterInfo         `json:"enabled_formatters"`
+	DisabledFormatters     []FormatterInfo         `json:"disabled_formatters"`
+	LinterRecommendations  []LinterRecommendation  `json:"linter_recommendations"`
+	FormatterRecommendations []FormatterRecommendation `json:"formatter_recommendations"`
+	CriticalCount          int                     `json:"critical_count"`
+	HighValueCount         int                     `json:"high_value_count"`
+	MediumValueCount       int                     `json:"medium_value_count"`
+	OptionalCount          int                     `json:"optional_count"`
 }
 
 // MigrationResult represents the result of a configuration migration

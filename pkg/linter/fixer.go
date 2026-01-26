@@ -46,7 +46,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	fixesApplied := 0
 	messages := []string{}
 
-	for _, rec := range analysis.Recommendations {
+	for _, rec := range analysis.LinterRecommendations {
 		if rec.Priority < priority {
 			continue
 		}

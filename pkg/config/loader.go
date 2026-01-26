@@ -12,11 +12,12 @@ import (
 
 // Config represents a golangci-lint configuration file
 type Config struct {
-	Version  string         `yaml:"version"`
-	Run      RunConfig      `yaml:"run"`
-	Output   OutputConfig   `yaml:"output"`
-	Linters  LintersConfig  `yaml:"linters"`
-	Issues   IssuesConfig   `yaml:"issues"`
+	Version    string           `yaml:"version"`
+	Run        RunConfig        `yaml:"run"`
+	Output     OutputConfig     `yaml:"output"`
+	Linters    LintersConfig    `yaml:"linters"`
+	Formatters FormattersConfig `yaml:"formatters,omitempty"`
+	Issues     IssuesConfig     `yaml:"issues"`
 }
 
 type RunConfig struct {
@@ -77,6 +78,19 @@ type IssuesConfig struct {
 	WholeFiles          bool                    `yaml:"whole-files,omitempty"`
 	Fix                 bool                    `yaml:"fix,omitempty"`
 	UniqByLine          bool                    `yaml:"uniq-by-line,omitempty"`
+}
+
+type FormattersConfig struct {
+	Enable    []string                    `yaml:"enable,omitempty"`
+	Disable   []string                    `yaml:"disable,omitempty"`
+	Settings  map[string]interface{}      `yaml:"settings,omitempty"`
+	Exclusions FormattersExclusionsConfig `yaml:"exclusions,omitempty"`
+}
+
+type FormattersExclusionsConfig struct {
+	Generated  string   `yaml:"generated,omitempty"`
+	WarnUnused bool     `yaml:"warn-unused,omitempty"`
+	Paths      []string `yaml:"paths,omitempty"`
 }
 
 
