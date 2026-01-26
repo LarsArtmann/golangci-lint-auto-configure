@@ -10,6 +10,7 @@ import (
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"golang.org/x/mod/semver"
 )
 
 // Analyzer analyzes golangci-lint configurations and provides recommendations
@@ -42,9 +43,65 @@ func (a *Analyzer) FindBinary() error {
 	return nil
 }
 
+// CheckVersion verifies golangci-lint is at least v2.8.0
+func (a *Analyzer) CheckVersion() error {
+	cmd := exec.Command(a.golangciLintPath, "--version")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return errors.NewAnalysisError("failed to check golangci-lint version", "", err)
+	}
+	
+	// Parse version from output (format: "golangci-lint has version 2.8.0 built with...")
+	outputStr := string(output)
+	version := a.parseVersion(outputStr)
+	if version == "" {
+		return errors.NewAnalysisError("could not parse golangci-lint version from output", "", fmt.Errorf("output: %s", outputStr))
+	}
+	
+	// Ensure version has 'v' prefix for semver
+	if !strings.HasPrefix(version, "v") {
+		version = "v" + version
+	}
+	
+	// Validate semver format
+	if !semver.IsValid(version) {
+		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
+	}
+	
+	// Compare with minimum required version (v2.8.0)
+	minVersion := "v2.8.0"
+	if semver.Compare(version, minVersion) < 0 {
+		return errors.NewAnalysisError(
+			fmt.Sprintf("golangci-lint version %s is too old", version),
+			"",
+			fmt.Errorf("minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", minVersion),
+		)
+	}
+	
+	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
+	return nil
+}
+
+// parseVersion extracts version number from golangci-lint --version output
+func (a *Analyzer) parseVersion(output string) string {
+	// Look for pattern: "version X.Y.Z"
+	parts := strings.Fields(output)
+	for i, part := range parts {
+		if part == "version" && i+1 < len(parts) {
+			return parts[i+1]
+		}
+	}
+	return ""
+}
+
 // AnalyzeConfig analyzes the current golangci-lint configuration
 func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, error) {
 	if err := a.FindBinary(); err != nil {
+		return nil, err
+	}
+	
+	// Check version meets minimum requirement
+	if err := a.CheckVersion(); err != nil {
 		return nil, err
 	}
 

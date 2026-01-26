@@ -16,6 +16,7 @@ linters:
     - errcheck
     - staticcheck
     - govet
+    - ineffassign
     
     # Error handling
     - errchkjson
@@ -23,6 +24,7 @@ linters:
     - noctx
     - sloglint
     - loggercheck
+    - musttag
 
 issues:
   max-issues-per-linter: 50
