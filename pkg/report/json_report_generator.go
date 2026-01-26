@@ -73,7 +73,7 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 	}
 
 	// Write to file
-	if err := os.WriteFile(outputPath, jsonData, 0644); err != nil {
+	if err := os.WriteFile(outputPath, jsonData, 0o644); err != nil {
 		return fmt.Errorf("failed to write JSON report to %s: %w", outputPath, err)
 	}
 

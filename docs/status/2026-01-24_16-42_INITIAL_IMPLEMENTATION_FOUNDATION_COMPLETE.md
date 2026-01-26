@@ -9,6 +9,7 @@
 ## a) ✅ FULLY DONE
 
 ### Project Structure & Documentation
+
 - ✅ **README.md** (comprehensive)
   - Project purpose, features, installation instructions
   - Usage examples (basic, advanced)
@@ -30,6 +31,7 @@
   - `docs/status/` - Status reports directory
 
 ### Core Type System
+
 - ✅ **pkg/types/types.go** (120 lines)
   - `LinterPriority` enum (Critical, High, Medium, Optional)
   - `LinterInfo` struct (name, description, groups, fast, autofix, etc.)
@@ -41,6 +43,7 @@
   - `ValidationResult` struct (valid, errors array)
 
 ### Linter Data & Prioritization
+
 - ✅ **pkg/constants/linter_data.go** (145 lines)
   - `LinterPriorities` map (39 categorized linters)
   - `LinterReasons` map (human-readable descriptions for each linter)
@@ -51,6 +54,7 @@
   - `RedundantFormatters` map (gofmt when gofumpt enabled)
 
 ### Linter Analysis Engine
+
 - ✅ **pkg/linter/analyzer.go** (190 lines)
   - `FindBinary()` - Discovers golangci-lint in PATH
   - `AnalyzeConfig()` - Runs `golangci-lint linters --json` and parses output
@@ -63,6 +67,7 @@
   - `GetSummary()` - Brief summary with counts
 
 ### Configuration Management
+
 - ✅ **pkg/config/loader.go** (145 lines)
   - `Config` struct (Run, Output, Linters, Issues, Servers)
   - `LoadConfig()` - Parses YAML files using gopkg.in/yaml.v3
@@ -73,6 +78,7 @@
   - `GetLintersEnabled()` / `GetLintersDisabled()` - Extraction helpers
 
 ### Universal Workflow Integration
+
 - ✅ **pkg/workflow/workflow.go** (185 lines)
   - `ActivityContext` struct (config path, analyzer, logger, flags)
   - `AnalysisActivity()` - Analyzes golangci-lint configuration
@@ -85,6 +91,7 @@
   - Uses strong types: ActivityID, WorkflowName from universal-workflow
 
 ### CLI Implementation (Fang Framework)
+
 - ✅ **internal/cli/commands.go** (165 lines)
   - `NewRootCommand()` - Creates Fang-based CLI
   - Global flags: `--config`, `--dry-run`, `--verbose`, `--html`, `--output`
@@ -100,11 +107,13 @@
   - `workflowBuilder` integration for workflow execution
 
 ### Main Entry Point
+
 - ✅ **cmd/golangci-linter-auto-configure/main.go** (10 lines)
   - Minimal main.go with cli.Main() call
   - Clean separation of concerns
 
 ### Git Repository
+
 - ✅ **Initial Commit** (f46e63c)
   - 10 files changed, 1,358 insertions(+)
   - Comprehensive commit message with:
@@ -116,6 +125,7 @@
     - Next steps for future implementation
 
 ### Dependencies (All Required)
+
 - ✅ **spf13/viper** - Configuration management (imported in CLI)
 - ✅ **a-h/templ** - HTML components (ready for report generation)
 - ✅ **onsi/ginkgo/v2** - BDD testing framework (test file created)
@@ -130,6 +140,7 @@
 ## b) ⚠️ PARTIALLY DONE
 
 ### Ginkgo Test Suite
+
 - ⚠️ **pkg/config/loader_test.go** (45 lines)
   - Test suite registration
   - Basic context setup
@@ -140,6 +151,7 @@
   - **Status**: Skeleton created, implementation incomplete
 
 ### Universal Workflow Integration
+
 - ⚠️ **Conceptual Integration Complete**
   - Uses `WorkflowLike`, `UnifiedWorkflow`, `ActivityContext` types correctly
   - Step registration with `Step()` and `DependsOn()` working
@@ -147,6 +159,7 @@
   - **Status**: Cannot verify actual execution without build
 
 ### CLI Framework Integration
+
 - ⚠️ **Commands Created but Untested**
   - All 5 commands have RunE implementations
   - Flag binding complete
@@ -158,6 +171,7 @@
 ## c) ❌ NOT STARTED
 
 ### HTML Report Generation
+
 - ❌ **Templ Components**
   - No `.templ` files created
   - No report layout designed
@@ -165,6 +179,7 @@
   - **Status**: Not started
 
 ### Configuration Migration
+
 - ❌ **Golangci-Lint v2.8+ Migration**
   - No `Migrator` struct created
   - No `yq` integration
@@ -173,6 +188,7 @@
   - **Status**: Not started
 
 ### Auto-Fixing Functionality
+
 - ❌ **Enable Missing Linters**
   - No logic to modify `.golangci.yml` in-place
   - No backup/restore mechanism
@@ -180,6 +196,7 @@
   - **Status**: Not started
 
 ### Configuration Templates
+
 - ❌ **Presets (minimal, standard, enterprise)**
   - No template definitions
   - No `generate config` command
@@ -187,12 +204,14 @@
   - **Status**: Not started
 
 ### Integration Tests
+
 - ❌ **Real golangci-lint Binary**
   - No mock or real binary integration tests
   - No end-to-end workflow tests
   - **Status**: Not started
 
 ### HTML Report Command
+
 - ❌ **Report Generation Implementation**
   - `report` command exists but returns stub
   - No HTML rendering logic
@@ -203,6 +222,7 @@
 ## d) 🚨 TOTALLY FUCKED UP
 
 ### CRITICAL #1: Go Module Cache Crisis
+
 - 🚨 **Issue**: Cannot build project due to Go module cache issues
   - `go mod tidy` repeatedly fails trying to fetch `github.com/larsartmann/universal-workflow@v0.0.1` from GitHub (404 Not Found)
   - `replace` directive set in go.mod but Go ignores it
@@ -246,12 +266,14 @@
 ## e) 💡 WHAT WE SHOULD IMPROVE
 
 ### Immediate Priorities (To Unblock Development)
+
 1. **🔥 RESOLVE MODULE CACHE CRISIS** - #1 PRIORITY
    - This is blocking everything
    - Requires clearing cache or changing module names
    - Must solve before any other work
 
 ### Code Quality Improvements
+
 2. **Add Comprehensive Error Context**
    - All errors should include file path, line number, and relevant context
    - Error messages should be actionable (not just "failed")
@@ -263,6 +285,7 @@
    - Include timing information for each step
 
 ### Feature Enhancements
+
 4. **Add Interactive Confirmation for Auto-Fixing**
    - Before modifying `.golangci.yml`, show diff and ask user to confirm
    - Allow user to skip specific linters
@@ -295,98 +318,120 @@
    - Allow custom presets via config file
 
 10. **Add Backup and Restore**
-   - Automatic backup before any modifications
-   - Timestamped backups (`.golangci.yml.backup.2026-01-24-16-42`)
-   - Restore command to revert to previous version
+
+- Automatic backup before any modifications
+- Timestamped backups (`.golangci.yml.backup.2026-01-24-16-42`)
+- Restore command to revert to previous version
 
 ### Testing Improvements
+
 11. **Add Real Integration Tests**
-   - Mock `golangci-lint` binary for testing
-   - Test with real `.golangci.yml` files
-   - Test error paths (missing binary, invalid config)
+
+- Mock `golangci-lint` binary for testing
+- Test with real `.golangci.yml` files
+- Test error paths (missing binary, invalid config)
 
 12. **Add Workflow Tests**
-   - Test dependency resolution
-   - Test parallel execution if implemented
-   - Test error handling and rollback
+
+- Test dependency resolution
+- Test parallel execution if implemented
+- Test error handling and rollback
 
 13. **Add BDD Tests with Ginkgo**
-   - Behavior-driven tests for CLI commands
-   - Test user interaction flows
-   - Test error messages and user experience
+
+- Behavior-driven tests for CLI commands
+- Test user interaction flows
+- Test error messages and user experience
 
 ### Documentation Improvements
+
 14. **Add Examples Section**
-   - Example `.golangci.yml` files
-   - Before/after comparisons
-   - Migration examples
+
+- Example `.golangci.yml` files
+- Before/after comparisons
+- Migration examples
 
 15. **Add Troubleshooting Guide**
-   - Common errors and solutions
-   - Module cache issues and how to fix
-   - Permission problems and resolutions
+
+- Common errors and solutions
+- Module cache issues and how to fix
+- Permission problems and resolutions
 
 ### Architecture Improvements
+
 16. **Extract Constants to Separate File**
-   - Move linter priorities to `pkg/linter/priorities.go`
-   - Move reasons to `pkg/linter/reasons.go`
-   - Keep loader.go focused on config parsing only
+
+- Move linter priorities to `pkg/linter/priorities.go`
+- Move reasons to `pkg/linter/reasons.go`
+- Keep loader.go focused on config parsing only
 
 17. **Add Dependency Injection**
-   - Use samber/do for cleaner dependency management
-   - Make code more testable
-   - Reduce coupling between components
+
+- Use samber/do for cleaner dependency management
+- Make code more testable
+- Reduce coupling between components
 
 18. **Add Plugin System**
-   - Allow custom linter categories
-   - Allow custom recommendation logic
-   - Make tool extensible
+
+- Allow custom linter categories
+- Allow custom recommendation logic
+- Make tool extensible
 
 ### Performance Improvements
+
 19. **Cache golangci-lint Output**
-   - Don't re-run `golangci-lint linters` if config hasn't changed
-   - Use file modification time as cache key
-   - Significantly speed up repeated runs
+
+- Don't re-run `golangci-lint linters` if config hasn't changed
+- Use file modification time as cache key
+- Significantly speed up repeated runs
 
 20. **Add Parallel Execution**
-   - Run analysis and validation in parallel if possible
-   - Use universal-workflow's parallel execution
-   - Reduce total runtime
+
+- Run analysis and validation in parallel if possible
+- Use universal-workflow's parallel execution
+- Reduce total runtime
 
 ### Developer Experience
+
 21. **Add Justfile**
-   - `just build` - Build the project
-   - `just test` - Run tests
-   - `just lint` - Run linter
-   - `just run` - Run with example config
-   - Make common workflows easier
+
+- `just build` - Build the project
+- `just test` - Run tests
+- `just lint` - Run linter
+- `just run` - Run with example config
+- Make common workflows easier
 
 22. **Add Shell Completions**
-   - Bash completions for subcommands and flags
-   - Zsh completions
-   - Fish completions
-   - Improve command discovery
+
+- Bash completions for subcommands and flags
+- Zsh completions
+- Fish completions
+- Improve command discovery
 
 23. **Add Configuration File**
-   - `~/.config/golangci-linter-auto-configure/config.yml`
-   - User preferences (default preset, auto-fix behavior)
-   - Log level configuration
+
+- `~/.config/golangci-linter-auto-configure/config.yml`
+- User preferences (default preset, auto-fix behavior)
+- Log level configuration
 
 24. **Add Version Command**
-   - Show version information
-   - Check for updates
-   - Show universal-workflow version
+
+- Show version information
+- Check for updates
+- Show universal-workflow version
 
 25. **Add Help Command**
-   - Comprehensive help for each subcommand
-   - Usage examples
-   - Links to documentation
+
+- Comprehensive help for each subcommand
+- Usage examples
+- Links to documentation
 
 ---
 
 ## f) 📋 TOP #25 THINGS WE SHOULD GET DONE NEXT
 
 ### Phase 1: Unblock Development (CRITICAL - Priority #1-5)
+
 1. **🔥 RESOLVE MODULE CACHE CRISIS**
    - Delete entire Go module cache or use GOMODCACHE
    - Verify build succeeds
@@ -412,6 +457,7 @@
    - Avoid requiring real binary installation for tests
 
 ### Phase 2: Core Feature Implementation (Priority #6-15)
+
 6. **Implement Migration Logic**
    - Add `pkg/migration/migrator.go`
    - Implement v2.8 schema transformations
@@ -436,90 +482,108 @@
    - Test with different analysis results
 
 10. **Add Configuration Templates**
-   - Create `pkg/templates/` directory
-   - Add minimal, standard, enterprise presets
-   - Implement `generate config` command
-   - Test preset selection
+
+- Create `pkg/templates/` directory
+- Add minimal, standard, enterprise presets
+- Implement `generate config` command
+- Test preset selection
 
 ### Phase 3: Testing & Quality (Priority #16-20)
+
 11. **Expand Ginkgo Tests**
-   - Add analyzer tests (real JSON parsing)
-   - Add loader tests (YAML parsing)
-   - Add workflow tests (dependency resolution)
-   - Aim for 80%+ coverage
+
+- Add analyzer tests (real JSON parsing)
+- Add loader tests (YAML parsing)
+- Add workflow tests (dependency resolution)
+- Aim for 80%+ coverage
 
 12. **Add Integration Tests**
-   - Test end-to-end flows
-   - Test with real golangci-lint binary
-   - Test error paths
+
+- Test end-to-end flows
+- Test with real golangci-lint binary
+- Test error paths
 
 13. **Add Error Handling Tests**
-   - Test missing binary scenario
-   - Test invalid config scenario
-   - Test permission denied scenario
+
+- Test missing binary scenario
+- Test invalid config scenario
+- Test permission denied scenario
 
 14. **Add Performance Tests**
-   - Benchmark linter analysis
-   - Benchmark HTML rendering
-   - Optimize slow paths
+
+- Benchmark linter analysis
+- Benchmark HTML rendering
+- Optimize slow paths
 
 15. **Add Linter Tests**
-   - Run golangci-lint on our code
-   - Fix all issues
-   - Ensure high code quality
+
+- Run golangci-lint on our code
+- Fix all issues
+- Ensure high code quality
 
 ### Phase 4: Polish & DX (Priority #21-25)
+
 16. **Add Progress Indicators**
-   - Show spinners for long operations
-   - Add percentage indicators
-   - Improve user feedback
+
+- Show spinners for long operations
+- Add percentage indicators
+- Improve user feedback
 
 17. **Add Dry Run Mode**
-   - Show what would change
-   - Validate without writing
-   - Make mode explicit
+
+- Show what would change
+- Validate without writing
+- Make mode explicit
 
 18. **Add Backup System**
-   - Automatic backups before modifications
-   - Timestamped backup files
-   - Restore command
+
+- Automatic backups before modifications
+- Timestamped backup files
+- Restore command
 
 19. **Add Justfile**
-   - Common workflows as commands
-   - Make development easier
-   - Document in README
+
+- Common workflows as commands
+- Make development easier
+- Document in README
 
 20. **Add Shell Completions**
-   - Bash completions
-   - Zsh completions
-   - Fish completions
-   - Auto-generate from Cobra
+
+- Bash completions
+- Zsh completions
+- Fish completions
+- Auto-generate from Cobra
 
 21. **Add Configuration File**
-   - User preferences in config
-   - Support multiple configs
-   - Add `--config-dir` flag
+
+- User preferences in config
+- Support multiple configs
+- Add `--config-dir` flag
 
 22. **Add Version Command**
-   - Show version
-   - Check for updates
-   - Show dependency versions
+
+- Show version
+- Check for updates
+- Show dependency versions
 
 23. **Improve Help Text**
-   - Comprehensive subcommand help
-   - Usage examples
-   - Troubleshooting section
+
+- Comprehensive subcommand help
+- Usage examples
+- Troubleshooting section
 
 24. **Add Examples to README**
-   - Example configurations
-   - Migration examples
-   - Before/after comparisons
+
+- Example configurations
+- Migration examples
+- Before/after comparisons
 
 25. **Add Troubleshooting Section**
-   - Common issues
-   - Module cache problems
-   - Permission issues
-   - Solutions and workarounds
+
+- Common issues
+- Module cache problems
+- Permission issues
+- Solutions and workarounds
 
 ---
 
@@ -529,6 +593,7 @@
 
 **The Problem:**
 Go is completely ignoring the `replace` directive and trying to fetch `github.com/LarsArtmann/universal-workflow@v0.0.1` from GitHub, which:
+
 - Returns 404 Not Found (the repository doesn't exist at this version on GitHub)
 - Has permission/authentication errors ("fatal: could not read Username for 'https://github': terminal prompts disabled")
 - Prevents `go mod tidy` from completing
@@ -536,6 +601,7 @@ Go is completely ignoring the `replace` directive and trying to fetch `github.co
 - Is blocking ALL development and testing
 
 **Current Setup:**
+
 ```go
 // golangci-linter-auto-configure/go.mod
 module github.com/larsartmann/golangcli-linter-auto-configure
@@ -560,6 +626,7 @@ go 1.25.6
 ```
 
 **Failed Attempts:**
+
 1. Removed go.sum and go.mod multiple times, recreated from scratch
 2. Tried different version numbers (v0.0.0, v0.0.1, v1.0.0)
 3. Used versioned replace: `replace github.com/LarsArtmann/universal-workflow v1.0.0 => ...`
@@ -598,6 +665,7 @@ How do I resolve this module cache issue? Specifically:
    - Is this safe/correct?
 
 **Why I Can't Figure This Out:**
+
 - I've tried all standard Go module troubleshooting steps
 - The `replace` directive should work according to Go documentation
 - I don't have other local replace examples with this exact case sensitivity issue
@@ -606,6 +674,7 @@ How do I resolve this module cache issue? Specifically:
 
 **Context for Decision:**
 This is blocking ALL progress. I need a clear, correct solution to:
+
 - Get the project building successfully
 - Verify that universal-workflow integration works
 - Move forward with implementing the remaining features

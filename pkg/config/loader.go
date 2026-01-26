@@ -34,22 +34,22 @@ type RunConfig struct {
 }
 
 type OutputConfig struct {
-	Formats    map[string]interface{} `yaml:"formats"`
-	PathPrefix string                 `yaml:"path-prefix,omitempty"`
-	PathMode   string                 `yaml:"path-mode,omitempty"`
-	SortOrder  []string               `yaml:"sort-order,omitempty"`
-	ShowStats  bool                   `yaml:"show-stats,omitempty"`
+	Formats    map[string]any `yaml:"formats"`
+	PathPrefix string         `yaml:"path-prefix,omitempty"`
+	PathMode   string         `yaml:"path-mode,omitempty"`
+	SortOrder  []string       `yaml:"sort-order,omitempty"`
+	ShowStats  bool           `yaml:"show-stats,omitempty"`
 }
 
 type LintersConfig struct {
 	Enable     []string                `yaml:"enable,omitempty"`
 	Disable    []string                `yaml:"disable,omitempty"`
 	Default    string                  `yaml:"default,omitempty"`
-	Settings   map[string]interface{}  `yaml:"settings,omitempty"`
+	Settings   map[string]any          `yaml:"settings,omitempty"`
 	Exclusions LintersExclusionsConfig `yaml:"exclusions,omitempty"`
 }
 
-type LintersSettings map[string]interface{}
+type LintersSettings map[string]any
 
 type LintersExclusionsConfig struct {
 	Generated   string                `yaml:"generated,omitempty"`
@@ -83,7 +83,7 @@ type IssuesConfig struct {
 type FormattersConfig struct {
 	Enable     []string                   `yaml:"enable,omitempty"`
 	Disable    []string                   `yaml:"disable,omitempty"`
-	Settings   map[string]interface{}     `yaml:"settings,omitempty"`
+	Settings   map[string]any             `yaml:"settings,omitempty"`
 	Exclusions FormattersExclusionsConfig `yaml:"exclusions,omitempty"`
 }
 

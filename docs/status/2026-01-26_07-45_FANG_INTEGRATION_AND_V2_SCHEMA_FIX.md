@@ -25,6 +25,7 @@ Fixed a critical configuration validation bug that prevented `golangci-lint conf
 ### 1. Critical Bug Fix: output.formats Schema Validation
 
 **Problem:**
+
 ```bash
 $ golangci-lint config verify
 ERROR: can't load config: can't unmarshal config by viper:
@@ -32,11 +33,13 @@ ERROR: can't load config: can't unmarshal config by viper:
 ```
 
 **Root Cause:**
+
 - `pkg/config/loader.go:35` defined `OutputConfig.Formats` as `[]string`
 - golangci-lint v2 expects `output.formats` as a map structure
 - Generated YAML used array syntax `formats: []` instead of map syntax `formats: {}`
 
 **Solution:**
+
 ```go
 // Before
 type OutputConfig struct {
@@ -52,6 +55,7 @@ type OutputConfig struct {
 ```
 
 **Impact:**
+
 - Configuration now passes `golangci-lint config verify` without errors
 - Generated YAML is 100% compliant with v2 JSON schema
 - No user-facing breaking changes
@@ -59,12 +63,13 @@ type OutputConfig struct {
 ### 2. golangci-lint v2 Schema Compliance Overhaul
 
 **Removed Deprecated v1 Fields:**
+
 ```go
 // LintersConfig
 - Fast    bool     `yaml:"fast"`       // v1 only
 - Presets []string `yaml:"presets"`    // v1 only
 
-// IssuesConfig  
+// IssuesConfig
 - Exclude            []string `yaml:"exclude"`
 - ExcludeRules       []string `yaml:"exclude-rules"`
 - ExcludeGenerated   bool     `yaml:"exclude-generated"`
@@ -83,6 +88,7 @@ type OutputConfig struct {
 ```
 
 **Added New v2 Fields:**
+
 ```go
 // LintersConfig
 + Default   string                    `yaml:"default,omitempty"`
@@ -125,6 +131,7 @@ type OutputConfig struct {
 ```
 
 **Field Type Changes:**
+
 ```go
 // RunConfig
 - BuildTags string   `yaml:"build-tags"`
@@ -134,6 +141,7 @@ type OutputConfig struct {
 ### 3. charmbracelet/fang Integration
 
 **Implementation:**
+
 ```go
 // internal/cli/commands.go
 import (
@@ -152,10 +160,11 @@ func Execute() error {
 **New Features Enabled:**
 
 1. **Styled Help Output**
+
    ```
    USAGE
      golangci-linter-auto-configure [command] [--flags]
-   
+
    COMMANDS
      analyze               Analyze golangci-lint configuration and show recommendations
      completion [command]  Generate the autocompletion script for the specified shell
@@ -165,7 +174,7 @@ func Execute() error {
      report                Generate HTML report of configuration
      restore [--flags]     Restore configuration from backup
      validate              Validate golangci-lint configuration
-   
+
    FLAGS
      -c --config           Path to golangci-lint config file
      -d --dry-run          Show what would be done without making changes
@@ -179,21 +188,23 @@ func Execute() error {
    ```
 
 2. **Automatic Version Flag**
+
    ```bash
    $ golangci-linter-auto-configure --version
    golangci-linter-auto-configure version unknown (built from source)
    ```
 
 3. **Shell Completion Generation**
+
    ```bash
    $ golangci-linter-auto-configure completion bash
    # bash completion V2 for golangci-linter-auto-configure
    ...
-   
+
    $ golangci-linter-auto-configure completion zsh
    # zsh completion for golangci-linter-auto-configure
    ...
-   
+
    $ golangci-linter-auto-configure completion fish
    # fish completion for golangci-linter-auto-configure
    ...
@@ -202,6 +213,7 @@ func Execute() error {
 4. **Fancy Error Messages** (silent usage output after user errors)
 
 **Dependencies Added:**
+
 ```
 github.com/charmbracelet/fang v0.4.4 (direct)
 github.com/charmbracelet/ultraviolet v0.0.0-20260123224754-f434aada8dbd (indirect)
@@ -218,6 +230,7 @@ github.com/muesli/roff v0.1.0 (indirect)
 ### Configuration Validation
 
 **Before Fix:**
+
 ```bash
 $ golangci-lint config verify
 can't load config: can't unmarshal config by viper:
@@ -225,6 +238,7 @@ can't load config: can't unmarshal config by viper:
 ```
 
 **After Fix:**
+
 ```bash
 $ golangci-lint config verify
 # No output - configuration is valid ✅
@@ -276,31 +290,32 @@ INFO Report generated successfully ✅
 ```yaml
 version: "2"
 run:
-    timeout: 10m
-    go: ""
-    build-tags: []  # Now []string instead of ""
-    allow-parallel-runners: false
-    allow-serial-runners: false
-    tests: true     # New field
+  timeout: 10m
+  go: ""
+  build-tags: [] # Now []string instead of ""
+  allow-parallel-runners: false
+  allow-serial-runners: false
+  tests: true # New field
 output:
-    formats: {}     # Now map instead of array - VALID! ✅
+  formats: {} # Now map instead of array - VALID! ✅
 linters:
-    enable: [...]   # 112 linters enabled
-    settings:       # New section
-        funlen:
-            lines: 80
-            statements: 50
-    exclusions:     # New structured exclusions
-        generated: lax
-        warn-unused: false
-        paths: []
+  enable: [...] # 112 linters enabled
+  settings: # New section
+    funlen:
+      lines: 80
+      statements: 50
+  exclusions: # New structured exclusions
+    generated: lax
+    warn-unused: false
+    paths: []
 issues:
-    max-issues-per-linter: 100
-    max-same-issues: 15
-    uniq-by-line: true  # New field
+  max-issues-per-linter: 100
+  max-same-issues: 15
+  uniq-by-line: true # New field
 ```
 
 **Validation:**
+
 ```bash
 $ golangci-lint config verify
 # ✓ No errors
@@ -351,6 +366,7 @@ $ golangci-lint config verify
 ### User Impact
 
 **End Users: ✅ NO BREAKING CHANGES**
+
 - All commands work exactly as before
 - Enhanced CLI experience with styled output
 - New features: `--version`, `completion` command
@@ -359,12 +375,14 @@ $ golangci-lint config verify
 **API Consumers: ⚠️ MINOR BREAKING CHANGES**
 
 Type Changes:
+
 - `config.Output.Formats`: `[]string` → `map[string]interface{}`
   - Migration: Use map syntax instead of array syntax
   - Old: `formats: ["json", "text"]`
   - New: `formats: {json: {path: stdout}, text: {path: stdout}}`
 
 Removed Fields:
+
 - `config.Linters.Fast` → Use `config.Linters.Default` instead
 - `config.Issues.Exclude*` → Use `config.Linters.Exclusions` instead
 - `config.Output.Print*` → Use `config.Output.Formats.{format}.*` instead
@@ -373,11 +391,13 @@ Removed Fields:
 ### Functional Improvements
 
 **Before:**
+
 - Configuration failed golangci-lint validation
 - CLI used plain Cobra help output
 - No built-in version or completion commands
 
 **After:**
+
 - ✅ Configuration passes `golangci-lint config verify`
 - ✅ Styled help with organized sections
 - ✅ Automatic `--version` flag
@@ -390,11 +410,13 @@ Removed Fields:
 ## Dependencies
 
 ### New Direct Dependencies
+
 ```
 github.com/charmbracelet/fang v0.4.4
 ```
 
 ### New Indirect Dependencies
+
 ```
 charm.land/lipgloss/v2 v2.0.0-beta.3
 github.com/charmbracelet/ultraviolet v0.0.0-20260123224754-f434aada8dbd
@@ -453,6 +475,6 @@ The tool is now truly production-ready and can be confidently deployed in CI/CD 
 
 ---
 
-*Report Generated: 2026-01-26 07:45 CET*  
-*By: Crush (AI Assistant)*  
-*Commit: 0af3b67*
+_Report Generated: 2026-01-26 07:45 CET_  
+_By: Crush (AI Assistant)_  
+_Commit: 0af3b67_

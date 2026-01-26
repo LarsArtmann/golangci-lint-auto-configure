@@ -47,6 +47,7 @@ golangci-linter-auto-configure analyze --verbose
 ```
 
 **Output Example:**
+
 ```
 INFO Analyzing configuration: .golangci.yml
 
@@ -150,7 +151,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: "1.25"
       - name: Install golangci-linter-auto-configure
         run: go install github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-linter-auto-configure@latest
       - name: Auto-configure
@@ -161,25 +162,25 @@ jobs:
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
+| Command     | Description                                    |
+| ----------- | ---------------------------------------------- |
 | `configure` | Auto-configure golangci-lint (default command) |
-| `analyze` | Analyze configuration and show recommendations |
-| `validate` | Validate existing configuration |
-| `restore` | Restore from backup file |
-| `report` | Generate JSON/HTML report |
-| `migrate` | Migrate config to v2.8+ schema |
+| `analyze`   | Analyze configuration and show recommendations |
+| `validate`  | Validate existing configuration                |
+| `restore`   | Restore from backup file                       |
+| `report`    | Generate JSON/HTML report                      |
+| `migrate`   | Migrate config to v2.8+ schema                 |
 
 ## Flags
 
-| Flag | Description |
-|------|-------------|
-| `-c, --config` | Path to golangci-lint config file |
-| `-d, --dry-run` | Show what would be done without making changes |
-| `--priority` | Minimum priority level (critical, high, medium, optional) |
-| `-v, --verbose` | Enable verbose output |
-| `--format` | Output format for report (html, json) |
-| `--output` | Output path for report file |
+| Flag            | Description                                               |
+| --------------- | --------------------------------------------------------- |
+| `-c, --config`  | Path to golangci-lint config file                         |
+| `-d, --dry-run` | Show what would be done without making changes            |
+| `--priority`    | Minimum priority level (critical, high, medium, optional) |
+| `-v, --verbose` | Enable verbose output                                     |
+| `--format`      | Output format for report (html, json)                     |
+| `--output`      | Output path for report file                               |
 
 ## Project-Specific Examples
 
@@ -194,7 +195,9 @@ The `examples/` directory contains optimized configurations for different projec
 ## Linter Priorities
 
 ### Critical (Always Enable)
+
 Security and correctness linters that should never be disabled:
+
 - `gosec` - Security vulnerability scanning
 - `errcheck` - Unchecked error detection
 - `staticcheck` - Advanced static analysis
@@ -202,14 +205,18 @@ Security and correctness linters that should never be disabled:
 - `ineffassign` - Detects unused assignments
 
 ### High Value (Recommended)
+
 Quality and maintainability linters:
+
 - `errorlint` - Error handling patterns
 - `exhaustive` - Enum exhaustiveness checks
 - `wrapcheck` - Error wrapping validation
 - `forcetypeassert` - Detects forced type assertions
 
 ### Medium Value (Optional)
+
 Style and consistency linters:
+
 - `gocyclo` - Cyclomatic complexity
 - `misspell` - Typos detection
 - `revive` - Fast, configurable linter

@@ -54,7 +54,7 @@ linters-settings:
   gocyclo:
     min-complexity: 20
   funlen:
-    lines: 60      # Stricter for CLI
+    lines: 60 # Stricter for CLI
     statements: 40
   gocognit:
     min-complexity: 25

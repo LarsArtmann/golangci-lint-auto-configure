@@ -20,6 +20,7 @@ fmt.Println(summary)
 ## Package Overview
 
 ### client - High-Level API (Recommended)
+
 The `client` package provides a simplified, production-ready API that abstracts away internal complexity.
 
 ```go
@@ -40,6 +41,7 @@ fmt.Printf("Found %d disabled formatters\n", len(analysis.DisabledFormatters))
 ```
 
 ### config - Configuration Management
+
 Load, save, and validate golangci-lint configuration files.
 
 ```go
@@ -60,6 +62,7 @@ err = loader.SaveConfig(cfg, ".golangci.yml.new")
 ```
 
 ### linter - Analysis Engine
+
 Analyze configurations and generate recommendations.
 
 ```go
@@ -76,6 +79,7 @@ fmt.Println(analyzer.FormatRecommendations(analysis))
 ```
 
 ### types - Type Definitions
+
 Core types used throughout the API.
 
 ```go
@@ -89,6 +93,7 @@ var formatterName types.FormatterName = "gofumpt"
 ```
 
 ### report - Report Generation
+
 Generate HTML and JSON reports from analysis results.
 
 ```go
@@ -99,6 +104,7 @@ err := generator.GenerateReport(analysis, "report.html")
 ```
 
 ### constants - Configuration Data
+
 Constants for linter and formatter metadata.
 
 ```go
@@ -119,7 +125,7 @@ package main
 import (
     "fmt"
     "log"
-    
+
     "github.com/charmbracelet/log"
     "github.com/larsartmann/golangcli-linter-auto-configure/pkg/client"
     "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"

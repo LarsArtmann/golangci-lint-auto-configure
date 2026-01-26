@@ -11,13 +11,13 @@ cp examples/minimal.golangci.yml .golangci.yml
 
 ## Available Configurations
 
-| File | Use Case | Linters | Complexity |
-|------|----------|---------|------------|
-| `minimal.golangci.yml` | Small projects, fast linting | 10 critical | Low |
-| `standard.golangci.yml` | Most projects, balanced | 26 linters | Medium |
-| `web-project.golangci.yml` | HTTP servers, APIs, microservices | 32 linters | Medium-High |
-| `cli-project.golangci.yml` | Command-line tools, Cobra apps | 29 linters | Medium |
-| `library.golangci.yml` | Reusable packages, SDKs | 34 linters | High |
+| File                       | Use Case                          | Linters     | Complexity  |
+| -------------------------- | --------------------------------- | ----------- | ----------- |
+| `minimal.golangci.yml`     | Small projects, fast linting      | 10 critical | Low         |
+| `standard.golangci.yml`    | Most projects, balanced           | 26 linters  | Medium      |
+| `web-project.golangci.yml` | HTTP servers, APIs, microservices | 32 linters  | Medium-High |
+| `cli-project.golangci.yml` | Command-line tools, Cobra apps    | 29 linters  | Medium      |
+| `library.golangci.yml`     | Reusable packages, SDKs           | 34 linters  | High        |
 
 ## Configuration Details
 

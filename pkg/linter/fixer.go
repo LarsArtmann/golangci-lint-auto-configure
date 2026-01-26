@@ -2,6 +2,7 @@ package linter
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
@@ -110,10 +111,5 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 }
 
 func contains(slice []string, item string) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(slice, item)
 }

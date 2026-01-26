@@ -55,9 +55,9 @@ linters:
 
 linters-settings:
   gocyclo:
-    min-complexity: 15    # Stricter for libraries
+    min-complexity: 15 # Stricter for libraries
   funlen:
-    lines: 50             # Stricter for libraries
+    lines: 50 # Stricter for libraries
     statements: 35
   gocognit:
     min-complexity: 20
@@ -66,6 +66,6 @@ linters-settings:
     max-name-len: 40
 
 issues:
-  max-issues-per-linter: 50   # Stricter for libraries
+  max-issues-per-linter: 50 # Stricter for libraries
   max-same-issues: 5
   new: false

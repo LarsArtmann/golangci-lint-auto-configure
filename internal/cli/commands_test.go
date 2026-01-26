@@ -16,9 +16,7 @@ func TestCLICommands(t *testing.T) {
 }
 
 var _ = Describe("CLI Integration Tests", func() {
-	var (
-		testDir string
-	)
+	var testDir string
 
 	BeforeEach(func() {
 		testDir = GinkgoT().TempDir()

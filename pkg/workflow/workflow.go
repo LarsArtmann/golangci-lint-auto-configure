@@ -52,7 +52,7 @@ func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, e
 		Output:    summary,
 		StartTime: time.Now(),
 		EndTime:   time.Now(),
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"analysis": analysis,
 		},
 	}, nil

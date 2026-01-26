@@ -11,6 +11,7 @@
 This document outlines a comprehensive, systematic plan to elevate **golangci-linter-auto-configure** from a working MVP to production-ready software with enterprise-grade architecture, type-safety, and developer experience.
 
 ### Current State
+
 - ✅ Core functionality working (80% test coverage)
 - ✅ HTML reports generated with templ
 - ✅ All 5 CLI commands operational
@@ -20,6 +21,7 @@ This document outlines a comprehensive, systematic plan to elevate **golangci-li
 - ⚠️ Generic error handling (lack context)
 
 ### Target State
+
 - 🎯 Enterprise-grade architecture with Result<T, E> pattern
 - 🎯 95%+ test coverage (unit + integration + E2E)
 - 🎯 Type-safe operations with zero runtime panics
@@ -33,49 +35,54 @@ This document outlines a comprehensive, systematic plan to elevate **golangci-li
 ## 📊 Impact vs Effort Analysis
 
 ### High Impact / Low Effort (Quick Wins) → DO FIRST (1-2 hours each)
-| # | Feature | Impact | Effort | Priority |
-|---|----------|---------|----------|
-| 1 | Add restore backup command | HIGH | LOW | P0 |
-| 2 | Implement Cobra shell completion | HIGH | LOW | P0 |
-| 3 | Add JSON report output format | HIGH | LOW | P0 |
-| 4 | Improve error messages with context | HIGH | LOW | P0 |
-| 5 | Add API documentation with godoc | MEDIUM | LOW | P1 |
-| 6 | Create examples directory | MEDIUM | LOW | P1 |
+
+| #   | Feature                             | Impact | Effort | Priority |
+| --- | ----------------------------------- | ------ | ------ | -------- |
+| 1   | Add restore backup command          | HIGH   | LOW    | P0       |
+| 2   | Implement Cobra shell completion    | HIGH   | LOW    | P0       |
+| 3   | Add JSON report output format       | HIGH   | LOW    | P0       |
+| 4   | Improve error messages with context | HIGH   | LOW    | P0       |
+| 5   | Add API documentation with godoc    | MEDIUM | LOW    | P1       |
+| 6   | Create examples directory           | MEDIUM | LOW    | P1       |
 
 ### High Impact / Medium Effort (3-5 hours each)
-| # | Feature | Impact | Effort | Priority |
-|---|----------|---------|----------|
-| 7 | Implement real config migration | HIGH | MEDIUM | P0 |
-| 8 | Add integration tests for CLI commands | HIGH | MEDIUM | P0 |
-| 9 | Add E2E tests with real golangci-lint | HIGH | MEDIUM | P0 |
-| 10 | Implement Result<T, E> pattern | HIGH | MEDIUM | P1 |
-| 11 | Add structured logging with zap | MEDIUM | MEDIUM | P1 |
-| 12 | Add dark mode to HTML reports | LOW | MEDIUM | P2 |
+
+| #   | Feature                                | Impact | Effort | Priority |
+| --- | -------------------------------------- | ------ | ------ | -------- |
+| 7   | Implement real config migration        | HIGH   | MEDIUM | P0       |
+| 8   | Add integration tests for CLI commands | HIGH   | MEDIUM | P0       |
+| 9   | Add E2E tests with real golangci-lint  | HIGH   | MEDIUM | P0       |
+| 10  | Implement Result<T, E> pattern         | HIGH   | MEDIUM | P1       |
+| 11  | Add structured logging with zap        | MEDIUM | MEDIUM | P1       |
+| 12  | Add dark mode to HTML reports          | LOW    | MEDIUM | P2       |
 
 ### Medium Impact / Low Effort (1-2 hours each)
-| # | Feature | Impact | Effort | Priority |
-|---|----------|---------|----------|
-| 13 | Add GitHub Actions CI/CD pipeline | MEDIUM | LOW | P1 |
-| 14 | Add pre-commit hooks | MEDIUM | LOW | P1 |
-| 15 | Add Docker support | MEDIUM | LOW | P1 |
-| 16 | Create Makefile alternative | LOW | LOW | P2 |
-| 17 | Add property-based tests | MEDIUM | LOW | P2 |
-| 18 | Add metrics with prometheus | MEDIUM | LOW | P2 |
+
+| #   | Feature                           | Impact | Effort | Priority |
+| --- | --------------------------------- | ------ | ------ | -------- |
+| 13  | Add GitHub Actions CI/CD pipeline | MEDIUM | LOW    | P1       |
+| 14  | Add pre-commit hooks              | MEDIUM | LOW    | P1       |
+| 15  | Add Docker support                | MEDIUM | LOW    | P1       |
+| 16  | Create Makefile alternative       | LOW    | LOW    | P2       |
+| 17  | Add property-based tests          | MEDIUM | LOW    | P2       |
+| 18  | Add metrics with prometheus       | MEDIUM | LOW    | P2       |
 
 ### Medium Impact / Medium Effort (3-4 hours each)
-| # | Feature | Impact | Effort | Priority |
-|---|----------|---------|----------|
-| 19 | Implement proper interfaces | MEDIUM | MEDIUM | P2 |
-| 20 | Add dependency injection with samber/do | MEDIUM | MEDIUM | P2 |
-| 21 | Add interactive CLI with bubbletea | HIGH | MEDIUM | P2 |
-| 22 | Add project type detection | MEDIUM | MEDIUM | P2 |
+
+| #   | Feature                                 | Impact | Effort | Priority |
+| --- | --------------------------------------- | ------ | ------ | -------- |
+| 19  | Implement proper interfaces             | MEDIUM | MEDIUM | P2       |
+| 20  | Add dependency injection with samber/do | MEDIUM | MEDIUM | P2       |
+| 21  | Add interactive CLI with bubbletea      | HIGH   | MEDIUM | P2       |
+| 22  | Add project type detection              | MEDIUM | MEDIUM | P2       |
 
 ### High Impact / High Effort (4-6 hours each)
-| # | Feature | Impact | Effort | Priority |
-|---|----------|---------|----------|
-| 23 | Add performance benchmarks | HIGH | HIGH | P2 |
-| 24 | Add pprof integration | HIGH | HIGH | P2 |
-| 25 | Add preset recommendations | HIGH | HIGH | P3 |
+
+| #   | Feature                    | Impact | Effort | Priority |
+| --- | -------------------------- | ------ | ------ | -------- |
+| 23  | Add performance benchmarks | HIGH   | HIGH   | P2       |
+| 24  | Add pprof integration      | HIGH   | HIGH   | P2       |
+| 25  | Add preset recommendations | HIGH   | HIGH   | P3       |
 
 ---
 
@@ -507,6 +514,7 @@ graph TD
 ## 🎯 Type Safety & Architecture Improvements
 
 ### 1. Result<T, E> Pattern Implementation
+
 ```go
 type Result[T any, E error] struct {
     value T
@@ -523,12 +531,14 @@ func Err[T any, E error](e E) Result[T, E] {
 ```
 
 **Benefits**:
+
 - Eliminates nil pointer dereferences
 - Forces error handling at compile time
 - Prevents unchecked errors
 - Enables functional chaining
 
 ### 2. Proper Interface Definitions
+
 ```go
 type Analyzer interface {
     AnalyzeConfig(path string) (*ConfigAnalysis, error)
@@ -541,12 +551,14 @@ type Fixer interface {
 ```
 
 **Benefits**:
+
 - Testability with fakes
 - Loose coupling
 - Clear contracts
 - Dependency injection support
 
 ### 3. Domain-Driven Types
+
 ```go
 type ConfigPath string
 func NewConfigPath(path string) (ConfigPath, error) {
@@ -558,12 +570,14 @@ func NewConfigPath(path string) (ConfigPath, error) {
 ```
 
 **Benefits**:
+
 - Compile-time validation
 - Self-documenting
 - Prevents invalid states
 - Encourages single responsibility
 
 ### 4. Enum Usage Over Booleans
+
 ```go
 type LinterPriority int
 const (
@@ -575,12 +589,14 @@ const (
 ```
 
 **Benefits**:
+
 - Type-safe
 - Self-documenting
 - Prevents invalid states
 - Enables exhaustive matching
 
 ### 5. Uint Usage for Counters
+
 ```go
 type LinterCount uint
 func (lc LinterCount) SafeDecrement() LinterCount {
@@ -592,6 +608,7 @@ func (lc LinterCount) SafeDecrement() LinterCount {
 ```
 
 **Benefits**:
+
 - Compile-time bounds checking (with overflow checking)
 - Self-documenting (counters should be unsigned)
 - Prevents negative counts
@@ -602,6 +619,7 @@ func (lc LinterCount) SafeDecrement() LinterCount {
 ## 📦 Well-Established Libraries to Use
 
 ### 1. **samber/do** - Dependency Injection
+
 ```go
 import "github.com/samber/do"
 
@@ -614,6 +632,7 @@ var analyzer = do.NewInjector(
 **Why**: Zero-runtime overhead, compile-time safety, excellent testing support
 
 ### 2. **zap** - Structured Logging
+
 ```go
 import "go.uber.org/zap"
 
@@ -624,6 +643,7 @@ logger.Info("analyzing config", zap.String("path", configPath))
 **Why**: High performance, structured logging, excellent Go support
 
 ### 3. **govalidator** - Configuration Validation
+
 ```go
 import "github.com/go-playground/validator/v10"
 
@@ -635,6 +655,7 @@ type Config struct {
 **Why**: Comprehensive validation, easy to use, good performance
 
 ### 4. **prometheus/client_golang** - Metrics
+
 ```go
 import "github.com/prometheus/client_golang/prometheus"
 
@@ -646,6 +667,7 @@ var (
 **Why**: Industry standard, excellent Go support, rich ecosystem
 
 ### 5. **go.uber.org/mock** - Mocking
+
 ```go
 import "go.uber.org/mock/mockgen"
 
@@ -660,16 +682,19 @@ mockAnalyzer := mock_analyzer.NewMockAnalyzer(ctrl)
 ## 🧹 Cleanup & Refactoring Tasks
 
 ### File Size Cleanup (target: <350 lines per file)
+
 - `internal/cli/commands.go`: Split into separate command files
 - `pkg/report/report.templ`: Split into multiple templates
 - `pkg/linter/analyzer.go`: Extract helper functions
 
 ### Duplicate Code Removal
+
 - Merge similar config loading patterns
 - Consolidate error handling
 - Extract common test utilities
 
 ### Unused Code Removal
+
 - Remove unused imports
 - Remove commented-out code
 - Remove deprecated features
@@ -679,6 +704,7 @@ mockAnalyzer := mock_analyzer.NewMockAnalyzer(ctrl)
 ## 📊 Success Metrics
 
 ### Code Quality Targets
+
 - [ ] 95%+ test coverage
 - [ ] 0 golangci-lint issues
 - [ ] 0 staticcheck warnings
@@ -686,12 +712,14 @@ mockAnalyzer := mock_analyzer.NewMockAnalyzer(ctrl)
 - [ ] 100% interface usage in tests
 
 ### Architecture Targets
+
 - [ ] 100% Result<T, E> usage (no (T, error) returns)
 - [ ] 100% interface compliance
 - [ ] 100% dependency injection (no manual new calls)
 - [ ] 100% strong typing (no interface{}, no any)
 
 ### Feature Targets
+
 - [ ] All 25 tasks complete
 - [ ] All CLI commands tested (unit + integration + E2E)
 - [ ] Shell completion for bash/zsh/fish
@@ -705,6 +733,7 @@ mockAnalyzer := mock_analyzer.NewMockAnalyzer(ctrl)
 ## 🚀 Execution Strategy
 
 ### Pareto Principle (80/20 Rule)
+
 **First, do the 20% of tasks that deliver 80% of value:**
 
 1. **Restore Command** (1-2 hours) - Critical user need
@@ -717,6 +746,7 @@ mockAnalyzer := mock_analyzer.NewMockAnalyzer(ctrl)
 **Expected Value**: 80% of missing functionality in ~15 hours
 
 ### Then, execute remaining tasks:
+
 - Phase 2: Architecture (16 hours)
 - Phase 3: Testing (12 hours)
 - Phase 4: DX & Ops (12 hours)
@@ -729,6 +759,7 @@ mockAnalyzer := mock_analyzer.NewMockAnalyzer(ctrl)
 ## 📝 Commit Strategy
 
 ### After Each Task Group:
+
 ```bash
 git add .
 git commit -m "feat: [task description]
@@ -746,7 +777,9 @@ git push
 ```
 
 ### After Each Major Milestone:
+
 Create a release tag:
+
 ```bash
 git tag -a v0.2.0 -m "Release v0.2.0: Quick Wins Complete"
 git push --tags
@@ -757,6 +790,7 @@ git push --tags
 ## 🎯 What Could Have Been Done Better (Post-Mortem)
 
 ### Missed Opportunities
+
 1. **No Result<T, E> pattern from start** - Would have prevented error handling bugs
 2. **No interfaces from start** - Made testing harder
 3. **No DI from start** - Tight coupling everywhere
@@ -767,6 +801,7 @@ git push --tags
 8. **No restore command from start** - Users can't easily undo changes
 
 ### Architecture Issues
+
 1. **God objects in loader** - Single responsibility principle violated
 2. **No clear boundaries** - CLI code mixed with business logic
 3. **No domain types** - Using primitive strings everywhere
@@ -774,6 +809,7 @@ git push --tags
 5. **No adapter pattern** - Direct calls to external tools (golangci-lint)
 
 ### Code Quality Issues
+
 1. **Large files** - commands.go will exceed 350 lines
 2. **Generic error types** - Hard to debug, no context
 3. **No property-based testing** - Edge cases untested
@@ -781,12 +817,14 @@ git push --tags
 5. **No metrics** - Can't measure production usage
 
 ### Testing Issues
+
 1. **Only unit tests** - No integration, no E2E
 2. **No test fakes** - Hard to test edge cases
 3. **No property tests** - Random edge cases missed
 4. **No load tests** - Don't know performance limits
 
 ### Documentation Issues
+
 1. **No examples** - Users don't know how to use
 2. **No API docs** - Public API unclear
 3. **No troubleshooting** - Common issues unsolved
@@ -797,6 +835,7 @@ git push --tags
 ## 🏆 Final Success Criteria
 
 ### Critical Path (MUST HAVE)
+
 - [ ] All 25 tasks complete
 - [ ] 95%+ test coverage
 - [ ] All tests passing
@@ -808,6 +847,7 @@ git push --tags
 - [ ] All documentation updated
 
 ### Quality Gates (SHOULD HAVE)
+
 - [ ] All files <350 lines
 - [ ] All types strong (no any, no interface{})
 - [ ] All errors with context
@@ -817,6 +857,7 @@ git push --tags
 - [ ] Performance benchmarks passing thresholds
 
 ### Nice to Have (COULD HAVE)
+
 - [ ] Interactive CLI polished
 - [ ] Multiple report formats
 - [ ] Preset system intuitive

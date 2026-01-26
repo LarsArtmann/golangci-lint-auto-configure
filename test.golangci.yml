@@ -17,7 +17,7 @@ linters:
     - staticcheck
     - govet
     - ineffassign
-    
+
     # Error handling
     - errchkjson
     - nilerr

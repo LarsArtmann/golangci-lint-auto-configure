@@ -22,7 +22,7 @@ linters:
     - sloglint
     - loggercheck
     - musttag
-    
+
     # High value linters
     - wrapcheck
     - errorlint
