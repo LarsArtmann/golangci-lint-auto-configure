@@ -1,8 +1,10 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
@@ -152,8 +154,56 @@ func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string {
 	return filepath.Join(startDir, ".golangci.yml")
 }
 
-// CreateDefaultConfig creates a default golangci-lint configuration
+// LinterList represents the JSON output from golangci-lint linters command
+type LinterList struct {
+	Enabled []struct {
+		Name string `json:"name"`
+	} `json:"Enabled"`
+	Disabled []struct {
+		Name string `json:"name"`
+	} `json:"Disabled"`
+}
+
+// GetAllLinterNames fetches all available linter names from golangci-lint
+func (l *Loader) GetAllLinterNames() ([]string, error) {
+	cmd := exec.Command("golangci-lint", "linters", "--json")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to run golangci-lint linters: %w", err)
+	}
+
+	var linterList LinterList
+	if err := json.Unmarshal(output, &linterList); err != nil {
+		return nil, fmt.Errorf("failed to parse golangci-lint linters output: %w", err)
+	}
+
+	// Extract all enabled linter names
+	var linterNames []string
+	for _, linter := range linterList.Enabled {
+		linterNames = append(linterNames, linter.Name)
+	}
+
+	return linterNames, nil
+}
+
+// CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled
 func (l *Loader) CreateDefaultConfig() *Config {
+	// Fetch all available linters dynamically
+	allLinters, err := l.GetAllLinterNames()
+	if err != nil {
+		l.logger.Warnf("Failed to fetch all linters, using critical set: %v", err)
+		// Fallback to critical linters if fetch fails
+		allLinters = []string{
+			"gosec",
+			"errcheck",
+			"staticcheck",
+			"govet",
+			"ineffassign",
+		}
+	} else {
+		l.logger.Infof("Enabled %d linters in default configuration", len(allLinters))
+	}
+
 	return &Config{
 		Version: "2",
 		Run: RunConfig{
@@ -162,14 +212,7 @@ func (l *Loader) CreateDefaultConfig() *Config {
 			Tests:          true,
 		},
 		Linters: LintersConfig{
-			Enable: []string{
-				// Critical security linters
-				"gosec",
-				"errcheck",
-				"staticcheck",
-				"govet",
-				"ineffassign",
-			},
+			Enable: allLinters,
 		},
 		Issues: IssuesConfig{
 			MaxIssuesPerLinter: 50,
