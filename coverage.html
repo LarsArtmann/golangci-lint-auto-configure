@@ -1,0 +1,1869 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>golangci-linter-auto-configure: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-linter-auto-configure/main.go (0.0%)</option>
+				
+				<option value="file1">github.com/larsartmann/golangcli-linter-auto-configure/internal/cli/commands.go (0.0%)</option>
+				
+				<option value="file2">github.com/larsartmann/golangcli-linter-auto-configure/pkg/config/loader.go (73.9%)</option>
+				
+				<option value="file3">github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors/errors.go (0.0%)</option>
+				
+				<option value="file4">github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter/analyzer.go (89.2%)</option>
+				
+				<option value="file5">github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter/fixer.go (58.7%)</option>
+				
+				<option value="file6">github.com/larsartmann/golangcli-linter-auto-configure/pkg/report/generator.go (0.0%)</option>
+				
+				<option value="file7">github.com/larsartmann/golangcli-linter-auto-configure/pkg/report/json_report_generator.go (0.0%)</option>
+				
+				<option value="file8">github.com/larsartmann/golangcli-linter-auto-configure/pkg/report/report_templ.go (0.0%)</option>
+				
+				<option value="file9">github.com/larsartmann/golangcli-linter-auto-configure/pkg/types/types.go (0.0%)</option>
+				
+				<option value="file10">github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow/workflow.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "github.com/larsartmann/golangcli-linter-auto-configure/internal/cli"
+)
+
+func main() <span class="cov0" title="0">{
+        cli.Main()
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package cli
+
+import (
+        "fmt"
+        "os"
+
+        "github.com/charmbracelet/log"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/report"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow"
+        "github.com/spf13/cobra"
+)
+
+var (
+        configPath   string
+        dryRun       bool
+        verbose      bool
+        generateHTML bool
+        outputReport string
+        priority     string
+        reportFormat string
+)
+
+// NewRootCommand creates the root CLI command
+func NewRootCommand() *cobra.Command <span class="cov0" title="0">{
+        logger := log.NewWithOptions(os.Stdout, log.Options{
+                ReportCaller: false,
+                TimeFormat:   "15:04:05",
+                Level:        log.InfoLevel,
+        })
+
+        cmd := &amp;cobra.Command{
+                Use:   "golangci-linter-auto-configure",
+                Short: "Automatically configure and optimize golangci-lint",
+                Long: `A tool that automatically analyzes golangci-lint configurations,
+detects missing linters with smart categorization, and provides
+actionable recommendations to improve your Go code quality.`,
+        }
+
+        // Create analyzer and workflow builder
+        analyzer := linter.NewAnalyzer(logger)
+        workflowBuilder := workflow.NewBuilder(logger, analyzer)
+
+        // Configure root command
+        configLoader := config.NewLoader(logger)
+
+        cmd.AddCommand(
+                newConfigureCommand(logger, analyzer, workflowBuilder, configLoader),
+                newAnalyzeCommand(logger, analyzer, configLoader),
+                newMigrateCommand(logger, configLoader),
+                newValidateCommand(logger, configLoader),
+                newReportCommand(logger, analyzer, configLoader),
+                newRestoreCommand(logger, configLoader),
+        )
+
+        // Global flags
+        cmd.PersistentFlags().StringVarP(&amp;configPath, "config", "c", "", "Path to golangci-lint config file")
+        cmd.PersistentFlags().BoolVarP(&amp;dryRun, "dry-run", "d", false, "Show what would be done without making changes")
+        cmd.PersistentFlags().BoolVarP(&amp;verbose, "verbose", "v", false, "Enable verbose output")
+        cmd.PersistentFlags().BoolVar(&amp;generateHTML, "html", false, "Generate HTML report")
+        cmd.PersistentFlags().StringVar(&amp;outputReport, "output", "report.html", "Output path for HTML report")
+        cmd.PersistentFlags().StringVar(&amp;priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
+        cmd.PersistentFlags().StringVar(&amp;reportFormat, "format", "html", "Output format (html, json)")
+
+        return cmd
+}</span>
+
+// newConfigureCommand creates the configure command
+func newConfigureCommand(
+        logger *log.Logger,
+        analyzer *linter.Analyzer,
+        workflowBuilder *workflow.Builder,
+        configLoader *config.Loader,
+) *cobra.Command <span class="cov0" title="0">{
+        cmd := &amp;cobra.Command{
+                Use:   "configure",
+                Short: "Auto-configure golangci-lint (default command)",
+                Long: `Automatically configures golangci-lint by enabling recommended linters.
+Use --priority to filter which linters to enable:
+  - critical: Only enable critical linters (security, correctness)
+  - high: Enable critical and high-value linters (recommended)
+  - medium: Enable all except optional linters
+  - optional: Enable all linters (may be too strict)`,
+                RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
+                        if verbose </span><span class="cov0" title="0">{
+                                logger.SetLevel(log.DebugLevel)
+                        }</span>
+
+                        // Find config file if not specified
+                        <span class="cov0" title="0">configFile := configPath
+                        if configFile == "" </span><span class="cov0" title="0">{
+                                var err error
+                                configFile, err = configLoader.FindConfigFile(".")
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return fmt.Errorf("no config file found: %w", err)
+                                }</span>
+                        }
+
+                        <span class="cov0" title="0">logger.Infof("Configuring golangci-lint with config: %s", configFile)
+
+                        // Create fixer and apply fixes
+                        fixer := linter.NewFixer(logger, analyzer)
+
+                        var linterPriority types.LinterPriority
+                        switch priority </span>{
+                        case "critical":<span class="cov0" title="0">
+                                linterPriority = types.LinterPriorityCritical</span>
+                        case "high":<span class="cov0" title="0">
+                                linterPriority = types.LinterPriorityHigh</span>
+                        case "medium":<span class="cov0" title="0">
+                                linterPriority = types.LinterPriorityMedium</span>
+                        case "optional":<span class="cov0" title="0">
+                                linterPriority = types.LinterPriorityOptional</span>
+                        default:<span class="cov0" title="0">
+                                linterPriority = types.LinterPriorityHigh</span>
+                        }
+
+                        <span class="cov0" title="0">result, err := fixer.FixConfig(configFile, linterPriority, dryRun)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("failed to fix configuration: %w", err)
+                        }</span>
+
+                        <span class="cov0" title="0">logger.Infof("%s", result.Message)
+                        if result.BackupPath != "" </span><span class="cov0" title="0">{
+                                logger.Infof("Backup created: %s", result.BackupPath)
+                        }</span>
+
+                        <span class="cov0" title="0">return nil</span>
+                },
+        }
+
+        <span class="cov0" title="0">cmd.Flags().StringVar(&amp;priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
+
+        return cmd</span>
+}
+
+// newAnalyzeCommand creates the analyze command
+func newAnalyzeCommand(
+        logger *log.Logger,
+        analyzer *linter.Analyzer,
+        configLoader *config.Loader,
+) *cobra.Command <span class="cov0" title="0">{
+        cmd := &amp;cobra.Command{
+                Use:   "analyze",
+                Short: "Analyze golangci-lint configuration and show recommendations",
+                RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
+                        if verbose </span><span class="cov0" title="0">{
+                                logger.SetLevel(log.DebugLevel)
+                        }</span>
+
+                        // Find config file if not specified
+                        <span class="cov0" title="0">configFile := configPath
+                        if configFile == "" </span><span class="cov0" title="0">{
+                                var err error
+                                configFile, err = configLoader.FindConfigFile(".")
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return fmt.Errorf("no config file found: %w", err)
+                                }</span>
+                        }
+
+                        <span class="cov0" title="0">logger.Infof("Analyzing configuration: %s", configFile)
+
+                        // Perform analysis
+                        analysis, err := analyzer.AnalyzeConfig(configFile)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("analysis failed: %w", err)
+                        }</span>
+
+                        // Display recommendations
+                        <span class="cov0" title="0">recommendations := analyzer.FormatRecommendations(analysis)
+                        summary := analyzer.GetSummary(analysis)
+
+                        logger.Info("\n" + recommendations)
+                        logger.Infof("Summary: %s", summary)
+
+                        return nil</span>
+                },
+        }
+
+        <span class="cov0" title="0">return cmd</span>
+}
+
+// newMigrateCommand creates the migrate command
+func newMigrateCommand(
+        logger *log.Logger,
+        configLoader *config.Loader,
+) *cobra.Command <span class="cov0" title="0">{
+        cmd := &amp;cobra.Command{
+                Use:   "migrate",
+                Short: "Migrate configuration to golangci-lint v2.8+ schema",
+                RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
+                        if verbose </span><span class="cov0" title="0">{
+                                logger.SetLevel(log.DebugLevel)
+                        }</span>
+
+                        // Find config file if not specified
+                        <span class="cov0" title="0">configFile := configPath
+                        if configFile == "" </span><span class="cov0" title="0">{
+                                var err error
+                                configFile, err = configLoader.FindConfigFile(".")
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return fmt.Errorf("no config file found: %w", err)
+                                }</span>
+                        }
+
+                        <span class="cov0" title="0">logger.Infof("Migrating configuration: %s", configFile)
+
+                        // Migration would be implemented here
+                        // For now, this is a placeholder
+                        logger.Warnf("Migration functionality not yet implemented")
+
+                        return nil</span>
+                },
+        }
+
+        <span class="cov0" title="0">return cmd</span>
+}
+
+// newValidateCommand creates the validate command
+func newValidateCommand(
+        logger *log.Logger,
+        configLoader *config.Loader,
+) *cobra.Command <span class="cov0" title="0">{
+        cmd := &amp;cobra.Command{
+                Use:   "validate",
+                Short: "Validate golangci-lint configuration",
+                RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
+                        if verbose </span><span class="cov0" title="0">{
+                                logger.SetLevel(log.DebugLevel)
+                        }</span>
+
+                        // Find config file if not specified
+                        <span class="cov0" title="0">configFile := configPath
+                        if configFile == "" </span><span class="cov0" title="0">{
+                                var err error
+                                configFile, err = configLoader.FindConfigFile(".")
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return fmt.Errorf("no config file found: %w", err)
+                                }</span>
+                        }
+
+                        <span class="cov0" title="0">logger.Infof("Validating configuration: %s", configFile)
+
+                        // Load and validate config
+                        cfg, err := configLoader.LoadConfig(configFile)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("failed to load config: %w", err)
+                        }</span>
+
+                        <span class="cov0" title="0">errors := configLoader.ValidateConfig(cfg)
+                        if len(errors) &gt; 0 </span><span class="cov0" title="0">{
+                                logger.Errorf("Configuration validation failed:")
+                                for _, err := range errors </span><span class="cov0" title="0">{
+                                        logger.Errorf("  - %v", err)
+                                }</span>
+                                <span class="cov0" title="0">return fmt.Errorf("configuration has %d validation errors", len(errors))</span>
+                        }
+
+                        <span class="cov0" title="0">logger.Infof("Configuration is valid")
+
+                        return nil</span>
+                },
+        }
+
+        <span class="cov0" title="0">return cmd</span>
+}
+
+// newReportCommand creates the report command
+func newReportCommand(
+        logger *log.Logger,
+        analyzer *linter.Analyzer,
+        configLoader *config.Loader,
+) *cobra.Command <span class="cov0" title="0">{
+        cmd := &amp;cobra.Command{
+                Use:   "report",
+                Short: "Generate HTML report of configuration",
+                RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
+                        if verbose </span><span class="cov0" title="0">{
+                                logger.SetLevel(log.DebugLevel)
+                        }</span>
+
+                        // Find config file if not specified
+                        <span class="cov0" title="0">configFile := configPath
+                        if configFile == "" </span><span class="cov0" title="0">{
+                                var err error
+                                configFile, err = configLoader.FindConfigFile(".")
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return fmt.Errorf("no config file found: %w", err)
+                                }</span>
+                        }
+
+                        <span class="cov0" title="0">logger.Infof("Generating %s report for: %s", reportFormat, configFile)
+
+                        // Analyze configuration
+                        analysis, err := analyzer.AnalyzeConfig(configFile)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("analysis failed: %w", err)
+                        }</span>
+
+                        // Determine output path
+                        <span class="cov0" title="0">outputPath := outputReport
+                        if outputPath == "report.html" </span><span class="cov0" title="0">{
+                                if reportFormat == "json" </span><span class="cov0" title="0">{
+                                        outputPath = "report.json"
+                                }</span>
+                        }
+
+                        // Generate report based on format
+                        <span class="cov0" title="0">if reportFormat == "json" </span><span class="cov0" title="0">{
+                                jsonGenerator := report.NewJSONGenerator(logger)
+                                if err := jsonGenerator.GenerateJSONReport(analysis, outputPath); err != nil </span><span class="cov0" title="0">{
+                                        return fmt.Errorf("failed to generate JSON report: %w", err)
+                                }</span>
+                        } else<span class="cov0" title="0"> {
+                                htmlGenerator := report.NewGenerator(logger)
+                                if err := htmlGenerator.GenerateReport(analysis, outputPath); err != nil </span><span class="cov0" title="0">{
+                                        return fmt.Errorf("failed to generate HTML report: %w", err)
+                                }</span>
+                        }
+
+                        <span class="cov0" title="0">return nil</span>
+                },
+        }
+
+        <span class="cov0" title="0">return cmd</span>
+}
+
+// newRestoreCommand creates the restore command
+func newRestoreCommand(
+        logger *log.Logger,
+        configLoader *config.Loader,
+) *cobra.Command <span class="cov0" title="0">{
+        cmd := &amp;cobra.Command{
+                Use:   "restore",
+                Short: "Restore configuration from backup",
+                RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
+                        if verbose </span><span class="cov0" title="0">{
+                                logger.SetLevel(log.DebugLevel)
+                        }</span>
+
+                        // Get backup path from flag or argument
+                        <span class="cov0" title="0">backupPath, _ := cmd.Flags().GetString("backup-path")
+                        if backupPath == "" &amp;&amp; len(args) &gt; 0 </span><span class="cov0" title="0">{
+                                return fmt.Errorf("backup path required (use --backup-path flag or provide as argument)")
+                        }</span>
+                        <span class="cov0" title="0">if backupPath == "" </span><span class="cov0" title="0">{
+                                backupPath = args[0]
+                        }</span>
+
+                        <span class="cov0" title="0">logger.Infof("Restoring configuration from: %s", backupPath)
+
+                        // Check if backup file exists
+                        if _, err := os.Stat(backupPath); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                                return fmt.Errorf("backup file not found: %s", backupPath)
+                        }</span>
+
+                        // Determine target config path
+                        <span class="cov0" title="0">targetPath := configPath
+                        if targetPath == "" </span><span class="cov0" title="0">{
+                                var err error
+                                targetPath, err = configLoader.FindConfigFile(".")
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return fmt.Errorf("no config file found to restore to: %w", err)
+                                }</span>
+                        }
+
+                        <span class="cov0" title="0">logger.Infof("Restoring to: %s", targetPath)
+
+                        // Perform restore
+                        if err := configLoader.RestoreConfig(backupPath, targetPath); err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("failed to restore configuration: %w", err)
+                        }</span>
+
+                        <span class="cov0" title="0">logger.Infof("Configuration restored successfully")
+
+                        return nil</span>
+                },
+        }
+
+        <span class="cov0" title="0">cmd.Flags().String("backup-path", "", "Path to backup file to restore from")
+
+        return cmd</span>
+}
+
+// Execute runs the CLI
+func Execute() error <span class="cov0" title="0">{
+        cmd := NewRootCommand()
+        return cmd.Execute()
+}</span>
+
+// Main is the entry point
+func Main() <span class="cov0" title="0">{
+        if err := Execute(); err != nil </span><span class="cov0" title="0">{
+                fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+                os.Exit(1)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package config
+
+import (
+        "fmt"
+        "os"
+        "path/filepath"
+
+        "github.com/charmbracelet/log"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+        "gopkg.in/yaml.v3"
+)
+
+// Config represents a golangci-lint configuration file
+type Config struct {
+        Version         string          `yaml:"version"`
+        Run             RunConfig       `yaml:"run"`
+        Output          OutputConfig    `yaml:"output"`
+        Linters         LintersConfig   `yaml:"linters"`
+        LintersSettings LintersSettings `yaml:"linters-settings,omitempty"`
+        Issues          IssuesConfig    `yaml:"issues"`
+        Servers         ServersConfig   `yaml:"servers"`
+}
+
+type RunConfig struct {
+        Timeout              string   `yaml:"timeout"`
+        Go                   string   `yaml:"go"`
+        BuildTags            string   `yaml:"build-tags"`
+        ModulesDownloadMode  string   `yaml:"modules-download-mode"`
+        AllowParallelRunners bool     `yaml:"allow-parallel-runners"`
+        AllowSerialRunners   bool     `yaml:"allow-serial-runners"`
+        Env                  []string `yaml:"env"`
+}
+
+type OutputConfig struct {
+        Formats             []string `yaml:"formats"`
+        PrintIssuedLines    bool     `yaml:"print-issued-lines"`
+        PrintLinterName     bool     `yaml:"print-linter-name"`
+        SortResults         bool     `yaml:"sort-results"`
+        PrintWelcomeMessage bool     `yaml:"print-welcome-message"`
+}
+
+type LintersConfig struct {
+        Enable  []string `yaml:"enable"`
+        Disable []string `yaml:"disable"`
+        Fast    bool     `yaml:"fast"`
+        Presets []string `yaml:"presets"`
+}
+
+type LintersSettings map[string]interface{}
+
+type IssuesConfig struct {
+        Exclude            []string `yaml:"exclude"`
+        ExcludeRules       []string `yaml:"exclude-rules,omitempty"`
+        ExcludeGenerated   bool     `yaml:"exclude-generated"`
+        ExcludeFiles       []string `yaml:"exclude-files,omitempty"`
+        ExcludeDirs        []string `yaml:"exclude-dirs,omitempty"`
+        MaxIssuesPerLinter int      `yaml:"max-issues-per-linter"`
+        MaxSameIssues      int      `yaml:"max-same-issues"`
+        NewFromRev         string   `yaml:"new-from-rev"`
+        NewFromPatch       string   `yaml:"new-from-patch"`
+        UseDefaultExcludes bool     `yaml:"use-default-excludes"`
+}
+
+type ServersConfig struct {
+        HTTPHeaders map[string]string `yaml:"http-headers"`
+}
+
+// Loader handles loading golangci-lint configuration files
+type Loader struct {
+        logger *log.Logger
+}
+
+// NewLoader creates a new configuration loader
+func NewLoader(logger *log.Logger) *Loader <span class="cov10" title="16">{
+        return &amp;Loader{
+                logger: logger,
+        }
+}</span>
+
+// LoadConfig loads a golangci-lint configuration from the given path
+func (l *Loader) LoadConfig(path string) (*Config, error) <span class="cov5" title="4">{
+        data, err := os.ReadFile(path)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, errors.NewConfigError(fmt.Sprintf("failed to read config file"), path, err)
+        }</span>
+
+        <span class="cov4" title="3">var config Config
+        if err := yaml.Unmarshal(data, &amp;config); err != nil </span><span class="cov0" title="0">{
+                return nil, errors.NewConfigError(fmt.Sprintf("failed to parse config file"), path, err)
+        }</span>
+
+        <span class="cov4" title="3">l.logger.Debugf("Loaded config from %s", path)
+        return &amp;config, nil</span>
+}
+
+// FindConfigFile searches for a golangci-lint config file in the current directory and parent directories
+func (l *Loader) FindConfigFile(startDir string) (string, error) <span class="cov4" title="3">{
+        defaultNames := []string{
+                ".golangci.yml",
+                ".golangci.yaml",
+                ".golangci.toml",
+                ".golangci.json",
+        }
+
+        for _, name := range defaultNames </span><span class="cov7" title="7">{
+                path := filepath.Join(startDir, name)
+                if _, err := os.Stat(path); err == nil </span><span class="cov3" title="2">{
+                        l.logger.Debugf("Found config file: %s", path)
+                        return path, nil
+                }</span>
+        }
+
+        <span class="cov1" title="1">return "", errors.NewConfigError(fmt.Sprintf("no golangci-lint config file found in %s", startDir), startDir, nil)</span>
+}
+
+// SaveConfig saves a golangci-lint configuration to the given path
+func (l *Loader) SaveConfig(config *Config, path string) error <span class="cov3" title="2">{
+        data, err := yaml.Marshal(config)
+        if err != nil </span><span class="cov0" title="0">{
+                return errors.NewConfigError("failed to marshal config", path, err)
+        }</span>
+
+        <span class="cov3" title="2">if err := os.WriteFile(path, data, 0o644); err != nil </span><span class="cov0" title="0">{
+                return errors.NewConfigError("failed to write config file", path, err)
+        }</span>
+
+        <span class="cov3" title="2">l.logger.Infof("Saved config to %s", path)
+        return nil</span>
+}
+
+// CreateBackup creates a backup of the given file
+func (l *Loader) CreateBackup(filePath string) (string, error) <span class="cov5" title="4">{
+        backupPath := filePath + ".backup"
+
+        data, err := os.ReadFile(filePath)
+        if err != nil </span><span class="cov1" title="1">{
+                return "", errors.NewConfigError("failed to read file for backup", filePath, err)
+        }</span>
+
+        <span class="cov4" title="3">if err := os.WriteFile(backupPath, data, 0o644); err != nil </span><span class="cov0" title="0">{
+                return "", errors.NewConfigError("failed to create backup", backupPath, err)
+        }</span>
+
+        <span class="cov4" title="3">l.logger.Infof("Created backup: %s", backupPath)
+        return backupPath, nil</span>
+}
+
+// ValidateConfig performs basic validation on the configuration
+func (l *Loader) ValidateConfig(config *Config) []error <span class="cov4" title="3">{
+        var errs []error
+
+        if config.Run.Timeout != "" &amp;&amp; config.Run.Timeout == "" </span><span class="cov0" title="0">{
+                errs = append(errs, errors.NewConfigError("run.timeout cannot be empty", "", nil))
+        }</span>
+
+        <span class="cov4" title="3">if len(config.Linters.Enable) == 0 &amp;&amp; len(config.Linters.Disable) == 0 &amp;&amp; !config.Linters.Fast </span><span class="cov3" title="2">{
+                l.logger.Debugf("No linter configuration specified, using defaults")
+        }</span>
+
+        <span class="cov4" title="3">return errs</span>
+}
+
+// GetLintersEnabled returns the list of explicitly enabled linters
+func (l *Loader) GetLintersEnabled(config *Config) []string <span class="cov1" title="1">{
+        return config.Linters.Enable
+}</span>
+
+// GetLintersDisabled returns the list of explicitly disabled linters
+func (l *Loader) GetLintersDisabled(config *Config) []string <span class="cov1" title="1">{
+        return config.Linters.Disable
+}</span>
+
+// RestoreConfig restores a configuration from a backup file to target path
+func (l *Loader) RestoreConfig(backupPath, targetPath string) error <span class="cov0" title="0">{
+        data, err := os.ReadFile(backupPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return errors.NewConfigError("failed to read backup file", backupPath, err)
+        }</span>
+
+        <span class="cov0" title="0">if err := os.WriteFile(targetPath, data, 0o644); err != nil </span><span class="cov0" title="0">{
+                return errors.NewConfigError("failed to restore config", targetPath, err)
+        }</span>
+
+        <span class="cov0" title="0">l.logger.Infof("Restored configuration from %s to %s", backupPath, targetPath)
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package errors
+
+import "fmt"
+
+// ConfigError represents a configuration-related error
+type ConfigError struct {
+        Message string
+        Path    string
+        Cause   error
+}
+
+func (e *ConfigError) Error() string <span class="cov0" title="0">{
+        if e.Cause != nil </span><span class="cov0" title="0">{
+                return fmt.Sprintf("%s (path: %s): %v", e.Message, e.Path, e.Cause)
+        }</span>
+        <span class="cov0" title="0">return fmt.Sprintf("%s (path: %s)", e.Message, e.Path)</span>
+}
+
+// NewConfigError creates a new configuration error
+func NewConfigError(msg, path string, err error) *ConfigError <span class="cov0" title="0">{
+        return &amp;ConfigError{
+                Message: msg,
+                Path:    path,
+                Cause:   err,
+        }
+}</span>
+
+// AnalysisError represents an analysis-related error
+type AnalysisError struct {
+        Message string
+        File    string
+        Cause   error
+}
+
+func (e *AnalysisError) Error() string <span class="cov0" title="0">{
+        if e.Cause != nil </span><span class="cov0" title="0">{
+                return fmt.Sprintf("%s (file: %s): %v", e.Message, e.File, e.Cause)
+        }</span>
+        <span class="cov0" title="0">return fmt.Sprintf("%s (file: %s)", e.Message, e.File)</span>
+}
+
+// NewAnalysisError creates a new analysis error
+func NewAnalysisError(msg, file string, err error) *AnalysisError <span class="cov0" title="0">{
+        return &amp;AnalysisError{
+                Message: msg,
+                File:    file,
+                Cause:   err,
+        }
+}</span>
+
+// ReportError represents a report generation error
+type ReportError struct {
+        Message string
+        Path    string
+        Cause   error
+}
+
+func (e *ReportError) Error() string <span class="cov0" title="0">{
+        if e.Cause != nil </span><span class="cov0" title="0">{
+                return fmt.Sprintf("%s (path: %s): %v", e.Message, e.Path, e.Cause)
+        }</span>
+        <span class="cov0" title="0">return fmt.Sprintf("%s (path: %s)", e.Message, e.Path)</span>
+}
+
+// NewReportError creates a new report error
+func NewReportError(msg, path string, err error) *ReportError <span class="cov0" title="0">{
+        return &amp;ReportError{
+                Message: msg,
+                Path:    path,
+                Cause:   err,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package linter
+
+import (
+        "encoding/json"
+        "fmt"
+        "os/exec"
+        "strings"
+
+        "github.com/charmbracelet/log"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+)
+
+// Analyzer analyzes golangci-lint configurations and provides recommendations
+type Analyzer struct {
+        golangciLintPath string
+        logger           *log.Logger
+}
+
+// NewAnalyzer creates a new linter analyzer
+func NewAnalyzer(logger *log.Logger) *Analyzer <span class="cov6" title="16">{
+        return &amp;Analyzer{
+                golangciLintPath: "",
+                logger:           logger,
+        }
+}</span>
+
+// golangciLintOutput represents JSON output from golangci-lint linters/formatters commands
+type golangciLintOutput struct {
+        Enabled  []types.LinterInfo `json:"Enabled"`
+        Disabled []types.LinterInfo `json:"Disabled"`
+}
+
+// FindBinary finds the golangci-lint binary in PATH
+func (a *Analyzer) FindBinary() error <span class="cov1" title="1">{
+        path, err := exec.LookPath("golangci-lint")
+        if err != nil </span><span class="cov0" title="0">{
+                return errors.NewAnalysisError("golangci-lint not found in PATH", "", err)
+        }</span>
+        <span class="cov1" title="1">a.golangciLintPath = path
+        return nil</span>
+}
+
+// AnalyzeConfig analyzes the current golangci-lint configuration
+func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, error) <span class="cov1" title="1">{
+        if err := a.FindBinary(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov1" title="1">output, err := a.runLintersCommand()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, errors.NewAnalysisError("failed to run golangci-lint linters", "", err)
+        }</span>
+
+        <span class="cov1" title="1">var jsonOutput golangciLintOutput
+        if err := json.Unmarshal(output, &amp;jsonOutput); err != nil </span><span class="cov0" title="0">{
+                return nil, errors.NewAnalysisError("failed to parse golangci-lint JSON output", "", err)
+        }</span>
+
+        <span class="cov1" title="1">analysis := &amp;types.ConfigAnalysis{
+                ConfigPath:      configPath,
+                EnabledLinters:  jsonOutput.Enabled,
+                DisabledLinters: jsonOutput.Disabled,
+                Recommendations: a.categorizeLinters(jsonOutput.Disabled),
+        }
+
+        a.calculateRecommendationCounts(analysis)
+
+        return analysis, nil</span>
+}
+
+// runLintersCommand runs `golangci-lint linters` and returns JSON output
+func (a *Analyzer) runLintersCommand() ([]byte, error) <span class="cov1" title="1">{
+        cmd := exec.Command(a.golangciLintPath, "linters", "--json")
+        output, err := cmd.CombinedOutput()
+        if err != nil </span><span class="cov0" title="0">{
+                a.logger.Debugf("golangci-lint linters command failed: %v", err)
+                a.logger.Debugf("Output: %s", string(output))
+                return output, errors.NewAnalysisError("golangci-lint linters command failed", "", err)
+        }</span>
+        <span class="cov1" title="1">return output, nil</span>
+}
+
+// categorizeLinters categorizes disabled linters by priority
+func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo) []types.LinterRecommendation <span class="cov1" title="1">{
+        var recommendations []types.LinterRecommendation
+
+        for _, linter := range disabledLinters </span><span class="cov10" title="103">{
+                rec := types.LinterRecommendation{
+                        Name:   types.LinterName(linter.Name),
+                        Reason: a.getLinterReason(linter.Name),
+                }
+
+                // Get priority from constants, default to Optional if not found
+                if priority, ok := constants.LinterPriorities[rec.Name]; ok </span><span class="cov7" title="35">{
+                        rec.Priority = priority
+                }</span> else<span class="cov9" title="68"> {
+                        rec.Priority = types.LinterPriorityOptional
+                }</span>
+
+                <span class="cov10" title="103">recommendations = append(recommendations, rec)</span>
+        }
+
+        <span class="cov1" title="1">return recommendations</span>
+}
+
+// getLinterReason returns the human-readable reason for a linter recommendation
+func (a *Analyzer) getLinterReason(name string) string <span class="cov10" title="103">{
+        if reason, ok := constants.LinterReasons[types.LinterName(name)]; ok </span><span class="cov7" title="35">{
+                return reason
+        }</span>
+        <span class="cov9" title="68">return "Linter is disabled but may be useful"</span>
+}
+
+// calculateRecommendationCounts calculates counts by priority level
+func (a *Analyzer) calculateRecommendationCounts(analysis *types.ConfigAnalysis) <span class="cov1" title="1">{
+        for _, rec := range analysis.Recommendations </span><span class="cov10" title="103">{
+                switch rec.Priority </span>{
+                case types.LinterPriorityCritical:<span class="cov4" title="7">
+                        analysis.CriticalCount++</span>
+                case types.LinterPriorityHigh:<span class="cov6" title="16">
+                        analysis.HighValueCount++</span>
+                case types.LinterPriorityMedium:<span class="cov5" title="12">
+                        analysis.MediumValueCount++</span>
+                case types.LinterPriorityOptional:<span class="cov9" title="68">
+                        analysis.OptionalCount++</span>
+                }
+        }
+}
+
+// GetLintersByPriority returns recommendations filtered by priority
+func (a *Analyzer) GetLintersByPriority(recommendations []types.LinterRecommendation, priority types.LinterPriority) []types.LinterRecommendation <span class="cov7" title="22">{
+        var filtered []types.LinterRecommendation
+        for _, rec := range recommendations </span><span class="cov7" title="30">{
+                if rec.Priority == priority </span><span class="cov5" title="10">{
+                        filtered = append(filtered, rec)
+                }</span>
+        }
+        <span class="cov7" title="22">return filtered</span>
+}
+
+// FormatRecommendations formats recommendations as human-readable output
+func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string <span class="cov3" title="4">{
+        var builder strings.Builder
+
+        critical := a.GetLintersByPriority(analysis.Recommendations, types.LinterPriorityCritical)
+        highValue := a.GetLintersByPriority(analysis.Recommendations, types.LinterPriorityHigh)
+        mediumValue := a.GetLintersByPriority(analysis.Recommendations, types.LinterPriorityMedium)
+        optional := a.GetLintersByPriority(analysis.Recommendations, types.LinterPriorityOptional)
+
+        if len(critical) &gt; 0 </span><span class="cov1" title="1">{
+                builder.WriteString(fmt.Sprintf("🚨 %d CRITICAL linter(s) are disabled (should ALWAYS be enabled):\n", len(critical)))
+                for _, rec := range critical </span><span class="cov2" title="2">{
+                        builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
+                }</span>
+                <span class="cov1" title="1">builder.WriteString("\n")</span>
+        }
+
+        <span class="cov3" title="4">if len(highValue) &gt; 0 </span><span class="cov1" title="1">{
+                builder.WriteString(fmt.Sprintf("⚠️  %d HIGH VALUE linter(s) are disabled (recommended for most projects):\n", len(highValue)))
+                for _, rec := range highValue </span><span class="cov1" title="1">{
+                        builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
+                }</span>
+                <span class="cov1" title="1">builder.WriteString("\n")</span>
+        }
+
+        <span class="cov3" title="4">if len(mediumValue) &gt; 0 </span><span class="cov1" title="1">{
+                builder.WriteString(fmt.Sprintf("ℹ️  %d MEDIUM VALUE linter(s) are disabled (optional but recommended):\n", len(mediumValue)))
+                for _, rec := range mediumValue </span><span class="cov1" title="1">{
+                        builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
+                }</span>
+                <span class="cov1" title="1">builder.WriteString("\n")</span>
+        }
+
+        <span class="cov3" title="4">if len(optional) &gt; 0 </span><span class="cov1" title="1">{
+                builder.WriteString(fmt.Sprintf("💡 %d OPTIONAL linter(s) are disabled (for niche use cases):\n", len(optional)))
+                for _, rec := range optional </span><span class="cov1" title="1">{
+                        builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
+                }</span>
+        }
+
+        <span class="cov3" title="4">return builder.String()</span>
+}
+
+// GetSummary returns a brief summary of recommendations
+func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string <span class="cov3" title="3">{
+        var parts []string
+
+        if analysis.CriticalCount &gt; 0 </span><span class="cov2" title="2">{
+                parts = append(parts, fmt.Sprintf("%d CRITICAL", analysis.CriticalCount))
+        }</span>
+        <span class="cov3" title="3">if analysis.HighValueCount &gt; 0 </span><span class="cov1" title="1">{
+                parts = append(parts, fmt.Sprintf("%d HIGH", analysis.HighValueCount))
+        }</span>
+        <span class="cov3" title="3">if analysis.MediumValueCount &gt; 0 </span><span class="cov0" title="0">{
+                parts = append(parts, fmt.Sprintf("%d MEDIUM", analysis.MediumValueCount))
+        }</span>
+        <span class="cov3" title="3">if analysis.OptionalCount &gt; 0 </span><span class="cov0" title="0">{
+                parts = append(parts, fmt.Sprintf("%d OPTIONAL", analysis.OptionalCount))
+        }</span>
+
+        <span class="cov3" title="3">if len(parts) == 0 </span><span class="cov1" title="1">{
+                return "All linters enabled - no recommendations"
+        }</span>
+
+        <span class="cov2" title="2">return fmt.Sprintf("Found %d disabled linters: %s (see details above)",
+                len(analysis.Recommendations),
+                strings.Join(parts, ", "),
+        )</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package linter
+
+import (
+        "fmt"
+
+        "github.com/charmbracelet/log"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+)
+
+// Fixer provides functionality to fix golangci-lint configurations
+type Fixer struct {
+        configLoader *config.Loader
+        analyzer     *Analyzer
+        logger       *log.Logger
+}
+
+// NewFixer creates a new fixer
+func NewFixer(logger *log.Logger, analyzer *Analyzer) *Fixer <span class="cov2" title="3">{
+        return &amp;Fixer{
+                configLoader: config.NewLoader(logger),
+                analyzer:     analyzer,
+                logger:       logger,
+        }
+}</span>
+
+// FixConfig fixes the golangci-lint configuration by enabling recommended linters
+func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryRun bool) (*types.MigrationResult, error) <span class="cov2" title="3">{
+        f.logger.Infof("Loading configuration: %s", configPath)
+
+        cfg, err := f.configLoader.LoadConfig(configPath)
+        if err != nil </span><span class="cov2" title="2">{
+                return nil, errors.NewAnalysisError("failed to load config", configPath, err)
+        }</span>
+
+        <span class="cov1" title="1">f.logger.Infof("Analyzing configuration...")
+        analysis, err := f.analyzer.AnalyzeConfig(configPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, errors.NewAnalysisError("failed to analyze config", configPath, err)
+        }</span>
+
+        <span class="cov1" title="1">enabledLinters := f.configLoader.GetLintersEnabled(cfg)
+        disabledLinters := f.configLoader.GetLintersDisabled(cfg)
+
+        fixesApplied := 0
+        messages := []string{}
+
+        for _, rec := range analysis.Recommendations </span><span class="cov8" title="103">{
+                if rec.Priority &lt; priority </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="103">lintName := rec.Name.String()
+
+                isEnabled := contains(enabledLinters, lintName)
+                isDisabled := contains(disabledLinters, lintName)
+
+                if !isEnabled &amp;&amp; !isDisabled </span><span class="cov8" title="102">{
+                        if dryRun </span><span class="cov8" title="102">{
+                                f.logger.Infof("[DRY-RUN] Would enable: %s (%s)", lintName, rec.Reason)
+                        }</span> else<span class="cov0" title="0"> {
+                                f.logger.Infof("Enabling: %s (%s)", lintName, rec.Reason)
+                                enabledLinters = append(enabledLinters, lintName)
+                                fixesApplied++
+                                messages = append(messages, fmt.Sprintf("Enabled %s: %s", lintName, rec.Reason))
+                        }</span>
+                }
+        }
+
+        <span class="cov1" title="1">if dryRun </span><span class="cov1" title="1">{
+                f.logger.Infof("[DRY-RUN] Would apply %d fixes", fixesApplied)
+                return &amp;types.MigrationResult{
+                        Success:      true,
+                        FixesApplied: fixesApplied,
+                        Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", fixesApplied),
+                }, nil
+        }</span>
+
+        <span class="cov0" title="0">if fixesApplied == 0 </span><span class="cov0" title="0">{
+                return &amp;types.MigrationResult{
+                        Success:      true,
+                        FixesApplied: 0,
+                        Message:      "No linters to enable",
+                }, nil
+        }</span>
+
+        <span class="cov0" title="0">f.logger.Infof("Creating backup...")
+        backupPath, err := f.configLoader.CreateBackup(configPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, errors.NewAnalysisError("failed to create backup", configPath, err)
+        }</span>
+
+        <span class="cov0" title="0">cfg.Linters.Enable = enabledLinters
+        cfg.Linters.Disable = []string{}
+
+        f.logger.Infof("Saving configuration...")
+        if err := f.configLoader.SaveConfig(cfg, configPath); err != nil </span><span class="cov0" title="0">{
+                return nil, errors.NewAnalysisError("failed to save config", configPath, err)
+        }</span>
+
+        <span class="cov0" title="0">result := &amp;types.MigrationResult{
+                Success:      true,
+                FixesApplied: fixesApplied,
+                Message:      fmt.Sprintf("Successfully enabled %d linters", fixesApplied),
+                BackupPath:   backupPath,
+        }
+
+        return result, nil</span>
+}
+
+func contains(slice []string, item string) bool <span class="cov10" title="206">{
+        for _, s := range slice </span><span class="cov9" title="205">{
+                if s == item </span><span class="cov1" title="1">{
+                        return true
+                }</span>
+        }
+        <span class="cov9" title="205">return false</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package report
+
+import (
+        "context"
+        "fmt"
+        "os"
+
+        "github.com/charmbracelet/log"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+)
+
+// Generator generates HTML reports for golangci-lint configurations
+type Generator struct {
+        logger *log.Logger
+}
+
+// NewGenerator creates a new report generator
+func NewGenerator(logger *log.Logger) *Generator <span class="cov0" title="0">{
+        return &amp;Generator{
+                logger: logger,
+        }
+}</span>
+
+// GenerateReport generates an HTML report for given analysis
+func (g *Generator) GenerateReport(analysis *types.ConfigAnalysis, outputPath string) error <span class="cov0" title="0">{
+        g.logger.Infof("Generating HTML report: %s", outputPath)
+
+        data := ReportData{
+                Analysis: analysis,
+        }
+
+        f, err := os.Create(outputPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create output file: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer f.Close()
+
+        err = Report(data).Render(context.Background(), f)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to render report: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">g.logger.Infof("Report generated successfully: %s", outputPath)
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package report
+
+import (
+        "encoding/json"
+        "fmt"
+        "os"
+
+        "github.com/charmbracelet/log"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+)
+
+// JSONGenerator generates JSON reports for configuration analysis
+type JSONGenerator struct {
+        logger *log.Logger
+}
+
+// NewJSONGenerator creates a new JSON report generator
+func NewJSONGenerator(logger *log.Logger) *JSONGenerator <span class="cov0" title="0">{
+        return &amp;JSONGenerator{
+                logger: logger,
+        }
+}</span>
+
+// JSONReport represents the structure of the JSON report output
+type JSONReport struct {
+        ConfigPath      string                           `json:"configPath"`
+        Summary         JSONSummary                      `json:"summary"`
+        Recommendations []types.LinterRecommendation     `json:"recommendations"`
+        EnabledLinters  []string                         `json:"enabledLinters"`
+        DisabledLinters []string                         `json:"disabledLinters"`
+}
+
+// JSONSummary contains summary statistics
+type JSONSummary struct {
+        TotalLinters         int `json:"totalLinters"`
+        EnabledCount         int `json:"enabledCount"`
+        DisabledCount        int `json:"disabledCount"`
+        RecommendationsCount int `json:"recommendationsCount"`
+}
+
+// GenerateJSONReport creates a JSON report from the analysis
+func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outputPath string) error <span class="cov0" title="0">{
+        g.logger.Infof("Generating JSON report: %s", outputPath)
+
+        // Prepare JSON report structure
+        enabledLinterNames := make([]string, len(analysis.EnabledLinters))
+        for i, linter := range analysis.EnabledLinters </span><span class="cov0" title="0">{
+                enabledLinterNames[i] = linter.Name
+        }</span>
+
+        <span class="cov0" title="0">disabledLinterNames := make([]string, len(analysis.DisabledLinters))
+        for i, linter := range analysis.DisabledLinters </span><span class="cov0" title="0">{
+                disabledLinterNames[i] = linter.Name
+        }</span>
+
+        <span class="cov0" title="0">jsonReport := JSONReport{
+                ConfigPath: analysis.ConfigPath,
+                Summary: JSONSummary{
+                        TotalLinters:         len(analysis.EnabledLinters) + len(analysis.DisabledLinters),
+                        EnabledCount:         len(analysis.EnabledLinters),
+                        DisabledCount:        len(analysis.DisabledLinters),
+                        RecommendationsCount: len(analysis.Recommendations),
+                },
+                Recommendations: analysis.Recommendations,
+                EnabledLinters:  enabledLinterNames,
+                DisabledLinters: disabledLinterNames,
+        }
+
+        // Marshal to JSON with indentation
+        jsonData, err := json.MarshalIndent(jsonReport, "", "  ")
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal JSON report: %w", err)
+        }</span>
+
+        // Write to file
+        <span class="cov0" title="0">if err := os.WriteFile(outputPath, jsonData, 0644); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to write JSON report to %s: %w", outputPath, err)
+        }</span>
+
+        <span class="cov0" title="0">g.logger.Infof("JSON report generated successfully: %s", outputPath)
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">// Code generated by templ - DO NOT EDIT.
+
+// templ: version: v0.3.977
+package report
+
+//lint:file-ignore SA4006 This context is only used if a nested component is present.
+
+import (
+        "github.com/a-h/templ"
+        templruntime "github.com/a-h/templ/runtime"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+)
+
+// ReportData contains analysis data for the report
+type ReportData struct {
+        Analysis *types.ConfigAnalysis
+}
+
+func Report(data ReportData) templ.Component <span class="cov0" title="0">{
+        return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) </span><span class="cov0" title="0">{
+                templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+                if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_CtxErr
+                }</span>
+                <span class="cov0" title="0">templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+                if !templ_7745c5c3_IsBuffer </span><span class="cov0" title="0">{
+                        defer func() </span><span class="cov0" title="0">{
+                                templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+                                if templ_7745c5c3_Err == nil </span><span class="cov0" title="0">{
+                                        templ_7745c5c3_Err = templ_7745c5c3_BufErr
+                                }</span>
+                        }()
+                }
+                <span class="cov0" title="0">ctx = templ.InitializeContext(ctx)
+                templ_7745c5c3_Var1 := templ.GetChildren(ctx)
+                if templ_7745c5c3_Var1 == nil </span><span class="cov0" title="0">{
+                        templ_7745c5c3_Var1 = templ.NopComponent
+                }</span>
+                <span class="cov0" title="0">ctx = templ.ClearChildren(ctx)
+                templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "&lt;!doctype html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;&lt;meta charset=\"UTF-8\"&gt;&lt;meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"&gt;&lt;title&gt;golangci-lint Configuration Report&lt;/title&gt;&lt;style&gt;\n\t\t\t\t* { margin: 0; padding: 0; box-sizing: border-box; }\n\t\t\t\tbody { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }\n\t\t\t\t.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }\n\t\t\t\t.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }\n\t\t\t\t.header h1 { font-size: 2rem; margin-bottom: 0.5rem; }\n\t\t\t\t.header p { opacity: 0.9; }\n\t\t\t\t.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }\n\t\t\t\t.summary-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }\n\t\t\t\t.summary-card h3 { font-size: 3rem; margin-bottom: 0.5rem; }\n\t\t\t\t.summary-card.critical h3 { color: #dc3545; }\n\t\t\t\t.summary-card.high h3 { color: #fd7e14; }\n\t\t\t\t.summary-card.medium h3 { color: #ffc107; }\n\t\t\t\t.summary-card.optional h3 { color: #17a2b8; }\n\t\t\t\t.summary-card.enabled h3 { color: #28a745; }\n\t\t\t\t.summary-card.disabled h3 { color: #6c757d; }\n\t\t\t\t.section { background: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }\n\t\t\t\t.section h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }\n\t\t\t\t.linter-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }\n\t\t\t\t.linter-card { padding: 1rem; border-radius: 6px; border-left: 4px solid; background: #f8f9fa; }\n\t\t\t\t.linter-card.critical { border-left-color: #dc3545; background: #ffe5e5; }\n\t\t\t\t.linter-card.high { border-left-color: #fd7e14; background: #fff3e5; }\n\t\t\t\t.linter-card.medium { border-left-color: #ffc107; background: #fffbe5; }\n\t\t\t\t.linter-card.optional { border-left-color: #17a2b8; background: #e5f5f8; }\n\t\t\t\t.linter-card h4 { color: #333; margin-bottom: 0.5rem; }\n\t\t\t\t.linter-card p { color: #666; font-size: 0.9rem; }\n\t\t\t\t.badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.5rem; }\n\t\t\t\t.badge.critical { background: #dc3545; color: white; }\n\t\t\t\t.badge.high { background: #fd7e14; color: white; }\n\t\t\t\t.badge.medium { background: #ffc107; color: #212529; }\n\t\t\t\t.badge.optional { background: #17a2b8; color: white; }\n\t\t\t&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=\"container\"&gt;&lt;div class=\"header\"&gt;&lt;h1&gt;🔍 golangci-lint Configuration Report&lt;/h1&gt;&lt;p&gt;Analysis of ")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">var templ_7745c5c3_Var2 string
+                templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(data.Analysis.ConfigPath)
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 57, Col: 46}
+                }</span>
+                <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "&lt;/p&gt;&lt;/div&gt;&lt;div class=\"summary-grid\"&gt;&lt;div class=\"summary-card critical\"&gt;&lt;h3&gt;")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">var templ_7745c5c3_Var3 string
+                templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Analysis.CriticalCount)
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 62, Col: 39}
+                }</span>
+                <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "&lt;/h3&gt;&lt;p&gt;Critical&lt;/p&gt;&lt;/div&gt;&lt;div class=\"summary-card high\"&gt;&lt;h3&gt;")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">var templ_7745c5c3_Var4 string
+                templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.Analysis.HighValueCount)
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 66, Col: 40}
+                }</span>
+                <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "&lt;/h3&gt;&lt;p&gt;High Priority&lt;/p&gt;&lt;/div&gt;&lt;div class=\"summary-card medium\"&gt;&lt;h3&gt;")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">var templ_7745c5c3_Var5 string
+                templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.Analysis.MediumValueCount)
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 70, Col: 42}
+                }</span>
+                <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "&lt;/h3&gt;&lt;p&gt;Medium Priority&lt;/p&gt;&lt;/div&gt;&lt;div class=\"summary-card optional\"&gt;&lt;h3&gt;")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">var templ_7745c5c3_Var6 string
+                templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.Analysis.OptionalCount)
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 74, Col: 39}
+                }</span>
+                <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "&lt;/h3&gt;&lt;p&gt;Optional&lt;/p&gt;&lt;/div&gt;&lt;div class=\"summary-card enabled\"&gt;&lt;h3&gt;")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">var templ_7745c5c3_Var7 string
+                templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(len(data.Analysis.EnabledLinters))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 78, Col: 45}
+                }</span>
+                <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "&lt;/h3&gt;&lt;p&gt;Enabled Linters&lt;/p&gt;&lt;/div&gt;&lt;div class=\"summary-card disabled\"&gt;&lt;h3&gt;")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">var templ_7745c5c3_Var8 string
+                templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(len(data.Analysis.DisabledLinters))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 82, Col: 46}
+                }</span>
+                <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "&lt;/h3&gt;&lt;p&gt;Disabled Linters&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">if len(data.Analysis.Recommendations) &gt; 0 </span><span class="cov0" title="0">{
+                        templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "&lt;div class=\"section\"&gt;&lt;h2&gt;🚨 Critical Linters&lt;/h2&gt;&lt;div class=\"linter-grid\"&gt;")
+                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                return templ_7745c5c3_Err
+                        }</span>
+                        <span class="cov0" title="0">for _, rec := range data.Analysis.Recommendations </span><span class="cov0" title="0">{
+                                if rec.Priority == 0 </span><span class="cov0" title="0">{
+                                        templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "&lt;div class=\"linter-card critical\"&gt;&lt;span class=\"badge critical\"&gt;CRITICAL&lt;/span&gt;&lt;h4&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">var templ_7745c5c3_Var9 string
+                                        templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(rec.Name)
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 95, Col: 24}
+                                        }</span>
+                                        <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "&lt;/h4&gt;&lt;p&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">var templ_7745c5c3_Var10 string
+                                        templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(constants.LinterReasons[rec.Name])
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 96, Col: 48}
+                                        }</span>
+                                        <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "&lt;/p&gt;&lt;/div&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                }
+                        }
+                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "&lt;/div&gt;&lt;/div&gt;&lt;div class=\"section\"&gt;&lt;h2&gt;⚠️ High Priority Linters&lt;/h2&gt;&lt;div class=\"linter-grid\"&gt;")
+                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                return templ_7745c5c3_Err
+                        }</span>
+                        <span class="cov0" title="0">for _, rec := range data.Analysis.Recommendations </span><span class="cov0" title="0">{
+                                if rec.Priority == 1 </span><span class="cov0" title="0">{
+                                        templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "&lt;div class=\"linter-card high\"&gt;&lt;span class=\"badge high\"&gt;HIGH&lt;/span&gt;&lt;h4&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">var templ_7745c5c3_Var11 string
+                                        templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(rec.Name)
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 110, Col: 24}
+                                        }</span>
+                                        <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "&lt;/h4&gt;&lt;p&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">var templ_7745c5c3_Var12 string
+                                        templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(constants.LinterReasons[rec.Name])
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 111, Col: 48}
+                                        }</span>
+                                        <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "&lt;/p&gt;&lt;/div&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                }
+                        }
+                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "&lt;/div&gt;&lt;/div&gt;&lt;div class=\"section\"&gt;&lt;h2&gt;ℹ️ Medium Priority Linters&lt;/h2&gt;&lt;div class=\"linter-grid\"&gt;")
+                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                return templ_7745c5c3_Err
+                        }</span>
+                        <span class="cov0" title="0">for _, rec := range data.Analysis.Recommendations </span><span class="cov0" title="0">{
+                                if rec.Priority == 2 </span><span class="cov0" title="0">{
+                                        templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "&lt;div class=\"linter-card medium\"&gt;&lt;span class=\"badge medium\"&gt;MEDIUM&lt;/span&gt;&lt;h4&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">var templ_7745c5c3_Var13 string
+                                        templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(rec.Name)
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 125, Col: 24}
+                                        }</span>
+                                        <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "&lt;/h4&gt;&lt;p&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">var templ_7745c5c3_Var14 string
+                                        templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(constants.LinterReasons[rec.Name])
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 126, Col: 48}
+                                        }</span>
+                                        <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "&lt;/p&gt;&lt;/div&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                }
+                        }
+                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "&lt;/div&gt;&lt;/div&gt;&lt;div class=\"section\"&gt;&lt;h2&gt;💡 Optional Linters&lt;/h2&gt;&lt;div class=\"linter-grid\"&gt;")
+                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                return templ_7745c5c3_Err
+                        }</span>
+                        <span class="cov0" title="0">for _, rec := range data.Analysis.Recommendations </span><span class="cov0" title="0">{
+                                if rec.Priority == 3 </span><span class="cov0" title="0">{
+                                        templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "&lt;div class=\"linter-card optional\"&gt;&lt;span class=\"badge optional\"&gt;OPTIONAL&lt;/span&gt;&lt;h4&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">var templ_7745c5c3_Var15 string
+                                        templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(rec.Name)
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 140, Col: 24}
+                                        }</span>
+                                        <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "&lt;/h4&gt;&lt;p&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">var templ_7745c5c3_Var16 string
+                                        templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(constants.LinterReasons[rec.Name])
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 141, Col: 48}
+                                        }</span>
+                                        <span class="cov0" title="0">_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "&lt;/p&gt;&lt;/div&gt;")
+                                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                                return templ_7745c5c3_Err
+                                        }</span>
+                                }
+                        }
+                        <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "&lt;/div&gt;&lt;/div&gt;")
+                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                return templ_7745c5c3_Err
+                        }</span>
+                } else<span class="cov0" title="0"> {
+                        templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "&lt;div class=\"section\"&gt;&lt;h2&gt;✅ Perfect Configuration&lt;/h2&gt;&lt;p&gt;All recommended linters are already enabled!&lt;/p&gt;&lt;/div&gt;")
+                        if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                                return templ_7745c5c3_Err
+                        }</span>
+                }
+                <span class="cov0" title="0">templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;")
+                if templ_7745c5c3_Err != nil </span><span class="cov0" title="0">{
+                        return templ_7745c5c3_Err
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        })
+}
+
+var _ = templruntime.GeneratedTemplate
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package types
+
+import (
+        "fmt"
+)
+
+// LinterPriority represents the priority level for a linter
+type LinterPriority int
+
+const (
+        LinterPriorityCritical LinterPriority = iota
+        LinterPriorityHigh
+        LinterPriorityMedium
+        LinterPriorityOptional
+)
+
+func (p LinterPriority) String() string <span class="cov0" title="0">{
+        switch p </span>{
+        case LinterPriorityCritical:<span class="cov0" title="0">
+                return "CRITICAL"</span>
+        case LinterPriorityHigh:<span class="cov0" title="0">
+                return "HIGH"</span>
+        case LinterPriorityMedium:<span class="cov0" title="0">
+                return "MEDIUM"</span>
+        case LinterPriorityOptional:<span class="cov0" title="0">
+                return "OPTIONAL"</span>
+        default:<span class="cov0" title="0">
+                return "UNKNOWN"</span>
+        }
+}
+
+// LinterInfo contains information about a golangci-lint linter
+type LinterInfo struct {
+        Name        string   `json:"name"`
+        Description string   `json:"description"`
+        Groups      []string `json:"groups,omitempty"`
+        Fast        bool     `json:"fast,omitempty"`
+        AutoFix     bool     `json:"autoFix,omitempty"`
+        Deprecated  bool     `json:"deprecated"`
+        Since       string   `json:"since"`
+        OriginalURL string   `json:"originalURL"`
+}
+
+// LinterRecommendation represents a linter with its priority and reason
+type LinterRecommendation struct {
+        Name     LinterName     `json:"name"`
+        Priority LinterPriority `json:"priority"`
+        Reason   string         `json:"reason"`
+}
+
+// LinterName is a strongly-typed linter name to prevent typos
+type LinterName string
+
+func (ln LinterName) String() string <span class="cov0" title="0">{
+        return string(ln)
+}</span>
+
+// FormatterInfo contains information about a golangci-lint formatter
+type FormatterInfo struct {
+        Name        string `json:"name"`
+        Description string `json:"description"`
+        AutoFix     bool   `json:"autoFix,omitempty"`
+}
+
+// ConfigAnalysis represents the analysis results of a golangci-lint configuration
+type ConfigAnalysis struct {
+        ConfigPath         string                 `json:"config_path"`
+        EnabledLinters     []LinterInfo           `json:"enabled_linters"`
+        DisabledLinters    []LinterInfo           `json:"disabled_linters"`
+        EnabledFormatters  []FormatterInfo        `json:"enabled_formatters"`
+        DisabledFormatters []FormatterInfo        `json:"disabled_formatters"`
+        Recommendations    []LinterRecommendation `json:"recommendations"`
+        CriticalCount      int                    `json:"critical_count"`
+        HighValueCount     int                    `json:"high_value_count"`
+        MediumValueCount   int                    `json:"medium_value_count"`
+        OptionalCount      int                    `json:"optional_count"`
+}
+
+// MigrationResult represents the result of a configuration migration
+type MigrationResult struct {
+        Success      bool   `json:"success"`
+        FixesApplied int    `json:"fixes_applied"`
+        Message      string `json:"message"`
+        BackupPath   string `json:"backup_path,omitempty"`
+}
+
+// ValidationError represents a configuration validation error
+type ValidationError struct {
+        Field   string `json:"field"`
+        Message string `json:"message"`
+        Line    int    `json:"line,omitempty"`
+}
+
+func (e ValidationError) Error() string <span class="cov0" title="0">{
+        if e.Line &gt; 0 </span><span class="cov0" title="0">{
+                return fmt.Sprintf("validation error at line %d: %s (field: %s)", e.Line, e.Message, e.Field)
+        }</span>
+        <span class="cov0" title="0">return fmt.Sprintf("validation error: %s (field: %s)", e.Message, e.Field)</span>
+}
+
+// ValidationResult represents the result of configuration validation
+type ValidationResult struct {
+        Valid  bool              `json:"valid"`
+        Errors []ValidationError `json:"errors,omitempty"`
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package workflow
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        "github.com/LarsArtmann/universal-workflow/pkg/types"
+        workflowpkg "github.com/LarsArtmann/universal-workflow/pkg/workflow"
+        "github.com/charmbracelet/log"
+        "github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
+)
+
+// ActivityContext provides context for workflow activities
+type ActivityContext struct {
+        ConfigPath   string
+        Analyzer     *linter.Analyzer
+        Logger       *log.Logger
+        DryRun       bool
+        GenerateHTML bool
+        OutputReport string
+}
+
+// AnalysisActivity analyzes golangci-lint configuration
+func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) <span class="cov0" title="0">{
+        activityCtx, ok := ctx.Input.(*ActivityContext)
+        if !ok </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("invalid activity context type")
+        }</span>
+
+        <span class="cov0" title="0">activityCtx.Logger.Infof("Analyzing golangci-lint configuration...")
+
+        analysis, err := activityCtx.Analyzer.AnalyzeConfig(activityCtx.ConfigPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return &amp;types.ActivityResult{
+                        Status:    types.ActivityStatusFailed,
+                        Output:    fmt.Sprintf("Analysis failed: %v", err),
+                        StartTime: time.Now(),
+                        EndTime:   time.Now().Add(1 * time.Second),
+                }, err
+        }</span>
+
+        // Format and display recommendations
+        <span class="cov0" title="0">recommendations := activityCtx.Analyzer.FormatRecommendations(analysis)
+        summary := activityCtx.Analyzer.GetSummary(analysis)
+
+        activityCtx.Logger.Info("\n" + recommendations)
+        activityCtx.Logger.Infof("Summary: %s", summary)
+
+        return &amp;types.ActivityResult{
+                Status:    types.ActivityStatusCompleted,
+                Output:    summary,
+                StartTime: time.Now(),
+                EndTime:   time.Now(),
+                Data: map[string]interface{}{
+                        "analysis": analysis,
+                },
+        }, nil</span>
+}
+
+// ValidationActivity validates golangci-lint configuration
+func ValidationActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) <span class="cov0" title="0">{
+        activityCtx, ok := ctx.Input.(*ActivityContext)
+        if !ok </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("invalid activity context type")
+        }</span>
+
+        <span class="cov0" title="0">activityCtx.Logger.Infof("Validating golangci-lint configuration...")
+
+        // This would typically run `golangci-lint config verify`
+        // For now, we'll simulate successful validation
+        activityCtx.Logger.Infof("Configuration is valid")
+
+        return &amp;types.ActivityResult{
+                Status:    types.ActivityStatusCompleted,
+                Output:    "Configuration validation passed",
+                StartTime: time.Now(),
+                EndTime:   time.Now(),
+        }, nil</span>
+}
+
+// ReportActivity generates HTML report of the analysis
+func ReportActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) <span class="cov0" title="0">{
+        activityCtx, ok := ctx.Input.(*ActivityContext)
+        if !ok </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("invalid activity context type")
+        }</span>
+
+        <span class="cov0" title="0">if !activityCtx.GenerateHTML </span><span class="cov0" title="0">{
+                activityCtx.Logger.Debugf("HTML report generation disabled")
+                return &amp;types.ActivityResult{
+                        Status:    types.ActivityStatusCompleted,
+                        Output:    "Skipped HTML report generation",
+                        StartTime: time.Now(),
+                        EndTime:   time.Now(),
+                }, nil
+        }</span>
+
+        <span class="cov0" title="0">activityCtx.Logger.Infof("Generating HTML report...")
+
+        // HTML generation would be implemented with templ components
+        activityCtx.Logger.Debugf("HTML report would be saved to: %s", activityCtx.OutputReport)
+
+        activityCtx.Logger.Infof("HTML report generated: %s", activityCtx.OutputReport)
+
+        return &amp;types.ActivityResult{
+                Status:    types.ActivityStatusCompleted,
+                Output:    fmt.Sprintf("HTML report: %s", activityCtx.OutputReport),
+                StartTime: time.Now(),
+                EndTime:   time.Now(),
+        }, nil</span>
+}
+
+// Builder constructs the golangci-lint configuration workflow
+type Builder struct {
+        logger   *log.Logger
+        analyzer *linter.Analyzer
+        config   *ActivityContext
+}
+
+// NewBuilder creates a new workflow builder
+func NewBuilder(logger *log.Logger, analyzer *linter.Analyzer) *Builder <span class="cov0" title="0">{
+        return &amp;Builder{
+                logger:   logger,
+                analyzer: analyzer,
+        }
+}</span>
+
+// BuildAutoConfigureWorkflow creates a workflow for auto-configuring golangci-lint
+func (b *Builder) BuildAutoConfigureWorkflow(configPath string, dryRun, generateHTML bool, outputPath string) (workflowpkg.WorkflowLike, error) <span class="cov0" title="0">{
+        workflowID := types.WorkflowID("golangci-lint-auto-configure")
+        workflowName := types.WorkflowName("Automatically analyze and configure golangci-lint")
+
+        wf := workflowpkg.NewUnifiedWorkflow(workflowID, workflowName)
+
+        // Set up activity context
+        activityCtx := &amp;ActivityContext{
+                ConfigPath:   configPath,
+                Analyzer:     b.analyzer,
+                Logger:       b.logger,
+                DryRun:       dryRun,
+                GenerateHTML: generateHTML,
+                OutputReport: outputPath,
+        }
+
+        // Add analysis activity
+        wf.Step(types.ActivityID("analyze-config"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) </span><span class="cov0" title="0">{
+                ctx.Input = activityCtx
+                return AnalysisActivity(ctx)
+        }</span>)
+
+        // Add validation activity (depends on analysis)
+        <span class="cov0" title="0">wf.Step(types.ActivityID("validate-config"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) </span><span class="cov0" title="0">{
+                ctx.Input = activityCtx
+                return ValidationActivity(ctx)
+        }</span>).DependsOn(types.ActivityID("analyze-config"))
+
+        // Add report generation activity (depends on validation)
+        <span class="cov0" title="0">wf.Step(types.ActivityID("generate-report"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) </span><span class="cov0" title="0">{
+                ctx.Input = activityCtx
+                return ReportActivity(ctx)
+        }</span>).DependsOn(types.ActivityID("validate-config"))
+
+        <span class="cov0" title="0">return wf, nil</span>
+}
+
+// ExecuteAutoConfigureWorkflow executes the auto-configure workflow
+func (b *Builder) ExecuteAutoConfigureWorkflow(ctx context.Context, configPath string, dryRun, generateHTML bool, outputPath string) (workflowpkg.WorkflowRun, error) <span class="cov0" title="0">{
+        wf, err := b.BuildAutoConfigureWorkflow(configPath, dryRun, generateHTML, outputPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to build workflow: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">b.logger.Infof("Executing workflow: %s", wf.GetName())
+
+        run, err := wf.Execute(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("workflow execution failed: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return run, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

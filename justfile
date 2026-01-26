@@ -6,7 +6,9 @@ default: help
 help:
     @echo "Available commands:"
     @echo "  just build        - Build the CLI binary"
-    @echo "  just test         - Run all tests"
+    @echo "  just test         - Run all tests with coverage"
+    @echo "  just test-coverage - Show coverage report"
+    @echo "  just coverage-html - Generate HTML coverage report"
     @echo "  just lint         - Run linters"
     @echo "  just run          - Run the CLI (default command)"
     @echo "  just clean        - Clean build artifacts"
@@ -19,6 +21,22 @@ build:
 test:
     @echo "Running tests..."
     @ginkgo -r --cover
+
+# Show test coverage summary
+test-coverage:
+    @echo "Test coverage summary:"
+    @go test ./... -coverprofile=coverage.out -covermode=atomic 2>&1 | grep coverage:
+    @echo ""
+    @echo "Total coverage:"
+    @go tool cover -func=coverage.out | grep total | awk '{print "  " $$3 " of statements"}'
+
+# Generate and open HTML coverage report
+coverage-html:
+    @echo "Generating HTML coverage report..."
+    @go test ./... -coverprofile=coverage.out -covermode=atomic > /dev/null 2>&1
+    @go tool cover -html=coverage.out -o coverage.html
+    @echo "HTML coverage report: coverage.html"
+    @open coverage.html 2>/dev/null || echo "Open coverage.html in your browser"
 
 lint:
     @echo "Running linters..."

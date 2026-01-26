@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -80,12 +81,12 @@ func NewLoader(logger *log.Logger) *Loader {
 func (l *Loader) LoadConfig(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read config file %s: %w", path, err)
+		return nil, errors.NewConfigError(fmt.Sprintf("failed to read config file"), path, err)
 	}
 
 	var config Config
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		return nil, fmt.Errorf("failed to parse config file %s: %w", path, err)
+		return nil, errors.NewConfigError(fmt.Sprintf("failed to parse config file"), path, err)
 	}
 
 	l.logger.Debugf("Loaded config from %s", path)
@@ -109,18 +110,18 @@ func (l *Loader) FindConfigFile(startDir string) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("no golangci-lint config file found in %s", startDir)
+	return "", errors.NewConfigError(fmt.Sprintf("no golangci-lint config file found in %s", startDir), startDir, nil)
 }
 
 // SaveConfig saves a golangci-lint configuration to the given path
 func (l *Loader) SaveConfig(config *Config, path string) error {
 	data, err := yaml.Marshal(config)
 	if err != nil {
-		return fmt.Errorf("failed to marshal config: %w", err)
+		return errors.NewConfigError("failed to marshal config", path, err)
 	}
 
 	if err := os.WriteFile(path, data, 0o644); err != nil {
-		return fmt.Errorf("failed to write config file %s: %w", path, err)
+		return errors.NewConfigError("failed to write config file", path, err)
 	}
 
 	l.logger.Infof("Saved config to %s", path)
@@ -133,11 +134,11 @@ func (l *Loader) CreateBackup(filePath string) (string, error) {
 
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return "", fmt.Errorf("failed to read file for backup: %w", err)
+		return "", errors.NewConfigError("failed to read file for backup", filePath, err)
 	}
 
 	if err := os.WriteFile(backupPath, data, 0o644); err != nil {
-		return "", fmt.Errorf("failed to create backup: %w", err)
+		return "", errors.NewConfigError("failed to create backup", backupPath, err)
 	}
 
 	l.logger.Infof("Created backup: %s", backupPath)
@@ -146,17 +147,17 @@ func (l *Loader) CreateBackup(filePath string) (string, error) {
 
 // ValidateConfig performs basic validation on the configuration
 func (l *Loader) ValidateConfig(config *Config) []error {
-	var errors []error
+	var errs []error
 
 	if config.Run.Timeout != "" && config.Run.Timeout == "" {
-		errors = append(errors, fmt.Errorf("run.timeout cannot be empty"))
+		errs = append(errs, errors.NewConfigError("run.timeout cannot be empty", "", nil))
 	}
 
 	if len(config.Linters.Enable) == 0 && len(config.Linters.Disable) == 0 && !config.Linters.Fast {
 		l.logger.Debugf("No linter configuration specified, using defaults")
 	}
 
-	return errors
+	return errs
 }
 
 // GetLintersEnabled returns the list of explicitly enabled linters
@@ -173,11 +174,11 @@ func (l *Loader) GetLintersDisabled(config *Config) []string {
 func (l *Loader) RestoreConfig(backupPath, targetPath string) error {
 	data, err := os.ReadFile(backupPath)
 	if err != nil {
-		return fmt.Errorf("failed to read backup file %s: %w", backupPath, err)
+		return errors.NewConfigError("failed to read backup file", backupPath, err)
 	}
 
 	if err := os.WriteFile(targetPath, data, 0o644); err != nil {
-		return fmt.Errorf("failed to restore config to %s: %w", targetPath, err)
+		return errors.NewConfigError("failed to restore config", targetPath, err)
 	}
 
 	l.logger.Infof("Restored configuration from %s to %s", backupPath, targetPath)

@@ -1,0 +1,55 @@
+# Standard golangci-lint configuration
+# Use case: Most projects, balanced linting
+# Enabled: Critical + High priority linters (26 total)
+
+version: "2"
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+
+linters:
+  enable:
+    # Critical (from minimal)
+    - gosec
+    - errcheck
+    - staticcheck
+    - govet
+    - errchkjson
+    - nilerr
+    - noctx
+    - sloglint
+    - loggercheck
+    - musttag
+    
+    # High value linters
+    - wrapcheck
+    - errorlint
+    - prealloc
+    - unconvert
+    - ineffassign
+    - gocyclo
+    - funlen
+    - cyclop
+    - gocognit
+    - maintidx
+    - exhaustive
+    - goconst
+    - misspell
+    - revive
+    - nolintlint
+    - forcetypeassert
+
+linters-settings:
+  gocyclo:
+    min-complexity: 20
+  funlen:
+    lines: 80
+    statements: 50
+  gocognit:
+    min-complexity: 25
+
+issues:
+  max-issues-per-linter: 100
+  max-same-issues: 15

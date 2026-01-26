@@ -1,0 +1,29 @@
+# Minimal golangci-lint configuration
+# Use case: Small projects, fast linting, only critical issues
+# Enabled: 10 critical linters
+
+version: "2"
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+
+linters:
+  enable:
+    # Critical security linters
+    - gosec
+    - errcheck
+    - staticcheck
+    - govet
+    
+    # Error handling
+    - errchkjson
+    - nilerr
+    - noctx
+    - sloglint
+    - loggercheck
+
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10

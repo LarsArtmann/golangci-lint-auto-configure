@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
@@ -30,13 +31,13 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load config: %w", err)
+		return nil, errors.NewAnalysisError("failed to load config", configPath, err)
 	}
 
 	f.logger.Infof("Analyzing configuration...")
 	analysis, err := f.analyzer.AnalyzeConfig(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to analyze config: %w", err)
+		return nil, errors.NewAnalysisError("failed to analyze config", configPath, err)
 	}
 
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
@@ -87,7 +88,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	f.logger.Infof("Creating backup...")
 	backupPath, err := f.configLoader.CreateBackup(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create backup: %w", err)
+		return nil, errors.NewAnalysisError("failed to create backup", configPath, err)
 	}
 
 	cfg.Linters.Enable = enabledLinters
@@ -95,7 +96,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 
 	f.logger.Infof("Saving configuration...")
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
-		return nil, fmt.Errorf("failed to save config: %w", err)
+		return nil, errors.NewAnalysisError("failed to save config", configPath, err)
 	}
 
 	result := &types.MigrationResult{

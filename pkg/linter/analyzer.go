@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
@@ -35,7 +36,7 @@ type golangciLintOutput struct {
 func (a *Analyzer) FindBinary() error {
 	path, err := exec.LookPath("golangci-lint")
 	if err != nil {
-		return fmt.Errorf("golangci-lint not found in PATH: %w", err)
+		return errors.NewAnalysisError("golangci-lint not found in PATH", "", err)
 	}
 	a.golangciLintPath = path
 	return nil
@@ -49,12 +50,12 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 
 	output, err := a.runLintersCommand()
 	if err != nil {
-		return nil, fmt.Errorf("failed to run golangci-lint linters: %w", err)
+		return nil, errors.NewAnalysisError("failed to run golangci-lint linters", "", err)
 	}
 
 	var jsonOutput golangciLintOutput
 	if err := json.Unmarshal(output, &jsonOutput); err != nil {
-		return nil, fmt.Errorf("failed to parse golangci-lint JSON output: %w", err)
+		return nil, errors.NewAnalysisError("failed to parse golangci-lint JSON output", "", err)
 	}
 
 	analysis := &types.ConfigAnalysis{
@@ -76,7 +77,7 @@ func (a *Analyzer) runLintersCommand() ([]byte, error) {
 	if err != nil {
 		a.logger.Debugf("golangci-lint linters command failed: %v", err)
 		a.logger.Debugf("Output: %s", string(output))
-		return output, fmt.Errorf("golangci-lint linters command failed: %w", err)
+		return output, errors.NewAnalysisError("golangci-lint linters command failed", "", err)
 	}
 	return output, nil
 }
