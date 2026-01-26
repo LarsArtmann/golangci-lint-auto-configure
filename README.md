@@ -1,170 +1,259 @@
-# golangcli-linter-auto-configure
+# golangci-linter-auto-configure
 
 **Automatically configure and optimize golangci-lint with smart recommendations, missing linter detection, and auto-fixing capabilities.**
 
-## 🎯 Purpose
+## Purpose
 
 This tool automatically configures golangci-lint for Go projects by:
 
 - **Analyzing** existing golangci-lint configurations
-- **Detecting** missing linters and formatters with smart categorization
-- **Recommending** optimal linter settings based on project needs
-- **Auto-fixing** common configuration issues (v2.8+ schema migrations)
-- **Generating** comprehensive configuration templates
-- **Providing** beautiful HTML reports via templ components
+- **Detecting** missing linters with smart categorization
+- **Recommending** optimal linter settings based on project type
+- **Auto-fixing** configuration issues
+- **Generating** configuration templates
 
-## ✨ Key Features
-
-### Intelligent Linter Configuration
-
-- **Smart categorization**: 4-tier priority system (Critical, High, Medium, Optional)
-- **Auto-discovery**: Detects project characteristics (test framework, code generation tools)
-- **Missing linter detection**: Identifies disabled linters with actionable recommendations
-- **Formatter integration**: Checks for conflicting or redundant formatters
-
-### Configuration Management
-
-- **Auto-migration**: Migrates configs to golangci-lint v2.8+ schema
-- **Backup & restore**: Automatic backup before modifications
-- **Validation**: Verifies configurations with `golangci-lint config verify`
-- **Template generation**: Creates optimized config templates based on project type
-
-### Developer Experience
-
-- **Universal Workflow integration**: Built on proven workflow orchestration library
-- **Beautiful CLI**: Styled output with Fang framework
-- **HTML reports**: Interactive templ-generated reports
-- **Robust error handling**: Context-aware errors with recovery
-- **Comprehensive testing**: Ginkgo BDD tests with high coverage
-
-## 🚀 Installation
+## Installation
 
 ```bash
+# Install the latest version
 go install github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-linter-auto-configure@latest
+
+# Or build from source
+git clone https://github.com/larsartmann/golangcli-linter-auto-configure
+cd golangci-linter-auto-configure
+go build -o /usr/local/bin/golangci-linter-auto-configure ./cmd/golangci-linter-auto-configure
 ```
 
-## 💻 Usage
+## Requirements
 
-### Basic Usage
+- **Go**: 1.25+
+- **golangci-lint**: v2.8.0+ (tool checks version automatically)
+
+## Usage
+
+### Analyze Your Configuration
+
+See what linters you're missing:
 
 ```bash
-# Auto-configure golangci-lint for current project
-golangci-linter-auto-configure
+# Analyze current directory
+golangci-linter-auto-configure analyze
 
-# Show recommendations without applying changes
-golangci-linter-auto-configure --dry-run
+# Analyze specific config
+golangci-linter-auto-configure analyze --config .golangci.yml
 
-# Generate HTML report
-golangci-linter-auto-configure --output-report report.html
-
-# Verbose mode
-golangci-linter-auto-configure --verbose
+# Verbose output with debug logs
+golangci-linter-auto-configure analyze --verbose
 ```
 
-### Advanced Usage
+**Output Example:**
+```
+INFO Analyzing configuration: .golangci.yml
+
+🚨 2 CRITICAL linter(s) are disabled (should ALWAYS be enabled):
+  - musttag: Enforces struct tags for JSON/XML/YAML marshaling
+  - noctx: Check whether function uses a non-inherited context
+
+⚠️  1 HIGH VALUE linter(s) are disabled:
+  - exhaustruct: Check if all struct fields are initialized
+
+Summary: Found 16 disabled linters
+```
+
+### Auto-Configure Your Project
+
+Automatically enable recommended linters:
 
 ```bash
-# Migrate configuration to v2.8 schema
-golangci-linter-auto-configure migrate --config .golangci.yml
+# Dry-run to see what would change
+golangci-linter-auto-configure configure --dry-run
 
-# Generate optimized configuration
-golangci-linter-auto-configure generate --config .golangci.yml --preset enterprise
+# Apply changes (creates backup first)
+golangci-linter-auto-configure configure
 
-# Validate configuration
+# Configure with specific priority level
+golangci-linter-auto-configure configure --priority critical   # Security only
+golangci-linter-auto-configure configure --priority high       # Recommended (default)
+golangci-linter-auto-configure configure --priority medium     # Include style linters
+golangci-linter-auto-configure configure --priority optional   # All linters
+```
+
+### Validate Configuration
+
+Check if your config is valid:
+
+```bash
 golangci-linter-auto-configure validate --config .golangci.yml
-
-# Show missing linters
-golangci-linter-auto-configure check-missing
 ```
 
-## 📋 Commands
+### Generate Reports
 
-| Command      | Description                                   |
-| ------------ | --------------------------------------------- |
-| `configure`  | Auto-configure golangci-lint (default)         |
-| `migrate`    | Migrate config to v2.8+ schema                |
-| `generate`    | Generate optimized configuration template         |
-| `validate`    | Validate existing configuration                  |
-| `check`       | Check for missing linters/formatters            |
-| `report`      | Generate HTML report of current configuration    |
+Create JSON reports for CI/CD:
 
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      CLI Layer (Fang)                   │
-├─────────────────────────────────────────────────────────────┤
-│  Commands  │  Handlers  │  Validators  │  Reporters  │
-├─────────────────────────────────────────────────────────────┤
-│              Universal Workflow Integration                  │
-├─────────────────────────────────────────────────────────────┤
-│  WorkflowEngine  │  EventPublisher  │  ActivityHandlers  │
-├─────────────────────────────────────────────────────────────┤
-│                 Configuration Logic                       │
-├─────────────────────────────────────────────────────────────┤
-│  LinterAnalyzer  │  ConfigGenerator  │  Migrator  │
-├─────────────────────────────────────────────────────────────┤
-│                   Utilities                             │
-└─────────────────────────────────────────────────────────────┘
+```bash
+golangci-linter-auto-configure report --output analysis.json --format json
 ```
 
-## 🧪 Testing
+### Restore from Backup
+
+If something goes wrong:
+
+```bash
+# Restore from automatic backup
+golangci-linter-auto-configure restore --backup-path .golangci.yml.backup
+
+# Or specify target path
+golangci-linter-auto-configure restore --backup-path .golangci.yml.backup --config new-config.yml
+```
+
+## Example Workflows
+
+### New Project Setup
+
+```bash
+# 1. Analyze what's missing
+golangci-linter-auto-configure analyze
+
+# 2. Apply recommendations
+golangci-linter-auto-configure configure --priority high
+
+# 3. Verify with golangci-lint
+golangci-lint run ./...
+```
+
+### Using Example Configurations
+
+```bash
+# Copy an example config
+cp examples/web-project.golangci.yml .golangci.yml
+
+# Customize if needed
+vim .golangci.yml
+
+# Run the tool to optimize
+golangci-linter-auto-configure configure --dry-run
+golangci-linter-auto-configure configure
+```
+
+### CI/CD Integration
+
+```yaml
+# .github/workflows/lint.yml
+name: Lint
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+      - name: Install golangci-linter-auto-configure
+        run: go install github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-linter-auto-configure@latest
+      - name: Auto-configure
+        run: golangci-linter-auto-configure configure
+      - name: Run linters
+        run: golangci-lint run ./...
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `configure` | Auto-configure golangci-lint (default command) |
+| `analyze` | Analyze configuration and show recommendations |
+| `validate` | Validate existing configuration |
+| `restore` | Restore from backup file |
+| `report` | Generate JSON/HTML report |
+| `migrate` | Migrate config to v2.8+ schema |
+
+## Flags
+
+| Flag | Description |
+|------|-------------|
+| `-c, --config` | Path to golangci-lint config file |
+| `-d, --dry-run` | Show what would be done without making changes |
+| `--priority` | Minimum priority level (critical, high, medium, optional) |
+| `-v, --verbose` | Enable verbose output |
+| `--format` | Output format for report (html, json) |
+| `--output` | Output path for report file |
+
+## Project-Specific Examples
+
+The `examples/` directory contains optimized configurations for different project types:
+
+- **minimal.golangci.yml** - Small projects, fast linting
+- **standard.golangci.yml** - Most projects, balanced coverage
+- **web-project.golangci.yml** - HTTP servers, REST APIs
+- **cli-project.golangci.yml** - Command-line tools
+- **library.golangci.yml** - Reusable packages, SDKs
+
+## Linter Priorities
+
+### Critical (Always Enable)
+Security and correctness linters that should never be disabled:
+- `gosec` - Security vulnerability scanning
+- `errcheck` - Unchecked error detection
+- `staticcheck` - Advanced static analysis
+- `govet` - Go vet suspicious constructs
+- `ineffassign` - Detects unused assignments
+
+### High Value (Recommended)
+Quality and maintainability linters:
+- `errorlint` - Error handling patterns
+- `exhaustive` - Enum exhaustiveness checks
+- `wrapcheck` - Error wrapping validation
+- `forcetypeassert` - Detects forced type assertions
+
+### Medium Value (Optional)
+Style and consistency linters:
+- `gocyclo` - Cyclomatic complexity
+- `misspell` - Typos detection
+- `revive` - Fast, configurable linter
+- `varnamelen` - Variable name length rules
+
+## Backup & Safety
+
+The tool automatically creates backups before modifying configs:
+
+```bash
+# Backup file naming: <config>.backup
+.golangci.yml → .golangci.yml.backup
+
+# Restore if needed
+golangci-linter-auto-configure restore --backup-path .golangci.yml.backup
+```
+
+## Testing
 
 ```bash
 # Run all tests
 ginkgo -r --cover
 
 # Run with verbose output
-ginkgo -r -v
+ginkgo -v ./...
 
-# Run specific suite
-ginkgo ./pkg/config -r
-
-# Generate coverage
-ginkgo -r --coverprofile=coverage.out
+# Generate coverage report
+go test -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out
 ```
 
-## 📊 Linter Prioritization
+## Building from Source
 
-### Critical (Always Enabled)
-Security and correctness linters that should never be disabled:
-- `errcheck` - Unchecked error detection
-- `gosec` - Security vulnerability scanning
-- `staticcheck` - Advanced static analysis
-- `govet` - Go vet suspicious constructs
-- `sloglint` - Consistent logging with slog
-- `loggercheck` - Structured logging best practices
+```bash
+# Clone and build
+git clone https://github.com/larsartmann/golangcli-linter-auto-configure
+cd golangci-linter-auto-configure
+go build -o bin/golangci-linter-auto-configure ./cmd/golangci-linter-auto-configure
 
-### High Value (Recommended)
-Quality and maintainability linters:
-- `wrapcheck` - Error wrapping
-- `errorlint` - Error handling patterns
-- `prealloc` - Slice preallocation optimization
-- `exhaustive` - Enum exhaustiveness checks
-- `revive` - Fast, configurable linter
+# Run locally
+./bin/golangci-linter-auto-configure --help
+```
 
-### Medium Value (Optional)
-Style and consistency linters:
-- `misspell` - Typos detection
-- `gocyclo` - Cyclomatic complexity
-- `dupl` - Code duplication detection
-- `lll` - Long line detection
-
-### Optional (Niche)
-Project-specific or opinionated linters
-
-## 🔧 Tech Stack
-
-- **Workflow**: [universal-workflow](https://github.com/LarsArtmann/universal-workflow)
-- **CLI**: [charmbracelet/fang](https://github.com/charmbracelet/fang)
-- **Config**: [spf13/viper](https://github.com/spf13/viper)
-- **Testing**: [onsi/ginkgo](https://onsi.github.io/ginkgo/)
-- **HTML**: [a-h/templ](https://github.com/a-h/templ)
-- **Logging**: [charmbracelet/log](https://github.com/charmbracelet/log) + stdlib slog
-- **YAML**: [gopkg.in/yaml.v3](https://pkg.go.dev/gopkg.in/yaml.v3)
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -172,12 +261,11 @@ Project-specific or opinionated linters
 4. Ensure all tests pass (`ginkgo -r`)
 5. Submit a pull request
 
-## 📄 License
+## License
 
 MIT License - see LICENSE file for details
 
-## 🔗 Related Projects
+## Related Projects
 
-- [buildflow](https://github.com/larsartmann/buildflow) - Comprehensive build tooling
+- [golangci-lint](https://github.com/golangci/golangci-lint) - The Go linters aggregator
 - [universal-workflow](https://github.com/LarsArtmann/universal-workflow) - Workflow orchestration
-- [golangci-lint](https://github.com/golangci/golangci-lint) - Go linters aggregator

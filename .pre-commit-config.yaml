@@ -1,0 +1,53 @@
+# Pre-commit configuration
+# Install: https://pre-commit.com/
+# Run: pre-commit install
+
+repos:
+  - repo: local
+    hooks:
+      - id: golangci-configure
+        name: Auto-configure golangci-lint
+        description: Runs golangci-linter-auto-configure to ensure optimal linter settings
+        entry: golangci-linter-auto-configure configure --priority high --dry-run
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: golangci-lint
+        name: Run golangci-lint
+        description: Runs golangci-lint on changed Go files
+        entry: golangci-lint run --colored-output=true --new-from-ref=HEAD~10
+        language: system
+        pass_filenames: true
+        types: [go]
+        stages: [pre-commit]
+
+      - id: go-test
+        name: Run Go tests
+        description: Runs go test on changed packages
+        entry: go test -short ./...
+        language: system
+        pass_filenames: false
+        types: [go]
+        stages: [pre-commit]
+
+      - id: go-fmt
+        name: Check Go formatting
+        description: Checks Go code formatting with gofmt
+        entry: test -z "$(gofmt -l .)"
+        language: system
+        pass_filenames: true
+        types: [go]
+        stages: [pre-commit]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom YAML tags
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: detect-private-key

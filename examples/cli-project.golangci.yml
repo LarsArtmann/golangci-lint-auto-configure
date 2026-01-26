@@ -1,0 +1,72 @@
+# CLI project golangci-lint configuration
+# Use case: Command-line tools, Cobra/urfax apps
+# Includes: Flag handling, exit codes, user output
+# Enabled: Critical + High priority linters
+
+version: "2"
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  go: "1.21"
+
+linters:
+  enable:
+    # Critical security and correctness linters
+    - gosec
+    - errcheck
+    - staticcheck
+    - govet
+    - ineffassign
+
+    # Error handling
+    - errchkjson
+    - nilerr
+    - sloglint
+    - loggercheck
+    - musttag
+
+    # High value quality linters
+    - wrapcheck
+    - errorlint
+    - prealloc
+    - unconvert
+    - exhaustive
+    - forcetypeassert
+
+    # Code quality
+    - gocyclo
+    - funlen
+    - cyclop
+    - gocognit
+    - maintidx
+    - goconst
+    - misspell
+    - revive
+    - nolintlint
+
+    # CLI-specific
+    - containedctx
+    - depguard
+
+linters-settings:
+  gocyclo:
+    min-complexity: 20
+  funlen:
+    lines: 60      # Stricter for CLI
+    statements: 40
+  gocognit:
+    min-complexity: 25
+  depguard:
+    rules:
+      main:
+        deny:
+          - pkg: "fmt"
+            desc: "Use log instead of fmt for CLI output"
+          - pkg: "log"
+            desc: "Use charmbracelet/log for styled output"
+
+issues:
+  max-issues-per-linter: 100
+  max-same-issues: 15

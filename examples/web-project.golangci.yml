@@ -1,0 +1,74 @@
+# Web project golangci-lint configuration
+# Use case: HTTP servers, REST APIs, microservices
+# Includes: HTTP-specific linters, context handling, security
+# Enabled: Critical + High priority linters
+
+version: "2"
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  go: "1.21"
+
+linters:
+  enable:
+    # Critical security and correctness linters
+    - gosec
+    - errcheck
+    - staticcheck
+    - govet
+    - ineffassign
+
+    # Error handling
+    - errchkjson
+    - nilerr
+    - noctx
+    - sloglint
+    - loggercheck
+    - musttag
+
+    # High value quality linters
+    - wrapcheck
+    - errorlint
+    - prealloc
+    - unconvert
+    - exhaustive
+    - forcetypeassert
+
+    # Code quality
+    - gocyclo
+    - funlen
+    - cyclop
+    - gocognit
+    - maintidx
+    - goconst
+    - misspell
+    - revive
+    - nolintlint
+
+    # HTTP-specific (web projects)
+    - contextcheck
+    - bodyclose
+
+linters-settings:
+  gocyclo:
+    min-complexity: 20
+  funlen:
+    lines: 80
+    statements: 50
+  gocognit:
+    min-complexity: 25
+  revive:
+    rules:
+      - default: true
+      - package-comments: false
+
+issues:
+  max-issues-per-linter: 100
+  max-same-issues: 15
+  exclude-rules:
+    # Allow context.Background() in tests
+    - path: _test\.go
+      text: "noctx"
+      source: "noctx"

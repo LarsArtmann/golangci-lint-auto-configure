@@ -1,0 +1,71 @@
+# Library project golangci-lint configuration
+# Use case: Reusable packages, SDKs, frameworks
+# Includes: Strict type safety, API quality, no main
+# Enabled: Critical + High + Medium priority linters
+
+version: "2"
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  go: "1.21"
+
+linters:
+  enable:
+    # Critical security and correctness linters
+    - gosec
+    - errcheck
+    - staticcheck
+    - govet
+    - ineffassign
+
+    # Error handling (strict for libraries)
+    - errchkjson
+    - nilerr
+    - sloglint
+    - loggercheck
+    - musttag
+
+    # High value quality linters
+    - wrapcheck
+    - errorlint
+    - prealloc
+    - unconvert
+    - exhaustive
+    - forcetypeassert
+
+    # Code quality (strict for libraries)
+    - gocyclo
+    - funlen
+    - cyclop
+    - gocognit
+    - maintidx
+    - goconst
+    - misspell
+    - revive
+    - nolintlint
+    - varnamelen
+
+    # Library-specific
+    - interfacebloat
+    - iface
+    - inamedparam
+    - nonamedreturns
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15    # Stricter for libraries
+  funlen:
+    lines: 50             # Stricter for libraries
+    statements: 35
+  gocognit:
+    min-complexity: 20
+  varnamelen:
+    min-name-len: 2
+    max-name-len: 40
+
+issues:
+  max-issues-per-linter: 50   # Stricter for libraries
+  max-same-issues: 5
+  new: false

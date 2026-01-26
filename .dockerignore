@@ -1,0 +1,56 @@
+# Docker build ignore patterns
+# Reduces image size and build time
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation (not needed in image)
+*.md
+docs/
+LICENSE
+
+# CI/CD (not needed in runtime)
+.github/
+
+# Binaries and build artifacts (we'll build fresh)
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Test and coverage files
+*_test.go
+coverage.out
+coverage.html
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Node modules (if any examples use JS)
+node_modules/
+
+# Pre-commit hooks (not needed in container)
+.pre-commit*
+
+# Status documentation
+docs/status/
+
+# Local development files
+.local/
+*.local

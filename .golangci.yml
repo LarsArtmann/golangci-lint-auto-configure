@@ -1,24 +1,56 @@
+# golangci-lint configuration for this project
+# Uses v2.8+ schema with explicit linter enablement
 version: "2"
 
 run:
   timeout: 10m
-  
+  tests: true
+
 linters:
-  default: all
-  disable:
-    - nlreturn      # Forces newline before return (overly strict)
-    - testpackage   # Forces separate test packages
-    - gochecknoglobals  # Globals sometimes necessary
-    - gochecknoinits    # Init functions sometimes necessary
-    - forbidigo     # Forbids identifiers (too strict)
-    - depguard      # Import restrictions (not needed)
-    - varnamelen    # Variable name length (annoying)
-    - ireturn       # Return concrete types (overkill)
-    - nonamedreturns  # Named returns sometimes improve clarity
-    - exhaustruct   # Struct field init (too strict)
-    - musttag       # Struct tags (context-dependent)
-    - promlinter    # Prometheus (not a service)
-    - noctx         # HTTP context (not an HTTP server)
-    - gocritic      # Style checks (too opinionated)
-    - godox         # TODO/FIXME (should be allowed)
-    - tagliatelle   # Struct tag naming (too strict)
+  enable:
+    # Critical security and correctness linters
+    - errcheck
+    - gosec
+    - govet
+    - staticcheck
+    - ineffassign
+    - nilerr
+    - noctx
+    - sloglint
+    - loggercheck
+    - musttag
+    - errchkjson
+
+    # High value quality linters
+    - errorlint
+    - exhaustive
+    - forcetypeassert
+    - goconst
+    - gocyclo
+    - funlen
+    - misspell
+    - prealloc
+    - revive
+    - unconvert
+    - wrapcheck
+
+    # Medium value linters
+    - cyclop
+    - gocognit
+    - maintidx
+    - nolintlint
+    - varnamelen
+
+  settings:
+    gocyclo:
+      min-complexity: 20
+    funlen:
+      lines: 80
+      statements: 50
+    gocognit:
+      min-complexity: 25
+
+issues:
+  max-issues-per-linter: 100
+  max-same-issues: 15
+  new: false
