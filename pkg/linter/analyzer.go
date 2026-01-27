@@ -237,6 +237,12 @@ func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo) []types
 	var recommendations []types.LinterRecommendation
 
 	for _, linter := range disabledLinters {
+		// Skip deprecated linters - they shouldn't be recommended
+		if linter.Deprecated {
+			a.logger.Debugf("Skipping deprecated linter in analysis: %s", linter.Name)
+			continue
+		}
+
 		rec := types.LinterRecommendation{
 			Name:   types.LinterName(linter.Name),
 			Reason: a.getLinterReason(linter.Name),
