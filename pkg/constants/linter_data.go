@@ -45,6 +45,7 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"varnamelen":    types.LinterPriorityMedium,
 	"lll":           types.LinterPriorityMedium,
 	"whitespace":    types.LinterPriorityMedium,
+	"wsl_v5":        types.LinterPriorityMedium,
 	"grouper":       types.LinterPriorityMedium,
 	"dogsled":       types.LinterPriorityMedium,
 	"makezero":      types.LinterPriorityMedium,
@@ -98,6 +99,7 @@ var LinterReasons = map[types.LinterName]string{
 	"varnamelen":    "Check that the length of variable names follows some rules",
 	"lll":           "Check line length",
 	"whitespace":    "Detection of leading and trailing whitespace",
+	"wsl_v5":        "Enforces empty line separation between statements for better readability",
 	"grouper":       "Analyze expression groups",
 	"dogsled":       "Checks assignments with too many identifiers",
 	"makezero":      "Finds slice declarations with non-zero initial lengths",
@@ -165,4 +167,12 @@ var FormattersManagedByBuildFlow = []types.FormatterName{
 // RedundantFormatters are formatters that are superseded by other formatters
 var RedundantFormatters = map[types.FormatterName]string{
 	"gofmt": "redundant when gofumpt is enabled",
+}
+
+// DeprecatedLinters maps deprecated linter names to their recommended replacements
+var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
+	"wsl": {
+		Replacement: "wsl_v5",
+		Reason:      "wsl is deprecated since golangci-lint v2.2.0, use wsl_v5 instead",
+	},
 }

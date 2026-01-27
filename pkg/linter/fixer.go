@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
@@ -44,8 +45,54 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
 	disabledLinters := f.configLoader.GetLintersDisabled(cfg)
 
-	fixesApplied := 0
+	// Handle deprecated linters first
+	deprecationFixes := 0
+	enableFixes := 0
 	messages := []string{}
+	
+	// Track all linters to ensure uniqueness in the final list
+	linterSet := make(map[string]bool)
+	
+	// Build set from existing enabled linters
+	for _, linter := range enabledLinters {
+		linterSet[linter] = true
+	}
+	
+	// Check for and replace deprecated linters
+	for _, linter := range enabledLinters {
+		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
+			// Always count this as a fix since we're removing the deprecated linter
+			if !dryRun {
+				deprecationFixes++
+				messages = append(messages, fmt.Sprintf("Removed deprecated %s (use %s instead): %s", linter, replacement.Replacement, replacement.Reason))
+			}
+			
+			// Remove the deprecated linter from the set
+			delete(linterSet, linter)
+			
+			// Add the replacement if not already present
+			if !linterSet[replacement.Replacement] {
+				if dryRun {
+					f.logger.Infof("[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
+				} else {
+					f.logger.Infof("Replacing deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
+					linterSet[replacement.Replacement] = true
+				}
+			} else {
+				if dryRun {
+					f.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)", linter, replacement.Replacement)
+				} else {
+					f.logger.Debugf("Removing deprecated %s (keeping existing %s)", linter, replacement.Replacement)
+				}
+			}
+		}
+	}
+	
+	// Convert set back to slice
+	enabledLinters = make([]string, 0, len(linterSet))
+	for linter := range linterSet {
+		enabledLinters = append(enabledLinters, linter)
+	}
 
 	for _, rec := range analysis.LinterRecommendations {
 		if rec.Priority < priority {
@@ -53,8 +100,14 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 		}
 
 		lintName := rec.Name.String()
+		
+		// Check if this linter is deprecated and replace it with its successor
+		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(lintName)]; isDeprecated {
+			lintName = replacement.Replacement // Use the replacement name instead
+			// Continue to the checks below - the replacement might already be enabled
+		}
 
-		isEnabled := contains(enabledLinters, lintName)
+		isEnabled := linterSet[lintName]
 		isDisabled := contains(disabledLinters, lintName)
 
 		if !isEnabled && !isDisabled {
@@ -62,27 +115,29 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 				f.logger.Infof("[DRY-RUN] Would enable: %s (%s)", lintName, rec.Reason)
 			} else {
 				f.logger.Infof("Enabling: %s (%s)", lintName, rec.Reason)
-				enabledLinters = append(enabledLinters, lintName)
-				fixesApplied++
+				linterSet[lintName] = true
+				enableFixes++
 				messages = append(messages, fmt.Sprintf("Enabled %s: %s", lintName, rec.Reason))
 			}
 		}
 	}
 
+	totalFixes := deprecationFixes + enableFixes
+
 	if dryRun {
-		f.logger.Infof("[DRY-RUN] Would apply %d fixes", fixesApplied)
+		f.logger.Infof("[DRY-RUN] Would apply %d fixes", totalFixes)
 		return &types.MigrationResult{
 			Success:      true,
-			FixesApplied: fixesApplied,
-			Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", fixesApplied),
+			FixesApplied: totalFixes,
+			Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", totalFixes),
 		}, nil
 	}
 
-	if fixesApplied == 0 {
+	if totalFixes == 0 {
 		return &types.MigrationResult{
 			Success:      true,
 			FixesApplied: 0,
-			Message:      "No linters to enable",
+			Message:      "No fixes to apply",
 		}, nil
 	}
 
@@ -102,8 +157,8 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 
 	result := &types.MigrationResult{
 		Success:      true,
-		FixesApplied: fixesApplied,
-		Message:      fmt.Sprintf("Successfully enabled %d linters", fixesApplied),
+		FixesApplied: totalFixes,
+		Message:      fmt.Sprintf("Successfully applied %d fixes", totalFixes),
 		BackupPath:   backupPath,
 	}
 

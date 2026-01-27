@@ -10,6 +10,7 @@ This tool automatically configures golangci-lint for Go projects by:
 - **Detecting** missing linters with smart categorization
 - **Recommending** optimal linter settings based on project type
 - **Auto-fixing** configuration issues
+- **Automatically replacing deprecated linters** with their recommended successors
 - **Generating** configuration templates
 
 ## Installation
@@ -78,6 +79,15 @@ golangci-linter-auto-configure configure --priority high       # Recommended (de
 golangci-linter-auto-configure configure --priority medium     # Include style linters
 golangci-linter-auto-configure configure --priority optional   # All linters
 ```
+
+**Automatic Deprecation Handling:**
+The tool automatically detects and replaces deprecated linters with their recommended successors:
+- `wsl` → `wsl_v5` (original wsl is deprecated since golangci-lint v2.2.0)
+
+**Safety Features:**
+- Creates backup before modifying (`.golangci.yml.backup`)
+- Preserves all custom settings
+- Idempotent - safe to run multiple times
 
 ### Validate Configuration
 

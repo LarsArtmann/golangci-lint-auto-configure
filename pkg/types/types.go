@@ -77,6 +77,12 @@ func (ln LinterName) String() string {
 	return string(ln)
 }
 
+// LinterReplacement represents a replacement for a deprecated linter
+type LinterReplacement struct {
+	Replacement string `json:"replacement"`
+	Reason      string `json:"reason"`
+}
+
 // FormatterName is a strongly-typed formatter name to prevent typos
 type FormatterName string
 

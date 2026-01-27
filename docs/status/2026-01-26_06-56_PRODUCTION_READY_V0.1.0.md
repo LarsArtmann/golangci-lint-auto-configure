@@ -541,7 +541,7 @@ FROM golangci-linter-auto-configure AS linter
 
 **Changes**:
 
-- ✅ Removed deprecated linters (wsl, wsl_v5 issues)
+- ✅ Removed deprecated `wsl` linter (use `wsl_v5` instead)
 - ✅ Explicit linter enablement (v2.8+ compatible schema)
 - ✅ 34 linters enabled (critical + high + medium)
 - ✅ Linter settings configured (complexity thresholds)
