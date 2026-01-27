@@ -204,6 +204,7 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 		FormatterRecommendations: a.categorizeFormatters(jsonFormatOutput.Disabled),
 	}
 
+	a.calculateDeprecatedLinters(analysis)
 	a.calculateRecommendationCounts(analysis)
 
 	return analysis, nil
@@ -299,6 +300,16 @@ func (a *Analyzer) getLinterReason(name string) string {
 	return "Linter is disabled but may be useful"
 }
 
+// calculateDeprecatedLinters finds deprecated linters that are enabled
+func (a *Analyzer) calculateDeprecatedLinters(analysis *types.ConfigAnalysis) {
+	for _, linter := range analysis.EnabledLinters {
+		if linter.Deprecated {
+			analysis.DeprecatedLinters = append(analysis.DeprecatedLinters, linter)
+			analysis.DeprecatedCount++
+		}
+	}
+}
+
 // calculateRecommendationCounts calculates counts by priority level
 func (a *Analyzer) calculateRecommendationCounts(analysis *types.ConfigAnalysis) {
 	for _, rec := range analysis.LinterRecommendations {
@@ -329,6 +340,20 @@ func (a *Analyzer) GetLintersByPriority(recommendations []types.LinterRecommenda
 // FormatRecommendations formats recommendations as human-readable output
 func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string {
 	var builder strings.Builder
+
+	// Show deprecated linters first (most important to address)
+	if len(analysis.DeprecatedLinters) > 0 {
+		builder.WriteString(fmt.Sprintf("⚠️  %d DEPRECATED linter(s) are enabled (should be migrated):\n", len(analysis.DeprecatedLinters)))
+		for _, linter := range analysis.DeprecatedLinters {
+			// Check if there's a replacement
+			if replacement, ok := constants.DeprecatedLinters[types.LinterName(linter.Name)]; ok {
+				builder.WriteString(fmt.Sprintf("  - %s: Use %s instead (%s)\n", linter.Name, replacement.Replacement, linter.Description))
+			} else {
+				builder.WriteString(fmt.Sprintf("  - %s: %s (no replacement specified)\n", linter.Name, linter.Description))
+			}
+		}
+		builder.WriteString("\n")
+	}
 
 	critical := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityCritical)
 	highValue := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityHigh)
@@ -373,6 +398,9 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string {
 	var parts []string
 
+	if analysis.DeprecatedCount > 0 {
+		parts = append(parts, fmt.Sprintf("%d DEPRECATED", analysis.DeprecatedCount))
+	}
 	if analysis.CriticalCount > 0 {
 		parts = append(parts, fmt.Sprintf("%d CRITICAL", analysis.CriticalCount))
 	}

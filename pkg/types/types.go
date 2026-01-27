@@ -113,10 +113,12 @@ type ConfigAnalysis struct {
 	DisabledFormatters       []FormatterInfo           `json:"disabled_formatters"`
 	LinterRecommendations    []LinterRecommendation    `json:"linter_recommendations"`
 	FormatterRecommendations []FormatterRecommendation `json:"formatter_recommendations"`
+	DeprecatedLinters        []LinterInfo              `json:"deprecated_linters"`
 	CriticalCount            int                       `json:"critical_count"`
 	HighValueCount           int                       `json:"high_value_count"`
 	MediumValueCount         int                       `json:"medium_value_count"`
 	OptionalCount            int                       `json:"optional_count"`
+	DeprecatedCount          int                       `json:"deprecated_count"`
 }
 
 // MigrationResult represents the result of a configuration migration
