@@ -63,10 +63,10 @@ type LintersExclusionsConfig struct {
 }
 
 type ExclusionRuleConfig struct {
-	Path       []string `yaml:"path,omitempty"`
-	PathExcept []string `yaml:"path-except,omitempty"`
-	Text       []string `yaml:"text,omitempty"`
-	Source     []string `yaml:"source,omitempty"`
+	Path       string   `yaml:"path,omitempty"`
+	PathExcept string   `yaml:"path-except,omitempty"`
+	Text       string   `yaml:"text,omitempty"`
+	Source     string   `yaml:"source,omitempty"`
 	Linters    []string `yaml:"linters,omitempty"`
 }
 
