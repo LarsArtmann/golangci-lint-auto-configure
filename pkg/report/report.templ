@@ -48,6 +48,22 @@ templ Report(data ReportData) {
 				.badge.high { background: #fd7e14; color: white; }
 				.badge.medium { background: #ffc107; color: #212529; }
 				.badge.optional { background: #17a2b8; color: white; }
+				/* Dark mode support */
+				@media (prefers-color-scheme: dark) {
+					body { background: #1a1a2e; color: #eaeaea; }
+					.summary-card { background: #16213e; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+					.summary-card h3 { color: inherit; }
+					.summary-card p { color: #a0a0a0; }
+					.section { background: #16213e; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+					.section h2 { color: #eaeaea; border-bottom-color: #667eea; }
+					.linter-card { background: #1a1a2e; }
+					.linter-card.critical { background: #3d1f1f; }
+					.linter-card.high { background: #3d2814; }
+					.linter-card.medium { background: #3d3414; }
+					.linter-card.optional { background: #142d33; }
+					.linter-card h4 { color: #eaeaea; }
+					.linter-card p { color: #a0a0a0; }
+				}
 			</style>
 		</head>
 		<body>
