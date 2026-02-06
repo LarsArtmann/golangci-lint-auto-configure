@@ -288,7 +288,9 @@ func (a *Analyzer) categorizeFormatters(disabledFormatters []types.FormatterInfo
 
 // getFormatterReason returns the human-readable reason for a formatter recommendation
 func (a *Analyzer) getFormatterReason(name string) string {
-	// Add specific reasons for formatters as needed
+	if reason, ok := constants.FormatterReasons[types.FormatterName(name)]; ok {
+		return reason
+	}
 	return "Formatter is disabled but may be useful"
 }
 

@@ -158,6 +158,16 @@ var FormatterPriorities = map[types.FormatterName]types.FormatterPriority{
 	"goimports": types.FormatterPriorityMedium,
 }
 
+// FormatterReasons provides human-readable reasons for each formatter recommendation
+var FormatterReasons = map[types.FormatterName]string{
+	"gofumpt":   "Enhanced Go formatting with stricter rules than gofmt",
+	"gofmt":     "Standard Go code formatting (consider gofumpt for stricter formatting)",
+	"goimports": "Formats code and automatically manages import statements",
+	"gci":       "Organizes import statements with custom section rules",
+	"golines":   "Formats code and fixes long lines by breaking them",
+	"swaggo":    "Formats Swagger/OpenAPI documentation comments",
+}
+
 // FormattersManagedByBuildFlow are formatters that should be run by buildflow, not golangci-lint
 var FormattersManagedByBuildFlow = []types.FormatterName{
 	"goimports",
