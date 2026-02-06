@@ -9,91 +9,22 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	"gopkg.in/yaml.v3"
 )
 
-// Config represents a golangci-lint configuration file
-type Config struct {
-	Version    string           `yaml:"version"`
-	Run        RunConfig        `yaml:"run"`
-	Output     OutputConfig     `yaml:"output"`
-	Linters    LintersConfig    `yaml:"linters"`
-	Formatters FormattersConfig `yaml:"formatters,omitempty"`
-	Issues     IssuesConfig     `yaml:"issues"`
-}
-
-type RunConfig struct {
-	Timeout              string   `yaml:"timeout"`
-	Go                   string   `yaml:"go"`
-	BuildTags            []string `yaml:"build-tags"`
-	ModulesDownloadMode  string   `yaml:"modules-download-mode,omitempty"`
-	AllowParallelRunners bool     `yaml:"allow-parallel-runners"`
-	AllowSerialRunners   bool     `yaml:"allow-serial-runners"`
-	IssuesExitCode       int      `yaml:"issues-exit-code,omitempty"`
-	Tests                bool     `yaml:"tests,omitempty"`
-	Concurrency          int      `yaml:"concurrency,omitempty"`
-	RelativePathMode     string   `yaml:"relative-path-mode,omitempty"`
-}
-
-type OutputConfig struct {
-	Formats    map[string]any `yaml:"formats"`
-	PathPrefix string         `yaml:"path-prefix,omitempty"`
-	PathMode   string         `yaml:"path-mode,omitempty"`
-	SortOrder  []string       `yaml:"sort-order,omitempty"`
-	ShowStats  bool           `yaml:"show-stats,omitempty"`
-}
-
-type LintersConfig struct {
-	Enable     []string                `yaml:"enable,omitempty"`
-	Disable    []string                `yaml:"disable,omitempty"`
-	Default    string                  `yaml:"default,omitempty"`
-	Settings   map[string]any          `yaml:"settings,omitempty"`
-	Exclusions LintersExclusionsConfig `yaml:"exclusions,omitempty"`
-}
-
-type LintersSettings map[string]any
-
-type LintersExclusionsConfig struct {
-	Generated   string                `yaml:"generated,omitempty"`
-	WarnUnused  bool                  `yaml:"warn-unused,omitempty"`
-	Presets     []string              `yaml:"presets,omitempty"`
-	Rules       []ExclusionRuleConfig `yaml:"rules,omitempty"`
-	Paths       []string              `yaml:"paths,omitempty"`
-	PathsExcept []string              `yaml:"paths-except,omitempty"`
-}
-
-type ExclusionRuleConfig struct {
-	Path       string   `yaml:"path,omitempty"`
-	PathExcept string   `yaml:"path-except,omitempty"`
-	Text       string   `yaml:"text,omitempty"`
-	Source     string   `yaml:"source,omitempty"`
-	Linters    []string `yaml:"linters,omitempty"`
-}
-
-type IssuesConfig struct {
-	MaxIssuesPerLinter int    `yaml:"max-issues-per-linter,omitempty"`
-	MaxSameIssues      int    `yaml:"max-same-issues,omitempty"`
-	NewFromRev         string `yaml:"new-from-rev,omitempty"`
-	NewFromPatch       string `yaml:"new-from-patch,omitempty"`
-	New                bool   `yaml:"new,omitempty"`
-	NewFromMergeBase   string `yaml:"new-from-merge-base,omitempty"`
-	WholeFiles         bool   `yaml:"whole-files,omitempty"`
-	Fix                bool   `yaml:"fix,omitempty"`
-	UniqByLine         bool   `yaml:"uniq-by-line,omitempty"`
-}
-
-type FormattersConfig struct {
-	Enable     []string                   `yaml:"enable,omitempty"`
-	Disable    []string                   `yaml:"disable,omitempty"`
-	Settings   map[string]any             `yaml:"settings,omitempty"`
-	Exclusions FormattersExclusionsConfig `yaml:"exclusions,omitempty"`
-}
-
-type FormattersExclusionsConfig struct {
-	Generated  string   `yaml:"generated,omitempty"`
-	WarnUnused bool     `yaml:"warn-unused,omitempty"`
-	Paths      []string `yaml:"paths,omitempty"`
-}
+// Re-export types for backward compatibility
+type (
+	Config                     = types.Config
+	RunConfig                  = types.RunConfig
+	OutputConfig               = types.OutputConfig
+	LintersConfig              = types.LintersConfig
+	LintersExclusionsConfig    = types.LintersExclusionsConfig
+	ExclusionRuleConfig        = types.ExclusionRuleConfig
+	IssuesConfig               = types.IssuesConfig
+	FormattersConfig           = types.FormattersConfig
+	FormattersExclusionsConfig = types.FormattersExclusionsConfig
+)
 
 // Loader handles loading golangci-lint configuration files
 type Loader struct {
@@ -111,12 +42,12 @@ func NewLoader(logger *log.Logger) *Loader {
 func (l *Loader) LoadConfig(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, errors.NewConfigError(fmt.Sprintf("failed to read config file"), path, err)
+		return nil, errors.NewConfigError("failed to read config file", path, err)
 	}
 
 	var config Config
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		return nil, errors.NewConfigError(fmt.Sprintf("failed to parse config file"), path, err)
+		return nil, errors.NewConfigError("failed to parse config file", path, err)
 	}
 
 	l.logger.Debugf("Loaded config from %s", path)
@@ -140,7 +71,7 @@ func (l *Loader) FindConfigFile(startDir string) (string, error) {
 		}
 	}
 
-	return "", errors.NewConfigError(fmt.Sprintf("no golangci-lint config file found in %s", startDir), startDir, nil)
+	return "", errors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil)
 }
 
 // FindOrGetDefaultConfigPath searches for a config file and returns a default path if none exists
