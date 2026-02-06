@@ -62,14 +62,11 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	for _, linter := range enabledLinters {
 		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
 			// Always count this as a fix since we're removing the deprecated linter
-			if !dryRun {
-				deprecationFixes++
-				messages = append(messages, fmt.Sprintf("Removed deprecated %s (use %s instead): %s", linter, replacement.Replacement, replacement.Reason))
-			}
-			
+			deprecationFixes++
+
 			// Remove the deprecated linter from the set
 			delete(linterSet, linter)
-			
+
 			// Add the replacement if not already present
 			if !linterSet[replacement.Replacement] {
 				if dryRun {
@@ -77,23 +74,19 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 				} else {
 					f.logger.Infof("Replacing deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
 					linterSet[replacement.Replacement] = true
+					messages = append(messages, fmt.Sprintf("Replaced deprecated %s with %s: %s", linter, replacement.Replacement, replacement.Reason))
 				}
 			} else {
 				if dryRun {
 					f.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)", linter, replacement.Replacement)
 				} else {
 					f.logger.Debugf("Removing deprecated %s (keeping existing %s)", linter, replacement.Replacement)
+					messages = append(messages, fmt.Sprintf("Removed deprecated %s (replacement %s already enabled): %s", linter, replacement.Replacement, replacement.Reason))
 				}
 			}
 		}
 	}
 	
-	// Convert set back to slice
-	enabledLinters = make([]string, 0, len(linterSet))
-	for linter := range linterSet {
-		enabledLinters = append(enabledLinters, linter)
-	}
-
 	for _, rec := range analysis.LinterRecommendations {
 		if rec.Priority < priority {
 			continue
@@ -111,12 +104,12 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 		isDisabled := contains(disabledLinters, lintName)
 
 		if !isEnabled && !isDisabled {
+			enableFixes++ // Count the fix regardless of dry-run mode
 			if dryRun {
 				f.logger.Infof("[DRY-RUN] Would enable: %s (%s)", lintName, rec.Reason)
 			} else {
 				f.logger.Infof("Enabling: %s (%s)", lintName, rec.Reason)
 				linterSet[lintName] = true
-				enableFixes++
 				messages = append(messages, fmt.Sprintf("Enabled %s: %s", lintName, rec.Reason))
 			}
 		}
@@ -145,6 +138,12 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	backupPath, err := f.configLoader.CreateBackup(configPath)
 	if err != nil {
 		return nil, errors.NewAnalysisError("failed to create backup", configPath, err)
+	}
+
+	// Convert final linter set to sorted slice for consistent output
+	enabledLinters = make([]string, 0, len(linterSet))
+	for linter := range linterSet {
+		enabledLinters = append(enabledLinters, linter)
 	}
 
 	cfg.Linters.Enable = enabledLinters
