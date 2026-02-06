@@ -186,3 +186,40 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 		Reason:      "wsl is deprecated since golangci-lint v2.2.0, use wsl_v5 instead",
 	},
 }
+
+// PresetLinters defines linter sets for different configuration presets
+var PresetLinters = map[string][]types.LinterName{
+	"minimal": {
+		"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
+	},
+	"standard": {
+		"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
+		"gocritic", "unused", "gosimple", "typecheck",
+		"varcheck", "structcheck", "deadcode",
+	},
+	"strict": {
+		"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
+		"gocritic", "unused", "gosimple", "typecheck",
+		"varcheck", "structcheck", "deadcode",
+		"gocyclo", "funlen", "cyclop", "gocognit",
+		"nestif", "maintidx", "lizard",
+		"dupl", "copypaste",
+		"goconst", "misspell", "lll",
+		"nolintlint", "godot", "godox",
+	},
+	"security": {
+		"gosec", "semgrep", "secrets",
+	},
+	"performance": {
+		"ineffassign", "prealloc", "maligned", "structcheck",
+	},
+}
+
+// PresetDescriptions explains what each preset is for
+var PresetDescriptions = map[string]string{
+	"minimal":     "Essential linters only (5 linters) - Fastest, minimal false positives",
+	"standard":    "Recommended for most projects (12 linters) - Good balance",
+	"strict":      "Maximum linting (20+ linters) - CI/CD, strict code quality",
+	"security":    "Security-focused linters only",
+	"performance": "Performance optimization linters",
+}
