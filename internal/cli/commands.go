@@ -66,6 +66,7 @@ actionable recommendations to improve your Go code quality.`,
 		newValidateCommand(logger, configLoader),
 		newReportCommand(logger, analyzer, configLoader),
 		newRestoreCommand(logger, configLoader),
+		newCompletionCommand(),
 	)
 
 	// Global flags
@@ -541,6 +542,57 @@ func newRestoreCommand(
 	cmd.Flags().String("backup-path", "", "Path to backup file to restore from")
 
 	return cmd
+}
+
+// newCompletionCommand creates the completion command for shell autocompletion
+func newCompletionCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "completion [bash|zsh|fish|powershell]",
+		Short: "Generate shell completion script",
+		Long: `Generate shell completion script for golangci-linter-auto-configure.
+
+To load completions:
+
+Bash:
+  $ source <(golangci-linter-auto-configure completion bash)
+  # To load completions for each session, execute once:
+  # Linux:
+  $ golangci-linter-auto-configure completion bash > /etc/bash_completion.d/golangci-linter-auto-configure
+  # macOS:
+  $ golangci-linter-auto-configure completion bash > $(brew --prefix)/etc/bash_completion.d/golangci-linter-auto-configure
+
+Zsh:
+  $ source <(golangci-linter-auto-configure completion zsh)
+  # To load completions for each session, execute once:
+  $ golangci-linter-auto-configure completion zsh > "${fpath[1]}/_golangci-linter-auto-configure"
+
+Fish:
+  $ golangci-linter-auto-configure completion fish | source
+  # To load completions for each session, execute once:
+  $ golangci-linter-auto-configure completion fish > ~/.config/fish/completions/golangci-linter-auto-configure.fish
+
+PowerShell:
+  PS> golangci-linter-auto-configure completion powershell | Out-String | Invoke-Expression
+  # To load completions for every new session, run:
+  PS> golangci-linter-auto-configure completion powershell > golangci-linter-auto-configure.ps1
+  # and source this file from your PowerShell profile.
+`,
+		DisableFlagsInUseLine: true,
+		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
+		Args:                  cobra.ExactValidArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			switch args[0] {
+			case "bash":
+				cmd.Root().GenBashCompletion(cmd.OutOrStdout())
+			case "zsh":
+				cmd.Root().GenZshCompletion(cmd.OutOrStdout())
+			case "fish":
+				cmd.Root().GenFishCompletion(cmd.OutOrStdout(), true)
+			case "powershell":
+				cmd.Root().GenPowerShellCompletionWithDesc(cmd.OutOrStdout())
+			}
+		},
+	}
 }
 
 // Execute runs the CLI using fang for enhanced CLI features
