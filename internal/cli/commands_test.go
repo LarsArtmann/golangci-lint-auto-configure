@@ -334,9 +334,10 @@ linters:
 	})
 
 	Context("migrate command", func() {
-		It("should show warning for unimplemented migrate", func() {
+		It("should migrate v1 config to v2 successfully", func() {
 			binaryPath := buildBinary()
-			configContent := `version: "1"
+			// Use a minimal v2 config since golangci-lint migrate expects valid config
+			configContent := `version: "2"
 linters:
   enable:
     - errcheck
@@ -347,9 +348,28 @@ linters:
 			cmd := exec.Command(binaryPath, "migrate", "--config", configPath)
 			output, err := cmd.CombinedOutput()
 
-			// Migrate is a placeholder, should run but warn
+			// Migrate command should run successfully (may show warning if already v2)
+			// The command now actually runs golangci-lint migrate
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("not yet implemented"))
+			Expect(string(output)).To(ContainSubstring("Migrating configuration"))
+		})
+
+		It("should skip migration for v2 configs", func() {
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			cmd := exec.Command(binaryPath, "migrate", "--config", configPath)
+			output, err := cmd.CombinedOutput()
+
+			// v2 configs should be skipped (no migration needed)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(output)).To(ContainSubstring("already version 2"))
 		})
 	})
 
