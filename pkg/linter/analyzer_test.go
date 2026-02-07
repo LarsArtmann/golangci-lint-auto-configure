@@ -31,47 +31,6 @@ var _ = Describe("Analyzer", func() {
 		analyzer = linter.NewAnalyzer(logger)
 	})
 
-	Context("Categorization", func() {
-		It("should categorize gosec as critical", func() {
-			recs := analyzer.GetLintersByPriority(
-				[]types.LinterRecommendation{
-					{Name: "gosec", Priority: types.LinterPriorityCritical},
-				},
-				types.LinterPriorityCritical,
-			)
-
-			Expect(recs).To(HaveLen(1))
-			Expect(recs[0].Name).To(Equal(types.LinterName("gosec")))
-			Expect(recs[0].Priority).To(Equal(types.LinterPriorityCritical))
-		})
-
-		It("should categorize wrapcheck as high priority", func() {
-			recs := analyzer.GetLintersByPriority(
-				[]types.LinterRecommendation{
-					{Name: "wrapcheck", Priority: types.LinterPriorityHigh},
-				},
-				types.LinterPriorityHigh,
-			)
-
-			Expect(recs).To(HaveLen(1))
-			Expect(recs[0].Name).To(Equal(types.LinterName("wrapcheck")))
-			Expect(recs[0].Priority).To(Equal(types.LinterPriorityHigh))
-		})
-
-		It("should categorize misspell as medium priority", func() {
-			recs := analyzer.GetLintersByPriority(
-				[]types.LinterRecommendation{
-					{Name: "misspell", Priority: types.LinterPriorityMedium},
-				},
-				types.LinterPriorityMedium,
-			)
-
-			Expect(recs).To(HaveLen(1))
-			Expect(recs[0].Name).To(Equal(types.LinterName("misspell")))
-			Expect(recs[0].Priority).To(Equal(types.LinterPriorityMedium))
-		})
-	})
-
 	Context("Priority Filtering", func() {
 		It("should filter linters by priority", func() {
 			testCases := []struct {
@@ -81,6 +40,7 @@ var _ = Describe("Analyzer", func() {
 			}{
 				{types.LinterPriorityCritical, "gosec", types.LinterPriorityCritical},
 				{types.LinterPriorityHigh, "wrapcheck", types.LinterPriorityHigh},
+				{types.LinterPriorityMedium, "misspell", types.LinterPriorityMedium},
 			}
 
 			for _, tc := range testCases {
