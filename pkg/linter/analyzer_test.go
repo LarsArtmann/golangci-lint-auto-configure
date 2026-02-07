@@ -19,6 +19,13 @@ func TestAnalyzer(t *testing.T) {
 var _ = Describe("Analyzer", func() {
 	var analyzer *linter.Analyzer
 
+	// standardTestLinters is a common test dataset used across multiple tests
+	standardTestLinters := []types.LinterRecommendation{
+		{Name: "gosec", Priority: types.LinterPriorityCritical},
+		{Name: "wrapcheck", Priority: types.LinterPriorityHigh},
+		{Name: "misspell", Priority: types.LinterPriorityMedium},
+	}
+
 	BeforeEach(func() {
 		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
 		analyzer = linter.NewAnalyzer(logger)
@@ -66,30 +73,23 @@ var _ = Describe("Analyzer", func() {
 	})
 
 	Context("Priority Filtering", func() {
-		It("should filter linters by critical priority", func() {
-			recs := []types.LinterRecommendation{
-				{Name: "gosec", Priority: types.LinterPriorityCritical},
-				{Name: "wrapcheck", Priority: types.LinterPriorityHigh},
-				{Name: "misspell", Priority: types.LinterPriorityMedium},
+		It("should filter linters by priority", func() {
+			testCases := []struct {
+				priority         types.LinterPriority
+				expectedLinter   types.LinterName
+				expectedPriority types.LinterPriority
+			}{
+				{types.LinterPriorityCritical, "gosec", types.LinterPriorityCritical},
+				{types.LinterPriorityHigh, "wrapcheck", types.LinterPriorityHigh},
 			}
 
-			filtered := analyzer.GetLintersByPriority(recs, types.LinterPriorityCritical)
+			for _, tc := range testCases {
+				filtered := analyzer.GetLintersByPriority(standardTestLinters, tc.priority)
 
-			Expect(filtered).To(HaveLen(1))
-			Expect(filtered[0].Name).To(Equal(types.LinterName("gosec")))
-		})
-
-		It("should filter linters by high priority", func() {
-			recs := []types.LinterRecommendation{
-				{Name: "gosec", Priority: types.LinterPriorityCritical},
-				{Name: "wrapcheck", Priority: types.LinterPriorityHigh},
-				{Name: "misspell", Priority: types.LinterPriorityMedium},
+				Expect(filtered).To(HaveLen(1))
+				Expect(filtered[0].Name).To(Equal(tc.expectedLinter))
+				Expect(filtered[0].Priority).To(Equal(tc.expectedPriority))
 			}
-
-			filtered := analyzer.GetLintersByPriority(recs, types.LinterPriorityHigh)
-
-			Expect(filtered).To(HaveLen(1))
-			Expect(filtered[0].Name).To(Equal(types.LinterName("wrapcheck")))
 		})
 
 		It("should return empty list for non-existent priority", func() {
