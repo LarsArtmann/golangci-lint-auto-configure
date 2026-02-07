@@ -110,42 +110,41 @@ func (d *Differ) compareRunSettings(old, new types.RunConfig) []Change {
 	return changes
 }
 
-func (d *Differ) compareLinters(old, new types.LintersConfig) []Change {
+func (d *Differ) compareEnabled(oldEnable, newEnable []string, pathPrefix, entityName string) []Change {
 	var changes []Change
 
-	// Compare enabled linters
 	oldEnabled := make(map[string]bool)
-	for _, l := range old.Enable {
-		oldEnabled[l] = true
+	for _, item := range oldEnable {
+		oldEnabled[item] = true
 	}
 
 	newEnabled := make(map[string]bool)
-	for _, l := range new.Enable {
-		newEnabled[l] = true
+	for _, item := range newEnable {
+		newEnabled[item] = true
 	}
 
-	// Find added linters
-	for l := range newEnabled {
-		if !oldEnabled[l] {
+	// Find added items
+	for item := range newEnabled {
+		if !oldEnabled[item] {
 			changes = append(changes, Change{
 				Type:        ChangeTypeAdded,
-				Path:        fmt.Sprintf("linters.enable.%s", l),
+				Path:        fmt.Sprintf("%s.enable.%s", pathPrefix, item),
 				OldValue:    "",
-				NewValue:    l,
-				Description: fmt.Sprintf("Enabled linter: %s", l),
+				NewValue:    item,
+				Description: fmt.Sprintf("Enabled %s: %s", entityName, item),
 			})
 		}
 	}
 
-	// Find removed linters
-	for l := range oldEnabled {
-		if !newEnabled[l] {
+	// Find removed items
+	for item := range oldEnabled {
+		if !newEnabled[item] {
 			changes = append(changes, Change{
 				Type:        ChangeTypeRemoved,
-				Path:        fmt.Sprintf("linters.enable.%s", l),
-				OldValue:    l,
+				Path:        fmt.Sprintf("%s.enable.%s", pathPrefix, item),
+				OldValue:    item,
 				NewValue:    "",
-				Description: fmt.Sprintf("Disabled linter: %s", l),
+				Description: fmt.Sprintf("Disabled %s: %s", entityName, item),
 			})
 		}
 	}
@@ -153,46 +152,12 @@ func (d *Differ) compareLinters(old, new types.LintersConfig) []Change {
 	return changes
 }
 
+func (d *Differ) compareLinters(old, new types.LintersConfig) []Change {
+	return d.compareEnabled(old.Enable, new.Enable, "linters", "linter")
+}
+
 func (d *Differ) compareFormatters(old, new types.FormattersConfig) []Change {
-	var changes []Change
-
-	oldEnabled := make(map[string]bool)
-	for _, f := range old.Enable {
-		oldEnabled[f] = true
-	}
-
-	newEnabled := make(map[string]bool)
-	for _, f := range new.Enable {
-		newEnabled[f] = true
-	}
-
-	// Find added formatters
-	for f := range newEnabled {
-		if !oldEnabled[f] {
-			changes = append(changes, Change{
-				Type:        ChangeTypeAdded,
-				Path:        fmt.Sprintf("formatters.enable.%s", f),
-				OldValue:    "",
-				NewValue:    f,
-				Description: fmt.Sprintf("Enabled formatter: %s", f),
-			})
-		}
-	}
-
-	// Find removed formatters
-	for f := range oldEnabled {
-		if !newEnabled[f] {
-			changes = append(changes, Change{
-				Type:        ChangeTypeRemoved,
-				Path:        fmt.Sprintf("formatters.enable.%s", f),
-				OldValue:    f,
-				NewValue:    "",
-				Description: fmt.Sprintf("Disabled formatter: %s", f),
-			})
-		}
-	}
-
-	return changes
+	return d.compareEnabled(old.Enable, new.Enable, "formatters", "formatter")
 }
 
 // FormatChanges formats changes as a human-readable string
