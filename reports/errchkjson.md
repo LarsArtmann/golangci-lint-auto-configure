@@ -96,6 +96,7 @@ func toJSON(r Request) ([]byte, error) {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **All JSON APIs** - REST/GraphQL services
 - **Web applications** - Any app serving/consuming JSON
 - **Microservices** - Inter-service communication
@@ -104,6 +105,7 @@ func toJSON(r Request) ([]byte, error) {
 - **API clients** - Services consuming external JSON APIs
 
 **Specific Scenarios:**
+
 - **REST APIs** - Request/response bodies
 - **GraphQL resolvers** - JSON responses
 - **WebSocket messages** - JSON payload handling
@@ -116,6 +118,7 @@ func toJSON(r Request) ([]byte, error) {
 **Specific Scenarios:**
 
 **1. Non-JSON Projects**
+
 ```yaml
 # Projects not using JSON
 linters:
@@ -124,10 +127,12 @@ linters:
 ```
 
 **2. Protobuf/MessagePack**
+
 - Using binary serialization instead of JSON
 - Protobuf, Thrift, Avro projects
 
 **3. Test Files with Intentional Errors**
+
 ```yaml
 issues:
   exclude-rules:
@@ -173,6 +178,7 @@ linters:
 - **Description**: Report error returns when JSON encoding is guaranteed error-free
 
 **When to Enable:**
+
 - Encoding primitive types (int, string, bool)
 - Encoding slices of primitives
 - Cases where you're certain encoding cannot fail
@@ -180,11 +186,12 @@ linters:
 ### `check-error-free-encoding` Options
 
 - **check-error-free-marshaling** - Check json.Marshal()
-- **check-error-free-encoding` - Check json.Encoder.Encode()
+- \*\*check-error-free-encoding` - Check json.Encoder.Encode()
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most JSON APIs
 version: "2"
@@ -195,6 +202,7 @@ linters:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # Security-critical, type-safe applications
 version: "2"
@@ -210,25 +218,26 @@ linters:
 
 errchkjson works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **errcheck** | Complementary | errcheck ensures JSON errors are checked, errchkjson ensures types are valid |
-| **gosec** | Complementary | gosec: general security, errchkjson: JSON-specific security |
-| **govet** | Complementary | govet: general issues, errchkjson: JSON-specific |
-| **staticcheck** | Complementary | staticcheck: deep analysis, errchkjson: JSON type checking |
-| **nilerr** | Complementary | nilerr: nil error returns, errchkjson: JSON encoding issues |
-| **musttag** | Complementary | musttag: struct tags, errchkjson: JSON tag validation |
+| Linter          | Relationship  | Value                                                                        |
+| --------------- | ------------- | ---------------------------------------------------------------------------- |
+| **errcheck**    | Complementary | errcheck ensures JSON errors are checked, errchkjson ensures types are valid |
+| **gosec**       | Complementary | gosec: general security, errchkjson: JSON-specific security                  |
+| **govet**       | Complementary | govet: general issues, errchkjson: JSON-specific                             |
+| **staticcheck** | Complementary | staticcheck: deep analysis, errchkjson: JSON type checking                   |
+| **nilerr**      | Complementary | nilerr: nil error returns, errchkjson: JSON encoding issues                  |
+| **musttag**     | Complementary | musttag: struct tags, errchkjson: JSON tag validation                        |
 
 **Complete JSON Suite:**
+
 ```yaml
 linters:
   enable:
-    - errchkjson     # JSON type checking (CRITICAL)
-    - errcheck        # Error handling (CRITICAL)
-    - gosec           # Security (CRITICAL)
-    - musttag         # Struct tags (CRITICAL)
-    - staticcheck      # Deep analysis (CRITICAL)
-    - nilerr           # Nil errors (CRITICAL)
+    - errchkjson # JSON type checking (CRITICAL)
+    - errcheck # Error handling (CRITICAL)
+    - gosec # Security (CRITICAL)
+    - musttag # Struct tags (CRITICAL)
+    - staticcheck # Deep analysis (CRITICAL)
+    - nilerr # Nil errors (CRITICAL)
 ```
 
 ### 🔒 No Conflicts
@@ -369,6 +378,7 @@ type User struct {
 **Problem:** Unexported field buried in large struct.
 
 **Solution:** Use errchkjson to catch it.
+
 ```yaml
 linters:
   settings:
@@ -381,6 +391,7 @@ linters:
 **Problem:** Encoding primitive types always succeeds, errors can be omitted.
 
 **Solution:** Use check-error-free-encoding: false to catch all.
+
 ```yaml
 linters:
   settings:
@@ -393,6 +404,7 @@ linters:
 **Problem:** Test structs intentionally have unexported fields.
 
 **Solution:** Exclude test files.
+
 ```yaml
 issues:
   exclude-rules:
@@ -405,6 +417,7 @@ issues:
 **Problem:** JSON operations in goroutines, errors hard to check.
 
 **Solution:** Check errors in goroutine.
+
 ```go
 go func() {
     data, err := json.Marshal(obj)
@@ -432,6 +445,7 @@ go func() {
 **Recommendation:** **ALWAYS ENABLE** for any code using JSON (REST APIs, GraphQL, configuration files, event streaming). Combine with **errcheck** for complete error handling coverage. Use with **musttag** to ensure correct JSON struct tags. Exclude test files (`(.+)_test\.go`). Set `check-error-free-encoding: false` to catch all error cases.
 
 **Top 3 Configuration Tips:**
+
 1. Keep default settings (check-error-free-encoding: false)
 2. Export all fields that should be in JSON
 3. Check all JSON encoding/decoding errors

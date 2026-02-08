@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// LinterPriority represents the priority level for a linter
+// LinterPriority represents the priority level for a linter.
 type LinterPriority int
 
 const (
@@ -29,7 +29,7 @@ func (p LinterPriority) String() string {
 	}
 }
 
-// FormatterPriority represents the priority level for a formatter
+// FormatterPriority represents the priority level for a formatter.
 type FormatterPriority int
 
 const (
@@ -51,7 +51,7 @@ func (p FormatterPriority) String() string {
 	}
 }
 
-// LinterInfo contains information about a golangci-lint linter
+// LinterInfo contains information about a golangci-lint linter.
 type LinterInfo struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -63,48 +63,48 @@ type LinterInfo struct {
 	OriginalURL string   `json:"originalURL"`
 }
 
-// LinterRecommendation represents a linter with its priority and reason
+// LinterRecommendation represents a linter with its priority and reason.
 type LinterRecommendation struct {
 	Name     LinterName     `json:"name"`
 	Priority LinterPriority `json:"priority"`
 	Reason   string         `json:"reason"`
 }
 
-// LinterName is a strongly-typed linter name to prevent typos
+// LinterName is a strongly-typed linter name to prevent typos.
 type LinterName string
 
 func (ln LinterName) String() string {
 	return string(ln)
 }
 
-// LinterReplacement represents a replacement for a deprecated linter
+// LinterReplacement represents a replacement for a deprecated linter.
 type LinterReplacement struct {
 	Replacement string `json:"replacement"`
 	Reason      string `json:"reason"`
 }
 
-// FormatterName is a strongly-typed formatter name to prevent typos
+// FormatterName is a strongly-typed formatter name to prevent typos.
 type FormatterName string
 
 func (fn FormatterName) String() string {
 	return string(fn)
 }
 
-// FormatterInfo contains information about a golangci-lint formatter
+// FormatterInfo contains information about a golangci-lint formatter.
 type FormatterInfo struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	AutoFix     bool   `json:"autoFix,omitempty"`
 }
 
-// FormatterRecommendation represents a formatter with its priority and reason
+// FormatterRecommendation represents a formatter with its priority and reason.
 type FormatterRecommendation struct {
 	Name     FormatterName     `json:"name"`
 	Priority FormatterPriority `json:"priority"`
 	Reason   string            `json:"reason"`
 }
 
-// ConfigAnalysis represents the analysis results of a golangci-lint configuration
+// ConfigAnalysis represents the analysis results of a golangci-lint configuration.
 type ConfigAnalysis struct {
 	ConfigPath               string                    `json:"config_path"`
 	EnabledLinters           []LinterInfo              `json:"enabled_linters"`
@@ -121,7 +121,7 @@ type ConfigAnalysis struct {
 	DeprecatedCount          int                       `json:"deprecated_count"`
 }
 
-// MigrationResult represents the result of a configuration migration
+// MigrationResult represents the result of a configuration migration.
 type MigrationResult struct {
 	Success      bool   `json:"success"`
 	FixesApplied int    `json:"fixes_applied"`
@@ -129,7 +129,7 @@ type MigrationResult struct {
 	BackupPath   string `json:"backup_path,omitempty"`
 }
 
-// ValidationError represents a configuration validation error
+// ValidationError represents a configuration validation error.
 type ValidationError struct {
 	Field   string `json:"field"`
 	Message string `json:"message"`
@@ -140,10 +140,11 @@ func (e ValidationError) Error() string {
 	if e.Line > 0 {
 		return fmt.Sprintf("validation error at line %d: %s (field: %s)", e.Line, e.Message, e.Field)
 	}
+
 	return fmt.Sprintf("validation error: %s (field: %s)", e.Message, e.Field)
 }
 
-// ValidationResult represents the result of configuration validation
+// ValidationResult represents the result of configuration validation.
 type ValidationResult struct {
 	Valid  bool              `json:"valid"`
 	Errors []ValidationError `json:"errors,omitempty"`
@@ -151,7 +152,7 @@ type ValidationResult struct {
 
 // --- Interfaces for Testability ---
 
-// ConfigLoader defines the interface for loading and saving golangci-lint configurations
+// ConfigLoader defines the interface for loading and saving golangci-lint configurations.
 type ConfigLoader interface {
 	LoadConfig(path string) (*Config, error)
 	SaveConfig(config *Config, path string) error
@@ -166,7 +167,7 @@ type ConfigLoader interface {
 	GetAllLinterNames() ([]string, error)
 }
 
-// Config represents a golangci-lint configuration file
+// Config represents a golangci-lint configuration file.
 type Config struct {
 	Version    string           `yaml:"version"`
 	Run        RunConfig        `yaml:"run"`
@@ -247,7 +248,7 @@ type FormattersExclusionsConfig struct {
 	Paths      []string `yaml:"paths,omitempty"`
 }
 
-// LinterAnalyzer defines the interface for analyzing golangci-lint configurations
+// LinterAnalyzer defines the interface for analyzing golangci-lint configurations.
 type LinterAnalyzer interface {
 	AnalyzeConfig(configPath string) (*ConfigAnalysis, error)
 	FindBinary() error
@@ -257,7 +258,7 @@ type LinterAnalyzer interface {
 	GetLintersByPriority(recommendations []LinterRecommendation, priority LinterPriority) []LinterRecommendation
 }
 
-// LinterFixer defines the interface for fixing golangci-lint configurations
+// LinterFixer defines the interface for fixing golangci-lint configurations.
 type LinterFixer interface {
 	FixConfig(configPath string, priority LinterPriority, dryRun bool) (*MigrationResult, error)
 }

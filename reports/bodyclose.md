@@ -9,6 +9,7 @@
 The linter statically analyzes Go programs to ensure that `http.Response.Body` is properly closed after HTTP requests. According to Go's HTTP documentation, the response body **must** be closed to release the underlying TCP connection back to the connection pool. Failure to close response bodies causes connection pool exhaustion, leading to new requests hanging indefinitely.
 
 **Key detection areas:**
+
 - HTTP client operations (`http.Get`, `http.Post`, `client.Do`, etc.)
 - Response body handling in all code paths
 - Proper `defer` statements for cleanup
@@ -16,6 +17,7 @@ The linter statically analyzes Go programs to ensure that `http.Response.Body` i
 - Conditional branches that might skip body closure
 
 **Example of the problem it solves:**
+
 ```go
 // BAD: Response body is never closed
 func fetchData(url string) ([]byte, error) {
@@ -39,6 +41,7 @@ func fetchData(url string) ([]byte, error) {
 
 **Advanced detection capabilities:**
 The linter tracks response body references through:
+
 - Function returns (when response is passed up the call stack)
 - Struct fields (when response is stored in objects)
 - Conditional flows (ensures closure in all branches)
@@ -47,6 +50,7 @@ The linter tracks response body references through:
 ## When It Should Be Enabled
 
 ### Always Enable For:
+
 - **Any project making HTTP requests** (clients, microservices, APIs, CLI tools)
 - **High-throughput services** where connection pool exhaustion is critical
 - **Cloud-native applications** with inter-service communication
@@ -55,6 +59,7 @@ The linter tracks response body references through:
 - **Infrastructure tooling** that manages remote resources
 
 ### Specific Use Cases:
+
 1. **Microservices architectures**: Prevents cascading failures from connection starvation
 2. **API clients and SDKs**: Ensures proper resource management for library users
 3. **Web applications**: Protects against backend service connection leaks
@@ -64,6 +69,7 @@ The linter tracks response body references through:
 7. **Proxy/gateway services**: High connection volume makes this essential
 
 ### Project Types:
+
 - **Web applications**: Backend services, APIs, middleware
 - **Cloud services**: AWS/Azure/GCP clients, Kubernetes operators
 - **DevOps tools**: CI/CD integrations, monitoring agents
@@ -74,12 +80,14 @@ The linter tracks response body references through:
 ## When It Should Be Disabled
 
 ### Appropriate to Disable For:
+
 - **Projects with zero HTTP usage** (pure computation, algorithms, data structures)
 - **Embedded systems** without network stacks
 - **Command-line tools** that only operate on local files
 - **Cryptography/math libraries** with no network dependencies
 
 ### Specific Scenarios:
+
 1. **Known false positive patterns**: When using HTTP wrapper libraries that handle cleanup internally (see issue #30)
 2. **Custom HTTP client abstractions**: When your codebase uses a wrapper that guarantees body closure
 3. **Legacy codebases**: When retrofitting would be prohibitively expensive AND you have runtime monitoring
@@ -95,6 +103,7 @@ The linter tracks response body references through:
 **bodyclose has no configuration options** - it uses static analysis with predetermined rules.
 
 ### Basic enablement:
+
 ```yaml
 linters:
   enable:
@@ -104,6 +113,7 @@ linters:
 ### Complete example configurations:
 
 **Standard Web Project:**
+
 ```yaml
 version: "2"
 
@@ -116,7 +126,7 @@ linters:
     - ineffassign
     - staticcheck
     - gosec
-    - noctx  # Complements bodyclose by ensuring request contexts
+    - noctx # Complements bodyclose by ensuring request contexts
 
 issues:
   # Exclude test files where response mocking is common
@@ -131,6 +141,7 @@ issues:
 ```
 
 **API Client Library:**
+
 ```yaml
 version: "2"
 
@@ -157,6 +168,7 @@ issues:
 ```
 
 **Microservices with High Concurrency:**
+
 ```yaml
 version: "2"
 
@@ -164,8 +176,8 @@ linters:
   default: none
   enable:
     - bodyclose
-    - noctx      # Critical for cancellation
-    - errcheck   # Check Close() errors
+    - noctx # Critical for cancellation
+    - errcheck # Check Close() errors
     - govet
     - staticcheck
     - gosimple
@@ -196,6 +208,7 @@ issues:
 ### Synergistic Relationships
 
 **Works Excellently With:**
+
 - **`noctx`**: Ensures HTTP requests use contexts for cancellation AND bodies are closed
 - **`errcheck`**: Verifies that `resp.Body.Close()` errors are handled (critical for production)
 - **`gosec`**: Catches security issues; bodyclose prevents DoS via connection exhaustion
@@ -203,6 +216,7 @@ issues:
 - **`gosimple`**: Simplifies code patterns; bodyclose ensures they're correct
 
 **Example Synergy:**
+
 ```go
 func fetchWithContext(ctx context.Context, url string) ([]byte, error) {
     // noctx would flag this if context wasn't used
@@ -234,11 +248,13 @@ func fetchWithContext(ctx context.Context, url string) ([]byte, error) {
 
 **Known Issues (GitHub Issue #30):**
 The linter has reported false positives when:
+
 - HTTP wrapper libraries handle body closure internally
 - Response bodies are passed to functions that guarantee closure
 - Mock/testing frameworks simulate responses
 
 **Example false positive pattern:**
+
 ```go
 // Might be flagged incorrectly if wrapper closes internally
 func fetch(url string) ([]byte, error) {
@@ -247,6 +263,7 @@ func fetch(url string) ([]byte, error) {
 ```
 
 **Mitigation strategies:**
+
 1. Use `//nolint:bodyclose` with explanatory comment
 2. Configure exclude rules for wrapper libraries
 3. Wrap with helper that satisfies the linter
@@ -254,6 +271,7 @@ func fetch(url string) ([]byte, error) {
 ### Integration Patterns
 
 **CI/CD Pipeline Integration:**
+
 ```yaml
 # In GitHub Actions
 - name: Run golangci-lint
@@ -264,13 +282,14 @@ func fetch(url string) ([]byte, error) {
 ```
 
 **Pre-commit Hook:**
+
 ```yaml
 # .pre-commit-config.yaml
 - repo: https://github.com/golangci/golangci-lint
   rev: v1.54.2
   hooks:
     - id: golangci-lint
-      args: ['--disable-all', '--enable=bodyclose,noctx,errcheck']
+      args: ["--disable-all", "--enable=bodyclose,noctx,errcheck"]
 ```
 
 ### Performance Impact
@@ -282,14 +301,14 @@ func fetch(url string) ([]byte, error) {
 
 ### Summary of Interactions
 
-| Linter | Relationship | Type | Reason |
-|--------|--------------|------|--------|
-| `noctx` | **Essential** | Synergistic | HTTP safety: cancellation + resource cleanup |
-| `errcheck` | **Highly Recommended** | Synergistic | Ensures Close() errors aren't ignored |
-| `gosec` | **Recommended** | Complementary | Security + resource exhaustion prevention |
-| `staticcheck` | **Recommended** | Complementary | General bug detection |
-| `gosimple` | **Compatible** | Neutral | Code quality without overlap |
-| `interfacer` | **Compatible** | Neutral | Different concerns |
+| Linter        | Relationship           | Type          | Reason                                       |
+| ------------- | ---------------------- | ------------- | -------------------------------------------- |
+| `noctx`       | **Essential**          | Synergistic   | HTTP safety: cancellation + resource cleanup |
+| `errcheck`    | **Highly Recommended** | Synergistic   | Ensures Close() errors aren't ignored        |
+| `gosec`       | **Recommended**        | Complementary | Security + resource exhaustion prevention    |
+| `staticcheck` | **Recommended**        | Complementary | General bug detection                        |
+| `gosimple`    | **Compatible**         | Neutral       | Code quality without overlap                 |
+| `interfacer`  | **Compatible**         | Neutral       | Different concerns                           |
 
 **Bottom Line**: bodyclose is a **critical** linter for any Go project making HTTP requests. When combined with `noctx` and `errcheck`, it provides comprehensive protection against HTTP-related resource leaks. The minor risk of false positives is far outweighed by the prevention of production outages from connection pool exhaustion.
 

@@ -9,19 +9,19 @@ import (
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
-// JSONGenerator generates JSON reports for configuration analysis
+// JSONGenerator generates JSON reports for configuration analysis.
 type JSONGenerator struct {
 	logger *log.Logger
 }
 
-// NewJSONGenerator creates a new JSON report generator
+// NewJSONGenerator creates a new JSON report generator.
 func NewJSONGenerator(logger *log.Logger) *JSONGenerator {
 	return &JSONGenerator{
 		logger: logger,
 	}
 }
 
-// JSONReport represents the structure of the JSON report output
+// JSONReport represents the structure of the JSON report output.
 type JSONReport struct {
 	ConfigPath      string                       `json:"configPath"`
 	Summary         JSONSummary                  `json:"summary"`
@@ -30,7 +30,7 @@ type JSONReport struct {
 	DisabledLinters []string                     `json:"disabledLinters"`
 }
 
-// JSONSummary contains summary statistics
+// JSONSummary contains summary statistics.
 type JSONSummary struct {
 	TotalLinters         int `json:"totalLinters"`
 	EnabledCount         int `json:"enabledCount"`
@@ -38,7 +38,7 @@ type JSONSummary struct {
 	RecommendationsCount int `json:"recommendationsCount"`
 }
 
-// GenerateJSONReport creates a JSON report from the analysis
+// GenerateJSONReport creates a JSON report from the analysis.
 func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outputPath string) error {
 	g.logger.Infof("Generating JSON report: %s", outputPath)
 
@@ -78,5 +78,6 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 	}
 
 	g.logger.Infof("JSON report generated successfully: %s", outputPath)
+
 	return nil
 }

@@ -24,19 +24,20 @@ In this example, the RIGHT-TO-LEFT-OVERRIDE (U+202E) character causes everything
 
 ### Unicode Characters Detected
 
-| Unicode | Name | Short Code | Security Impact |
-|---------|------|------------|-----------------|
-| U+202A | LEFT-TO-RIGHT-EMBEDDING | LRE | Alters text flow direction |
-| U+202B | RIGHT-TO-LEFT-EMBEDDING | RLE | Alters text flow direction |
-| U+202C | POP-DIRECTIONAL-FORMATTING | PDF | Resets direction to default |
-| U+202D | LEFT-TO-RIGHT-OVERRIDE | LRO | Forces LTR direction |
-| U+202E | RIGHT-TO-LEFT-OVERRIDE | RLO | Forces RTL direction (most dangerous) |
-| U+2066 | LEFT-TO-RIGHT-ISOLATE | LRI | Isolates LTR text |
-| U+2067 | RIGHT-TO-LEFT-ISOLATE | RLI | Isolates RTL text |
-| U+2068 | FIRST-STRONG-ISOLATE | FSI | Isolates based on first strong character |
-| U+2069 | POP-DIRECTIONAL-ISOLATE | PDI | Ends isolation |
+| Unicode | Name                       | Short Code | Security Impact                          |
+| ------- | -------------------------- | ---------- | ---------------------------------------- |
+| U+202A  | LEFT-TO-RIGHT-EMBEDDING    | LRE        | Alters text flow direction               |
+| U+202B  | RIGHT-TO-LEFT-EMBEDDING    | RLE        | Alters text flow direction               |
+| U+202C  | POP-DIRECTIONAL-FORMATTING | PDF        | Resets direction to default              |
+| U+202D  | LEFT-TO-RIGHT-OVERRIDE     | LRO        | Forces LTR direction                     |
+| U+202E  | RIGHT-TO-LEFT-OVERRIDE     | RLO        | Forces RTL direction (most dangerous)    |
+| U+2066  | LEFT-TO-RIGHT-ISOLATE      | LRI        | Isolates LTR text                        |
+| U+2067  | RIGHT-TO-LEFT-ISOLATE      | RLI        | Isolates RTL text                        |
+| U+2068  | FIRST-STRONG-ISOLATE       | FSI        | Isolates based on first strong character |
+| U+2069  | POP-DIRECTIONAL-ISOLATE    | PDI        | Ends isolation                           |
 
 ### Key Characteristics
+
 - **Type**: Security-focused static analysis linter
 - **Speed**: Very fast (linear scan of source files)
 - **Integration**: Part of golangci-lint v2+
@@ -48,6 +49,7 @@ In this example, the RIGHT-TO-LEFT-OVERRIDE (U+202E) character causes everything
 ### ✅ MANDATORY FOR:
 
 **Security-Critical Projects:**
+
 - Cryptocurrency and blockchain applications
 - Authentication/authorization systems
 - Payment processing and financial software
@@ -55,23 +57,27 @@ In this example, the RIGHT-TO-LEFT-OVERRIDE (U+202E) character causes everything
 - Code that handles sensitive data (PII, credentials)
 
 **Open Source Projects:**
+
 - Public repositories on GitHub/GitLab
 - Projects accepting external contributions
 - Libraries consumed by other projects
 - Projects with multiple maintainers
 
 **Enterprise/Controlled Environments:**
+
 - Codebases requiring audit compliance
 - Projects under regulatory oversight (SOC2, ISO27001)
 - Government or defense-related software
 - Healthcare applications (HIPAA)
 
 **CI/CD & Code Review:**
+
 - All projects using automated code review
 - Organizations with formal security review processes
 - Projects requiring signed commits/PRs
 
 ### PRIORITY ASSESSMENT:
+
 - **Default Priority**: **HIGH** (Security)
 - **Should be enabled**: For 99% of Go projects
 - **Exception cases**: Only specific internationalization scenarios
@@ -81,23 +87,27 @@ In this example, the RIGHT-TO-LEFT-OVERRIDE (U+202E) character causes everything
 ### ❌ CONSIDER DISABLING WHEN:
 
 **Legitimate BiDi Text Processing:**
+
 ```go
 // Working with RTL language content intentionally
 const arabicMessage = "مرحبا" // Contains RTL characters legitimately
 ```
 
 **Internationalization Libraries:**
+
 - Projects specifically handling Arabic, Hebrew, Persian text
 - BiDi algorithm implementations
 - Unicode text processing libraries
 
 **Generated Code:**
+
 - Protobuf/thrift generated code with embedded comments
 - Swagger/OpenAPI generated clients
 - ORM generated code
 - Code from code generators that may include BiDi chars
 
 **Documentation-Heavy Projects:**
+
 - Projects with extensive RTL language documentation
 - Comments and strings containing legitimate BiDi text
 
@@ -157,21 +167,22 @@ linters:
 
 ### Configuration Options Explained:
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `left-to-right-embedding` | `bool` | `true` | Enable detection of U+202A (LRE) |
-| `right-to-left-embedding` | `bool` | `true` | Enable detection of U+202B (RLE) |
-| `pop-directional-formatting` | `bool` | `true` | Enable detection of U+202C (PDF) |
-| `left-to-right-override` | `bool` | `true` | Enable detection of U+202D (LRO) |
-| `right-to-left-override` | `bool` | `true` | Enable detection of U+202E (RLO) |
-| `left-to-right-isolate` | `bool` | `true` | Enable detection of U+2066 (LRI) |
-| `right-to-left-isolate` | `bool` | `true` | Enable detection of U+2067 (RLI) |
-| `first-strong-isolate` | `bool` | `true` | Enable detection of U+2068 (FSI) |
-| `pop-directional-isolate` | `bool` | `true` | Enable detection of U+2069 (PDI) |
+| Option                       | Type   | Default | Description                      |
+| ---------------------------- | ------ | ------- | -------------------------------- |
+| `left-to-right-embedding`    | `bool` | `true`  | Enable detection of U+202A (LRE) |
+| `right-to-left-embedding`    | `bool` | `true`  | Enable detection of U+202B (RLE) |
+| `pop-directional-formatting` | `bool` | `true`  | Enable detection of U+202C (PDF) |
+| `left-to-right-override`     | `bool` | `true`  | Enable detection of U+202D (LRO) |
+| `right-to-left-override`     | `bool` | `true`  | Enable detection of U+202E (RLO) |
+| `left-to-right-isolate`      | `bool` | `true`  | Enable detection of U+2066 (LRI) |
+| `right-to-left-isolate`      | `bool` | `true`  | Enable detection of U+2067 (RLI) |
+| `first-strong-isolate`       | `bool` | `true`  | Enable detection of U+2068 (FSI) |
+| `pop-directional-isolate`    | `bool` | `true`  | Enable detection of U+2069 (PDI) |
 
 ### Recommended Configurations:
 
 **Default (Check All Dangerous Characters):**
+
 ```yaml
 linters:
   enable:
@@ -180,6 +191,7 @@ linters:
 ```
 
 **Paranoid Security (Explicitly Enable All):**
+
 ```yaml
 linters:
   settings:
@@ -196,6 +208,7 @@ linters:
 ```
 
 **Minimal (Check Only Most Dangerous):**
+
 ```yaml
 linters:
   settings:
@@ -210,16 +223,19 @@ linters:
 ### ✅ SYNERGIES:
 
 **Security Linters:**
--  **`gosec`**  : bidichk catches BiDi attacks while gosec catches other security issues (SQL injection, XSS, etc.)
--  **`exportloopref`**  : Both protect against subtle bugs that can be exploited
--  **`nilerr`**  : Combined security posture - catch error handling bypasses
+
+- **`gosec`** : bidichk catches BiDi attacks while gosec catches other security issues (SQL injection, XSS, etc.)
+- **`exportloopref`** : Both protect against subtle bugs that can be exploited
+- **`nilerr`** : Combined security posture - catch error handling bypasses
 
 **Code Quality:**
--  **`govet`**  : Complements govet's suspicious construct checks
--  **`staticcheck`**  : Advanced static analysis + BiDi security = comprehensive coverage
--  **`errcheck`**  : Security requires proper error handling
+
+- **`govet`** : Complements govet's suspicious construct checks
+- **`staticcheck`** : Advanced static analysis + BiDi security = comprehensive coverage
+- **`errcheck`** : Security requires proper error handling
 
 **Example Security Workflow:**
+
 ```go
 // gosec checks for hardcoded credentials
 // errcheck ensures errors aren't ignored
@@ -262,6 +278,7 @@ func validateUser(userID string) bool {
 ```
 
 **What this looks like visually** (comments appear to disable the return):
+
 ```go
 func validateUser(userID string) bool {
     // Check if user is authorized/* } if 0 != 0 {
@@ -271,6 +288,7 @@ func validateUser(userID string) bool {
 ```
 
 **What actually executes** (U+202E reverses text rendering):
+
 ```go
 func validateUser(userID string) bool {
     // Check if user is authorized

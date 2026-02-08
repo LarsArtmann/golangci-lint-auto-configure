@@ -82,6 +82,7 @@ slog.Info("Processing", "user_id", id)
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **All applications using slog** - Essential for consistent logging
 - **New Go projects** - Go 1.21+ projects using slog
 - **Microservices** - Structured logging critical for distributed systems
@@ -92,26 +93,31 @@ slog.Info("Processing", "user_id", id)
 **Specific Scenarios:**
 
 **1. Migrated Projects**
+
 - Transitioning from logrus/zap to slog
 - Need consistent slog usage patterns
 - Enforcing best practices across codebase
 
 **2. New Projects with slog**
+
 - Go 1.21+ projects
 - Using structured logging from start
 - Establishing logging standards
 
 **3. Team Projects**
+
 - Multiple developers working on same codebase
 - Consistent logging style across team
 - Code review enforcement for slog usage
 
 **4. Observability-Critical Systems**
+
 - Applications with high logging volume
 - Systems requiring log aggregation (ELK, Splunk, etc.)
 - Production systems needing structured logs
 
 **5. API Development**
+
 - REST/GraphQL services
 - Request/response logging
 - Debug/trace logging
@@ -121,6 +127,7 @@ slog.Info("Processing", "user_id", id)
 **Specific Scenarios:**
 
 **1. Non-slog Projects**
+
 ```yaml
 # Using other logging frameworks (logrus, zap, etc.)
 linters:
@@ -130,10 +137,12 @@ linters:
 ```
 
 **2. Legacy Go Projects**
+
 - Go < 1.21 (no slog)
 - Using old logging frameworks
 
 **3. Test Files with Mocks**
+
 ```yaml
 issues:
   exclude-rules:
@@ -142,6 +151,7 @@ issues:
 ```
 
 **4. Generated Code**
+
 ```yaml
 run:
   skip-dirs:
@@ -210,16 +220,18 @@ linters:
 - **Description**: Comma-separated list of log levels to check
 
 **Common Values:**
+
 - `DEBUG,INFO,WARN,ERROR`
 - `INFO,WARN,ERROR` (exclude debug)
 - `ERROR` (only errors)
 
 **Example:**
+
 ```yaml
 linters:
   settings:
     sloglint:
-      levels: "INFO,WARN,ERROR"  # Don't check debug logs
+      levels: "INFO,WARN,ERROR" # Don't check debug logs
 ```
 
 ### `attr-only` Option
@@ -229,11 +241,12 @@ linters:
 - **Description**: Only check specified attribute names
 
 **Example:**
+
 ```yaml
 linters:
   settings:
     sloglint:
-      attr-only: "user_id,request_id,trace_id"  # Only check these
+      attr-only: "user_id,request_id,trace_id" # Only check these
 ```
 
 ### `attr-blacklist` Option
@@ -243,11 +256,12 @@ linters:
 - **Description**: Forbid these attribute names
 
 **Example:**
+
 ```yaml
 linters:
   settings:
     sloglint:
-      attr-blacklist: "password,token,secret"  # Never log sensitive data
+      attr-blacklist: "password,token,secret" # Never log sensitive data
 ```
 
 ### `mixed-args` Option
@@ -257,10 +271,12 @@ linters:
 - **Description**: Allow mixing slog with other logging frameworks
 
 **When to Enable:**
+
 - Transitioning from old logger to slog
 - Using multiple logging frameworks temporarily
 
 **Example:**
+
 ```yaml
 linters:
   settings:
@@ -275,16 +291,18 @@ linters:
 - **Values**: `snake`, `camel`, `kebab`, `pascal`
 
 **Example:**
+
 ```yaml
 linters:
   settings:
     sloglint:
-      key-naming-case: snake  # Default, recommended
+      key-naming-case: snake # Default, recommended
 ```
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most projects using slog
 version: "2"
@@ -301,6 +319,7 @@ issues:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # Production systems, high consistency requirements
 version: "2"
@@ -308,7 +327,7 @@ linters:
   settings:
     sloglint:
       key-naming-case: snake
-      context: "scope"  # Require slog.With() for attributes
+      context: "scope" # Require slog.With() for attributes
       no-unknown: "attr"
 
 issues:
@@ -318,6 +337,7 @@ issues:
 ```
 
 #### ✅ Permissive Configuration
+
 ```yaml
 # During migration or development
 version: "2"
@@ -325,11 +345,12 @@ linters:
   settings:
     sloglint:
       key-naming-case: snake
-      mixed-args: true  # Allow mixing with other loggers
-      kv-only-mode: true  # Allow non-attribute args
+      mixed-args: true # Allow mixing with other loggers
+      kv-only-mode: true # Allow non-attribute args
 ```
 
 #### ✅ Production-Only Configuration
+
 ```yaml
 # Only check INFO/WARN/ERROR (skip debug)
 version: "2"
@@ -346,21 +367,22 @@ linters:
 
 sloglint works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
+| Linter          | Relationship  | Value                                                              |
+| --------------- | ------------- | ------------------------------------------------------------------ |
 | **loggercheck** | Complementary | loggercheck checks logger key/value pairs, sloglint: slog-specific |
-| **govet** | Complementary | govet: general printf issues, sloglint: slog-specific |
-| **staticcheck** | Complementary | staticcheck: general code issues, sloglint: slog usage |
-| **zerologlint** | Alternative | Similar linter for zerolog framework (use one or other) |
+| **govet**       | Complementary | govet: general printf issues, sloglint: slog-specific              |
+| **staticcheck** | Complementary | staticcheck: general code issues, sloglint: slog usage             |
+| **zerologlint** | Alternative   | Similar linter for zerolog framework (use one or other)            |
 
 **Complete Logging Suite:**
+
 ```yaml
 linters:
   enable:
-    - sloglint       # slog-specific (CRITICAL)
-    - loggercheck    # Key/value pairs (CRITICAL)
-    - govet          # General checks (CRITICAL)
-    - staticcheck     # Deep analysis (CRITICAL)
+    - sloglint # slog-specific (CRITICAL)
+    - loggercheck # Key/value pairs (CRITICAL)
+    - govet # General checks (CRITICAL)
+    - staticcheck # Deep analysis (CRITICAL)
 ```
 
 ### 🔒 No Conflicts
@@ -530,11 +552,12 @@ func processItem(item *Item) error {
 **Problem:** Transitioning to slog, many inconsistent patterns.
 
 **Solution:** Enable sloglint to enforce consistency.
+
 ```yaml
 linters:
   settings:
     sloglint:
-      mixed-args: true  # Temporarily allow mixing during migration
+      mixed-args: true # Temporarily allow mixing during migration
 ```
 
 ### Scenario 2: Too Many False Positives in Tests
@@ -542,6 +565,7 @@ linters:
 **Problem:** Test code flagged for intentional non-slog patterns.
 
 **Solution:** Exclude test files.
+
 ```yaml
 issues:
   exclude-rules:
@@ -554,6 +578,7 @@ issues:
 **Problem:** Risk of logging passwords/tokens.
 
 **Solution:** Use attr-blacklist.
+
 ```yaml
 linters:
   settings:
@@ -566,6 +591,7 @@ linters:
 **Problem:** Too much debug noise in production logs.
 
 **Solution:** Only check INFO/WARN/ERROR levels.
+
 ```yaml
 linters:
   settings:
@@ -589,6 +615,7 @@ linters:
 **Recommendation:** **ALWAYS ENABLE** with default settings for any code using slog (`log/slog`). Ensure **snake_case** for all attribute keys. Use **slog.With()** for adding context/attributes efficiently. Combine with **loggercheck** for complete logging quality coverage. Exclude test files (`(.+)_test\.go`). Use `attr-blacklist` to prevent logging sensitive data (passwords, tokens, etc.).
 
 **Top 3 Configuration Tips:**
+
 1. Enable `key-naming-case: snake` (default)
 2. Use `slog.With()` for context/attributes
 3. Combine with loggercheck for comprehensive logging quality

@@ -7,12 +7,14 @@ The `canonicalheader` linter ensures that HTTP headers are written in their cano
 ### **Detailed Explanation**
 
 HTTP headers have a standardized canonical format defined by RFC 2616 (superseded by RFC 7230), where:
+
 - The first letter of each word is uppercase
 - Letters following hyphens are uppercase
 - All other letters are lowercase
 - Example: `content-type` → `Content-Type`, `X-REQUEST-ID` → `X-Request-Id`
 
 The `go` standard library automatically canonicalizes header keys when using `http.Header` methods (`Get`, `Set`, `Add`, `Del`, `Values`). However, using non-canonical forms in your code:
+
 - Reduces readability and consistency
 - Causes unnecessary canonicalization overhead
 - Can lead to subtle bugs when directly accessing the header map
@@ -44,20 +46,21 @@ header.Values("ACCEPT-LANGUAGE") // Should be: "Accept-Language"
 
 Enable `canonicalheader` for **ALL** projects that:
 
-| Project Type | Rationale | Priority |
-|--------------|-----------|----------|
-| **Web APIs & HTTP Servers** | Directly manipulate HTTP headers frequently | 🔴 Critical |
-| **Microservices** | High volume of inter-service HTTP communication | 🔴 Critical |
-| **REST API Clients** | Consistency with server expectations | 🔴 Critical |
-| **Reverse Proxies** | Critical to maintain header integrity | 🔴 Critical |
-| **API Gateways** | Handle diverse header patterns from clients | 🔴 Critical |
-| **GraphQL Servers** | HTTP layer interactions | 🟡 Recommended |
-| **WebSocket Services** | Uses HTTP upgrade headers | 🟡 Recommended |
-| **OAuth/Auth Services** | Heavy header-based authentication | 🟡 Recommended |
+| Project Type                | Rationale                                       | Priority       |
+| --------------------------- | ----------------------------------------------- | -------------- |
+| **Web APIs & HTTP Servers** | Directly manipulate HTTP headers frequently     | 🔴 Critical    |
+| **Microservices**           | High volume of inter-service HTTP communication | 🔴 Critical    |
+| **REST API Clients**        | Consistency with server expectations            | 🔴 Critical    |
+| **Reverse Proxies**         | Critical to maintain header integrity           | 🔴 Critical    |
+| **API Gateways**            | Handle diverse header patterns from clients     | 🔴 Critical    |
+| **GraphQL Servers**         | HTTP layer interactions                         | 🟡 Recommended |
+| **WebSocket Services**      | Uses HTTP upgrade headers                       | 🟡 Recommended |
+| **OAuth/Auth Services**     | Heavy header-based authentication               | 🟡 Recommended |
 
 ### **Specific Use Cases**
 
 **✅ Enable when:**
+
 - Your codebase has more than 5 files using `http.Header`
 - You maintain an API with external consumers
 - Your team frequently works with `http.Request`/`http.Response`
@@ -90,12 +93,12 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 ### **Legitimate Disable Scenarios**
 
-| Scenario | Rationale | Alternative |
-|----------|-----------|-------------|
-| **Non-HTTP CLI tools** | No HTTP header usage | N/A |
-| **Pure data processing** | No network I/O | N/A |
-| **Database libraries** | Use database protocols, not HTTP | N/A |
-| **System utilities** | Focus on OS-level operations | N/A |
+| Scenario                  | Rationale                          | Alternative                               |
+| ------------------------- | ---------------------------------- | ----------------------------------------- |
+| **Non-HTTP CLI tools**    | No HTTP header usage               | N/A                                       |
+| **Pure data processing**  | No network I/O                     | N/A                                       |
+| **Database libraries**    | Use database protocols, not HTTP   | N/A                                       |
+| **System utilities**      | Focus on OS-level operations       | N/A                                       |
 | **Custom header formats** | Intentionally non-standard headers | Apply `//nolint:canonicalheader` per-line |
 
 ### **⚠️ Conditional Disabling**
@@ -141,6 +144,7 @@ linters:
 ### **Advanced Configuration Examples**
 
 **Minimal HTTP Service:**
+
 ```yaml
 version: "2"
 linters:
@@ -148,10 +152,11 @@ linters:
     - gosec
     - errcheck
     - staticcheck
-    - canonicalheader  # Critical for any HTTP service
+    - canonicalheader # Critical for any HTTP service
 ```
 
 **Comprehensive Web Project:**
+
 ```yaml
 version: "2"
 linters:
@@ -189,14 +194,12 @@ linters:
 ### **Editor Integration**
 
 **VS Code settings.json:**
+
 ```json
 {
   "go.lintTool": "golangci-lint",
   "go.lintOnSave": "package",
-  "go.lintFlags": [
-    "--fast",
-    "--fix"
-  ]
+  "go.lintFlags": ["--fast", "--fix"]
 }
 ```
 
@@ -206,13 +209,13 @@ linters:
 
 ### **✅ Complementary Linters**
 
-| Linter | Synergy | Relationship Type |
-|--------|---------|-------------------|
+| Linter                    | Synergy                                          | Relationship Type     |
+| ------------------------- | ------------------------------------------------ | --------------------- |
 | **`staticcheck (S1035)`** | **Strong overlap** but different detection scope | ⚠️ Partial Redundancy |
-| **`bodyclose`** | Both guard HTTP correctness; work independently | 🟢 Synergistic |
-| **`contextcheck`** | HTTP + context safety; independent concerns | 🟢 Complementary |
-| **`noctx`** | HTTP request context awareness; no overlap | 🟢 Complementary |
-| **`sloglint`** | HTTP + logging; unrelated but both critical | 🟢 Independent |
+| **`bodyclose`**           | Both guard HTTP correctness; work independently  | 🟢 Synergistic        |
+| **`contextcheck`**        | HTTP + context safety; independent concerns      | 🟢 Complementary      |
+| **`noctx`**               | HTTP request context awareness; no overlap       | 🟢 Complementary      |
+| **`sloglint`**            | HTTP + logging; unrelated but both critical      | 🟢 Independent        |
 
 ### **⚠️ Relationship with staticcheck S1035**
 
@@ -227,6 +230,7 @@ h.Set("content-type", "application/json")
 ```
 
 **Best Practice:**
+
 - Keep **both enabled** - they catch different patterns
 - S1035 focuses on eliminating redundant calls
 - canonicalheader ensures consistency in literal strings
@@ -238,24 +242,25 @@ h.Set("content-type", "application/json")
 linters:
   enable:
     # HTTP correctness
-    - bodyclose          # Ensure HTTP response bodies are closed
-    - canonicalheader    # Ensure canonical header format
+    - bodyclose # Ensure HTTP response bodies are closed
+    - canonicalheader # Ensure canonical header format
 
     # Context safety
-    - contextcheck       # Check context propagation
-    - noctx              # Ensure HTTP requests have context
+    - contextcheck # Check context propagation
+    - noctx # Ensure HTTP requests have context
 
     # Security
-    - gosec              # Generic security checks
+    - gosec # Generic security checks
 
     # Error handling
-    - wrapcheck          # Wrap external errors
-    - errorlint          # Error handling best practices
+    - wrapcheck # Wrap external errors
+    - errorlint # Error handling best practices
 ```
 
 ### **Configuration Conflicts**
 
 **NONE**. The `canonicalheader` linter:
+
 - Has no configuration options
 - Doesn't conflict with any other linter
 - Cannot be misconfigured
@@ -270,16 +275,19 @@ linters:
 ### **Migration Strategy**
 
 **Step 1**: Enable with auto-fix in CI
+
 ```bash
 golangci-lint run --fix --disable-all --enable=canonicalheader
 ```
 
 **Step 2**: Review changes (all will be safe)
+
 ```bash
 git diff  # All changes are header case corrections
 ```
 
 **Step 3**: Enable permanently
+
 ```yaml
 linters:
   enable:
@@ -287,6 +295,7 @@ linters:
 ```
 
 **Step 4**: Add to pre-commit hook
+
 ```yaml
 # .pre-commit-config.yaml
 - repo: https://github.com/golangci/golangci-lint
@@ -300,6 +309,7 @@ linters:
 ## **6. PRACTICAL EXAMPLES**
 
 ### **Before (Inconsistent)**
+
 ```go
 func sendResponse(w http.ResponseWriter, data []byte) {
     w.Header().Set("content-type", "application/json")
@@ -313,6 +323,7 @@ func sendResponse(w http.ResponseWriter, data []byte) {
 ```
 
 ### **After (Fixed)**
+
 ```go
 func sendResponse(w http.ResponseWriter, data []byte) {
     w.Header().Set("Content-Type", "application/json")
@@ -345,12 +356,14 @@ header.Get("content-type") // Flagged
 ## **7. FINAL RECOMMENDATIONS**
 
 ### **Enable by Default For:**
+
 - ✅ All web projects
 - ✅ All microservices
 - ✅ All API clients
 - ✅ Any project importing `"net/http"`
 
 ### **Configuration Priority:**
+
 1. **Tier 1 (Critical)**: `gosec`, `errcheck`, `canonicalheader`
 2. **Tier 2 (Recommended)**: `staticcheck`, `bodyclose`, `contextcheck`
 3. **Tier 3 (Optional)**: `wrapcheck`, `errorlint`, `noctx`

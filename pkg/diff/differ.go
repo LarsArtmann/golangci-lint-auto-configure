@@ -8,7 +8,7 @@ import (
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
-// Change represents a single change between two configs
+// Change represents a single change between two configs.
 type Change struct {
 	Type        ChangeType
 	Path        string
@@ -17,7 +17,7 @@ type Change struct {
 	Description string
 }
 
-// ChangeType indicates the type of change
+// ChangeType indicates the type of change.
 type ChangeType int
 
 const (
@@ -39,15 +39,15 @@ func (c ChangeType) String() string {
 	}
 }
 
-// Differ compares two configurations and returns the differences
+// Differ compares two configurations and returns the differences.
 type Differ struct{}
 
-// NewDiffer creates a new config differ
+// NewDiffer creates a new config differ.
 func NewDiffer() *Differ {
 	return &Differ{}
 }
 
-// Compare compares two configs and returns the changes
+// Compare compares two configs and returns the changes.
 func (d *Differ) Compare(old, new *types.Config) []Change {
 	var changes []Change
 
@@ -101,8 +101,8 @@ func (d *Differ) compareRunSettings(old, new types.RunConfig) []Change {
 		changes = append(changes, Change{
 			Type:        ChangeTypeModified,
 			Path:        "run.tests",
-			OldValue:    fmt.Sprintf("%v", old.Tests),
-			NewValue:    fmt.Sprintf("%v", new.Tests),
+			OldValue:    strconv.FormatBool(old.Tests),
+			NewValue:    strconv.FormatBool(new.Tests),
 			Description: fmt.Sprintf("Tests changed from %v to %v", old.Tests, new.Tests),
 		})
 	}
@@ -160,13 +160,14 @@ func (d *Differ) compareFormatters(old, new types.FormattersConfig) []Change {
 	return d.compareEnabled(old.Enable, new.Enable, "formatters", "formatter")
 }
 
-// FormatChanges formats changes as a human-readable string
+// FormatChanges formats changes as a human-readable string.
 func (d *Differ) FormatChanges(changes []Change) string {
 	if len(changes) == 0 {
 		return "No changes detected"
 	}
 
 	var sb strings.Builder
+
 	added := 0
 	removed := 0
 	modified := 0
@@ -204,7 +205,7 @@ func (d *Differ) FormatChanges(changes []Change) string {
 	return sb.String()
 }
 
-// GetSummary returns a brief summary of changes
+// GetSummary returns a brief summary of changes.
 func (d *Differ) GetSummary(changes []Change) string {
 	if len(changes) == 0 {
 		return "No changes"
@@ -229,9 +230,11 @@ func (d *Differ) GetSummary(changes []Change) string {
 	if added > 0 {
 		parts = append(parts, fmt.Sprintf("%d added", added))
 	}
+
 	if removed > 0 {
 		parts = append(parts, fmt.Sprintf("%d removed", removed))
 	}
+
 	if modified > 0 {
 		parts = append(parts, fmt.Sprintf("%d modified", modified))
 	}

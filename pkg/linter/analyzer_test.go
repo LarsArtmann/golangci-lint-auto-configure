@@ -66,7 +66,7 @@ var _ = Describe("Analyzer", func() {
 	Context("Recommendation Formatting", func() {
 		It("should format recommendations with critical linters", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount:         2,
+				CriticalCount: 2,
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "gosec", Priority: types.LinterPriorityCritical, Reason: "Security"},
 					{Name: "errcheck", Priority: types.LinterPriorityCritical, Reason: "Error checking"},
@@ -82,8 +82,8 @@ var _ = Describe("Analyzer", func() {
 
 		It("should format recommendations with high value linters", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount:         0,
-				HighValueCount:        1,
+				CriticalCount:  0,
+				HighValueCount: 1,
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "wrapcheck", Priority: types.LinterPriorityHigh, Reason: "Error wrapping"},
 				},
@@ -97,9 +97,9 @@ var _ = Describe("Analyzer", func() {
 
 		It("should format recommendations with medium value linters", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount:         0,
-				HighValueCount:        0,
-				MediumValueCount:      1,
+				CriticalCount:    0,
+				HighValueCount:   0,
+				MediumValueCount: 1,
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "misspell", Priority: types.LinterPriorityMedium, Reason: "Spelling"},
 				},
@@ -113,10 +113,10 @@ var _ = Describe("Analyzer", func() {
 
 		It("should format recommendations with optional linters", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount:         0,
-				HighValueCount:        0,
-				MediumValueCount:      0,
-				OptionalCount:         1,
+				CriticalCount:    0,
+				HighValueCount:   0,
+				MediumValueCount: 0,
+				OptionalCount:    1,
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "unknown", Priority: types.LinterPriorityOptional, Reason: "Optional"},
 				},
@@ -132,7 +132,7 @@ var _ = Describe("Analyzer", func() {
 	Context("Summary Generation", func() {
 		It("should return summary for critical linters", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount:         3,
+				CriticalCount: 3,
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "gosec"},
 					{Name: "errcheck"},
@@ -148,8 +148,8 @@ var _ = Describe("Analyzer", func() {
 
 		It("should return summary for mixed priorities", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount:         1,
-				HighValueCount:        2,
+				CriticalCount:  1,
+				HighValueCount: 2,
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "gosec"},
 					{Name: "wrapcheck"},

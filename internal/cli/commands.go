@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Version is set by main package via ldflags
+// Version is set by main package via ldflags.
 var Version = "dev"
 
 var (
@@ -33,7 +33,7 @@ var (
 	reportFormat string
 )
 
-// NewRootCommand creates the root CLI command
+// NewRootCommand creates the root CLI command.
 func NewRootCommand() *cobra.Command {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
@@ -84,7 +84,7 @@ actionable recommendations to improve your Go code quality.`,
 	return cmd
 }
 
-// newConfigureCommand creates the configure command
+// newConfigureCommand creates the configure command.
 func newConfigureCommand(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
@@ -124,8 +124,10 @@ Or use --preset for predefined linter sets:
 			// Check if config file exists, create default if not
 			if _, err := os.Stat(configFile); os.IsNotExist(err) {
 				logger.Infof("No config file found, creating default: %s", configFile)
+
 				defaultConfig := configLoader.CreateDefaultConfig()
-				if err := configLoader.SaveConfig(defaultConfig, configFile); err != nil {
+				err := configLoader.SaveConfig(defaultConfig, configFile)
+				if err != nil {
 					return fmt.Errorf("failed to create default config: %w", err)
 				}
 			} else if err != nil {
@@ -143,6 +145,7 @@ Or use --preset for predefined linter sets:
 			fixer := linter.NewFixer(logger, analyzer)
 
 			var linterPriority types.LinterPriority
+
 			switch priority {
 			case "critical":
 				linterPriority = types.LinterPriorityCritical
@@ -162,6 +165,7 @@ Or use --preset for predefined linter sets:
 			}
 
 			logger.Infof("%s", result.Message)
+
 			if result.BackupPath != "" {
 				logger.Infof("Backup created: %s", result.BackupPath)
 			}
@@ -176,7 +180,7 @@ Or use --preset for predefined linter sets:
 	return cmd
 }
 
-// applyPreset applies a preset linter configuration
+// applyPreset applies a preset linter configuration.
 func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, preset string, dryRun bool) error {
 	logger.Infof("Applying preset: %s", preset)
 
@@ -200,9 +204,11 @@ func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, pr
 
 	if dryRun {
 		logger.Infof("[DRY-RUN] Would apply preset %s with %d linters:", preset, len(linterNames))
+
 		for _, l := range linterNames {
 			logger.Infof("  - %s", l)
 		}
+
 		return nil
 	}
 
@@ -227,7 +233,7 @@ func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, pr
 	return nil
 }
 
-// newAnalyzeCommand creates the analyze command
+// newAnalyzeCommand creates the analyze command.
 func newAnalyzeCommand(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
@@ -245,6 +251,7 @@ func newAnalyzeCommand(
 			configFile := configPath
 			if configFile == "" {
 				var err error
+
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
 					return fmt.Errorf("no config file found: %w", err)
@@ -273,13 +280,15 @@ func newAnalyzeCommand(
 	return cmd
 }
 
-// newMigrateCommand creates the migrate command
+// newMigrateCommand creates the migrate command.
 func newMigrateCommand(
 	logger *log.Logger,
 	configLoader *config.Loader,
 ) *cobra.Command {
-	var skipValidation bool
-	var outputFormat string
+	var (
+		skipValidation bool
+		outputFormat   string
+	)
 
 	cmd := &cobra.Command{
 		Use:   "migrate",
@@ -303,6 +312,7 @@ Use --skip-validation if the v1 config has known issues.`,
 			configFile := configPath
 			if configFile == "" {
 				var err error
+
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
 					return fmt.Errorf("no config file found: %w", err)
@@ -320,6 +330,7 @@ Use --skip-validation if the v1 config has known issues.`,
 			// Check if already v2
 			if oldConfig.Version == "2" {
 				logger.Infof("Configuration is already version 2, no migration needed")
+
 				return nil
 			}
 
@@ -327,6 +338,7 @@ Use --skip-validation if the v1 config has known issues.`,
 			backupPath := configFile + ".v1-backup"
 			if !dryRun {
 				logger.Infof("Creating backup: %s", backupPath)
+
 				backupCreated, err := configLoader.CreateBackup(configFile)
 				if err != nil {
 					return fmt.Errorf("failed to create backup: %w", err)
@@ -345,6 +357,7 @@ Use --skip-validation if the v1 config has known issues.`,
 			if skipValidation {
 				migrateArgs = append(migrateArgs, "--skip-validation")
 			}
+
 			if outputFormat != "" {
 				migrateArgs = append(migrateArgs, "--format", outputFormat)
 			}
@@ -352,26 +365,34 @@ Use --skip-validation if the v1 config has known issues.`,
 			if dryRun {
 				logger.Infof("[DRY-RUN] Would run: golangci-lint %s", strings.Join(migrateArgs, " "))
 				logger.Infof("[DRY-RUN] Migration preview complete")
+
 				return nil
 			}
 
 			// Run golangci-lint migrate
 			logger.Infof("Running golangci-lint migrate...")
+
 			migrateCmd := exec.Command("golangci-lint", migrateArgs...)
+
 			output, err := migrateCmd.CombinedOutput()
 			if err != nil {
 				// Restore backup on failure
 				logger.Errorf("Migration failed: %v", err)
 				logger.Infof("Output: %s", string(output))
 				logger.Infof("Restoring backup...")
-				if restoreErr := configLoader.RestoreConfig(backupPath, configFile); restoreErr != nil {
+				restoreErr := configLoader.RestoreConfig(backupPath, configFile)
+
+				if restoreErr != nil {
 					logger.Errorf("Failed to restore backup: %v", restoreErr)
-					return fmt.Errorf("migration failed and restore failed: %w (restore error: %v)", err, restoreErr)
+
+					return fmt.Errorf("migration failed and restore failed: %w (restore error: %w)", err, restoreErr)
 				}
+
 				return fmt.Errorf("migration failed, backup restored: %w", err)
 			}
 
 			logger.Infof("Migration completed successfully")
+
 			if len(output) > 0 {
 				logger.Infof("Output: %s", string(output))
 			}
@@ -398,7 +419,7 @@ Use --skip-validation if the v1 config has known issues.`,
 	return cmd
 }
 
-// showMigrationChanges displays the differences between old and new config
+// showMigrationChanges displays the differences between old and new config.
 func showMigrationChanges(logger *log.Logger, old, new *config.Config) {
 	oldLinters := len(old.Linters.Enable)
 	newLinters := len(new.Linters.Enable)
@@ -406,6 +427,7 @@ func showMigrationChanges(logger *log.Logger, old, new *config.Config) {
 	if old.Version != new.Version {
 		logger.Infof("  Version: %s -> %s", old.Version, new.Version)
 	}
+
 	if oldLinters != newLinters {
 		logger.Infof("  Linters: %d -> %d", oldLinters, newLinters)
 	}
@@ -416,7 +438,7 @@ func showMigrationChanges(logger *log.Logger, old, new *config.Config) {
 	}
 }
 
-// newValidateCommand creates the validate command
+// newValidateCommand creates the validate command.
 func newValidateCommand(
 	logger *log.Logger,
 	configLoader *config.Loader,
@@ -443,6 +465,7 @@ Use --verbose to see detailed validation output.`,
 			configFile := configPath
 			if configFile == "" {
 				var err error
+
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
 					return fmt.Errorf("no config file found: %w", err)
@@ -455,34 +478,44 @@ Use --verbose to see detailed validation output.`,
 			cfg, err := configLoader.LoadConfig(configFile)
 			if err != nil {
 				logger.Errorf("❌ Failed to load configuration")
+
 				return fmt.Errorf("failed to load config: %w", err)
 			}
+
 			logger.Infof("✓ Basic structure valid")
 
 			// Run internal validation
 			validationErrors := configLoader.ValidateConfig(cfg)
 			if len(validationErrors) > 0 {
 				logger.Errorf("❌ Internal validation failed:")
+
 				for _, err := range validationErrors {
 					logger.Errorf("  - %v", err)
 				}
+
 				return fmt.Errorf("configuration has %d validation errors", len(validationErrors))
 			}
+
 			logger.Infof("✓ Internal validation passed")
 
 			// Level 2: Schema validation via golangci-lint
 			if !skipGolangciLint {
 				logger.Infof("Running golangci-lint schema validation...")
+
 				verifyCmd := exec.Command("golangci-lint", "config", "verify", "--config", configFile)
+
 				output, err := verifyCmd.CombinedOutput()
 				if err != nil {
 					logger.Errorf("❌ Schema validation failed:")
 					logger.Errorf("%s", string(output))
+
 					return fmt.Errorf("schema validation failed: %w", err)
 				}
+
 				if len(output) > 0 {
 					logger.Infof("%s", string(output))
 				}
+
 				logger.Infof("✓ Schema validation passed")
 			}
 
@@ -497,7 +530,7 @@ Use --verbose to see detailed validation output.`,
 	return cmd
 }
 
-// newReportCommand creates the report command
+// newReportCommand creates the report command.
 func newReportCommand(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
@@ -515,6 +548,7 @@ func newReportCommand(
 			configFile := configPath
 			if configFile == "" {
 				var err error
+
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
 					return fmt.Errorf("no config file found: %w", err)
@@ -540,12 +574,14 @@ func newReportCommand(
 			// Generate report based on format
 			if reportFormat == "json" {
 				jsonGenerator := report.NewJSONGenerator(logger)
-				if err := jsonGenerator.GenerateJSONReport(analysis, outputPath); err != nil {
+				err := jsonGenerator.GenerateJSONReport(analysis, outputPath)
+				if err != nil {
 					return fmt.Errorf("failed to generate JSON report: %w", err)
 				}
 			} else {
 				htmlGenerator := report.NewGenerator(logger)
-				if err := htmlGenerator.GenerateReport(analysis, outputPath); err != nil {
+				err := htmlGenerator.GenerateReport(analysis, outputPath)
+				if err != nil {
 					return fmt.Errorf("failed to generate HTML report: %w", err)
 				}
 			}
@@ -557,7 +593,7 @@ func newReportCommand(
 	return cmd
 }
 
-// newRestoreCommand creates the restore command
+// newRestoreCommand creates the restore command.
 func newRestoreCommand(
 	logger *log.Logger,
 	configLoader *config.Loader,
@@ -573,8 +609,9 @@ func newRestoreCommand(
 			// Get backup path from flag or argument
 			backupPath, _ := cmd.Flags().GetString("backup-path")
 			if backupPath == "" && len(args) > 0 {
-				return fmt.Errorf("backup path required (use --backup-path flag or provide as argument)")
+				return errors.New("backup path required (use --backup-path flag or provide as argument)")
 			}
+
 			if backupPath == "" {
 				backupPath = args[0]
 			}
@@ -590,6 +627,7 @@ func newRestoreCommand(
 			targetPath := configPath
 			if targetPath == "" {
 				var err error
+
 				targetPath, err = configLoader.FindConfigFile(".")
 				if err != nil {
 					return fmt.Errorf("no config file found to restore to: %w", err)
@@ -599,7 +637,8 @@ func newRestoreCommand(
 			logger.Infof("Restoring to: %s", targetPath)
 
 			// Perform restore
-			if err := configLoader.RestoreConfig(backupPath, targetPath); err != nil {
+			err := configLoader.RestoreConfig(backupPath, targetPath)
+			if err != nil {
 				return fmt.Errorf("failed to restore configuration: %w", err)
 			}
 
@@ -614,7 +653,7 @@ func newRestoreCommand(
 	return cmd
 }
 
-// newCompletionCommand creates the completion command for shell autocompletion
+// newCompletionCommand creates the completion command for shell autocompletion.
 func newCompletionCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "completion [bash|zsh|fish|powershell]",
@@ -665,7 +704,7 @@ PowerShell:
 	}
 }
 
-// newInstallHookCommand creates the install-hook command
+// newInstallHookCommand creates the install-hook command.
 func newInstallHookCommand(logger *log.Logger) *cobra.Command {
 	return &cobra.Command{
 		Use:   "install-hook",
@@ -681,7 +720,7 @@ The hook is installed at .git/hooks/pre-commit`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Check if we're in a git repository
 			if _, err := os.Stat(".git"); os.IsNotExist(err) {
-				return fmt.Errorf("not a git repository (no .git directory found)")
+				return errors.New("not a git repository (no .git directory found)")
 			}
 
 			hookDir := ".git/hooks"
@@ -736,11 +775,13 @@ exit 0
 			if _, err := os.Stat(hookPath); err == nil {
 				logger.Warnf("Pre-commit hook already exists at %s", hookPath)
 				logger.Infof("Use --force to overwrite (not implemented yet)")
-				return fmt.Errorf("hook already exists")
+
+				return errors.New("hook already exists")
 			}
 
 			// Write hook file
-			if err := os.WriteFile(hookPath, []byte(hookContent), 0755); err != nil {
+			err := os.WriteFile(hookPath, []byte(hookContent), 0o755)
+			if err != nil {
 				return fmt.Errorf("failed to write hook: %w", err)
 			}
 
@@ -753,19 +794,21 @@ exit 0
 	}
 }
 
-// Execute runs the CLI using fang for enhanced CLI features
+// Execute runs the CLI using fang for enhanced CLI features.
 func Execute() error {
 	cmd := NewRootCommand()
+
 	return fang.Execute(context.Background(), cmd, fang.WithVersion(Version))
 }
 
-// Main is the entry point
+// Main is the entry point.
 func Main() {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	})))
 
-	if err := Execute(); err != nil {
+	err := Execute()
+	if err != nil {
 		slog.Error("CLI execution failed", "error", err)
 		os.Exit(1)
 	}

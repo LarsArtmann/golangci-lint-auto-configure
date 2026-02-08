@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// ProjectType represents the type of Go project
+// ProjectType represents the type of Go project.
 type ProjectType int
 
 const (
@@ -36,17 +36,17 @@ func (p ProjectType) String() string {
 	}
 }
 
-// Detector analyzes project structure to determine project type
+// Detector analyzes project structure to determine project type.
 type Detector struct {
 	rootDir string
 }
 
-// NewDetector creates a new project type detector
+// NewDetector creates a new project type detector.
 func NewDetector(rootDir string) *Detector {
 	return &Detector{rootDir: rootDir}
 }
 
-// Detect analyzes the project and returns the detected type
+// Detect analyzes the project and returns the detected type.
 func (d *Detector) Detect() ProjectType {
 	// Check for monorepo first (multiple go.mod files)
 	if d.isMonorepo() {
@@ -84,48 +84,59 @@ func (d *Detector) Detect() ProjectType {
 	}
 }
 
-// isMonorepo checks if there are multiple go.mod files
+// isMonorepo checks if there are multiple go.mod files.
 func (d *Detector) isMonorepo() bool {
 	count := 0
+
 	filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
+
 		if info.Name() == "go.mod" {
 			count++
 		}
+
 		return nil
 	})
+
 	return count > 1
 }
 
-// analyzeGoMod extracts module path and imports from go.mod
+// analyzeGoMod extracts module path and imports from go.mod.
 func (d *Detector) analyzeGoMod() (modulePath string, imports []string) {
 	goModPath := filepath.Join(d.rootDir, "go.mod")
+
 	file, err := os.Open(goModPath)
 	if err != nil {
 		return "", nil
 	}
+
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	inRequire := false
+
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
 		// Extract module path
 		if strings.HasPrefix(line, "module ") {
 			modulePath = strings.TrimSpace(strings.TrimPrefix(line, "module"))
+
 			continue
 		}
 
 		// Track require block
 		if line == "require (" {
 			inRequire = true
+
 			continue
 		}
+
 		if line == ")" {
 			inRequire = false
+
 			continue
 		}
 
@@ -140,6 +151,7 @@ func (d *Detector) analyzeGoMod() (modulePath string, imports []string) {
 				// First non-require field that looks like a package path
 				if strings.Contains(field, "/") {
 					imports = append(imports, field)
+
 					break
 				}
 			}
@@ -149,9 +161,10 @@ func (d *Detector) analyzeGoMod() (modulePath string, imports []string) {
 	return modulePath, imports
 }
 
-// hasMainPackage checks if there's a main package in the project
+// hasMainPackage checks if there's a main package in the project.
 func (d *Detector) hasMainPackage() bool {
 	found := false
+
 	filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
 			return nil
@@ -168,15 +181,18 @@ func (d *Detector) hasMainPackage() bool {
 			line := strings.TrimSpace(scanner.Text())
 			if strings.HasPrefix(line, "package main") {
 				found = true
+
 				return filepath.SkipAll
 			}
 		}
+
 		return nil
 	})
+
 	return found
 }
 
-// hasHTTPFramework checks if common HTTP frameworks are imported
+// hasHTTPFramework checks if common HTTP frameworks are imported.
 func (d *Detector) hasHTTPFramework(imports []string) bool {
 	httpFrameworks := []string{
 		"github.com/gin-gonic/gin",
@@ -196,10 +212,11 @@ func (d *Detector) hasHTTPFramework(imports []string) bool {
 			}
 		}
 	}
+
 	return false
 }
 
-// hasCLIFramework checks if common CLI frameworks are imported
+// hasCLIFramework checks if common CLI frameworks are imported.
 func (d *Detector) hasCLIFramework(imports []string) bool {
 	cliFrameworks := []string{
 		"github.com/spf13/cobra",
@@ -217,10 +234,11 @@ func (d *Detector) hasCLIFramework(imports []string) bool {
 			}
 		}
 	}
+
 	return false
 }
 
-// hasAPICodePatterns checks for common API patterns in code
+// hasAPICodePatterns checks for common API patterns in code.
 func (d *Detector) hasAPICodePatterns() bool {
 	apiPatterns := []string{
 		"json.Marshal",
@@ -233,6 +251,7 @@ func (d *Detector) hasAPICodePatterns() bool {
 	}
 
 	found := false
+
 	filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
 			return nil
@@ -250,16 +269,19 @@ func (d *Detector) hasAPICodePatterns() bool {
 			for _, pattern := range apiPatterns {
 				if strings.Contains(line, pattern) {
 					found = true
+
 					return filepath.SkipAll
 				}
 			}
 		}
+
 		return nil
 	})
+
 	return found
 }
 
-// GetRecommendedLinters returns recommended linters for a project type
+// GetRecommendedLinters returns recommended linters for a project type.
 func GetRecommendedLinters(projectType ProjectType) []string {
 	switch projectType {
 	case ProjectTypeCLI:

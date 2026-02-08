@@ -7,6 +7,7 @@
 ### The Problem It Solves
 
 The linter catches this mistake:
+
 ```go
 // WRONG: Passing slice as single argument
 args := []interface{}{"error", "timeout"}
@@ -14,6 +15,7 @@ logger.Error(args)  // slice passed as ONE argument
 ```
 
 Instead of the correct:
+
 ```go
 // CORRECT: Expanding slice into multiple arguments
 args := []interface{}{"error", "timeout"}
@@ -21,6 +23,7 @@ logger.Error(args...)  // ellipsis expands slice
 ```
 
 ### Key Characteristics
+
 - **Type**: Static analysis linter
 - **Speed**: Fast (uses Go's type information)
 - **Integration**: Part of golangci-lint v2+
@@ -31,18 +34,21 @@ logger.Error(args...)  // ellipsis expands slice
 ### ✅ RECOMMENDED FOR:
 
 **All Go Projects** that:
+
 - Use variadic functions extensively (logging, formatting, database operations)
 - Have multiple developers (catches common mistakes)
 - Use reflection-based APIs that accept `...interface{}`
 - Maintain code quality standards
 
 **Specific Use Cases:**
+
 - **Logging frameworks**: `log.Printf()`, `zap.Logger`, `slog.Logger`, `logrus`
 - **Database operations**: SQL query builders with variadic parameters
 - **Message formatting**: `fmt.Printf()` family, internationalization APIs
 - **Custom APIs**: Any variadic functions accepting `...interface{}`
 
 **Example Scenario:**
+
 ```go
 // High-risk code that benefits from asasalint
 func processEvent(event string, args ...interface{}) {
@@ -52,6 +58,7 @@ func processEvent(event string, args ...interface{}) {
 ```
 
 ### Priority Assessment:
+
 - **Default Priority**: Medium-High (Optional but recommended)
 - **Critical for**: Projects with heavy logging/metrics usage
 - **Low priority for**: Simple CLI tools with minimal variadic function usage
@@ -61,13 +68,16 @@ func processEvent(event string, args ...interface{}) {
 ### ❌ CONSIDER DISABLING WHEN:
 
 **Code Patterns:**
+
 - Project rarely uses variadic functions
 - Heavily relies on passing slices intentionally as single arguments to variadic functions
 - Uses code generation that produces false positives
 
 **Edge Cases:**
+
 - **False positives in legacy code**: When migrating large existing codebases
 - **Wrapper functions**: When intentionally wrapping variadic calls
+
 ```go
 // Intentional pattern - not a bug
 func wrapper(args ...interface{}) {
@@ -78,16 +88,18 @@ func wrapper(args ...interface{}) {
 ```
 
 ### Better Alternative to Disabling:
+
 Instead of disabling entirely, use **exclusions**:
+
 ```yaml
 # .golangci.yml
 linters:
   exclusions:
     rules:
       - linters: [asasalint]
-        path: (.+)_test\.go  # Exclude tests if needed
+        path: (.+)_test\.go # Exclude tests if needed
       - linters: [asasalint]
-        path: internal/generated/.*  # Exclude generated code
+        path: internal/generated/.* # Exclude generated code
 ```
 
 ## Configuration Options
@@ -114,14 +126,15 @@ linters:
 
 ### Configuration Options Explained:
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `exclude` | `[]string` | `[]` | Regex patterns for function names/methods to exclude |
-| `use-builtin-exclusions` | `bool` | `true` | Whether to use built-in exclusions for common cases |
+| Option                   | Type       | Default | Description                                          |
+| ------------------------ | ---------- | ------- | ---------------------------------------------------- |
+| `exclude`                | `[]string` | `[]`    | Regex patterns for function names/methods to exclude |
+| `use-builtin-exclusions` | `bool`     | `true`  | Whether to use built-in exclusions for common cases  |
 
 ### Recommended Configurations:
 
 **Standard Project:**
+
 ```yaml
 linters:
   settings:
@@ -130,6 +143,7 @@ linters:
 ```
 
 **Library with Wrapper Functions:**
+
 ```yaml
 linters:
   settings:
@@ -141,6 +155,7 @@ linters:
 ```
 
 **Strict Mode (No Exclusions):**
+
 ```yaml
 linters:
   settings:
@@ -153,12 +168,14 @@ linters:
 ### ✅ SYNERGIES:
 
 **Complementary Linters:**
+
 - **`govet`**: Catches different classes of bugs, works well together
 - **`staticcheck`**: Advanced static analysis, no overlap with asasalint
 - **`errcheck`**: Ensures errors are checked, asasalint ensures correct error passing
 - **`loggercheck`**: Validates logger key-value pairs, asasalint ensures slice expansion
 
 **Example Workflow:**
+
 ```go
 // govcheck catches format string issues
 // errcheck ensures errors are checked
@@ -172,10 +189,12 @@ func handleError(err error, context []interface{}) {
 ```
 
 ### 🔒 CONFLICTS:
+
 - **No known conflicts** - asasalint operates independently on type checking
 - Does not overlap with other linters' functionality
 
 ### 📊 PERFORMANCE IMPACT:
+
 - **Minimal**: Uses Go's type information efficiently
 - **No measurable slowdown** in typical projects
 - **Recommended in CI/CD**: Safe to enable with no performance concerns

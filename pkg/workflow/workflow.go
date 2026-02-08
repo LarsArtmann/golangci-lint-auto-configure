@@ -11,7 +11,7 @@ import (
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 )
 
-// ActivityContext provides context for workflow activities
+// ActivityContext provides context for workflow activities.
 type ActivityContext struct {
 	ConfigPath   string
 	Analyzer     *linter.Analyzer
@@ -21,11 +21,11 @@ type ActivityContext struct {
 	OutputReport string
 }
 
-// AnalysisActivity analyzes golangci-lint configuration
+// AnalysisActivity analyzes golangci-lint configuration.
 func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
-		return nil, fmt.Errorf("invalid activity context type")
+		return nil, errors.New("invalid activity context type")
 	}
 
 	activityCtx.Logger.Infof("Analyzing golangci-lint configuration...")
@@ -58,11 +58,11 @@ func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, e
 	}, nil
 }
 
-// ValidationActivity validates golangci-lint configuration
+// ValidationActivity validates golangci-lint configuration.
 func ValidationActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
-		return nil, fmt.Errorf("invalid activity context type")
+		return nil, errors.New("invalid activity context type")
 	}
 
 	activityCtx.Logger.Infof("Validating golangci-lint configuration...")
@@ -79,15 +79,16 @@ func ValidationActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult,
 	}, nil
 }
 
-// ReportActivity generates HTML report of the analysis
+// ReportActivity generates HTML report of the analysis.
 func ReportActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
-		return nil, fmt.Errorf("invalid activity context type")
+		return nil, errors.New("invalid activity context type")
 	}
 
 	if !activityCtx.GenerateHTML {
 		activityCtx.Logger.Debugf("HTML report generation disabled")
+
 		return &types.ActivityResult{
 			Status:    types.ActivityStatusCompleted,
 			Output:    "Skipped HTML report generation",
@@ -105,20 +106,20 @@ func ReportActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, err
 
 	return &types.ActivityResult{
 		Status:    types.ActivityStatusCompleted,
-		Output:    fmt.Sprintf("HTML report: %s", activityCtx.OutputReport),
+		Output:    "HTML report: " + activityCtx.OutputReport,
 		StartTime: time.Now(),
 		EndTime:   time.Now(),
 	}, nil
 }
 
-// Builder constructs the golangci-lint configuration workflow
+// Builder constructs the golangci-lint configuration workflow.
 type Builder struct {
 	logger   *log.Logger
 	analyzer *linter.Analyzer
 	config   *ActivityContext
 }
 
-// NewBuilder creates a new workflow builder
+// NewBuilder creates a new workflow builder.
 func NewBuilder(logger *log.Logger, analyzer *linter.Analyzer) *Builder {
 	return &Builder{
 		logger:   logger,
@@ -126,7 +127,7 @@ func NewBuilder(logger *log.Logger, analyzer *linter.Analyzer) *Builder {
 	}
 }
 
-// BuildAutoConfigureWorkflow creates a workflow for auto-configuring golangci-lint
+// BuildAutoConfigureWorkflow creates a workflow for auto-configuring golangci-lint.
 func (b *Builder) BuildAutoConfigureWorkflow(configPath string, dryRun, generateHTML bool, outputPath string) (workflowpkg.WorkflowLike, error) {
 	workflowID := types.WorkflowID("golangci-lint-auto-configure")
 	workflowName := types.WorkflowName("Automatically analyze and configure golangci-lint")
@@ -146,25 +147,28 @@ func (b *Builder) BuildAutoConfigureWorkflow(configPath string, dryRun, generate
 	// Add analysis activity
 	wf.Step(types.ActivityID("analyze-config"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 		ctx.Input = activityCtx
+
 		return AnalysisActivity(ctx)
 	})
 
 	// Add validation activity (depends on analysis)
 	wf.Step(types.ActivityID("validate-config"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 		ctx.Input = activityCtx
+
 		return ValidationActivity(ctx)
 	}).DependsOn(types.ActivityID("analyze-config"))
 
 	// Add report generation activity (depends on validation)
 	wf.Step(types.ActivityID("generate-report"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 		ctx.Input = activityCtx
+
 		return ReportActivity(ctx)
 	}).DependsOn(types.ActivityID("validate-config"))
 
 	return wf, nil
 }
 
-// ExecuteAutoConfigureWorkflow executes the auto-configure workflow
+// ExecuteAutoConfigureWorkflow executes the auto-configure workflow.
 func (b *Builder) ExecuteAutoConfigureWorkflow(ctx context.Context, configPath string, dryRun, generateHTML bool, outputPath string) (workflowpkg.WorkflowRun, error) {
 	wf, err := b.BuildAutoConfigureWorkflow(configPath, dryRun, generateHTML, outputPath)
 	if err != nil {

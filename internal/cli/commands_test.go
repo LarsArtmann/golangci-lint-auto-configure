@@ -36,6 +36,7 @@ var _ = Describe("CLI Integration Tests", func() {
 			println("Build failed:", string(output))
 		}
 		Expect(err).NotTo(HaveOccurred(), "Failed to build the CLI binary")
+
 		return binaryPath
 	}
 

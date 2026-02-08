@@ -33,14 +33,14 @@ gosec analyzes Go code in three phases:
 
 ### Security Rule Categories
 
-| Category | Rule Range | Description |
-|----------|-------------|-------------|
-| **G1xx - Misc** | G101-G117 | Credentials, DoS, SSRF, HTTP issues |
-| **G2xx - Injection** | G201-G204 | SQL injection, XSS, command injection |
-| **G3xx - Filesystem** | G301-G306 | Path traversal, file permissions, temp files |
-| **G4xx - Crypto** | G401-G407 | Weak algorithms, bad TLS, insecure random |
-| **G5xx - Blocklist** | G501-G507 | Deprecated/vulnerable package imports |
-| **G6xx - Memory** | G601 | Memory safety (range aliasing) |
+| Category              | Rule Range | Description                                  |
+| --------------------- | ---------- | -------------------------------------------- |
+| **G1xx - Misc**       | G101-G117  | Credentials, DoS, SSRF, HTTP issues          |
+| **G2xx - Injection**  | G201-G204  | SQL injection, XSS, command injection        |
+| **G3xx - Filesystem** | G301-G306  | Path traversal, file permissions, temp files |
+| **G4xx - Crypto**     | G401-G407  | Weak algorithms, bad TLS, insecure random    |
+| **G5xx - Blocklist**  | G501-G507  | Deprecated/vulnerable package imports        |
+| **G6xx - Memory**     | G601       | Memory safety (range aliasing)               |
 
 ### Examples
 
@@ -126,31 +126,33 @@ func GenerateToken() string {
 
 **Project Types:**
 
-| Project Type | Priority | Justification |
-|--------------|----------|----------------|
-| **Web Services/APIs** | CRITICAL | User input handling, XSS, SQLi |
-| **Microservices** | CRITICAL | Distributed security, SSRF risks |
-| **REST/GraphQL APIs** | CRITICAL | Input validation, injection vectors |
-| **CLI Tools** | CRITICAL | File operations, path traversal |
-| **Authentication Systems** | CRITICAL | JWT, OAuth, session management |
-| **Financial Applications** | CRITICAL | PCI DSS compliance required |
-| **Healthcare Software** | CRITICAL | HIPAA compliance required |
-| **Government/Military** | CRITICAL | Classified information security |
-| **Payment Processing** | CRITICAL | Financial transactions security-critical |
-| **Database Tools** | CRITICAL | SQL injection vulnerabilities |
-| **File Handling Apps** | CRITICAL | Path traversal, file permissions |
-| **Public Libraries/SDKs** | HIGH | Security reputation depends on it |
-| **SaaS Platforms** | CRITICAL | Multi-tenant security concerns |
+| Project Type               | Priority | Justification                            |
+| -------------------------- | -------- | ---------------------------------------- |
+| **Web Services/APIs**      | CRITICAL | User input handling, XSS, SQLi           |
+| **Microservices**          | CRITICAL | Distributed security, SSRF risks         |
+| **REST/GraphQL APIs**      | CRITICAL | Input validation, injection vectors      |
+| **CLI Tools**              | CRITICAL | File operations, path traversal          |
+| **Authentication Systems** | CRITICAL | JWT, OAuth, session management           |
+| **Financial Applications** | CRITICAL | PCI DSS compliance required              |
+| **Healthcare Software**    | CRITICAL | HIPAA compliance required                |
+| **Government/Military**    | CRITICAL | Classified information security          |
+| **Payment Processing**     | CRITICAL | Financial transactions security-critical |
+| **Database Tools**         | CRITICAL | SQL injection vulnerabilities            |
+| **File Handling Apps**     | CRITICAL | Path traversal, file permissions         |
+| **Public Libraries/SDKs**  | HIGH     | Security reputation depends on it        |
+| **SaaS Platforms**         | CRITICAL | Multi-tenant security concerns           |
 
 **Specific Scenarios:**
 
 **1. Web Applications & APIs**
+
 - REST/GraphQL endpoints handling user input
 - File upload/download functionality
 - Form processing and validation
 - Session and cookie management
 
 **2. Security-Sensitive Operations**
+
 - Authentication/authorization logic
 - Cryptographic operations (hashing, encryption, signing)
 - Random number generation (tokens, IDs, nonces)
@@ -159,12 +161,14 @@ func GenerateToken() string {
 - Database transactions and queries
 
 **3. Production Systems**
+
 - Any code deployed to production
 - User-facing applications
 - Services with SLA requirements
 - Infrastructure-as-Code tools
 
 **4. CI/CD Pipelines**
+
 - Build processes and deployment automation
 - Code review automation
 - Security scanning integration
@@ -174,6 +178,7 @@ func GenerateToken() string {
 **Specific Scenarios (with Exclusions, Not Full Disabling):**
 
 **1. Test Files** (`_test.go`)
+
 ```yaml
 issues:
   exclude-rules:
@@ -182,6 +187,7 @@ issues:
 ```
 
 **2. Generated Code**
+
 ```yaml
 run:
   skip-dirs:
@@ -190,11 +196,13 @@ run:
 ```
 
 **3. Documentation/Example Code**
+
 - Code samples in README.md
 - Tutorial implementations
 - Example code in API documentation
 
 **4. Security Testing Utilities**
+
 - Penetration testing tools
 - Vulnerability research code
 - Intentionally vulnerable examples
@@ -220,15 +228,15 @@ linters:
       # Run only specific rules (whitelist)
       # Default: all rules
       include:
-        - G101  # Hardcoded credentials
-        - G201  # SQL injection
-        - G304  # Path traversal
+        - G101 # Hardcoded credentials
+        - G201 # SQL injection
+        - G304 # Path traversal
 
       # Exclude specific rules (blacklist)
       # Default: []
       exclude:
-        - G104  # Errors not checked (use errcheck instead)
-        - G404  # Weak random (only for test files)
+        - G104 # Errors not checked (use errcheck instead)
+        - G404 # Weak random (only for test files)
 
       # Exclude generated code
       # Default: false
@@ -262,19 +270,21 @@ linters:
 - **Description**: Only scan specified rules (whitelist approach)
 
 **Use Cases:**
+
 - Security-focused scanning (only critical rules)
 - Incremental adoption (start with high-impact rules)
 - Specific vulnerability type monitoring
 
 **Example:**
+
 ```yaml
 include:
-  - G101  # Credentials
-  - G201  # SQL injection
-  - G202  # SQL injection (concat)
-  - G203  # XSS
-  - G204  # Command injection
-  - G304  # Path traversal
+  - G101 # Credentials
+  - G201 # SQL injection
+  - G202 # SQL injection (concat)
+  - G203 # XSS
+  - G204 # Command injection
+  - G304 # Path traversal
 ```
 
 ### `exclude` Option
@@ -284,11 +294,12 @@ include:
 - **Description**: Exclude specific rules from scanning
 
 **Common Exclusions:**
+
 ```yaml
 exclude:
-  - G104  # Errors not checked (let errcheck handle)
-  - G404  # Weak random (math/rand in tests)
-  - G102  # Bind to all interfaces (K8s requirement)
+  - G104 # Errors not checked (let errcheck handle)
+  - G404 # Weak random (math/rand in tests)
+  - G102 # Bind to all interfaces (K8s requirement)
 ```
 
 ### `exclude-generated` Option
@@ -298,6 +309,7 @@ exclude:
 - **Description**: Skip auto-generated code
 
 **Generated Patterns Recognized:**
+
 - Protocol buffer generated files (`*_pb.go`)
 - Mockery generated files
 - Wire dependency injection code
@@ -336,6 +348,7 @@ exclude:
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most production applications
 version: "2"
@@ -353,6 +366,7 @@ issues:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # Security-critical applications, financial/healthcare software
 version: "2"
@@ -371,6 +385,7 @@ issues:
 ```
 
 #### ✅ Focused Configuration (Critical Rules Only)
+
 ```yaml
 # Focus on highest-impact vulnerabilities
 version: "2"
@@ -378,16 +393,17 @@ linters:
   settings:
     gosec:
       include:
-        - G101  # Credentials
-        - G201  # SQL injection
-        - G202  # SQL injection
-        - G203  # XSS
-        - G204  # Command injection
-        - G304  # Path traversal
-        - G404  # Weak random
+        - G101 # Credentials
+        - G201 # SQL injection
+        - G202 # SQL injection
+        - G203 # XSS
+        - G204 # Command injection
+        - G304 # Path traversal
+        - G404 # Weak random
 ```
 
 #### ✅ Web API Configuration
+
 ```yaml
 # HTTP server with user input handling
 version: "2"
@@ -396,16 +412,16 @@ linters:
     gosec:
       exclude-generated: true
       include:
-        - G101  # Credentials
-        - G107  # SSRF
-        - G111  # Path traversal (http.Dir)
-        - G201  # SQL injection
-        - G202  # SQL injection
-        - G203  # XSS
-        - G204  # Command injection
-        - G304  # Path traversal
+        - G101 # Credentials
+        - G107 # SSRF
+        - G111 # Path traversal (http.Dir)
+        - G201 # SQL injection
+        - G202 # SQL injection
+        - G203 # XSS
+        - G204 # Command injection
+        - G304 # Path traversal
       exclude:
-        - G102  # Allow 0.0.0.0 for K8s
+        - G102 # Allow 0.0.0.0 for K8s
 
 issues:
   exclude-rules:
@@ -414,6 +430,7 @@ issues:
 ```
 
 #### ✅ Exclude Test Files
+
 ```yaml
 # Tests have intentional false positives (mocks, test tokens)
 version: "2"
@@ -422,8 +439,8 @@ linters:
     gosec:
       exclude-generated: true
       exclude:
-        - G104  # Errors not checked in tests
-        - G404  # math/rand in tests
+        - G104 # Errors not checked in tests
+        - G404 # math/rand in tests
 
 run:
   skip-dirs:
@@ -441,29 +458,30 @@ issues:
 
 gosec works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **errcheck** | Complementary | gosec G104 + errcheck = complete error handling |
+| Linter          | Relationship  | Value                                                       |
+| --------------- | ------------- | ----------------------------------------------------------- |
+| **errcheck**    | Complementary | gosec G104 + errcheck = complete error handling             |
 | **staticcheck** | Complementary | gosec finds security issues, staticcheck finds logic errors |
-| **govet** | Complementary | gosec finds high-level issues, govet finds AST-level |
-| **bidichk** | Complementary | gosec G116 (Trojan Source) + bidichk (general BiDi) |
-| **bodyclose** | Complementary | gosec DoS (G110) + bodyclose (resource leaks) |
-| **nilerr** | Complementary | gosec G104 errors + nilerr nil pointer returns |
-| **noctx** | Complementary | gosec G107 SSRF + noctx (missing context) |
-| **errchkjson** | Complementary | JSON marshaling security + JSON type safety |
+| **govet**       | Complementary | gosec finds high-level issues, govet finds AST-level        |
+| **bidichk**     | Complementary | gosec G116 (Trojan Source) + bidichk (general BiDi)         |
+| **bodyclose**   | Complementary | gosec DoS (G110) + bodyclose (resource leaks)               |
+| **nilerr**      | Complementary | gosec G104 errors + nilerr nil pointer returns              |
+| **noctx**       | Complementary | gosec G107 SSRF + noctx (missing context)                   |
+| **errchkjson**  | Complementary | JSON marshaling security + JSON type safety                 |
 
 **Complete Security Suite:**
+
 ```yaml
 linters:
   enable:
-    - gosec           # Security vulnerabilities (CRITICAL)
-    - errcheck         # Error handling (CRITICAL)
-    - staticcheck       # Logic errors (CRITICAL)
-    - govet            # AST checks (CRITICAL)
-    - bidichk          # Unicode security (HIGH)
-    - bodyclose         # Resource leaks (HIGH)
-    - nilerr            # Nil error returns (CRITICAL)
-    - noctx             # HTTP security (CRITICAL)
+    - gosec # Security vulnerabilities (CRITICAL)
+    - errcheck # Error handling (CRITICAL)
+    - staticcheck # Logic errors (CRITICAL)
+    - govet # AST checks (CRITICAL)
+    - bidichk # Unicode security (HIGH)
+    - bodyclose # Resource leaks (HIGH)
+    - nilerr # Nil error returns (CRITICAL)
+    - noctx # HTTP security (CRITICAL)
 ```
 
 ### Example of Linter Synergy
@@ -500,13 +518,14 @@ func processUserInput(input string) error {
 
 ### 🔒 Minimal Overlap, No Conflicts
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
-| gosec + **errcheck** | G104 overlaps error checking | Use both - gosec is security-focused |
-| gosec + **staticcheck** | Some error analysis overlap | Use both - different focus areas |
-| gosec + **govet** | Different AST analysis | Use both - comprehensive coverage |
+| Linter                  | Overlap                      | Recommendation                       |
+| ----------------------- | ---------------------------- | ------------------------------------ |
+| gosec + **errcheck**    | G104 overlaps error checking | Use both - gosec is security-focused |
+| gosec + **staticcheck** | Some error analysis overlap  | Use both - different focus areas     |
+| gosec + **govet**       | Different AST analysis       | Use both - comprehensive coverage    |
 
 **Why No Conflicts:**
+
 - gosec: Security-focused vulnerability detection
 - errcheck: Error handling completeness
 - staticcheck: Logic and correctness analysis
@@ -649,6 +668,7 @@ func HashPassword(password string) string {
 **Problem:** gosec reporting many issues in test files or generated code.
 
 **Solution:** Exclude test files and generated code.
+
 ```yaml
 issues:
   exclude-rules:
@@ -666,12 +686,13 @@ run:
 **Problem:** Both gosec and errcheck reporting errors not checked.
 
 **Solution:** Let errcheck handle all error checking.
+
 ```yaml
 linters:
   settings:
     gosec:
       exclude:
-        - G104  # Let errcheck handle
+        - G104 # Let errcheck handle
 ```
 
 ### Scenario 3: G404 (Weak Random) in Tests
@@ -679,6 +700,7 @@ linters:
 **Problem:** Tests use `math/rand` for reproducibility, gosec flags as weak.
 
 **Solution:** Exclude test files.
+
 ```yaml
 issues:
   exclude-rules:
@@ -691,6 +713,7 @@ issues:
 **Problem:** Must ensure ALL security issues caught, no false negatives.
 
 **Solution:** Use strictest settings.
+
 ```yaml
 linters:
   settings:
@@ -705,6 +728,7 @@ linters:
 **Problem:** Block merges with new security vulnerabilities.
 
 **Solution:** Use severity threshold and fail on HIGH/CRITICAL.
+
 ```bash
 # In CI/CD
 golangci-lint run --enable=gosec --out-format=json | \
@@ -729,6 +753,7 @@ golangci-lint run --enable=gosec --out-format=json | \
 **Recommendation:** **ALWAYS ENABLE** with `severity: "medium"` and `exclude-generated: true` for all production code. Exclude test files (`(.+)_test\.go`). Combine with **errcheck**, **staticcheck**, and **govet** for comprehensive coverage. For security-critical applications (financial, healthcare), use `severity: "low"` to catch ALL issues. Integrate with CI/CD to block merges with new HIGH/CRITICAL severity findings.
 
 **Top 3 Security Rules to Never Disable:**
+
 1. **G101** (Hardcoded credentials) - Major security risk
 2. **G201/G202** (SQL injection) - Critical data breach risk
 3. **G304** (Path traversal) - File system security risk

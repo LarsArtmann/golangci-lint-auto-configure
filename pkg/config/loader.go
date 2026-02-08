@@ -13,7 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Re-export types for backward compatibility
+// Re-export types for backward compatibility.
 type (
 	Config                     = types.Config
 	RunConfig                  = types.RunConfig
@@ -26,19 +26,19 @@ type (
 	FormattersExclusionsConfig = types.FormattersExclusionsConfig
 )
 
-// Loader handles loading golangci-lint configuration files
+// Loader handles loading golangci-lint configuration files.
 type Loader struct {
 	logger *log.Logger
 }
 
-// NewLoader creates a new configuration loader
+// NewLoader creates a new configuration loader.
 func NewLoader(logger *log.Logger) *Loader {
 	return &Loader{
 		logger: logger,
 	}
 }
 
-// LoadConfig loads a golangci-lint configuration from the given path
+// LoadConfig loads a golangci-lint configuration from the given path.
 func (l *Loader) LoadConfig(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -51,10 +51,11 @@ func (l *Loader) LoadConfig(path string) (*Config, error) {
 	}
 
 	l.logger.Debugf("Loaded config from %s", path)
+
 	return &config, nil
 }
 
-// FindConfigFile searches for a golangci-lint config file in the current directory and parent directories
+// FindConfigFile searches for a golangci-lint config file in the current directory and parent directories.
 func (l *Loader) FindConfigFile(startDir string) (string, error) {
 	defaultNames := []string{
 		".golangci.yml",
@@ -67,6 +68,7 @@ func (l *Loader) FindConfigFile(startDir string) (string, error) {
 		path := filepath.Join(startDir, name)
 		if _, err := os.Stat(path); err == nil {
 			l.logger.Debugf("Found config file: %s", path)
+
 			return path, nil
 		}
 	}
@@ -74,7 +76,7 @@ func (l *Loader) FindConfigFile(startDir string) (string, error) {
 	return "", errors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil)
 }
 
-// FindOrGetDefaultConfigPath searches for a config file and returns a default path if none exists
+// FindOrGetDefaultConfigPath searches for a config file and returns a default path if none exists.
 func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string {
 	configFile, err := l.FindConfigFile(startDir)
 	if err == nil {
@@ -85,7 +87,7 @@ func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string {
 	return filepath.Join(startDir, ".golangci.yml")
 }
 
-// LinterList represents the JSON output from golangci-lint linters command
+// LinterList represents the JSON output from golangci-lint linters command.
 type LinterList struct {
 	Enabled []struct {
 		Name string `json:"name"`
@@ -95,9 +97,10 @@ type LinterList struct {
 	} `json:"Disabled"`
 }
 
-// GetAllLinterNames fetches all available linter names from golangci-lint
+// GetAllLinterNames fetches all available linter names from golangci-lint.
 func (l *Loader) GetAllLinterNames() ([]string, error) {
 	cmd := exec.Command("golangci-lint", "linters", "--json")
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("failed to run golangci-lint linters: %w", err)
@@ -117,7 +120,7 @@ func (l *Loader) GetAllLinterNames() ([]string, error) {
 	return linterNames, nil
 }
 
-// CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled
+// CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled.
 func (l *Loader) CreateDefaultConfig() *Config {
 	// Fetch all available linters dynamically
 	allLinters, err := l.GetAllLinterNames()
@@ -152,7 +155,7 @@ func (l *Loader) CreateDefaultConfig() *Config {
 	}
 }
 
-// SaveConfig saves a golangci-lint configuration to the given path
+// SaveConfig saves a golangci-lint configuration to the given path.
 func (l *Loader) SaveConfig(config *Config, path string) error {
 	data, err := yaml.Marshal(config)
 	if err != nil {
@@ -164,10 +167,11 @@ func (l *Loader) SaveConfig(config *Config, path string) error {
 	}
 
 	l.logger.Infof("Saved config to %s", path)
+
 	return nil
 }
 
-// CreateBackup creates a backup of the given file
+// CreateBackup creates a backup of the given file.
 func (l *Loader) CreateBackup(filePath string) (string, error) {
 	backupPath := filePath + ".backup"
 
@@ -181,10 +185,11 @@ func (l *Loader) CreateBackup(filePath string) (string, error) {
 	}
 
 	l.logger.Infof("Created backup: %s", backupPath)
+
 	return backupPath, nil
 }
 
-// ValidateConfig performs basic validation on the configuration
+// ValidateConfig performs basic validation on the configuration.
 func (l *Loader) ValidateConfig(config *Config) []error {
 	var errs []error
 
@@ -199,17 +204,17 @@ func (l *Loader) ValidateConfig(config *Config) []error {
 	return errs
 }
 
-// GetLintersEnabled returns the list of explicitly enabled linters
+// GetLintersEnabled returns the list of explicitly enabled linters.
 func (l *Loader) GetLintersEnabled(config *Config) []string {
 	return config.Linters.Enable
 }
 
-// GetLintersDisabled returns the list of explicitly disabled linters
+// GetLintersDisabled returns the list of explicitly disabled linters.
 func (l *Loader) GetLintersDisabled(config *Config) []string {
 	return config.Linters.Disable
 }
 
-// RestoreConfig restores a configuration from a backup file to target path
+// RestoreConfig restores a configuration from a backup file to target path.
 func (l *Loader) RestoreConfig(backupPath, targetPath string) error {
 	data, err := os.ReadFile(backupPath)
 	if err != nil {
@@ -221,5 +226,6 @@ func (l *Loader) RestoreConfig(backupPath, targetPath string) error {
 	}
 
 	l.logger.Infof("Restored configuration from %s to %s", backupPath, targetPath)
+
 	return nil
 }

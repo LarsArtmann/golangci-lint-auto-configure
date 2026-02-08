@@ -7,6 +7,7 @@
 ### The Anti-Pattern
 
 Storing context in structs violates Go's context design principles:
+
 - **Contexts are request-scoped**: They should flow through call chains, not be stored
 - **Prevents proper cancellation**: Stored contexts can outlive their intended lifetime
 - **Hides dependencies**: Makes it unclear which functions require a context
@@ -49,6 +50,7 @@ func (c *Client) Fetch(ctx context.Context, url string) error {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **Web APIs and HTTP servers** - Enforces proper context propagation through handlers
 - **Microservices** - Critical for distributed request tracing and cancellation
 - **CLI applications** - Clear request/command lifetimes
@@ -57,12 +59,14 @@ func (c *Client) Fetch(ctx context.Context, url string) error {
 - **Database repositories** - Explicit transaction contexts
 
 **Team Scenarios:**
+
 - Training new Go developers - Teaches proper context usage patterns
 - Codebases with inconsistent context handling
 - Projects migrating from contexts-in-structs pattern
 - Teams wanting to enforce Go best practices
 
 **Code Quality Goals:**
+
 - Improving testability - Easier to inject test contexts
 - Enhancing code clarity - Explicit dependencies
 - Preventing goroutine leaks - Proper context lifecycle
@@ -79,7 +83,9 @@ func (c *Client) Fetch(ctx context.Context, url string) error {
 ### ❌ Consider Disabling For:
 
 **Legitimate Technical Constraints:**
+
 1. **Framework implementations** - Must satisfy interfaces that require context storage
+
    ```go
    // webdav.File interface requires context storage
    type webdavFile struct {
@@ -92,6 +98,7 @@ func (c *Client) Fetch(ctx context.Context, url string) error {
 3. **Specialized use cases** - Context lifetime genuinely matches struct lifetime
 
 **Code Patterns:**
+
 - **Test code** - Often has different context management patterns
 - **Generated code** - May not follow best practices
 - **Temporary migration code** - While refactoring gradually
@@ -146,6 +153,7 @@ linters:
 ### Recommended Configurations
 
 **Standard Web Project:**
+
 ```yaml
 version: "2"
 linters:
@@ -164,6 +172,7 @@ issues:
 ```
 
 **Library/API Project:**
+
 ```yaml
 version: "2"
 linters:
@@ -184,6 +193,7 @@ issues:
 ```
 
 **Comprehensive HTTP Service:**
+
 ```yaml
 version: "2"
 linters:
@@ -193,11 +203,11 @@ linters:
     - contextcheck
     - noctx
     - fatcontext
-    
+
     # HTTP correctness
     - bodyclose
     - canonicalheader
-    
+
     # Security & errors
     - gosec
     - errcheck
@@ -217,6 +227,7 @@ linters:
 ### ✅ Synergistic Linters
 
 **Complementary Linters:**
+
 - **`contextcheck`**: **Essential pairing** - containedctx checks struct fields, contextcheck verifies function parameter propagation
 - **`noctx`**: Ensures HTTP requests use context - different but related concerns
 - **`fatcontext`**: Detects nested contexts in loops - builds on context awareness
@@ -224,6 +235,7 @@ linters:
 - **`errorlint`**: Proper error handling with context cancellation
 
 **Example Synergy:**
+
 ```go
 // contextcheck ensures this passes context through call chain
 // containedctx ensures we don't store it in the Client struct
@@ -240,16 +252,19 @@ func (c *Client) Process(ctx context.Context, id string) error {
 ### ⚠️ Related Linters
 
 **Code Complexity:**
+
 - Often excluded alongside `gocyclo`, `gocognit`, `funlen` in test files
 - Different concern but similar enforcement patterns
 
 **Naming Conventions:**
+
 - Works well with `revive` (var-naming rules)
 - Complements `stylecheck` for overall code style
 
 ### 🔒 Potential Conflicts
 
 **No Known Conflicts:**
+
 - containedctx is narrowly focused with no overlapping functionality
 - Safe to enable with all other linters
 - Only checks struct field declarations
@@ -275,7 +290,7 @@ func (s *UserService) GetUser(ctx context.Context, id string) (*User, error) {
     // Context flows through call chain
     query := "SELECT id, name FROM users WHERE id = ?"
     row := s.db.QueryRowContext(ctx, query, id)
-    
+
     var user User
     if err := row.Scan(&user.ID, &user.Name); err != nil {
         s.logger.ErrorContext(ctx, "failed to get user", zap.Error(err))
@@ -291,7 +306,7 @@ func (s *UserService) CreateUser(ctx context.Context, user *User) error {
         return err
     }
     defer tx.Rollback()
-    
+
     // ... use tx with context
     return tx.Commit()
 }
@@ -379,6 +394,7 @@ A: 1) Remove context from struct, 2) Add context parameter to methods, 3) Update
 ## Summary
 
 **containedctx** is a **valuable linter** that enforces proper Go context usage patterns. It prevents:
+
 - Unclear context lifetimes
 - Testing difficulties
 - Potential goroutine leaks

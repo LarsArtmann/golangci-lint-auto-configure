@@ -32,6 +32,7 @@ for _, val := range values {
 ### Detection Behavior
 
 The linter identifies:
+
 - **Exact copies**: `v := v`
 - **Index copies**: `i := i`
 - **Variable renaming**: `_v := v`, `item := v`
@@ -82,7 +83,7 @@ With `check-alias: true`, it additionally flags aliased copies where the copy va
 linters:
   settings:
     copyloopvar:
-      check-alias: false  # Default: false
+      check-alias: false # Default: false
 ```
 
 ```yaml
@@ -103,6 +104,7 @@ When `true`: Also flags renamed copies (`_v := v`, `item := v`)
 ### Example Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # .golangci.yml
 version: "2"
@@ -111,10 +113,11 @@ linters:
     - copyloopvar
   settings:
     copyloopvar:
-      check-alias: true  # Catches more cases
+      check-alias: true # Catches more cases
 ```
 
 #### ✅ Minimal Configuration
+
 ```yaml
 # .golangci.yml
 version: "2"
@@ -125,6 +128,7 @@ linters:
 ```
 
 #### ✅ With Go Version Build Tags (Explicit)
+
 ```yaml
 # .golangci.yml
 version: "2"
@@ -143,14 +147,14 @@ linters:
 
 ### ✅ Complementary Linters
 
-| Linter | Relationship | Benefit |
-|--------|--------------|---------|
-| **`govet` (copylocks)** | Complementary | Both catch closure/scoping issues; no overlap |
-| **`staticcheck`** | Complementary | Different focus areas; can run together |
-| **`gocritic`** | Compatible | Different categories of issues |
-| **`ineffassign`** | Compatible | Both flag unused assignments |
-| **`wastedassign`** | Compatible | Similar goals, different detection targets |
-| **`paralleltest`** | Synergistic | For tests using `t.Parallel()` with range loops |
+| Linter                  | Relationship  | Benefit                                         |
+| ----------------------- | ------------- | ----------------------------------------------- |
+| **`govet` (copylocks)** | Complementary | Both catch closure/scoping issues; no overlap   |
+| **`staticcheck`**       | Complementary | Different focus areas; can run together         |
+| **`gocritic`**          | Compatible    | Different categories of issues                  |
+| **`ineffassign`**       | Compatible    | Both flag unused assignments                    |
+| **`wastedassign`**      | Compatible    | Similar goals, different detection targets      |
+| **`paralleltest`**      | Synergistic   | For tests using `t.Parallel()` with range loops |
 
 ### ❌ No Conflicts
 
@@ -176,6 +180,7 @@ for _, v := range items {
 ### Real-World Detection Examples
 
 **Before (Go < 1.22 workaround):**
+
 ```go
 // cmd/process.go
 func processItems(items []Item) []func() {
@@ -191,6 +196,7 @@ func processItems(items []Item) []func() {
 ```
 
 **After (Go 1.22+ with copyloopvar):**
+
 ```go
 // cmd/process.go
 func processItems(items []Item) []func() {
@@ -206,6 +212,7 @@ func processItems(items []Item) []func() {
 ```
 
 **Linter Output:**
+
 ```
 cmd/process.go:6:3: The copy of the 'for' variable "item" can be deleted (Go 1.22+)
 ```

@@ -94,6 +94,7 @@ func process(items []Item) {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **All Go projects** - govet is Go's standard vet tool
 - **Production applications** - Essential for catching bugs before deployment
 - **Libraries and APIs** - Ensures correct method signatures
@@ -103,29 +104,34 @@ func process(items []Item) {
 **Specific Scenarios:**
 
 **1. All Production Code**
+
 - Any code deployed to production
 - User-facing applications
 - Services with SLA requirements
 
 **2. Code with Struct Tags**
+
 - JSON encoding/decoding
 - YAML configuration parsing
 - XML serialization
 - Database ORM models
 
 **3. Printf/Logging Code**
+
 - Custom logging functions
 - Formatted output
 - Debug print statements
 - Error message formatting
 
 **4. Interface and Method Code**
+
 - Public APIs
 - Interface implementations
 - Method definitions
 - Receiver types
 
 **5. Control Flow**
+
 - Complex conditional logic
 - Loop constructs
 - Error handling paths
@@ -135,6 +141,7 @@ func process(items []Item) {
 **Specific Scenarios:**
 
 **1. Code with Known False Positives**
+
 ```yaml
 # Only when absolutely necessary and documented
 issues:
@@ -144,6 +151,7 @@ issues:
 ```
 
 **2. Test Files (Rarely Needed)**
+
 ```yaml
 # govet usually doesn't need exclusion for tests
 # Only if using specific test patterns that trigger false positives
@@ -154,6 +162,7 @@ issues:
 ```
 
 **3. Generated Code**
+
 ```yaml
 run:
   skip-dirs:
@@ -237,38 +246,49 @@ linters:
 ### Key Analyzer Options
 
 **Atomic**
+
 - Checks for common mistakes using sync/atomic
 
 **Bools**
+
 - Checks for misuse of booleans
 
 **Composite**
+
 - Checks for unkeyed composite literals
 
 **Copylocks**
+
 - Checks for locks being copied by value
 
 **Fieldalignment**
+
 - Checks for wasted space due to struct field alignment
 
 **Printf**
+
 - Checks for consistent formatting of printf-style functions
 
 **Shadow**
+
 - Checks for variable shadowing
 
 **Structtag**
+
 - Checks that struct field tags have correct format
 
 **Unreachable**
+
 - Checks for unreachable code
 
 **Unsafe**
+
 - Checks for misuse of unsafe.Pointer
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most production applications
 version: "2"
@@ -287,6 +307,7 @@ linters:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # Security-critical, high-quality standards
 version: "2"
@@ -297,6 +318,7 @@ linters:
 ```
 
 #### ✅ Performance-Focused Configuration
+
 ```yaml
 # Performance-critical applications
 version: "2"
@@ -311,6 +333,7 @@ linters:
 ```
 
 #### ✅ Minimal Configuration
+
 ```yaml
 # Use only default analyzers
 version: "2"
@@ -325,36 +348,38 @@ linters:
 
 govet works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
+| Linter          | Relationship  | Value                                          |
+| --------------- | ------------- | ---------------------------------------------- |
 | **staticcheck** | Complementary | govet: AST-level, staticcheck: deeper analysis |
-| **errcheck** | Complementary | govet: Printf, errcheck: all errors |
-| **gosec** | Complementary | govet: unsafe pointers, gosec: security |
-| **nilerr** | Complementary | govet: nil issues, nilerr: nil returns |
-| **bodyclose** | Complementary | govet: resource leaks, bodyclose: HTTP bodies |
-| **goconst** | Complementary | govet: Printf, goconst: repeated strings |
+| **errcheck**    | Complementary | govet: Printf, errcheck: all errors            |
+| **gosec**       | Complementary | govet: unsafe pointers, gosec: security        |
+| **nilerr**      | Complementary | govet: nil issues, nilerr: nil returns         |
+| **bodyclose**   | Complementary | govet: resource leaks, bodyclose: HTTP bodies  |
+| **goconst**     | Complementary | govet: Printf, goconst: repeated strings       |
 
 **Complete Analysis Suite:**
+
 ```yaml
 linters:
   enable:
-    - govet           # Standard Go vet (CRITICAL)
-    - staticcheck      # Advanced analysis (CRITICAL)
-    - errcheck         # Error handling (CRITICAL)
-    - gosec            # Security (CRITICAL)
-    - nilerr           # Nil errors (CRITICAL)
-    - bodyclose         # Resource leaks (HIGH)
+    - govet # Standard Go vet (CRITICAL)
+    - staticcheck # Advanced analysis (CRITICAL)
+    - errcheck # Error handling (CRITICAL)
+    - gosec # Security (CRITICAL)
+    - nilerr # Nil errors (CRITICAL)
+    - bodyclose # Resource leaks (HIGH)
 ```
 
 ### 🔒 Minimal Overlap, No Conflicts
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
-| govet + **staticcheck** | Some Printf overlap | Use both - complementary |
-| govet + **revive** | Some style overlap | Use both - different focus |
-| govet + **errcheck** | Some error overlap | Use both - errcheck is more comprehensive |
+| Linter                  | Overlap             | Recommendation                            |
+| ----------------------- | ------------------- | ----------------------------------------- |
+| govet + **staticcheck** | Some Printf overlap | Use both - complementary                  |
+| govet + **revive**      | Some style overlap  | Use both - different focus                |
+| govet + **errcheck**    | Some error overlap  | Use both - errcheck is more comprehensive |
 
 **Why No Conflicts:**
+
 - govet: Standard Go tooling, AST-level analysis
 - staticcheck: Deeper analysis, more checks
 - Each linter covers different aspects of code correctness
@@ -494,6 +519,7 @@ func process(x int) int {
 **Problem:** Struct tags incorrect, JSON marshaling fails.
 
 **Solution:** Use structtag analyzer.
+
 ```yaml
 linters:
   settings:
@@ -507,6 +533,7 @@ linters:
 **Problem:** Wrong format strings cause runtime panics.
 
 **Solution:** Use printf analyzer.
+
 ```yaml
 linters:
   settings:
@@ -520,6 +547,7 @@ linters:
 **Problem:** Locks copied by value cause deadlocks.
 
 **Solution:** Use copylocks analyzer.
+
 ```yaml
 linters:
   settings:
@@ -533,6 +561,7 @@ linters:
 **Problem:** Poor struct alignment wastes memory and CPU cache.
 
 **Solution:** Use fieldalignment analyzer.
+
 ```yaml
 linters:
   settings:
@@ -559,6 +588,7 @@ linters:
 **Recommendation:** **ALWAYS ENABLE** with recommended analyzers (atomic, copylocks, fieldalignment, printf, shadow, structtag). Combine with **staticcheck** for deeper analysis. Use with **errcheck** for complete error handling. Part of standard Go development workflow (`go vet`, `go test`, `go build`).
 
 **Top 3 Analyzers to Enable:**
+
 1. **structtag** - Validates JSON/XML/YAML tags
 2. **printf** - Catches format string bugs
 3. **copylocks** - Prevents lock-related bugs

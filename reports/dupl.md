@@ -7,6 +7,7 @@
 ### The Problem It Detects
 
 Code duplication leads to several problems:
+
 - **Maintenance burden**: Bugs must be fixed in multiple places
 - **Inconsistent fixes**: Changes might be applied inconsistently across duplicates
 - **Increased code size**: Larger codebases are harder to understand and navigate
@@ -189,6 +190,7 @@ func processRefund(orderID string) error {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **Large codebases** (>10K lines) - Duplication accumulates over time
 - **Team projects** (>3 developers) - Multiple contributors increase copy-paste risk
 - **Long-lived projects** (>1 year) - Code patterns repeat over time
@@ -196,6 +198,7 @@ func processRefund(orderID string) error {
 - **Enterprise applications** - Maintaining code quality is critical
 
 **Scenarios:**
+
 - **Code review process** - Catch duplicates before merge
 - **Refactoring initiatives** - Identify opportunities for consolidation
 - **Technical debt reduction** - Systematically eliminate duplication
@@ -203,6 +206,7 @@ func processRefund(orderID string) error {
 - **Onboarding new developers** - Encourage code reuse patterns
 
 **Development Phases:**
+
 - **Maintenance phase** - When codebase is stable and needs cleanup
 - **Codebase reviews** - Periodic audits for technical debt
 - **Feature development** - Prevent new duplicates from entering
@@ -211,6 +215,7 @@ func processRefund(orderID string) error {
 ### ❌ Disable For:
 
 **Project Types:**
+
 - **Small utilities** (<1K lines) - Overhead not justified
 - **Proof-of-concept code** - Speed over maintainability
 - **Prototypes** - Code likely to change significantly
@@ -218,6 +223,7 @@ func processRefund(orderID string) error {
 - **Scripts and one-offs** - Duplication may be intentional
 
 **Specific Scenarios:**
+
 - **Test files** - Tests naturally have repetitive structures
 - **Generated code** - Auto-generated code will always have patterns
 - **Migration scripts** - One-time code where duplication is acceptable
@@ -225,6 +231,7 @@ func processRefund(orderID string) error {
 - **Legacy code refactoring** - Too many violations to fix at once
 
 **Development Phases:**
+
 - **Initial development** - Focus on functionality first
 - **Spike solutions** - Experimental code where duplication is expected
 - **Emergency fixes** - Speed is critical over code quality
@@ -259,11 +266,13 @@ linters:
 - **Description**: Minimum number of tokens that must be duplicated for dupl to report an issue
 
 **Behavior:**
+
 - Lower threshold (50-100): Detects more duplicates but may have false positives
 - Default threshold (150): Balanced detection rate
 - Higher threshold (200+): Only reports substantial duplicates, fewer false positives
 
 **Guidelines:**
+
 - **100 tokens**: Good starting point for most projects
 - **150 tokens**: Default, works well for many codebases
 - **200+ tokens**: For large projects where only major duplicates matter
@@ -271,36 +280,40 @@ linters:
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most projects - balanced detection
 version: "2"
 linters:
   settings:
     dupl:
-      threshold: 100  # Detect medium to large duplicates
+      threshold: 100 # Detect medium to large duplicates
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # High-quality projects, fewer false positives acceptable
 version: "2"
 linters:
   settings:
     dupl:
-      threshold: 50  # Detect even small duplicates
+      threshold: 50 # Detect even small duplicates
 ```
 
 #### ✅ Relaxed Configuration
+
 ```yaml
 # Large legacy codebases, focus on major issues
 version: "2"
 linters:
   settings:
     dupl:
-      threshold: 200  # Only flag substantial duplicates
+      threshold: 200 # Only flag substantial duplicates
 ```
 
 #### ✅ Exclude Test Files
+
 ```yaml
 # Don't flag test duplication (intentionally repetitive)
 version: "2"
@@ -316,6 +329,7 @@ issues:
 ```
 
 #### ✅ Exclude Generated Code
+
 ```yaml
 # Skip generated files (will always have patterns)
 version: "2"
@@ -343,23 +357,24 @@ issues:
 
 dupl works well alongside:
 
-| Linter | Relationship | Benefit |
-|--------|--------------|---------|
-| **`gocritic`** | Complementary | gocritic has code simplification checks; dupl finds actual duplicates |
-| **`goconst`** | Complementary | goconst finds duplicate strings; dupl finds duplicate code sequences |
-| **`ineffassign`** | Complementary | Both detect code quality issues |
-| **`nolintlint`** | Process improvement | If you frequently use `//nolint:dupl`, consider raising threshold |
-| **`revive`** | Compatible | General style linter vs specific duplicate detection |
+| Linter            | Relationship        | Benefit                                                               |
+| ----------------- | ------------------- | --------------------------------------------------------------------- |
+| **`gocritic`**    | Complementary       | gocritic has code simplification checks; dupl finds actual duplicates |
+| **`goconst`**     | Complementary       | goconst finds duplicate strings; dupl finds duplicate code sequences  |
+| **`ineffassign`** | Complementary       | Both detect code quality issues                                       |
+| **`nolintlint`**  | Process improvement | If you frequently use `//nolint:dupl`, consider raising threshold     |
+| **`revive`**      | Compatible          | General style linter vs specific duplicate detection                  |
 
 **Complete Code Quality Suite:**
+
 ```yaml
 linters:
   enable:
-    - dupl          # Duplicate code detection
-    - goconst       # Duplicate strings
-    - gocritic      # Code simplifications
-    - ineffassign   # Ineffective assignments
-    - revive        # General code quality
+    - dupl # Duplicate code detection
+    - goconst # Duplicate strings
+    - gocritic # Code simplifications
+    - ineffassign # Ineffective assignments
+    - revive # General code quality
 
   settings:
     dupl:
@@ -729,10 +744,11 @@ threshold: 100  # Keep this level for ongoing development
 **Problem:** dupl flags many small code snippets that aren't worth refactoring.
 
 **Solution:** Increase the threshold.
+
 ```yaml
 linters-settings:
   dupl:
-    threshold: 200  # Only flag substantial duplicates
+    threshold: 200 # Only flag substantial duplicates
 ```
 
 ### Scenario 2: Test File Duplication
@@ -740,6 +756,7 @@ linters-settings:
 **Problem:** All test files are flagged because they use similar patterns.
 
 **Solution:** Exclude test files or use `//nolint:dupl`.
+
 ```yaml
 issues:
   exclude-rules:
@@ -752,6 +769,7 @@ issues:
 **Problem:** Protobuf-generated code is flagged as duplicate.
 
 **Solution:** Exclude generated directories.
+
 ```yaml
 run:
   skip-dirs:
@@ -771,6 +789,7 @@ issues:
 **Problem:** Business logic in different modules happens to be similar.
 
 **Solution:** Use `//nolint:dupl` with comment explaining why.
+
 ```go
 // These two functions look similar but serve different business purposes
 // The duplication is intentional to keep domain logic clear.
@@ -786,6 +805,7 @@ func processPaymentB(...) { ... }
 **Problem:** Enabling dupl shows 5000+ violations - impossible to fix all at once.
 
 **Solution:** Gradual approach.
+
 ```yaml
 # Phase 1: Start with high threshold (300)
 dupl:

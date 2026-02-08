@@ -11,7 +11,7 @@ import (
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
-// Options configures the client behavior
+// Options configures the client behavior.
 type Options struct {
 	// Logger to use for output. If nil, a default logger is created.
 	Logger *log.Logger
@@ -20,14 +20,14 @@ type Options struct {
 	Verbose bool
 }
 
-// Client provides a simplified API for golangci-lint configuration analysis
+// Client provides a simplified API for golangci-lint configuration analysis.
 type Client struct {
 	configLoader *config.Loader
 	analyzer     *linter.Analyzer
 	logger       *log.Logger
 }
 
-// New creates a new client with the given options
+// New creates a new client with the given options.
 func New(opts Options) *Client {
 	logger := opts.Logger
 	if logger == nil {
@@ -35,6 +35,7 @@ func New(opts Options) *Client {
 		if opts.Verbose {
 			logLevel = log.DebugLevel
 		}
+
 		logger = log.NewWithOptions(nil, log.Options{
 			Level: logLevel,
 		})

@@ -7,6 +7,7 @@
 ### The Concept
 
 Cyclomatic complexity (also known as McCabe complexity) counts:
+
 - The number of decision points (if, switch, loops)
 - Each adds branching paths through the code
 - Higher complexity = more paths = harder to test and maintain
@@ -16,7 +17,7 @@ Cyclomatic complexity (also known as McCabe complexity) counts:
 ### What It Measures
 
 - **Function complexity**: Measures paths within individual functions
-- **Package average**: Calculates average complexity across a package  
+- **Package average**: Calculates average complexity across a package
 - **Default threshold**: 10 (functions exceeding this are flagged)
 - **Repository**: https://github.com/bkielbasa/cyclop
 
@@ -63,6 +64,7 @@ func complex(x int) {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **Medium to large codebases** - Where complexity debt accumulates quickly
 - **Web APIs and microservices** - Maintainability is critical
 - **Long-term projects** - Code will be read more than written
@@ -71,6 +73,7 @@ func complex(x int) {
 - **Codebases with technical debt** - Measure and reduce complexity gradually
 
 **Team Scenarios:**
+
 - **Junior developers** - Provides guardrails against overly complex code
 - **Code reviews** - Objective metric for complexity discussions
 - **Refactoring efforts** - Identifies priority targets
@@ -78,6 +81,7 @@ func complex(x int) {
 - **Onboarding** - Simpler code is easier for new team members
 
 **Code Quality Goals:**
+
 - **Improved testability** - Simple functions are easier to unit test
 - **Better maintainability** - Less cognitive load to understand code
 - **Fewer bugs** - Complex code has more hiding spots for bugs
@@ -96,6 +100,7 @@ func complex(x int) {
 ### ❌ Consider Disabling For:
 
 **Project Types:**
+
 - **Small utility scripts** - Simplicity is inherent
 - **Prototypes and POCs** - Speed over maintainability
 - **One-off tools** - Won't be maintained long-term
@@ -103,6 +108,7 @@ func complex(x int) {
 - **Generated code** - Complexity is in the generator, not the output
 
 **Specific Scenarios:**
+
 - **Existing complexity linters** - If already using `gocyclo` or `gocognit` (redundant)
 - **Legacy codebases** - If refactoring is not planned
 - **Performance-critical code** - Sometimes complexity is necessary for performance
@@ -125,18 +131,18 @@ issues:
       - path: '(.+)_test\.go'
         linters:
           - cyclop
-      
+
       # Exclude generated code
       - path: '(.+)_generated\.go'
         linters:
           - cyclop
-      
+
       # Exclude specific complex but necessary functions
       - path: pkg/parser/compiler.go
         text: 'function .* has cyclomatic complexity \d+'
         linters:
           - cyclop
-      
+
       # Exclude specific known functions by name
       - linters: [cyclop]
         text: "function 'ComplexButNecessaryAlgorithm'"
@@ -167,7 +173,7 @@ linters:
     cyclop:
       # Maximum complexity allowed for a function (default: 10)
       max-complexity: 10
-      
+
       # Maximum average complexity for a package (default: 0, disabled)
       # Set to non-zero to enable package-level checking
       package-average: 0
@@ -175,64 +181,69 @@ linters:
 
 ### Configuration Options Explained
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `max-complexity` | `int` | `10` | Maximum complexity allowed for a function |
-| `package-average` | `int` | `0` | Maximum average complexity across a package (0 = disabled) |
+| Option            | Type  | Default | Description                                                |
+| ----------------- | ----- | ------- | ---------------------------------------------------------- |
+| `max-complexity`  | `int` | `10`    | Maximum complexity allowed for a function                  |
+| `package-average` | `int` | `0`     | Maximum average complexity across a package (0 = disabled) |
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most Go projects
 version: "2"
 linters:
   settings:
     cyclop:
-      max-complexity: 15  # Slightly more permissive than default
-      package-average: 0  # Focus on function-level initially
+      max-complexity: 15 # Slightly more permissive than default
+      package-average: 0 # Focus on function-level initially
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # Library code requiring high maintainability
 version: "2"
 linters:
   settings:
     cyclop:
-      max-complexity: 10        # Conservative limit per function
-      package-average: 8        # Enforce package-wide simplicity
+      max-complexity: 10 # Conservative limit per function
+      package-average: 8 # Enforce package-wide simplicity
 ```
 
 #### ✅ Relaxed Configuration
+
 ```yaml
 # Application code with complex business logic
 version: "2"
 linters:
   settings:
     cyclop:
-      max-complexity: 25        # Allow more complexity per function
-      package-average: 0        # Disable package checks
+      max-complexity: 25 # Allow more complexity per function
+      package-average: 0 # Disable package checks
 ```
 
 #### ✅ Progressive Configuration
+
 ```yaml
 # Start high and gradually lower as you refactor
 version: "2"
 linters:
   settings:
     cyclop:
-      max-complexity: 30        # Start high for existing code
+      max-complexity: 30 # Start high for existing code
 ```
 
 Then over time:
+
 ```yaml
 # Later, after refactoring
 version: "2"
 linters:
   settings:
     cyclop:
-      max-complexity: 20        # Lower as code improves
+      max-complexity: 20 # Lower as code improves
 ```
 
 ### Best Practices
@@ -250,6 +261,7 @@ linters:
 ### Complexity Preset
 
 cyclop is part of the `complexity` preset along with:
+
 - **`funlen`** - Function length limits
 - **`gocognit`** - Cognitive complexity
 - **`gocyclo`** - Cyclomatic complexity (alternative to cyclop)
@@ -259,6 +271,7 @@ cyclop is part of the `complexity` preset along with:
 ### ✅ Synergistic Combinations
 
 **Harmonious Configuration:**
+
 ```yaml
 # cyclop + funlen + maintidx = comprehensive complexity analysis
 linters:
@@ -266,25 +279,27 @@ linters:
     - cyclop
     - funlen
     - maintidx
-  
+
   settings:
     cyclop:
       max-complexity: 15
-    
+
     funlen:
       lines: 80
       statements: 50
-    
+
     maintidx:
-      under: 20  # High maintainability threshold
+      under: 20 # High maintainability threshold
 ```
 
 **Each linter measures different aspects:**
+
 - **cyclop**: Branching paths (if/switch/loops)
 - **funlen**: Physical size (lines/statements)
 - **maintidx**: Mix of complexity and size metrics
 
 **Example Synergy:**
+
 ```go
 // cyclop measures branching complexity
 // funlen measures function length
@@ -293,7 +308,7 @@ func processOrder(order Order) error { //nolint:funlen // Long but necessary
     if err := validateOrder(order); err != nil {
         return err
     }
-    
+
     switch order.Status {  // cyclop counts each case
     case StatusNew:
         if err := processNewOrder(order); err != nil {
@@ -310,35 +325,38 @@ func processOrder(order Order) error { //nolint:funlen // Long but necessary
     default:
         return fmt.Errorf("unknown status: %s", order.Status)
     }
-    
+
     return nil
 }
 ```
 
 ### ⚠️ Redundant Combinations
 
- **Avoid using cyclop + gocyclo**  : Both measure cyclomatic complexity in similar ways
+**Avoid using cyclop + gocyclo** : Both measure cyclomatic complexity in similar ways
+
 ```yaml
 # Don't do this - redundant
 linters:
   enable:
     - cyclop
-    - gocyclo  # ⛔ Measures the same thing
+    - gocyclo # ⛔ Measures the same thing
 ```
 
 **Pick one complexity linter:**
+
 - **cyclop**: Newer, actively maintained, with package-average feature
 - **gocyclo**: Older, widely used, simpler
 - **gocognit**: Measures cognitive complexity (different concept)
 
 **Better approach:**
+
 ```yaml
 # Choose cyclop OR gocyclo, not both
 linters:
   enable:
-    - cyclop       # Pick this one
+    - cyclop # Pick this one
     # - gocyclo    # Or this one, not both
-    - gocognit     # This is different - can include
+    - gocognit # This is different - can include
 ```
 
 ### 📊 Performance Impact
@@ -358,15 +376,15 @@ func processOrder(order Order) error {
     if order == nil {
         return errors.New("nil order")
     }
-    
+
     if order.Total <= 0 {
         return errors.New("invalid total")
     }
-    
+
     if order.CustomerID == "" {
         return errors.New("missing customer")
     }
-    
+
     switch order.Status {
     case StatusNew:
         if err := chargePayment(order); err != nil {
@@ -383,7 +401,7 @@ func processOrder(order Order) error {
     default:
         return fmt.Errorf("invalid status: %s", order.Status)
     }
-    
+
     return nil
 }
 ```
@@ -394,7 +412,7 @@ func processOrder(order Order) error {
     if err := validateOrder(order); err != nil {
         return err
     }
-    
+
     return processOrderByStatus(order)
 }
 
@@ -431,7 +449,7 @@ func parseExpression(tokens []Token) (ASTNode, error) { //nolint:cyclop // Parse
     if len(tokens) == 0 {
         return nil, errors.New("empty tokens")
     }
-    
+
     switch tokens[0].Type {
     case TokenNumber:
         return parseNumber(tokens)
@@ -476,7 +494,7 @@ linters:
   settings:
     cyclop:
       max-complexity: 15
-      package-average: 12  # Enable package-level checks
+      package-average: 12 # Enable package-level checks
 ```
 
 The linter will now additionally flag packages where the average complexity exceeds 12, encouraging distribution of complexity across multiple files/functions.
@@ -492,44 +510,44 @@ func handleCreateUser(w http.ResponseWriter, r *http.Request) { // Complex: 12
         http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
         return
     }
-    
+
     if r.Header.Get("Content-Type") != "application/json" {
         http.Error(w, "Invalid content type", http.StatusBadRequest)
         return
     }
-    
+
     body, err := io.ReadAll(r.Body)
     if err != nil {
         http.Error(w, "Failed to read body", http.StatusBadRequest)
         return
     }
-    
+
     var user User
     if err := json.Unmarshal(body, &user); err != nil {
         http.Error(w, "Invalid JSON", http.StatusBadRequest)
         return
     }
-    
+
     if user.Email == "" {
         http.Error(w, "Email required", http.StatusBadRequest)
         return
     }
-    
+
     if user.Name == "" {
         http.Error(w, "Name required", http.StatusBadRequest)
         return
     }
-    
+
     if err := validateEmail(user.Email); err != nil {
         http.Error(w, "Invalid email", http.StatusBadRequest)
         return
     }
-    
+
     if err := saveUser(r.Context(), &user); err != nil {
         http.Error(w, "Failed to create user", http.StatusInternalServerError)
         return
     }
-    
+
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(user)
@@ -537,6 +555,7 @@ func handleCreateUser(w http.ResponseWriter, r *http.Request) { // Complex: 12
 ```
 
 **Solution**: Extract validation logic
+
 ```go
 // ✅ Refactored - each function has complexity < 8
 func handleCreateUser(w http.ResponseWriter, r *http.Request) { // Complex: 6
@@ -544,18 +563,18 @@ func handleCreateUser(w http.ResponseWriter, r *http.Request) { // Complex: 6
         http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
         return
     }
-    
+
     user, err := parseAndValidateUser(r)
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
-    
+
     if err := saveUser(r.Context(), user); err != nil {
         http.Error(w, "Failed to create user", http.StatusInternalServerError)
         return
     }
-    
+
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(user)
@@ -565,21 +584,21 @@ func parseAndValidateUser(r *http.Request) (*User, error) { // Complex: 7
     if r.Header.Get("Content-Type") != "application/json" {
         return nil, errors.New("invalid content type")
     }
-    
+
     body, err := io.ReadAll(r.Body)
     if err != nil {
         return nil, errors.New("failed to read body")
     }
-    
+
     var user User
     if err := json.Unmarshal(body, &user); err != nil {
         return nil, errors.New("invalid JSON")
     }
-    
+
     if err := validateUser(&user); err != nil {
         return nil, err
     }
-    
+
     return &user, nil
 }
 
@@ -634,6 +653,7 @@ func processEvent(event Event) error { // Complex: 15
 ```
 
 **Solution**: Use a map-based dispatcher
+
 ```go
 // ✅ Refactored - dispatcher has complexity = 3
 func processEvent(event Event) error { // Complex: 3
@@ -681,6 +701,7 @@ func handleUserCreated(event Event) error { // Complex: 2
 ## Summary
 
 **cyclop** is a **valuable complexity metric linter** that helps maintain code quality by:
+
 - ✅ Identifying hard-to-maintain functions
 - ✅ Encouraging better code structure
 - ✅ Providing objective complexity measurement

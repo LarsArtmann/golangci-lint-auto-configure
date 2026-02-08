@@ -22,7 +22,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 )
 `
-	if err := os.WriteFile(filepath.Join(tempDir, "go.mod"), []byte(goMod), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tempDir, "go.mod"), []byte(goMod), 0o644); err != nil {
 		b.Fatalf("Failed to write go.mod: %v", err)
 	}
 
@@ -36,7 +36,7 @@ func main() {
 	r.Run()
 }
 `
-	if err := os.WriteFile(filepath.Join(tempDir, "main.go"), []byte(mainGo), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tempDir, "main.go"), []byte(mainGo), 0o644); err != nil {
 		b.Fatalf("Failed to write main.go: %v", err)
 	}
 
@@ -49,8 +49,7 @@ func BenchmarkDetector_Detect(b *testing.B) {
 
 	detector := NewDetector(tempDir)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = detector.Detect()
 	}
 }
@@ -61,8 +60,7 @@ func BenchmarkDetector_hasMainPackage(b *testing.B) {
 
 	detector := NewDetector(tempDir)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = detector.hasMainPackage()
 	}
 }
@@ -73,8 +71,7 @@ func BenchmarkDetector_analyzeGoMod(b *testing.B) {
 
 	detector := NewDetector(tempDir)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, _ = detector.analyzeGoMod()
 	}
 }
@@ -87,8 +84,7 @@ func BenchmarkGetRecommendedLinters(b *testing.B) {
 		ProjectTypeAPI,
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		for _, pt := range projectTypes {
 			_ = GetRecommendedLinters(pt)
 		}

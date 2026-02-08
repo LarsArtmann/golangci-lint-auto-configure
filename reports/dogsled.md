@@ -7,6 +7,7 @@
 ### The Problem It Detects
 
 When a function returns multiple values and you discard several with `_`, it can indicate:
+
 - You're ignoring important return values that should be handled
 - The API returns too many values and could be simplified
 - Code readability is suffering (lots of `_` reduces clarity)
@@ -41,6 +42,7 @@ a, b, c, err := getUserData()  // OK: no blank identifiers
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **Medium to large codebases** - Catch API design issues early
 - **Team environments** - Ensure all returned values are considered
 - **Libraries and APIs** - Discourage excessive return values
@@ -48,6 +50,7 @@ a, b, c, err := getUserData()  // OK: no blank identifiers
 - **Projects with code reviews** - Objective metric for review discussions
 
 **Scenarios:**
+
 - **API design reviews** - Too many blank identifiers suggests API could be simpler
 - **Error handling enforcement** - Ensure errors aren't discarded with `_`
 - **Code clarity improvements** - Reduce visual noise from multiple `_`
@@ -56,6 +59,7 @@ a, b, c, err := getUserData()  // OK: no blank identifiers
 ### ❌ Disable For:
 
 **Project Types:**
+
 - **Small utilities** - Flexibility is more important
 - **Proof-of-concept code** - Quick iteration is priority
 - **Generated code** - Auto-generated code often has many return values
@@ -63,6 +67,7 @@ a, b, c, err := getUserData()  // OK: no blank identifiers
 - **Interop/wrapper code** - May need to match external API signatures
 
 **Specific Scenarios:**
+
 - Working with **protocol buffer generated code** - Often has 3-4+ return values
 - **Database ORM methods** - Some ORMs return many values for rows
 - **Legacy code** - Refactoring would be too risky
@@ -98,6 +103,7 @@ linters:
 - **Description**: Maximum number of `_` allowed in assignment before triggering warning
 
 **Behavior:**
+
 - Setting of `2` means assignments with **3 or more** `_` will be flagged
 - Setting of `3` means assignments with **4 or more** `_` will be flagged
 - Setting of `1` means assignments with **2 or more** `_` will be flagged (very strict)
@@ -105,36 +111,40 @@ linters:
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most projects - catches most problematic cases
 version: "2"
 linters:
   settings:
     dogsled:
-      max-blank-identifiers: 2  # Flag 3+ blank identifiers
+      max-blank-identifiers: 2 # Flag 3+ blank identifiers
 ```
 
 #### ✅ Relaxed Configuration
+
 ```yaml
 # For codebases with legitimate multi-value returns
 version: "2"
 linters:
   settings:
     dogsled:
-      max-blank-identifiers: 3  # Flag 4+ blank identifiers
+      max-blank-identifiers: 3 # Flag 4+ blank identifiers
 ```
 
 #### ✅ Very Strict Configuration
+
 ```yaml
 # For teams wanting to minimize blank identifier usage
 version: "2"
 linters:
   settings:
     dogsled:
-      max-blank-identifiers: 1  # Flag 2+ blank identifiers
+      max-blank-identifiers: 1 # Flag 2+ blank identifiers
 ```
 
 #### ✅ Exclude Generated Code
+
 ```yaml
 # Essential for protobuf and generated code
 version: "2"
@@ -142,7 +152,7 @@ linters:
   settings:
     dogsled:
       max-blank-identifiers: 2
-  
+
   exclusions:
     rules:
       - path: (.+)_generated\.go
@@ -157,23 +167,24 @@ linters:
 
 dogsled works well alongside:
 
-| Linter | Relationship | Benefit |
-|--------|--------------|---------|
-| **`errcheck`** | Complementary | Both catch error handling issues; errcheck ensures errors are checked, dogsled catches when errors are discarded with `_` |
-| **`unused`** | Complementary | unused finds unused variables (when you should use a value), dogsled catches when you discard with `_` unnecessarily |
-| **`ineffassign`** | Compatible | Both catch assignment-related issues |
-| **`nolintlint`** | Process improvement | If you frequently have to `//nolint:dogsled`, it may indicate the API is problematic |
-| **`gocritic`** | Compatible | Checks different code quality aspects |
+| Linter            | Relationship        | Benefit                                                                                                                   |
+| ----------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **`errcheck`**    | Complementary       | Both catch error handling issues; errcheck ensures errors are checked, dogsled catches when errors are discarded with `_` |
+| **`unused`**      | Complementary       | unused finds unused variables (when you should use a value), dogsled catches when you discard with `_` unnecessarily      |
+| **`ineffassign`** | Compatible          | Both catch assignment-related issues                                                                                      |
+| **`nolintlint`**  | Process improvement | If you frequently have to `//nolint:dogsled`, it may indicate the API is problematic                                      |
+| **`gocritic`**    | Compatible          | Checks different code quality aspects                                                                                     |
 
 **Complete Assignment Quality Suite:**
+
 ```yaml
 linters:
   enable:
-    - dogsled        # Blank identifier usage
-    - errcheck       # Error checking
-    - unused         # Unused variables
-    - ineffassign    # Ineffective assignments
-    
+    - dogsled # Blank identifier usage
+    - errcheck # Error checking
+    - unused # Unused variables
+    - ineffassign # Ineffective assignments
+
   settings:
     dogsled:
       max-blank-identifiers: 2
@@ -196,7 +207,7 @@ func processUser(id string) error {
     if err != nil {
         return err
     }
-    
+
     return process(user)
 }
 
@@ -207,7 +218,7 @@ func processUser(id string) error {
     if err != nil {
         return err
     }
-    
+
     return process(user)
 }
 ```
@@ -239,7 +250,7 @@ linters:
   settings:
     dogsled:
       max-blank-identifiers: 2
-  
+
   exclusions:
     rules:
       - path: (.+)_pb\.go
@@ -255,7 +266,7 @@ linters:
 func getUserName(id string) (string, error) {
     var name string
     row := db.QueryRow("SELECT id, name, email, created_at, updated_at FROM users WHERE id = ?", id)
-    
+
     // 3 blank identifiers - might be legitimate or API could be better
     err := row.Scan(&name, _, _, _, _)  // dogsled: 3 blank identifiers
     return name, err
@@ -265,7 +276,7 @@ func getUserName(id string) (string, error) {
 func getUserName(id string) (string, error) {
     var name string
     row := db.QueryRow("SELECT name FROM users WHERE id = ?", id)
-    
+
     err := row.Scan(&name)  // OK: no blank identifiers
     return name, err
 }
@@ -286,7 +297,7 @@ func CreateTestUser(t *testing.T) (*User, string, string, string, string) {
 // In test:
 func TestUser(t *testing.T) {
     user, _, _, _, _ := CreateTestUser(t)  // dogsled: 4 blank identifiers
-    
+
     // Only use user in test
     assert.Equal(t, "test@example.com", user.Email)
 }
@@ -323,7 +334,7 @@ func processFile(path string) error {
         return err
     }
     defer f.Close()
-    
+
     return process(f)
 }
 
@@ -342,7 +353,7 @@ func processFile(path string) error {
         return err
     }
     defer f.Close()
-    
+
     return process(f)
 }
 ```

@@ -8,5 +8,6 @@ var version = "dev"
 
 func main() {
 	cli.Version = version
+
 	cli.Main()
 }

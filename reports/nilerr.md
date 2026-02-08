@@ -18,6 +18,7 @@ func getData() (*Data, error) {
 ```
 
 **Why This is Critical:**
+
 - **Contract violation** - Go convention: error != nil should imply value is valid
 - **Nil pointer panics** - Caller dereferences nil pointer expecting valid data
 - **Hard to debug** - Error is checked, so panic happens later in code
@@ -108,6 +109,7 @@ func fetchUser(id int) (*User, error) {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **All Go applications** - Error handling is fundamental to Go
 - **Production systems** - Prevents runtime panics
 - **APIs and services** - Ensures error contracts are followed
@@ -118,6 +120,7 @@ func fetchUser(id int) (*User, error) {
 **Specific Scenarios:**
 
 **1. All Functions Returning (T, error)**
+
 - Database operations
 - File I/O operations
 - Network calls
@@ -125,22 +128,26 @@ func fetchUser(id int) (*User, error) {
 - API handlers
 
 **2. Codebases with Multiple Developers**
+
 - Prevents this subtle bug pattern
 - Enforces Go error conventions
 - Code review quality
 
 **3. Error-Intensive Code**
+
 - Many error-prone operations
 - Complex error handling chains
 - Multiple error sources
 
 **4. APIs with Error Contracts**
+
 - Public libraries
 - SDKs for external services
 - Framework code
 - Plugin systems
 
 **5. Production-Critical Systems**
+
 - Financial applications
 - Healthcare software
 - Security systems
@@ -151,6 +158,7 @@ func fetchUser(id int) (*User, error) {
 **Specific Scenarios:**
 
 **1. Code Not Returning (T, error)**
+
 ```yaml
 # Functions with different return signatures
 linters:
@@ -168,6 +176,7 @@ linters-settings:
 ```
 
 **2. Test Files (May Intentionally Violate)**
+
 ```yaml
 issues:
   exclude-rules:
@@ -176,6 +185,7 @@ issues:
 ```
 
 **3. Generated Code**
+
 ```yaml
 run:
   skip-dirs:
@@ -227,6 +237,7 @@ linters:
 - **Description**: Check functions returning `(T, error)`
 
 **When to Disable:**
+
 - Functions with different return signatures
 - Code that doesn't return errors
 
@@ -247,17 +258,19 @@ linters:
 **Format:** Regular expression patterns
 
 **Examples:**
+
 ```yaml
 exclude-functions:
-  - (.*Test).*      # Exclude test functions
-  - (.*Mock).*      # Exclude mock functions
-  - (.*Example).*   # Exclude example functions
+  - (.*Test).* # Exclude test functions
+  - (.*Mock).* # Exclude mock functions
+  - (.*Example).* # Exclude example functions
   - (.*Benchmark).* # Exclude benchmarks
 ```
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most production applications
 version: "2"
@@ -274,6 +287,7 @@ issues:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # Security-critical, high-quality standards
 version: "2"
@@ -290,6 +304,7 @@ issues:
 ```
 
 #### ✅ Focused Configuration
+
 ```yaml
 # Only check return values (most common issue)
 version: "2"
@@ -300,6 +315,7 @@ linters:
 ```
 
 #### ✅ Exclude Test Functions
+
 ```yaml
 # Test code may intentionally violate
 version: "2"
@@ -323,28 +339,29 @@ issues:
 
 nilerr works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **errcheck** | Complementary | errcheck: errors not checked, nilerr: wrong error/return combinations |
-| **nilnil** | Complementary | nilnil: simultaneous nil error/value, nilerr: nil value with error |
-| **nilnesserr** | Complementary | nilnesserr: impossible nil combinations, nilerr: wrong return patterns |
-| **staticcheck** | Complementary | staticcheck: SA5011 nil deref, nilerr: nil return with error |
-| **govet** | Complementary | govet: nil dereference, nilerr: error/return contract |
-| **errorlint** | Complementary | errorlint: error wrapping, nilerr: error handling correctness |
-| **wrapcheck** | Complementary | wrapcheck: external error wrapping, nilerr: error return correctness |
+| Linter          | Relationship  | Value                                                                  |
+| --------------- | ------------- | ---------------------------------------------------------------------- |
+| **errcheck**    | Complementary | errcheck: errors not checked, nilerr: wrong error/return combinations  |
+| **nilnil**      | Complementary | nilnil: simultaneous nil error/value, nilerr: nil value with error     |
+| **nilnesserr**  | Complementary | nilnesserr: impossible nil combinations, nilerr: wrong return patterns |
+| **staticcheck** | Complementary | staticcheck: SA5011 nil deref, nilerr: nil return with error           |
+| **govet**       | Complementary | govet: nil dereference, nilerr: error/return contract                  |
+| **errorlint**   | Complementary | errorlint: error wrapping, nilerr: error handling correctness          |
+| **wrapcheck**   | Complementary | wrapcheck: external error wrapping, nilerr: error return correctness   |
 
 **Complete Error Handling Suite:**
+
 ```yaml
 linters:
   enable:
-    - errcheck        # Unchecked errors (CRITICAL)
-    - nilerr          # Nil value with error (CRITICAL)
-    - nilnil          # Simultaneous nil error/value (MEDIUM)
-    - nilnesserr      # Impossible nils (MEDIUM)
-    - staticcheck      # Deep analysis (CRITICAL)
-    - govet           # Standard vet (CRITICAL)
-    - errorlint       # Error wrapping (HIGH)
-    - wrapcheck       # External error wrapping (HIGH)
+    - errcheck # Unchecked errors (CRITICAL)
+    - nilerr # Nil value with error (CRITICAL)
+    - nilnil # Simultaneous nil error/value (MEDIUM)
+    - nilnesserr # Impossible nils (MEDIUM)
+    - staticcheck # Deep analysis (CRITICAL)
+    - govet # Standard vet (CRITICAL)
+    - errorlint # Error wrapping (HIGH)
+    - wrapcheck # External error wrapping (HIGH)
 ```
 
 ### Example of Linter Synergy
@@ -561,6 +578,7 @@ func buildResponse(data string) (*Response, error) {
 **Problem:** Common pattern where query fails but nil is returned.
 
 **Solution:** Always return nil, err together.
+
 ```go
 // ❌ Wrong pattern
 user, err := db.Query(id)
@@ -582,6 +600,7 @@ return user, nil  // Correct: user valid only when err == nil
 **Problem:** Early validation returns partial object, later returns error.
 
 **Solution:** Return nil, nil in early returns, or validate all before returning.
+
 ```go
 // ❌ Bug: Partial object returned with error
 func validate(user *User) (*User, error) {
@@ -626,6 +645,7 @@ func validate(user *User) (*User, error) {
 **Problem:** Retry loop with nil return on error.
 
 **Solution:** Ensure all returns from retry follow convention.
+
 ```go
 // ❌ Bug: Return nil on last retry error
 func fetchWithRetry(url string) ([]byte, error) {
@@ -647,6 +667,7 @@ func fetchWithRetry(url string) ([]byte, error) {
 **Problem:** Complex conditionals cause return pattern violation.
 
 **Solution:** Simplify logic, ensure all error paths return nil value.
+
 ```go
 // ❌ Bug: Conditional return violates convention
 func processData(input string) (*Result, error) {
@@ -670,6 +691,7 @@ func processData(input string) (*Result, error) {
 **Problem:** Test mocks intentionally violate convention.
 
 **Solution:** Exclude test files.
+
 ```yaml
 issues:
   exclude-rules:
@@ -694,6 +716,7 @@ issues:
 **Recommendation:** **ALWAYS ENABLE** for all Go code returning (T, error). Follow **Go error convention**: return `(nil, err)` when error is non-nil (value can be nil or non-nil), return `(value, nil)` when error is nil. Combine with **errcheck** for complete error handling coverage. Exclude test files (`(.+)_test\.go`) if needed. Use **helper functions** to ensure consistent error handling patterns across codebase.
 
 **Top 3 Guidelines:**
+
 1. Never return non-nil value with non-nil error
 2. Always return nil value when error is nil
 3. Return nil, err (nil error, nil value) only when both are nil

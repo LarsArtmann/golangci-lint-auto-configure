@@ -3,6 +3,7 @@
 ## What the Linter Does
 
 **depguard** controls which packages can be imported in your Go code. It allows you to create rules that:
+
 - **Block deprecated or unmaintained packages**
 - **Enforce architectural boundaries** (prevent circular dependencies)
 - **Guide teams toward preferred alternatives**
@@ -22,6 +23,7 @@
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **Large codebases** with multiple teams needing architectural boundaries
 - **Enterprise projects** requiring standardized library choices
 - **Monorepos** where dependency consistency is critical
@@ -29,6 +31,7 @@
 - **Security-conscious applications** - Block vulnerable package versions
 
 **Scenarios:**
+
 - **Migrating between package versions** (e.g., `io/ioutil` → `io/os`)
 - **Enforcing architectural layers** - Prevent circular dependencies
 - **Blocking unmaintained packages** - e.g., `github.com/pkg/errors`
@@ -38,12 +41,14 @@
 ### ❌ Disable For:
 
 **Project Types:**
+
 - **Small, single-maintainer projects** - Flexibility is more valuable
 - **Open-source libraries** - Need to minimize dependencies
 - **Rapid prototyping/experimentation** - Package restrictions hinder productivity
 - **Research/academic code** - Need freedom to try different packages
 
 **Scenarios:**
+
 - **Early-stage startups** - Need to move fast and experiment
 - **Hackathon projects** - Quick iteration is priority
 - **Learning/exploration code** - Want to try various packages
@@ -76,6 +81,7 @@ linters:
 ### List Modes
 
 **`strict`** - **Whitelist approach**: ONLY packages in the `allow` list are permitted
+
 ```yaml
 rules:
   main:
@@ -88,6 +94,7 @@ rules:
 ```
 
 **`lax`** - **Blacklist approach**: All packages are allowed EXCEPT those in the `deny` list
+
 ```yaml
 rules:
   deprecated:
@@ -115,6 +122,7 @@ rules:
 ### Example Configurations
 
 #### ✅ Example 1: Block Deprecated Packages (Lax Mode)
+
 ```yaml
 # .golangci.yml
 version: "2"
@@ -127,7 +135,7 @@ linters:
           list-mode: lax
           files:
             - $all
-            - "!$test"  # Exclude test files (tests can use any packages)
+            - "!$test" # Exclude test files (tests can use any packages)
           allow:
             - $gostd
           deny:
@@ -142,6 +150,7 @@ linters:
 ```
 
 #### ✅ Example 2: Enforce Strict Dependencies
+
 ```yaml
 # .golangci.yml
 version: "2"
@@ -163,7 +172,7 @@ linters:
             - github.com/prometheus/client_golang/prometheus
             - go.uber.org/zap
           deny: []
-        
+
         # Test code - can use testing frameworks
         test_code:
           list-mode: strict
@@ -178,6 +187,7 @@ linters:
 ```
 
 #### ✅ Example 3: Architecture Layer Enforcement
+
 ```yaml
 # .golangci.yml
 version: "2"
@@ -194,7 +204,7 @@ linters:
           allow:
             - $gostd
             - github.com/myorg/domain
-        
+
         # Application layer - can access domain, limited infrastructure
         application:
           list-mode: strict
@@ -205,7 +215,7 @@ linters:
             - github.com/myorg/domain
             - github.com/myorg/application
             - github.com/myorg/shared
-        
+
         # Infrastructure layer - can access everything
         infrastructure:
           list-mode: lax
@@ -217,6 +227,7 @@ linters:
 ```
 
 #### ✅ Example 4: Prevent Specific Patterns
+
 ```yaml
 # .golangci.yml
 version: "2"
@@ -235,7 +246,7 @@ linters:
               desc: "use standard Go tests"
             - pkg: github.com/onsi/gomega
               desc: "use standard Go tests"
-        
+
         # Modern crypto in crypto package
         modern_crypto:
           list-mode: lax
@@ -246,7 +257,7 @@ linters:
               desc: "use crypto/sha256 for new code"
             - pkg: crypto/rsa
               desc: "consider crypto/ed25519 instead"
-        
+
         # No direct database in handlers
         no_direct_db:
           list-mode: lax
@@ -263,6 +274,7 @@ linters:
 ```
 
 #### ✅ Example 5: Block Specific Package Versions
+
 ```yaml
 # .golangci.yml
 version: "2"
@@ -287,19 +299,21 @@ linters:
 ### ✅ Complementary Linters
 
 **Perfect Partners:**
--  **`gci`** **/ `goimports` ** - Organize imports consistently while depguard controls what can be imported
--  **`gofmt` / `gofumpt`**  - Format imports and code alongside import restrictions
--  **`goconst`**  - Find repeated string literals (often package names) for constants
+
+- **`gci`** **/ `goimports` ** - Organize imports consistently while depguard controls what can be imported
+- **`gofmt` / `gofumpt`** - Format imports and code alongside import restrictions
+- **`goconst`** - Find repeated string literals (often package names) for constants
 
 **Complete Import Control Suite:**
+
 ```yaml
 linters:
   enable:
-    - depguard        # What packages can be imported
-    - gci            # How imports are formatted
-    - goconst        # Repeated strings for constants
-    - revive         # General style enforcement
-    
+    - depguard # What packages can be imported
+    - gci # How imports are formatted
+    - goconst # Repeated strings for constants
+    - revive # General style enforcement
+
   settings:
     gci:
       sections:
@@ -311,11 +325,13 @@ linters:
 ### ⚠️ Overlapping Linters
 
 **Related but Different:**
--  **`forbidigo`**  - Blocks specific **function calls** (e.g., `fmt.Printf`) rather than imports
--  **`importas`**  - Enforces import **aliases** but doesn't block packages
--  **`gomodguard`**  - Controls module dependencies (go.mod) vs. import statements
+
+- **`forbidigo`** - Blocks specific **function calls** (e.g., `fmt.Printf`) rather than imports
+- **`importas`** - Enforces import **aliases** but doesn't block packages
+- **`gomodguard`** - Controls module dependencies (go.mod) vs. import statements
 
 **Key Differences:**
+
 ```go
 // depguard blocks this:
 import "github.com/pkg/errors"  // Blocked: import not allowed
@@ -337,6 +353,7 @@ import errors "github.com/pkg/errors"  // Must use this alias
 ## Practical Migration Strategy
 
 ### Step 1: Start with Lax Mode (Blacklist)
+
 ```yaml
 # .golangci.yml
 rules:
@@ -348,6 +365,7 @@ rules:
 ```
 
 ### Step 2: Gradually Add More Rules
+
 ```yaml
 # Add more packages to deny list
 rules:
@@ -361,13 +379,14 @@ rules:
 ```
 
 ### Step 3: Enable Strict Mode for Critical Packages
+
 ```yaml
 # Add strict rules for specific packages
 rules:
   deprecated:
     list-mode: lax
     deny: [...]
-  
+
   internal:
     list-mode: strict
     files:
@@ -378,12 +397,14 @@ rules:
 ```
 
 ### Step 4: Document and Socialize
+
 - Document allowed packages in developer docs
 - Explain rationale for each restriction
 - Provide migration guides for blocked packages
 - Update onboarding materials
 
 ### Step 5: Monitor and Adjust
+
 - Review depguard violations in PRs
 - Adjust rules based on false positives
 - Add new rules as needed
@@ -399,16 +420,18 @@ rules:
 ## Common Pitfalls
 
 **❌ Don't do this:**
+
 ```yaml
 # Too restrictive - will block legitimate uses
 rules:
   strict:
     list-mode: strict
     allow:
-      - $gostd  # Only stdlib - too restrictive!
+      - $gostd # Only stdlib - too restrictive!
 ```
 
 **✅ Do this instead:**
+
 ```yaml
 # More reasonable - allows stdlib + organization packages
 rules:
@@ -422,6 +445,7 @@ rules:
 ```
 
 **❌ Don't do this:**
+
 ```yaml
 # No description - developers won't know why
 rules:
@@ -433,6 +457,7 @@ rules:
 ```
 
 **✅ Do this instead:**
+
 ```yaml
 # Clear description helps developers
 rules:

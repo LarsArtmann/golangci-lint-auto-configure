@@ -11,14 +11,14 @@ import (
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
-// Fixer provides functionality to fix golangci-lint configurations
+// Fixer provides functionality to fix golangci-lint configurations.
 type Fixer struct {
 	configLoader *config.Loader
 	analyzer     *Analyzer
 	logger       *log.Logger
 }
 
-// NewFixer creates a new fixer
+// NewFixer creates a new fixer.
 func NewFixer(logger *log.Logger, analyzer *Analyzer) *Fixer {
 	return &Fixer{
 		configLoader: config.NewLoader(logger),
@@ -27,7 +27,7 @@ func NewFixer(logger *log.Logger, analyzer *Analyzer) *Fixer {
 	}
 }
 
-// FixConfig fixes the golangci-lint configuration by enabling recommended linters
+// FixConfig fixes the golangci-lint configuration by enabling recommended linters.
 func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryRun bool) (*types.MigrationResult, error) {
 	f.logger.Infof("Loading configuration: %s", configPath)
 
@@ -37,6 +37,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	}
 
 	f.logger.Infof("Analyzing configuration...")
+
 	analysis, err := f.analyzer.AnalyzeConfig(configPath)
 	if err != nil {
 		return nil, errors.NewAnalysisError("failed to analyze config", configPath, err)
@@ -49,15 +50,15 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	deprecationFixes := 0
 	enableFixes := 0
 	messages := []string{}
-	
+
 	// Track all linters to ensure uniqueness in the final list
 	linterSet := make(map[string]bool)
-	
+
 	// Build set from existing enabled linters
 	for _, linter := range enabledLinters {
 		linterSet[linter] = true
 	}
-	
+
 	// Check for and replace deprecated linters
 	for _, linter := range enabledLinters {
 		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
@@ -73,7 +74,9 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 					f.logger.Infof("[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
 				} else {
 					f.logger.Infof("Replacing deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
+
 					linterSet[replacement.Replacement] = true
+
 					messages = append(messages, fmt.Sprintf("Replaced deprecated %s with %s: %s", linter, replacement.Replacement, replacement.Reason))
 				}
 			} else {
@@ -86,14 +89,14 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 			}
 		}
 	}
-	
+
 	for _, rec := range analysis.LinterRecommendations {
 		if rec.Priority < priority {
 			continue
 		}
 
 		lintName := rec.Name.String()
-		
+
 		// Check if this linter is deprecated and replace it with its successor
 		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(lintName)]; isDeprecated {
 			lintName = replacement.Replacement // Use the replacement name instead
@@ -105,11 +108,14 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 
 		if !isEnabled && !isDisabled {
 			enableFixes++ // Count the fix regardless of dry-run mode
+
 			if dryRun {
 				f.logger.Infof("[DRY-RUN] Would enable: %s (%s)", lintName, rec.Reason)
 			} else {
 				f.logger.Infof("Enabling: %s (%s)", lintName, rec.Reason)
+
 				linterSet[lintName] = true
+
 				messages = append(messages, fmt.Sprintf("Enabled %s: %s", lintName, rec.Reason))
 			}
 		}
@@ -119,6 +125,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 
 	if dryRun {
 		f.logger.Infof("[DRY-RUN] Would apply %d fixes", totalFixes)
+
 		return &types.MigrationResult{
 			Success:      true,
 			FixesApplied: totalFixes,
@@ -135,6 +142,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	}
 
 	f.logger.Infof("Creating backup...")
+
 	backupPath, err := f.configLoader.CreateBackup(configPath)
 	if err != nil {
 		return nil, errors.NewAnalysisError("failed to create backup", configPath, err)
@@ -150,6 +158,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	cfg.Linters.Disable = []string{}
 
 	f.logger.Infof("Saving configuration...")
+
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
 		return nil, errors.NewAnalysisError("failed to save config", configPath, err)
 	}

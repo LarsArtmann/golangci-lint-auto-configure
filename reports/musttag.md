@@ -104,6 +104,7 @@ type Product struct {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **REST/GraphQL APIs** - All API request/response types
 - **Web services** - HTTP JSON/XML payloads
 - **Configuration files** - JSON/YAML/TOML config parsing
@@ -114,30 +115,35 @@ type Product struct {
 **Specific Scenarios:**
 
 **1. JSON APIs**
+
 - REST endpoints
 - GraphQL resolvers
 - Webhook handlers
 - API request/response types
 
 **2. Configuration Files**
+
 - Application config (JSON/YAML)
 - Environment-specific configs
 - User preferences
 - Feature flags
 
 **3. Database Models**
+
 - PostgreSQL entities
 - MySQL models
 - MongoDB documents
 - Redis structures
 
 **4. XML Processing**
+
 - SOAP services
 - Sitemap generation
 - XML-based protocols
 - RSS feeds
 
 **5. YAML Processing**
+
 - Kubernetes manifests
 - Docker Compose files
 - CI/CD pipelines
@@ -148,6 +154,7 @@ type Product struct {
 **Specific Scenarios:**
 
 **1. Non-Serialized Structs**
+
 ```yaml
 # Structs used only in Go code
 linters:
@@ -156,10 +163,11 @@ linters:
 linters-settings:
   musttag:
     functions:
-      - go:.*  # Exclude Go-only functions
+      - go:.* # Exclude Go-only functions
 ```
 
 **2. Test Mocks**
+
 ```yaml
 issues:
   exclude-rules:
@@ -168,6 +176,7 @@ issues:
 ```
 
 **3. Protobuf/MessagePack**
+
 ```yaml
 # Using binary serialization instead of JSON/XML/YAML
 linters:
@@ -225,12 +234,14 @@ linters:
 **Format:** `package:Function` or `package:.*` (regex)
 
 **Built-in Functions (Default):**
+
 - `json:Marshal`, `json:MarshalIndent`, `json:Unmarshal`, `json:Decoder`
 - `xml:Marshal`, `xml:Unmarshal`, `xml:Decoder`
 - `yaml:Marshal`, `yaml:Unmarshal`
 - `toml:Marshal`, `toml:Unmarshal`
 
 **Custom Functions:**
+
 ```yaml
 functions:
   - json:.*
@@ -246,6 +257,7 @@ functions:
 - **Description**: List of tag names to require on fields
 
 **Common Tags:**
+
 - `json`
 - `xml`
 - `yaml`
@@ -254,6 +266,7 @@ functions:
 - `gorm` (ORM)
 
 **Example:**
+
 ```yaml
 tag-names:
   - json
@@ -263,6 +276,7 @@ tag-names:
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most production applications
 version: "2"
@@ -276,6 +290,7 @@ linters:
 ```
 
 #### ✅ JSON-Only Configuration
+
 ```yaml
 # REST APIs, JSON databases
 version: "2"
@@ -289,6 +304,7 @@ linters:
 ```
 
 #### ✅ Multiple Encoding Configuration
+
 ```yaml
 # Applications using JSON, XML, YAML
 version: "2"
@@ -306,6 +322,7 @@ linters:
 ```
 
 #### ✅ Exclude Test Files
+
 ```yaml
 version: "2"
 linters:
@@ -326,24 +343,25 @@ issues:
 
 musttag works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **govet** | Complementary | govet: general struct tag issues, musttag: missing tags |
-| **errchkjson** | Complementary | errchkjson: type validation, musttag: tag presence |
-| **staticcheck** | Complementary | staticcheck: deep analysis, musttag: tag requirement |
-| **gosec** | Complementary | gosec: security issues, musttag: data contract |
-| **tagalign** | Complementary | tagalign: formatting, musttag: presence |
-| **tagliatelle** | Complementary | tagliatelle: case validation, musttag: presence |
+| Linter          | Relationship  | Value                                                   |
+| --------------- | ------------- | ------------------------------------------------------- |
+| **govet**       | Complementary | govet: general struct tag issues, musttag: missing tags |
+| **errchkjson**  | Complementary | errchkjson: type validation, musttag: tag presence      |
+| **staticcheck** | Complementary | staticcheck: deep analysis, musttag: tag requirement    |
+| **gosec**       | Complementary | gosec: security issues, musttag: data contract          |
+| **tagalign**    | Complementary | tagalign: formatting, musttag: presence                 |
+| **tagliatelle** | Complementary | tagliatelle: case validation, musttag: presence         |
 
 **Complete Serialization Suite:**
+
 ```yaml
 linters:
   enable:
-    - musttag       # Tag enforcement (CRITICAL)
-    - errchkjson    # JSON type safety (CRITICAL)
-    - govet         # General vet (CRITICAL)
-    - staticcheck     # Deep analysis (CRITICAL)
-    - tagalign       # Tag formatting (HIGH)
+    - musttag # Tag enforcement (CRITICAL)
+    - errchkjson # JSON type safety (CRITICAL)
+    - govet # General vet (CRITICAL)
+    - staticcheck # Deep analysis (CRITICAL)
+    - tagalign # Tag formatting (HIGH)
 ```
 
 ### 🔒 No Conflicts
@@ -495,6 +513,7 @@ func UpdateUser(req UpdateUserRequest) error {
 **Problem:** Many existing structs don't have tags.
 
 **Solution:** Add tags systematically, starting with most-used structs.
+
 ```bash
 # Find structs used with encoding
 grep -r "json.Marshal\|xml.Marshal\|yaml.Marshal" ./...
@@ -508,6 +527,7 @@ grep -r "struct {" ./...
 **Problem:** Struct used with both JSON and XML.
 
 **Solution:** Use multiple tags.
+
 ```go
 type Product struct {
     ID    int    `json:"id" xml:"id,attr"`
@@ -521,6 +541,7 @@ type Product struct {
 **Problem:** Different API versions use different field names.
 
 **Solution:** Use tag aliases.
+
 ```go
 type User struct {
     ID    int    `json:"id" xml:"user-id"`           // v1 API
@@ -533,6 +554,7 @@ type User struct {
 **Problem:** Want to update only some fields.
 
 **Solution:** Use omitempty on all optional fields.
+
 ```go
 type UpdateUserRequest struct {
     ID      int    `json:"id"`
@@ -548,6 +570,7 @@ type UpdateUserRequest struct {
 **Problem:** Test structs flagged for missing tags.
 
 **Solution:** Exclude test files.
+
 ```yaml
 issues:
   exclude-rules:
@@ -572,6 +595,7 @@ issues:
 **Recommendation:** **ALWAYS ENABLE** for any code using JSON/XML/YAML/TOML encoding (REST APIs, GraphQL, configuration files). Ensure **all struct fields** used with encoding functions have appropriate tags matching the encoding package. Use **omitempty consistently** on optional fields. Combine with **errchkjson** for complete type safety. Exclude test files (`(.+)_test\.go`).
 
 **Top 3 Configuration Tips:**
+
 1. Match encoding package tags (use `json:` with json.Marshal)
 2. Use snake_case in JSON tags (Go field: Email, JSON tag: "email")
 3. Make all optional fields pointers with omitempty

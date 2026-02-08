@@ -2,7 +2,7 @@ package constants
 
 import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 
-// LinterPriorities maps linter names to their priority levels
+// LinterPriorities maps linter names to their priority levels.
 var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	// Critical linters - should ALWAYS be enabled
 	"loggercheck": types.LinterPriorityCritical,
@@ -56,7 +56,7 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	// All other linters default to Optional
 }
 
-// LinterReasons provides human-readable reasons for each linter recommendation
+// LinterReasons provides human-readable reasons for each linter recommendation.
 var LinterReasons = map[types.LinterName]string{
 	// Critical linters
 	"loggercheck": "Checks key value pairs for common logger libraries",
@@ -108,7 +108,7 @@ var LinterReasons = map[types.LinterName]string{
 	"paralleltest":  "Detects inappropriate usage of t.Parallel()",
 }
 
-// DefaultConfigFileNames is a list of default golangci-lint config file names
+// DefaultConfigFileNames is a list of default golangci-lint config file names.
 var DefaultConfigFileNames = []string{
 	".golangci.yml",
 	".golangci.yaml",
@@ -116,7 +116,7 @@ var DefaultConfigFileNames = []string{
 	".golangci.json",
 }
 
-// FormatterInfo provides metadata about formatters
+// FormatterInfo provides metadata about formatters.
 var FormatterInfo = map[types.FormatterName]types.FormatterInfo{
 	"gci": {
 		Name:        "gci",
@@ -150,7 +150,7 @@ var FormatterInfo = map[types.FormatterName]types.FormatterInfo{
 	},
 }
 
-// FormatterPriorities defines priority levels for formatters
+// FormatterPriorities defines priority levels for formatters.
 var FormatterPriorities = map[types.FormatterName]types.FormatterPriority{
 	// High priority - recommended for most projects
 	"gofumpt":   types.FormatterPriorityHigh,
@@ -158,7 +158,7 @@ var FormatterPriorities = map[types.FormatterName]types.FormatterPriority{
 	"goimports": types.FormatterPriorityMedium,
 }
 
-// FormatterReasons provides human-readable reasons for each formatter recommendation
+// FormatterReasons provides human-readable reasons for each formatter recommendation.
 var FormatterReasons = map[types.FormatterName]string{
 	"gofumpt":   "Enhanced Go formatting with stricter rules than gofmt",
 	"gofmt":     "Standard Go code formatting (consider gofumpt for stricter formatting)",
@@ -168,18 +168,18 @@ var FormatterReasons = map[types.FormatterName]string{
 	"swaggo":    "Formats Swagger/OpenAPI documentation comments",
 }
 
-// FormattersManagedByBuildFlow are formatters that should be run by buildflow, not golangci-lint
+// FormattersManagedByBuildFlow are formatters that should be run by buildflow, not golangci-lint.
 var FormattersManagedByBuildFlow = []types.FormatterName{
 	"goimports",
 	"gofumpt",
 }
 
-// RedundantFormatters are formatters that are superseded by other formatters
+// RedundantFormatters are formatters that are superseded by other formatters.
 var RedundantFormatters = map[types.FormatterName]string{
 	"gofmt": "redundant when gofumpt is enabled",
 }
 
-// DeprecatedLinters maps deprecated linter names to their recommended replacements
+// DeprecatedLinters maps deprecated linter names to their recommended replacements.
 var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 	"wsl": {
 		Replacement: "wsl_v5",
@@ -187,7 +187,7 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 	},
 }
 
-// PresetLinters defines linter sets for different configuration presets
+// PresetLinters defines linter sets for different configuration presets.
 var PresetLinters = map[string][]types.LinterName{
 	"minimal": {
 		"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
@@ -215,7 +215,7 @@ var PresetLinters = map[string][]types.LinterName{
 	},
 }
 
-// PresetDescriptions explains what each preset is for
+// PresetDescriptions explains what each preset is for.
 var PresetDescriptions = map[string]string{
 	"minimal":     "Essential linters only (5 linters) - Fastest, minimal false positives",
 	"standard":    "Recommended for most projects (12 linters) - Good balance",

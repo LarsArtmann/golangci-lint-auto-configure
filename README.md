@@ -82,9 +82,11 @@ golangci-linter-auto-configure configure --priority optional   # All linters
 
 **Automatic Deprecation Handling:**
 The tool automatically detects and replaces deprecated linters with their recommended successors:
+
 - `wsl` → `wsl_v5` (original wsl is deprecated since golangci-lint v2.2.0)
 
 **Safety Features:**
+
 - Creates backup before modifying (`.golangci.yml.backup`)
 - Preserves all custom settings
 - Idempotent - safe to run multiple times

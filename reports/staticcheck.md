@@ -8,24 +8,27 @@
 
 staticcheck includes three main components:
 
-1. **staticcheck (SA* checks)** - Advanced bug detection and performance issues
-2. **stylecheck (ST* checks)** - Code style improvements and common mistakes
-3. **gosimple (S* checks)** - Code simplifications and redundancies
+1. **staticcheck (SA\* checks)** - Advanced bug detection and performance issues
+2. **stylecheck (ST\* checks)** - Code style improvements and common mistakes
+3. **gosimple (S\* checks)** - Code simplifications and redundancies
 
 ### Core Capabilities
 
-**staticcheck (SA*):** Finds bugs, performance issues, and suspicious code:
+**staticcheck (SA\*):** Finds bugs, performance issues, and suspicious code:
+
 - SA1001-Sa1019: Security and correctness issues
 - SA2001-SA2099: Control flow and testing issues
 - SA3001-SA3099: Performance problems
 - SA4001-SA4029: Additional bug detection
 - SA5001-SA5011: Control flow issues
 
-**stylecheck (ST*):** Finds style issues and common mistakes:
+**stylecheck (ST\*):** Finds style issues and common mistakes:
+
 - ST1000-ST1021: Common mistakes and stylistic issues
 - ST1012-ST1019: Additional style checks
 
-**gosimple (S*):** Suggests code simplifications:
+**gosimple (S\*):** Suggests code simplifications:
+
 - S1001-S1037: Code simplifications
 - S1038-S1039: Additional simplifications
 
@@ -132,6 +135,7 @@ func sum(nums []int) int {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **All production applications** - Most critical linter after govet
 - **Public libraries and SDKs** - Ensures API correctness and security
 - **Security-sensitive code** - Catches deprecated crypto, insecure patterns
@@ -143,29 +147,34 @@ func sum(nums []int) int {
 **Specific Scenarios:**
 
 **1. Production Code**
+
 - Any code deployed to production
 - User-facing applications
 - Services with SLA requirements
 - Microservices and distributed systems
 
 **2. Public APIs**
+
 - Libraries consumed by other developers
 - SDKs for external services
 - Framework libraries
 - Public APIs with error handling contracts
 
 **3. Security-Critical Code**
+
 - Authentication and authorization logic
 - Cryptographic operations
 - Input validation and sanitization
 - File and network operations
 
 **4. Codebases with Legacy Code**
+
 - Identifies deprecated patterns
 - Points out security vulnerabilities
 - Suggests modern alternatives
 
 **5. High-Quality Standards**
+
 - Projects requiring strict code review
 - Codebases with automated testing
 - Teams focusing on technical debt reduction
@@ -175,6 +184,7 @@ func sum(nums []int) int {
 **Specific Scenarios:**
 
 **1. Generated Code**
+
 ```yaml
 run:
   skip-dirs:
@@ -189,11 +199,13 @@ issues:
 ```
 
 **2. Legacy Code in Migration**
+
 - When fixing issues would require complete rewrite
 - Gradual adoption approach: enable on new code only
 - Use path-based exclusions for legacy modules
 
 **3. Experimental/Unstable Code**
+
 - Code that may change significantly
 - Prototypes and proof-of-concepts
 - Research and spike solutions
@@ -246,6 +258,7 @@ linters:
 - **Description**: Control which staticcheck checks run
 
 **Format Options:**
+
 - `["all"]` - Enable all checks (recommended)
 - `["SA*"]` - All SA (staticcheck) checks
 - `["ST*"]` - All ST (stylecheck) checks
@@ -254,12 +267,13 @@ linters:
 - `["all", "-SA2001"]` - All except specific checks
 
 **Commonly Disabled Checks:**
+
 ```yaml
 checks:
   - all
-  - -SA1019  # Allow deprecated functions during migration
-  - -SA2006  # Allow printf-style in tests
-  - -ST1005  # Allow certain unused params
+  - -SA1019 # Allow deprecated functions during migration
+  - -SA2006 # Allow printf-style in tests
+  - -ST1005 # Allow certain unused params
 ```
 
 ### `initialisms` Option
@@ -269,6 +283,7 @@ checks:
 - **Description**: Capitalization of acronyms in comments (stylecheck only)
 
 **Example:**
+
 ```yaml
 initialisms:
   - API
@@ -285,6 +300,7 @@ initialisms:
 - **Description**: Allow specific packages to use dot imports
 
 **Example:**
+
 ```yaml
 dot-import-whitelist:
   - github.com/golang/protobuf/proto
@@ -294,6 +310,7 @@ dot-import-whitelist:
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most production applications
 version: "2"
@@ -311,6 +328,7 @@ issues:
 ```
 
 #### ✅ Relaxed Configuration
+
 ```yaml
 # Legacy codebases, gradual adoption
 version: "2"
@@ -319,9 +337,9 @@ linters:
     staticcheck:
       checks:
         - all
-        - -SA1019  # Allow deprecated functions
-        - -SA2006  # Allow printf in tests
-        - -ST1005  # Allow unused params in handlers
+        - -SA1019 # Allow deprecated functions
+        - -SA2006 # Allow printf in tests
+        - -ST1005 # Allow unused params in handlers
 
 issues:
   exclude-rules:
@@ -330,6 +348,7 @@ issues:
 ```
 
 #### ✅ Security-Focused Configuration
+
 ```yaml
 # Security-critical applications
 version: "2"
@@ -349,41 +368,43 @@ linters:
 
 staticcheck works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **govet** | Complementary | govet: AST-level, staticcheck: deeper analysis |
-| **errcheck** | Complementary | errcheck: unchecked errors, staticcheck: error handling correctness |
-| **gosec** | Complementary | gosec: security issues, staticcheck: deprecated/crypto |
-| **ineffassign** | Complementary | ineffassign: ineffective assignments, staticcheck: more comprehensive |
-| **gosimple** | Part of staticcheck | Already included in staticcheck |
-| **stylecheck** | Part of staticcheck | Already included in staticcheck |
-| **nilerr** | Complementary | nilerr: nil errors, staticcheck: SA5011 |
-| **revive** | Complementary | revive: style, staticcheck: advanced analysis |
-| **depguard** | Complementary | depguard: imports, staticcheck: code quality |
+| Linter          | Relationship        | Value                                                                 |
+| --------------- | ------------------- | --------------------------------------------------------------------- |
+| **govet**       | Complementary       | govet: AST-level, staticcheck: deeper analysis                        |
+| **errcheck**    | Complementary       | errcheck: unchecked errors, staticcheck: error handling correctness   |
+| **gosec**       | Complementary       | gosec: security issues, staticcheck: deprecated/crypto                |
+| **ineffassign** | Complementary       | ineffassign: ineffective assignments, staticcheck: more comprehensive |
+| **gosimple**    | Part of staticcheck | Already included in staticcheck                                       |
+| **stylecheck**  | Part of staticcheck | Already included in staticcheck                                       |
+| **nilerr**      | Complementary       | nilerr: nil errors, staticcheck: SA5011                               |
+| **revive**      | Complementary       | revive: style, staticcheck: advanced analysis                         |
+| **depguard**    | Complementary       | depguard: imports, staticcheck: code quality                          |
 
 **Complete Code Quality Suite:**
+
 ```yaml
 linters:
   enable:
-    - staticcheck      # Advanced analysis (CRITICAL)
-    - govet           # Standard vet (CRITICAL)
-    - errcheck         # Error handling (CRITICAL)
-    - gosec            # Security (CRITICAL)
-    - ineffassign      # Ineffective assignments (HIGH)
-    - nilerr           # Nil errors (CRITICAL)
-    - bodyclose        # Resource leaks (HIGH)
+    - staticcheck # Advanced analysis (CRITICAL)
+    - govet # Standard vet (CRITICAL)
+    - errcheck # Error handling (CRITICAL)
+    - gosec # Security (CRITICAL)
+    - ineffassign # Ineffective assignments (HIGH)
+    - nilerr # Nil errors (CRITICAL)
+    - bodyclose # Resource leaks (HIGH)
 ```
 
 ### 🔒 Minimal Overlap, No Conflicts
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
-| staticcheck + **gosimple** | Complete overlap | gosimple is part of staticcheck, don't enable separately |
-| staticcheck + **stylecheck** | Complete overlap | stylecheck is part of staticcheck, don't enable separately |
-| staticcheck + **errcheck** | SA5000 (unreachable) vs errcheck | Different focus, use both |
-| staticcheck + **govet** | Some AST analysis overlap | Use both - complementary |
+| Linter                       | Overlap                          | Recommendation                                             |
+| ---------------------------- | -------------------------------- | ---------------------------------------------------------- |
+| staticcheck + **gosimple**   | Complete overlap                 | gosimple is part of staticcheck, don't enable separately   |
+| staticcheck + **stylecheck** | Complete overlap                 | stylecheck is part of staticcheck, don't enable separately |
+| staticcheck + **errcheck**   | SA5000 (unreachable) vs errcheck | Different focus, use both                                  |
+| staticcheck + **govet**      | Some AST analysis overlap        | Use both - complementary                                   |
 
 **Why No Conflicts:**
+
 - staticcheck: Advanced deep analysis
 - govet: Standard Go vet checks
 - errcheck: Error handling completeness
@@ -501,15 +522,16 @@ func encrypt(password string) []byte {
 **Problem:** staticcheck reporting hundreds of findings in legacy code.
 
 **Solution:** Gradual adoption with exclusions.
+
 ```yaml
 # Start with critical issues only
 linters:
   settings:
     staticcheck:
       checks:
-        - SA1xxx  # Security issues
-        - SA5xxx  # Control flow
-        - SA4xxx  # Performance
+        - SA1xxx # Security issues
+        - SA5xxx # Control flow
+        - SA4xxx # Performance
 ```
 
 ### Scenario 2: False Positives in Tests
@@ -517,6 +539,7 @@ linters:
 **Problem:** Test code flagged for issues that don't apply.
 
 **Solution:** Exclude test files.
+
 ```yaml
 issues:
   exclude-rules:
@@ -529,13 +552,14 @@ issues:
 **Problem:** Code transitioning from old APIs to new ones.
 
 **Solution:** Temporarily disable specific checks.
+
 ```yaml
 linters:
   settings:
     staticcheck:
       checks:
         - all
-        - -SA1019  # Allow deprecated during migration
+        - -SA1019 # Allow deprecated during migration
 ```
 
 ### Scenario 4: Performance-Critical Code
@@ -543,6 +567,7 @@ linters:
 **Problem:** Need to catch all performance issues.
 
 **Solution:** Enable all SA4xxx performance checks.
+
 ```yaml
 linters:
   settings:
@@ -572,6 +597,7 @@ linters:
 **Recommendation:** **ALWAYS ENABLE** with `checks: ["all"]` for all production code. Exclude test files (`(.+)_test\.go`) and generated code. **Don't enable gosimple or stylecheck separately** as they're included. Combine with **govet**, **errcheck**, and **gosec** for comprehensive coverage. For large legacy codebases, consider gradual adoption with selective check enabling.
 
 **Top 3 Benefits:**
+
 1. Catches bugs that compile correctly but fail at runtime
 2. Identifies performance issues before they impact production
 3. Suggests code simplifications that improve maintainability

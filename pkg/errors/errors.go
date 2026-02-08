@@ -2,7 +2,7 @@ package errors
 
 import "fmt"
 
-// ConfigError represents a configuration-related error
+// ConfigError represents a configuration-related error.
 type ConfigError struct {
 	Message string
 	Path    string
@@ -13,10 +13,11 @@ func (e *ConfigError) Error() string {
 	if e.Cause != nil {
 		return fmt.Sprintf("%s (path: %s): %v", e.Message, e.Path, e.Cause)
 	}
+
 	return fmt.Sprintf("%s (path: %s)", e.Message, e.Path)
 }
 
-// NewConfigError creates a new configuration error
+// NewConfigError creates a new configuration error.
 func NewConfigError(msg, path string, err error) *ConfigError {
 	return &ConfigError{
 		Message: msg,
@@ -25,7 +26,7 @@ func NewConfigError(msg, path string, err error) *ConfigError {
 	}
 }
 
-// AnalysisError represents an analysis-related error
+// AnalysisError represents an analysis-related error.
 type AnalysisError struct {
 	Message string
 	File    string
@@ -36,10 +37,11 @@ func (e *AnalysisError) Error() string {
 	if e.Cause != nil {
 		return fmt.Sprintf("%s (file: %s): %v", e.Message, e.File, e.Cause)
 	}
+
 	return fmt.Sprintf("%s (file: %s)", e.Message, e.File)
 }
 
-// NewAnalysisError creates a new analysis error
+// NewAnalysisError creates a new analysis error.
 func NewAnalysisError(msg, file string, err error) *AnalysisError {
 	return &AnalysisError{
 		Message: msg,
@@ -48,7 +50,7 @@ func NewAnalysisError(msg, file string, err error) *AnalysisError {
 	}
 }
 
-// ReportError represents a report generation error
+// ReportError represents a report generation error.
 type ReportError struct {
 	Message string
 	Path    string
@@ -59,10 +61,11 @@ func (e *ReportError) Error() string {
 	if e.Cause != nil {
 		return fmt.Sprintf("%s (path: %s): %v", e.Message, e.Path, e.Cause)
 	}
+
 	return fmt.Sprintf("%s (path: %s)", e.Message, e.Path)
 }
 
-// NewReportError creates a new report error
+// NewReportError creates a new report error.
 func NewReportError(msg, path string, err error) *ReportError {
 	return &ReportError{
 		Message: msg,

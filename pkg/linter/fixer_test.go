@@ -31,12 +31,12 @@ var _ = Describe("Fixer", func() {
 
 	Context("Configuration Modification", func() {
 		It("should create backup before modification", func() {
-			configContent := fmt.Sprintf(`version: "2"
+			configContent := `version: "2"
 linters:
   enable:
     - gosec
     - errcheck
-`)
+`
 			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
 			result, err := fixer.FixConfig(testConfig, types.LinterPriorityCritical, true)

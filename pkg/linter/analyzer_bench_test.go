@@ -13,8 +13,7 @@ func BenchmarkAnalyzer_AnalyzeConfig(b *testing.B) {
 	// Find a real config to analyze
 	configPath := "../../.golangci.yml"
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := analyzer.AnalyzeConfig(configPath)
 		if err != nil {
 			b.Fatalf("AnalyzeConfig failed: %v", err)
@@ -28,6 +27,7 @@ func BenchmarkAnalyzer_GetLintersByPriority(b *testing.B) {
 
 	// Get real recommendations
 	configPath := "../../.golangci.yml"
+
 	analysis, err := analyzer.AnalyzeConfig(configPath)
 	if err != nil {
 		b.Fatalf("Setup failed: %v", err)
@@ -35,8 +35,7 @@ func BenchmarkAnalyzer_GetLintersByPriority(b *testing.B) {
 
 	recommendations := analysis.LinterRecommendations
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = analyzer.GetLintersByPriority(recommendations, 0)
 	}
 }
@@ -46,13 +45,13 @@ func BenchmarkAnalyzer_FormatRecommendations(b *testing.B) {
 	analyzer := NewAnalyzer(logger)
 
 	configPath := "../../.golangci.yml"
+
 	analysis, err := analyzer.AnalyzeConfig(configPath)
 	if err != nil {
 		b.Fatalf("Setup failed: %v", err)
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = analyzer.FormatRecommendations(analysis)
 	}
 }
@@ -62,6 +61,7 @@ func BenchmarkAnalyzer_categorizeLinters(b *testing.B) {
 	analyzer := NewAnalyzer(logger)
 
 	configPath := "../../.golangci.yml"
+
 	analysis, err := analyzer.AnalyzeConfig(configPath)
 	if err != nil {
 		b.Fatalf("Setup failed: %v", err)
@@ -69,8 +69,7 @@ func BenchmarkAnalyzer_categorizeLinters(b *testing.B) {
 
 	disabledLinters := analysis.DisabledLinters
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = analyzer.categorizeLinters(disabledLinters)
 	}
 }

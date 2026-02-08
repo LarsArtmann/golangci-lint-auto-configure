@@ -372,10 +372,12 @@ INFO Configuration is valid ✅
 **API Consumers: ⚠️ MINOR API CHANGES**
 
 New Methods Added:
+
 - `loader.FindOrGetDefaultConfigPath(startDir string) string` - Returns default path
 - `loader.CreateDefaultConfig() *Config` - Creates default configuration
 
 Modified Methods:
+
 - `analyzer.runLintersCommand(configPath string)` - Now requires config path
 - `analyzer.runFormattersCommand(configPath string)` - Now requires config path
 
@@ -402,6 +404,7 @@ Modified Methods:
 ## Dependencies
 
 No new dependencies added. Changes use only:
+
 - Go standard library (`os`, `path/filepath`)
 - Existing project dependencies
 - External: `golangci-lint` (already required)
@@ -413,24 +416,29 @@ No new dependencies added. Changes use only:
 ### Previous Work (Last 3 Commits)
 
 **1. Commit 64381ba** (Jan 26, 14:21)
+
 - Improved CI/CD workflow structure and formatting
 - Enhanced code readability and maintainability
 
 **2. Commit e51d820** (Jan 26, 10:41)
+
 - Massively expanded linter configuration (60+ new linters)
 - Applied consistent code formatting across codebase
 - Removed binary from repository
 
 **3. Commit 9d91c4b** (Jan 26, 09:24)
+
 - Wired version from ldflags into CLI package
 - Enabled build-time version injection
 
 **4. Commit 084af4e** (Jan 26, 09:23)
+
 - Integrated Go slog for structured logging
 - Added version support to CLI
 - Enhanced local installation workflow
 
 **5. Commit 0af3b67** (Earlier)
+
 - Implemented charmbracelet/fang integration
 - Fixed golangci-lint v2 schema compliance
 - Fixed critical `output.formats` schema validation bug

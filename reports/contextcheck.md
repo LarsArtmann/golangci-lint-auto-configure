@@ -7,12 +7,14 @@
 ### The Problem It Solves
 
 Proper context propagation is critical for:
+
 - **Request cancellation**: Allowing clients to cancel long-running operations
 - **Deadlines/timeouts**: Enforcing timeouts across call chains
 - **Request-scoped values**: Passing request IDs, authentication tokens, tracing spans
 - **Resource cleanup**: Ensuring proper cleanup when requests are cancelled
 
 When contexts aren't propagated, these features break, leading to:
+
 - Goroutine leaks from uncancellable operations
 - Resource exhaustion from orphaned requests
 - Broken distributed tracing
@@ -21,6 +23,7 @@ When contexts aren't propagated, these features break, leading to:
 ### How It Works
 
 The linter performs static analysis to:
+
 1. Identify functions that accept `context.Context` as a parameter
 2. Track calls from those functions to other functions
 3. Verify that called functions which accept contexts receive one
@@ -54,6 +57,7 @@ func processRequest(ctx context.Context, id string) error {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **Web APIs and HTTP servers** - Critical for request cancellation
 - **Microservices** - Distributed tracing and timeout propagation
 - **gRPC services** - Built-in context handling
@@ -63,6 +67,7 @@ func processRequest(ctx context.Context, id string) error {
 - **Database repositories** - Transaction timeout enforcement
 
 **Scenarios:**
+
 - High-traffic services where request cancellation is essential
 - Codebases with complex call chains
 - Projects using distributed tracing (OpenTelemetry, Jaeger)
@@ -82,12 +87,14 @@ func processRequest(ctx context.Context, id string) error {
 ### ❌ Consider Disabling For:
 
 **Project Types:**
+
 - Simple CLI tools with no network operations
 - Pure data processing without I/O
 - Scripts without concurrency
 - Single-purpose utilities with no call chains
 
 **Specific Scenarios:**
+
 - Legacy codebases where full refactoring is not feasible
 - Generated code (protobuf, mock generators, etc.)
 - Test code (often has different context management)
@@ -126,7 +133,7 @@ func backgroundTask(ctx context.Context) {
     // Create new context for background work
     newCtx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    
+
     go doWork(newCtx) //nolint:contextcheck // New background context
 }
 ```
@@ -147,6 +154,7 @@ linters:
 ### Recommended Configurations
 
 **Standard Web Service:**
+
 ```yaml
 version: "2"
 linters:
@@ -167,6 +175,7 @@ issues:
 ```
 
 **Microservice with Strict Enforcement:**
+
 ```yaml
 version: "2"
 linters:
@@ -176,27 +185,28 @@ linters:
     - noctx
     - containedctx
     - fatcontext
-    
+
     # HTTP correctness
     - bodyclose
     - canonicalheader
-    
+
     # Security & errors
     - gosec
     - errcheck
     - errorlint
     - wrapcheck
-    
+
 issues:
   # Maximum strictness
   exclude-use-default: false
-  
+
   exclude-rules:
     - linters: [contextcheck]
       path: (.+)_test\.go
 ```
 
 **API Client Library:**
+
 ```yaml
 version: "2"
 linters:
@@ -210,7 +220,7 @@ linters:
 issues:
   # Library code should be strict
   exclude-use-default: false
-  
+
   # Only exclude test helpers
   exclude-rules:
     - linters: [contextcheck]
@@ -230,12 +240,14 @@ issues:
 ### ✅ Synergistic Linters
 
 **Essential Combinations:**
+
 - **`noctx`**: Ensures HTTP requests have context - both validate context usage
 - **`containedctx`**: Prevents context in structs - comprehensive context safety
 - **`fatcontext`**: Detects nested contexts in loops - related context anti-patterns
 - **`bodyclose`**: HTTP response cleanup - independent but related to request handling
 
 **Complete HTTP Safety Suite:**
+
 ```yaml
 linters:
   enable:
@@ -244,21 +256,22 @@ linters:
     - noctx
     - containedctx
     - fatcontext
-    
+
     # HTTP correctness
     - bodyclose
     - canonicalheader
-    
+
     # Error handling
     - errcheck
     - errorlint
     - wrapcheck
-    
+
     # Security
     - gosec
 ```
 
 **Example Synergy:**
+
 ```go
 // contextcheck verifies we pass ctx to fetchData
 // noctx verifies we don't use http.Get without context
@@ -268,13 +281,13 @@ func (c *Client) GetResource(ctx context.Context, id string) (*Resource, error) 
     if err != nil {
         return nil, fmt.Errorf("creating request: %w", err)
     }
-    
+
     resp, err := c.httpClient.Do(req)
     if err != nil {
         return nil, err
     }
     defer resp.Body.Close()  // bodyclose validates
-    
+
     return parseResponse(ctx, resp)  // contextcheck validates
 }
 ```
@@ -282,6 +295,7 @@ func (c *Client) GetResource(ctx context.Context, id string) (*Resource, error) 
 ### 🔒 Potential Conflicts
 
 **No Known Conflicts:**
+
 - contextcheck operates independently on call chain analysis
 - No overlapping functionality with other linters
 - Safe to enable with all other linters
@@ -301,12 +315,12 @@ func (c *Client) GetResource(ctx context.Context, id string) (*Resource, error) 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
     // Context from HTTP request
     ctx := r.Context()
-    
+
     if err := processRequest(ctx, r.URL.Query().Get("id")); err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-    
+
     w.WriteHeader(http.StatusOK)
 }
 
@@ -315,13 +329,13 @@ func processRequest(ctx context.Context, id string) error {
     if err := validateID(ctx, id); err != nil {  // contextcheck validates this
         return fmt.Errorf("validation: %w", err)
     }
-    
+
     // Propagate to fetch
     data, err := fetchData(ctx, id)  // contextcheck validates this
     if err != nil {
         return fmt.Errorf("fetch data: %w", err)
     }
-    
+
     // Propagate to process
     return processData(ctx, data)  // contextcheck validates this
 }
@@ -330,7 +344,7 @@ func validateID(ctx context.Context, id string) error {
     // Use context for timeout
     timeoutCtx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
     defer cancel()
-    
+
     // Simulate validation logic
     return validateInDatabase(timeoutCtx, id)
 }
@@ -340,13 +354,13 @@ func fetchData(ctx context.Context, id string) ([]byte, error) {
     if err != nil {
         return nil, err
     }
-    
+
     resp, err := http.DefaultClient.Do(req)
     if err != nil {
         return nil, err
     }
     defer resp.Body.Close()
-    
+
     return io.ReadAll(resp.Body)
 }
 
@@ -355,7 +369,7 @@ func processData(ctx context.Context, data []byte) error {
     if err := ctx.Err(); err != nil {
         return err
     }
-    
+
     // Process data...
     return nil
 }
@@ -366,12 +380,12 @@ func processData(ctx context.Context, data []byte) error {
 ```go
 func processRequest(ctx context.Context, id string) error {
     // ❌ contextcheck would flag these:
-    
+
     data, err := fetchData(id)  // Missing ctx parameter
     if err != nil {
         return err
     }
-    
+
     return processData(data)    // Missing ctx parameter
 }
 
@@ -381,21 +395,21 @@ func fetchData(id string) ([]byte, error) {
     if err != nil {
         return nil, err
     }
-    
+
     // No context timeout, cancellation, or tracing
     resp, err := http.DefaultClient.Do(req)
     if err != nil {
         return nil, err
     }
     defer resp.Body.Close()
-    
+
     return io.ReadAll(resp.Body)
 }
 
 func processData(data []byte) error {
     // Can't check for cancellation
     // Can't access request-scoped values
-    
+
     // Process data...
     return nil
 }
@@ -404,48 +418,51 @@ func processData(data []byte) error {
 ### 📝 Handling Exceptions
 
 **Creating New Contexts (Legitimate):**
+
 ```go
 func processRequest(ctx context.Context, id string) error {
     // Create timeout context - this is legitimate
     timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
     defer cancel()
-    
+
     // Use timeout context for downstream call
     data, err := fetchData(timeoutCtx, id)  // ✅ contextcheck accepts this
     if err != nil {
         return err
     }
-    
+
     return processData(ctx, data)  // ✅ Original context passed
 }
 ```
 
 **Background Operations:**
+
 ```go
 func processRequest(ctx context.Context, id string) error {
     // Start background work - new context is OK
     bgCtx := context.WithoutCancel(ctx)  // Detach for background
-    
+
     go func() {
         // Background processing shouldn't be cancelled by request
         saveToStorage(bgCtx, id)  //nolint:contextcheck // Background context
     }()
-    
+
     // Continue with request context
     return fetchData(ctx, id)
 }
 ```
 
 **Test-Specific Patterns:**
+
 ```go
 func TestProcessRequest(t *testing.T) {
     // Test might want to control context explicitly
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    
+
     // Test helper might use different context
     data := setupTestData(t)  //nolint:contextcheck // Test setup uses different ctx
-    
+
     err := processRequest(ctx, "test-id")
     assert.NoError(t, err)
 }
@@ -462,18 +479,18 @@ func (h *Handler) Handle(ctx context.Context, req Request) (Response, error) {
     if err := h.validator.Validate(ctx, req); err != nil {
         return Response{}, err
     }
-    
+
     // Process
     result, err := h.processor.Process(ctx, req.Data)
     if err != nil {
         return Response{}, err
     }
-    
+
     // Persist
     if err := h.repo.Save(ctx, result); err != nil {
         return Response{}, err
     }
-    
+
     return Response{Result: result}, nil
 }
 ```
@@ -488,7 +505,7 @@ type UserRepository struct {
 func (r *UserRepository) GetByID(ctx context.Context, id string) (*User, error) {
     query := "SELECT id, name, email FROM users WHERE id = $1"
     row := r.db.QueryRowContext(ctx, query, id)
-    
+
     var user User
     if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
         return nil, fmt.Errorf("query user: %w", err)
@@ -498,7 +515,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*User, error) 
 
 func (r *UserRepository) Create(ctx context.Context, user *User) error {
     query := "INSERT INTO users (id, name, email) VALUES ($1, $2, $3)"
-    
+
     // Context for creating
     if _, err := r.db.ExecContext(ctx, query, user.ID, user.Name, user.Email); err != nil {
         return fmt.Errorf("create user: %w", err)
@@ -517,25 +534,25 @@ type APIClient struct {
 
 func (c *APIClient) GetResource(ctx context.Context, id string) (*Resource, error) {
     url := c.baseURL + "/resources/" + id
-    
+
     // Use context for request
     req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
     if err != nil {
         return nil, fmt.Errorf("create request: %w", err)
     }
-    
+
     // Request inherits cancellation, timeout, and values from context
     resp, err := c.httpClient.Do(req)
     if err != nil {
         return nil, fmt.Errorf("execute request: %w", err)
     }
     defer resp.Body.Close()
-    
+
     var resource Resource
     if err := json.NewDecoder(resp.Body).Decode(&resource); err != nil {
         return nil, fmt.Errorf("decode response: %w", err)
     }
-    
+
     return &resource, nil
 }
 ```
@@ -543,6 +560,7 @@ func (c *APIClient) GetResource(ctx context.Context, id string) (*Resource, erro
 ## Summary
 
 **contextcheck** is a **critical linter** for modern Go applications. It ensures:
+
 - ✅ Proper context cancellation propagation
 - ✅ Timeout enforcement across call chains
 - ✅ Request-scoped value availability

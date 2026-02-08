@@ -7,6 +7,7 @@
 ### The Problem It Detects
 
 Go contexts are essential for:
+
 - **Request cancellation** - Propagating cancel signals
 - **Deadlines** - Enforcing timeouts
 - **Traceability** - Distributed tracing and observability
@@ -89,6 +90,7 @@ func processData(ctx context.Context, data string) {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **Web servers and APIs** - HTTP handlers must use request context
 - **Microservices** - Inter-service calls need context propagation
 - **Long-running operations** - Background jobs, batch processing
@@ -101,35 +103,41 @@ func processData(ctx context.Context, data string) {
 **Specific Scenarios:**
 
 **1. HTTP/GRPC Servers**
+
 - All HTTP handlers
 - gRPC service methods
 - Middleware functions
 - Request/response processing
 
 **2. Database Operations**
+
 - All queries and transactions
 - Connection pool operations
 - Migration scripts
 
 **3. Microservice Communication**
+
 - HTTP client calls
 - gRPC client calls
 - Message queue operations
 - Event streaming
 
 **4. Background Processing**
+
 - Worker pools
 - Scheduled jobs
 - Async processing
 - Batch operations
 
 **5. API Clients**
+
 - SDKs for external services
 - HTTP wrapper functions
 - gRPC client methods
 - Database access layers
 
 **6. CLI Tools with Signal Handling**
+
 - Interactive CLI tools
 - Long-running commands
 - Batch processors
@@ -140,6 +148,7 @@ func processData(ctx context.Context, data string) {
 **Specific Scenarios:**
 
 **1. main() Functions**
+
 ```yaml
 # Main entry point doesn't accept context
 linters:
@@ -153,6 +162,7 @@ linters-settings:
 ```
 
 **2. Test Files**
+
 ```yaml
 # Tests intentionally use context.Background()
 issues:
@@ -162,6 +172,7 @@ issues:
 ```
 
 **3. Generated Code**
+
 ```yaml
 run:
   skip-dirs:
@@ -174,6 +185,7 @@ issues:
 ```
 
 **4. Initialization Functions**
+
 ```yaml
 # Some initialization functions legitimately create context
 linters-settings:
@@ -227,10 +239,12 @@ linters:
 - **Description**: Check if main() functions use non-inherited context
 
 **When to Disable:**
+
 - When main() legitimately creates initial context for background processes
 - When checking main() causes too many false positives
 
 **Example:**
+
 ```go
 // With check-main: true, this would be flagged
 func main() {
@@ -252,11 +266,13 @@ func main() {
 - **Description**: Function names where context.Background() is allowed
 
 **Use Cases:**
+
 - Initialization functions
 - Configuration loading functions
 - Background worker setup
 
 **Example:**
+
 ```yaml
 allow-init:
   - init\..*
@@ -273,18 +289,20 @@ allow-init:
 **Format:** Regular expression patterns
 
 **Examples:**
+
 ```yaml
 allow-functions:
-  - main\..*         # Allow in main functions
-  - (.*Test)\..*    # Allow in test functions
+  - main\..* # Allow in main functions
+  - (.*Test)\..* # Allow in test functions
   - (.*Example)\..* # Allow in example functions
-  - NewClient       # Allow in client constructors
-  - Connect          # Allow in connection functions
+  - NewClient # Allow in client constructors
+  - Connect # Allow in connection functions
 ```
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most production applications
 version: "2"
@@ -301,6 +319,7 @@ issues:
 ```
 
 #### ✅ Web Server Configuration
+
 ```yaml
 # HTTP/GRPC servers
 version: "2"
@@ -311,11 +330,12 @@ linters:
       allow-init: []
       allow-functions:
         - main\..*
-        - Run       # Allow in Run() methods
-        - Start     # Allow in Start() methods
+        - Run # Allow in Run() methods
+        - Start # Allow in Start() methods
 ```
 
 #### ✅ Microservice Configuration
+
 ```yaml
 # Service-to-service communication
 version: "2"
@@ -331,18 +351,20 @@ linters:
 ```
 
 #### ✅ Relaxed Configuration
+
 ```yaml
 # CLI tools, simple scripts
 version: "2"
 linters:
   settings:
     noctx:
-      check-main: false  # Don't check main()
+      check-main: false # Don't check main()
       allow-init:
         - main
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # Production-critical, no exceptions
 version: "2"
@@ -360,27 +382,28 @@ linters:
 
 noctx works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **govet** | Complementary | govet: context issues, noctx: context propagation |
-| **errcheck** | Complementary | errcheck: error handling, noctx: context propagation |
-| **staticcheck** | Complementary | staticcheck: SA2002 context, noctx: function-level |
-| **contextcheck** | Complementary | contextcheck: context propagation, noctx: context creation |
-| **gosec** | Complementary | gosec: G107 SSRF, noctx: context for security |
-| **fatcontext** | Complementary | fatcontext: nested contexts, noctx: missing context |
-| **spancheck** | Complementary | spancheck: OpenTelemetry/Census, noctx: context propagation |
+| Linter           | Relationship  | Value                                                       |
+| ---------------- | ------------- | ----------------------------------------------------------- |
+| **govet**        | Complementary | govet: context issues, noctx: context propagation           |
+| **errcheck**     | Complementary | errcheck: error handling, noctx: context propagation        |
+| **staticcheck**  | Complementary | staticcheck: SA2002 context, noctx: function-level          |
+| **contextcheck** | Complementary | contextcheck: context propagation, noctx: context creation  |
+| **gosec**        | Complementary | gosec: G107 SSRF, noctx: context for security               |
+| **fatcontext**   | Complementary | fatcontext: nested contexts, noctx: missing context         |
+| **spancheck**    | Complementary | spancheck: OpenTelemetry/Census, noctx: context propagation |
 
 **Complete Context Suite:**
+
 ```yaml
 linters:
   enable:
-    - noctx           # Non-inherited context (CRITICAL)
-    - contextcheck     # Context propagation (HIGH)
-    - fatcontext       # Nested contexts (HIGH)
-    - spancheck        # OpenTelemetry spans (HIGH)
-    - errcheck         # Error handling (CRITICAL)
-    - gosec            # Security (CRITICAL)
-    - staticcheck      # Deep analysis (CRITICAL)
+    - noctx # Non-inherited context (CRITICAL)
+    - contextcheck # Context propagation (HIGH)
+    - fatcontext # Nested contexts (HIGH)
+    - spancheck # OpenTelemetry spans (HIGH)
+    - errcheck # Error handling (CRITICAL)
+    - gosec # Security (CRITICAL)
+    - staticcheck # Deep analysis (CRITICAL)
 ```
 
 ### Example of Linter Synergy
@@ -604,6 +627,7 @@ func main() {
 **Problem:** Database functions create own contexts.
 
 **Solution:** Add context.Context parameter to all database functions.
+
 ```go
 // ❌ Wrong pattern
 func QueryUser(db *sql.DB, id int) (*User, error) {
@@ -622,6 +646,7 @@ func QueryUser(ctx context.Context, db *sql.DB, id int) (*User, error) {
 **Problem:** Middleware or wrapper functions use context.Background().
 
 **Solution:** Extract context from http.Request.
+
 ```go
 // ❌ Wrong pattern
 func withTimeout(fn func()) error {
@@ -642,6 +667,7 @@ func withTimeout(fn func(context.Context) error) error {
 **Problem:** gRPC stub methods don't accept context.
 
 **Solution:** Accept context and pass to implementations.
+
 ```go
 // ❌ Wrong pattern
 func (s *server) GetUser(req *pb.GetUserRequest) (*pb.GetUserResponse, error) {
@@ -660,6 +686,7 @@ func (s *server) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUs
 **Problem:** Jobs use context.Background(), can't be cancelled.
 
 **Solution:** Pass context to job workers.
+
 ```go
 // ❌ Wrong pattern
 func ProcessJobs(jobs []Job) {
@@ -686,6 +713,7 @@ func ProcessJobs(ctx context.Context, jobs []Job) {
 **Problem:** Tests use context.Background() intentionally.
 
 **Solution:** Exclude test files.
+
 ```yaml
 issues:
   exclude-rules:
@@ -711,6 +739,7 @@ issues:
 **Recommendation:** **ALWAYS ENABLE** for HTTP servers, gRPC services, microservices, and any production code. Ensure **all functions** that perform I/O, make network calls, or run for extended time **accept context.Context as first parameter**. Use `r.Context()` in HTTP handlers. Pass context to database queries, HTTP clients, and background goroutines. Use `context.WithTimeout()` and `context.WithCancel()` for deadline and cancellation control. Combine with **contextcheck**, **fatcontext**, and **spancheck** for complete context propagation coverage.
 
 **Top 3 Guidelines:**
+
 1. Accept context.Context as first parameter in all I/O functions
 2. Use r.Context() in HTTP handlers, not context.Background()
 3. Pass context to all goroutines and long-running operations

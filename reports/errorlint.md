@@ -13,6 +13,7 @@
 Go 1.13 introduced `fmt.Errorf()` with `%w` verb and `errors.Is()`/`errors.As()` functions for improved error handling. Not using these modern patterns makes error chains inconsistent and harder to debug.
 
 **Example Scenarios:**
+
 ```go
 // ❌ BAD: Error not wrapped with %w
 if err := db.Query(); err != nil {
@@ -35,6 +36,7 @@ errorlint analyzes:
 4. **`fmt.Errorf` with multiple %w** - Checks for incorrect error wrapping patterns
 
 **Analysis Scope:**
+
 - Function bodies
 - Error handling patterns
 - Return statements with errors
@@ -92,6 +94,7 @@ if errors.As(err, &e) {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **All Go 1.13+ projects** - errorlint depends on Go 1.13 features
 - **Production applications** - Ensures consistent error handling
 - **Web services and APIs** - Critical for debugging
@@ -103,23 +106,28 @@ if errors.As(err, &e) {
 **Specific Scenarios:**
 
 **1. Codebases with Custom Error Types**
+
 - Domain-specific errors
 - Error wrapping libraries
 - Multi-layer error handling
 
 **2. Database-Heavy Applications**
+
 - Repository layers wrapping database errors
 - Service layers adding context
 
 **3. HTTP Client Code**
+
 - Wrapping HTTP errors with context
 - External service integration
 
 **4. File System Operations**
+
 - Wrapping I/O errors
 - Adding file path context
 
 **5. Testing Error Chains**
+
 - Verifying errors are properly wrapped
 - Testing error unwrapping
 
@@ -128,10 +136,12 @@ if errors.As(err, &e) {
 **Specific Scenarios:**
 
 **1. Go Versions < 1.13**
+
 - errorlint depends on Go 1.13 features
 - Upgrade Go or use compatible linters
 
 **2. Code with Intentional Non-Wrapped Errors**
+
 ```yaml
 # Custom error handling not following %w pattern
 linters-settings:
@@ -141,6 +151,7 @@ linters-settings:
 ```
 
 **3. Test Files with Legacy Patterns**
+
 ```yaml
 issues:
   exclude-rules:
@@ -149,6 +160,7 @@ issues:
 ```
 
 **4. Generated Code**
+
 ```yaml
 run:
   skip-dirs:
@@ -199,6 +211,7 @@ linters:
 - **Description**: Allow `fmt.Errorf` with single `%w` error
 
 **When to Enable:**
+
 - When custom error handling strategy doesn't use multiple wraps
 - When transitioning to new patterns gradually
 
@@ -235,6 +248,7 @@ linters:
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most Go 1.13+ projects
 version: "2"
@@ -254,6 +268,7 @@ issues:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # High-quality standards
 version: "2"
@@ -273,26 +288,27 @@ linters:
 
 errorlint works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **wrapcheck** | Complementary | wrapcheck: external error wrapping, errorlint: error wrapping patterns (%w) |
-| **errcheck** | Complementary | errcheck: errors not checked, errorlint: correct wrapping patterns |
-| **goerr113** | Complementary | goerr113: error expressions, errorlint: error comparison (errors.Is) |
-| **nilerr** | Complementary | nilerr: nil errors with non-nil values, errorlint: error wrapping |
-| **staticcheck** | Complementary | staticcheck: SA5009, errorlint: %w usage |
-| **nilnesserr** | Complementary | nilnesserr: impossible nils, errorlint: error type checks |
+| Linter          | Relationship  | Value                                                                       |
+| --------------- | ------------- | --------------------------------------------------------------------------- |
+| **wrapcheck**   | Complementary | wrapcheck: external error wrapping, errorlint: error wrapping patterns (%w) |
+| **errcheck**    | Complementary | errcheck: errors not checked, errorlint: correct wrapping patterns          |
+| **goerr113**    | Complementary | goerr113: error expressions, errorlint: error comparison (errors.Is)        |
+| **nilerr**      | Complementary | nilerr: nil errors with non-nil values, errorlint: error wrapping           |
+| **staticcheck** | Complementary | staticcheck: SA5009, errorlint: %w usage                                    |
+| **nilnesserr**  | Complementary | nilnesserr: impossible nils, errorlint: error type checks                   |
 
 **Complete Error Handling Suite:**
+
 ```yaml
 linters:
   enable:
-    - errorlint       # Error wrapping patterns (HIGH)
-    - wrapcheck       # External error wrapping (HIGH)
-    - errcheck        # Error handling (CRITICAL)
-    - goerr113        # Error expressions (MEDIUM)
-    - nilerr          # Nil errors (CRITICAL)
-    - nilnil          # Simultaneous nils (MEDIUM)
-    - staticcheck      # Deep analysis (CRITICAL)
+    - errorlint # Error wrapping patterns (HIGH)
+    - wrapcheck # External error wrapping (HIGH)
+    - errcheck # Error handling (CRITICAL)
+    - goerr113 # Error expressions (MEDIUM)
+    - nilerr # Nil errors (CRITICAL)
+    - nilnil # Simultaneous nils (MEDIUM)
+    - staticcheck # Deep analysis (CRITICAL)
 ```
 
 ### Example of Linter Synergy
@@ -325,13 +341,14 @@ func process() error {
 
 ### 🔒 Minimal Overlap, No Conflicts
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
-| errorlint + **wrapcheck** | Both check error wrapping | Use both - complementary |
-| errorlint + **staticcheck** | Some SA5009 overlap | Use both - errorlint more specific |
-| errorlint + **errcheck** | Different focus | Use both - errorlint wrapping, errcheck checking |
+| Linter                      | Overlap                   | Recommendation                                   |
+| --------------------------- | ------------------------- | ------------------------------------------------ |
+| errorlint + **wrapcheck**   | Both check error wrapping | Use both - complementary                         |
+| errorlint + **staticcheck** | Some SA5009 overlap       | Use both - errorlint more specific               |
+| errorlint + **errcheck**    | Different focus           | Use both - errorlint wrapping, errcheck checking |
 
 **Why No Conflicts:**
+
 - errorlint: Specific Go 1.13+ error patterns
 - wrapcheck: External package error wrapping
 - Each covers different aspects of error handling
@@ -485,6 +502,7 @@ func processAll() error {
 **Problem:** Repository returns raw database errors without wrapping.
 
 **Solution:** Wrap database errors with repository-specific context.
+
 ```go
 // Repository level
 return nil, fmt.Errorf("failed to find user %d: %w", id, dbErr)
@@ -495,6 +513,7 @@ return nil, fmt.Errorf("failed to find user %d: %w", id, dbErr)
 **Problem:** Service doesn't wrap repository errors.
 
 **Solution:** Wrap repository errors with service-specific context.
+
 ```go
 // Service level
 return nil, fmt.Errorf("failed to get user %d: %w", id, repoErr)
@@ -505,6 +524,7 @@ return nil, fmt.Errorf("failed to get user %d: %w", id, repoErr)
 **Problem:** Client returns HTTP errors without wrapping.
 
 **Solution:** Wrap HTTP errors with request context.
+
 ```go
 // Client level
 return nil, fmt.Errorf("HTTP GET %s failed: %w", url, httpErr)
@@ -515,6 +535,7 @@ return nil, fmt.Errorf("HTTP GET %s failed: %w", url, httpErr)
 **Problem:** Function makes multiple external calls, only wraps last error.
 
 **Solution:** Wrap each error with step-specific context.
+
 ```go
 // Each step wrapped
 if err := step1(); err != nil {
@@ -527,6 +548,7 @@ if err := step1(); err != nil {
 **Problem:** Code has custom error types, doesn't use errors.As.
 
 **Solution:** Use errors.As for type-safe error handling.
+
 ```go
 // Custom error type checking
 var e *MyError
@@ -553,6 +575,7 @@ if errors.As(err, &e) {
 **Recommendation:** **RECOMMEND** for all Go 1.13+ projects. Always use `fmt.Errorf()` with `%w` when wrapping errors from external packages. Use `errors.Is()` for error comparisons instead of `==`. Use `errors.As()` for type assertions instead of type switches. Wrap errors at each layer (repository, service, handler) with context about operation, IDs, paths. Exclude test files (`(.+)_test\.go`) when using legacy patterns. Combine with **wrapcheck** for external error wrapping and **errcheck** for complete error handling coverage.
 
 **Top 3 Configuration Tips:**
+
 1. Use default settings - Already well-tuned for Go 1.13+ patterns
 2. Enable all checks - errorf, errorf-multi, asserts, comparison, default-is
 3. Combine with wrapcheck for complete external error wrapping coverage

@@ -9,6 +9,7 @@
 The linter scans Go source code for identifiers containing non-ASCII Unicode characters. The most common issue it catches involves **homoglyphs** - characters from different Unicode scripts that look visually identical or very similar to ASCII characters.
 
 **Key detection areas:**
+
 - Variable names (local and global)
 - Function and method names
 - Type names (structs, interfaces, etc.)
@@ -18,6 +19,7 @@ The linter scans Go source code for identifiers containing non-ASCII Unicode cha
 - Interface method signatures
 
 **Example of the problem it solves:**
+
 ```go
 // This looks correct but contains a Cyrillic 'е' (U+0435) instead of Latin 'e' (U+0065)
 type TеstStruct struct{}  // This will be flagged
@@ -33,6 +35,7 @@ The code appears to define `TestStruct` and use it, but the definition uses a Cy
 ## When It Should Be Enabled
 
 ### Always Enable For:
+
 - **Open source projects** with contributors from multiple locales
 - **Team environments** where developers use different keyboard layouts
 - **Public APIs and libraries** to ensure maximum compatibility
@@ -43,6 +46,7 @@ The code appears to define `TestStruct` and use it, but the definition uses a Cy
 - **Any Go project where code is reviewed on GitHub/GitLab** (difficult to spot in PRs)
 
 ### Specific Use Cases:
+
 1. **Multi-national teams**: Prevents "copy-paste" bugs when sharing code between developers using different language keyboards
 2. **Code review environments**: Non-ASCII characters are nearly impossible to spot in diffs
 3. **Generated code validation**: Ensures code generators produce ASCII-only identifiers
@@ -50,6 +54,7 @@ The code appears to define `TestStruct` and use it, but the definition uses a Cy
 5. **Teaching/Educational code**: Ensures students can reproduce examples without encoding issues
 
 ### Project Types:
+
 - **CLI applications**: Users may need to reference identifiers in commands
 - **Libraries/SDKs**: Consumers should not deal with non-ASCII identifiers
 - **Enterprise applications**: Enterprise coding standards typically require ASCII-only
@@ -58,12 +63,14 @@ The code appears to define `TestStruct` and use it, but the definition uses a Cy
 ## When It Should Be Disabled
 
 ### Appropriate to Disable For:
+
 - **Domain-specific applications** where native language identifiers improve readability (e.g., scientific computing with Greek symbols, financial applications with currency symbols)
 - **Projects with non-English teams** that intentionally use native language for business domain terminology
 - **Educational projects** specifically teaching Unicode in programming
 - **Personal/small team projects** where all members use the same locale and are aware of the risks
 
 ### Specific Scenarios:
+
 1. **Intentional Unicode Identifiers**: When your project specifically uses Unicode to improve domain model expressiveness (rare but valid)
 2. **Scientific/Mathematical Code**: When using Greek letters (α, β, γ) or mathematical symbols for formulas
 3. **Localization Tools**: Tools specifically designed to work with internationalization
@@ -80,6 +87,7 @@ The code appears to define `TestStruct` and use it, but the definition uses a Cy
 ### Usage in golangci-lint
 
 **Basic enablement:**
+
 ```yaml
 linters:
   enable:
@@ -87,6 +95,7 @@ linters:
 ```
 
 **Complete example configuration:**
+
 ```yaml
 version: "2"
 
@@ -112,6 +121,7 @@ issues:
 **Project-specific configuration patterns:**
 
 1. **Standard Projects** (Web applications, CLI tools, libraries):
+
 ```yaml
 linters:
   enable:
@@ -119,6 +129,7 @@ linters:
 ```
 
 2. **Monorepo with Domain-Specific Module**:
+
 ```yaml
 version: "2"
 
@@ -136,6 +147,7 @@ issues:
 ```
 
 3. **With Autofix Warning**:
+
 ```yaml
 version: "2"
 
@@ -171,6 +183,7 @@ issues:
 - **`nolintlint`**: Ensures any `//nolint:asciicheck` directives are justified
 
 **Example Synergy:**
+
 ```go
 // Combined linting catches multiple issues:
 type TеstStruct struct {  // asciicheck: non-ASCII in TеstStruct
@@ -182,6 +195,7 @@ type TеstStruct struct {  // asciicheck: non-ASCII in TеstStruct
 ### Potential Conflicts
 
 **Limited Conflicts:**
+
 - **`asciicheck` has essentially no conflicts** because it operates on a very specific, non-overlapping concern
 - No known linters encourage or require non-ASCII identifiers
 
@@ -190,6 +204,7 @@ type TеstStruct struct {  // asciicheck: non-ASCII in TеstStruct
 1. **Internationalization (i18n) linter**: If a hypothetical linter checked for proper internationalization support, it might conflict philosophically, but not technically
 
 2. **Generated Code**: May need exclusion in combination with other linters:
+
 ```yaml
 issues:
   exclude-rules:
@@ -203,6 +218,7 @@ issues:
 ### Integration Patterns
 
 **CI/CD Pipeline Integration:**
+
 ```bash
 # In Makefile or CI script
 lint:
@@ -211,13 +227,14 @@ lint:
 ```
 
 **Pre-commit Hook:**
+
 ```yaml
 # .pre-commit-config.yaml
 - repo: https://github.com/golangci/golangci-lint
   rev: v1.64.5
   hooks:
     - id: golangci-lint
-      args: ['--disable-all', '--enable=asciicheck,misspell,revive']
+      args: ["--disable-all", "--enable=asciicheck,misspell,revive"]
 ```
 
 ### Performance Impact
@@ -229,13 +246,13 @@ lint:
 
 ### Summary of Interactions
 
-| Linter | Relationship | Reason |
-|--------|--------------|--------|
+| Linter             | Relationship  | Reason                                                                |
+| ------------------ | ------------- | --------------------------------------------------------------------- |
 | `gofmt`, `gofumpt` | Complementary | Enforces ASCII-only identifiers which aligns with standard formatting |
-| `revive` | Complementary | Both enforce Go naming conventions and readability |
-| `misspell` | Complementary | Catches different text-related issues |
-| `staticcheck` | Compatible | No overlap; both improve code quality |
-| `nolintlint` | Complementary | Ensures proper usage of nolint directives |
-| `gci` | Compatible | Both contribute to clean, readable imports |
+| `revive`           | Complementary | Both enforce Go naming conventions and readability                    |
+| `misspell`         | Complementary | Catches different text-related issues                                 |
+| `staticcheck`      | Compatible    | No overlap; both improve code quality                                 |
+| `nolintlint`       | Complementary | Ensures proper usage of nolint directives                             |
+| `gci`              | Compatible    | Both contribute to clean, readable imports                            |
 
 **Bottom Line**: asciicheck is a lightweight, conflict-free linter that should be enabled by default in virtually all Go projects. It provides significant value with zero configuration overhead and minimal performance cost.

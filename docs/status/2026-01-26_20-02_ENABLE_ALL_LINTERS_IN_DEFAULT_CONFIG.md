@@ -150,6 +150,7 @@ linters:
 ### 4. New Dependencies
 
 Added to `pkg/config/loader.go`:
+
 - `encoding/json` - For parsing golangci-lint JSON output
 - `os/exec` - For running golangci-lint linters command
 
@@ -162,6 +163,7 @@ Added to `pkg/config/loader.go`:
 ### Before: Minimal Default (5 Linters)
 
 **Generated Configuration:**
+
 ```yaml
 version: "2"
 run:
@@ -170,17 +172,18 @@ run:
   tests: true
 linters:
   enable:
-    - gosec        # Critical: Security
-    - errcheck      # Critical: Error checking
-    - staticcheck   # Critical: Static analysis
-    - govet         # Critical: Go vet
-    - ineffassign   # Critical: Detect unused assignments
+    - gosec # Critical: Security
+    - errcheck # Critical: Error checking
+    - staticcheck # Critical: Static analysis
+    - govet # Critical: Go vet
+    - ineffassign # Critical: Detect unused assignments
 issues:
   max-issues-per-linter: 50
   max-same-issues: 10
 ```
 
 **User Experience:**
+
 ```bash
 $ golangci-linter-auto-configure configure
 INFO No config file found, creating default: .golangci.yml
@@ -194,6 +197,7 @@ INFO Successfully enabled 5 linters
 ```
 
 **Limitations:**
+
 - Only security and correctness linters enabled
 - Style linters (misspell, gofmt) not included
 - Performance linters (prealloc, unconvert) not included
@@ -203,6 +207,7 @@ INFO Successfully enabled 5 linters
 ### After: Comprehensive Default (100+ Linters)
 
 **Generated Configuration:**
+
 ```yaml
 version: "2"
 run:
@@ -213,16 +218,16 @@ linters:
   enable:
     # Security (10+ linters)
     - gosec, errcheck, errchkjson, musttag, noctx, nilerr, sloglint, loggercheck
-    
+
     # Performance (20+ linters)
     - prealloc, unconvert, ineffassign, bodyclose, perfsprint, makezero, etc.
-    
+
     # Code Style (30+ linters)
     - misspell, whitespace, godot, gofmt, gci, varnamelen, lll, gocyclo, etc.
-    
+
     # Bug Detection (40+ linters)
     - staticcheck, govet, exhaustive, forcetypeassert, nilnil, cyclop, etc.
-    
+
     # Modern Go (10+ linters)
     - modernize, exptostd, usestdlibvars, intrange, copyloopvar, etc.
 issues:
@@ -231,6 +236,7 @@ issues:
 ```
 
 **User Experience:**
+
 ```bash
 $ golangci-linter-auto-configure configure
 INFO No config file found, creating default: .golangci.yml
@@ -243,6 +249,7 @@ INFO Successfully enabled 100 linters
 ```
 
 **Benefits:**
+
 - Immediate comprehensive code quality coverage
 - No manual linter selection required
 - Discovers issues users didn't know existed
@@ -255,17 +262,18 @@ INFO Successfully enabled 100 linters
 
 ### Category Breakdown
 
-| Category | Linter Count | Percentage | Example Linters |
-|-----------|---------------|------------|-----------------|
-| **Security** | 10+ | ~9% | gosec, errchkjson, musttag, noctx, nilerr, sloglint, loggercheck |
-| **Performance** | 20+ | ~18% | prealloc, unconvert, ineffassign, bodyclose, perfsprint |
-| **Code Style** | 30+ | ~27% | misspell, whitespace, godot, gofmt, gci, varnamelen, lll |
-| **Bug Detection** | 40+ | ~36% | staticcheck, govet, exhaustive, forcetypeassert, nilnil |
-| **Modern Go** | 10+ | ~9% | modernize, exptostd, usestdlibvars, intrange, copyloopvar |
+| Category          | Linter Count | Percentage | Example Linters                                                  |
+| ----------------- | ------------ | ---------- | ---------------------------------------------------------------- |
+| **Security**      | 10+          | ~9%        | gosec, errchkjson, musttag, noctx, nilerr, sloglint, loggercheck |
+| **Performance**   | 20+          | ~18%       | prealloc, unconvert, ineffassign, bodyclose, perfsprint          |
+| **Code Style**    | 30+          | ~27%       | misspell, whitespace, godot, gofmt, gci, varnamelen, lll         |
+| **Bug Detection** | 40+          | ~36%       | staticcheck, govet, exhaustive, forcetypeassert, nilnil          |
+| **Modern Go**     | 10+          | ~9%        | modernize, exptostd, usestdlibvars, intrange, copyloopvar        |
 
 ### Priority Distribution
 
 Based on `pkg/constants/linter_data.go`:
+
 - **Critical:** 10 linters (9%)
 - **High Value:** 17 linters (15%)
 - **Medium Value:** 15 linters (13%)
@@ -281,18 +289,21 @@ Based on `pkg/constants/linter_data.go`:
 #### New Users: ✅ MAJOR IMPROVEMENT
 
 **Before:**
+
 - Only 5 critical linters enabled
 - Had to manually research and enable additional linters
 - Many code quality issues went undetected
 - Inconsistent coverage across projects
 
 **After:**
+
 - All 100+ linters enabled automatically
 - Immediate comprehensive coverage
 - Discovers issues users didn't know existed
 - Consistent best practices out-of-the-box
 
 **Metric Impact:**
+
 - Linters enabled on first use: 5 → 100+ (1900%+ increase)
 - Setup time to get comprehensive coverage: 30+ min → 10 sec (97% reduction)
 - Code quality issues detected initially: ~5 categories → ~10 categories (100% increase)
@@ -307,25 +318,27 @@ Based on `pkg/constants/linter_data.go`:
 #### API Consumers: ✅ NO BREAKING CHANGES
 
 **New Method Added:**
+
 - `loader.GetAllLinterNames() ([]string, error)` - Optional enhancement
 - Can be ignored if not needed
 - No changes to existing methods
 
 **Modified Method:**
+
 - `loader.CreateDefaultConfig() *Config` - Enhanced with dynamic linter fetching
 - Same return type and signature
 - Backward compatible (can still be used the same way)
 
 ### Functional Improvements
 
-| Aspect | Before | After |
-|---------|---------|-------|
-| Default Linters | 5 critical | 100+ all |
-| Coverage | Security/Correctness only | All categories |
-| User Choice | Manually enable | Disable unwanted |
-| Discovery | Manual research | Automatic |
-| Setup Time | 30+ min | 10 sec |
-| CI/CD Ready | Manual config needed | Comprehensive out-of-box |
+| Aspect          | Before                    | After                    |
+| --------------- | ------------------------- | ------------------------ |
+| Default Linters | 5 critical                | 100+ all                 |
+| Coverage        | Security/Correctness only | All categories           |
+| User Choice     | Manually enable           | Disable unwanted         |
+| Discovery       | Manual research           | Automatic                |
+| Setup Time      | 30+ min                   | 10 sec                   |
+| CI/CD Ready     | Manual config needed      | Comprehensive out-of-box |
 
 ---
 
@@ -385,6 +398,7 @@ linters:
 ```
 
 **Verification:**
+
 ```bash
 $ grep -c "^        - " .golangci.yml
 100
@@ -417,6 +431,7 @@ INFO Successfully enabled 5 linters
 ### Configuration Creation
 
 **Overhead:**
+
 - Running `golangci-lint linters --json`: ~100-200ms
 - JSON parsing: <5ms
 - List construction: <1ms
@@ -428,16 +443,19 @@ INFO Successfully enabled 5 linters
 ### Runtime Impact
 
 **Linting Time:**
+
 - Before: ~30 seconds with 5 linters
 - After: ~180 seconds with 100 linters
 - **Increase:** ~6x longer
 
 **Trade-off Analysis:**
+
 - Pros: Comprehensive coverage, better code quality, fewer bugs in production
 - Cons: Longer CI/CD runs, potentially overwhelming output initially
 - **Verdict:** Acceptable trade-off - better to have comprehensive coverage with longer runs
 
 **Mitigation Strategies:**
+
 1. Users can disable noisy linters
 2. Use `--priority` flag for targeted selection
 3. Cache results in CI/CD if needed
@@ -453,6 +471,7 @@ INFO Successfully enabled 5 linters
 **Impact:** High (default behavior changed)
 
 **What Changed:**
+
 ```go
 // Before: Hardcoded 5 critical linters
 Linters: LintersConfig{
@@ -477,18 +496,21 @@ Linters: LintersConfig{
 #### For New Users
 
 **Option 1: Accept all linters (recommended)**
+
 ```bash
 $ golangci-linter-auto-configure configure
 # Use default with all linters
 ```
 
 **Option 2: Use priority flag**
+
 ```bash
 $ golangci-linter-auto-configure configure --priority critical
 # Only enable critical linters
 ```
 
 **Option 3: Start from all and disable unwanted**
+
 ```bash
 $ golangci-linter-auto-configure configure
 # Get all linters, then edit .golangci.yml to disable specific ones
@@ -497,6 +519,7 @@ $ golangci-linter-auto-configure configure
 #### For Existing Users
 
 **No migration required:**
+
 ```bash
 # Existing configs work unchanged
 $ golangci-linter-auto-configure configure
@@ -555,29 +578,34 @@ import (
 ### Why Enable All Linters Instead of Minimal Set?
 
 **1. Batteries Included Philosophy**
+
 - Similar to `gofmt` being enabled by default
 - Users expect comprehensive tooling out-of-the-box
 - Better to over-police than under-police
 
 **2. Discoverability & Education**
+
 - Users learn about available linters through their output
 - Encourages exploration of Go tooling ecosystem
 - Educational value for new Go developers
 - Users can disable what they don't want vs. enable what they don't know exists
 
 **3. Immediate Value**
+
 - New projects get comprehensive coverage immediately
 - No manual research or configuration required
 - Reduces time-to-value significantly
 - Consistent quality across all projects
 
 **4. Industry Alignment**
+
 - Most successful Go tools enable everything by default
 - Similar to gofmt, go vet, etc.
 - Aligns with "secure by default" philosophy
 - Respects user agency (can disable unwanted linters)
 
 **5. CI/CD Best Practices**
+
 - CI pipelines benefit from comprehensive linting
 - Prevents regressions across code quality dimensions
 - Easier to start with comprehensive config and disable noise
@@ -588,6 +616,7 @@ import (
 **Argument:** "Too many linters will overwhelm users"
 
 **Response:**
+
 - Users can disable noisy linters easily
 - Easier to disable 5 linters than enable 95 unknown ones
 - Documentation can guide which linters are most valuable
@@ -596,6 +625,7 @@ import (
 **Argument:** "Slower CI/CD runs"
 
 **Response:**
+
 - Trade-off is worth it for comprehensive coverage
 - Users can disable linters to optimize runtime
 - Caching can mitigate runtime impact
@@ -604,6 +634,7 @@ import (
 **Argument:** "Different projects need different linters"
 
 **Response:**
+
 - True, but most linters are universally valuable
 - Security, performance, style linters apply to all projects
 - Project-specific linters can be disabled
@@ -614,26 +645,31 @@ import (
 ## Comparison with Similar Tools
 
 ### gofmt
+
 - Enabled by default in all Go installations
 - No user choice in formatting style
 - Accepted as best practice community-wide
 
 ### go vet
+
 - Run automatically by `go test`
 - Part of Go toolchain
 - Users don't need to manually enable it
 
 ### golangci-lint Philosophy
+
 - Documentation suggests enabling linters by category
 - More comprehensive is generally better
 - Users are expected to curate their own config
 
 ### ESLint (JavaScript)
+
 - Starts with comprehensive rules by default
 - Users configure exceptions, not inclusions
 - Widely accepted approach
 
 ### RuboCop (Ruby)
+
 - Extensive rules enabled by default
 - Users configure what to exclude
 - Similar "batteries included" philosophy
@@ -675,9 +711,9 @@ import (
 
 ### README.md Updates Needed
 
-**Add Section: "Default Configuration Behavior"
+\*\*Add Section: "Default Configuration Behavior"
 
-```markdown
+````markdown
 ## Default Configuration
 
 The tool automatically creates a default `.golangci.yml` file when none exists.
@@ -693,9 +729,11 @@ If you prefer to start with fewer linters:
    golangci-linter-auto-configure configure --priority critical
    # Only enables critical security/correctness linters
    ```
+````
 
 2. **Disable Unwanted Linters:**
    Edit `.golangci.yml` and add to `linters.disable`:
+
    ```yaml
    linters:
      enable:
@@ -713,6 +751,7 @@ If you prefer to start with fewer linters:
    golangci-linter-auto-configure configure --priority high
    # Creates new config with high-priority linters
    ```
+
 ```
 
 ### Update Examples
@@ -750,3 +789,4 @@ _**Report Generated:** 2026-01-26 20:02 CET_
 _**By:** Crush (AI Assistant)_
 _**Commit:** 9ad94b5_
 _**Branch:** master (up to date with origin/master)_
+```

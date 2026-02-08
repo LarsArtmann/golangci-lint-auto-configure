@@ -9,6 +9,7 @@
 Go projects often call external packages (database drivers, HTTP clients, etc.) that return errors. Without wrapping these errors, you lose context about what operation was being performed when the error occurred. This makes debugging difficult and violates Go 1.13+ best practices for error handling.
 
 **Example Scenario:**
+
 ```go
 // ❌ BAD: Error from external package not wrapped
 func (s *Service) GetUser(id int) (*User, error) {
@@ -24,6 +25,7 @@ func (s *Service) GetUser(id int) (*User, error) {
 ```
 
 **Why This Matters:**
+
 - **Lost context** - Don't know what operation failed
 - **Poor debugging** - Can't trace error through call stack
 - **Inconsistent error handling** - Some errors wrapped, some not
@@ -40,6 +42,7 @@ wrapcheck analyzes function return statements and checks:
 4. **Exclusion list** - Allows certain functions to be excluded from wrapping requirement
 
 **Excluded by Default:**
+
 - `errors.New()` and `errors.New()` are creating new errors, not wrapping
 - `fmt.Errorf()` (without `%w`) creates new error, doesn't wrap
 - Standard library functions that don't need wrapping
@@ -115,6 +118,7 @@ func process() error {
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **All production applications** - Critical for debugging and observability
 - **Web services and APIs** - Many external package calls (databases, HTTP clients)
 - **Microservices** - Inter-service communication needs context in errors
@@ -127,29 +131,34 @@ func process() error {
 **Specific Scenarios:**
 
 **1. Database Operations**
+
 - All queries, inserts, updates, deletes
 - Transaction operations
 - Connection pool operations
 
 **2. HTTP Client Calls**
+
 - REST API calls
 - GraphQL queries
 - Webhook requests
 - External service integrations
 
 **3. File System Operations**
+
 - Reading config files
 - Writing data files
 - Directory operations
 - Archive extraction
 
 **4. Background Processing**
+
 - Worker pools
 - Async operations
 - Scheduled jobs
 - Event handlers
 
 **5. Public APIs**
+
 - Library functions calling external code
 - SDK methods wrapping external services
 - Framework code integrating databases/HTTP clients
@@ -159,6 +168,7 @@ func process() error {
 **Specific Scenarios:**
 
 **1. Test Files with Intentionally Unwrapped Errors**
+
 ```yaml
 issues:
   exclude-rules:
@@ -167,6 +177,7 @@ issues:
 ```
 
 **2. Packages That Create New Errors**
+
 ```yaml
 # Packages that only create new errors, not wrap
 linters-settings:
@@ -177,6 +188,7 @@ linters-settings:
 ```
 
 **3. Functions That Intentionally Return External Errors**
+
 ```yaml
 # Specific functions where wrapping is not needed
 linters-settings:
@@ -187,6 +199,7 @@ linters-settings:
 ```
 
 **4. Generated Code**
+
 ```yaml
 run:
   skip-dirs:
@@ -200,6 +213,7 @@ issues:
 ```
 
 **5. Legacy Code Under Migration**
+
 ```yaml
 # When migrating to error wrapping, temporarily exclude
 linters-settings:
@@ -260,18 +274,20 @@ linters:
 - **Description**: Function signatures that don't need error wrapping
 
 **Built-in Exclusions:**
+
 - Functions that create new errors (not wrap existing)
 - Error constructor functions
 - Functions that intentionally unwrap errors
 
 **Custom Exclusions:**
+
 ```yaml
 ignore-sig:
-  - (.*Error)\.New\(      # Error constructors
-  - (.*Error)\.Errorf\(   # Error format constructors
-  - (.*Error)\.Wrap\(     # Explicit wrap functions
-  - (.*Error)\.Unwrap\(   # Explicit unwrap functions
-  - (.*Wrapper)\.Wrap\(   # Wrapper functions
+  - (.*Error)\.New\( # Error constructors
+  - (.*Error)\.Errorf\( # Error format constructors
+  - (.*Error)\.Wrap\( # Explicit wrap functions
+  - (.*Error)\.Unwrap\( # Explicit unwrap functions
+  - (.*Wrapper)\.Wrap\( # Wrapper functions
 ```
 
 ### `extra-ignore-sigs` Option
@@ -281,17 +297,19 @@ ignore-sig:
 - **Description**: Additional ignored signatures on top of defaults
 
 **Use Cases:**
+
 - Test functions that intentionally return external errors
 - Mock functions
 - Wrapper functions that already handle wrapping
 
 **Example:**
+
 ```yaml
 extra-ignore-sigs:
   - (.*Test).*\..*(
   - (.*Mock).*\..*(
-  - NewClient.*\(        # Client constructors
-  - Connect.*\(          # Connection functions
+  - NewClient.*\( # Client constructors
+  - Connect.*\( # Connection functions
 ```
 
 ### `ignore-package-globs` Option
@@ -301,6 +319,7 @@ extra-ignore-sigs:
 - **Description**: Ignore errors from specific packages (glob patterns)
 
 **Use Cases:**
+
 - Internal packages that wrap errors consistently
 - Third-party packages with known error handling
 - Packages being migrated
@@ -308,11 +327,12 @@ extra-ignore-sigs:
 **Format:** Glob pattern for package paths
 
 **Example:**
+
 ```yaml
 ignore-package-globs:
-  - github.com/my/internal/*        # Ignore internal packages
-  - github.com/legacy/db/*       # Ignore legacy DB wrapper
-  - github.com/vendor/errors/*     # Ignore error utils
+  - github.com/my/internal/* # Ignore internal packages
+  - github.com/legacy/db/* # Ignore legacy DB wrapper
+  - github.com/vendor/errors/* # Ignore error utils
 ```
 
 ### `report-internal-errors` Option
@@ -322,16 +342,19 @@ ignore-package-globs:
 - **Description**: Report errors from internal packages (usually disabled)
 
 **When to Enable:**
+
 - When internal packages should also follow wrapping rules
 - When internal code quality needs enforcement
 
 **When to Disable:**
+
 - When internal packages use different error handling strategy
 - When internal functions are wrappers that handle wrapping
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most production applications
 version: "2"
@@ -348,6 +371,7 @@ issues:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # High-quality standards, no exclusions
 version: "2"
@@ -367,6 +391,7 @@ issues:
 ```
 
 #### ✅ Database-Focused Configuration
+
 ```yaml
 # Applications with heavy database usage
 version: "2"
@@ -385,6 +410,7 @@ issues:
 ```
 
 #### ✅ HTTP Client Configuration
+
 ```yaml
 # Microservices with many HTTP calls
 version: "2"
@@ -403,6 +429,7 @@ issues:
 ```
 
 #### ✅ Internal Package Exclusion
+
 ```yaml
 # Internal packages already wrap errors
 version: "2"
@@ -425,30 +452,31 @@ issues:
 
 wrapcheck works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **errcheck** | Complementary | errcheck: errors not checked, wrapcheck: errors not wrapped |
-| **errorlint** | Complementary | errorlint: error wrapping patterns (%w, errors.As), wrapcheck: external errors |
-| **staticcheck** | Complementary | staticcheck: deep error analysis, wrapcheck: external error wrapping |
-| **gosec** | Complementary | gosec: security issues, wrapcheck: error context for security events |
-| **goerr113** | Complementary | goerr113: error expressions, wrapcheck: external error wrapping |
-| **errchkjson** | Complementary | errchkjson: JSON type safety, wrapcheck: error wrapping for JSON |
-| **nilerr** | Complementary | nilerr: nil errors with non-nil values, wrapcheck: external errors |
-| **errorfmt** | Complementary | errorfmt: error format strings, wrapcheck: error wrapping |
-| **goimports** | Complementary | goimports: import order, wrapcheck: code quality |
-| **revive** | Complementary | revive: general style, wrapcheck: error handling |
+| Linter          | Relationship  | Value                                                                          |
+| --------------- | ------------- | ------------------------------------------------------------------------------ |
+| **errcheck**    | Complementary | errcheck: errors not checked, wrapcheck: errors not wrapped                    |
+| **errorlint**   | Complementary | errorlint: error wrapping patterns (%w, errors.As), wrapcheck: external errors |
+| **staticcheck** | Complementary | staticcheck: deep error analysis, wrapcheck: external error wrapping           |
+| **gosec**       | Complementary | gosec: security issues, wrapcheck: error context for security events           |
+| **goerr113**    | Complementary | goerr113: error expressions, wrapcheck: external error wrapping                |
+| **errchkjson**  | Complementary | errchkjson: JSON type safety, wrapcheck: error wrapping for JSON               |
+| **nilerr**      | Complementary | nilerr: nil errors with non-nil values, wrapcheck: external errors             |
+| **errorfmt**    | Complementary | errorfmt: error format strings, wrapcheck: error wrapping                      |
+| **goimports**   | Complementary | goimports: import order, wrapcheck: code quality                               |
+| **revive**      | Complementary | revive: general style, wrapcheck: error handling                               |
 
 **Complete Error Handling Suite:**
+
 ```yaml
 linters:
   enable:
-    - wrapcheck       # External error wrapping (HIGH)
-    - errcheck        # Error handling (CRITICAL)
-    - errorlint       # Error wrapping patterns (HIGH)
-    - nilerr          # Nil error returns (CRITICAL)
-    - staticcheck      # Deep analysis (CRITICAL)
-    - gosec           # Security (CRITICAL)
-    - goerr113        # Error expressions (MEDIUM)
+    - wrapcheck # External error wrapping (HIGH)
+    - errcheck # Error handling (CRITICAL)
+    - errorlint # Error wrapping patterns (HIGH)
+    - nilerr # Nil error returns (CRITICAL)
+    - staticcheck # Deep analysis (CRITICAL)
+    - gosec # Security (CRITICAL)
+    - goerr113 # Error expressions (MEDIUM)
 ```
 
 ### Example of Linter Synergy
@@ -490,13 +518,14 @@ func (s *Service) GetUser(id int) (*User, error) {
 
 ### 🔒 Minimal Overlap, No Conflicts
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
-| wrapcheck + **errorlint** | Both check error wrapping | Use both - wrapcheck focuses on external packages |
-| wrapcheck + **errcheck** | errcheck finds more, wrapcheck is subset | Use both - complement each other |
-| wrapcheck + **goerr113** | Both check error handling | Use both - different focus |
+| Linter                    | Overlap                                  | Recommendation                                    |
+| ------------------------- | ---------------------------------------- | ------------------------------------------------- |
+| wrapcheck + **errorlint** | Both check error wrapping                | Use both - wrapcheck focuses on external packages |
+| wrapcheck + **errcheck**  | errcheck finds more, wrapcheck is subset | Use both - complement each other                  |
+| wrapcheck + **goerr113**  | Both check error handling                | Use both - different focus                        |
 
 **Why No Conflicts:**
+
 - wrapcheck: Specifically checks external error wrapping
 - errorlint: Checks general error wrapping patterns
 - errcheck: Checks if errors are checked at all
@@ -701,6 +730,7 @@ func (s *OrderService) CreateOrder(order *Order) error {
 **Problem:** Repository returns raw database errors.
 
 **Solution:** Wrap at repository layer with context.
+
 ```yaml
 linters:
   settings:
@@ -712,12 +742,13 @@ linters:
 **Problem:** Client returns raw HTTP errors.
 
 **Solution:** Wrap at client layer with request context.
+
 ```yaml
 linters:
   settings:
     wrapcheck:
       extra-ignore-sigs:
-        - NewClient.*\(  # Don't wrap client constructor
+        - NewClient.*\( # Don't wrap client constructor
 ```
 
 ### Scenario 3: Multiple External Calls
@@ -725,6 +756,7 @@ linters:
 **Problem:** Function makes multiple external calls, doesn't wrap errors.
 
 **Solution:** Wrap each error with specific context at each step.
+
 ```go
 // Each step wrapped with context
 if err := step1(); err != nil {
@@ -740,6 +772,7 @@ if err := step2(); err != nil {
 **Problem:** Internal packages already wrap errors, wrapcheck flags them.
 
 **Solution:** Exclude internal packages or disable report-internal-errors.
+
 ```yaml
 linters:
   settings:
@@ -754,6 +787,7 @@ linters:
 **Problem:** Test mocks intentionally return unwrapped external errors.
 
 **Solution:** Exclude test functions.
+
 ```yaml
 issues:
   exclude-rules:
@@ -783,6 +817,7 @@ linters:
 **Recommendation:** **RECOMMEND** for all production code, especially services, APIs, and applications with external package calls. Wrap all errors from external packages using `fmt.Errorf()` with `%w` and meaningful context. Use `ignore-sig` and `extra-ignore-sigs` to exclude error constructors and specific functions. Exclude test files (`(.+)_test\.go`). Combine with **errcheck** and **errorlint** for complete error handling coverage.
 
 **Top 3 Configuration Tips:**
+
 1. Keep default exclusions (error constructors like `errors.New()`)
 2. Use `extra-ignore-sigs` for test mocks and client constructors
 3. Wrap errors at service/repository layers, not at top level

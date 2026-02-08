@@ -14,6 +14,7 @@ The linter finds the following anti-patterns:
 4. **Conditional overwrites** - Initial assignments in if/else branches that are immediately overwritten
 
 **Why This Matters:**
+
 - **Bug Prevention** - Lost errors and return values can mask critical failures
 - **Code Clarity** - Removes confusing, dead assignments
 - **Performance** - Eliminates unnecessary CPU cycles and memory operations
@@ -23,11 +24,13 @@ The linter finds the following anti-patterns:
 ### How It Works
 
 The linter performs a simple static analysis:
+
 - Tracks variable assignments throughout a function
 - Identifies when a variable is assigned but never read before the next assignment
 - Reports these ineffectual assignments
 
 The analysis has known limitations:
+
 - **No type analysis** - Doesn't consider struct field assignments, method receivers, or channel assignments
 - **Context-blind** - May miss some cases in complex control flow
 - **Scope limitations** - Only analyzes within function boundaries
@@ -70,11 +73,13 @@ func process() error {
 **Specific Scenarios:**
 
 **1. Error Handling Code**
+
 - Functions that call multiple operations that can fail
 - Code that processes external resources (files, network, databases)
 - Functions that return error values
 
 **Examples:**
+
 ```go
 // Bad: Lost database connection error
 func getUser(id int) (*User, error) {
@@ -95,6 +100,7 @@ func getUser(id int) (*User, error) {
 ```
 
 **2. Data Processing Pipelines**
+
 - Multiple transformation steps where errors can occur
 - Batch processing operations
 - Data validation sequences
@@ -171,12 +177,14 @@ linters:
 **Format:** Boolean value
 
 **Common Values:**
+
 - `false` - Standard mode, checks only local assignments (default, recommended)
 - `true` - Check escaping errors (may cause false positives in some patterns)
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Balanced approach for most projects
 version: "2"
@@ -189,6 +197,7 @@ linters:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # More aggressive checking for error handling
 version: "2"
@@ -206,22 +215,23 @@ linters:
 
 ineffassign works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **errcheck** | Error handling | Catches unchecked errors |
-| **errchkjson** | Type safety | JSON-related type issues |
-| **govet** | Static analysis | Catches other code issues |
+| Linter          | Relationship      | Value                      |
+| --------------- | ----------------- | -------------------------- |
+| **errcheck**    | Error handling    | Catches unchecked errors   |
+| **errchkjson**  | Type safety       | JSON-related type issues   |
+| **govet**       | Static analysis   | Catches other code issues  |
 | **staticcheck** | Advanced analysis | Comprehensive code quality |
 
 **Complete Error Handling Suite:**
+
 ```yaml
 linters:
   enable:
-    - errcheck      # Unchecked errors (CRITICAL)
-    - ineffassign   # Ineffectual assignments (HIGH)
-    - errchkjson    # JSON type safety (CRITICAL)
-    - govet         # Standard static analysis (CRITICAL)
-    - staticcheck   # Advanced analysis (CRITICAL)
+    - errcheck # Unchecked errors (CRITICAL)
+    - ineffassign # Ineffectual assignments (HIGH)
+    - errchkjson # JSON type safety (CRITICAL)
+    - govet # Standard static analysis (CRITICAL)
+    - staticcheck # Advanced analysis (CRITICAL)
 ```
 
 ### Example of Linter Synergy
@@ -240,12 +250,13 @@ getData()  // Unchecked error
 
 ### 🔒 No Conflicts / Minimal Overlap
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
+| Linter                     | Overlap | Recommendation                                  |
+| -------------------------- | ------- | ----------------------------------------------- |
 | ineffassign + **errcheck** | Minimal | Both handle different aspects of error handling |
-| ineffassign + **govet** | Minimal | Complementary static analysis |
+| ineffassign + **govet**    | Minimal | Complementary static analysis                   |
 
 **Why No Conflicts:**
+
 - ineffassign focuses on overwritten/unused assignments
 - errcheck focuses on unchecked return errors
 - govet provides broader static analysis
@@ -400,6 +411,7 @@ func processItems(items []Item) error {
 **Problem:** Multiple database operations where errors can be lost.
 
 **Solution:** Check each error before proceeding
+
 ```yaml
 linters:
   enable:
@@ -411,6 +423,7 @@ linters:
 **Problem:** File operations often have multiple error points.
 
 **Solution:** Explicitly check each operation
+
 ```go
 f, err := os.Open(path)
 if err != nil {
@@ -429,6 +442,7 @@ if err != nil {
 **Problem:** HTTP requests can fail at multiple stages.
 
 **Solution:** Handle each stage separately
+
 ```go
 req, err := http.NewRequest("GET", url, nil)
 if err != nil {
@@ -447,6 +461,7 @@ defer resp.Body.Close()
 **Problem:** Test setup code losing errors.
 
 **Solution:** Use require for setup errors
+
 ```go
 input, err := createTestInput()
 require.NoError(t, err)  // Fail test if setup fails
@@ -460,6 +475,7 @@ assert.NoError(t, err)
 **Problem:** Pipeline with multiple transformation steps.
 
 **Solution:** Check each step with context
+
 ```go
 if err := validate(data); err != nil {
     return fmt.Errorf("validation: %w", err)

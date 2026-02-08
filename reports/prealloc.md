@@ -13,6 +13,7 @@ The linter finds the following anti-patterns:
 3. **Missing capacity hints** when the final size is known or can be reasonably estimated
 
 **Why This Matters:**
+
 - **Performance**: Preallocating eliminates multiple memory allocations and copies
 - **Reduced GC Pressure**: Single allocation reduces garbage collection overhead
 - **Memory Efficiency**: Avoids temporary over-allocation during slice growth
@@ -22,6 +23,7 @@ The linter finds the following anti-patterns:
 ### How It Works
 
 The linter analyzes code for patterns where:
+
 - A slice is declared with zero or unspecified capacity
 - The slice is immediately followed by a loop (range, for, or simple)
 - Each iteration appends elements to the slice
@@ -30,6 +32,7 @@ The linter analyzes code for patterns where:
 When these conditions are met, it suggests preallocating with the expected final capacity using `make([]T, 0, capacity)`.
 
 The analysis can be configured to:
+
 - Check only simple loops (no returns/breaks/continues/gotos)
 - Include or exclude range loops
 - Include or exclude for loops
@@ -66,12 +69,14 @@ for _, v := range source {
 **Specific Scenarios:**
 
 **1. Performance-Critical Code**
+
 - Hot paths in your application
 - Code that processes large datasets
 - Functions called frequently in loops
 - API handlers that build response arrays
 
 **Examples:**
+
 ```go
 // API response building
 func (s *Service) GetUsers(ctx context.Context) ([]User, error) {
@@ -88,6 +93,7 @@ func (s *Service) GetUsers(ctx context.Context) ([]User, error) {
 ```
 
 **2. Data Transformation Functions**
+
 - Converting one data structure to another
 - Filtering and mapping operations
 - Building complex nested structures
@@ -169,6 +175,7 @@ linters:
 **Format:** Boolean value
 
 **Common Values:**
+
 - `true` - Only check simple, straightforward loops (recommended)
 - `false` - Check all loops including those with complex control flow
 
@@ -181,6 +188,7 @@ linters:
 **Format:** Boolean value
 
 **Common Values:**
+
 - `true` - Check range loops (recommended, most common use case)
 - `false` - Exclude range loops from analysis
 
@@ -193,12 +201,14 @@ linters:
 **Format:** Boolean value
 
 **Common Values:**
+
 - `false` - Exclude for loops (default, for loops are often more complex)
 - `true` - Include for loops (only if you understand the implications)
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Balanced approach for most projects
 version: "2"
@@ -211,6 +221,7 @@ linters:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # More aggressive checking for performance-critical code
 version: "2"
@@ -223,6 +234,7 @@ linters:
 ```
 
 #### ✅ Maximum Coverage
+
 ```yaml
 # Check all possible loops (may produce false positives)
 version: "2"
@@ -246,21 +258,22 @@ issues:
 
 prealloc works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **govet** | Static analysis | Catches other performance issues |
-| **ineffassign** | Performance | Detects ineffective assignments |
-| **staticcheck** | Performance | Advanced performance analysis |
-| **predeclared** | Code quality | Improves code readability |
+| Linter          | Relationship    | Value                            |
+| --------------- | --------------- | -------------------------------- |
+| **govet**       | Static analysis | Catches other performance issues |
+| **ineffassign** | Performance     | Detects ineffective assignments  |
+| **staticcheck** | Performance     | Advanced performance analysis    |
+| **predeclared** | Code quality    | Improves code readability        |
 
 **Complete Performance Suite:**
+
 ```yaml
 linters:
   enable:
-    - prealloc       # Slice pre-allocation (MEDIUM)
-    - govet          # Standard static analysis (CRITICAL)
-    - ineffassign    # Ineffective assignments (HIGH)
-    - staticcheck    # Advanced analysis (CRITICAL)
+    - prealloc # Slice pre-allocation (MEDIUM)
+    - govet # Standard static analysis (CRITICAL)
+    - ineffassign # Ineffective assignments (HIGH)
+    - staticcheck # Advanced analysis (CRITICAL)
 ```
 
 ### Example of Linter Synergy
@@ -281,11 +294,12 @@ for _, v := range source {
 
 ### 🔒 No Conflicts / Minimal Overlap
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
+| Linter                     | Overlap | Recommendation                          |
+| -------------------------- | ------- | --------------------------------------- |
 | prealloc + **ineffassign** | Minimal | Both catch different performance issues |
 
 **Why No Conflicts:**
+
 - prealloc focuses on slice allocation patterns
 - ineffassign focuses on unused assignments
 - Each linter covers different aspects of performance optimization
@@ -418,6 +432,7 @@ for _, s := range strings {
 **Problem:** API endpoints building large JSON responses suffer from slow response times.
 
 **Solution:** Preallocate response slices
+
 ```yaml
 linters:
   enable:
@@ -434,6 +449,7 @@ linters:
 **Problem:** ETL pipelines processing millions of records are slow.
 
 **Solution:** Aggressive preallocation for all data transformations
+
 ```yaml
 linters:
   enable:
@@ -450,6 +466,7 @@ linters:
 **Problem:** Preallocation adds complexity to simple utility code.
 
 **Solution:** Disable prealloc for non-critical code
+
 ```yaml
 linters:
   disable:
@@ -461,6 +478,7 @@ linters:
 **Problem:** Want to optimize library performance but don't want noise.
 
 **Solution:** Enable with strict rules, exclude tests
+
 ```yaml
 linters:
   enable:
@@ -483,6 +501,7 @@ issues:
 **Problem:** Legacy code has many performance issues, overwhelming suggestions.
 
 **Solution:** Start with standard config, gradually enable more options
+
 ```yaml
 # Phase 1: Basic optimization
 linters:

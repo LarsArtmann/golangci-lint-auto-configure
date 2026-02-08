@@ -17,19 +17,20 @@ func TestDetector_Detect(t *testing.T) {
 			name: "CLI project with cobra",
 			setupFunc: func(dir string) error {
 				// Create go.mod
-				if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
+				err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
 
 go 1.21
 
 require github.com/spf13/cobra v1.8.0
-`), 0644); err != nil {
+`), 0o644)
+				if err != nil {
 					return err
 				}
 				// Create main.go
 				return os.WriteFile(filepath.Join(dir, "main.go"), []byte(`package main
 
 func main() {}
-`), 0644)
+`), 0o644)
 			},
 			want:        ProjectTypeCLI,
 			description: "Should detect CLI project with cobra and main package",
@@ -38,17 +39,18 @@ func main() {}
 			name: "Library project",
 			setupFunc: func(dir string) error {
 				// Create go.mod
-				if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
+				err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
 
 go 1.21
-`), 0644); err != nil {
+`), 0o644)
+				if err != nil {
 					return err
 				}
 				// Create library file
 				return os.WriteFile(filepath.Join(dir, "lib.go"), []byte(`package test
 
 func Hello() string { return "hello" }
-`), 0644)
+`), 0o644)
 			},
 			want:        ProjectTypeLibrary,
 			description: "Should detect library project without main",
@@ -57,12 +59,13 @@ func Hello() string { return "hello" }
 			name: "Web project with gin",
 			setupFunc: func(dir string) error {
 				// Create go.mod
-				if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
+				err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
 
 go 1.21
 
 require github.com/gin-gonic/gin v1.9.0
-`), 0644); err != nil {
+`), 0o644)
+				if err != nil {
 					return err
 				}
 				// Create main.go
@@ -74,7 +77,7 @@ func main() {
 	r := gin.Default()
 	r.Run()
 }
-`), 0644)
+`), 0o644)
 			},
 			want:        ProjectTypeWeb,
 			description: "Should detect web project with gin and main",
@@ -83,21 +86,24 @@ func main() {
 			name: "Monorepo project",
 			setupFunc: func(dir string) error {
 				// Create root go.mod
-				if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
+				err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
 
 go 1.21
-`), 0644); err != nil {
+`), 0o644)
+				if err != nil {
 					return err
 				}
 				// Create subdirectory with another go.mod
 				subDir := filepath.Join(dir, "subproject")
-				if err := os.MkdirAll(subDir, 0755); err != nil {
+				err := os.MkdirAll(subDir, 0o755)
+				if err != nil {
 					return err
 				}
+
 				return os.WriteFile(filepath.Join(subDir, "go.mod"), []byte(`module test/sub
 
 go 1.21
-`), 0644)
+`), 0o644)
 			},
 			want:        ProjectTypeMonorepo,
 			description: "Should detect monorepo with multiple go.mod files",
@@ -171,17 +177,21 @@ func TestGetRecommendedLinters(t *testing.T) {
 			// Check that essential linters are present
 			hasGosec := false
 			hasErrcheck := false
+
 			for _, l := range linters {
 				if l == "gosec" {
 					hasGosec = true
 				}
+
 				if l == "errcheck" {
 					hasErrcheck = true
 				}
 			}
+
 			if !hasGosec {
 				t.Errorf("GetRecommendedLinters(%v) missing gosec", pt)
 			}
+
 			if !hasErrcheck {
 				t.Errorf("GetRecommendedLinters(%v) missing errcheck", pt)
 			}

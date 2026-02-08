@@ -19,6 +19,7 @@ func main() {
 
 	// Analyze configuration
 	configPath := ".golangci.yml"
+
 	analysis, err := c.AnalyzeConfig(configPath)
 	if err != nil {
 		slog.Error("Analysis failed", "error", err)
@@ -34,8 +35,10 @@ func main() {
 		"recommendations", len(analysis.LinterRecommendations))
 
 	// Show critical recommendations
-	var critical []types.LinterRecommendation
-	var high []types.LinterRecommendation
+	var (
+		critical []types.LinterRecommendation
+		high     []types.LinterRecommendation
+	)
 
 	for _, rec := range analysis.LinterRecommendations {
 		switch rec.Priority {

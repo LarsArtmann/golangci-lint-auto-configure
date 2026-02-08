@@ -44,6 +44,7 @@ func init() {}  // Would be flagged
 ### ✅ Enable For:
 
 **Project Types:**
+
 - **Large codebases** (>10K LOC) where consistent organization improves readability
 - **Enterprise projects** with strict coding standards
 - **Team environments** with multiple developers
@@ -52,6 +53,7 @@ func init() {}  // Would be flagged
 - **Open source libraries** - Consistent structure helps contributors
 
 **Scenarios:**
+
 - **Code reviews** - Objective standard for code organization
 - **Onboarding** - Predictable structure helps new team members
 - **Consistency** - Eliminates debates about where to place declarations
@@ -60,6 +62,7 @@ func init() {}  // Would be flagged
 ### ❌ Disable For:
 
 **Project Types:**
+
 - **Small projects** (<1K LOC) where organization is less critical
 - **Personal/solo projects** - Flexibility is more valuable
 - **Prototypes and experiments** - Speed over structure
@@ -67,6 +70,7 @@ func init() {}  // Would be flagged
 - **Code with mixed styles** - Would generate too many violations
 
 **Philosophical Reasons:**
+
 - Teams that value flexibility over rigid structure
 - Projects where code location is determined by domain logic
 - Codebases following different organizational principles (e.g., grouping by feature)
@@ -88,48 +92,49 @@ linters:
         - var
         - func
         - type
-      
+
       # Ignore underscore vars in count checks (default: false)
       ignore-underscore-vars: false
-      
+
       # Disable all declaration count checks (default: true)
       disable-dec-num-check: true
-      
+
       # Disable specific type count checks:
-      disable-type-dec-num-check: false    # Multiple type declarations
-      disable-const-dec-num-check: false   # Multiple const declarations  
-      disable-var-dec-num-check: false     # Multiple var declarations
-      
+      disable-type-dec-num-check: false # Multiple type declarations
+      disable-const-dec-num-check: false # Multiple const declarations
+      disable-var-dec-num-check: false # Multiple var declarations
+
       # Disable declaration order check (default: true)
       disable-dec-order-check: true
-      
+
       # Disable init() function must be first check (default: true)
       disable-init-func-first-check: true
 ```
 
 ### Configuration Options Explained
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `dec-order` | `[]string` | `["const","var","func","type"]` | Sequence for code organization |
-| `ignore-underscore-vars` | `bool` | `false` | Skip underscore vars (like `_ int`) in count checks |
-| `disable-dec-num-check` | `bool` | `true` | Disable all "multiple declarations" checks |
-| `disable-type-dec-num-check` | `bool` | `false` | Disable multiple type declaration check |
-| `disable-const-dec-num-check` | `bool` | `false` | Disable multiple const declaration check |
-| `disable-var-dec-num-check` | `bool` | `false` | Disable multiple var declaration check |
-| `disable-dec-order-check` | `bool` | `true` | Disable order checking |
-| `disable-init-func-first-check` | `bool` | `true` | Disable init() placement checking |
+| Option                          | Type       | Default                         | Description                                         |
+| ------------------------------- | ---------- | ------------------------------- | --------------------------------------------------- |
+| `dec-order`                     | `[]string` | `["const","var","func","type"]` | Sequence for code organization                      |
+| `ignore-underscore-vars`        | `bool`     | `false`                         | Skip underscore vars (like `_ int`) in count checks |
+| `disable-dec-num-check`         | `bool`     | `true`                          | Disable all "multiple declarations" checks          |
+| `disable-type-dec-num-check`    | `bool`     | `false`                         | Disable multiple type declaration check             |
+| `disable-const-dec-num-check`   | `bool`     | `false`                         | Disable multiple const declaration check            |
+| `disable-var-dec-num-check`     | `bool`     | `false`                         | Disable multiple var declaration check              |
+| `disable-dec-order-check`       | `bool`     | `true`                          | Disable order checking                              |
+| `disable-init-func-first-check` | `bool`     | `true`                          | Disable init() placement checking                   |
 
 ### Common Configuration Patterns
 
 #### ✅ Minimal Configuration (Count Checks Only)
+
 ```yaml
 # Flag multiple declarations but ignore order
 version: "2"
 linters:
   enable:
     - decorder
-  
+
   settings:
     decorder:
       disable-dec-num-check: false
@@ -138,13 +143,14 @@ linters:
 ```
 
 #### ✅ Order-Focused Configuration
+
 ```yaml
 # Enforce declaration order but ignore grouping
 version: "2"
 linters:
   enable:
     - decorder
-  
+
   settings:
     decorder:
       dec-order: [const, var, type, func]
@@ -154,13 +160,14 @@ linters:
 ```
 
 #### ✅ Strict Configuration (All Checks)
+
 ```yaml
 # Match Go standard library style
 version: "2"
 linters:
   enable:
     - decorder
-  
+
   settings:
     decorder:
       dec-order: [const, var, type, func]
@@ -171,13 +178,14 @@ linters:
 ```
 
 #### ✅ Relaxed Configuration
+
 ```yaml
 # Only check var grouping, ignore everything else
 version: "2"
 linters:
   enable:
     - decorder
-  
+
   settings:
     decorder:
       disable-dec-num-check: false
@@ -203,23 +211,24 @@ linters:
 
 decorder **complements** these linters by checking different aspects of code structure:
 
--  **`gofmt` / `gofumpt`**  : Formatting (whitespace) vs. decorder's organization (declaration order)
--  **`gci`**  : Import organization vs. decorder's code declaration organization
--  **`godot`**  : Comment formatting vs. decorder's code structure
--  **`nonamedreturns`**  : Function style vs. decorder's function placement
+- **`gofmt` / `gofumpt`** : Formatting (whitespace) vs. decorder's organization (declaration order)
+- **`gci`** : Import organization vs. decorder's code declaration organization
+- **`godot`** : Comment formatting vs. decorder's code structure
+- **`nonamedreturns`** : Function style vs. decorder's function placement
 
 **Complete Code Style Suite:**
+
 ```yaml
 linters:
   enable:
     # Organization
     - decorder
     - gci
-    
+
     # Formatting
     - gofmt
     - gofumpt
-    
+
     # Style
     - godot
     - nonamedreturns
@@ -228,11 +237,13 @@ linters:
 ### ⚠️ Related Linters
 
 **Minimal Overlap:**
--  **`revive` (max-public-structs)**  : Both touch type declarations but different concerns
--  **`wsl` (whitespace)**  : Both care about code structure but focus on different aspects
--  **`gocritic`**  : May have some stylistic overlap but complementary overall
+
+- **`revive` (max-public-structs)** : Both touch type declarations but different concerns
+- **`wsl` (whitespace)** : Both care about code structure but focus on different aspects
+- **`gocritic`** : May have some stylistic overlap but complementary overall
 
 **Independent Operation:**
+
 - No known conflicts or contradictory warnings
 - Can safely run with all other linters
 - Focused scope prevents overlapping functionality

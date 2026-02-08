@@ -14,6 +14,7 @@ The linter finds the following anti-patterns:
 4. **Pointless numeric conversions** - Conversions between the same numeric types
 
 **Why This Matters:**
+
 - **Performance**: Unnecessary conversions waste CPU cycles
 - **Memory Allocation**: Some conversions create temporary allocations
 - **Code Clarity**: Redundant conversions obscure the actual intent
@@ -23,6 +24,7 @@ The linter finds the following anti-patterns:
 ### How It Works
 
 The linter analyzes code to identify type conversions where:
+
 - The source type is already compatible with the target type
 - The conversion is semantically unnecessary
 - No type safety or semantic benefit is provided
@@ -30,6 +32,7 @@ The linter analyzes code to identify type conversions where:
 When these conditions are met, it suggests removing the redundant conversion.
 
 The analysis can be configured with two optional flags:
+
 - `fast-math`: Removes conversions that force intermediate rounding (optimizes floating-point operations)
 - `safe`: Uses a more conservative approach to reduce false positives (experimental)
 
@@ -61,12 +64,14 @@ result := i * 2
 **Specific Scenarios:**
 
 **1. Performance-Critical Code**
+
 - Hot paths in your application
 - Code that processes large datasets
 - Functions called frequently in loops
 - Tight inner loops where every cycle counts
 
 **Examples:**
+
 ```go
 // Hot path optimization
 func processData(data []int64) int64 {
@@ -89,6 +94,7 @@ func processData(data []int64) int64 {
 ```
 
 **2. Code Cleanliness Initiatives**
+
 - Codebases with accumulated technical debt
 - Legacy code with many redundant conversions
 - Teams focusing on code quality and maintainability
@@ -164,6 +170,7 @@ linters:
 **Format:** Boolean value
 
 **Common Values:**
+
 - `false` - Keep conversions that may affect floating-point precision (default)
 - `true` - Remove conversions that force rounding (may change behavior in edge cases)
 
@@ -176,12 +183,14 @@ linters:
 **Format:** Boolean value
 
 **Common Values:**
+
 - `false` - Standard analysis mode (default, more aggressive)
 - `true` - Conservative mode, fewer false positives but may miss issues
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Balanced approach for most projects
 version: "2"
@@ -195,6 +204,7 @@ linters:
 ```
 
 #### ✅ Conservative Configuration
+
 ```yaml
 # Fewer false positives
 version: "2"
@@ -208,6 +218,7 @@ linters:
 ```
 
 #### ✅ Aggressive Configuration
+
 ```yaml
 # Maximum optimization (may change floating-point behavior)
 version: "2"
@@ -226,22 +237,23 @@ linters:
 
 unconvert works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **govet** | Static analysis | Catches other type-related issues |
-| **staticcheck** | Type safety | Advanced type analysis |
-| **ineffassign** | Performance | Detects other redundant operations |
-| **gocritic** | Code quality | Finds other redundant patterns |
+| Linter          | Relationship    | Value                              |
+| --------------- | --------------- | ---------------------------------- |
+| **govet**       | Static analysis | Catches other type-related issues  |
+| **staticcheck** | Type safety     | Advanced type analysis             |
+| **ineffassign** | Performance     | Detects other redundant operations |
+| **gocritic**    | Code quality    | Finds other redundant patterns     |
 
 **Complete Code Quality Suite:**
+
 ```yaml
 linters:
   enable:
-    - unconvert      # Remove unnecessary conversions (MEDIUM)
-    - govet          # Standard static analysis (CRITICAL)
-    - staticcheck    # Advanced analysis (CRITICAL)
-    - ineffassign    # Ineffective assignments (HIGH)
-    - gocritic       # General code quality (HIGH)
+    - unconvert # Remove unnecessary conversions (MEDIUM)
+    - govet # Standard static analysis (CRITICAL)
+    - staticcheck # Advanced analysis (CRITICAL)
+    - ineffassign # Ineffective assignments (HIGH)
+    - gocritic # General code quality (HIGH)
 ```
 
 ### Example of Linter Synergy
@@ -260,12 +272,13 @@ result := int64(i) * 2
 
 ### 🔒 No Conflicts / Minimal Overlap
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
+| Linter                      | Overlap | Recommendation                         |
+| --------------------------- | ------- | -------------------------------------- |
 | unconvert + **ineffassign** | Minimal | Both catch different redundancy issues |
-| unconvert + **staticcheck** | Minor | Some overlap in type analysis |
+| unconvert + **staticcheck** | Minor   | Some overlap in type analysis          |
 
 **Why No Conflicts:**
+
 - unconvert focuses on unnecessary type conversions
 - ineffassign focuses on unused assignments
 - staticcheck covers broader type and code quality issues
@@ -375,6 +388,7 @@ func processData(data interface{}) int64 {
 **Problem:** Large legacy codebase with many accumulated redundant conversions.
 
 **Solution:** Enable unconvert and address findings incrementally
+
 ```yaml
 linters:
   enable:
@@ -390,6 +404,7 @@ linters:
 **Problem:** Hot paths with unnecessary type conversions causing performance issues.
 
 **Solution:** Use aggressive configuration to maximize optimization
+
 ```yaml
 linters:
   enable:
@@ -405,6 +420,7 @@ linters:
 **Problem:** Team wants to improve code cleanliness and maintainability.
 
 **Solution:** Combine unconvert with other code quality linters
+
 ```yaml
 linters:
   enable:
@@ -419,6 +435,7 @@ linters:
 **Problem:** Some conversions are necessary for external API compatibility.
 
 **Solution:** Exclude specific files or functions with inline directives
+
 ```go
 //nolint:unconvert
 func externalAPICall() {
@@ -433,6 +450,7 @@ func externalAPICall() {
 **Problem:** unconvert flags conversions that serve as explicit type documentation.
 
 **Solution:** Use safe mode or specific exclusions
+
 ```yaml
 linters:
   enable:

@@ -11,6 +11,7 @@
 [Detailed explanation of the specific issues, bugs, or anti-patterns this linter identifies]
 
 **Why This Matters:**
+
 - [Bullet points explaining why these issues are important]
 - [Impact on code quality, security, performance, etc.]
 
@@ -42,10 +43,12 @@
 **Specific Scenarios:**
 
 **1. [Scenario name]**
+
 - [When to enable]
 - [Examples]
 
 **2. [Scenario name]**
+
 - [When to enable]
 - [Examples]
 
@@ -54,11 +57,13 @@
 **Specific Scenarios:**
 
 **1. [Scenario name]**
+
 ```yaml
 [Example YAML exclusion]
 ```
 
 **2. [Scenario name]**
+
 - [Reason to disable]
 
 ### Priority Assessment
@@ -101,44 +106,45 @@ linters:
 **Format:** [How to specify values]
 
 **Common Values:**
+
 - [Value 1] - [When to use]
 - [Value 2] - [When to use]
 
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # [Use case description]
 version: "2"
 linters:
   settings:
-    {{LINTER_NAME}}:
-      [options]
+    { { LINTER_NAME } }: [options]
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # [Use case description]
 version: "2"
 linters:
   settings:
-    {{LINTER_NAME}}:
-      [options]
+    { { LINTER_NAME } }: [options]
 
 issues:
   exclude-rules:
     - path: [pattern]
-      linters: [{{LINTER_NAME}}]
+      linters: [{ { LINTER_NAME } }]
 ```
 
 #### ✅ [Custom Configuration Name]
+
 ```yaml
 # [Use case description]
 version: "2"
 linters:
   settings:
-    {{LINTER_NAME}}:
-      [options]
+    { { LINTER_NAME } }: [options]
 ```
 
 ## How It Interferes or Works Together With Other Linters
@@ -147,19 +153,20 @@ linters:
 
 {{LINTER_NAME}} works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
+| Linter        | Relationship        | Value              |
+| ------------- | ------------------- | ------------------ |
 | **[linter1]** | [relationship type] | [what it provides] |
 | **[linter2]** | [relationship type] | [what it provides] |
 | **[linter3]** | [relationship type] | [what it provides] |
 
 **Complete [Category] Suite:**
+
 ```yaml
 linters:
   enable:
-    - {{LINTER_NAME}}   # [Purpose] ([PRIORITY])
-    - [other linter]   # [Purpose] ([PRIORITY])
-    - [other linter]   # [Purpose] ([PRIORITY])
+    - { { LINTER_NAME } } # [Purpose] ([PRIORITY])
+    - [other linter] # [Purpose] ([PRIORITY])
+    - [other linter] # [Purpose] ([PRIORITY])
 ```
 
 ### Example of Linter Synergy
@@ -177,11 +184,12 @@ linters:
 
 ### 🔒 No Conflicts / Minimal Overlap
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
+| Linter                         | Overlap         | Recommendation  |
+| ------------------------------ | --------------- | --------------- |
 | {{LINTER_NAME}} + **[linter]** | [What overlaps] | [How to handle] |
 
 **Why No Conflicts:**
+
 - [Explanation of why linters work together]
 - [Each linter covers different aspects]
 
@@ -263,6 +271,7 @@ linters:
 **Problem:** [Description of issue]
 
 **Solution:** [How to fix it]
+
 ```yaml
 [Example YAML configuration]
 ```
@@ -272,6 +281,7 @@ linters:
 **Problem:** [Description of issue]
 
 **Solution:** [How to fix it]
+
 ```yaml
 [Example YAML configuration]
 ```
@@ -281,6 +291,7 @@ linters:
 **Problem:** [Description of issue]
 
 **Solution:** [How to fix it]
+
 ```yaml
 [Example YAML configuration]
 ```
@@ -290,6 +301,7 @@ linters:
 **Problem:** [Description of issue]
 
 **Solution:** [How to fix it]
+
 ```yaml
 [Example YAML configuration]
 ```
@@ -299,6 +311,7 @@ linters:
 **Problem:** [Description of issue]
 
 **Solution:** [How to fix it]
+
 ```yaml
 [Example YAML configuration]
 ```

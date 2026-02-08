@@ -23,6 +23,7 @@ writer.Write([]byte("important data"))  // Data loss, no indication
 ```
 
 **Why This is Critical:**
+
 - **System crashes** - Nil dereference when operation fails
 - **Data corruption** - Writing to failed resources
 - **Security vulnerabilities** - Weak cryptographic keys, exposed sensitive data
@@ -38,12 +39,14 @@ errcheck analyzes all callable expressions (functions, methods) and ensures that
 3. **Error is explicitly discarded** using `_` to show intent
 
 **Analysis Scope:**
+
 - Function calls: `f()`
 - Method calls: `obj.Method()`
 - Type assertions: `x.(T)` (if enabled)
 - All callables not in exclusion list
 
 **What errcheck Does NOT Do:**
+
 - Analyze whether errors are properly handled after assignment
 - Check if error handling is correct (use `staticcheck` for this)
 - Understand business logic or context
@@ -136,26 +139,28 @@ func generateKey() (*rsa.PrivateKey, error) {
 
 **Project Types:**
 
-| Project Type | Priority | Justification |
-|--------------|----------|----------------|
-| **Web Services/APIs** | CRITICAL | User-facing, reliability critical |
-| **CLI Tools** | CRITICAL | User experience depends on errors |
-| **Libraries/SDKs** | CRITICAL | Public APIs need correct error handling |
-| **Database Tools** | CRITICAL | Data integrity at risk |
-| **System Tools** | HIGH | System stability |
-| **Microservices** | CRITICAL | Distributed systems require robust error handling |
-| **Financial/Security Software** | CRITICAL | Security vulnerabilities from ignored errors |
-| **One-off Scripts** | LOW | Optional, still recommended |
+| Project Type                    | Priority | Justification                                     |
+| ------------------------------- | -------- | ------------------------------------------------- |
+| **Web Services/APIs**           | CRITICAL | User-facing, reliability critical                 |
+| **CLI Tools**                   | CRITICAL | User experience depends on errors                 |
+| **Libraries/SDKs**              | CRITICAL | Public APIs need correct error handling           |
+| **Database Tools**              | CRITICAL | Data integrity at risk                            |
+| **System Tools**                | HIGH     | System stability                                  |
+| **Microservices**               | CRITICAL | Distributed systems require robust error handling |
+| **Financial/Security Software** | CRITICAL | Security vulnerabilities from ignored errors      |
+| **One-off Scripts**             | LOW      | Optional, still recommended                       |
 
 **Specific Scenarios:**
 
 **1. Production Applications**
+
 - Any code deployed to production
 - User-facing applications
 - Services processing customer data
 - APIs with SLA requirements
 
 **2. Security-Sensitive Code**
+
 - Authentication/authorization logic
 - Cryptographic operations (hashing, encryption, signing)
 - Random number generation
@@ -164,6 +169,7 @@ func generateKey() (*rsa.PrivateKey, error) {
 - Database transactions
 
 **3. Data Integrity Critical Systems**
+
 - Financial transaction processing
 - Data persistence layers
 - Backup systems
@@ -171,17 +177,20 @@ func generateKey() (*rsa.PrivateKey, error) {
 - Logging and monitoring
 
 **4. Public Libraries/SDKs**
+
 - Code consumed by other developers
 - APIs with error handling contracts
 - SDKs for external services
 - Framework libraries
 
 **5. Long-Lived Projects**
+
 - Projects maintained for months/years
 - Multiple contributors
 - Codebases growing over time
 
 **6. Code with Heavy External Dependencies**
+
 - Many database operations
 - Network calls to external APIs
 - File I/O operations
@@ -192,6 +201,7 @@ func generateKey() (*rsa.PrivateKey, error) {
 **Specific Scenarios (with Exclusions, Not Full Disabling):**
 
 **1. Test Files** (`_test.go`)
+
 - Tests often use simplified error handling
 - Mock functions may intentionally ignore errors
 - Benchmarks prioritize performance
@@ -204,6 +214,7 @@ issues:
 ```
 
 **2. Generated Code**
+
 - Protobuf-generated code
 - Mock-generated code
 - API client libraries
@@ -310,12 +321,14 @@ linters:
 - **Description**: Report unchecked errors in type assertions
 
 **When to Enable:**
+
 - Type safety is critical
 - Working with interface{}
 - Public API code
 - Security-sensitive operations
 
 **Example:**
+
 ```go
 // With check-type-assertions: true
 val := getValue()
@@ -335,12 +348,14 @@ if !ok {
 - **Description**: Report errors assigned to blank identifier `_`
 
 **When to Enable:**
+
 - Strict error handling policy
 - No intentional error discarding
 - Security-critical code
 - Public libraries
 
 **Example:**
+
 ```go
 // With check-blank: true
 _, _ = os.OpenFile(path, os.O_RDONLY, 0644)  // errcheck reports
@@ -359,11 +374,13 @@ defer func() {
 - **Description**: Disable built-in exclusion list
 
 **Built-in Exclusions Include:**
+
 - fmt package print functions (fmt.Print, fmt.Sprint, etc.)
 - Buffer operations (bytes.Buffer.Write, etc.)
 - Logger methods
 
 **When to Enable:**
+
 - Maximum strictness required
 - Want to verify all potential error sources
 - Security-critical projects
@@ -377,6 +394,7 @@ defer func() {
 **Format:** `receiver` or `package.path` or `package.Type.Method`
 
 **Common Exclusions:**
+
 ```yaml
 exclude-functions:
   # Standard library functions
@@ -409,6 +427,7 @@ exclude-functions:
 ### Recommended Configurations
 
 #### ✅ Standard Configuration (Recommended)
+
 ```yaml
 # Most production applications
 version: "2"
@@ -431,6 +450,7 @@ issues:
 ```
 
 #### ✅ Strict Configuration
+
 ```yaml
 # Security-critical, public APIs, financial software
 version: "2"
@@ -445,6 +465,7 @@ linters:
 ```
 
 #### ✅ Relaxed Configuration
+
 ```yaml
 # Rapid prototyping, learning Go
 version: "2"
@@ -462,6 +483,7 @@ issues:
 ```
 
 #### ✅ Web API Configuration
+
 ```yaml
 # HTTP server with strict security
 version: "2"
@@ -494,6 +516,7 @@ issues:
 ```
 
 #### ✅ CLI Tool Configuration
+
 ```yaml
 # Command-line interface tool
 version: "2"
@@ -518,6 +541,7 @@ issues:
 ```
 
 #### ✅ Library/Public SDK Configuration
+
 ```yaml
 # Code consumed by others
 version: "2"
@@ -541,29 +565,30 @@ issues:
 
 errcheck works excellently with:
 
-| Linter | Relationship | Value |
-|--------|--------------|---------|
-| **errorlint** | Complementary | errcheck: "error ignored" → errorlint: "errors should be wrapped with %w" |
-| **wrapcheck** | Complementary | errcheck: "error checked" → wrapcheck: "error not wrapped" |
-| **staticcheck** | Complementary | errcheck: "error assigned" → staticcheck: "error not handled correctly" |
-| **gosec** | Complementary | errcheck: "error ignored" → gosec: "potential security issue" |
-| **nilerr** | Complementary | errcheck: "error not checked" → nilerr: "returned nil error with non-nil value" |
-| **nilnil** | Complementary | errcheck: "error not checked" → nilnil: "simultaneous nil error and value" |
+| Linter              | Relationship  | Value                                                                           |
+| ------------------- | ------------- | ------------------------------------------------------------------------------- |
+| **errorlint**       | Complementary | errcheck: "error ignored" → errorlint: "errors should be wrapped with %w"       |
+| **wrapcheck**       | Complementary | errcheck: "error checked" → wrapcheck: "error not wrapped"                      |
+| **staticcheck**     | Complementary | errcheck: "error assigned" → staticcheck: "error not handled correctly"         |
+| **gosec**           | Complementary | errcheck: "error ignored" → gosec: "potential security issue"                   |
+| **nilerr**          | Complementary | errcheck: "error not checked" → nilerr: "returned nil error with non-nil value" |
+| **nilnil**          | Complementary | errcheck: "error not checked" → nilnil: "simultaneous nil error and value"      |
 | **forcetypeassert** | Complementary | errcheck: "type assertion error ignored" → forcetypeassert: "must use comma-ok" |
-| **govet** | Complementary | errcheck: "error handling" → govet: "suspicious constructs" |
+| **govet**           | Complementary | errcheck: "error handling" → govet: "suspicious constructs"                     |
 
 **Complete Error Handling Suite:**
+
 ```yaml
 linters:
   enable:
-    - errcheck        # Unchecked errors (CRITICAL)
-    - errorlint       # Error wrapping patterns (HIGH)
-    - wrapcheck       # Error wrapping from external packages (HIGH)
-    - nilerr          # Nil error returns (CRITICAL)
-    - nilnil          # Simultaneous nil returns (MEDIUM)
+    - errcheck # Unchecked errors (CRITICAL)
+    - errorlint # Error wrapping patterns (HIGH)
+    - wrapcheck # Error wrapping from external packages (HIGH)
+    - nilerr # Nil error returns (CRITICAL)
+    - nilnil # Simultaneous nil returns (MEDIUM)
     - forcetypeassert # Type assertion safety (HIGH)
-    - staticcheck      # Deeper error analysis (CRITICAL)
-    - gosec           # Security implications (CRITICAL)
+    - staticcheck # Deeper error analysis (CRITICAL)
+    - gosec # Security implications (CRITICAL)
 ```
 
 ### Example of Linter Synergy
@@ -605,14 +630,15 @@ func processData(data []byte) error {
 
 ### 🔒 Minimal Overlap, No Conflicts
 
-| Linter | Overlap | Recommendation |
-|---------|----------|----------------|
-| errcheck + **errorlint** | Both check error handling | Use both - complementary |
-| errcheck + **gosec** | Both catch error issues | Use both - gosec has security focus |
-| errcheck + **staticcheck** | Both check errors | Use both - staticcheck is deeper analysis |
-| errcheck + **nilerr** | Both catch error issues | Use both - different patterns |
+| Linter                     | Overlap                   | Recommendation                            |
+| -------------------------- | ------------------------- | ----------------------------------------- |
+| errcheck + **errorlint**   | Both check error handling | Use both - complementary                  |
+| errcheck + **gosec**       | Both catch error issues   | Use both - gosec has security focus       |
+| errcheck + **staticcheck** | Both check errors         | Use both - staticcheck is deeper analysis |
+| errcheck + **nilerr**      | Both catch error issues   | Use both - different patterns             |
 
 **Why No Conflicts:**
+
 - errcheck: Ensures errors are not ignored
 - errorlint: Ensures errors are wrapped properly
 - staticcheck: Analyzes if error handling is correct
@@ -922,7 +948,7 @@ linters-settings:
     check-type-assertions: true
     check-blank: true
     disable-default-exclusions: false
-    exclude-functions: []  # No exclusions
+    exclude-functions: [] # No exclusions
 ```
 
 ## Security-Specific Considerations
@@ -995,6 +1021,7 @@ Before disabling errcheck for security-sensitive code:
 **Recommendation:** **ALWAYS ENABLE** with `check-type-assertions: true` for all production code. Exclude test files (`(.+)_test\.go`) and generated code. Exclude only documented safe functions (buffer operations, fmt print functions, etc.). Combine with **errorlint** and **wrapcheck** for complete error handling coverage. For security-critical code, use strictest settings (`check-blank: true`, minimal exclusions).
 
 **Top 3 Configuration Tips:**
+
 1. Enable `check-type-assertions: true` for type safety
 2. Exclude only truly safe functions (buffers, fmt, logging)
 3. Combine with errorlint and wrapcheck for complete error handling

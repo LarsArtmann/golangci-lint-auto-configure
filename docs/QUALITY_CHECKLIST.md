@@ -5,6 +5,7 @@ Before marking a linter as **completed**, verify all criteria below are met:
 ## A. Content Completeness ✅
 
 ### Required Sections
+
 - [ ] All required sections present:
   - [ ] "What the Linter Does"
   - [ ] "When It Should Be Enabled"
@@ -12,6 +13,7 @@ Before marking a linter as **completed**, verify all criteria below are met:
   - [ ] "How It Interferes or Works Together With Other Linters"
 
 ### Content Depth
+
 - [ ] Linter purpose clearly explained (1-2 paragraphs)
 - [ ] Problem detection details provided
 - [ ] Why it matters explained (bullet points)
@@ -22,6 +24,7 @@ Before marking a linter as **completed**, verify all criteria below are met:
 ## B. Technical Accuracy ✅
 
 ### Configuration Examples
+
 - [ ] All configuration options documented with:
   - [ ] Type (bool, string, []string, etc.)
   - [ ] Default value
@@ -29,17 +32,20 @@ Before marking a linter as **completed**, verify all criteria below are met:
   - [ ] Example YAML configuration
 
 ### Configuration Correctness
+
 - [ ] All YAML examples are valid syntax
 - [ ] No invalid YAML structure
 - [ ] No unknown configuration options
 
 ### Inter-Linter Relationships
+
 - [ ] Complementary linters table included
 - [ ] Conflicts/overlap table included
 - [ ] Example of linter synergy provided
 - [ ] Explanation of why no conflicts
 
 ### Priority Information
+
 - [ ] Priority matches linter_data.go (CRITICAL/HIGH/MEDIUM)
 - [ ] Priority justification provided
 - [ ] Enable/disable scenarios specific and actionable
@@ -48,6 +54,7 @@ Before marking a linter as **completed**, verify all criteria below are met:
 ## C. Consistency ✅
 
 ### Format Consistency
+
 - [ ] Follows template structure
 - [ ] Section order matches template
 - [ ] Consistent use of ✅ GOOD vs ❌ BAD examples
@@ -55,12 +62,14 @@ Before marking a linter as **completed**, verify all criteria below are met:
 - [ ] Consistent YAML block formatting (```yaml)
 
 ### Terminology Consistency
+
 - [ ] Linter name used consistently
 - [ ] Terminology matches other documentation
 - [ ] Acronyms explained (e.g., CRITICAL, HIGH, MEDIUM)
 - [ ] Section headings use consistent style (##, ###)
 
 ### Style Consistency
+
 - [ ] Table formatting consistent
 - [ ] Bullet point formatting consistent
 - [ ] Code comments use consistent style
@@ -69,12 +78,14 @@ Before marking a linter as **completed**, verify all criteria below are met:
 ## D. Validation ✅
 
 ### File Validation
+
 - [ ] File exists in /reports/ directory
 - [ ] File is not empty
 - [ ] File size > 10 KB (comprehensive documentation)
 - [ ] No markdown syntax errors
 
 ### Validation Script Check
+
 - [ ] `/scripts/validate_linter_doc.sh {{LINTER_NAME}}` passes
 - [ ] All required sections detected
 - [ ] Examples present
@@ -84,6 +95,7 @@ Before marking a linter as **completed**, verify all criteria below are met:
 ## E. Quality Standards ✅
 
 ### Examples Quality
+
 - [ ] At least 5 practical examples
 - [ ] Each example has BAD (❌) code showing issue
 - [ ] Each example has GOOD (✅) code showing fix
@@ -91,12 +103,14 @@ Before marking a linter as **completed**, verify all criteria below are met:
 - [ ] Examples cover different scenarios
 
 ### Best Practices
+
 - [ ] At least 10 best practices listed
 - [ ] Practices are actionable and specific
 - [ ] Practices are relevant to linter
 - [ ] Practices are practical, not theoretical
 
 ### Common Scenarios
+
 - [ ] At least 5 common scenarios documented
 - [ ] Each scenario has Problem description
 - [ ] Each scenario has Solution
@@ -104,6 +118,7 @@ Before marking a linter as **completed**, verify all criteria below are met:
 - [ ] Scenarios are realistic and helpful
 
 ### Summary Section
+
 - [ ] Summary lists key benefits (✅)
 - [ ] Summary lists limitations (⚠️)
 - [ ] Recommendation is clear and specific
@@ -113,12 +128,14 @@ Before marking a linter as **completed**, verify all criteria below are met:
 ## F. Documentation Structure ✅
 
 ### Section Requirements
+
 - [ ] "What the Linter Does" section present and complete
 - [ ] "When It Should Be Enabled" section present and complete
 - [ ] "How It Should Be Configured" section present and complete
 - [ ] "How It Interferes or Works Together With Other Linters" section present and complete
 
 ### Sub-section Requirements
+
 - [ ] "The Problem It Detects" in "What" section
 - [ ] "How It Works" in "What" section
 - [ ] "Examples" in "What" section (at least 5)
@@ -133,18 +150,21 @@ Before marking a linter as **completed**, verify all criteria below are met:
 ## G. Completion Verification ✅
 
 ### Pre-Completion Checks
+
 - [ ] Research complete (all sources reviewed)
 - [ ] All configuration options documented
 - [ ] All examples tested/verified (where applicable)
 - [ ] Inter-linter relationships cross-checked
 
 ### Post-Completion Validation
+
 - [ ] `/scripts/validate_linter_doc.sh {{LINTER_NAME}}` executed successfully
 - [ ] All validation checks passed
 - [ ] File size adequate (> 10 KB)
 - [ ] No markdown errors in file
 
 ### Git Status
+
 - [ ] File added to git
 - [ ] File committed with descriptive message
 - [ ] Pushed to remote repository
