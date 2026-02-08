@@ -1,7 +1,6 @@
 package linter_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 

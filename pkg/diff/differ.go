@@ -3,6 +3,7 @@ package diff
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
