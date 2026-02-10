@@ -45,7 +45,8 @@ func main() {
 
 func BenchmarkDetector_Detect(b *testing.B) {
 	tempDir := setupBenchmarkProject(b)
-	defer os.RemoveAll(tempDir)
+
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	detector := NewDetector(tempDir)
 
@@ -56,7 +57,8 @@ func BenchmarkDetector_Detect(b *testing.B) {
 
 func BenchmarkDetector_hasMainPackage(b *testing.B) {
 	tempDir := setupBenchmarkProject(b)
-	defer os.RemoveAll(tempDir)
+
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	detector := NewDetector(tempDir)
 
@@ -67,7 +69,8 @@ func BenchmarkDetector_hasMainPackage(b *testing.B) {
 
 func BenchmarkDetector_analyzeGoMod(b *testing.B) {
 	tempDir := setupBenchmarkProject(b)
-	defer os.RemoveAll(tempDir)
+
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	detector := NewDetector(tempDir)
 

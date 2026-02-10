@@ -33,7 +33,8 @@ func (g *Generator) GenerateReport(analysis *types.ConfigAnalysis, outputPath st
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer f.Close()
+
+	defer func() { _ = f.Close() }()
 
 	err = Report(data).Render(context.Background(), f)
 	if err != nil {

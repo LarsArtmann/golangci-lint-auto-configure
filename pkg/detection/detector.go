@@ -2,6 +2,7 @@ package detection
 
 import (
 	"bufio"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,6 +10,11 @@ import (
 
 // ProjectType represents the type of Go project.
 type ProjectType int
+
+// closeFile closes a file and ignores the error (for use in defer).
+func closeFile(c io.Closer) {
+	_ = c.Close()
+}
 
 const (
 	ProjectTypeUnknown ProjectType = iota
@@ -88,7 +94,7 @@ func (d *Detector) Detect() ProjectType {
 func (d *Detector) isMonorepo() bool {
 	count := 0
 
-	filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -112,7 +118,7 @@ func (d *Detector) analyzeGoMod() (string, []string) {
 		return "", nil
 	}
 
-	defer file.Close()
+	defer closeFile(file)
 
 	scanner := bufio.NewScanner(file)
 	inRequire := false
@@ -169,7 +175,7 @@ func (d *Detector) analyzeGoMod() (string, []string) {
 func (d *Detector) hasMainPackage() bool {
 	found := false
 
-	filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
 			return nil
 		}
@@ -178,7 +184,7 @@ func (d *Detector) hasMainPackage() bool {
 		if err != nil {
 			return nil
 		}
-		defer file.Close()
+		defer closeFile(file)
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
@@ -256,7 +262,7 @@ func (d *Detector) hasAPICodePatterns() bool {
 
 	found := false
 
-	filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
 			return nil
 		}
@@ -265,7 +271,7 @@ func (d *Detector) hasAPICodePatterns() bool {
 		if err != nil {
 			return nil
 		}
-		defer file.Close()
+		defer closeFile(file)
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {

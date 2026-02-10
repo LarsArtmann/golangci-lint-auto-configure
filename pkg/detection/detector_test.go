@@ -117,7 +117,8 @@ go 1.21
 			if err != nil {
 				t.Fatalf("Failed to create temp dir: %v", err)
 			}
-			defer os.RemoveAll(tempDir)
+
+			defer func() { _ = os.RemoveAll(tempDir) }()
 
 			// Setup test files
 			if err := tt.setupFunc(tempDir); err != nil {
