@@ -95,7 +95,7 @@ go 1.21
 				}
 				// Create subdirectory with another go.mod
 				subDir := filepath.Join(dir, "subproject")
-				err := os.MkdirAll(subDir, 0o755)
+				err = os.MkdirAll(subDir, 0o755)
 				if err != nil {
 					return err
 				}

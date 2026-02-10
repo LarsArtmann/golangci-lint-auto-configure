@@ -104,7 +104,7 @@ func (d *Detector) isMonorepo() bool {
 }
 
 // analyzeGoMod extracts module path and imports from go.mod.
-func (d *Detector) analyzeGoMod() (modulePath string, imports []string) {
+func (d *Detector) analyzeGoMod() (string, []string) {
 	goModPath := filepath.Join(d.rootDir, "go.mod")
 
 	file, err := os.Open(goModPath)
@@ -116,6 +116,10 @@ func (d *Detector) analyzeGoMod() (modulePath string, imports []string) {
 
 	scanner := bufio.NewScanner(file)
 	inRequire := false
+
+	var modulePath string
+
+	var imports []string
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())

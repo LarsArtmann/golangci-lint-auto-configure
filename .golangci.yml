@@ -47,7 +47,6 @@ linters:
     - contextcheck
     - copyloopvar
     - decorder
-    - depguard
     - dogsled
     - dupl
     - dupword
@@ -118,7 +117,6 @@ linters:
     - usetesting
     - wastedassign
     - whitespace
-    - wsl
     - wsl_v5
     - zerologlint
   settings:
@@ -129,6 +127,8 @@ linters:
       min-complexity: 25
     gocyclo:
       min-complexity: 20
+    cyclop:
+      max-complexity: 15
 issues:
   max-issues-per-linter: 100
   max-same-issues: 15

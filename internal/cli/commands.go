@@ -34,6 +34,78 @@ var (
 	reportFormat string
 )
 
+// runConfigure executes the configure command logic.
+func runConfigure(
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configLoader *config.Loader,
+	priorityParam, preset string,
+	dryRun bool,
+	configPath string,
+) error {
+	if verbose {
+		logger.SetLevel(log.DebugLevel)
+	}
+
+	// Find config file if not specified, or use default path
+	configFile := configPath
+	if configFile == "" {
+		configFile = configLoader.FindOrGetDefaultConfigPath(".")
+	}
+
+	// Check if config file exists, create default if not
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		logger.Infof("No config file found, creating default: %s", configFile)
+
+		defaultConfig := configLoader.CreateDefaultConfig()
+
+		err := configLoader.SaveConfig(defaultConfig, configFile)
+		if err != nil {
+			return fmt.Errorf("failed to create default config: %w", err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("failed to check config file: %w", err)
+	}
+
+	logger.Infof("Configuring golangci-lint with config: %s", configFile)
+
+	// Handle preset mode
+	if preset != "" {
+		return applyPreset(logger, configLoader, configFile, preset, dryRun)
+	}
+
+	// Create fixer and apply fixes
+	fixer := linter.NewFixer(logger, analyzer)
+
+	var linterPriority types.LinterPriority
+
+	switch priorityParam {
+	case "critical":
+		linterPriority = types.LinterPriorityCritical
+	case "high":
+		linterPriority = types.LinterPriorityHigh
+	case "medium":
+		linterPriority = types.LinterPriorityMedium
+	case "optional":
+		linterPriority = types.LinterPriorityOptional
+	default:
+		linterPriority = types.LinterPriorityHigh
+	}
+
+	result, err := fixer.FixConfig(configFile, linterPriority, dryRun)
+	if err != nil {
+		return fmt.Errorf("failed to fix configuration: %w", err)
+	}
+
+	logger.Infof("%s", result.Message)
+
+	if result.BackupPath != "" {
+		logger.Infof("Backup created: %s", result.BackupPath)
+	}
+
+	return nil
+}
+
 // NewRootCommand creates the root CLI command.
 func NewRootCommand() *cobra.Command {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
@@ -112,66 +184,7 @@ Or use --preset for predefined linter sets:
   - security: Security-focused only
   - performance: Performance optimization only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if verbose {
-				logger.SetLevel(log.DebugLevel)
-			}
-
-			// Find config file if not specified, or use default path
-			configFile := configPath
-			if configFile == "" {
-				configFile = configLoader.FindOrGetDefaultConfigPath(".")
-			}
-
-			// Check if config file exists, create default if not
-			if _, err := os.Stat(configFile); os.IsNotExist(err) {
-				logger.Infof("No config file found, creating default: %s", configFile)
-
-				defaultConfig := configLoader.CreateDefaultConfig()
-				err := configLoader.SaveConfig(defaultConfig, configFile)
-				if err != nil {
-					return fmt.Errorf("failed to create default config: %w", err)
-				}
-			} else if err != nil {
-				return fmt.Errorf("failed to check config file: %w", err)
-			}
-
-			logger.Infof("Configuring golangci-lint with config: %s", configFile)
-
-			// Handle preset mode
-			if preset != "" {
-				return applyPreset(logger, configLoader, configFile, preset, dryRun)
-			}
-
-			// Create fixer and apply fixes
-			fixer := linter.NewFixer(logger, analyzer)
-
-			var linterPriority types.LinterPriority
-
-			switch priority {
-			case "critical":
-				linterPriority = types.LinterPriorityCritical
-			case "high":
-				linterPriority = types.LinterPriorityHigh
-			case "medium":
-				linterPriority = types.LinterPriorityMedium
-			case "optional":
-				linterPriority = types.LinterPriorityOptional
-			default:
-				linterPriority = types.LinterPriorityHigh
-			}
-
-			result, err := fixer.FixConfig(configFile, linterPriority, dryRun)
-			if err != nil {
-				return fmt.Errorf("failed to fix configuration: %w", err)
-			}
-
-			logger.Infof("%s", result.Message)
-
-			if result.BackupPath != "" {
-				logger.Infof("Backup created: %s", result.BackupPath)
-			}
-
-			return nil
+			return runConfigure(logger, analyzer, configLoader, priority, preset, dryRun, configPath)
 		},
 	}
 
@@ -381,8 +394,8 @@ Use --skip-validation if the v1 config has known issues.`,
 				logger.Errorf("Migration failed: %v", err)
 				logger.Infof("Output: %s", string(output))
 				logger.Infof("Restoring backup...")
-				restoreErr := configLoader.RestoreConfig(backupPath, configFile)
 
+				restoreErr := configLoader.RestoreConfig(backupPath, configFile)
 				if restoreErr != nil {
 					logger.Errorf("Failed to restore backup: %v", restoreErr)
 
@@ -575,12 +588,14 @@ func newReportCommand(
 			// Generate report based on format
 			if reportFormat == "json" {
 				jsonGenerator := report.NewJSONGenerator(logger)
+
 				err := jsonGenerator.GenerateJSONReport(analysis, outputPath)
 				if err != nil {
 					return fmt.Errorf("failed to generate JSON report: %w", err)
 				}
 			} else {
 				htmlGenerator := report.NewGenerator(logger)
+
 				err := htmlGenerator.GenerateReport(analysis, outputPath)
 				if err != nil {
 					return fmt.Errorf("failed to generate HTML report: %w", err)
