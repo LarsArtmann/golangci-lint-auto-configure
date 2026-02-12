@@ -45,12 +45,12 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 	// Prepare JSON report structure
 	enabledLinterNames := make([]string, len(analysis.EnabledLinters))
 	for i, linter := range analysis.EnabledLinters {
-		enabledLinterNames[i] = linter.Name
+		enabledLinterNames[i] = string(linter.Name)
 	}
 
 	disabledLinterNames := make([]string, len(analysis.DisabledLinters))
 	for i, linter := range analysis.DisabledLinters {
-		disabledLinterNames[i] = linter.Name
+		disabledLinterNames[i] = string(linter.Name)
 	}
 
 	jsonReport := JSONReport{

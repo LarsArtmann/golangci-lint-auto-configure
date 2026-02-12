@@ -1,5 +1,12 @@
 package cli
 
+// CRITICAL TODO: This file is 831 lines - FAR exceeds 350 line limit!
+// TODO: Split into subpackages: cmd/configure, cmd/analyze, cmd/migrate, etc.
+// TODO: Extract command handlers into separate handler types
+// TODO: Use dependency injection framework (samber/do) instead of manual wiring
+// TODO: Add proper context.Context propagation for cancellation
+// TODO: Extract flag parsing into a dedicated configuration struct
+
 import (
 	"context"
 	"errors"

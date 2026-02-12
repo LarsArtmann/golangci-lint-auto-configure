@@ -1,5 +1,9 @@
 package types
 
+// TODO: Consider using generics for ConfigResult types to reduce boilerplate
+// TODO: Add validation tags for struct fields using a validation library
+// TODO: Consider using time.Duration instead of string for timeout fields
+
 import (
 	"fmt"
 )
@@ -53,14 +57,14 @@ func (p FormatterPriority) String() string {
 
 // LinterInfo contains information about a golangci-lint linter.
 type LinterInfo struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Groups      []string `json:"groups,omitempty"`
-	Fast        bool     `json:"fast,omitempty"`
-	AutoFix     bool     `json:"autoFix,omitempty"`
-	Deprecated  bool     `json:"deprecated"`
-	Since       string   `json:"since"`
-	OriginalURL string   `json:"originalURL"`
+	Name        LinterName `json:"name"`
+	Description string     `json:"description"`
+	Groups      []string   `json:"groups,omitempty"`
+	Fast        bool       `json:"fast,omitempty"`
+	AutoFix     bool       `json:"autoFix,omitempty"`
+	Deprecated  bool       `json:"deprecated"`
+	Since       string     `json:"since"`
+	OriginalURL string     `json:"originalURL"`
 }
 
 // LinterRecommendation represents a linter with its priority and reason.
@@ -79,8 +83,8 @@ func (ln LinterName) String() string {
 
 // LinterReplacement represents a replacement for a deprecated linter.
 type LinterReplacement struct {
-	Replacement string `json:"replacement"`
-	Reason      string `json:"reason"`
+	Replacement LinterName `json:"replacement"`
+	Reason      string     `json:"reason"`
 }
 
 // FormatterName is a strongly-typed formatter name to prevent typos.

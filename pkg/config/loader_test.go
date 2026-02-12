@@ -193,10 +193,11 @@ linters:
 	})
 
 	Context("ValidateConfig", func() {
-		It("should validate empty config", func() {
+		It("should return error for empty timeout", func() {
 			cfg := &config.Config{}
-			errors := loader.ValidateConfig(cfg)
-			Expect(errors).To(BeEmpty())
+			errs := loader.ValidateConfig(cfg)
+			Expect(errs).To(HaveLen(1))
+			Expect(errs[0].Error()).To(ContainSubstring("run.timeout cannot be empty"))
 		})
 
 		It("should validate valid config", func() {

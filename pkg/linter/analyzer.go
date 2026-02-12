@@ -1,5 +1,11 @@
 package linter
 
+// TODO: Split this file into multiple files - it's 462 lines (over 350 limit)
+// TODO: Extract version checking into a separate VersionChecker type
+// TODO: Use interface for exec.Command to enable better testing/mocking
+// TODO: Consider caching linter list to avoid repeated exec calls
+// TODO: Add context.Context support for cancellation
+
 import (
 	"encoding/json"
 	"fmt"
@@ -263,8 +269,8 @@ func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo) []types
 		}
 
 		rec := types.LinterRecommendation{
-			Name:   types.LinterName(linter.Name),
-			Reason: a.getLinterReason(linter.Name),
+			Name:   linter.Name,
+			Reason: a.getLinterReason(string(linter.Name)),
 		}
 
 		// Get priority from constants, default to Optional if not found

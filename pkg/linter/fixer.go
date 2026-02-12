@@ -1,5 +1,11 @@
 package linter
 
+// TODO: Consider using a transaction pattern for config changes (all or nothing)
+// TODO: Add dry-run mode that shows detailed diff instead of just counts
+// TODO: Extract duplicate linter detection into a separate validation step
+// TODO: Add rollback mechanism for failed config saves
+// TODO: Consider using immutable config copies for safer modifications
+
 import (
 	"fmt"
 	"slices"
@@ -69,13 +75,13 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 			delete(linterSet, linter)
 
 			// Add the replacement if not already present
-			if !linterSet[replacement.Replacement] {
+			if !linterSet[string(replacement.Replacement)] {
 				if dryRun {
 					f.logger.Infof("[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
 				} else {
 					f.logger.Infof("Replacing deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
 
-					linterSet[replacement.Replacement] = true
+					linterSet[string(replacement.Replacement)] = true
 
 					messages = append(messages, fmt.Sprintf("Replaced deprecated %s with %s: %s", linter, replacement.Replacement, replacement.Reason))
 				}
@@ -99,7 +105,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 
 		// Check if this linter is deprecated and replace it with its successor
 		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(lintName)]; isDeprecated {
-			lintName = replacement.Replacement // Use the replacement name instead
+			lintName = string(replacement.Replacement) // Use the replacement name instead
 			// Continue to the checks below - the replacement might already be enabled
 		}
 

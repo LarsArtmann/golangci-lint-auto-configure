@@ -1,5 +1,11 @@
 package config
 
+// TODO: Extract LinterList type into types package for consistency
+// TODO: Add support for TOML and JSON config formats (currently only YAML)
+// TODO: Consider using io.Reader/Writer interfaces instead of file paths for testability
+// TODO: Add context.Context support for cancellation
+// TODO: Extract default config values into constants
+
 import (
 	"encoding/json"
 	"fmt"
@@ -193,7 +199,9 @@ func (l *Loader) CreateBackup(filePath string) (string, error) {
 func (l *Loader) ValidateConfig(config *Config) []error {
 	var errs []error
 
-	if config.Run.Timeout != "" && config.Run.Timeout == "" {
+	// TODO: Implement proper timeout format validation (e.g., "5m", "10s")
+	// Currently accepting any non-empty string as timeout
+	if config.Run.Timeout == "" {
 		errs = append(errs, errors.NewConfigError("run.timeout cannot be empty", "", nil))
 	}
 
