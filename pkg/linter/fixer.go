@@ -55,6 +55,8 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	// Handle deprecated linters first
 	deprecationFixes := 0
 	enableFixes := 0
+	formatterFixes := 0
+	redundantFixes := 0
 	messages := []string{}
 
 	// Track all linters to ensure uniqueness in the final list
@@ -96,6 +98,60 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 		}
 	}
 
+	// Track formatters to enable (based on high priority recommendations)
+	formatterSet := make(map[string]bool)
+	for _, formatter := range cfg.Formatters.Enable {
+		formatterSet[formatter] = true
+	}
+
+	// Check if golines formatter should be enabled (high priority)
+	shouldEnableGolines := false
+
+	for _, rec := range analysis.FormatterRecommendations {
+		if rec.Name == "golines" && rec.Priority == types.FormatterPriorityHigh {
+			shouldEnableGolines = true
+
+			break
+		}
+	}
+
+	// Also enable golines if it's not already enabled and user wants high priority formatters
+	if shouldEnableGolines && !formatterSet["golines"] {
+		formatterFixes++
+
+		if dryRun {
+			f.logger.Infof("[DRY-RUN] Would enable formatter: golines (formats code and fixes long lines)")
+		} else {
+			f.logger.Infof("Enabling formatter: golines (formats code and fixes long lines)")
+
+			formatterSet["golines"] = true
+
+			messages = append(messages, "Enabled golines formatter: formats code and fixes long lines")
+		}
+	}
+
+	// Check for redundant linters when formatters are enabled
+	for linterName, reason := range constants.RedundantLinters {
+		if linterSet[string(linterName)] {
+			// Check if the corresponding formatter is being enabled (or would be enabled in dry-run)
+			golinesWillBeEnabled := formatterSet["golines"] || (shouldEnableGolines && dryRun)
+
+			if linterName == "lll" && golinesWillBeEnabled {
+				redundantFixes++
+
+				if dryRun {
+					f.logger.Infof("[DRY-RUN] Would remove redundant linter: %s (%s)", linterName, reason)
+				} else {
+					f.logger.Infof("Removing redundant linter: %s (%s)", linterName, reason)
+
+					delete(linterSet, string(linterName))
+
+					messages = append(messages, fmt.Sprintf("Removed redundant %s: %s", linterName, reason))
+				}
+			}
+		}
+	}
+
 	for _, rec := range analysis.LinterRecommendations {
 		if rec.Priority < priority {
 			continue
@@ -127,10 +183,11 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 		}
 	}
 
-	totalFixes := deprecationFixes + enableFixes
+	totalFixes := deprecationFixes + enableFixes + formatterFixes + redundantFixes
 
 	if dryRun {
-		f.logger.Infof("[DRY-RUN] Would apply %d fixes", totalFixes)
+		f.logger.Infof("[DRY-RUN] Would apply %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
+			totalFixes, enableFixes, formatterFixes, deprecationFixes, redundantFixes)
 
 		return &types.MigrationResult{
 			Success:      true,
@@ -163,6 +220,17 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	cfg.Linters.Enable = enabledLinters
 	cfg.Linters.Disable = []string{}
 
+	// Convert formatter set to slice and update config
+	if len(formatterSet) > 0 {
+		enabledFormatters := make([]string, 0, len(formatterSet))
+
+		for formatter := range formatterSet {
+			enabledFormatters = append(enabledFormatters, formatter)
+		}
+
+		cfg.Formatters.Enable = enabledFormatters
+	}
+
 	f.logger.Infof("Saving configuration...")
 
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
@@ -172,7 +240,7 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	result := &types.MigrationResult{
 		Success:      true,
 		FixesApplied: totalFixes,
-		Message:      fmt.Sprintf("Successfully applied %d fixes", totalFixes),
+		Message:      fmt.Sprintf("Successfully applied %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)", totalFixes, enableFixes, formatterFixes, deprecationFixes, redundantFixes),
 		BackupPath:   backupPath,
 	}
 
