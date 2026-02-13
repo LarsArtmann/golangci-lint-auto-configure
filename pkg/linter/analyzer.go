@@ -86,7 +86,11 @@ func (a *Analyzer) CheckVersion() error {
 	}
 
 	if versionInfo.Version == "" {
-		return errors.NewAnalysisError("could not parse golangci-lint version from JSON", "", fmt.Errorf("output: %s", string(output)))
+		return errors.NewAnalysisError(
+			"could not parse golangci-lint version from JSON",
+			"",
+			fmt.Errorf("output: %s", string(output)),
+		)
 	}
 
 	version := versionInfo.Version
@@ -107,7 +111,10 @@ func (a *Analyzer) CheckVersion() error {
 		return errors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
 			"",
-			fmt.Errorf("minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", minVersion),
+			fmt.Errorf(
+				"minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
+				minVersion,
+			),
 		)
 	}
 
@@ -132,7 +139,11 @@ func (a *Analyzer) checkVersionText() error {
 	version := a.parseVersionText(outputStr)
 
 	if version == "" {
-		return errors.NewAnalysisError("could not parse golangci-lint version from output", "", fmt.Errorf("output: %s", outputStr))
+		return errors.NewAnalysisError(
+			"could not parse golangci-lint version from output",
+			"",
+			fmt.Errorf("output: %s", outputStr),
+		)
 	}
 
 	// Ensure version has 'v' prefix for semver
@@ -151,7 +162,10 @@ func (a *Analyzer) checkVersionText() error {
 		return errors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
 			"",
-			fmt.Errorf("minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", minVersion),
+			fmt.Errorf(
+				"minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
+				minVersion,
+			),
 		)
 	}
 
@@ -209,7 +223,10 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 		// Don't fail if formatters JSON parsing fails
 		a.logger.Debugf("Failed to parse formatters JSON, skipping: %v", err)
 
-		jsonFormatOutput = golangciLintFormattersOutput{Enabled: []types.FormatterInfo{}, Disabled: []types.FormatterInfo{}}
+		jsonFormatOutput = golangciLintFormattersOutput{
+			Enabled:  []types.FormatterInfo{},
+			Disabled: []types.FormatterInfo{},
+		}
 	}
 
 	analysis := &types.ConfigAnalysis{
@@ -355,7 +372,10 @@ func (a *Analyzer) calculateRecommendationCounts(analysis *types.ConfigAnalysis)
 }
 
 // GetLintersByPriority returns recommendations filtered by priority.
-func (a *Analyzer) GetLintersByPriority(recommendations []types.LinterRecommendation, priority types.LinterPriority) []types.LinterRecommendation {
+func (a *Analyzer) GetLintersByPriority(
+	recommendations []types.LinterRecommendation,
+	priority types.LinterPriority,
+) []types.LinterRecommendation {
 	var filtered []types.LinterRecommendation
 
 	for _, rec := range recommendations {
@@ -373,14 +393,28 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 
 	// Show deprecated linters first (most important to address)
 	if len(analysis.DeprecatedLinters) > 0 {
-		builder.WriteString(fmt.Sprintf("⚠️  %d DEPRECATED linter(s) are enabled (should be migrated):\n", len(analysis.DeprecatedLinters)))
+		builder.WriteString(
+			fmt.Sprintf(
+				"⚠️  %d DEPRECATED linter(s) are enabled (should be migrated):\n",
+				len(analysis.DeprecatedLinters),
+			),
+		)
 
 		for _, linter := range analysis.DeprecatedLinters {
 			// Check if there's a replacement
 			if replacement, ok := constants.DeprecatedLinters[types.LinterName(linter.Name)]; ok {
-				builder.WriteString(fmt.Sprintf("  - %s: Use %s instead (%s)\n", linter.Name, replacement.Replacement, linter.Description))
+				builder.WriteString(
+					fmt.Sprintf(
+						"  - %s: Use %s instead (%s)\n",
+						linter.Name,
+						replacement.Replacement,
+						linter.Description,
+					),
+				)
 			} else {
-				builder.WriteString(fmt.Sprintf("  - %s: %s (no replacement specified)\n", linter.Name, linter.Description))
+				builder.WriteString(
+					fmt.Sprintf("  - %s: %s (no replacement specified)\n", linter.Name, linter.Description),
+				)
 			}
 		}
 
@@ -393,7 +427,9 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 	optional := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityOptional)
 
 	if len(critical) > 0 {
-		builder.WriteString(fmt.Sprintf("🚨 %d CRITICAL linter(s) are disabled (should ALWAYS be enabled):\n", len(critical)))
+		builder.WriteString(
+			fmt.Sprintf("🚨 %d CRITICAL linter(s) are disabled (should ALWAYS be enabled):\n", len(critical)),
+		)
 
 		for _, rec := range critical {
 			builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
@@ -403,7 +439,9 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 	}
 
 	if len(highValue) > 0 {
-		builder.WriteString(fmt.Sprintf("⚠️  %d HIGH VALUE linter(s) are disabled (recommended for most projects):\n", len(highValue)))
+		builder.WriteString(
+			fmt.Sprintf("⚠️  %d HIGH VALUE linter(s) are disabled (recommended for most projects):\n", len(highValue)),
+		)
 
 		for _, rec := range highValue {
 			builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
@@ -413,7 +451,9 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 	}
 
 	if len(mediumValue) > 0 {
-		builder.WriteString(fmt.Sprintf("ℹ️  %d MEDIUM VALUE linter(s) are disabled (optional but recommended):\n", len(mediumValue)))
+		builder.WriteString(
+			fmt.Sprintf("ℹ️  %d MEDIUM VALUE linter(s) are disabled (optional but recommended):\n", len(mediumValue)),
+		)
 
 		for _, rec := range mediumValue {
 			builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))

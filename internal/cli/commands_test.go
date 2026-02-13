@@ -279,7 +279,14 @@ linters:
 			configPath := filepath.Join(testDir, ".golangci.yml")
 			Expect(os.WriteFile(configPath, []byte("test"), 0o644)).To(Succeed())
 
-			cmd := exec.Command(binaryPath, "restore", "--config", configPath, "--backup-path", "/non/existent/backup.yml")
+			cmd := exec.Command(
+				binaryPath,
+				"restore",
+				"--config",
+				configPath,
+				"--backup-path",
+				"/non/existent/backup.yml",
+			)
 			_, err := cmd.CombinedOutput()
 
 			Expect(err).To(HaveOccurred())
@@ -388,7 +395,16 @@ linters:
 			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
 			reportPath := filepath.Join(testDir, "report.json")
-			cmd := exec.Command(binaryPath, "report", "--config", configPath, "--output", reportPath, "--format", "json")
+			cmd := exec.Command(
+				binaryPath,
+				"report",
+				"--config",
+				configPath,
+				"--output",
+				reportPath,
+				"--format",
+				"json",
+			)
 			_, err := cmd.CombinedOutput()
 
 			Expect(err).NotTo(HaveOccurred())

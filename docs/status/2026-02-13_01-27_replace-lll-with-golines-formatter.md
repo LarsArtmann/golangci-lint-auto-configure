@@ -19,6 +19,7 @@ Use `golines` formatter instead, which **automatically fixes** long lines by bre
 ### golangci-lint v2 Formatters
 
 golangci-lint v2 introduced a separate `formatters:` section in the configuration. Formatters are distinct from linters:
+
 - **Linters**: Check code and report issues (no modification)
 - **Formatters**: Actually modify code to fix issues
 
@@ -73,24 +74,24 @@ Will automatically format code AND fix long lines exceeding 120 characters.
 
 ## Files Changed
 
-| File | Changes |
-|------|---------|
-| `.golangci.yml` | Removed lll, added formatters section with golines |
-| `go.mod` | Updated dependencies (go mod tidy) |
-| `go.sum` | Updated checksums |
-| `internal/cli/commands_test.go` | Fixed test sample config (added run.timeout) |
-| `pkg/constants/linter_data.go` | Updated linter/formatter metadata |
+| File                            | Changes                                            |
+| ------------------------------- | -------------------------------------------------- |
+| `.golangci.yml`                 | Removed lll, added formatters section with golines |
+| `go.mod`                        | Updated dependencies (go mod tidy)                 |
+| `go.sum`                        | Updated checksums                                  |
+| `internal/cli/commands_test.go` | Fixed test sample config (added run.timeout)       |
+| `pkg/constants/linter_data.go`  | Updated linter/formatter metadata                  |
 
 ## Technical Details
 
 ### Why golines over lll?
 
-| Feature | lll | golines |
-|---------|-----|---------|
-| Detects long lines | Yes | Yes |
-| Autofixes long lines | No | Yes |
-| Type | Linter | Formatter |
-| Action required | Manual fix | Automatic fix |
+| Feature              | lll        | golines       |
+| -------------------- | ---------- | ------------- |
+| Detects long lines   | Yes        | Yes           |
+| Autofixes long lines | No         | Yes           |
+| Type                 | Linter     | Formatter     |
+| Action required      | Manual fix | Automatic fix |
 
 ### RedundantLinters Map
 
@@ -107,6 +108,7 @@ This can be used by the analyzer to recommend formatter alternatives to lint-onl
 ## Next Steps
 
 Consider updating the analyzer to:
+
 1. Detect when `lll` is enabled but `golines` is not
 2. Suggest the formatter alternative
 3. Potentially auto-replace `lll` with `golines` during configuration

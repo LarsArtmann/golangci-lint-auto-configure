@@ -34,7 +34,11 @@ func NewFixer(logger *log.Logger, analyzer *Analyzer) *Fixer {
 }
 
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
-func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryRun bool) (*types.MigrationResult, error) {
+func (f *Fixer) FixConfig(
+	configPath string,
+	priority types.LinterPriority,
+	dryRun bool,
+) (*types.MigrationResult, error) {
 	f.logger.Infof("Loading configuration: %s", configPath)
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
@@ -79,20 +83,50 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 			// Add the replacement if not already present
 			if !linterSet[string(replacement.Replacement)] {
 				if dryRun {
-					f.logger.Infof("[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
+					f.logger.Infof(
+						"[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)",
+						linter,
+						replacement.Replacement,
+						replacement.Reason,
+					)
 				} else {
-					f.logger.Infof("Replacing deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
+					f.logger.Infof(
+						"Replacing deprecated linter: %s -> %s (%s)",
+						linter,
+						replacement.Replacement,
+						replacement.Reason,
+					)
 
 					linterSet[string(replacement.Replacement)] = true
 
-					messages = append(messages, fmt.Sprintf("Replaced deprecated %s with %s: %s", linter, replacement.Replacement, replacement.Reason))
+					messages = append(
+						messages,
+						fmt.Sprintf(
+							"Replaced deprecated %s with %s: %s",
+							linter,
+							replacement.Replacement,
+							replacement.Reason,
+						),
+					)
 				}
 			} else {
 				if dryRun {
-					f.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)", linter, replacement.Replacement)
+					f.logger.Infof(
+						"[DRY-RUN] Would remove deprecated %s (keeping existing %s)",
+						linter,
+						replacement.Replacement,
+					)
 				} else {
 					f.logger.Debugf("Removing deprecated %s (keeping existing %s)", linter, replacement.Replacement)
-					messages = append(messages, fmt.Sprintf("Removed deprecated %s (replacement %s already enabled): %s", linter, replacement.Replacement, replacement.Reason))
+					messages = append(
+						messages,
+						fmt.Sprintf(
+							"Removed deprecated %s (replacement %s already enabled): %s",
+							linter,
+							replacement.Replacement,
+							replacement.Reason,
+						),
+					)
 				}
 			}
 		}
@@ -240,8 +274,15 @@ func (f *Fixer) FixConfig(configPath string, priority types.LinterPriority, dryR
 	result := &types.MigrationResult{
 		Success:      true,
 		FixesApplied: totalFixes,
-		Message:      fmt.Sprintf("Successfully applied %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)", totalFixes, enableFixes, formatterFixes, deprecationFixes, redundantFixes),
-		BackupPath:   backupPath,
+		Message: fmt.Sprintf(
+			"Successfully applied %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
+			totalFixes,
+			enableFixes,
+			formatterFixes,
+			deprecationFixes,
+			redundantFixes,
+		),
+		BackupPath: backupPath,
 	}
 
 	return result, nil

@@ -158,7 +158,8 @@ actionable recommendations to improve your Go code quality.`,
 	cmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
 	cmd.PersistentFlags().BoolVar(&generateHTML, "html", false, "Generate HTML report")
 	cmd.PersistentFlags().StringVar(&outputReport, "output", "report.html", "Output path for HTML report")
-	cmd.PersistentFlags().StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
+	cmd.PersistentFlags().
+		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.PersistentFlags().StringVar(&reportFormat, "format", "html", "Output format (html, json)")
 
 	return cmd
@@ -195,8 +196,10 @@ Or use --preset for predefined linter sets:
 		},
 	}
 
-	cmd.Flags().StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
-	cmd.Flags().StringVar(&preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance)")
+	cmd.Flags().
+		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
+	cmd.Flags().
+		StringVar(&preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance)")
 
 	return cmd
 }

@@ -18,12 +18,14 @@ Completed a comprehensive architectural review of the golangci-linter-auto-confi
 ### 1. Type Safety Improvements
 
 **Files Modified:**
+
 - `pkg/types/types.go`
 - `pkg/linter/analyzer.go`
 - `pkg/linter/fixer.go`
 - `pkg/report/json_report_generator.go`
 
 **Changes:**
+
 - Changed `LinterInfo.Name` from `string` to `LinterName` (strong typing)
 - Changed `LinterReplacement.Replacement` from `string` to `LinterName`
 - Updated all call sites to use proper type conversions
@@ -33,9 +35,11 @@ Completed a comprehensive architectural review of the golangci-linter-auto-confi
 ### 2. Error Handling Enhancement
 
 **Files Modified:**
+
 - `pkg/errors/errors.go`
 
 **Changes:**
+
 - Added `Unwrap()` method to `ConfigError`, `AnalysisError`, `ReportError`
 - Added helper functions: `IsConfigError()`, `IsAnalysisError()`, `IsReportError()`
 - Added `errors` import for `errors.As` support
@@ -45,10 +49,12 @@ Completed a comprehensive architectural review of the golangci-linter-auto-confi
 ### 3. Bug Fix: Validation Logic
 
 **Files Modified:**
+
 - `pkg/config/loader.go`
 - `pkg/config/loader_test.go`
 
 **Changes:**
+
 - Fixed tautology: `config.Run.Timeout != "" && config.Run.Timeout == ""` → `config.Run.Timeout == ""`
 - Updated test case to expect validation error for empty timeout
 
@@ -57,6 +63,7 @@ Completed a comprehensive architectural review of the golangci-linter-auto-confi
 ### 4. Architectural TODOs Added
 
 **Files with TODOs:**
+
 - `pkg/types/types.go` (3 TODOs)
 - `pkg/linter/analyzer.go` (5 TODOs)
 - `pkg/linter/fixer.go` (5 TODOs)
@@ -70,30 +77,30 @@ Completed a comprehensive architectural review of the golangci-linter-auto-confi
 
 ## File Size Analysis
 
-| File | Lines | Limit | Status | Action Needed |
-|------|-------|-------|--------|---------------|
-| `internal/cli/commands.go` | 831 | 350 | 🔴 CRITICAL | Split into subpackages |
-| `pkg/linter/analyzer.go` | 462 | 350 | 🟡 HIGH | Extract version checker |
-| `pkg/detection/detector.go` | 327 | 350 | 🟢 OK | Monitor |
-| `pkg/config/loader.go` | 231 | 350 | 🟢 OK | - |
-| `pkg/constants/linter_data.go` | 225 | 350 | 🟢 OK | - |
+| File                           | Lines | Limit | Status      | Action Needed           |
+| ------------------------------ | ----- | ----- | ----------- | ----------------------- |
+| `internal/cli/commands.go`     | 831   | 350   | 🔴 CRITICAL | Split into subpackages  |
+| `pkg/linter/analyzer.go`       | 462   | 350   | 🟡 HIGH     | Extract version checker |
+| `pkg/detection/detector.go`    | 327   | 350   | 🟢 OK       | Monitor                 |
+| `pkg/config/loader.go`         | 231   | 350   | 🟢 OK       | -                       |
+| `pkg/constants/linter_data.go` | 225   | 350   | 🟢 OK       | -                       |
 
 ---
 
 ## Test Coverage Status
 
-| Package | Tests | Status | Coverage |
-|---------|-------|--------|----------|
-| `pkg/config` | ✅ 16 specs | PASSING | Good |
-| `pkg/linter` | ✅ | PASSING | Good |
-| `pkg/detection` | ✅ | PASSING | Good |
-| `pkg/diff` | ✅ | PASSING | Good |
-| `pkg/errors` | ❌ NONE | MISSING | 0% |
-| `pkg/report` | ❌ NONE | MISSING | 0% |
-| `pkg/types` | ❌ NONE | MISSING | 0% |
-| `pkg/workflow` | ❌ NONE | MISSING | 0% |
-| `pkg/client` | ❌ NONE | MISSING | 0% |
-| `pkg/constants` | ❌ NONE | MISSING | 0% |
+| Package         | Tests       | Status  | Coverage |
+| --------------- | ----------- | ------- | -------- |
+| `pkg/config`    | ✅ 16 specs | PASSING | Good     |
+| `pkg/linter`    | ✅          | PASSING | Good     |
+| `pkg/detection` | ✅          | PASSING | Good     |
+| `pkg/diff`      | ✅          | PASSING | Good     |
+| `pkg/errors`    | ❌ NONE     | MISSING | 0%       |
+| `pkg/report`    | ❌ NONE     | MISSING | 0%       |
+| `pkg/types`     | ❌ NONE     | MISSING | 0%       |
+| `pkg/workflow`  | ❌ NONE     | MISSING | 0%       |
+| `pkg/client`    | ❌ NONE     | MISSING | 0%       |
+| `pkg/constants` | ❌ NONE     | MISSING | 0%       |
 
 **Total Test Suites:** 4 passing, 6 missing
 
@@ -213,13 +220,13 @@ Completed a comprehensive architectural review of the golangci-linter-auto-confi
 
 ## Libraries to Consider
 
-| Library | Purpose | Current Status |
-|---------|---------|----------------|
-| `samber/do/v2` | Dependency Injection | Not used (manual wiring) |
-| `go-playground/validator` | Struct validation | Not used (manual) |
-| `charmbracelet/bubbletea` | TUI/Progress | Not used (simple logging) |
-| `golang.org/x/sync/singleflight` | Request deduplication | Not used |
-| `github.com/patrickmn/go-cache` | Caching | Not used |
+| Library                          | Purpose               | Current Status            |
+| -------------------------------- | --------------------- | ------------------------- |
+| `samber/do/v2`                   | Dependency Injection  | Not used (manual wiring)  |
+| `go-playground/validator`        | Struct validation     | Not used (manual)         |
+| `charmbracelet/bubbletea`        | TUI/Progress          | Not used (simple logging) |
+| `golang.org/x/sync/singleflight` | Request deduplication | Not used                  |
+| `github.com/patrickmn/go-cache`  | Caching               | Not used                  |
 
 ---
 

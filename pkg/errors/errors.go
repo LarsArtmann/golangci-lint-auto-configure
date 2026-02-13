@@ -97,17 +97,20 @@ func NewReportError(msg, path string, err error) *ReportError {
 // IsConfigError checks if an error is a ConfigError.
 func IsConfigError(err error) bool {
 	var cfgErr *ConfigError
+
 	return errors.As(err, &cfgErr)
 }
 
 // IsAnalysisError checks if an error is an AnalysisError.
 func IsAnalysisError(err error) bool {
 	var analysisErr *AnalysisError
+
 	return errors.As(err, &analysisErr)
 }
 
 // IsReportError checks if an error is a ReportError.
 func IsReportError(err error) bool {
 	var reportErr *ReportError
+
 	return errors.As(err, &reportErr)
 }

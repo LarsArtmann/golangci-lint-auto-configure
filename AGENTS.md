@@ -5,6 +5,7 @@ This guide provides essential information for agents working on the golangci-lin
 ## Project Overview
 
 **golangci-linter-auto-configure** is a Go CLI tool that automatically configures and optimizes golangci-lint configurations by:
+
 - Analyzing existing golangci-lint configs
 - Detecting missing linters with smart categorization
 - Recommending optimal linter settings based on project type
@@ -46,6 +47,7 @@ just tidy           # Tidy go.mod
 ## Technology Stack
 
 ### Core Dependencies
+
 - **Go**: 1.25+ (CI tests on 1.25 and 1.26)
 - **Cobra**: CLI command framework
 - **Charmbracelet Log**: Structured logging
@@ -56,6 +58,7 @@ just tidy           # Tidy go.mod
 - **Universal Workflow**: Workflow orchestration (local replace)
 
 ### External Tools Required
+
 - **golangci-lint**: v2.8.0+ (auto-detected, minimum version enforced)
 - **Go**: 1.25+ required for compilation
 
@@ -111,23 +114,27 @@ golangci-linter-auto-configure/
 
 **1. Interface-Based Design (for testability)**
 All major components implement interfaces defined in `pkg/types/types.go`:
+
 - `ConfigLoader`: Load, save, validate configs
 - `LinterAnalyzer`: Analyze configs, get recommendations
 - `LinterFixer`: Apply fixes to configs
 
 **2. Strong Typing with Custom Types**
+
 - `LinterName` (string): Prevents typos in linter names
 - `FormatterName` (string): Prevents typos in formatter names
 - `LinterPriority` (int): Critical, High, Medium, Optional
 - `FormatterPriority` (int): High, Medium, Low
 
 **3. Separation of Concerns**
+
 - `pkg/linter/analyzer.go`: Analysis logic only
 - `pkg/linter/fixer.go`: Modification logic only
 - `pkg/config/loader.go`: Config I/O only
 - `internal/cli/commands.go`: CLI command wiring
 
 **4. Data-Driven Configuration**
+
 - `pkg/constants/linter_data.go` contains all linter metadata:
   - Priority levels
   - Human-readable reasons
@@ -135,6 +142,7 @@ All major components implement interfaces defined in `pkg/types/types.go`:
   - Deprecated linter replacements
 
 **5. Workflow Orchestration**
+
 - `pkg/workflow/workflow.go` uses `universal-workflow` for complex operations
 - Supports multi-step operations: analyze → validate → report
 
@@ -218,6 +226,7 @@ const (
 ### Adding New Linters
 
 Update `pkg/constants/linter_data.go`:
+
 1. Add to `LinterPriorities` map
 2. Add to `LinterReasons` map (human-readable explanation)
 3. Consider adding to `PresetLinters` if appropriate
@@ -225,6 +234,7 @@ Update `pkg/constants/linter_data.go`:
 ## Configuration Management
 
 ### Config File Locations (search order)
+
 1. `.golangci.yml`
 2. `.golangci.yaml`
 3. `.golangci.toml`
@@ -239,7 +249,7 @@ run:
   go: ""
   tests: true
 linters:
-  enable: [...]  # List of enabled linters
+  enable: [...] # List of enabled linters
   disable: [...] # List of disabled linters
   settings:
     funlen:
@@ -251,6 +261,7 @@ issues:
 ```
 
 ### Backup Strategy
+
 - Automatic backup before any modification: `<config>.backup`
 - Backup path returned in result, logged to user
 - Restore command: `golangci-linter-auto-configure restore --backup-path <path>`
@@ -312,6 +323,7 @@ type ReportError struct {
 5. **Recover from errors**: Try multiple strategies (e.g., JSON version parsing → text fallback)
 
 Example from `pkg/linter/analyzer.go`:
+
 ```go
 if err := json.Unmarshal(output, &versionInfo); err != nil {
     a.logger.Debugf("Failed to parse JSON version output, falling back to text: %v", err)
@@ -341,6 +353,7 @@ type ReportData struct {
 ```
 
 ### Styling
+
 - Inline CSS in `pkg/report/report.templ`
 - Dark mode support via `@media (prefers-color-scheme: dark)`
 - Responsive design with CSS grid
@@ -351,6 +364,7 @@ type ReportData struct {
 ### Minimum Version: v2.8.0
 
 Version checking in `pkg/linter/analyzer.go`:
+
 1. Try `golangci-lint version --json` first (more reliable)
 2. Fallback to text parsing if JSON not supported
 3. Use `golang.org/x/mod/semver` for comparison
@@ -359,6 +373,7 @@ Version checking in `pkg/linter/analyzer.go`:
 ### Handling Deprecated Linters
 
 Automatic replacement of deprecated linters:
+
 - `wsl` → `wsl_v5` (deprecated since golangci-lint v2.2.0)
 - Mappings in `pkg/constants/linter_data.go`:
   ```go
@@ -370,6 +385,7 @@ Automatic replacement of deprecated linters:
 ## Code Style and Conventions
 
 ### Naming
+
 - **Packages**: Lowercase, single word, descriptive
   - `linter` (not `linters`)
   - `config` (not `configuration`)
@@ -380,6 +396,7 @@ Automatic replacement of deprecated linters:
 - **File names**: snake_case for packages, camelCase for tests
 
 ### Struct Field Tags
+
 ```go
 type Config struct {
     Version    string           `yaml:"version"`
@@ -389,6 +406,7 @@ type Config struct {
 ```
 
 ### Error Patterns
+
 ```go
 // Return wrapped errors
 return fmt.Errorf("failed to load config: %w", err)
@@ -398,6 +416,7 @@ return errors.NewConfigError("failed to parse config", path, err)
 ```
 
 ### Logging
+
 ```go
 logger.Infof("Processing configuration: %s", path)
 logger.Debugf("Found %d linters", count)
@@ -410,11 +429,13 @@ logger.Errorf("Analysis failed: %v", err)
 ### GitHub Actions (`.github/workflows/ci.yml`)
 
 **Test Matrix:**
+
 - Go versions: 1.25, 1.26
 - Tests: `go test -v -race ./pkg/... ./internal/...`
 - Coverage: Uploads to Codecov
 
 **Lint Job:**
+
 - Uses `golangci/golangci-lint-action@v9`
 - Config: `.golangci.yml`
 - Timeout: 5m
@@ -430,6 +451,7 @@ pre-commit run --all-files
 ```
 
 Built-in hooks:
+
 1. `golangci-configure`: Analyze config (dry-run)
 2. `golangci-lint`: Run linter on changed files
 3. `go-test`: Run tests
@@ -439,50 +461,60 @@ Built-in hooks:
 ## Important Gotchas
 
 ### 1. Use `just` Commands, Not Manual Commands
+
 - `just test` (NOT `go test ...`)
 - `just build` (NOT `go build ...`)
 - `just lint` (NOT manual golangci-lint commands)
 
 ### 2. Ginkgo Testing, Not Standard Go Testing
+
 - Uses BDD style with `Describe`/`Context`/`It`
 - Uses Gomega matchers, not testify assertions
 - `just test` runs `ginkgo -r --cover`, NOT `go test`
 
 ### 3. Templ Requires Code Generation
+
 - `.templ` files must be compiled to Go code
 - Run `templ generate` (not in justfile, manual when needed)
 - Generated file: `pkg/report/report_templ.go`
 
 ### 4. Dependency Injection Directory is Empty
+
 - `internal/di/` exists but is unused
 - Dependency injection is manual in CLI commands
 - No DI framework like samber/do or wire
 
 ### 5. Linter Priority Data is in Constants
+
 - All linter priorities in `pkg/constants/linter_data.go`
 - Modify that file to change linter behavior
 - Not dynamically computed from golangci-lint
 
 ### 6. Version String Injected at Build Time
+
 - `main.version` variable injected via ldflags
 - Justfile `install-local` does: `go build -ldflags "-X main.version=$VERSION"`
 - Default value is "dev" if not set
 
 ### 7. Universal Workflow is Local Replace
+
 - `go.mod` has: `replace github.com/LarsArtmann/universal-workflow => /Users/larsartmann/projects/universal-workflow`
 - Path is user-specific, needs adjustment for different developers
 - CI may not work with this local replace
 
 ### 8. Deprecated Cobra Usage
+
 - `cobra.ExactValidArgs()` is deprecated (detected in commands.go:692)
 - Should use `MatchAll(ExactArgs(n), OnlyValidArgs)` instead
 
 ### 9. Test Error in detector_test.go:98
+
 - Error: "no new variables on left side of :="
 - Warning currently present in project diagnostics
 - Needs fixing before considering codebase clean
 
 ### 10. Config File Auto-Creation
+
 - `configure` command creates default config if missing
 - Uses `.golangci.yml` as default path
 - Creates backup before modifying any existing config
