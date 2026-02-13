@@ -43,7 +43,6 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"gofmt":         types.LinterPriorityMedium,
 	"gci":           types.LinterPriorityMedium,
 	"varnamelen":    types.LinterPriorityMedium,
-	"lll":           types.LinterPriorityMedium,
 	"whitespace":    types.LinterPriorityMedium,
 	"wsl_v5":        types.LinterPriorityMedium,
 	"grouper":       types.LinterPriorityMedium,
@@ -97,7 +96,6 @@ var LinterReasons = map[types.LinterName]string{
 	"gofmt":         "Check whether code was gofmt-ed",
 	"gci":           "Check that import order and formatting is correct",
 	"varnamelen":    "Check that the length of variable names follows some rules",
-	"lll":           "Check line length",
 	"whitespace":    "Detection of leading and trailing whitespace",
 	"wsl_v5":        "Enforces empty line separation between statements for better readability",
 	"grouper":       "Analyze expression groups",
@@ -154,6 +152,7 @@ var FormatterInfo = map[types.FormatterName]types.FormatterInfo{
 var FormatterPriorities = map[types.FormatterName]types.FormatterPriority{
 	// High priority - recommended for most projects
 	"gofumpt":   types.FormatterPriorityHigh,
+	"golines":   types.FormatterPriorityHigh,
 	"gofmt":     types.FormatterPriorityMedium,
 	"goimports": types.FormatterPriorityMedium,
 }
@@ -187,6 +186,11 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 	},
 }
 
+// RedundantLinters maps linter names that are superseded by formatters.
+var RedundantLinters = map[types.LinterName]string{
+	"lll": "redundant when golines formatter is enabled (golines fixes long lines, lll only reports them)",
+}
+
 // PresetLinters defines linter sets for different configuration presets.
 var PresetLinters = map[string][]types.LinterName{
 	"minimal": {
@@ -204,7 +208,7 @@ var PresetLinters = map[string][]types.LinterName{
 		"gocyclo", "funlen", "cyclop", "gocognit",
 		"nestif", "maintidx", "lizard",
 		"dupl", "copypaste",
-		"goconst", "misspell", "lll",
+		"goconst", "misspell",
 		"nolintlint", "godot", "godox",
 	},
 	"security": {

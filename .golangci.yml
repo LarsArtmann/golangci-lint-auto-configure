@@ -83,7 +83,6 @@ linters:
     - intrange
     - iotamixing
     - ireturn
-    - lll
     - makezero
     - mirror
     - nakedret
@@ -129,6 +128,12 @@ linters:
       min-complexity: 20
     cyclop:
       max-complexity: 15
+formatters:
+  enable:
+    - golines
+  settings:
+    golines:
+      max-len: 120
 issues:
   max-issues-per-linter: 100
   max-same-issues: 15
