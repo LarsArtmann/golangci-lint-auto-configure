@@ -207,6 +207,8 @@ linters:
 		It("should validate a valid config", func() {
 			binaryPath := buildBinary()
 			configContent := `version: "2"
+run:
+  timeout: 5m
 linters:
   enable:
     - errcheck
