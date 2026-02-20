@@ -22,7 +22,7 @@ func NewGenerator(logger *log.Logger) *Generator {
 }
 
 // GenerateReport generates an HTML report for given analysis.
-func (g *Generator) GenerateReport(analysis *types.ConfigAnalysis, outputPath string) error {
+func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAnalysis, outputPath string) error {
 	g.logger.Infof("Generating HTML report: %s", outputPath)
 
 	data := ReportData{
@@ -36,7 +36,7 @@ func (g *Generator) GenerateReport(analysis *types.ConfigAnalysis, outputPath st
 
 	defer func() { _ = f.Close() }()
 
-	err = Report(data).Render(context.Background(), f)
+	err = Report(data).Render(ctx, f)
 	if err != nil {
 		return fmt.Errorf("failed to render report: %w", err)
 	}
