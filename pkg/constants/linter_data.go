@@ -198,32 +198,30 @@ var PresetLinters = map[string][]types.LinterName{
 	},
 	"standard": {
 		"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
-		"gocritic", "unused", "gosimple", "typecheck",
-		"varcheck", "structcheck", "deadcode",
+		"gocritic", "unused", "gosimple",
 	},
 	"strict": {
 		"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
-		"gocritic", "unused", "gosimple", "typecheck",
-		"varcheck", "structcheck", "deadcode",
+		"gocritic", "unused", "gosimple",
 		"gocyclo", "funlen", "cyclop", "gocognit",
-		"nestif", "maintidx", "lizard",
-		"dupl", "copypaste",
+		"nestif", "maintidx",
+		"dupl",
 		"goconst", "misspell",
 		"nolintlint", "godot", "godox",
 	},
 	"security": {
-		"gosec", "semgrep", "secrets",
+		"gosec",
 	},
 	"performance": {
-		"ineffassign", "prealloc", "maligned", "structcheck",
+		"ineffassign", "prealloc",
 	},
 }
 
 // PresetDescriptions explains what each preset is for.
 var PresetDescriptions = map[string]string{
 	"minimal":     "Essential linters only (5 linters) - Fastest, minimal false positives",
-	"standard":    "Recommended for most projects (12 linters) - Good balance",
-	"strict":      "Maximum linting (20+ linters) - CI/CD, strict code quality",
+	"standard":    "Recommended for most projects (8 linters) - Good balance",
+	"strict":      "Maximum linting (17 linters) - CI/CD, strict code quality",
 	"security":    "Security-focused linters only",
 	"performance": "Performance optimization linters",
 }
