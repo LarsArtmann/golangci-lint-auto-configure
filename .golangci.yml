@@ -15,110 +15,23 @@ linters:
     - govet
     - staticcheck
     - ineffassign
-    - nilerr
-    - noctx
-    - sloglint
-    - loggercheck
-    - musttag
-    - errchkjson
-    - errorlint
-    - exhaustive
-    - forcetypeassert
-    - goconst
+    - gocritic
+    - unused
     - gocyclo
     - funlen
-    - misspell
-    - prealloc
-    - revive
-    - unconvert
-    - wrapcheck
     - cyclop
     - gocognit
+    - nestif
     - maintidx
-    - nolintlint
-    - varnamelen
-    - arangolint
-    - asasalint
-    - asciicheck
-    - bidichk
-    - bodyclose
-    - canonicalheader
-    - containedctx
-    - contextcheck
-    - copyloopvar
-    - decorder
-    - dogsled
     - dupl
-    - dupword
-    - durationcheck
-    - embeddedstructfieldcheck
-    - errname
-    - exhaustruct
-    - exptostd
-    - forbidigo
-    - funcorder
-    - fatcontext
-    - ginkgolinter
-    - gocheckcompilerdirectives
-    - gochecknoglobals
-    - gochecknoinits
-    - gochecksumtype
-    - gocritic
-    - godoclint
+    - goconst
+    - misspell
+    - nolintlint
     - godot
     - godox
-    - err113
-    - goheader
-    - mnd
-    - modernize
-    - gomoddirectives
-    - gomodguard
-    - goprintffuncname
-    - gosmopolitan
-    - grouper
-    - iface
-    - importas
-    - inamedparam
-    - interfacebloat
-    - intrange
-    - iotamixing
-    - ireturn
-    - makezero
-    - mirror
-    - nakedret
-    - nestif
-    - nilnesserr
-    - nilnil
-    - nlreturn
-    - noinlineerr
-    - nonamedreturns
-    - nosprintfhostport
-    - paralleltest
-    - perfsprint
-    - predeclared
-    - promlinter
-    - protogetter
-    - reassign
-    - recvcheck
-    - rowserrcheck
-    - sqlclosecheck
-    - spancheck
-    - tagalign
-    - tagliatelle
-    - testableexamples
-    - testifylint
-    - testpackage
-    - thelper
-    - tparallel
-    - unparam
-    - unqueryvet
-    - usestdlibvars
-    - usetesting
-    - wastedassign
-    - whitespace
-    - wsl_v5
-    - zerologlint
   settings:
+    cyclop:
+      max-complexity: 15
     funlen:
       lines: 80
       statements: 50
@@ -126,8 +39,6 @@ linters:
       min-complexity: 25
     gocyclo:
       min-complexity: 20
-    cyclop:
-      max-complexity: 15
 formatters:
   enable:
     - golines
