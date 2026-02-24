@@ -243,14 +243,14 @@ linters:
 		It("should return disabled linters", func() {
 			cfg := &config.Config{
 				Linters: config.LintersConfig{
-					Disable: []string{"unused", "varcheck"},
+					Disable: []string{"unused", "gocyclo"},
 				},
 			}
 
 			disabled := loader.GetLintersDisabled(cfg)
 
 			Expect(disabled).To(HaveLen(2))
-			Expect(disabled).To(ContainElements("unused", "varcheck"))
+			Expect(disabled).To(ContainElements("unused", "gocyclo"))
 		})
 	})
 })
