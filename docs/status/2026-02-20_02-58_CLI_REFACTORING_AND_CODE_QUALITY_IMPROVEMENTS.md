@@ -21,14 +21,15 @@ Comprehensive code quality improvements focused on CLI architecture refactoring,
 
 **Solution:** Extracted three commands into dedicated subpackages
 
-| File | Lines | Responsibility |
-|------|-------|---------------|
-| `internal/cli/cmd/migrate.go` | 175 | Migration command with `MigrateFlags` struct |
-| `internal/cli/cmd/completion.go` | 56 | Shell completion command |
-| `internal/cli/cmd/installhook.go` | 101 | Git pre-commit hook installation |
-| `internal/cli/commands.go` | 540 | Core commands (reduced from 841) |
+| File                              | Lines | Responsibility                               |
+| --------------------------------- | ----- | -------------------------------------------- |
+| `internal/cli/cmd/migrate.go`     | 175   | Migration command with `MigrateFlags` struct |
+| `internal/cli/cmd/completion.go`  | 56    | Shell completion command                     |
+| `internal/cli/cmd/installhook.go` | 101   | Git pre-commit hook installation             |
+| `internal/cli/commands.go`        | 540   | Core commands (reduced from 841)             |
 
 **Impact:**
+
 - Better separation of concerns
 - Easier testing and maintenance
 - Clearer command organization
@@ -38,6 +39,7 @@ Comprehensive code quality improvements focused on CLI architecture refactoring,
 **File:** `internal/cli/commands.go:717`
 
 **Change:**
+
 ```go
 // Before (deprecated):
 Args: cobra.ExactValidArgs(1)
@@ -55,6 +57,7 @@ Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs)
 **Changes:**
 
 #### `internal/cli/commands.go`
+
 ```go
 // Before:
 func Execute() error {
@@ -68,6 +71,7 @@ func Execute(ctx context.Context) error {
 ```
 
 #### `pkg/report/generator.go`
+
 ```go
 // Before:
 func (g *Generator) GenerateReport(analysis *types.ConfigAnalysis, outputPath string) error {
@@ -81,6 +85,7 @@ func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAn
 ```
 
 **Consumer Update:**
+
 ```go
 // In commands.go report command:
 err := htmlGenerator.GenerateReport(cmd.Context(), analysis, outputPath)
@@ -89,10 +94,12 @@ err := htmlGenerator.GenerateReport(cmd.Context(), analysis, outputPath)
 ### 4. Import Cleanup
 
 **Removed unused imports from `internal/cli/commands.go`:**
+
 - `path/filepath` (no longer needed after extractions)
 - `strings` (migrated to `cmd/migrate.go`)
 
 **Added import alias:**
+
 ```go
 clicmd "github.com/larsartmann/golangcli-linter-auto-configure/internal/cli/cmd"
 ```
@@ -100,6 +107,7 @@ clicmd "github.com/larsartmann/golangcli-linter-auto-configure/internal/cli/cmd"
 ### 5. Variable Renaming for Clarity
 
 **In `NewRootCommand()`:**
+
 ```go
 // Before:
 cmd := &cobra.Command{...}
@@ -116,13 +124,13 @@ This prevents confusion with the `cmd` package import.
 
 ## File Statistics
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| `commands.go` lines | 841 | 540 | **-301 (-36%)** |
-| Total CLI files | 2 | 5 | +3 new files |
-| Deprecated APIs | 1 | 0 | **Fixed** |
-| Hardcoded contexts | 2 | 0 | **Fixed** |
-| Unused imports | 2 | 0 | **Cleaned** |
+| Metric              | Before | After | Change          |
+| ------------------- | ------ | ----- | --------------- |
+| `commands.go` lines | 841    | 540   | **-301 (-36%)** |
+| Total CLI files     | 2      | 5     | +3 new files    |
+| Deprecated APIs     | 1      | 0     | **Fixed**       |
+| Hardcoded contexts  | 2      | 0     | **Fixed**       |
+| Unused imports      | 2      | 0     | **Cleaned**     |
 
 ---
 
@@ -143,6 +151,7 @@ type MigrateFlags struct {
 ```
 
 Usage in `NewRootCommand()`:
+
 ```go
 migrateFlags := clicmd.MigrateFlags{
     ConfigPath: configPath,
@@ -178,6 +187,7 @@ Migrates golangci-lint configuration from v1 to v2 schema...
 ## Test Results
 
 **Note:** 2 pre-existing test failures in `commands_test.go` for migrate command:
+
 - Tests create v2 configs but test v1 migration scenarios
 - These are test setup issues, not regressions
 - 18/20 tests passing
@@ -240,6 +250,7 @@ golangci-linter-auto-configure install-hook
 ## Code Review Notes
 
 ### Positive
+
 - ✅ Reduced cognitive load in main commands file
 - ✅ Consistent naming (rootCmd vs cmd)
 - ✅ Proper context threading
@@ -247,6 +258,7 @@ golangci-linter-auto-configure install-hook
 - ✅ Clear package boundaries
 
 ### Considerations
+
 - Future: Extract remaining commands (configure, analyze, validate, report, restore)
 - Future: Consider DI framework for dependency management
 - Future: Consolidate flag structures across commands
