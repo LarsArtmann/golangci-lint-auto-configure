@@ -3,8 +3,33 @@ package detection
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
+
+// writeGoMod creates a go.mod file with optional require dependencies.
+func writeGoMod(dir string, requires ...string) error {
+	content := `module test
+
+go 1.21
+`
+
+	var contentSb15 strings.Builder
+	for _, req := range requires {
+		contentSb15.WriteString("\nrequire " + req)
+	}
+
+	content += contentSb15.String()
+
+	content += "\n"
+
+	return os.WriteFile(filepath.Join(dir, "go.mod"), []byte(content), 0o644)
+}
+
+// writeGoFile creates a Go source file with the given name and content.
+func writeGoFile(dir, name, content string) error {
+	return os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644)
+}
 
 func TestDetector_Detect(t *testing.T) {
 	tests := []struct {
@@ -16,21 +41,15 @@ func TestDetector_Detect(t *testing.T) {
 		{
 			name: "CLI project with cobra",
 			setupFunc: func(dir string) error {
-				// Create go.mod
-				err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
-
-go 1.21
-
-require github.com/spf13/cobra v1.8.0
-`), 0o644)
+				err := writeGoMod(dir, "github.com/spf13/cobra v1.8.0")
 				if err != nil {
 					return err
 				}
-				// Create main.go
-				return os.WriteFile(filepath.Join(dir, "main.go"), []byte(`package main
+
+				return writeGoFile(dir, "main.go", `package main
 
 func main() {}
-`), 0o644)
+`)
 			},
 			want:        ProjectTypeCLI,
 			description: "Should detect CLI project with cobra and main package",
@@ -38,19 +57,15 @@ func main() {}
 		{
 			name: "Library project",
 			setupFunc: func(dir string) error {
-				// Create go.mod
-				err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
-
-go 1.21
-`), 0o644)
+				err := writeGoMod(dir)
 				if err != nil {
 					return err
 				}
-				// Create library file
-				return os.WriteFile(filepath.Join(dir, "lib.go"), []byte(`package test
+
+				return writeGoFile(dir, "lib.go", `package test
 
 func Hello() string { return "hello" }
-`), 0o644)
+`)
 			},
 			want:        ProjectTypeLibrary,
 			description: "Should detect library project without main",
@@ -58,18 +73,12 @@ func Hello() string { return "hello" }
 		{
 			name: "Web project with gin",
 			setupFunc: func(dir string) error {
-				// Create go.mod
-				err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(`module test
-
-go 1.21
-
-require github.com/gin-gonic/gin v1.9.0
-`), 0o644)
+				err := writeGoMod(dir, "github.com/gin-gonic/gin v1.9.0")
 				if err != nil {
 					return err
 				}
-				// Create main.go
-				return os.WriteFile(filepath.Join(dir, "main.go"), []byte(`package main
+
+				return writeGoFile(dir, "main.go", `package main
 
 import "github.com/gin-gonic/gin"
 
@@ -77,7 +86,7 @@ func main() {
 	r := gin.Default()
 	r.Run()
 }
-`), 0o644)
+`)
 			},
 			want:        ProjectTypeWeb,
 			description: "Should detect web project with gin and main",

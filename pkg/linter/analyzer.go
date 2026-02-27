@@ -393,28 +393,18 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 
 	// Show deprecated linters first (most important to address)
 	if len(analysis.DeprecatedLinters) > 0 {
-		builder.WriteString(
-			fmt.Sprintf(
-				"⚠️  %d DEPRECATED linter(s) are enabled (should be migrated):\n",
-				len(analysis.DeprecatedLinters),
-			),
-		)
+		fmt.Fprintf(&builder, "⚠️  %d DEPRECATED linter(s) are enabled (should be migrated):\n",
+			len(analysis.DeprecatedLinters))
 
 		for _, linter := range analysis.DeprecatedLinters {
 			// Check if there's a replacement
 			if replacement, ok := constants.DeprecatedLinters[types.LinterName(linter.Name)]; ok {
-				builder.WriteString(
-					fmt.Sprintf(
-						"  - %s: Use %s instead (%s)\n",
-						linter.Name,
-						replacement.Replacement,
-						linter.Description,
-					),
-				)
+				fmt.Fprintf(&builder, "  - %s: Use %s instead (%s)\n",
+					linter.Name,
+					replacement.Replacement,
+					linter.Description)
 			} else {
-				builder.WriteString(
-					fmt.Sprintf("  - %s: %s (no replacement specified)\n", linter.Name, linter.Description),
-				)
+				fmt.Fprintf(&builder, "  - %s: %s (no replacement specified)\n", linter.Name, linter.Description)
 			}
 		}
 
@@ -427,46 +417,48 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 	optional := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityOptional)
 
 	if len(critical) > 0 {
-		builder.WriteString(
-			fmt.Sprintf("🚨 %d CRITICAL linter(s) are disabled (should ALWAYS be enabled):\n", len(critical)),
-		)
+		fmt.Fprintf(&builder, "🚨 %d CRITICAL linter(s) are disabled (should ALWAYS be enabled):\n", len(critical))
 
 		for _, rec := range critical {
-			builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
+			fmt.Fprintf(&builder, "  - %s: %s\n", rec.Name, rec.Reason)
 		}
 
 		builder.WriteString("\n")
 	}
 
 	if len(highValue) > 0 {
-		builder.WriteString(
-			fmt.Sprintf("⚠️  %d HIGH VALUE linter(s) are disabled (recommended for most projects):\n", len(highValue)),
+		fmt.Fprintf(
+			&builder,
+			"⚠️  %d HIGH VALUE linter(s) are disabled (recommended for most projects):\n",
+			len(highValue),
 		)
 
 		for _, rec := range highValue {
-			builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
+			fmt.Fprintf(&builder, "  - %s: %s\n", rec.Name, rec.Reason)
 		}
 
 		builder.WriteString("\n")
 	}
 
 	if len(mediumValue) > 0 {
-		builder.WriteString(
-			fmt.Sprintf("ℹ️  %d MEDIUM VALUE linter(s) are disabled (optional but recommended):\n", len(mediumValue)),
+		fmt.Fprintf(
+			&builder,
+			"ℹ️  %d MEDIUM VALUE linter(s) are disabled (optional but recommended):\n",
+			len(mediumValue),
 		)
 
 		for _, rec := range mediumValue {
-			builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
+			fmt.Fprintf(&builder, "  - %s: %s\n", rec.Name, rec.Reason)
 		}
 
 		builder.WriteString("\n")
 	}
 
 	if len(optional) > 0 {
-		builder.WriteString(fmt.Sprintf("💡 %d OPTIONAL linter(s) are disabled (for niche use cases):\n", len(optional)))
+		fmt.Fprintf(&builder, "💡 %d OPTIONAL linter(s) are disabled (for niche use cases):\n", len(optional))
 
 		for _, rec := range optional {
-			builder.WriteString(fmt.Sprintf("  - %s: %s\n", rec.Name, rec.Reason))
+			fmt.Fprintf(&builder, "  - %s: %s\n", rec.Name, rec.Reason)
 		}
 	}
 

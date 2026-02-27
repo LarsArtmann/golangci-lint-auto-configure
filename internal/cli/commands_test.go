@@ -29,15 +29,41 @@ var _ = Describe("CLI Integration Tests", func() {
 		projectRoot, _ := filepath.Abs(filepath.Join("..", ".."))
 		cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/golangci-linter-auto-configure")
 		cmd.Dir = projectRoot
+
 		cmd.Env = append(os.Environ(), "GOOS=darwin", "GOARCH=arm64")
+
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			// Print build output for debugging
 			println("Build failed:", string(output))
 		}
+
 		Expect(err).NotTo(HaveOccurred(), "Failed to build the CLI binary")
 
 		return binaryPath
+	}
+
+	// Helper function to create a config file and run a CLI command
+	runCommandWithConfig := func(binaryPath, configContent string, args []string) (string, error) {
+		configPath := filepath.Join(testDir, ".golangci.yml")
+		Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+		cmdArgs := append(args, "--config", configPath)
+		cmd := exec.Command(binaryPath, cmdArgs...)
+		output, err := cmd.CombinedOutput()
+
+		return string(output), err
+	}
+
+	// Helper function to test that invalid YAML is rejected
+	assertInvalidYAMLRejected := func(binaryPath string) {
+		invalidConfig := filepath.Join(testDir, "invalid.yml")
+		Expect(os.WriteFile(invalidConfig, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
+
+		cmd := exec.Command(binaryPath, "validate", "--config", invalidConfig)
+		_, err := cmd.CombinedOutput()
+
+		Expect(err).To(HaveOccurred())
 	}
 
 	Context("analyze command", func() {
@@ -49,14 +75,10 @@ linters:
     - errcheck
     - gosec
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-			cmd := exec.Command(binaryPath, "analyze", "--config", configPath)
-			output, err := cmd.CombinedOutput()
+			output, err := runCommandWithConfig(binaryPath, configContent, []string{"analyze"})
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("Analyzing configuration"))
+			Expect(output).To(ContainSubstring("Analyzing configuration"))
 		})
 
 		It("should show recommendations for minimal config", func() {
@@ -77,6 +99,7 @@ linters:
 			output, err := cmd.CombinedOutput()
 
 			Expect(err).NotTo(HaveOccurred())
+
 			outputStr := string(output)
 			// Check for HIGH VALUE which is the priority level for most recommendations
 			Expect(outputStr).To(Or(
@@ -97,14 +120,7 @@ linters:
 
 		It("should handle invalid YAML gracefully", func() {
 			binaryPath := buildBinary()
-			invalidConfig := filepath.Join(testDir, "invalid.yml")
-			Expect(os.WriteFile(invalidConfig, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
-
-			// For validate command, invalid YAML should fail
-			cmd := exec.Command(binaryPath, "validate", "--config", invalidConfig)
-			_, err := cmd.CombinedOutput()
-
-			Expect(err).To(HaveOccurred())
+			assertInvalidYAMLRejected(binaryPath)
 		})
 	})
 
@@ -124,6 +140,7 @@ linters:
 			output, err := cmd.CombinedOutput()
 
 			Expect(err).NotTo(HaveOccurred())
+
 			outputStr := string(output)
 			Expect(outputStr).To(ContainSubstring("[DRY-RUN]"))
 
@@ -214,25 +231,15 @@ linters:
     - errcheck
     - gosec
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-			cmd := exec.Command(binaryPath, "validate", "--config", configPath)
-			output, err := cmd.CombinedOutput()
+			output, err := runCommandWithConfig(binaryPath, configContent, []string{"validate"})
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("valid"))
+			Expect(output).To(ContainSubstring("valid"))
 		})
 
 		It("should reject invalid YAML", func() {
 			binaryPath := buildBinary()
-			invalidConfig := filepath.Join(testDir, "invalid.yml")
-			Expect(os.WriteFile(invalidConfig, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
-
-			cmd := exec.Command(binaryPath, "validate", "--config", invalidConfig)
-			_, err := cmd.CombinedOutput()
-
-			Expect(err).To(HaveOccurred())
+			assertInvalidYAMLRejected(binaryPath)
 		})
 
 		It("should handle missing config file", func() {
@@ -352,16 +359,12 @@ linters:
   enable:
     - errcheck
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-			cmd := exec.Command(binaryPath, "migrate", "--config", configPath)
-			output, err := cmd.CombinedOutput()
+			output, err := runCommandWithConfig(binaryPath, configContent, []string{"migrate"})
 
 			// Migrate command should run successfully (may show warning if already v2)
 			// The command now actually runs golangci-lint migrate
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("Migrating configuration"))
+			Expect(output).To(ContainSubstring("Migrating configuration"))
 		})
 
 		It("should skip migration for v2 configs", func() {
@@ -371,15 +374,11 @@ linters:
   enable:
     - errcheck
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-			cmd := exec.Command(binaryPath, "migrate", "--config", configPath)
-			output, err := cmd.CombinedOutput()
+			output, err := runCommandWithConfig(binaryPath, configContent, []string{"migrate"})
 
 			// v2 configs should be skipped (no migration needed)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("already version 2"))
+			Expect(output).To(ContainSubstring("already version 2"))
 		})
 	})
 

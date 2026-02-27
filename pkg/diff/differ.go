@@ -185,7 +185,7 @@ func (d *Differ) FormatChanges(changes []Change) string {
 		}
 	}
 
-	sb.WriteString(fmt.Sprintf("Changes: %d added, %d removed, %d modified\n\n", added, removed, modified))
+	fmt.Fprintf(&sb, "Changes: %d added, %d removed, %d modified\n\n", added, removed, modified)
 
 	// Sort changes by path
 	sort.Slice(changes, func(i, j int) bool {
@@ -195,11 +195,11 @@ func (d *Differ) FormatChanges(changes []Change) string {
 	for _, c := range changes {
 		switch c.Type {
 		case ChangeTypeAdded:
-			sb.WriteString(fmt.Sprintf("+ %s\n", c.Description))
+			fmt.Fprintf(&sb, "+ %s\n", c.Description)
 		case ChangeTypeRemoved:
-			sb.WriteString(fmt.Sprintf("- %s\n", c.Description))
+			fmt.Fprintf(&sb, "- %s\n", c.Description)
 		case ChangeTypeModified:
-			sb.WriteString(fmt.Sprintf("~ %s\n", c.Description))
+			fmt.Fprintf(&sb, "~ %s\n", c.Description)
 		}
 	}
 
