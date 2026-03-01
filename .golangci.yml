@@ -11,6 +11,13 @@ output:
 linters:
   enable:
     - dupword
+    - errchkjson
+    - loggercheck
+    - musttag
+    - nilerr
+    - noctx
+    - sloglint
+    - lll
     - nilnesserr
     - durationcheck
     - ireturn
@@ -124,6 +131,54 @@ linters:
       min-complexity: 25
     gocyclo:
       min-complexity: 20
+    exhaustruct:
+      exclude:
+        - '.*\.Test.*'
+        - '.*Test.*'
+        - 'github.com/charmbracelet/log.Options'
+        - 'github.com/larsartmann/golangcli-linter-auto-configure/pkg/types.*'
+    tagliatelle:
+      case:
+        rules:
+          json: snake
+          yaml: kebab
+    depguard:
+      rules:
+        Main:
+          files:
+            - '!**/*_test.go'
+          allow:
+            - $gostd
+            - github.com/charmbracelet
+            - github.com/larsartmann/golangcli-linter-auto-configure
+            - github.com/spf13/cobra
+            - github.com/stretchr/testify
+            - gopkg.in/yaml.v3
+            - golang.org/x/mod/semver
+            - github.com/samber/mo
+            - github.com/a-h/templ
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - exhaustruct
+          - err113
+          - wrapcheck
+        path: _test\.go
+      - linters:
+          - depguard
+        path: 'internal/cli|examples/|cmd/'
+      - linters:
+          - gosec
+        path: _test\.go
+      - linters:
+          - tagliatelle
+        path: 'pkg/types/types\.go'
 formatters:
   enable:
     - golines

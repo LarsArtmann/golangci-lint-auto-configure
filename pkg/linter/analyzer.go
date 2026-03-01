@@ -65,7 +65,7 @@ func (a *Analyzer) FindBinary() error {
 	return nil
 }
 
-// CheckVersion verifies golangci-lint is at least v2.8.0.
+// CheckVersion verifies golangci-lint is at least v2.10.1.
 func (a *Analyzer) CheckVersion() error {
 	// Try JSON output first (more reliable)
 	cmd := exec.Command(a.golangciLintPath, "version", "--json")
@@ -105,8 +105,8 @@ func (a *Analyzer) CheckVersion() error {
 		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
 	}
 
-	// Compare with minimum required version (v2.8.0)
-	minVersion := "v2.8.0"
+	// Compare with minimum required version (v2.10.1)
+	minVersion := "v2.10.1"
 	if semver.Compare(version, minVersion) < 0 {
 		return errors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
@@ -133,7 +133,7 @@ func (a *Analyzer) checkVersionText() error {
 		return errors.NewAnalysisError("failed to check golangci-lint version", "", err)
 	}
 
-	// Parse version from output (format: "golangci-lint has version 2.8.0 built with...")
+	// Parse version from output (format: "golangci-lint has version 2.10.1 built with...")
 	outputStr := string(output)
 
 	version := a.parseVersionText(outputStr)
@@ -156,8 +156,8 @@ func (a *Analyzer) checkVersionText() error {
 		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
 	}
 
-	// Compare with minimum required version (v2.8.0)
-	minVersion := "v2.8.0"
+	// Compare with minimum required version (v2.10.1)
+	minVersion := "v2.10.1"
 	if semver.Compare(version, minVersion) < 0 {
 		return errors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),

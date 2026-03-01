@@ -245,7 +245,7 @@ Keep internal. Not enough unique value for extraction.
 
 **Capabilities:**
 
-- golangci-lint binary discovery and version checking (>= v2.8.0)
+- golangci-lint binary discovery and version checking (>= v2.10.1)
 - Config analysis via `golangci-lint linters --json`
 - Formatter analysis via `golangci-lint formatters --json`
 - Recommendation categorization by priority

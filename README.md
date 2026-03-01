@@ -28,7 +28,7 @@ go build -o /usr/local/bin/golangci-linter-auto-configure ./cmd/golangci-linter-
 ## Requirements
 
 - **Go**: 1.25+
-- **golangci-lint**: v2.8.0+ (tool checks version automatically)
+- **golangci-lint**: v2.10.1+ (tool checks version automatically)
 
 ## Usage
 

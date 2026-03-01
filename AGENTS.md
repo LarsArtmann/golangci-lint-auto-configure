@@ -59,7 +59,7 @@ just tidy           # Tidy go.mod
 
 ### External Tools Required
 
-- **golangci-lint**: v2.8.0+ (auto-detected, minimum version enforced)
+- **golangci-lint**: v2.10.1+ (auto-detected, minimum version enforced)
 - **Go**: 1.25+ required for compilation
 
 ## Code Organization
@@ -361,7 +361,7 @@ type ReportData struct {
 
 ## Linter Version Checking
 
-### Minimum Version: v2.8.0
+### Minimum Version: v2.10.1
 
 Version checking in `pkg/linter/analyzer.go`:
 

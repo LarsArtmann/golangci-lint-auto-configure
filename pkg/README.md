@@ -183,7 +183,7 @@ func main() {
 
 ## Version Compatibility
 
-- **golangci-lint**: v2.8.0 or higher required
+- **golangci-lint**: v2.10.1 or higher required
 - **Go**: 1.21 or higher required
 - **Breaking Changes**: Public API is stable, but internal packages may change
 
