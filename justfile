@@ -14,6 +14,7 @@ help:
     @echo "  just clean        - Clean build artifacts"
     @echo "  just install      - Install the CLI to GOPATH/bin"
     @echo "  just install-local - Install locally with version ldflags"
+    @echo "  just dogfood      - Run tool on itself (analyze our own config)"
 
 build:
     @echo "Building CLI..."
@@ -55,6 +56,13 @@ configure build *args:
 
 validate build *args:
     @./bin/golangci-linter-auto-configure validate {{args}}
+
+# Dogfood: Run the tool on itself (follows Dogfooding First principle)
+dogfood: build
+    @echo "🐕 Dogfooding: Running golangci-linter-auto-configure on itself..."
+    @./bin/golangci-linter-auto-configure analyze
+    @echo ""
+    @echo "✅ Dogfooding complete!"
 
 report build *args:
     @./bin/golangci-linter-auto-configure report {{args}}
