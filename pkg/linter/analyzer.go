@@ -1,10 +1,11 @@
 package linter
 
-// TODO: Split this file into multiple files - it's 462 lines (over 350 limit)
-// TODO: Extract version checking into a separate VersionChecker type
-// TODO: Use interface for exec.Command to enable better testing/mocking
-// TODO: Consider caching linter list to avoid repeated exec calls
-// TODO: Add context.Context support for cancellation
+// Package linter provides analysis capabilities for golangci-lint configurations.
+//
+// This file contains the core Analyzer type and main analysis logic.
+// Related functionality has been split into separate files:
+//   - version_checker.go: Version checking functionality
+//
 
 import (
 	"encoding/json"
@@ -16,7 +17,6 @@ import (
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
-	"golang.org/x/mod/semver"
 )
 
 // Analyzer analyzes golangci-lint configurations and provides recommendations.
@@ -45,14 +45,6 @@ type golangciLintFormattersOutput struct {
 	Disabled []types.FormatterInfo `json:"Disabled"`
 }
 
-// golangciLintVersion represents JSON output from `golangci-lint version --json`.
-type golangciLintVersion struct {
-	Version   string `json:"version"`
-	Commit    string `json:"commit"`
-	Date      string `json:"date"`
-	GoVersion string `json:"goVersion"`
-}
-
 // FindBinary finds the golangci-lint binary in PATH.
 func (a *Analyzer) FindBinary() error {
 	path, err := exec.LookPath("golangci-lint")
@@ -63,128 +55,6 @@ func (a *Analyzer) FindBinary() error {
 	a.golangciLintPath = path
 
 	return nil
-}
-
-// CheckVersion verifies golangci-lint is at least the minimum required version.
-func (a *Analyzer) CheckVersion() error {
-	// Try JSON output first (more reliable)
-	cmd := exec.Command(a.golangciLintPath, "version", "--json")
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		// Fallback to text parsing if --json not supported
-		return a.checkVersionText()
-	}
-
-	// Parse JSON output
-	var versionInfo golangciLintVersion
-	if err := json.Unmarshal(output, &versionInfo); err != nil {
-		// JSON parsing failed, fall back to text parsing
-		a.logger.Debugf("Failed to parse JSON version output, falling back to text: %v", err)
-
-		return a.checkVersionText()
-	}
-
-	if versionInfo.Version == "" {
-		return errors.NewAnalysisError(
-			"could not parse golangci-lint version from JSON",
-			"",
-			fmt.Errorf("output: %s", string(output)),
-		)
-	}
-
-	version := versionInfo.Version
-
-	// Ensure version has 'v' prefix for semver
-	if !strings.HasPrefix(version, "v") {
-		version = "v" + version
-	}
-
-	// Validate semver format
-	if !semver.IsValid(version) {
-		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
-	}
-
-	// Compare with minimum required version
-	minVersion := constants.MinGolangCILintVersion
-	if semver.Compare(version, minVersion) < 0 {
-		return errors.NewAnalysisError(
-			fmt.Sprintf("golangci-lint version %s is too old", version),
-			"",
-			fmt.Errorf(
-				"minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
-				minVersion,
-			),
-		)
-	}
-
-	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
-
-	return nil
-}
-
-// checkVersionText is a fallback that parses text output from golangci-lint --version
-// Used when --json flag is not available or fails.
-func (a *Analyzer) checkVersionText() error {
-	cmd := exec.Command(a.golangciLintPath, "--version")
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return errors.NewAnalysisError("failed to check golangci-lint version", "", err)
-	}
-
-	// Parse version from output (format: "golangci-lint has version 2.10.1 built with...")
-	outputStr := string(output)
-
-	version := a.parseVersionText(outputStr)
-
-	if version == "" {
-		return errors.NewAnalysisError(
-			"could not parse golangci-lint version from output",
-			"",
-			fmt.Errorf("output: %s", outputStr),
-		)
-	}
-
-	// Ensure version has 'v' prefix for semver
-	if !strings.HasPrefix(version, "v") {
-		version = "v" + version
-	}
-
-	// Validate semver format
-	if !semver.IsValid(version) {
-		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
-	}
-
-	// Compare with minimum required version
-	minVersion := constants.MinGolangCILintVersion
-	if semver.Compare(version, minVersion) < 0 {
-		return errors.NewAnalysisError(
-			fmt.Sprintf("golangci-lint version %s is too old", version),
-			"",
-			fmt.Errorf(
-				"minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
-				minVersion,
-			),
-		)
-	}
-
-	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
-
-	return nil
-}
-
-// parseVersionText extracts version number from text output
-// Format: "golangci-lint has version X.Y.Z built with...".
-func (a *Analyzer) parseVersionText(output string) string {
-	parts := strings.Fields(output)
-	for i, part := range parts {
-		if part == "version" && i+1 < len(parts) {
-			return parts[i+1]
-		}
-	}
-
-	return ""
 }
 
 // AnalyzeConfig analyzes the current golangci-lint configuration.
