@@ -65,7 +65,7 @@ func (a *Analyzer) FindBinary() error {
 	return nil
 }
 
-// CheckVersion verifies golangci-lint is at least v2.10.1.
+// CheckVersion verifies golangci-lint is at least the minimum required version.
 func (a *Analyzer) CheckVersion() error {
 	// Try JSON output first (more reliable)
 	cmd := exec.Command(a.golangciLintPath, "version", "--json")
@@ -105,8 +105,8 @@ func (a *Analyzer) CheckVersion() error {
 		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
 	}
 
-	// Compare with minimum required version (v2.10.1)
-	minVersion := "v2.10.1"
+	// Compare with minimum required version
+	minVersion := constants.MinGolangCILintVersion
 	if semver.Compare(version, minVersion) < 0 {
 		return errors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
@@ -156,8 +156,8 @@ func (a *Analyzer) checkVersionText() error {
 		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
 	}
 
-	// Compare with minimum required version (v2.10.1)
-	minVersion := "v2.10.1"
+	// Compare with minimum required version
+	minVersion := constants.MinGolangCILintVersion
 	if semver.Compare(version, minVersion) < 0 {
 		return errors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
@@ -175,7 +175,7 @@ func (a *Analyzer) checkVersionText() error {
 }
 
 // parseVersionText extracts version number from text output
-// Format: "golangci-lint has version 2.8.0 built with...".
+// Format: "golangci-lint has version X.Y.Z built with...".
 func (a *Analyzer) parseVersionText(output string) string {
 	parts := strings.Fields(output)
 	for i, part := range parts {

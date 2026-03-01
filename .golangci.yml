@@ -134,9 +134,9 @@ linters:
     exhaustruct:
       exclude:
         - '.*\.Test.*'
-        - '.*Test.*'
-        - 'github.com/charmbracelet/log.Options'
-        - 'github.com/larsartmann/golangcli-linter-auto-configure/pkg/types.*'
+        - ".*Test.*"
+        - "github.com/charmbracelet/log.Options"
+        - "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types.*"
     tagliatelle:
       case:
         rules:
@@ -146,7 +146,7 @@ linters:
       rules:
         Main:
           files:
-            - '!**/*_test.go'
+            - "!**/*_test.go"
           allow:
             - $gostd
             - github.com/charmbracelet
@@ -172,7 +172,7 @@ linters:
         path: _test\.go
       - linters:
           - depguard
-        path: 'internal/cli|examples/|cmd/'
+        path: "internal/cli|examples/|cmd/"
       - linters:
           - gosec
         path: _test\.go
