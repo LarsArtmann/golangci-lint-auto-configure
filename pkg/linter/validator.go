@@ -14,8 +14,8 @@ type ValidationResult struct {
 
 // DeprecatedLinterCheck represents a deprecated linter that needs replacement.
 type DeprecatedLinterCheck struct {
-	Name        string
-	Replacement types.LinterReplacement
+	Name           string
+	Replacement    types.LinterReplacement
 	AlreadyPresent bool
 }
 
@@ -87,5 +87,6 @@ func (v *Validator) ShouldEnableGolines(analysis *types.ConfigAnalysis) bool {
 			return true
 		}
 	}
+
 	return false
 }

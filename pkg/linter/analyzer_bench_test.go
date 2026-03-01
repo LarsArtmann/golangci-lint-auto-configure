@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"context"
 	"testing"
 
 	"github.com/charmbracelet/log"
@@ -14,7 +15,7 @@ func BenchmarkAnalyzer_AnalyzeConfig(b *testing.B) {
 	configPath := "../../.golangci.yml"
 
 	for b.Loop() {
-		_, err := analyzer.AnalyzeConfig(configPath)
+		_, err := analyzer.AnalyzeConfig(context.Background(), configPath)
 		if err != nil {
 			b.Fatalf("AnalyzeConfig failed: %v", err)
 		}
@@ -28,7 +29,7 @@ func BenchmarkAnalyzer_GetLintersByPriority(b *testing.B) {
 	// Get real recommendations
 	configPath := "../../.golangci.yml"
 
-	analysis, err := analyzer.AnalyzeConfig(configPath)
+	analysis, err := analyzer.AnalyzeConfig(context.Background(), configPath)
 	if err != nil {
 		b.Fatalf("Setup failed: %v", err)
 	}
@@ -46,7 +47,7 @@ func BenchmarkAnalyzer_FormatRecommendations(b *testing.B) {
 
 	configPath := "../../.golangci.yml"
 
-	analysis, err := analyzer.AnalyzeConfig(configPath)
+	analysis, err := analyzer.AnalyzeConfig(context.Background(), configPath)
 	if err != nil {
 		b.Fatalf("Setup failed: %v", err)
 	}
@@ -62,7 +63,7 @@ func BenchmarkAnalyzer_categorizeLinters(b *testing.B) {
 
 	configPath := "../../.golangci.yml"
 
-	analysis, err := analyzer.AnalyzeConfig(configPath)
+	analysis, err := analyzer.AnalyzeConfig(context.Background(), configPath)
 	if err != nil {
 		b.Fatalf("Setup failed: %v", err)
 	}

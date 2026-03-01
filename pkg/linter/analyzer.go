@@ -8,6 +8,7 @@ package linter
 //
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -46,7 +47,7 @@ type golangciLintFormattersOutput struct {
 }
 
 // FindBinary finds the golangci-lint binary in PATH.
-func (a *Analyzer) FindBinary() error {
+func (a *Analyzer) FindBinary(ctx context.Context) error {
 	path, err := exec.LookPath("golangci-lint")
 	if err != nil {
 		return errors.NewAnalysisError("golangci-lint not found in PATH", "", err)
@@ -58,18 +59,18 @@ func (a *Analyzer) FindBinary() error {
 }
 
 // AnalyzeConfig analyzes the current golangci-lint configuration.
-func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, error) {
-	if err := a.FindBinary(); err != nil {
+func (a *Analyzer) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error) {
+	if err := a.FindBinary(ctx); err != nil {
 		return nil, err
 	}
 
 	// Check version meets minimum requirement
-	if err := a.CheckVersion(); err != nil {
+	if err := a.CheckVersion(ctx); err != nil {
 		return nil, err
 	}
 
 	// Analyze linters
-	lintOutput, err := a.runLintersCommand(configPath)
+	lintOutput, err := a.runLintersCommand(ctx, configPath)
 	if err != nil {
 		return nil, errors.NewAnalysisError("failed to run golangci-lint linters", "", err)
 	}
@@ -80,7 +81,7 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 	}
 
 	// Analyze formatters
-	formatOutput, err := a.runFormattersCommand(configPath)
+	formatOutput, err := a.runFormattersCommand(ctx, configPath)
 	if err != nil {
 		// Formatters command may not exist in older versions, log but don't fail
 		a.logger.Debugf("Formatters analysis skipped: %v", err)
@@ -114,7 +115,6 @@ func (a *Analyzer) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, erro
 
 	return analysis, nil
 }
-
 
 // GetLintersByPriority returns recommendations filtered by priority.
 func (a *Analyzer) GetLintersByPriority(

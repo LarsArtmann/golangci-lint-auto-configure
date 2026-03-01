@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"context"
 	"testing"
 
 	"github.com/charmbracelet/log"
@@ -55,12 +56,12 @@ func TestCheckVersion_Success(t *testing.T) {
 	analyzer := NewAnalyzer(log.Default())
 
 	// First find the binary
-	err := analyzer.FindBinary()
+	err := analyzer.FindBinary(context.Background())
 	if err != nil {
 		t.Skipf("golangci-lint not found in PATH: %v", err)
 	}
 
 	// Then check version (should pass with v2.10.1+)
-	err = analyzer.CheckVersion()
+	err = analyzer.CheckVersion(context.Background())
 	assert.NoError(t, err, "Version check should pass with golangci-lint v2.10.1 or newer")
 }

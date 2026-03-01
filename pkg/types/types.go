@@ -5,6 +5,7 @@ package types
 // TODO: Consider using time.Duration instead of string for timeout fields
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -254,9 +255,9 @@ type FormattersExclusionsConfig struct {
 
 // LinterAnalyzer defines the interface for analyzing golangci-lint configurations.
 type LinterAnalyzer interface {
-	AnalyzeConfig(configPath string) (*ConfigAnalysis, error)
-	FindBinary() error
-	CheckVersion() error
+	AnalyzeConfig(ctx context.Context, configPath string) (*ConfigAnalysis, error)
+	FindBinary(ctx context.Context) error
+	CheckVersion(ctx context.Context) error
 	FormatRecommendations(analysis *ConfigAnalysis) string
 	GetSummary(analysis *ConfigAnalysis) string
 	GetLintersByPriority(recommendations []LinterRecommendation, priority LinterPriority) []LinterRecommendation
@@ -264,5 +265,5 @@ type LinterAnalyzer interface {
 
 // LinterFixer defines the interface for fixing golangci-lint configurations.
 type LinterFixer interface {
-	FixConfig(configPath string, priority LinterPriority, dryRun bool) (*MigrationResult, error)
+	FixConfig(ctx context.Context, configPath string, priority LinterPriority, dryRun bool) (*MigrationResult, error)
 }

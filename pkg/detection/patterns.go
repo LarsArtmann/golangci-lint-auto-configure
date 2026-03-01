@@ -65,5 +65,6 @@ func GetRecommendedLinters(projectType ProjectType) []string {
 	if linters, ok := RecommendedLinters[projectType]; ok {
 		return linters
 	}
+
 	return RecommendedLinters[ProjectTypeUnknown]
 }

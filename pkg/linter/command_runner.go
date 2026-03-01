@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 
@@ -8,8 +9,8 @@ import (
 )
 
 // runLintersCommand runs `golangci-lint linters` and returns JSON output.
-func (a *Analyzer) runLintersCommand(configPath string) ([]byte, error) {
-	cmd := exec.Command(a.golangciLintPath, "linters", "--config", configPath, "--json")
+func (a *Analyzer) runLintersCommand(ctx context.Context, configPath string) ([]byte, error) {
+	cmd := exec.CommandContext(ctx, a.golangciLintPath, "linters", "--config", configPath, "--json")
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -23,8 +24,8 @@ func (a *Analyzer) runLintersCommand(configPath string) ([]byte, error) {
 }
 
 // runFormattersCommand runs `golangci-lint formatters` and returns JSON output.
-func (a *Analyzer) runFormattersCommand(configPath string) ([]byte, error) {
-	cmd := exec.Command(a.golangciLintPath, "formatters", "--config", configPath, "--json")
+func (a *Analyzer) runFormattersCommand(ctx context.Context, configPath string) ([]byte, error) {
+	cmd := exec.CommandContext(ctx, a.golangciLintPath, "formatters", "--config", configPath, "--json")
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

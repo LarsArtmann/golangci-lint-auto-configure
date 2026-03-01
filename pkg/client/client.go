@@ -3,6 +3,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/charmbracelet/log"
@@ -53,13 +54,13 @@ func New(opts Options) *Client {
 // Example:
 //
 //	client := client.New(client.Options{})
-//	analysis, err := client.AnalyzeConfig(".golangci.yml")
+//	analysis, err := client.AnalyzeConfig(context.Background(), ".golangci.yml")
 //	if err != nil {
 //	    log.Fatal(err)
 //	}
 //	fmt.Printf("Found %d disabled linters", len(analysis.DisabledLinters))
-func (c *Client) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, error) {
-	return c.analyzer.AnalyzeConfig(configPath)
+func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error) {
+	return c.analyzer.AnalyzeConfig(ctx, configPath)
 }
 
 // LoadConfig loads and parses a golangci-lint configuration file
@@ -118,16 +119,16 @@ func (c *Client) SaveConfig(cfg *config.Config, path string) error {
 //
 // Example:
 //
-//	summary := client.SimpleAnalyze(client.Options{Verbose: true}, ".golangci.yml")
+//	summary := client.SimpleAnalyze(context.Background(), client.Options{Verbose: true}, ".golangci.yml")
 //	fmt.Println(summary)
-func SimpleAnalyze(opts Options, configPath string) (string, error) {
+func SimpleAnalyze(ctx context.Context, opts Options, configPath string) (string, error) {
 	c := New(opts)
 
 	if opts.Verbose {
 		c.logger.Infof("Analyzing configuration: %s", configPath)
 	}
 
-	analysis, err := c.AnalyzeConfig(configPath)
+	analysis, err := c.AnalyzeConfig(ctx, configPath)
 	if err != nil {
 		return "", fmt.Errorf("analysis failed: %w", err)
 	}

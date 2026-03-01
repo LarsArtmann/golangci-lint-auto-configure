@@ -1,6 +1,7 @@
 package linter_test
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
@@ -38,14 +39,19 @@ linters:
 `
 			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
-			result, err := fixer.FixConfig(testConfig, types.LinterPriorityCritical, true)
+			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result.Success).To(BeTrue())
 		})
 
 		It("should handle missing config file gracefully", func() {
-			_, err := fixer.FixConfig("/non/existent/config.yml", types.LinterPriorityCritical, true)
+			_, err := fixer.FixConfig(
+				context.Background(),
+				"/non/existent/config.yml",
+				types.LinterPriorityCritical,
+				true,
+			)
 
 			Expect(err).To(HaveOccurred())
 		})
@@ -55,7 +61,7 @@ linters:
   enable: [unclosed bracket`
 			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
-			_, err := fixer.FixConfig(testConfig, types.LinterPriorityCritical, true)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
 
 			Expect(err).To(HaveOccurred())
 		})

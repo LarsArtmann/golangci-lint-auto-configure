@@ -210,19 +210,8 @@ func (d *Detector) hasMainPackage() bool {
 
 // hasHTTPFramework checks if common HTTP frameworks are imported.
 func (d *Detector) hasHTTPFramework(imports []string) bool {
-	httpFrameworks := []string{
-		"github.com/gin-gonic/gin",
-		"github.com/labstack/echo",
-		"github.com/gofiber/fiber",
-		"github.com/gorilla/mux",
-		"github.com/go-chi/chi",
-		"net/http",
-		"github.com/valyala/fasthttp",
-		"goa.design/goa",
-	}
-
 	for _, imp := range imports {
-		for _, framework := range httpFrameworks {
+		for _, framework := range HTTPFrameworks {
 			if strings.Contains(imp, framework) {
 				return true
 			}
@@ -234,17 +223,8 @@ func (d *Detector) hasHTTPFramework(imports []string) bool {
 
 // hasCLIFramework checks if common CLI frameworks are imported.
 func (d *Detector) hasCLIFramework(imports []string) bool {
-	cliFrameworks := []string{
-		"github.com/spf13/cobra",
-		"github.com/urfave/cli",
-		"github.com/alecthomas/kingpin",
-		"github.com/charmbracelet/bubbletea",
-		"github.com/charmbracelet/lipgloss",
-		"github.com/manifoldco/promptui",
-	}
-
 	for _, imp := range imports {
-		for _, framework := range cliFrameworks {
+		for _, framework := range CLIFrameworks {
 			if strings.Contains(imp, framework) {
 				return true
 			}
@@ -256,16 +236,6 @@ func (d *Detector) hasCLIFramework(imports []string) bool {
 
 // hasAPICodePatterns checks for common API patterns in code.
 func (d *Detector) hasAPICodePatterns() bool {
-	apiPatterns := []string{
-		"json.Marshal",
-		"json.Unmarshal",
-		"http.Handler",
-		"grpc.",
-		"proto.",
-		"REST",
-		"API",
-	}
-
 	found := false
 
 	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
@@ -282,7 +252,7 @@ func (d *Detector) hasAPICodePatterns() bool {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
-			for _, pattern := range apiPatterns {
+			for _, pattern := range APIPatterns {
 				if strings.Contains(line, pattern) {
 					found = true
 
@@ -295,39 +265,4 @@ func (d *Detector) hasAPICodePatterns() bool {
 	})
 
 	return found
-}
-
-// GetRecommendedLinters returns recommended linters for a project type.
-func GetRecommendedLinters(projectType ProjectType) []string {
-	switch projectType {
-	case ProjectTypeCLI:
-		return []string{
-			"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-			"wrapcheck", "errorlint", "gocritic", "nolintlint",
-		}
-	case ProjectTypeLibrary:
-		return []string{
-			"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-			"wrapcheck", "errorlint", "gocritic", "musttag",
-		}
-	case ProjectTypeWeb:
-		return []string{
-			"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-			"noctx", "bodyclose", "wrapcheck", "errorlint",
-		}
-	case ProjectTypeAPI:
-		return []string{
-			"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-			"noctx", "bodyclose", "wrapcheck", "errorlint", "musttag",
-		}
-	case ProjectTypeMonorepo:
-		return []string{
-			"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-			"gocritic", "errorlint",
-		}
-	default:
-		return []string{
-			"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-		}
-	}
 }

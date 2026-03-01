@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 
@@ -20,7 +21,7 @@ func main() {
 	// Analyze configuration
 	configPath := ".golangci.yml"
 
-	analysis, err := c.AnalyzeConfig(configPath)
+	analysis, err := c.AnalyzeConfig(context.Background(), configPath)
 	if err != nil {
 		slog.Error("Analysis failed", "error", err)
 		os.Exit(1)

@@ -113,7 +113,7 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"gocheckcompilerdirectives": types.LinterPriorityMedium,
 	"goprintffuncname":          types.LinterPriorityMedium,
 	"iface":                     types.LinterPriorityMedium,
-	"importas":                  types.LinterPriorityMedium,
+	"imports":                   types.LinterPriorityMedium,
 	"inamedparam":               types.LinterPriorityMedium,
 	"iotamixing":                types.LinterPriorityMedium,
 	"modernize":                 types.LinterPriorityMedium,

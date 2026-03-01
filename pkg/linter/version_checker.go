@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -20,14 +21,14 @@ type golangciLintVersion struct {
 }
 
 // CheckVersion verifies golangci-lint is at least the minimum required version.
-func (a *Analyzer) CheckVersion() error {
+func (a *Analyzer) CheckVersion(ctx context.Context) error {
 	// Try JSON output first (more reliable)
-	cmd := exec.Command(a.golangciLintPath, "version", "--json")
+	cmd := exec.CommandContext(ctx, a.golangciLintPath, "version", "--json")
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		// Fallback to text parsing if --json not supported
-		return a.checkVersionText()
+		return a.checkVersionText(ctx)
 	}
 
 	// Parse JSON output
@@ -36,7 +37,7 @@ func (a *Analyzer) CheckVersion() error {
 		// JSON parsing failed, fall back to text parsing
 		a.logger.Debugf("Failed to parse JSON version output, falling back to text: %v", err)
 
-		return a.checkVersionText()
+		return a.checkVersionText(ctx)
 	}
 
 	if versionInfo.Version == "" {
@@ -79,8 +80,8 @@ func (a *Analyzer) CheckVersion() error {
 
 // checkVersionText is a fallback that parses text output from golangci-lint --version
 // Used when --json flag is not available or fails.
-func (a *Analyzer) checkVersionText() error {
-	cmd := exec.Command(a.golangciLintPath, "--version")
+func (a *Analyzer) checkVersionText(ctx context.Context) error {
+	cmd := exec.CommandContext(ctx, a.golangciLintPath, "--version")
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

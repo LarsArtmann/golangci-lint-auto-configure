@@ -14,6 +14,7 @@ import (
 
 // ActivityContext provides context for workflow activities.
 type ActivityContext struct {
+	Context      context.Context
 	ConfigPath   string
 	Analyzer     *linter.Analyzer
 	Logger       *log.Logger
@@ -31,7 +32,7 @@ func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, e
 
 	activityCtx.Logger.Infof("Analyzing golangci-lint configuration...")
 
-	analysis, err := activityCtx.Analyzer.AnalyzeConfig(activityCtx.ConfigPath)
+	analysis, err := activityCtx.Analyzer.AnalyzeConfig(activityCtx.Context, activityCtx.ConfigPath)
 	if err != nil {
 		return &types.ActivityResult{
 			Status:    types.ActivityStatusFailed,
@@ -130,6 +131,7 @@ func NewBuilder(logger *log.Logger, analyzer *linter.Analyzer) *Builder {
 
 // BuildAutoConfigureWorkflow creates a workflow for auto-configuring golangci-lint.
 func (b *Builder) BuildAutoConfigureWorkflow(
+	ctx context.Context,
 	configPath string,
 	dryRun, generateHTML bool,
 	outputPath string,
@@ -141,6 +143,7 @@ func (b *Builder) BuildAutoConfigureWorkflow(
 
 	// Set up activity context
 	activityCtx := &ActivityContext{
+		Context:      ctx,
 		ConfigPath:   configPath,
 		Analyzer:     b.analyzer,
 		Logger:       b.logger,
@@ -180,7 +183,7 @@ func (b *Builder) ExecuteAutoConfigureWorkflow(
 	dryRun, generateHTML bool,
 	outputPath string,
 ) (workflowpkg.WorkflowRun, error) {
-	wf, err := b.BuildAutoConfigureWorkflow(configPath, dryRun, generateHTML, outputPath)
+	wf, err := b.BuildAutoConfigureWorkflow(ctx, configPath, dryRun, generateHTML, outputPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build workflow: %w", err)
 	}

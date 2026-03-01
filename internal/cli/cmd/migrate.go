@@ -40,12 +40,14 @@ This command:
 Use --dry-run to preview changes without modifying files.
 Use --skip-validation if the v1 config has known issues.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flags.Verbose {
+			// Read flags dynamically to get parsed values
+			verbose, _ := cmd.Flags().GetBool("verbose")
+			if verbose {
 				logger.SetLevel(log.DebugLevel)
 			}
 
 			// Find config file if not specified
-			configFile := flags.ConfigPath
+			configFile, _ := cmd.Flags().GetString("config")
 			if configFile == "" {
 				var err error
 
@@ -54,6 +56,11 @@ Use --skip-validation if the v1 config has known issues.`,
 					return fmt.Errorf("no config file found: %w", err)
 				}
 			}
+
+			// Read other flags
+			dryRun, _ := cmd.Flags().GetBool("dry-run")
+			skipValidation, _ := cmd.Flags().GetBool("skip-validation")
+			outputFormat, _ := cmd.Flags().GetString("format")
 
 			logger.Infof("Migrating configuration: %s", configFile)
 
@@ -72,7 +79,7 @@ Use --skip-validation if the v1 config has known issues.`,
 
 			// Create backup first
 			backupPath := configFile + ".v1-backup"
-			if !flags.DryRun {
+			if !dryRun {
 				logger.Infof("Creating backup: %s", backupPath)
 
 				backupCreated, err := configLoader.CreateBackup(configFile)
@@ -90,15 +97,15 @@ Use --skip-validation if the v1 config has known issues.`,
 
 			// Build golangci-lint migrate command
 			migrateArgs := []string{"migrate", "--config", configFile}
-			if flags.SkipValidation {
+			if skipValidation {
 				migrateArgs = append(migrateArgs, "--skip-validation")
 			}
 
-			if flags.OutputFormat != "" {
-				migrateArgs = append(migrateArgs, "--format", flags.OutputFormat)
+			if outputFormat != "" {
+				migrateArgs = append(migrateArgs, "--format", outputFormat)
 			}
 
-			if flags.DryRun {
+			if dryRun {
 				logger.Infof("[DRY-RUN] Would run: golangci-lint %s", strings.Join(migrateArgs, " "))
 				logger.Infof("[DRY-RUN] Migration preview complete")
 

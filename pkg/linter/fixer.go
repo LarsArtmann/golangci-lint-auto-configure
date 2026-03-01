@@ -7,6 +7,7 @@ package linter
 // TODO: Consider using immutable config copies for safer modifications
 
 import (
+	"context"
 	"fmt"
 	"slices"
 
@@ -35,6 +36,7 @@ func NewFixer(logger *log.Logger, analyzer *Analyzer) *Fixer {
 
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
 func (f *Fixer) FixConfig(
+	ctx context.Context,
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,
@@ -48,7 +50,7 @@ func (f *Fixer) FixConfig(
 
 	f.logger.Infof("Analyzing configuration...")
 
-	analysis, err := f.analyzer.AnalyzeConfig(configPath)
+	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil {
 		return nil, errors.NewAnalysisError("failed to analyze config", configPath, err)
 	}
