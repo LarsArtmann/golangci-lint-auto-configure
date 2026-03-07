@@ -1,6 +1,7 @@
 # PARTS.md - Component Analysis for Reusable Libraries/SDKs
 
 > Analysis of golangci-lint-auto-configure components that could be extracted as standalone reusable libraries.
+> **Last Updated:** March 1, 2026 (12:42)
 
 ## Executive Summary
 
@@ -21,7 +22,7 @@
 
 ### 1. `pkg/detection` - Project Type Detector
 
-**Location:** `pkg/detection/detector.go` (333 lines)
+**Location:** `pkg/detection/detector.go` (268 lines), `pkg/detection/patterns.go`
 
 **Capabilities:**
 
@@ -36,10 +37,11 @@
 
 ```go
 type Detector struct { ... }
-func NewDetector(logger *log.Logger) *Detector
-func (d *Detector) Detect(projectPath string) (types.ProjectType, error)
-func (d *Detector) DetectFramework(projectPath string) (string, error)
+func NewDetector(rootDir string) *Detector  // Simplified - no logger required
+func (d *Detector) Detect() ProjectType
 ```
+
+**Key Improvement:** API simplified to not require logger injection - pure detection logic.
 
 **Alternatives Research:**
 
@@ -63,15 +65,22 @@ github.com/larsartmann/go-project-detector
 
 ### 2. `pkg/constants` - Linter Knowledge Base
 
-**Location:** `pkg/constants/linter_data.go` (227 lines)
+**Location:** Split into multiple files for maintainability:
+- `pkg/constants/linter_priorities.go` (126 lines)
+- `pkg/constants/linter_reasons.go` (128 lines)
+- `pkg/constants/formatter_data.go` (56 lines)
+- `pkg/constants/presets.go` (38 lines)
+- `pkg/constants/rules.go` (16 lines)
+- `pkg/constants/config.go` (22 lines)
+
+**Total:** ~386 lines of curated knowledge data
 
 **Contents:**
 
 - `LinterPriorities`: Map of 100+ linters to priority levels (Critical/High/Medium/Optional)
 - `LinterReasons`: Human-readable explanations for each linter
-- `FormatterPriorities`: Formatter recommendations
+- `FormatterInfo` / `FormatterPriorities` / `FormatterReasons`: Formatter metadata
 - `PresetLinters`: Pre-defined configurations (minimal, standard, strict, security, performance)
-- `LinterReplacements`: Deprecated linter mappings (e.g., `wsl` → `wsl_v5`)
 - `RedundantLinters`: Known redundant combinations
 
 **Sample Data:**
@@ -165,11 +174,11 @@ github.com/larsartmann/golangci-lint-config
 
 ### 4. `pkg/client` - High-Level SDK
 
-**Location:** `pkg/client/client.go` (141 lines)
+**Location:** `pkg/client/client.go` (142 lines)
 
 **Already SDK-Ready:**
 
-- Clean public API
+- Clean public API with context support
 - Options pattern for configuration
 - Convenience functions (`SimpleAnalyze`)
 - Example documentation in godoc
@@ -181,13 +190,15 @@ type Client struct { ... }
 type Options struct { ... }
 
 func New(opts Options) *Client
-func (c *Client) AnalyzeConfig(configPath string) (*types.ConfigAnalysis, error)
+func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error)
 func (c *Client) LoadConfig(configPath string) (*config.Config, error)
 func (c *Client) ValidateConfig(cfg *config.Config) []error
 func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string
 func (c *Client) SaveConfig(cfg *config.Config, path string) error
-func SimpleAnalyze(opts Options, configPath string) (string, error)
+func SimpleAnalyze(ctx context.Context, opts Options, configPath string) (string, error)
 ```
+
+**Recent Improvement:** All methods now accept `context.Context` for cancellation support.
 
 **Recommendation:**
 
@@ -241,7 +252,15 @@ Keep internal. Not enough unique value for extraction.
 
 ### 7. `pkg/linter` - Analyzer & Fixer
 
-**Location:** `pkg/linter/analyzer.go` (508 lines), `pkg/linter/fixer.go`
+**Location:** Split into multiple files for maintainability:
+- `pkg/linter/analyzer.go` (245 lines) - Main analysis logic
+- `pkg/linter/fixer.go` (295 lines) - Configuration fixing
+- `pkg/linter/categorizer.go` (104 lines) - Linter categorization
+- `pkg/linter/validator.go` (92 lines) - Configuration validation
+- `pkg/linter/version_checker.go` (143 lines) - golangci-lint version checking
+- `pkg/linter/command_runner.go` (37 lines) - Command execution
+
+**All files now comply with <250 line limit per HOW_TO_GOLANG.md**
 
 **Capabilities:**
 
@@ -457,15 +476,16 @@ These components should remain internal to golangci-lint-auto-configure:
 
 Per `HOW_TO_GOLANG.md`:
 
-| Requirement                     | Status | Notes                                 |
-| ------------------------------- | ------ | ------------------------------------- |
-| Files <250 lines                | ⚠️     | `pkg/linter/analyzer.go` is 508 lines |
-| Functions <30 lines             | ✅     | Mostly compliant                      |
-| No `any` types                  | ✅     | Strong typing used                    |
-| DI with samber/do/v2            | ❌     | Manual DI currently                   |
-| Logging with slog+charmbracelet | ✅     | Using charmbracelet/log               |
-| Error wrapping                  | ✅     | Using `%w`                            |
-| Custom error types              | ✅     | `pkg/errors/errors.go`                |
+| Requirement                     | Status | Notes                                       |
+| ------------------------------- | ------ | ------------------------------------------- |
+| Files <250 lines                | ✅     | All files now compliant after refactoring   |
+| Functions <30 lines             | ✅     | Mostly compliant                            |
+| No `any` types                  | ✅     | Strong typing used                          |
+| DI with samber/do/v2            | ❌     | Manual DI currently                         |
+| Logging with slog+charmbracelet | ✅     | Using charmbracelet/log                     |
+| Error wrapping                  | ✅     | Using `%w`                                  |
+| Custom error types              | ✅     | `pkg/errors/errors.go`                      |
+| Context propagation             | ✅     | All public methods accept context           |
 
 ---
 
@@ -478,7 +498,7 @@ Per `HOW_TO_GOLANG.md`:
    - Document API
 
 2. **Create `golangci-lint-knowledge` repository**
-   - Extract `pkg/constants/linter_data.go`
+   - Extract `pkg/constants/linter_*.go`, `formatter_data.go`, `presets.go`
    - Add versioning strategy
    - Create update automation
    - Document data sources
