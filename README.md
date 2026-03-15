@@ -29,6 +29,7 @@ go build -o /usr/local/bin/golangci-linter-auto-configure ./cmd/golangci-linter-
 
 - **Go**: 1.25+
 - **golangci-lint**: v2.10.1+ (tool checks version automatically)
+- **Git**: Must run inside a git repository (for version control)
 
 ## Usage
 
@@ -107,17 +108,7 @@ Create JSON reports for CI/CD:
 golangci-linter-auto-configure report --output analysis.json --format json
 ```
 
-### Restore from Backup
-
-If something goes wrong:
-
-```bash
-# Restore from automatic backup
-golangci-linter-auto-configure restore --backup-path .golangci.yml.backup
-
-# Or specify target path
-golangci-linter-auto-configure restore --backup-path .golangci.yml.backup --config new-config.yml
-```
+### Validate Configuration
 
 ## Example Workflows
 

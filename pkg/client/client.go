@@ -25,6 +25,7 @@ type Options struct {
 type Client struct {
 	configLoader *config.Loader
 	analyzer     *linter.Analyzer
+	fixer        *linter.Fixer
 	logger       *log.Logger
 }
 
@@ -42,9 +43,12 @@ func New(opts Options) *Client {
 		})
 	}
 
+	analyzer := linter.NewAnalyzer(logger)
+
 	return &Client{
 		configLoader: config.NewLoader(logger),
-		analyzer:     linter.NewAnalyzer(logger),
+		analyzer:     analyzer,
+		fixer:        linter.NewFixer(logger, analyzer),
 		logger:       logger,
 	}
 }
@@ -112,6 +116,70 @@ func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string {
 //	err := client.SaveConfig(cfg, ".golangci.yml")
 func (c *Client) SaveConfig(cfg *config.Config, path string) error {
 	return c.configLoader.SaveConfig(cfg, path)
+}
+
+// FixOptions configures the behavior of the FixConfig method.
+type FixOptions struct {
+	// Priority is the minimum priority level for linters to enable.
+	// Options: LinterPriorityCritical, LinterPriorityHigh, LinterPriorityMedium, LinterPriorityOptional
+	Priority types.LinterPriority
+
+	// DryRun shows what would be changed without modifying files
+	DryRun bool
+}
+
+// FixConfig analyzes and fixes a golangci-lint configuration file.
+// It enables recommended linters, replaces deprecated linters, and removes redundant ones.
+//
+// Example:
+//
+//	client := client.New(client.Options{})
+//	result, err := client.FixConfig(context.Background(), ".golangci.yml", client.FixOptions{
+//	    Priority: types.LinterPriorityHigh,
+//	    DryRun:   true,
+//	})
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	fmt.Printf("Applied %d fixes: %s\n", result.FixesApplied, result.Message)
+func (c *Client) FixConfig(ctx context.Context, configPath string, opts FixOptions) (*types.MigrationResult, error) {
+	if opts.Priority == 0 {
+		opts.Priority = types.LinterPriorityHigh
+	}
+
+	return c.fixer.FixConfig(ctx, configPath, opts.Priority, opts.DryRun)
+}
+
+// SimpleFix is a one-line convenience function to analyze and fix a config file.
+// Returns a summary of the changes made or would be made.
+//
+// Example:
+//
+//	result, err := client.SimpleFix(context.Background(), client.Options{Verbose: true}, ".golangci.yml", true)
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	fmt.Println(result.Message)
+func SimpleFix(ctx context.Context, opts Options, configPath string, dryRun bool) (*types.MigrationResult, error) {
+	c := New(opts)
+
+	if opts.Verbose {
+		c.logger.Infof("Analyzing and fixing configuration: %s", configPath)
+	}
+
+	result, err := c.FixConfig(ctx, configPath, FixOptions{
+		Priority: types.LinterPriorityHigh,
+		DryRun:   dryRun,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("fix failed: %w", err)
+	}
+
+	if opts.Verbose {
+		c.logger.Infof("Fix complete: %d fixes applied", result.FixesApplied)
+	}
+
+	return result, nil
 }
 
 // SimpleAnalyze is a one-line convenience function to analyze a config file
