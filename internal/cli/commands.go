@@ -67,7 +67,6 @@ actionable recommendations to improve your Go code quality.`,
 		clicmd.NewMigrateCommand(logger, configLoader, migrateFlags),
 		newValidateCommand(logger, configLoader),
 		newReportCommand(logger, analyzer, configLoader),
-		newRestoreCommand(logger, configLoader),
 		clicmd.NewCompletionCommand(),
 		clicmd.NewInstallHookCommand(logger),
 	)

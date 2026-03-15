@@ -125,65 +125,39 @@ output:
 		})
 	})
 
-	Context("CreateBackup", func() {
-		It("should create backup file", func() {
-			configContent := `version: "1"
-linters:
-  enable:
-    - gosec
-`
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			backupPath, err := loader.CreateBackup(testConfig)
-
+	Context("EnsureGitRepo", func() {
+		It("should succeed when in a git repository", func() {
+			err := loader.EnsureGitRepo(".")
 			Expect(err).NotTo(HaveOccurred())
-			Expect(backupPath).To(Equal(testConfig + ".backup"))
-
-			backupContent, err := os.ReadFile(backupPath)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(backupContent)).To(Equal(configContent))
 		})
 
-		It("should create multiple backups with different names", func() {
-			configContent := `version: "1"
-linters:
-  enable:
-    - gosec
-`
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			backupPath1, err := loader.CreateBackup(testConfig)
-			Expect(err).NotTo(HaveOccurred())
-
-			backupPath2, err := loader.CreateBackup(testConfig)
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(backupPath1).To(Equal(backupPath2))
-		})
-
-		It("should return error for non-existent file", func() {
-			_, err := loader.CreateBackup("/non/existent/file.yml")
+		It("should fail when not in a git repository", func() {
+			err := loader.EnsureGitRepo("/tmp")
 			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("not in a git repository"))
 		})
 	})
 
 	Context("FindConfigFile", func() {
-		It("should find .golangci.yml", func() {
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0o644)).To(Succeed())
+		It("should find config files with different extensions", func() {
+			testCases := []struct {
+				ext      string
+				filename string
+			}{
+				{"yml", ".golangci.yml"},
+				{"yaml", ".golangci.yaml"},
+			}
 
-			found, err := loader.FindConfigFile(testDir)
+			for _, tc := range testCases {
+				Expect(os.WriteFile(filepath.Join(testDir, tc.filename), []byte("version: 1"), 0o644)).To(Succeed())
 
-			Expect(err).NotTo(HaveOccurred())
-			Expect(found).To(Equal(filepath.Join(testDir, ".golangci.yml")))
-		})
+				found, err := loader.FindConfigFile(testDir)
 
-		It("should find .golangci.yaml", func() {
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yaml"), []byte("version: 1"), 0o644)).To(Succeed())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(found).To(Equal(filepath.Join(testDir, tc.filename)))
 
-			found, err := loader.FindConfigFile(testDir)
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(found).To(Equal(filepath.Join(testDir, ".golangci.yaml")))
+				Expect(os.Remove(filepath.Join(testDir, tc.filename))).To(Succeed())
+			}
 		})
 
 		It("should return error when no config file exists", func() {

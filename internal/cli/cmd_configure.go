@@ -118,10 +118,6 @@ func runConfigure(
 
 	logger.Infof("%s", result.Message)
 
-	if result.BackupPath != "" {
-		logger.Infof("Backup created: %s", result.BackupPath)
-	}
-
 	return nil
 }
 
@@ -157,10 +153,9 @@ func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, pr
 		return nil
 	}
 
-	// Create backup
-	backupPath, err := configLoader.CreateBackup(configFile)
-	if err != nil {
-		return fmt.Errorf("failed to create backup: %w", err)
+	// Ensure we're in a git repo (git provides version control, no backup needed)
+	if err := configLoader.EnsureGitRepo("."); err != nil {
+		return err
 	}
 
 	// Update config
@@ -173,7 +168,6 @@ func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, pr
 	}
 
 	logger.Infof("✅ Applied preset %s with %d linters", preset, len(linterNames))
-	logger.Infof("Backup created: %s", backupPath)
 
 	return nil
 }

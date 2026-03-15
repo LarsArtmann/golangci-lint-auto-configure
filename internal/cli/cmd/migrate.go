@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -32,7 +31,7 @@ func NewMigrateCommand(
 		Long: `Migrates golangci-lint configuration from v1 to v2 schema.
 
 This command:
-1. Creates a backup of your current configuration
+1. Verifies you're in a git repository (for version control)
 2. Runs golangci-lint migrate to convert the schema
 3. Validates the migrated configuration
 4. Shows what changed
@@ -77,22 +76,13 @@ Use --skip-validation if the v1 config has known issues.`,
 				return nil
 			}
 
-			// Create backup first
-			backupPath := configFile + ".v1-backup"
+			// Ensure we're in a git repo (git provides version control, no backup needed)
 			if !dryRun {
-				logger.Infof("Creating backup: %s", backupPath)
-
-				backupCreated, err := configLoader.CreateBackup(configFile)
-				if err != nil {
-					return fmt.Errorf("failed to create backup: %w", err)
-				}
-				// Rename to .v1-backup for clarity
-				if err := os.Rename(backupCreated, backupPath); err != nil {
-					logger.Warnf("Could not rename backup to %s: %v", backupPath, err)
-					backupPath = backupCreated
+				if err := configLoader.EnsureGitRepo("."); err != nil {
+					return err
 				}
 			} else {
-				logger.Infof("[DRY-RUN] Would create backup: %s", backupPath)
+				logger.Infof("[DRY-RUN] Would verify git repository")
 			}
 
 			// Build golangci-lint migrate command
@@ -119,19 +109,11 @@ Use --skip-validation if the v1 config has known issues.`,
 
 			output, err := migrateCmd.CombinedOutput()
 			if err != nil {
-				// Restore backup on failure
 				logger.Errorf("Migration failed: %v", err)
 				logger.Infof("Output: %s", string(output))
-				logger.Infof("Restoring backup...")
+				logger.Infof("Use git to restore if needed")
 
-				restoreErr := configLoader.RestoreConfig(backupPath, configFile)
-				if restoreErr != nil {
-					logger.Errorf("Failed to restore backup: %v", restoreErr)
-
-					return fmt.Errorf("migration failed and restore failed: %w (restore error: %w)", err, restoreErr)
-				}
-
-				return fmt.Errorf("migration failed, backup restored: %w", err)
+				return fmt.Errorf("migration failed: %w", err)
 			}
 
 			logger.Infof("Migration completed successfully")
@@ -149,8 +131,6 @@ Use --skip-validation if the v1 config has known issues.`,
 			}
 
 			logger.Infof("Configuration migrated successfully!")
-			logger.Infof("Backup saved to: %s", backupPath)
-			logger.Infof("If you need to restore: golangci-linter-auto-configure restore %s", backupPath)
 
 			return nil
 		},

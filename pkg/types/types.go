@@ -131,7 +131,6 @@ type MigrationResult struct {
 	Success      bool   `json:"success"`
 	FixesApplied int    `json:"fixes_applied"`
 	Message      string `json:"message"`
-	BackupPath   string `json:"backup_path,omitempty"`
 }
 
 // ValidationError represents a configuration validation error.
@@ -163,8 +162,7 @@ type ConfigLoader interface {
 	SaveConfig(config *Config, path string) error
 	FindConfigFile(startDir string) (string, error)
 	FindOrGetDefaultConfigPath(startDir string) string
-	CreateBackup(filePath string) (string, error)
-	RestoreConfig(backupPath, targetPath string) error
+	EnsureGitRepo(startDir string) error
 	ValidateConfig(config *Config) []error
 	GetLintersEnabled(config *Config) []string
 	GetLintersDisabled(config *Config) []string

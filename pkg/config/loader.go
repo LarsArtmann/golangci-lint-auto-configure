@@ -177,22 +177,24 @@ func (l *Loader) SaveConfig(config *Config, path string) error {
 	return nil
 }
 
-// CreateBackup creates a backup of the given file.
-func (l *Loader) CreateBackup(filePath string) (string, error) {
-	backupPath := filePath + ".backup"
+// EnsureGitRepo checks if we're inside a git repository.
+// Since git provides version control, backup files are redundant.
+func (l *Loader) EnsureGitRepo(startDir string) error {
+	cmd := exec.Command("git", "rev-parse", "--is-inside-work-tree")
+	cmd.Dir = startDir
 
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return "", errors.NewConfigError("failed to read file for backup", filePath, err)
+	if err := cmd.Run(); err != nil {
+		return errors.NewConfigError(
+			"not in a git repository - git provides version control, so backup files are not created. "+
+				"Please initialize a git repository first: git init",
+			startDir,
+			nil,
+		)
 	}
 
-	if err := os.WriteFile(backupPath, data, 0o644); err != nil {
-		return "", errors.NewConfigError("failed to create backup", backupPath, err)
-	}
+	l.logger.Debugf("Git repository detected")
 
-	l.logger.Infof("Created backup: %s", backupPath)
-
-	return backupPath, nil
+	return nil
 }
 
 // ValidateConfig performs basic validation on the configuration.
@@ -220,20 +222,4 @@ func (l *Loader) GetLintersEnabled(config *Config) []string {
 // GetLintersDisabled returns the list of explicitly disabled linters.
 func (l *Loader) GetLintersDisabled(config *Config) []string {
 	return config.Linters.Disable
-}
-
-// RestoreConfig restores a configuration from a backup file to target path.
-func (l *Loader) RestoreConfig(backupPath, targetPath string) error {
-	data, err := os.ReadFile(backupPath)
-	if err != nil {
-		return errors.NewConfigError("failed to read backup file", backupPath, err)
-	}
-
-	if err := os.WriteFile(targetPath, data, 0o644); err != nil {
-		return errors.NewConfigError("failed to restore config", targetPath, err)
-	}
-
-	l.logger.Infof("Restored configuration from %s to %s", backupPath, targetPath)
-
-	return nil
 }

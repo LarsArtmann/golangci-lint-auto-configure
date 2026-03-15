@@ -30,7 +30,7 @@ var _ = Describe("Fixer", func() {
 	})
 
 	Context("Configuration Modification", func() {
-		It("should create backup before modification", func() {
+		It("should run in dry-run mode without modifying file", func() {
 			configContent := `version: "2"
 linters:
   enable:

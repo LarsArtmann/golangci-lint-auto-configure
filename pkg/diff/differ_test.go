@@ -10,6 +10,11 @@ import (
 func TestDiffer_Compare(t *testing.T) {
 	differ := NewDiffer()
 
+	baseConfigV2WithErrcheck := &types.Config{
+		Version: "2",
+		Linters: types.LintersConfig{Enable: []string{"errcheck"}},
+	}
+
 	tests := []struct {
 		name        string
 		old         *types.Config
@@ -23,19 +28,13 @@ func TestDiffer_Compare(t *testing.T) {
 				Version: "1",
 				Linters: types.LintersConfig{Enable: []string{"errcheck"}},
 			},
-			new: &types.Config{
-				Version: "2",
-				Linters: types.LintersConfig{Enable: []string{"errcheck"}},
-			},
+			new:         baseConfigV2WithErrcheck,
 			wantChanges: 1,
 			description: "Should detect version change",
 		},
 		{
 			name: "linter added",
-			old: &types.Config{
-				Version: "2",
-				Linters: types.LintersConfig{Enable: []string{"errcheck"}},
-			},
+			old:  baseConfigV2WithErrcheck,
 			new: &types.Config{
 				Version: "2",
 				Linters: types.LintersConfig{Enable: []string{"errcheck", "gosec"}},
@@ -49,10 +48,7 @@ func TestDiffer_Compare(t *testing.T) {
 				Version: "2",
 				Linters: types.LintersConfig{Enable: []string{"errcheck", "gosec"}},
 			},
-			new: &types.Config{
-				Version: "2",
-				Linters: types.LintersConfig{Enable: []string{"errcheck"}},
-			},
+			new:         baseConfigV2WithErrcheck,
 			wantChanges: 1,
 			description: "Should detect removed linter",
 		},
@@ -72,15 +68,9 @@ func TestDiffer_Compare(t *testing.T) {
 			description: "Should detect multiple changes (version, timeout, errcheck removed, gosec added)",
 		},
 		{
-			name: "no changes",
-			old: &types.Config{
-				Version: "2",
-				Linters: types.LintersConfig{Enable: []string{"errcheck"}},
-			},
-			new: &types.Config{
-				Version: "2",
-				Linters: types.LintersConfig{Enable: []string{"errcheck"}},
-			},
+			name:        "no changes",
+			old:         baseConfigV2WithErrcheck,
+			new:         baseConfigV2WithErrcheck,
 			wantChanges: 0,
 			description: "Should detect no changes",
 		},

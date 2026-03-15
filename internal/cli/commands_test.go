@@ -43,6 +43,14 @@ var _ = Describe("CLI Integration Tests", func() {
 		return binaryPath
 	}
 
+	// Helper function to initialize a git repo in test directory
+	initGitRepo := func() {
+		cmd := exec.Command("git", "init")
+		cmd.Dir = testDir
+		output, err := cmd.CombinedOutput()
+		Expect(err).NotTo(HaveOccurred(), "Failed to init git repo: "+string(output))
+	}
+
 	// Helper function to create a config file and run a CLI command
 	runCommandWithConfig := func(binaryPath, configContent string, args []string) (string, error) {
 		configPath := filepath.Join(testDir, ".golangci.yml")
@@ -126,6 +134,7 @@ linters:
 
 	Context("configure command", func() {
 		It("should run with dry-run mode without modifying file", func() {
+			initGitRepo()
 			binaryPath := buildBinary()
 			configContent := `version: "2"
 linters:
@@ -133,7 +142,6 @@ linters:
     - errcheck
 `
 			configPath := filepath.Join(testDir, ".golangci.yml")
-			backupPath := configPath + ".backup"
 			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
 			cmd := exec.Command(binaryPath, "configure", "--config", configPath, "--dry-run")
@@ -147,13 +155,10 @@ linters:
 			// Verify original file unchanged
 			content, _ := os.ReadFile(configPath)
 			Expect(string(content)).To(Equal(configContent))
-
-			// Verify no backup created in dry-run
-			_, err = os.Stat(backupPath)
-			Expect(os.IsNotExist(err)).To(BeTrue())
 		})
 
-		It("should create backup when modifying config", func() {
+		It("should require git repository for config modification", func() {
+			initGitRepo()
 			binaryPath := buildBinary()
 			configContent := `version: "2"
 linters:
@@ -165,24 +170,41 @@ linters:
     - staticcheck
     - unused`
 			configPath := filepath.Join(testDir, ".golangci.yml")
-			backupPath := configPath + ".backup"
 			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
 			cmd := exec.Command(binaryPath, "configure", "--config", configPath)
 			_, err := cmd.CombinedOutput()
 
+			// Should succeed since we're in a git repo
 			Expect(err).NotTo(HaveOccurred())
 
-			// Verify backup created
-			_, err = os.Stat(backupPath)
-			Expect(err).NotTo(HaveOccurred())
+			// Verify file was modified (no backup created since git provides version control)
+			content, _ := os.ReadFile(configPath)
+			Expect(string(content)).To(ContainSubstring("version: \"2\""))
+		})
 
-			// Verify backup is identical to original
-			backupContent, _ := os.ReadFile(backupPath)
-			Expect(string(backupContent)).To(Equal(configContent))
+		It("should fail when not in a git repository", func() {
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			// Note: testDir is NOT a git repo (no initGitRepo() called)
+			cmd := exec.Command(binaryPath, "configure", "--config", configPath)
+			cmd.Dir = testDir // Run from non-git directory to trigger error
+			output, err := cmd.CombinedOutput()
+
+			// Should fail with helpful error about git requirement
+			Expect(err).To(HaveOccurred())
+			Expect(string(output)).To(ContainSubstring("git"))
 		})
 
 		It("should modify config when not in dry-run mode", func() {
+			initGitRepo()
 			binaryPath := buildBinary()
 			configContent := `version: "2"
 linters:
@@ -245,55 +267,6 @@ linters:
 		It("should handle missing config file", func() {
 			binaryPath := buildBinary()
 			cmd := exec.Command(binaryPath, "validate", "--config", "/non/existent/path.yml")
-			_, err := cmd.CombinedOutput()
-
-			Expect(err).To(HaveOccurred())
-		})
-	})
-
-	Context("restore command", func() {
-		It("should restore from backup file", func() {
-			binaryPath := buildBinary()
-			originalContent := `version: "2"
-linters:
-  enable:
-    - errcheck
-`
-			modifiedContent := `version: "2"
-linters:
-  enable:
-    - gosec
-`
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			backupPath := filepath.Join(testDir, ".golangci.yml.backup")
-
-			Expect(os.WriteFile(backupPath, []byte(originalContent), 0o644)).To(Succeed())
-			Expect(os.WriteFile(configPath, []byte(modifiedContent), 0o644)).To(Succeed())
-
-			cmd := exec.Command(binaryPath, "restore", "--config", configPath, "--backup-path", backupPath)
-			output, err := cmd.CombinedOutput()
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("restored"))
-
-			// Verify restored content
-			content, _ := os.ReadFile(configPath)
-			Expect(string(content)).To(Equal(originalContent))
-		})
-
-		It("should return error for non-existent backup", func() {
-			binaryPath := buildBinary()
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte("test"), 0o644)).To(Succeed())
-
-			cmd := exec.Command(
-				binaryPath,
-				"restore",
-				"--config",
-				configPath,
-				"--backup-path",
-				"/non/existent/backup.yml",
-			)
 			_, err := cmd.CombinedOutput()
 
 			Expect(err).To(HaveOccurred())

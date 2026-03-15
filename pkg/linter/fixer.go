@@ -240,11 +240,9 @@ func (f *Fixer) FixConfig(
 		}, nil
 	}
 
-	f.logger.Infof("Creating backup...")
-
-	backupPath, err := f.configLoader.CreateBackup(configPath)
-	if err != nil {
-		return nil, errors.NewAnalysisError("failed to create backup", configPath, err)
+	// Ensure we're in a git repo (git provides version control, no backup needed)
+	if err := f.configLoader.EnsureGitRepo("."); err != nil {
+		return nil, err
 	}
 
 	// Convert final linter set to sorted slice for consistent output
@@ -284,7 +282,6 @@ func (f *Fixer) FixConfig(
 			deprecationFixes,
 			redundantFixes,
 		),
-		BackupPath: backupPath,
 	}
 
 	return result, nil

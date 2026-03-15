@@ -66,6 +66,7 @@ github.com/larsartmann/go-project-detector
 ### 2. `pkg/constants` - Linter Knowledge Base
 
 **Location:** Split into multiple files for maintainability:
+
 - `pkg/constants/linter_priorities.go` (126 lines)
 - `pkg/constants/linter_reasons.go` (128 lines)
 - `pkg/constants/formatter_data.go` (56 lines)
@@ -253,6 +254,7 @@ Keep internal. Not enough unique value for extraction.
 ### 7. `pkg/linter` - Analyzer & Fixer
 
 **Location:** Split into multiple files for maintainability:
+
 - `pkg/linter/analyzer.go` (245 lines) - Main analysis logic
 - `pkg/linter/fixer.go` (295 lines) - Configuration fixing
 - `pkg/linter/categorizer.go` (104 lines) - Linter categorization
@@ -476,16 +478,16 @@ These components should remain internal to golangci-lint-auto-configure:
 
 Per `HOW_TO_GOLANG.md`:
 
-| Requirement                     | Status | Notes                                       |
-| ------------------------------- | ------ | ------------------------------------------- |
-| Files <250 lines                | ✅     | All files now compliant after refactoring   |
-| Functions <30 lines             | ✅     | Mostly compliant                            |
-| No `any` types                  | ✅     | Strong typing used                          |
-| DI with samber/do/v2            | ❌     | Manual DI currently                         |
-| Logging with slog+charmbracelet | ✅     | Using charmbracelet/log                     |
-| Error wrapping                  | ✅     | Using `%w`                                  |
-| Custom error types              | ✅     | `pkg/errors/errors.go`                      |
-| Context propagation             | ✅     | All public methods accept context           |
+| Requirement                     | Status | Notes                                     |
+| ------------------------------- | ------ | ----------------------------------------- |
+| Files <250 lines                | ✅     | All files now compliant after refactoring |
+| Functions <30 lines             | ✅     | Mostly compliant                          |
+| No `any` types                  | ✅     | Strong typing used                        |
+| DI with samber/do/v2            | ❌     | Manual DI currently                       |
+| Logging with slog+charmbracelet | ✅     | Using charmbracelet/log                   |
+| Error wrapping                  | ✅     | Using `%w`                                |
+| Custom error types              | ✅     | `pkg/errors/errors.go`                    |
+| Context propagation             | ✅     | All public methods accept context         |
 
 ---
 
