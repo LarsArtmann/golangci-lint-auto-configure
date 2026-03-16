@@ -10,7 +10,7 @@
 | `pkg/detection` | **HIGH**            | No equivalent exists                | Extract as `go-project-detector`     |
 | `pkg/constants` | **HIGH**            | Curated security-focused priorities | Extract as `golangci-lint-knowledge` |
 | `pkg/client`    | **MEDIUM**          | Already SDK-ready                   | Keep, document as public API         |
-| `pkg/config`    | **MEDIUM**          | Backup/migration features           | Extract with detection               |
+| `pkg/config`    | **MEDIUM**          | Git-based version control           | Extract with detection               |
 | `pkg/types`     | **LOW**             | Domain types                        | Bundle with extracted libs           |
 | `pkg/diff`      | **LOW**             | Generic alternative exists          | Keep internal                        |
 | `pkg/report`    | **LOW**             | Specific to this tool               | Keep internal                        |
@@ -134,7 +134,7 @@ github.com/larsartmann/golangci-lint-knowledge
 
 - Load/save YAML configs (`gopkg.in/yaml.v3`)
 - Config file discovery (`.golangci.yml`, `.golangci.yaml`, `.golangci.toml`, `.golangci.json`)
-- Automatic backup before modification
+- Git repository verification (requires running in git repo)
 - Config validation via `golangci-lint linters --json`
 - Default config creation
 
@@ -147,20 +147,19 @@ func (l *Loader) LoadConfig(path string) (*Config, error)
 func (l *Loader) SaveConfig(cfg *Config, path string) error
 func (l *Loader) ValidateConfig(cfg *Config) []error
 func (l *Loader) FindConfigFile(projectPath string) (string, error)
-func (l *Loader) BackupConfig(path string) (string, error)
-func (l *Loader) RestoreBackup(backupPath, targetPath string) error
+func (l *Loader) EnsureGitRepo(startDir string) error
 ```
 
 **Alternatives:**
 
-- **Direct YAML parsing**: No validation, no backup, no discovery
+- **Direct YAML parsing**: No validation, no git verification, no discovery
 - **golangci-lint internal**: Not exposed as library
 - **go-yaml/yaml**: Low-level, no domain knowledge
 
 **Unique Value Proposition:**
 
 1. **Domain-aware** - Knows golangci-lint config structure
-2. **Safe modifications** - Automatic backup/restore
+2. **Git-based safety** - Requires git repo, uses git for version control
 3. **Validation** - Uses actual golangci-lint binary for validation
 4. **Multi-format** - Supports YAML, TOML, JSON
 
