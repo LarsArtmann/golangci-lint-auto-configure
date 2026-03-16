@@ -71,7 +71,7 @@ Automatically enable recommended linters:
 # Dry-run to see what would change
 golangci-linter-auto-configure configure --dry-run
 
-# Apply changes (creates backup first)
+# Apply changes
 golangci-linter-auto-configure configure
 
 # Configure with specific priority level
@@ -88,8 +88,8 @@ The tool automatically detects and replaces deprecated linters with their recomm
 
 **Safety Features:**
 
-- Creates backup before modifying (`.golangci.yml.backup`)
-- Preserves all custom settings
+- **Git-based version control** - Requires running in a git repository
+- Git provides full history and rollback capabilities
 - Idempotent - safe to run multiple times
 
 ### Validate Configuration
@@ -170,7 +170,6 @@ jobs:
 | `configure` | Auto-configure golangci-lint (default command) |
 | `analyze`   | Analyze configuration and show recommendations |
 | `validate`  | Validate existing configuration                |
-| `restore`   | Restore from backup file                       |
 | `report`    | Generate JSON/HTML report                      |
 | `migrate`   | Migrate config to v2.8+ schema                 |
 
@@ -224,18 +223,6 @@ Style and consistency linters:
 - `misspell` - Typos detection
 - `revive` - Fast, configurable linter
 - `varnamelen` - Variable name length rules
-
-## Backup & Safety
-
-The tool automatically creates backups before modifying configs:
-
-```bash
-# Backup file naming: <config>.backup
-.golangci.yml → .golangci.yml.backup
-
-# Restore if needed
-golangci-linter-auto-configure restore --backup-path .golangci.yml.backup
-```
 
 ## Testing
 

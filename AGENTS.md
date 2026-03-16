@@ -40,7 +40,6 @@ just tidy           # Tidy go.mod
 ./bin/golangci-linter-auto-configure validate [--config .golangci.yml]
 ./bin/golangci-linter-auto-configure report [--format html|json] [--output path]
 ./bin/golangci-linter-auto-configure migrate [--skip-validation]
-./bin/golangci-linter-auto-configure restore --backup-path .golangci.yml.backup
 ./bin/golangci-linter-auto-configure install-hook
 ```
 
@@ -260,11 +259,11 @@ issues:
   max-same-issues: 15
 ```
 
-### Backup Strategy
+### Version Control
 
-- Automatic backup before any modification: `<config>.backup`
-- Backup path returned in result, logged to user
-- Restore command: `golangci-linter-auto-configure restore --backup-path <path>`
+- **Git-based**: Tool requires running in a git repository
+- Git provides full history, branching, and rollback capabilities
+- Use `git restore` or `git checkout` to revert config changes if needed
 
 ## Project Type Detection
 
@@ -517,7 +516,7 @@ Built-in hooks:
 
 - `configure` command creates default config if missing
 - Uses `.golangci.yml` as default path
-- Creates backup before modifying any existing config
+- Requires git repository for version control safety
 
 ## Working with This Codebase
 
