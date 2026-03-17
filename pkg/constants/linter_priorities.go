@@ -121,6 +121,10 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"nosprintfhostport":         types.LinterPriorityMedium,
 	"tagalign":                  types.LinterPriorityMedium,
 	"testableexamples":          types.LinterPriorityMedium,
+	"importas":                  types.LinterPriorityHigh,
+	"zerologlint":               types.LinterPriorityHigh,
+	"arangolint":                types.LinterPriorityMedium,
+	"embeddedstructfieldcheck":  types.LinterPriorityMedium,
 
 	// All other linters default to Optional
 }
