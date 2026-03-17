@@ -63,7 +63,6 @@ func (f *Fixer) FixConfig(
 	enableFixes := 0
 	formatterFixes := 0
 	redundantFixes := 0
-	messages := []string{}
 
 	// Track all linters to ensure uniqueness in the final list
 	linterSet := make(map[string]bool)
@@ -161,8 +160,6 @@ func (f *Fixer) FixConfig(
 			f.logger.Infof("Enabling formatter: golines (formats code and fixes long lines)")
 
 			formatterSet["golines"] = true
-
-			messages = append(messages, "Enabled golines formatter: formats code and fixes long lines")
 		}
 	}
 
@@ -213,8 +210,6 @@ func (f *Fixer) FixConfig(
 				f.logger.Infof("Enabling: %s (%s)", lintName, rec.Reason)
 
 				linterSet[lintName] = true
-
-				messages = append(messages, fmt.Sprintf("Enabled %s: %s", lintName, rec.Reason))
 			}
 		}
 	}
