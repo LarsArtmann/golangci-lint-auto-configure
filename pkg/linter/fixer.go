@@ -64,6 +64,9 @@ func (f *Fixer) FixConfig(
 	formatterFixes := 0
 	redundantFixes := 0
 
+	// Track messages for detailed reporting
+	messages := make([]string, 0)
+
 	// Track all linters to ensure uniqueness in the final list
 	linterSet := make(map[string]bool)
 
