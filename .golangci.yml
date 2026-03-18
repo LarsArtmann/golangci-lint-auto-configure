@@ -181,8 +181,14 @@ linters:
           - tagliatelle
         path: 'pkg/types/types\.go'
       - linters:
+          - funcorder
+        path: 'pkg/errors/errors\.go'
+      - linters:
           - containedctx
         path: 'pkg/workflow/workflow\.go'
+      - linters:
+          - exhaustruct
+        path: 'internal/cli/|pkg/workflow/workflow\.go|examples/'
 formatters:
   enable:
     - golines

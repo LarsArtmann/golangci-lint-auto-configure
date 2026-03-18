@@ -47,6 +47,8 @@ func main() {
 			critical = append(critical, rec)
 		case types.LinterPriorityHigh:
 			high = append(high, rec)
+		case types.LinterPriorityMedium, types.LinterPriorityOptional:
+			// Medium and optional linters not shown in this example
 		}
 	}
 

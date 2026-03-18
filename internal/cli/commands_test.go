@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,7 +36,7 @@ var _ = Describe("CLI Integration Tests", func() {
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			// Print build output for debugging
-			println("Build failed:", string(output))
+			fmt.Println("Build failed:", string(output))
 		}
 
 		Expect(err).NotTo(HaveOccurred(), "Failed to build the CLI binary")
