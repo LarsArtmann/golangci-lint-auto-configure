@@ -1,6 +1,6 @@
 module github.com/larsartmann/golangcli-linter-auto-configure
 
-go 1.26.0
+go 1.26.1
 
 require (
 	github.com/LarsArtmann/universal-workflow v1.0.0
@@ -42,6 +42,7 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20260202012954-cb029daf43ef // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/larsartmann/go-composable-business-types v0.0.0-00010101000000-000000000000 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.21 // indirect
@@ -69,3 +70,5 @@ require (
 )
 
 replace github.com/LarsArtmann/universal-workflow v1.0.0 => /Users/larsartmann/projects/universal-workflow
+
+replace github.com/larsartmann/go-composable-business-types => /Users/larsartmann/projects/go-composable-business-types
