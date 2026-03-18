@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"golang.org/x/mod/semver"
 )
 
@@ -41,10 +41,10 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 	}
 
 	if versionInfo.Version == "" {
-		return errors.NewAnalysisError(
+		return apperrors.NewAnalysisError(
 			"could not parse golangci-lint version from JSON",
 			"",
-			fmt.Errorf("output: %s", string(output)),
+			fmt.Errorf("%w: %s", apperrors.ErrVersionParse, string(output)),
 		)
 	}
 
@@ -57,19 +57,16 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 
 	// Validate semver format
 	if !semver.IsValid(version) {
-		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
+		return apperrors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("%w: %s", apperrors.ErrInvalidVersionFormat, version))
 	}
 
 	// Compare with minimum required version
 	minVersion := constants.MinGolangCILintVersion
 	if semver.Compare(version, minVersion) < 0 {
-		return errors.NewAnalysisError(
+		return apperrors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
 			"",
-			fmt.Errorf(
-				"minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
-				minVersion,
-			),
+			fmt.Errorf("%w: minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", apperrors.ErrVersionTooOld, minVersion),
 		)
 	}
 
@@ -85,7 +82,7 @@ func (a *Analyzer) checkVersionText(ctx context.Context) error {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return errors.NewAnalysisError("failed to check golangci-lint version", "", err)
+		return apperrors.NewAnalysisError("failed to check golangci-lint version", "", err)
 	}
 
 	// Parse version from text output (format: "golangci-lint has version X.Y.Z built with...")
@@ -94,10 +91,10 @@ func (a *Analyzer) checkVersionText(ctx context.Context) error {
 	version := a.parseVersionText(outputStr)
 
 	if version == "" {
-		return errors.NewAnalysisError(
+		return apperrors.NewAnalysisError(
 			"could not parse golangci-lint version from output",
 			"",
-			fmt.Errorf("output: %s", outputStr),
+			fmt.Errorf("%w: %s", apperrors.ErrVersionParse, outputStr),
 		)
 	}
 
@@ -108,19 +105,16 @@ func (a *Analyzer) checkVersionText(ctx context.Context) error {
 
 	// Validate semver format
 	if !semver.IsValid(version) {
-		return errors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("version: %s", version))
+		return apperrors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("%w: %s", apperrors.ErrInvalidVersionFormat, version))
 	}
 
 	// Compare with minimum required version
 	minVersion := constants.MinGolangCILintVersion
 	if semver.Compare(version, minVersion) < 0 {
-		return errors.NewAnalysisError(
+		return apperrors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
 			"",
-			fmt.Errorf(
-				"minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
-				minVersion,
-			),
+			fmt.Errorf("%w: minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", apperrors.ErrVersionTooOld, minVersion),
 		)
 	}
 

@@ -16,7 +16,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
@@ -50,7 +50,7 @@ type golangciLintFormattersOutput struct {
 func (a *Analyzer) FindBinary(ctx context.Context) error {
 	path, err := exec.LookPath("golangci-lint")
 	if err != nil {
-		return errors.NewAnalysisError("golangci-lint not found in PATH", "", err)
+		return apperrors.NewAnalysisError("golangci-lint not found in PATH", "", err)
 	}
 
 	a.golangciLintPath = path
@@ -72,12 +72,12 @@ func (a *Analyzer) AnalyzeConfig(ctx context.Context, configPath string) (*types
 	// Analyze linters
 	lintOutput, err := a.runLintersCommand(ctx, configPath)
 	if err != nil {
-		return nil, errors.NewAnalysisError("failed to run golangci-lint linters", "", err)
+		return nil, apperrors.NewAnalysisError("failed to run golangci-lint linters", "", err)
 	}
 
 	var jsonLinterOutput golangciLintOutput
 	if err := json.Unmarshal(lintOutput, &jsonLinterOutput); err != nil {
-		return nil, errors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err)
+		return nil, apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err)
 	}
 
 	// Analyze formatters

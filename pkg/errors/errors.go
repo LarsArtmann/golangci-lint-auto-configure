@@ -5,6 +5,24 @@ import (
 	"fmt"
 )
 
+// Static sentinel errors for use with errors.Is.
+var (
+	// ErrNotGitRepository indicates the current directory is not a git repository.
+	ErrNotGitRepository = errors.New("not a git repository (no .git directory found)")
+	// ErrHookAlreadyExists indicates the pre-commit hook already exists.
+	ErrHookAlreadyExists = errors.New("hook already exists")
+	// ErrUnknownPreset indicates an invalid preset name was provided.
+	ErrUnknownPreset = errors.New("unknown preset")
+	// ErrInvalidActivityContext indicates the activity context type is invalid.
+	ErrInvalidActivityContext = errors.New("invalid activity context type")
+	// ErrVersionParse indicates failure to parse version output.
+	ErrVersionParse = errors.New("could not parse version from output")
+	// ErrInvalidVersionFormat indicates the version string format is invalid.
+	ErrInvalidVersionFormat = errors.New("invalid version format")
+	// ErrVersionTooOld indicates the version is below the minimum required.
+	ErrVersionTooOld = errors.New("version is too old")
+)
+
 // ConfigError represents a configuration-related error.
 type ConfigError struct {
 	Message string

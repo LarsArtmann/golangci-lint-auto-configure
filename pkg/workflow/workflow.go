@@ -2,17 +2,18 @@ package workflow
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/LarsArtmann/universal-workflow/pkg/types"
 	workflowpkg "github.com/LarsArtmann/universal-workflow/pkg/workflow"
 	"github.com/charmbracelet/log"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 )
 
-// ActivityContext provides context for workflow activities.
+// ActivityContext provides dependencies for workflow activities.
+//nolint:containedctx // Context stored here is acceptable for workflow input data pattern.
 type ActivityContext struct {
 	Context      context.Context
 	ConfigPath   string
@@ -27,7 +28,7 @@ type ActivityContext struct {
 func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
-		return nil, errors.New("invalid activity context type")
+		return nil, apperrors.ErrInvalidActivityContext
 	}
 
 	activityCtx.Logger.Infof("Analyzing golangci-lint configuration...")
@@ -64,7 +65,7 @@ func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, e
 func ValidationActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
-		return nil, errors.New("invalid activity context type")
+		return nil, apperrors.ErrInvalidActivityContext
 	}
 
 	activityCtx.Logger.Infof("Validating golangci-lint configuration...")
@@ -85,7 +86,7 @@ func ValidationActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult,
 func ReportActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 	activityCtx, ok := ctx.Input.(*ActivityContext)
 	if !ok {
-		return nil, errors.New("invalid activity context type")
+		return nil, apperrors.ErrInvalidActivityContext
 	}
 
 	if !activityCtx.GenerateHTML {

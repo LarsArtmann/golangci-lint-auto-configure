@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow"
@@ -134,7 +135,7 @@ func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, pr
 	// Get preset linters
 	linters, ok := constants.PresetLinters[preset]
 	if !ok {
-		return fmt.Errorf("unknown preset: %s (valid: minimal, standard, strict, security, performance)", preset)
+		return fmt.Errorf("%w: %s (valid: minimal, standard, strict, security, performance)", apperrors.ErrUnknownPreset, preset)
 	}
 
 	// Convert to strings

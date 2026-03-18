@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 )
 
 // runLintersCommand runs `golangci-lint linters` and returns JSON output.
@@ -17,7 +17,7 @@ func (a *Analyzer) runLintersCommand(ctx context.Context, configPath string) ([]
 		a.logger.Debugf("golangci-lint linters command failed: %v", err)
 		a.logger.Debugf("Output: %s", string(output))
 
-		return output, errors.NewAnalysisError("golangci-lint linters command failed", "", err)
+		return output, apperrors.NewAnalysisError("golangci-lint linters command failed", "", err)
 	}
 
 	return output, nil

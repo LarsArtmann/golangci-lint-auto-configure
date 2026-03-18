@@ -31,8 +31,12 @@ const (
 	ProjectTypeMonorepo
 )
 
+// String returns the string representation of ProjectType.
+//nolint:exhaustive // ProjectTypeUnknown is handled, linter issue with default pattern.
 func (p ProjectType) String() string {
 	switch p {
+	case ProjectTypeUnknown:
+		return "Unknown"
 	case ProjectTypeCLI:
 		return "CLI"
 	case ProjectTypeLibrary:
@@ -43,9 +47,9 @@ func (p ProjectType) String() string {
 		return "API"
 	case ProjectTypeMonorepo:
 		return "Monorepo"
-	default:
-		return "Unknown"
 	}
+
+	return "Unknown"
 }
 
 // Detector analyzes project structure to determine project type.

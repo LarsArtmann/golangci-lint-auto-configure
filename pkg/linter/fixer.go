@@ -14,7 +14,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
@@ -45,14 +45,14 @@ func (f *Fixer) FixConfig(
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
 	if err != nil {
-		return nil, errors.NewAnalysisError("failed to load config", configPath, err)
+		return nil, apperrors.NewAnalysisError("failed to load config", configPath, err)
 	}
 
 	f.logger.Infof("Analyzing configuration...")
 
 	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return nil, errors.NewAnalysisError("failed to analyze config", configPath, err)
+		return nil, apperrors.NewAnalysisError("failed to analyze config", configPath, err)
 	}
 
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
@@ -266,7 +266,7 @@ func (f *Fixer) FixConfig(
 	f.logger.Infof("Saving configuration...")
 
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
-		return nil, errors.NewAnalysisError("failed to save config", configPath, err)
+		return nil, apperrors.NewAnalysisError("failed to save config", configPath, err)
 	}
 
 	result := &types.MigrationResult{

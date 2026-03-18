@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +26,7 @@ The hook is installed at .git/hooks/pre-commit`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Check if we're in a git repository
 			if _, err := os.Stat(".git"); os.IsNotExist(err) {
-				return errors.New("not a git repository (no .git directory found)")
+				return apperrors.ErrNotGitRepository
 			}
 
 			hookDir := ".git/hooks"
@@ -82,7 +82,7 @@ exit 0
 				logger.Warnf("Pre-commit hook already exists at %s", hookPath)
 				logger.Infof("Use --force to overwrite (not implemented yet)")
 
-				return errors.New("hook already exists")
+				return apperrors.ErrHookAlreadyExists
 			}
 
 			// Write hook file
