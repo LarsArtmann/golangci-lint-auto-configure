@@ -10,14 +10,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
-	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	"github.com/samber/mo"
+	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 )
 
@@ -37,12 +37,23 @@ type (
 // Loader handles loading golangci-lint configuration files.
 type Loader struct {
 	logger *log.Logger
+	fs     afero.Fs
 }
 
 // NewLoader creates a new configuration loader.
 func NewLoader(logger *log.Logger) *Loader {
 	return &Loader{
 		logger: logger,
+		fs:     afero.NewOsFs(),
+	}
+}
+
+// NewLoaderWithFS creates a new configuration loader with a custom filesystem.
+// Useful for testing with in-memory filesystems.
+func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader {
+	return &Loader{
+		logger: logger,
+		fs:     fs,
 	}
 }
 
@@ -54,7 +65,7 @@ func (l *Loader) LoadConfig(path string) (*Config, error) {
 
 // LoadConfigResult loads a config and returns a Result type for railway-oriented programming.
 func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
-	data, err := os.ReadFile(path)
+	data, err := afero.ReadFile(l.fs, path)
 	if err != nil {
 		return types.ErrConfig(apperrors.NewConfigError("failed to read config file", path, err))
 	}
@@ -86,7 +97,7 @@ func (l *Loader) FindConfigFileResult(startDir string) types.StringResult {
 
 	for _, name := range defaultNames {
 		path := filepath.Join(startDir, name)
-		if _, err := os.Stat(path); err == nil {
+		if _, err := l.fs.Stat(path); err == nil {
 			l.logger.Debugf("Found config file: %s", path)
 
 			return types.OkString(path)
@@ -192,7 +203,7 @@ func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] 
 		return mo.Err[Empty](apperrors.NewConfigError("failed to marshal config", path, err))
 	}
 
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err := afero.WriteFile(l.fs, path, data, 0o600); err != nil {
 		return mo.Err[Empty](apperrors.NewConfigError("failed to write config file", path, err))
 	}
 
