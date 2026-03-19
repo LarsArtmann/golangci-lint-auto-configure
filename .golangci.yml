@@ -153,12 +153,14 @@ linters:
             - github.com/larsartmann/golangcli-linter-auto-configure
             - github.com/LarsArtmann/universal-workflow
             - github.com/spf13/cobra
+            - github.com/spf13/afero
             - github.com/stretchr/testify
             - gopkg.in/yaml.v3
             - golang.org/x/mod/semver
             - github.com/samber/mo
             - github.com/a-h/templ
             - github.com/go-playground/validator/v10
+            - github.com/pelletier/go-toml/v2
   exclusions:
     generated: lax
     presets:

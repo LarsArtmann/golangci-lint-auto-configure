@@ -139,6 +139,65 @@ output:
 		})
 	})
 
+	Context("ConfigFormatSupport", func() {
+		It("should load and save TOML config files", func() {
+			tomlConfig := filepath.Join(testDir, ".golangci.toml")
+			configContent := `
+version = "2"
+[linters]
+enable = ["gosec", "errcheck"]
+[run]
+timeout = "5m"
+`
+			Expect(os.WriteFile(tomlConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := loader.LoadConfig(tomlConfig)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg.Version).To(Equal("2"))
+			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
+			Expect(cfg.Run.Timeout).To(Equal("5m"))
+		})
+
+		It("should load and save JSON config files", func() {
+			jsonConfig := filepath.Join(testDir, ".golangci.json")
+			configContent := `{
+  "version": "2",
+  "linters": {
+    "enable": ["gosec", "errcheck"]
+  },
+  "run": {
+    "timeout": "5m"
+  }
+}`
+			Expect(os.WriteFile(jsonConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := loader.LoadConfig(jsonConfig)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg.Version).To(Equal("2"))
+			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
+		})
+
+		It("should save config in TOML format", func() {
+			tomlConfig := filepath.Join(testDir, ".golangci.toml")
+			cfg := &config.Config{
+				Version: "2",
+				Linters: config.LintersConfig{
+					Enable: []string{"gosec"},
+				},
+			}
+
+			err := loader.SaveConfig(cfg, tomlConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(tomlConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("version"))
+			Expect(string(content)).To(ContainSubstring("gosec"))
+		})
+	})
+
 	Context("FindConfigFile", func() {
 		It("should find config files with different extensions", func() {
 			testCases := []struct {
@@ -147,6 +206,8 @@ output:
 			}{
 				{"yml", ".golangci.yml"},
 				{"yaml", ".golangci.yaml"},
+				{"toml", ".golangci.toml"},
+				{"json", ".golangci.json"},
 			}
 
 			for _, tc := range testCases {

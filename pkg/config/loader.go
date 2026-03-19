@@ -1,7 +1,6 @@
 package config
 
 // TODO: Extract LinterList type into types package for consistency
-// TODO: Add support for TOML and JSON config formats (currently only YAML)
 // TODO: Consider using io.Reader/Writer interfaces instead of file paths for testability
 // TODO: Add context.Context support for cancellation
 // TODO: Extract default config values into constants
@@ -12,13 +11,27 @@ import (
 	"fmt"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/samber/mo"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
+)
+
+// ConfigFormat represents the configuration file format.
+type ConfigFormat string
+
+const (
+	// ConfigFormatYAML represents YAML configuration format.
+	ConfigFormatYAML ConfigFormat = "yaml"
+	// ConfigFormatTOML represents TOML configuration format.
+	ConfigFormatTOML ConfigFormat = "toml"
+	// ConfigFormatJSON represents JSON configuration format.
+	ConfigFormatJSON ConfigFormat = "json"
 )
 
 // Re-export types for backward compatibility.
@@ -63,6 +76,38 @@ func (l *Loader) LoadConfig(path string) (*Config, error) {
 	return result.Get()
 }
 
+// detectFormat determines the configuration format from the file extension.
+func detectFormat(path string) ConfigFormat {
+	ext := strings.ToLower(filepath.Ext(path))
+
+	switch ext {
+	case ".toml":
+		return ConfigFormatTOML
+	case ".json":
+		return ConfigFormatJSON
+	case ".yml", ".yaml":
+		return ConfigFormatYAML
+	default:
+		// Default to YAML for unknown extensions
+		return ConfigFormatYAML
+	}
+}
+
+// unmarshalConfig unmarshals data into a Config based on the format.
+func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
+	switch format {
+	case ConfigFormatTOML:
+		return toml.Unmarshal(data, config)
+	case ConfigFormatJSON:
+		return json.Unmarshal(data, config)
+	case ConfigFormatYAML:
+		return yaml.Unmarshal(data, config)
+	default:
+		// Default to YAML
+		return yaml.Unmarshal(data, config)
+	}
+}
+
 // LoadConfigResult loads a config and returns a Result type for railway-oriented programming.
 func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 	data, err := afero.ReadFile(l.fs, path)
@@ -70,12 +115,14 @@ func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 		return types.ErrConfig(apperrors.NewConfigError("failed to read config file", path, err))
 	}
 
+	format := detectFormat(path)
 	var config Config
-	if err := yaml.Unmarshal(data, &config); err != nil {
+
+	if err := unmarshalConfig(data, format, &config); err != nil {
 		return types.ErrConfig(apperrors.NewConfigError("failed to parse config file", path, err))
 	}
 
-	l.logger.Debugf("Loaded config from %s", path)
+	l.logger.Debugf("Loaded config from %s (format: %s)", path, format)
 
 	return types.OkConfig(&config)
 }
@@ -196,9 +243,25 @@ func (l *Loader) SaveConfig(config *Config, path string) error {
 // Empty is a type alias for an empty struct, used for operations that don't return a value.
 type Empty = struct{}
 
+// marshalConfig marshals a Config to bytes based on the format.
+func marshalConfig(config *Config, format ConfigFormat) ([]byte, error) {
+	switch format {
+	case ConfigFormatTOML:
+		return toml.Marshal(config)
+	case ConfigFormatJSON:
+		return json.MarshalIndent(config, "", "  ")
+	case ConfigFormatYAML:
+		return yaml.Marshal(config)
+	default:
+		// Default to YAML
+		return yaml.Marshal(config)
+	}
+}
+
 // SaveConfigResult saves a config and returns a Result type for railway-oriented programming.
 func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] {
-	data, err := yaml.Marshal(config)
+	format := detectFormat(path)
+	data, err := marshalConfig(config, format)
 	if err != nil {
 		return mo.Err[Empty](apperrors.NewConfigError("failed to marshal config", path, err))
 	}
@@ -207,7 +270,7 @@ func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] 
 		return mo.Err[Empty](apperrors.NewConfigError("failed to write config file", path, err))
 	}
 
-	l.logger.Infof("Saved config to %s", path)
+	l.logger.Infof("Saved config to %s (format: %s)", path, format)
 
 	return mo.Ok(Empty{})
 }
