@@ -41,18 +41,29 @@ func (f *Fixer) FixConfig(
 	priority types.LinterPriority,
 	dryRun bool,
 ) (*types.MigrationResult, error) {
+	result := f.FixConfigResult(ctx, configPath, priority, dryRun)
+	return result.Get()
+}
+
+// FixConfigResult fixes the config and returns a Result type for railway-oriented programming.
+func (f *Fixer) FixConfigResult(
+	ctx context.Context,
+	configPath string,
+	priority types.LinterPriority,
+	dryRun bool,
+) types.MigrationResultType {
 	f.logger.Infof("Loading configuration: %s", configPath)
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
 	if err != nil {
-		return nil, apperrors.NewAnalysisError("failed to load config", configPath, err)
+		return types.ErrMigration(apperrors.NewAnalysisError("failed to load config", configPath, err))
 	}
 
 	f.logger.Infof("Analyzing configuration...")
 
 	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return nil, apperrors.NewAnalysisError("failed to analyze config", configPath, err)
+		return types.ErrMigration(apperrors.NewAnalysisError("failed to analyze config", configPath, err))
 	}
 
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
@@ -223,24 +234,24 @@ func (f *Fixer) FixConfig(
 		f.logger.Infof("[DRY-RUN] Would apply %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
 			totalFixes, enableFixes, formatterFixes, deprecationFixes, redundantFixes)
 
-		return &types.MigrationResult{
+		return types.OkMigration(&types.MigrationResult{
 			Success:      true,
 			FixesApplied: totalFixes,
 			Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", totalFixes),
-		}, nil
+		})
 	}
 
 	if totalFixes == 0 {
-		return &types.MigrationResult{
+		return types.OkMigration(&types.MigrationResult{
 			Success:      true,
 			FixesApplied: 0,
 			Message:      "No fixes to apply",
-		}, nil
+		})
 	}
 
 	// Ensure we're in a git repo (git provides version control, no backup needed)
-	if err := f.configLoader.EnsureGitRepo("."); err != nil {
-		return nil, err
+	if err := f.configLoader.EnsureGitRepo(ctx, "."); err != nil {
+		return types.ErrMigration(err)
 	}
 
 	// Convert final linter set to sorted slice for consistent output
@@ -266,7 +277,7 @@ func (f *Fixer) FixConfig(
 	f.logger.Infof("Saving configuration...")
 
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
-		return nil, apperrors.NewAnalysisError("failed to save config", configPath, err)
+		return types.ErrMigration(apperrors.NewAnalysisError("failed to save config", configPath, err))
 	}
 
 	result := &types.MigrationResult{
@@ -282,7 +293,7 @@ func (f *Fixer) FixConfig(
 		),
 	}
 
-	return result, nil
+	return types.OkMigration(result)
 }
 
 func contains(slice []string, item string) bool {

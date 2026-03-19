@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -78,7 +79,7 @@ Use --skip-validation if the v1 config has known issues.`,
 
 			// Ensure we're in a git repo (git provides version control, no backup needed)
 			if !dryRun {
-				if err := configLoader.EnsureGitRepo("."); err != nil {
+				if err := configLoader.EnsureGitRepo(context.Background(), "."); err != nil {
 					return err
 				}
 			} else {

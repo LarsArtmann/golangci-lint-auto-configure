@@ -1,7 +1,6 @@
 package types
 
 // TODO: Consider using generics for ConfigResult types to reduce boilerplate
-// TODO: Add validation tags for struct fields using a validation library
 // TODO: Consider using time.Duration instead of string for timeout fields
 
 import (
@@ -162,18 +161,18 @@ type ConfigLoader interface {
 	SaveConfig(config *Config, path string) error
 	FindConfigFile(startDir string) (string, error)
 	FindOrGetDefaultConfigPath(startDir string) string
-	EnsureGitRepo(startDir string) error
+	EnsureGitRepo(ctx context.Context, startDir string) error
 	ValidateConfig(config *Config) []error
 	GetLintersEnabled(config *Config) []string
 	GetLintersDisabled(config *Config) []string
 	CreateDefaultConfig() *Config
-	GetAllLinterNames() ([]string, error)
+	GetAllLinterNames(ctx context.Context) ([]string, error)
 }
 
 // Config represents a golangci-lint configuration file.
 type Config struct {
-	Version    string           `yaml:"version"`
-	Run        RunConfig        `yaml:"run"`
+	Version    string           `yaml:"version" validate:"required,oneof=2"`
+	Run        RunConfig        `yaml:"run" validate:"required"`
 	Output     OutputConfig     `yaml:"output"`
 	Linters    LintersConfig    `yaml:"linters"`
 	Formatters FormattersConfig `yaml:"formatters,omitempty"`
@@ -181,15 +180,15 @@ type Config struct {
 }
 
 type RunConfig struct {
-	Timeout              string   `yaml:"timeout"`
+	Timeout              string   `yaml:"timeout" validate:"required"`
 	Go                   string   `yaml:"go"`
 	BuildTags            []string `yaml:"build-tags"`
 	ModulesDownloadMode  string   `yaml:"modules-download-mode,omitempty"`
 	AllowParallelRunners bool     `yaml:"allow-parallel-runners"`
 	AllowSerialRunners   bool     `yaml:"allow-serial-runners"`
-	IssuesExitCode       int      `yaml:"issues-exit-code,omitempty"`
+	IssuesExitCode       int      `yaml:"issues-exit-code,omitempty" validate:"min=0,max=255"`
 	Tests                bool     `yaml:"tests,omitempty"`
-	Concurrency          int      `yaml:"concurrency,omitempty"`
+	Concurrency          int      `yaml:"concurrency,omitempty" validate:"min=0"`
 	RelativePathMode     string   `yaml:"relative-path-mode,omitempty"`
 }
 
@@ -227,8 +226,8 @@ type ExclusionRuleConfig struct {
 }
 
 type IssuesConfig struct {
-	MaxIssuesPerLinter int    `yaml:"max-issues-per-linter,omitempty"`
-	MaxSameIssues      int    `yaml:"max-same-issues,omitempty"`
+	MaxIssuesPerLinter int    `yaml:"max-issues-per-linter,omitempty" validate:"min=0"`
+	MaxSameIssues      int    `yaml:"max-same-issues,omitempty" validate:"min=0"`
 	NewFromRev         string `yaml:"new-from-rev,omitempty"`
 	NewFromPatch       string `yaml:"new-from-patch,omitempty"`
 	New                bool   `yaml:"new,omitempty"`

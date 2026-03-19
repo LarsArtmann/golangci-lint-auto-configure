@@ -158,6 +158,7 @@ linters:
             - golang.org/x/mod/semver
             - github.com/samber/mo
             - github.com/a-h/templ
+            - github.com/go-playground/validator/v10
   exclusions:
     generated: lax
     presets:

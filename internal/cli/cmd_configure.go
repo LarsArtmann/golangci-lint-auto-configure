@@ -77,7 +77,7 @@ func runConfigure(
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		logger.Infof("No config file found, creating default: %s", configFile)
 
-		defaultConfig := configLoader.CreateDefaultConfig()
+		defaultConfig := configLoader.CreateDefaultConfig(context.Background())
 
 		err := configLoader.SaveConfig(defaultConfig, configFile)
 		if err != nil {
@@ -155,7 +155,7 @@ func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, pr
 	}
 
 	// Ensure we're in a git repo (git provides version control, no backup needed)
-	if err := configLoader.EnsureGitRepo("."); err != nil {
+	if err := configLoader.EnsureGitRepo(context.Background(), "."); err != nil {
 		return err
 	}
 

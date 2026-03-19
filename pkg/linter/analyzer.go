@@ -60,24 +60,30 @@ func (a *Analyzer) FindBinary(ctx context.Context) error {
 
 // AnalyzeConfig analyzes the current golangci-lint configuration.
 func (a *Analyzer) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error) {
+	result := a.AnalyzeConfigResult(ctx, configPath)
+	return result.Get()
+}
+
+// AnalyzeConfigResult analyzes the config and returns a Result type for railway-oriented programming.
+func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) types.AnalysisResult {
 	if err := a.FindBinary(ctx); err != nil {
-		return nil, err
+		return types.ErrAnalysis(err)
 	}
 
 	// Check version meets minimum requirement
 	if err := a.CheckVersion(ctx); err != nil {
-		return nil, err
+		return types.ErrAnalysis(err)
 	}
 
 	// Analyze linters
 	lintOutput, err := a.runLintersCommand(ctx, configPath)
 	if err != nil {
-		return nil, apperrors.NewAnalysisError("failed to run golangci-lint linters", "", err)
+		return types.ErrAnalysis(apperrors.NewAnalysisError("failed to run golangci-lint linters", "", err))
 	}
 
 	var jsonLinterOutput golangciLintOutput
 	if err := json.Unmarshal(lintOutput, &jsonLinterOutput); err != nil {
-		return nil, apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err)
+		return types.ErrAnalysis(apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err))
 	}
 
 	// Analyze formatters
@@ -113,7 +119,7 @@ func (a *Analyzer) AnalyzeConfig(ctx context.Context, configPath string) (*types
 	a.calculateDeprecatedLinters(analysis)
 	a.calculateRecommendationCounts(analysis)
 
-	return analysis, nil
+	return types.OkAnalysis(analysis)
 }
 
 // GetLintersByPriority returns recommendations filtered by priority.

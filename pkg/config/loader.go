@@ -7,6 +7,7 @@ package config
 // TODO: Extract default config values into constants
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/samber/mo"
 	"gopkg.in/yaml.v3"
 )
 
@@ -46,23 +48,35 @@ func NewLoader(logger *log.Logger) *Loader {
 
 // LoadConfig loads a golangci-lint configuration from the given path.
 func (l *Loader) LoadConfig(path string) (*Config, error) {
+	result := l.LoadConfigResult(path)
+	return result.Get()
+}
+
+// LoadConfigResult loads a config and returns a Result type for railway-oriented programming.
+func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, errors.NewConfigError("failed to read config file", path, err)
+		return types.ErrConfig(errors.NewConfigError("failed to read config file", path, err))
 	}
 
 	var config Config
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		return nil, errors.NewConfigError("failed to parse config file", path, err)
+		return types.ErrConfig(errors.NewConfigError("failed to parse config file", path, err))
 	}
 
 	l.logger.Debugf("Loaded config from %s", path)
 
-	return &config, nil
+	return types.OkConfig(&config)
 }
 
 // FindConfigFile searches for a golangci-lint config file in the current directory and parent directories.
 func (l *Loader) FindConfigFile(startDir string) (string, error) {
+	result := l.FindConfigFileResult(startDir)
+	return result.Get()
+}
+
+// FindConfigFileResult searches for a config file and returns a Result type.
+func (l *Loader) FindConfigFileResult(startDir string) types.StringResult {
 	defaultNames := []string{
 		".golangci.yml",
 		".golangci.yaml",
@@ -75,11 +89,11 @@ func (l *Loader) FindConfigFile(startDir string) (string, error) {
 		if _, err := os.Stat(path); err == nil {
 			l.logger.Debugf("Found config file: %s", path)
 
-			return path, nil
+			return types.OkString(path)
 		}
 	}
 
-	return "", errors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil)
+	return types.ErrString(errors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil))
 }
 
 // FindOrGetDefaultConfigPath searches for a config file and returns a default path if none exists.
@@ -104,8 +118,8 @@ type LinterList struct {
 }
 
 // GetAllLinterNames fetches all available linter names from golangci-lint.
-func (l *Loader) GetAllLinterNames() ([]string, error) {
-	cmd := exec.Command("golangci-lint", "linters", "--json")
+func (l *Loader) GetAllLinterNames(ctx context.Context) ([]string, error) {
+	cmd := exec.CommandContext(ctx, "golangci-lint", "linters", "--json")
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -127,9 +141,9 @@ func (l *Loader) GetAllLinterNames() ([]string, error) {
 }
 
 // CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled.
-func (l *Loader) CreateDefaultConfig() *Config {
+func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 	// Fetch all available linters dynamically
-	allLinters, err := l.GetAllLinterNames()
+	allLinters, err := l.GetAllLinterNames(ctx)
 	if err != nil {
 		l.logger.Warnf("Failed to fetch all linters, using critical set: %v", err)
 		// Fallback to critical linters if fetch fails
@@ -163,24 +177,34 @@ func (l *Loader) CreateDefaultConfig() *Config {
 
 // SaveConfig saves a golangci-lint configuration to the given path.
 func (l *Loader) SaveConfig(config *Config, path string) error {
+	result := l.SaveConfigResult(config, path)
+	_, err := result.Get()
+	return err
+}
+
+// Empty is a type alias for an empty struct, used for operations that don't return a value.
+type Empty = struct{}
+
+// SaveConfigResult saves a config and returns a Result type for railway-oriented programming.
+func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] {
 	data, err := yaml.Marshal(config)
 	if err != nil {
-		return errors.NewConfigError("failed to marshal config", path, err)
+		return mo.Err[Empty](errors.NewConfigError("failed to marshal config", path, err))
 	}
 
 	if err := os.WriteFile(path, data, 0o644); err != nil {
-		return errors.NewConfigError("failed to write config file", path, err)
+		return mo.Err[Empty](errors.NewConfigError("failed to write config file", path, err))
 	}
 
 	l.logger.Infof("Saved config to %s", path)
 
-	return nil
+	return mo.Ok(Empty{})
 }
 
 // EnsureGitRepo checks if we're inside a git repository.
 // Since git provides version control, backup files are redundant.
-func (l *Loader) EnsureGitRepo(startDir string) error {
-	cmd := exec.Command("git", "rev-parse", "--is-inside-work-tree")
+func (l *Loader) EnsureGitRepo(ctx context.Context, startDir string) error {
+	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--is-inside-work-tree")
 	cmd.Dir = startDir
 
 	if err := cmd.Run(); err != nil {
@@ -197,16 +221,16 @@ func (l *Loader) EnsureGitRepo(startDir string) error {
 	return nil
 }
 
-// ValidateConfig performs basic validation on the configuration.
+// ValidateConfig performs validation on the configuration using struct validation.
 func (l *Loader) ValidateConfig(config *Config) []error {
 	var errs []error
 
-	// TODO: Implement proper timeout format validation (e.g., "5m", "10s")
-	// Currently accepting any non-empty string as timeout
-	if config.Run.Timeout == "" {
-		errs = append(errs, errors.NewConfigError("run.timeout cannot be empty", "", nil))
+	// Use struct validation from types package
+	if err := types.ValidateConfig(config); err != nil {
+		errs = append(errs, errors.NewConfigError("struct validation failed", "", err))
 	}
 
+	// Additional business logic validation
 	if len(config.Linters.Enable) == 0 && len(config.Linters.Disable) == 0 && config.Linters.Default == "" {
 		l.logger.Debugf("No linter configuration specified, using defaults")
 	}
