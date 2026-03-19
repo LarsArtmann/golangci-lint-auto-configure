@@ -49,62 +49,62 @@ func NewDiffer() *Differ {
 }
 
 // Compare compares two configs and returns the changes.
-func (d *Differ) Compare(old, new *types.Config) []Change {
+func (d *Differ) Compare(old, newConfig *types.Config) []Change {
 	var changes []Change
 
 	// Compare version
-	if old.Version != new.Version {
+	if old.Version != newConfig.Version {
 		changes = append(changes, Change{
 			Type:        ChangeTypeModified,
 			Path:        "version",
 			OldValue:    old.Version,
-			NewValue:    new.Version,
-			Description: fmt.Sprintf("Version changed from %s to %s", old.Version, new.Version),
+			NewValue:    newConfig.Version,
+			Description: fmt.Sprintf("Version changed from %s to %s", old.Version, newConfig.Version),
 		})
 	}
 
 	// Compare run settings
-	changes = append(changes, d.compareRunSettings(old.Run, new.Run)...)
+	changes = append(changes, d.compareRunSettings(old.Run, newConfig.Run)...)
 
 	// Compare linters
-	changes = append(changes, d.compareLinters(old.Linters, new.Linters)...)
+	changes = append(changes, d.compareLinters(old.Linters, newConfig.Linters)...)
 
 	// Compare formatters
-	changes = append(changes, d.compareFormatters(old.Formatters, new.Formatters)...)
+	changes = append(changes, d.compareFormatters(old.Formatters, newConfig.Formatters)...)
 
 	return changes
 }
 
-func (d *Differ) compareRunSettings(old, new types.RunConfig) []Change {
+func (d *Differ) compareRunSettings(old, newConfig types.RunConfig) []Change {
 	var changes []Change
 
-	if old.Timeout != new.Timeout {
+	if old.Timeout != newConfig.Timeout {
 		changes = append(changes, Change{
 			Type:        ChangeTypeModified,
 			Path:        "run.timeout",
 			OldValue:    old.Timeout,
-			NewValue:    new.Timeout,
-			Description: fmt.Sprintf("Timeout changed from %s to %s", old.Timeout, new.Timeout),
+			NewValue:    newConfig.Timeout,
+			Description: fmt.Sprintf("Timeout changed from %s to %s", old.Timeout, newConfig.Timeout),
 		})
 	}
 
-	if old.Go != new.Go {
+	if old.Go != newConfig.Go {
 		changes = append(changes, Change{
 			Type:        ChangeTypeModified,
 			Path:        "run.go",
 			OldValue:    old.Go,
-			NewValue:    new.Go,
-			Description: fmt.Sprintf("Go version changed from %s to %s", old.Go, new.Go),
+			NewValue:    newConfig.Go,
+			Description: fmt.Sprintf("Go version changed from %s to %s", old.Go, newConfig.Go),
 		})
 	}
 
-	if old.Tests != new.Tests {
+	if old.Tests != newConfig.Tests {
 		changes = append(changes, Change{
 			Type:        ChangeTypeModified,
 			Path:        "run.tests",
 			OldValue:    strconv.FormatBool(old.Tests),
-			NewValue:    strconv.FormatBool(new.Tests),
-			Description: fmt.Sprintf("Tests changed from %v to %v", old.Tests, new.Tests),
+			NewValue:    strconv.FormatBool(newConfig.Tests),
+			Description: fmt.Sprintf("Tests changed from %v to %v", old.Tests, newConfig.Tests),
 		})
 	}
 
@@ -153,12 +153,12 @@ func (d *Differ) compareEnabled(oldEnable, newEnable []string, pathPrefix, entit
 	return changes
 }
 
-func (d *Differ) compareLinters(old, new types.LintersConfig) []Change {
-	return d.compareEnabled(old.Enable, new.Enable, "linters", "linter")
+func (d *Differ) compareLinters(old, newCfg types.LintersConfig) []Change {
+	return d.compareEnabled(old.Enable, newCfg.Enable, "linters", "linter")
 }
 
-func (d *Differ) compareFormatters(old, new types.FormattersConfig) []Change {
-	return d.compareEnabled(old.Enable, new.Enable, "formatters", "formatter")
+func (d *Differ) compareFormatters(old, newCfg types.FormattersConfig) []Change {
+	return d.compareEnabled(old.Enable, newCfg.Enable, "formatters", "formatter")
 }
 
 // FormatChanges formats changes as a human-readable string.
