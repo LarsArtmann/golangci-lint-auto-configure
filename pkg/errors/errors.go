@@ -21,6 +21,8 @@ var (
 	ErrInvalidVersionFormat = stderrors.New("invalid version format")
 	// ErrVersionTooOld indicates the version is below the minimum required.
 	ErrVersionTooOld = stderrors.New("version is too old")
+	// ErrConfigValidationFailed indicates configuration validation failed.
+	ErrConfigValidationFailed = stderrors.New("configuration validation failed")
 )
 
 // ConfigError represents a configuration-related error.

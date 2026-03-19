@@ -5,6 +5,7 @@ import (
 	"os/exec"
 
 	"github.com/charmbracelet/log"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/spf13/cobra"
 )
@@ -64,7 +65,7 @@ Use --verbose to see detailed validation output.`,
 					logger.Errorf("  - %v", err)
 				}
 
-				return fmt.Errorf("configuration validation failed with %d errors", len(validationErrors))
+				return fmt.Errorf("%w: %d validation errors", apperrors.ErrConfigValidationFailed, len(validationErrors))
 			}
 
 			logger.Infof("✓ Internal validation passed")
