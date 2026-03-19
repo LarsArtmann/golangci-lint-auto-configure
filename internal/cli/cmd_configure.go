@@ -42,7 +42,7 @@ Or use --preset for predefined linter sets:
   - security: Security-focused only
   - performance: Performance optimization only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runConfigure(logger, analyzer, configLoader, priority, preset, dryRun, configPath)
+			return runConfigure(cmd.Context(), logger, analyzer, configLoader, priority, preset, dryRun, configPath)
 		},
 	}
 
@@ -56,6 +56,7 @@ Or use --preset for predefined linter sets:
 
 // runConfigure executes the configure command logic.
 func runConfigure(
+	ctx context.Context,
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
@@ -77,7 +78,7 @@ func runConfigure(
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		logger.Infof("No config file found, creating default: %s", configFile)
 
-		defaultConfig := configLoader.CreateDefaultConfig(context.Background())
+		defaultConfig := configLoader.CreateDefaultConfig(ctx)
 
 		err := configLoader.SaveConfig(defaultConfig, configFile)
 		if err != nil {
@@ -91,7 +92,7 @@ func runConfigure(
 
 	// Handle preset mode
 	if preset != "" {
-		return applyPreset(logger, configLoader, configFile, preset, dryRun)
+		return applyPreset(ctx, logger, configLoader, configFile, preset, dryRun)
 	}
 
 	// Create fixer and apply fixes
@@ -112,7 +113,7 @@ func runConfigure(
 		linterPriority = types.LinterPriorityHigh
 	}
 
-	result, err := fixer.FixConfig(context.Background(), configFile, linterPriority, dryRun)
+	result, err := fixer.FixConfig(ctx, configFile, linterPriority, dryRun)
 	if err != nil {
 		return fmt.Errorf("failed to fix configuration: %w", err)
 	}
@@ -123,7 +124,13 @@ func runConfigure(
 }
 
 // applyPreset applies a preset linter configuration.
-func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, preset string, dryRun bool) error {
+func applyPreset(
+	ctx context.Context,
+	logger *log.Logger,
+	configLoader *config.Loader,
+	configFile, preset string,
+	dryRun bool,
+) error {
 	logger.Infof("Applying preset: %s", preset)
 
 	// Load current config
@@ -155,7 +162,7 @@ func applyPreset(logger *log.Logger, configLoader *config.Loader, configFile, pr
 	}
 
 	// Ensure we're in a git repo (git provides version control, no backup needed)
-	if err := configLoader.EnsureGitRepo(context.Background(), "."); err != nil {
+	if err := configLoader.EnsureGitRepo(ctx, "."); err != nil {
 		return err
 	}
 
