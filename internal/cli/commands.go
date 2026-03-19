@@ -85,6 +85,7 @@ actionable recommendations to improve your Go code quality.`,
 
 // Execute runs the CLI using fang for enhanced CLI features.
 func Execute(ctx context.Context) error {
+	//nolint:contextcheck // Context is passed through fang.Execute; linter doesn't trace third-party calls
 	rootCmd := NewRootCommand()
 
 	if err := fang.Execute(ctx, rootCmd, fang.WithVersion(Version)); err != nil {

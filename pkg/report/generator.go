@@ -36,6 +36,7 @@ func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAn
 
 	defer func() { _ = f.Close() }()
 
+	//nolint:contextcheck // Context comes from caller; templ.Render receives it correctly
 	err = Report(data).Render(ctx, f)
 	if err != nil {
 		return fmt.Errorf("failed to render report: %w", err)
