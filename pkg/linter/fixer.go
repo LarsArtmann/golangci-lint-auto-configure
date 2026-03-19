@@ -75,9 +75,6 @@ func (f *Fixer) FixConfigResult(
 	formatterFixes := 0
 	redundantFixes := 0
 
-	// Track messages for detailed reporting
-	messages := make([]string, 0)
-
 	// Track all linters to ensure uniqueness in the final list
 	linterSet := make(map[string]bool)
 
@@ -114,15 +111,6 @@ func (f *Fixer) FixConfigResult(
 
 					linterSet[string(replacement.Replacement)] = true
 
-					messages = append(
-						messages,
-						fmt.Sprintf(
-							"Replaced deprecated %s with %s: %s",
-							linter,
-							replacement.Replacement,
-							replacement.Reason,
-						),
-					)
 				}
 			} else {
 				if dryRun {
@@ -133,15 +121,6 @@ func (f *Fixer) FixConfigResult(
 					)
 				} else {
 					f.logger.Debugf("Removing deprecated %s (keeping existing %s)", linter, replacement.Replacement)
-					messages = append(
-						messages,
-						fmt.Sprintf(
-							"Removed deprecated %s (replacement %s already enabled): %s",
-							linter,
-							replacement.Replacement,
-							replacement.Reason,
-						),
-					)
 				}
 			}
 		}
@@ -192,8 +171,6 @@ func (f *Fixer) FixConfigResult(
 					f.logger.Infof("Removing redundant linter: %s (%s)", linterName, reason)
 
 					delete(linterSet, string(linterName))
-
-					messages = append(messages, fmt.Sprintf("Removed redundant %s: %s", linterName, reason))
 				}
 			}
 		}

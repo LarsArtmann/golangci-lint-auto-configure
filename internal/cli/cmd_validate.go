@@ -74,7 +74,7 @@ Use --verbose to see detailed validation output.`,
 			if !skipGolangciLint {
 				logger.Infof("Running golangci-lint schema validation...")
 
-				verifyCmd := exec.Command("golangci-lint", "config", "verify", "--config", configFile)
+				verifyCmd := exec.CommandContext(cmd.Context(), "golangci-lint", "config", "verify", "--config", configFile)
 
 				output, err := verifyCmd.CombinedOutput()
 				if err != nil {
