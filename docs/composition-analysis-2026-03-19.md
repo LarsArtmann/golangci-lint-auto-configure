@@ -4,7 +4,7 @@
 
 **Tool:** branching-flow v2.x  
 **Command:** `branching-flow compose . --order severity-asc`  
-**Result:** 99/100 (EXCELLENT) - No action required  
+**Result:** 99/100 (EXCELLENT) - No action required
 
 The golangci-linter-auto-configure codebase demonstrates excellent architectural composition with only optional improvements identified.
 
@@ -21,6 +21,7 @@ The golangci-linter-auto-configure codebase demonstrates excellent architectural
 **Structs:** `LintersExclusionsConfig` and `FormattersExclusionsConfig`  
 **Location:** `pkg/types/types.go:211`, `pkg/types/types.go:247`  
 **Shared Fields:**
+
 - `Generated string`
 - `WarnUnused bool`
 - `Paths []string`
@@ -34,6 +35,7 @@ The golangci-linter-auto-configure codebase demonstrates excellent architectural
 **Structs:** `ConfigError`, `AnalysisError`, `ReportError`  
 **Location:** `pkg/errors/errors.go:27`, `pkg/errors/errors.go:56`, `pkg/errors/errors.go:85`  
 **Shared Fields:**
+
 - `Message string`
 - `Cause error`
 
@@ -47,6 +49,7 @@ The golangci-linter-auto-configure codebase demonstrates excellent architectural
 **Similar To:** `linter.Fixer`, `workflow.Builder`  
 **Location:** `pkg/client/client.go:25`  
 **Shared Fields:**
+
 - `configLoader *config.Loader`
 - `analyzer *linter.Analyzer`
 - `logger *log.Logger`
@@ -60,6 +63,7 @@ The golangci-linter-auto-configure codebase demonstrates excellent architectural
 **Structs:** `LintersConfig` and `FormattersConfig`  
 **Location:** `pkg/types/types.go:203`, `pkg/types/types.go:240`  
 **Shared Fields:**
+
 - `Enable []string`
 - `Disable []string`
 - `Settings map[string]any`
@@ -75,6 +79,7 @@ The golangci-linter-auto-configure codebase demonstrates excellent architectural
 **Rationale:** The `errors` package name conflicted with Go's standard library `errors` package, causing linter warnings (`revive: var-naming`).
 
 **Changes:**
+
 - Renamed `pkg/errors` package to `apperrors`
 - Updated all imports across codebase
 - Changed internal `errors` references to `stderrors`
@@ -86,6 +91,7 @@ The golangci-linter-auto-configure codebase demonstrates excellent architectural
 **Rationale:** Fixed `tagalign` linter warnings for inconsistent struct tag ordering.
 
 **Changes:**
+
 - Aligned `validate` and `yaml` tags in `Config` struct
 - Aligned tags in `IssuesConfig` struct
 
@@ -102,6 +108,7 @@ The golangci-linter-auto-configure codebase demonstrates excellent architectural
 ### When to Consider Mixins
 
 Consider implementing mixins only when:
+
 - ✅ Multiple structs share 3+ fields with identical semantics
 - ✅ The shared fields represent a cohesive concept (not coincidental overlap)
 - ✅ The structs will evolve together (not diverge independently)
@@ -122,6 +129,6 @@ The branching-flow analysis confirms the golangci-linter-auto-configure codebase
 
 ---
 
-*Generated: 2026-03-19*  
-*Tool: branching-flow compose . --order severity-asc*  
-*Score: 99/100 (EXCELLENT)*
+_Generated: 2026-03-19_  
+_Tool: branching-flow compose . --order severity-asc_  
+_Score: 99/100 (EXCELLENT)_
