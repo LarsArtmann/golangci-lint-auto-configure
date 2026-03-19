@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
@@ -54,7 +55,8 @@ func ValidationErrors(err error) []ValidationError {
 		return nil
 	}
 
-	validationErrors, ok := err.(validator.ValidationErrors)
+	var validationErrors validator.ValidationErrors
+	ok := errors.As(err, &validationErrors)
 	if !ok {
 		return []ValidationError{
 			{
@@ -81,7 +83,8 @@ func IsValidationError(err error) bool {
 		return false
 	}
 
-	_, ok := err.(validator.ValidationErrors)
+	var valErrs validator.ValidationErrors
+	ok := errors.As(err, &valErrs)
 
 	return ok
 }
