@@ -64,7 +64,11 @@ func New(opts Options) *Client {
 //	}
 //	fmt.Printf("Found %d disabled linters", len(analysis.DisabledLinters))
 func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error) {
-	return c.analyzer.AnalyzeConfig(ctx, configPath)
+	result, err := c.analyzer.AnalyzeConfig(ctx, configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to analyze config: %w", err)
+	}
+	return result, nil
 }
 
 // LoadConfig loads and parses a golangci-lint configuration file
@@ -78,7 +82,11 @@ func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.C
 //	}
 //	fmt.Printf("Timeout: %s\n", cfg.Run.Timeout)
 func (c *Client) LoadConfig(configPath string) (*config.Config, error) {
-	return c.configLoader.LoadConfig(configPath)
+	cfg, err := c.configLoader.LoadConfig(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load config: %w", err)
+	}
+	return cfg, nil
 }
 
 // ValidateConfig validates a golangci-lint configuration
@@ -115,7 +123,10 @@ func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string {
 //	cfg := &config.Config{Version: "2", Linters: config.LintersConfig{Enable: []string{"gofmt"}}}
 //	err := client.SaveConfig(cfg, ".golangci.yml")
 func (c *Client) SaveConfig(cfg *config.Config, path string) error {
-	return c.configLoader.SaveConfig(cfg, path)
+	if err := c.configLoader.SaveConfig(cfg, path); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+	return nil
 }
 
 // FixOptions configures the behavior of the FixConfig method.
@@ -147,7 +158,11 @@ func (c *Client) FixConfig(ctx context.Context, configPath string, opts FixOptio
 		opts.Priority = types.LinterPriorityHigh
 	}
 
-	return c.fixer.FixConfig(ctx, configPath, opts.Priority, opts.DryRun)
+	result, err := c.fixer.FixConfig(ctx, configPath, opts.Priority, opts.DryRun)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fix config: %w", err)
+	}
+	return result, nil
 }
 
 // SimpleFix is a one-line convenience function to analyze and fix a config file.

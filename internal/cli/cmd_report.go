@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
@@ -29,7 +31,7 @@ func newReportCommand(
 
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to find config file: %w", err)
 				}
 			}
 
@@ -38,7 +40,7 @@ func newReportCommand(
 			// Analyze configuration
 			analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to analyze config: %w", err)
 			}
 
 			// Determine output path
@@ -55,14 +57,14 @@ func newReportCommand(
 
 				err := jsonGenerator.GenerateJSONReport(analysis, outputPath)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to generate JSON report: %w", err)
 				}
 			} else {
 				htmlGenerator := report.NewGenerator(logger)
 
 				err := htmlGenerator.GenerateReport(cmd.Context(), analysis, outputPath)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to generate HTML report: %w", err)
 				}
 			}
 

@@ -11,7 +11,6 @@ import (
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +18,6 @@ import (
 func newConfigureCommand(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
-	workflowBuilder *workflow.Builder,
 	configLoader *config.Loader,
 ) *cobra.Command {
 	var preset string
@@ -163,7 +161,7 @@ func applyPreset(
 
 	// Ensure we're in a git repo (git provides version control, no backup needed)
 	if err := configLoader.EnsureGitRepo(ctx, "."); err != nil {
-		return err
+		return fmt.Errorf("failed to ensure git repo: %w", err)
 	}
 
 	// Update config

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -10,7 +11,6 @@ import (
 	clicmd "github.com/larsartmann/golangcli-linter-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/workflow"
 	"github.com/spf13/cobra"
 )
 
@@ -48,9 +48,8 @@ actionable recommendations to improve your Go code quality.`,
 		Version: Version,
 	}
 
-	// Create analyzer and workflow builder
+	// Create analyzer
 	analyzer := linter.NewAnalyzer(logger)
-	workflowBuilder := workflow.NewBuilder(logger, analyzer)
 
 	// Configure root command
 	configLoader := config.NewLoader(logger)
@@ -62,7 +61,7 @@ actionable recommendations to improve your Go code quality.`,
 	}
 
 	rootCmd.AddCommand(
-		newConfigureCommand(logger, analyzer, workflowBuilder, configLoader),
+		newConfigureCommand(logger, analyzer, configLoader),
 		newAnalyzeCommand(logger, analyzer, configLoader),
 		clicmd.NewMigrateCommand(logger, configLoader, migrateFlags),
 		newValidateCommand(logger, configLoader),
@@ -88,7 +87,10 @@ actionable recommendations to improve your Go code quality.`,
 func Execute(ctx context.Context) error {
 	rootCmd := NewRootCommand()
 
-	return fang.Execute(ctx, rootCmd, fang.WithVersion(Version))
+	if err := fang.Execute(ctx, rootCmd, fang.WithVersion(Version)); err != nil {
+		return fmt.Errorf("failed to execute command: %w", err)
+	}
+	return nil
 }
 
 // Main is the entry point.

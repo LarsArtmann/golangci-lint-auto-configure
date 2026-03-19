@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
@@ -28,7 +30,7 @@ func newAnalyzeCommand(
 
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to find config file: %w", err)
 				}
 			}
 
@@ -37,7 +39,7 @@ func newAnalyzeCommand(
 			// Perform analysis
 			analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to analyze config: %w", err)
 			}
 
 			// Display recommendations

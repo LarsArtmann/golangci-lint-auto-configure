@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -20,21 +22,30 @@ func initValidator() *validator.Validate {
 func ValidateConfig(cfg *Config) error {
 	v := initValidator()
 
-	return v.Struct(cfg)
+	if err := v.Struct(cfg); err != nil {
+		return fmt.Errorf("config validation failed: %w", err)
+	}
+	return nil
 }
 
 // ValidateRunConfig validates a RunConfig struct.
 func ValidateRunConfig(cfg *RunConfig) error {
 	v := initValidator()
 
-	return v.Struct(cfg)
+	if err := v.Struct(cfg); err != nil {
+		return fmt.Errorf("run config validation failed: %w", err)
+	}
+	return nil
 }
 
 // ValidateLintersConfig validates a LintersConfig struct.
 func ValidateLintersConfig(cfg *LintersConfig) error {
 	v := initValidator()
 
-	return v.Struct(cfg)
+	if err := v.Struct(cfg); err != nil {
+		return fmt.Errorf("linters config validation failed: %w", err)
+	}
+	return nil
 }
 
 // ValidationErrors converts validator.ValidationErrors to a slice of ValidationError.

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"os/exec"
 
 	"github.com/charmbracelet/log"
@@ -38,7 +39,7 @@ Use --verbose to see detailed validation output.`,
 
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to find config file: %w", err)
 				}
 			}
 
@@ -49,7 +50,7 @@ Use --verbose to see detailed validation output.`,
 			if err != nil {
 				logger.Errorf("❌ Failed to load configuration")
 
-				return err
+				return fmt.Errorf("failed to load config: %w", err)
 			}
 
 			logger.Infof("✓ Basic structure valid")
@@ -63,7 +64,7 @@ Use --verbose to see detailed validation output.`,
 					logger.Errorf("  - %v", err)
 				}
 
-				return err
+				return fmt.Errorf("configuration validation failed with %d errors", len(validationErrors))
 			}
 
 			logger.Infof("✓ Internal validation passed")
@@ -79,7 +80,7 @@ Use --verbose to see detailed validation output.`,
 					logger.Errorf("❌ Schema validation failed:")
 					logger.Errorf("%s", string(output))
 
-					return err
+					return fmt.Errorf("golangci-lint config verify failed: %w", err)
 				}
 
 				if len(output) > 0 {

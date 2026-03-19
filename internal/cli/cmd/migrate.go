@@ -79,8 +79,9 @@ Use --skip-validation if the v1 config has known issues.`,
 
 			// Ensure we're in a git repo (git provides version control, no backup needed)
 			if !dryRun {
-				if err := configLoader.EnsureGitRepo(context.Background(), "."); err != nil {
-					return err
+				err := configLoader.EnsureGitRepo(context.Background(), ".")
+				if err != nil {
+					return fmt.Errorf("failed to ensure git repo: %w", err)
 				}
 			} else {
 				logger.Infof("[DRY-RUN] Would verify git repository")

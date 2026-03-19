@@ -41,7 +41,7 @@ func AnalysisActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, e
 			Output:    fmt.Sprintf("Analysis failed: %v", err),
 			StartTime: time.Now(),
 			EndTime:   time.Now().Add(1 * time.Second),
-		}, err
+		}, fmt.Errorf("analysis failed: %w", err)
 	}
 
 	// Format and display recommendations
@@ -120,7 +120,6 @@ func ReportActivity(ctx workflowpkg.ActivityContext) (*types.ActivityResult, err
 type Builder struct {
 	logger   *log.Logger
 	analyzer *linter.Analyzer
-	config   *ActivityContext
 }
 
 // NewBuilder creates a new workflow builder.
