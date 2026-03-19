@@ -171,8 +171,8 @@ type ConfigLoader interface {
 
 // Config represents a golangci-lint configuration file.
 type Config struct {
-	Version    string           `yaml:"version" validate:"required,oneof=2"`
-	Run        RunConfig        `yaml:"run" validate:"required"`
+	Version    string           `validate:"required,oneof=2" yaml:"version"`
+	Run        RunConfig        `validate:"required"         yaml:"run"`
 	Output     OutputConfig     `yaml:"output"`
 	Linters    LintersConfig    `yaml:"linters"`
 	Formatters FormattersConfig `yaml:"formatters,omitempty"`
@@ -226,8 +226,8 @@ type ExclusionRuleConfig struct {
 }
 
 type IssuesConfig struct {
-	MaxIssuesPerLinter int    `yaml:"max-issues-per-linter,omitempty" validate:"min=0"`
-	MaxSameIssues      int    `yaml:"max-same-issues,omitempty" validate:"min=0"`
+	MaxIssuesPerLinter int    `validate:"min=0" yaml:"max-issues-per-linter,omitempty"`
+	MaxSameIssues      int    `validate:"min=0" yaml:"max-same-issues,omitempty"`
 	NewFromRev         string `yaml:"new-from-rev,omitempty"`
 	NewFromPatch       string `yaml:"new-from-patch,omitempty"`
 	New                bool   `yaml:"new,omitempty"`

@@ -1,26 +1,26 @@
-package errors
+package apperrors
 
 import (
-	"errors"
+	stderrors "errors"
 	"fmt"
 )
 
-// Static sentinel errors for use with errors.Is.
+// Static sentinel errors for use with stderrors.Is.
 var (
 	// ErrNotGitRepository indicates the current directory is not a git repository.
-	ErrNotGitRepository = errors.New("not a git repository (no .git directory found)")
+	ErrNotGitRepository = stderrors.New("not a git repository (no .git directory found)")
 	// ErrHookAlreadyExists indicates the pre-commit hook already exists.
-	ErrHookAlreadyExists = errors.New("hook already exists")
+	ErrHookAlreadyExists = stderrors.New("hook already exists")
 	// ErrUnknownPreset indicates an invalid preset name was provided.
-	ErrUnknownPreset = errors.New("unknown preset")
+	ErrUnknownPreset = stderrors.New("unknown preset")
 	// ErrInvalidActivityContext indicates the activity context type is invalid.
-	ErrInvalidActivityContext = errors.New("invalid activity context type")
+	ErrInvalidActivityContext = stderrors.New("invalid activity context type")
 	// ErrVersionParse indicates failure to parse version output.
-	ErrVersionParse = errors.New("could not parse version from output")
+	ErrVersionParse = stderrors.New("could not parse version from output")
 	// ErrInvalidVersionFormat indicates the version string format is invalid.
-	ErrInvalidVersionFormat = errors.New("invalid version format")
+	ErrInvalidVersionFormat = stderrors.New("invalid version format")
 	// ErrVersionTooOld indicates the version is below the minimum required.
-	ErrVersionTooOld = errors.New("version is too old")
+	ErrVersionTooOld = stderrors.New("version is too old")
 )
 
 // ConfigError represents a configuration-related error.
@@ -116,19 +116,19 @@ func NewReportError(msg, path string, err error) *ReportError {
 func IsConfigError(err error) bool {
 	var cfgErr *ConfigError
 
-	return errors.As(err, &cfgErr)
+	return stderrors.As(err, &cfgErr)
 }
 
 // IsAnalysisError checks if an error is an AnalysisError.
 func IsAnalysisError(err error) bool {
 	var analysisErr *AnalysisError
 
-	return errors.As(err, &analysisErr)
+	return stderrors.As(err, &analysisErr)
 }
 
 // IsReportError checks if an error is a ReportError.
 func IsReportError(err error) bool {
 	var reportErr *ReportError
 
-	return errors.As(err, &reportErr)
+	return stderrors.As(err, &reportErr)
 }

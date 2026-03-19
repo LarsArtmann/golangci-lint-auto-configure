@@ -56,12 +56,12 @@ func (l *Loader) LoadConfig(path string) (*Config, error) {
 func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return types.ErrConfig(errors.NewConfigError("failed to read config file", path, err))
+		return types.ErrConfig(apperrors.NewConfigError("failed to read config file", path, err))
 	}
 
 	var config Config
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		return types.ErrConfig(errors.NewConfigError("failed to parse config file", path, err))
+		return types.ErrConfig(apperrors.NewConfigError("failed to parse config file", path, err))
 	}
 
 	l.logger.Debugf("Loaded config from %s", path)
@@ -93,7 +93,7 @@ func (l *Loader) FindConfigFileResult(startDir string) types.StringResult {
 		}
 	}
 
-	return types.ErrString(errors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil))
+	return types.ErrString(apperrors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil))
 }
 
 // FindOrGetDefaultConfigPath searches for a config file and returns a default path if none exists.
@@ -189,11 +189,11 @@ type Empty = struct{}
 func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] {
 	data, err := yaml.Marshal(config)
 	if err != nil {
-		return mo.Err[Empty](errors.NewConfigError("failed to marshal config", path, err))
+		return mo.Err[Empty](apperrors.NewConfigError("failed to marshal config", path, err))
 	}
 
 	if err := os.WriteFile(path, data, 0o644); err != nil {
-		return mo.Err[Empty](errors.NewConfigError("failed to write config file", path, err))
+		return mo.Err[Empty](apperrors.NewConfigError("failed to write config file", path, err))
 	}
 
 	l.logger.Infof("Saved config to %s", path)
@@ -208,7 +208,7 @@ func (l *Loader) EnsureGitRepo(ctx context.Context, startDir string) error {
 	cmd.Dir = startDir
 
 	if err := cmd.Run(); err != nil {
-		return errors.NewConfigError(
+		return apperrors.NewConfigError(
 			"not in a git repository - git provides version control, so backup files are not created. "+
 				"Please initialize a git repository first: git init",
 			startDir,
@@ -227,7 +227,7 @@ func (l *Loader) ValidateConfig(config *Config) []error {
 
 	// Use struct validation from types package
 	if err := types.ValidateConfig(config); err != nil {
-		errs = append(errs, errors.NewConfigError("struct validation failed", "", err))
+		errs = append(errs, apperrors.NewConfigError("struct validation failed", "", err))
 	}
 
 	// Additional business logic validation
