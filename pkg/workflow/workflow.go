@@ -154,25 +154,30 @@ func (b *Builder) BuildAutoConfigureWorkflow(
 	}
 
 	// Add analysis activity
-	wf.Step(types.MustActivityID("analyze-config"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
-		ctx.Input = activityCtx
+	wf.Step(
+		types.MustActivityID("analyze-config"),
+		func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
+			ctx.Input = activityCtx
 
-		return AnalysisActivity(ctx)
-	})
+			return AnalysisActivity(ctx)
+		},
+	)
 
 	// Add validation activity (depends on analysis)
 	wf.Step(types.MustActivityID("validate-config"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 		ctx.Input = activityCtx
 
 		return ValidationActivity(ctx)
-	}).DependsOn(types.MustActivityID("analyze-config"))
+	}).
+		DependsOn(types.MustActivityID("analyze-config"))
 
 	// Add report generation activity (depends on validation)
 	wf.Step(types.MustActivityID("generate-report"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 		ctx.Input = activityCtx
 
 		return ReportActivity(ctx)
-	}).DependsOn(types.MustActivityID("validate-config"))
+	}).
+		DependsOn(types.MustActivityID("validate-config"))
 
 	return wf, nil
 }

@@ -140,7 +140,11 @@ func applyPreset(
 	// Get preset linters
 	linters, ok := constants.PresetLinters[preset]
 	if !ok {
-		return fmt.Errorf("%w: %s (valid: minimal, standard, strict, security, performance)", apperrors.ErrUnknownPreset, preset)
+		return fmt.Errorf(
+			"%w: %s (valid: minimal, standard, strict, security, performance)",
+			apperrors.ErrUnknownPreset,
+			preset,
+		)
 	}
 
 	// Convert to strings

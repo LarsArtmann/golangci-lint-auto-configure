@@ -57,7 +57,11 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 
 	// Validate semver format
 	if !semver.IsValid(version) {
-		return apperrors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("%w: %s", apperrors.ErrInvalidVersionFormat, version))
+		return apperrors.NewAnalysisError(
+			"invalid golangci-lint version format",
+			"",
+			fmt.Errorf("%w: %s", apperrors.ErrInvalidVersionFormat, version),
+		)
 	}
 
 	// Compare with minimum required version
@@ -66,7 +70,11 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 		return apperrors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
 			"",
-			fmt.Errorf("%w: minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", apperrors.ErrVersionTooOld, minVersion),
+			fmt.Errorf(
+				"%w: minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
+				apperrors.ErrVersionTooOld,
+				minVersion,
+			),
 		)
 	}
 
@@ -105,7 +113,11 @@ func (a *Analyzer) checkVersionText(ctx context.Context) error {
 
 	// Validate semver format
 	if !semver.IsValid(version) {
-		return apperrors.NewAnalysisError("invalid golangci-lint version format", "", fmt.Errorf("%w: %s", apperrors.ErrInvalidVersionFormat, version))
+		return apperrors.NewAnalysisError(
+			"invalid golangci-lint version format",
+			"",
+			fmt.Errorf("%w: %s", apperrors.ErrInvalidVersionFormat, version),
+		)
 	}
 
 	// Compare with minimum required version
@@ -114,7 +126,11 @@ func (a *Analyzer) checkVersionText(ctx context.Context) error {
 		return apperrors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
 			"",
-			fmt.Errorf("%w: minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/", apperrors.ErrVersionTooOld, minVersion),
+			fmt.Errorf(
+				"%w: minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
+				apperrors.ErrVersionTooOld,
+				minVersion,
+			),
 		)
 	}
 

@@ -83,7 +83,9 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 
 	var jsonLinterOutput golangciLintOutput
 	if err := json.Unmarshal(lintOutput, &jsonLinterOutput); err != nil {
-		return types.ErrAnalysis(apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err))
+		return types.ErrAnalysis(
+			apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err),
+		)
 	}
 
 	// Analyze formatters

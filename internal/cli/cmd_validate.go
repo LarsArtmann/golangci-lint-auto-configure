@@ -65,7 +65,11 @@ Use --verbose to see detailed validation output.`,
 					logger.Errorf("  - %v", err)
 				}
 
-				return fmt.Errorf("%w: %d validation errors", apperrors.ErrConfigValidationFailed, len(validationErrors))
+				return fmt.Errorf(
+					"%w: %d validation errors",
+					apperrors.ErrConfigValidationFailed,
+					len(validationErrors),
+				)
 			}
 
 			logger.Infof("✓ Internal validation passed")
@@ -74,7 +78,14 @@ Use --verbose to see detailed validation output.`,
 			if !skipGolangciLint {
 				logger.Infof("Running golangci-lint schema validation...")
 
-				verifyCmd := exec.CommandContext(cmd.Context(), "golangci-lint", "config", "verify", "--config", configFile)
+				verifyCmd := exec.CommandContext(
+					cmd.Context(),
+					"golangci-lint",
+					"config",
+					"verify",
+					"--config",
+					configFile,
+				)
 
 				output, err := verifyCmd.CombinedOutput()
 				if err != nil {
