@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/samber/mo"
