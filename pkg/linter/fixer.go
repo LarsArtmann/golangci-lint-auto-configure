@@ -1,7 +1,6 @@
 package linter
 
 // TODO: Consider using a transaction pattern for config changes (all or nothing)
-// TODO: Add dry-run mode that shows detailed diff instead of just counts
 // TODO: Extract duplicate linter detection into a separate validation step
 // TODO: Add rollback mechanism for failed config saves
 // TODO: Consider using immutable config copies for safer modifications
@@ -208,7 +207,7 @@ func (f *Fixer) FixConfigResult(
 	totalFixes := deprecationFixes + enableFixes + formatterFixes + redundantFixes
 
 	if dryRun {
-		f.logger.Infof("[DRY-RUN] Would apply %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
+		f.logger.Infof("\n[DRY-RUN] Would apply %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
 			totalFixes, enableFixes, formatterFixes, deprecationFixes, redundantFixes)
 
 		return types.OkMigration(&types.MigrationResult{

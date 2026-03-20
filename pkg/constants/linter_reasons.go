@@ -112,7 +112,7 @@ var LinterReasons = map[types.LinterName]string{
 	"gocheckcompilerdirectives": "Checks that go compiler directive comments are valid",
 	"goprintffuncname":          "Checks that printf-like functions are named with f at the end",
 	"iface":                     "Detect incorrect use of interfaces, helping avoid interface pollution",
-	"imports":                   "Enforces consistent import aliases",
+	"imports":                   "Enforces consistent import aliases (requires alias configuration)",
 	"inamedparam":               "Reports interfaces with unnamed method parameters",
 	"iotamixing":                "Checks if iotas are used in const blocks with other non-iota declarations",
 	"modernize":                 "Suggests simplifications using modern Go language and library features",

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/charmbracelet/log"
@@ -15,6 +16,8 @@ func newAnalyzeCommand(
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
 ) *cobra.Command {
+	var format string
+
 	cmd := &cobra.Command{
 		Use:   "analyze",
 		Short: "Analyze golangci-lint configuration and show recommendations",
@@ -42,16 +45,29 @@ func newAnalyzeCommand(
 				return fmt.Errorf("failed to analyze config: %w", err)
 			}
 
-			// Display recommendations
-			recommendations := analyzer.FormatRecommendations(analysis)
-			summary := analyzer.GetSummary(analysis)
+			// Output based on format
+			switch format {
+			case "json":
+				data, jsonErr := json.MarshalIndent(analysis, "", "  ")
+				if jsonErr != nil {
+					return fmt.Errorf("failed to marshal analysis to JSON: %w", jsonErr)
+				}
 
-			logger.Info("\n" + recommendations)
-			logger.Infof("Summary: %s", summary)
+				logger.Info(string(data))
+			default:
+				// Default text output
+				recommendations := analyzer.FormatRecommendations(analysis)
+				summary := analyzer.GetSummary(analysis)
+
+				logger.Info("\n" + recommendations)
+				logger.Infof("Summary: %s", summary)
+			}
 
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&format, "format", "text", "Output format (text, json)")
 
 	return cmd
 }
