@@ -42,6 +42,7 @@ func (f *Fixer) FixConfig(
 	dryRun bool,
 ) (*types.MigrationResult, error) {
 	result := f.FixConfigResult(ctx, configPath, priority, dryRun)
+
 	return result.Get()
 }
 
@@ -110,7 +111,6 @@ func (f *Fixer) FixConfigResult(
 					)
 
 					linterSet[string(replacement.Replacement)] = true
-
 				}
 			} else {
 				if dryRun {

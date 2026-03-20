@@ -88,9 +88,11 @@ func Execute(ctx context.Context) error {
 	//nolint:contextcheck // Context is passed through fang.Execute; linter doesn't trace third-party calls
 	rootCmd := NewRootCommand()
 
-	if err := fang.Execute(ctx, rootCmd, fang.WithVersion(Version)); err != nil {
+	err := fang.Execute(ctx, rootCmd, fang.WithVersion(Version))
+	if err != nil {
 		return fmt.Errorf("failed to execute command: %w", err)
 	}
+
 	return nil
 }
 

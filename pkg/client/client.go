@@ -68,6 +68,7 @@ func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.C
 	if err != nil {
 		return nil, fmt.Errorf("failed to analyze config: %w", err)
 	}
+
 	return result, nil
 }
 
@@ -86,6 +87,7 @@ func (c *Client) LoadConfig(configPath string) (*config.Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
+
 	return cfg, nil
 }
 
@@ -123,9 +125,11 @@ func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string {
 //	cfg := &config.Config{Version: "2", Linters: config.LintersConfig{Enable: []string{"gofmt"}}}
 //	err := client.SaveConfig(cfg, ".golangci.yml")
 func (c *Client) SaveConfig(cfg *config.Config, path string) error {
-	if err := c.configLoader.SaveConfig(cfg, path); err != nil {
+	err := c.configLoader.SaveConfig(cfg, path)
+	if err != nil {
 		return fmt.Errorf("failed to save config: %w", err)
 	}
+
 	return nil
 }
 
@@ -162,6 +166,7 @@ func (c *Client) FixConfig(ctx context.Context, configPath string, opts FixOptio
 	if err != nil {
 		return nil, fmt.Errorf("failed to fix config: %w", err)
 	}
+
 	return result, nil
 }
 

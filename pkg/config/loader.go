@@ -73,6 +73,7 @@ func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader {
 // LoadConfig loads a golangci-lint configuration from the given path.
 func (l *Loader) LoadConfig(path string) (*Config, error) {
 	result := l.LoadConfigResult(path)
+
 	return result.Get()
 }
 
@@ -116,6 +117,7 @@ func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 	}
 
 	format := detectFormat(path)
+
 	var config Config
 
 	if err := unmarshalConfig(data, format, &config); err != nil {
@@ -130,6 +132,7 @@ func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 // FindConfigFile searches for a golangci-lint config file in the current directory and parent directories.
 func (l *Loader) FindConfigFile(startDir string) (string, error) {
 	result := l.FindConfigFileResult(startDir)
+
 	return result.Get()
 }
 
@@ -237,6 +240,7 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 func (l *Loader) SaveConfig(config *Config, path string) error {
 	result := l.SaveConfigResult(config, path)
 	_, err := result.Get()
+
 	return err
 }
 
@@ -261,6 +265,7 @@ func marshalConfig(config *Config, format ConfigFormat) ([]byte, error) {
 // SaveConfigResult saves a config and returns a Result type for railway-oriented programming.
 func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] {
 	format := detectFormat(path)
+
 	data, err := marshalConfig(config, format)
 	if err != nil {
 		return mo.Err[Empty](apperrors.NewConfigError("failed to marshal config", path, err))
@@ -281,7 +286,8 @@ func (l *Loader) EnsureGitRepo(ctx context.Context, startDir string) error {
 	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--is-inside-work-tree")
 	cmd.Dir = startDir
 
-	if err := cmd.Run(); err != nil {
+	err := cmd.Run()
+	if err != nil {
 		return apperrors.NewConfigError(
 			"not in a git repository - git provides version control, so backup files are not created. "+
 				"Please initialize a git repository first: git init",
@@ -300,7 +306,8 @@ func (l *Loader) ValidateConfig(config *Config) []error {
 	var errs []error
 
 	// Use struct validation from types package
-	if err := types.ValidateConfig(config); err != nil {
+	err := types.ValidateConfig(config)
+	if err != nil {
 		errs = append(errs, apperrors.NewConfigError("struct validation failed", "", err))
 	}
 

@@ -208,83 +208,83 @@ type ConfigLoader interface {
 
 // Config represents a golangci-lint configuration file.
 type Config struct {
-	Version    string           `validate:"required,oneof=2" yaml:"version"              json:"version"              toml:"version"`
-	Run        RunConfig        `validate:"required"         yaml:"run"                  json:"run"                  toml:"run"`
-	Output     OutputConfig     `                            yaml:"output"               json:"output"               toml:"output"`
-	Linters    LintersConfig    `                            yaml:"linters"              json:"linters"              toml:"linters"`
-	Formatters FormattersConfig `                            yaml:"formatters,omitempty" json:"formatters" toml:"formatters,omitempty"`
-	Issues     IssuesConfig     `                            yaml:"issues"               json:"issues"               toml:"issues"`
+	Version    string           `json:"version"    toml:"version"              validate:"required,oneof=2" yaml:"version"`
+	Run        RunConfig        `json:"run"        toml:"run"                  validate:"required"         yaml:"run"`
+	Output     OutputConfig     `json:"output"     toml:"output"                                           yaml:"output"`
+	Linters    LintersConfig    `json:"linters"    toml:"linters"                                          yaml:"linters"`
+	Formatters FormattersConfig `json:"formatters" toml:"formatters,omitempty"                             yaml:"formatters,omitempty"`
+	Issues     IssuesConfig     `json:"issues"     toml:"issues"                                           yaml:"issues"`
 }
 
 type RunConfig struct {
-	Timeout              string   `yaml:"timeout"                         json:"timeout"                         toml:"timeout"                         validate:"required"`
-	Go                   string   `yaml:"go"                              json:"go"                              toml:"go"`
-	BuildTags            []string `yaml:"build-tags"                      json:"build-tags"                      toml:"build-tags"`
-	ModulesDownloadMode  string   `yaml:"modules-download-mode,omitempty" json:"modules-download-mode,omitempty" toml:"modules-download-mode,omitempty"`
-	AllowParallelRunners bool     `yaml:"allow-parallel-runners"          json:"allow-parallel-runners"          toml:"allow-parallel-runners"`
-	AllowSerialRunners   bool     `yaml:"allow-serial-runners"            json:"allow-serial-runners"            toml:"allow-serial-runners"`
-	IssuesExitCode       int      `yaml:"issues-exit-code,omitempty"      json:"issues-exit-code,omitempty"      toml:"issues-exit-code,omitempty"      validate:"min=0,max=255"`
-	Tests                bool     `yaml:"tests,omitempty"                 json:"tests,omitempty"                 toml:"tests,omitempty"`
-	Concurrency          int      `yaml:"concurrency,omitempty"           json:"concurrency,omitempty"           toml:"concurrency,omitempty"           validate:"min=0"`
-	RelativePathMode     string   `yaml:"relative-path-mode,omitempty"    json:"relative-path-mode,omitempty"    toml:"relative-path-mode,omitempty"`
+	Timeout              string   `json:"timeout"                         toml:"timeout"                         validate:"required"      yaml:"timeout"`
+	Go                   string   `json:"go"                              toml:"go"                                                       yaml:"go"`
+	BuildTags            []string `json:"build-tags"                      toml:"build-tags"                                               yaml:"build-tags"`
+	ModulesDownloadMode  string   `json:"modules-download-mode,omitempty" toml:"modules-download-mode,omitempty"                          yaml:"modules-download-mode,omitempty"`
+	AllowParallelRunners bool     `json:"allow-parallel-runners"          toml:"allow-parallel-runners"                                   yaml:"allow-parallel-runners"`
+	AllowSerialRunners   bool     `json:"allow-serial-runners"            toml:"allow-serial-runners"                                     yaml:"allow-serial-runners"`
+	IssuesExitCode       int      `json:"issues-exit-code,omitempty"      toml:"issues-exit-code,omitempty"      validate:"min=0,max=255" yaml:"issues-exit-code,omitempty"`
+	Tests                bool     `json:"tests,omitempty"                 toml:"tests,omitempty"                                          yaml:"tests,omitempty"`
+	Concurrency          int      `json:"concurrency,omitempty"           toml:"concurrency,omitempty"           validate:"min=0"         yaml:"concurrency,omitempty"`
+	RelativePathMode     string   `json:"relative-path-mode,omitempty"    toml:"relative-path-mode,omitempty"                             yaml:"relative-path-mode,omitempty"`
 }
 
 type OutputConfig struct {
-	Formats    map[string]any `yaml:"formats"               json:"formats"               toml:"formats"`
-	PathPrefix string         `yaml:"path-prefix,omitempty" json:"path-prefix,omitempty" toml:"path-prefix,omitempty"`
-	PathMode   string         `yaml:"path-mode,omitempty"   json:"path-mode,omitempty"   toml:"path-mode,omitempty"`
-	SortOrder  []string       `yaml:"sort-order,omitempty"  json:"sort-order,omitempty"  toml:"sort-order,omitempty"`
-	ShowStats  bool           `yaml:"show-stats,omitempty"  json:"show-stats,omitempty"  toml:"show-stats,omitempty"`
+	Formats    map[string]any `json:"formats"               toml:"formats"               yaml:"formats"`
+	PathPrefix string         `json:"path-prefix,omitempty" toml:"path-prefix,omitempty" yaml:"path-prefix,omitempty"`
+	PathMode   string         `json:"path-mode,omitempty"   toml:"path-mode,omitempty"   yaml:"path-mode,omitempty"`
+	SortOrder  []string       `json:"sort-order,omitempty"  toml:"sort-order,omitempty"  yaml:"sort-order,omitempty"`
+	ShowStats  bool           `json:"show-stats,omitempty"  toml:"show-stats,omitempty"  yaml:"show-stats,omitempty"`
 }
 
 type LintersConfig struct {
-	Enable     []string                `yaml:"enable,omitempty"     json:"enable,omitempty"     toml:"enable,omitempty"`
-	Disable    []string                `yaml:"disable,omitempty"    json:"disable,omitempty"    toml:"disable,omitempty"`
-	Default    string                  `yaml:"default,omitempty"    json:"default,omitempty"    toml:"default,omitempty"`
-	Settings   map[string]any          `yaml:"settings,omitempty"   json:"settings,omitempty"   toml:"settings,omitempty"`
-	Exclusions LintersExclusionsConfig `yaml:"exclusions,omitempty" json:"exclusions" toml:"exclusions,omitempty"`
+	Enable     []string                `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
+	Disable    []string                `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
+	Default    string                  `json:"default,omitempty"  toml:"default,omitempty"    yaml:"default,omitempty"`
+	Settings   map[string]any          `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
+	Exclusions LintersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
 }
 
 type LintersExclusionsConfig struct {
-	Generated   string                `yaml:"generated,omitempty"    json:"generated,omitempty"    toml:"generated,omitempty"`
-	WarnUnused  bool                  `yaml:"warn-unused,omitempty"  json:"warn-unused,omitempty"  toml:"warn-unused,omitempty"`
-	Presets     []string              `yaml:"presets,omitempty"      json:"presets,omitempty"      toml:"presets,omitempty"`
-	Rules       []ExclusionRuleConfig `yaml:"rules,omitempty"        json:"rules,omitempty"        toml:"rules,omitempty"`
-	Paths       []string              `yaml:"paths,omitempty"        json:"paths,omitempty"        toml:"paths,omitempty"`
-	PathsExcept []string              `yaml:"paths-except,omitempty" json:"paths-except,omitempty" toml:"paths-except,omitempty"`
+	Generated   string                `json:"generated,omitempty"    toml:"generated,omitempty"    yaml:"generated,omitempty"`
+	WarnUnused  bool                  `json:"warn-unused,omitempty"  toml:"warn-unused,omitempty"  yaml:"warn-unused,omitempty"`
+	Presets     []string              `json:"presets,omitempty"      toml:"presets,omitempty"      yaml:"presets,omitempty"`
+	Rules       []ExclusionRuleConfig `json:"rules,omitempty"        toml:"rules,omitempty"        yaml:"rules,omitempty"`
+	Paths       []string              `json:"paths,omitempty"        toml:"paths,omitempty"        yaml:"paths,omitempty"`
+	PathsExcept []string              `json:"paths-except,omitempty" toml:"paths-except,omitempty" yaml:"paths-except,omitempty"`
 }
 
 type ExclusionRuleConfig struct {
-	Path       string   `yaml:"path,omitempty"        json:"path,omitempty"        toml:"path,omitempty"`
-	PathExcept string   `yaml:"path-except,omitempty" json:"path-except,omitempty" toml:"path-except,omitempty"`
-	Text       string   `yaml:"text,omitempty"        json:"text,omitempty"        toml:"text,omitempty"`
-	Source     string   `yaml:"source,omitempty"      json:"source,omitempty"      toml:"source,omitempty"`
-	Linters    []string `yaml:"linters,omitempty"     json:"linters,omitempty"     toml:"linters,omitempty"`
+	Path       string   `json:"path,omitempty"        toml:"path,omitempty"        yaml:"path,omitempty"`
+	PathExcept string   `json:"path-except,omitempty" toml:"path-except,omitempty" yaml:"path-except,omitempty"`
+	Text       string   `json:"text,omitempty"        toml:"text,omitempty"        yaml:"text,omitempty"`
+	Source     string   `json:"source,omitempty"      toml:"source,omitempty"      yaml:"source,omitempty"`
+	Linters    []string `json:"linters,omitempty"     toml:"linters,omitempty"     yaml:"linters,omitempty"`
 }
 
 type IssuesConfig struct {
-	MaxIssuesPerLinter int    `validate:"min=0" yaml:"max-issues-per-linter,omitempty" json:"max-issues-per-linter,omitempty" toml:"max-issues-per-linter,omitempty"`
-	MaxSameIssues      int    `validate:"min=0" yaml:"max-same-issues,omitempty"       json:"max-same-issues,omitempty"       toml:"max-same-issues,omitempty"`
-	NewFromRev         string `                 yaml:"new-from-rev,omitempty"          json:"new-from-rev,omitempty"          toml:"new-from-rev,omitempty"`
-	NewFromPatch       string `                 yaml:"new-from-patch,omitempty"        json:"new-from-patch,omitempty"        toml:"new-from-patch,omitempty"`
-	New                bool   `                 yaml:"new,omitempty"                   json:"new,omitempty"                   toml:"new,omitempty"`
-	NewFromMergeBase   string `                 yaml:"new-from-merge-base,omitempty"   json:"new-from-merge-base,omitempty"   toml:"new-from-merge-base,omitempty"`
-	WholeFiles         bool   `                 yaml:"whole-files,omitempty"           json:"whole-files,omitempty"           toml:"whole-files,omitempty"`
-	Fix                bool   `                 yaml:"fix,omitempty"                   json:"fix,omitempty"                   toml:"fix,omitempty"`
-	UniqByLine         bool   `                 yaml:"uniq-by-line,omitempty"          json:"uniq-by-line,omitempty"          toml:"uniq-by-line,omitempty"`
+	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitempty" toml:"max-issues-per-linter,omitempty" validate:"min=0" yaml:"max-issues-per-linter,omitempty"`
+	MaxSameIssues      int    `json:"max-same-issues,omitempty"       toml:"max-same-issues,omitempty"       validate:"min=0" yaml:"max-same-issues,omitempty"`
+	NewFromRev         string `json:"new-from-rev,omitempty"          toml:"new-from-rev,omitempty"                           yaml:"new-from-rev,omitempty"`
+	NewFromPatch       string `json:"new-from-patch,omitempty"        toml:"new-from-patch,omitempty"                         yaml:"new-from-patch,omitempty"`
+	New                bool   `json:"new,omitempty"                   toml:"new,omitempty"                                    yaml:"new,omitempty"`
+	NewFromMergeBase   string `json:"new-from-merge-base,omitempty"   toml:"new-from-merge-base,omitempty"                    yaml:"new-from-merge-base,omitempty"`
+	WholeFiles         bool   `json:"whole-files,omitempty"           toml:"whole-files,omitempty"                            yaml:"whole-files,omitempty"`
+	Fix                bool   `json:"fix,omitempty"                   toml:"fix,omitempty"                                    yaml:"fix,omitempty"`
+	UniqByLine         bool   `json:"uniq-by-line,omitempty"          toml:"uniq-by-line,omitempty"                           yaml:"uniq-by-line,omitempty"`
 }
 
 type FormattersConfig struct {
-	Enable     []string                   `yaml:"enable,omitempty"     json:"enable,omitempty"     toml:"enable,omitempty"`
-	Disable    []string                   `yaml:"disable,omitempty"    json:"disable,omitempty"    toml:"disable,omitempty"`
-	Settings   map[string]any             `yaml:"settings,omitempty"   json:"settings,omitempty"   toml:"settings,omitempty"`
-	Exclusions FormattersExclusionsConfig `yaml:"exclusions,omitempty" json:"exclusions" toml:"exclusions,omitempty"`
+	Enable     []string                   `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
+	Disable    []string                   `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
+	Settings   map[string]any             `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
+	Exclusions FormattersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
 }
 
 type FormattersExclusionsConfig struct {
-	Generated  string   `yaml:"generated,omitempty"   json:"generated,omitempty"   toml:"generated,omitempty"`
-	WarnUnused bool     `yaml:"warn-unused,omitempty" json:"warn-unused,omitempty" toml:"warn-unused,omitempty"`
-	Paths      []string `yaml:"paths,omitempty"       json:"paths,omitempty"       toml:"paths,omitempty"`
+	Generated  string   `json:"generated,omitempty"   toml:"generated,omitempty"   yaml:"generated,omitempty"`
+	WarnUnused bool     `json:"warn-unused,omitempty" toml:"warn-unused,omitempty" yaml:"warn-unused,omitempty"`
+	Paths      []string `json:"paths,omitempty"       toml:"paths,omitempty"       yaml:"paths,omitempty"`
 }
 
 // LinterAnalyzer defines the interface for analyzing golangci-lint configurations.

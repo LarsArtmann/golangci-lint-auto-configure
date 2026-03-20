@@ -14,7 +14,7 @@ import (
 
 // ActivityContext provides dependencies for workflow activities.
 //
-//nolint:containedctx // Context stored here is acceptable for workflow input data pattern.
+
 type ActivityContext struct {
 	Context      context.Context
 	ConfigPath   string

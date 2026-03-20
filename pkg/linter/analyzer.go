@@ -61,6 +61,7 @@ func (a *Analyzer) FindBinary(ctx context.Context) error {
 // AnalyzeConfig analyzes the current golangci-lint configuration.
 func (a *Analyzer) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error) {
 	result := a.AnalyzeConfigResult(ctx, configPath)
+
 	return result.Get()
 }
 

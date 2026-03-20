@@ -23,9 +23,11 @@ func initValidator() *validator.Validate {
 func ValidateConfig(cfg *Config) error {
 	v := initValidator()
 
-	if err := v.Struct(cfg); err != nil {
+	err := v.Struct(cfg)
+	if err != nil {
 		return fmt.Errorf("config validation failed: %w", err)
 	}
+
 	return nil
 }
 
@@ -33,9 +35,11 @@ func ValidateConfig(cfg *Config) error {
 func ValidateRunConfig(cfg *RunConfig) error {
 	v := initValidator()
 
-	if err := v.Struct(cfg); err != nil {
+	err := v.Struct(cfg)
+	if err != nil {
 		return fmt.Errorf("run config validation failed: %w", err)
 	}
+
 	return nil
 }
 
@@ -43,9 +47,11 @@ func ValidateRunConfig(cfg *RunConfig) error {
 func ValidateLintersConfig(cfg *LintersConfig) error {
 	v := initValidator()
 
-	if err := v.Struct(cfg); err != nil {
+	err := v.Struct(cfg)
+	if err != nil {
 		return fmt.Errorf("linters config validation failed: %w", err)
 	}
+
 	return nil
 }
 
@@ -56,6 +62,7 @@ func ValidationErrors(err error) []ValidationError {
 	}
 
 	var validationErrors validator.ValidationErrors
+
 	ok := errors.As(err, &validationErrors)
 	if !ok {
 		return []ValidationError{
@@ -84,6 +91,7 @@ func IsValidationError(err error) bool {
 	}
 
 	var valErrs validator.ValidationErrors
+
 	ok := errors.As(err, &valErrs)
 
 	return ok

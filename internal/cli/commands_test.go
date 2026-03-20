@@ -136,6 +136,7 @@ linters:
 	Context("configure command", func() {
 		It("should run with dry-run mode without modifying file", func() {
 			initGitRepo()
+
 			binaryPath := buildBinary()
 			configContent := `version: "2"
 linters:
@@ -160,6 +161,7 @@ linters:
 
 		It("should require git repository for config modification", func() {
 			initGitRepo()
+
 			binaryPath := buildBinary()
 			configContent := `version: "2"
 linters:
@@ -206,6 +208,7 @@ linters:
 
 		It("should modify config when not in dry-run mode", func() {
 			initGitRepo()
+
 			binaryPath := buildBinary()
 			configContent := `version: "2"
 linters:

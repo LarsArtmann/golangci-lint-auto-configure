@@ -33,7 +33,7 @@ const (
 
 // String returns the string representation of ProjectType.
 //
-//nolint:exhaustive // ProjectTypeUnknown is handled, linter issue with default pattern.
+
 func (p ProjectType) String() string {
 	switch p {
 	case ProjectTypeUnknown:
