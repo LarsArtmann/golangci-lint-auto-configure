@@ -173,11 +173,6 @@ func applyPreset(
 		return nil
 	}
 
-	// Ensure we're in a git repo (git provides version control, no backup needed)
-	if err := configLoader.EnsureGitRepo(ctx, "."); err != nil {
-		return fmt.Errorf("failed to ensure git repo: %w", err)
-	}
-
 	// Update config
 	cfg.Linters.Enable = linterNames
 	cfg.Linters.Disable = []string{}

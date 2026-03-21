@@ -186,7 +186,7 @@ linters:
 			Expect(string(content)).To(ContainSubstring("version: \"2\""))
 		})
 
-		It("should fail when not in a git repository", func() {
+		It("should succeed with warning when not in a git repository", func() {
 			binaryPath := buildBinary()
 			configContent := `version: "2"
 linters:
@@ -198,12 +198,14 @@ linters:
 
 			// Note: testDir is NOT a git repo (no initGitRepo() called)
 			cmd := exec.Command(binaryPath, "configure", "--config", configPath)
-			cmd.Dir = testDir // Run from non-git directory to trigger error
+			cmd.Dir = testDir // Run from non-git directory
 			output, err := cmd.CombinedOutput()
 
-			// Should fail with helpful error about git requirement
-			Expect(err).To(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("git"))
+			// Should succeed with warning about git
+			Expect(err).NotTo(HaveOccurred())
+			outputStr := string(output)
+			Expect(outputStr).To(ContainSubstring("git"))
+			Expect(outputStr).To(ContainSubstring("backup"))
 		})
 
 		It("should modify config when not in dry-run mode", func() {
