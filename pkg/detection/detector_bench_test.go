@@ -21,7 +21,8 @@ require (
 	github.com/spf13/cobra v1.8.0
 )
 `
-	if err := os.WriteFile(filepath.Join(tempDir, "go.mod"), []byte(goMod), 0o644); err != nil {
+	err := os.WriteFile(filepath.Join(tempDir, "go.mod"), []byte(goMod), 0o644)
+	if err != nil {
 		b.Fatalf("Failed to write go.mod: %v", err)
 	}
 
@@ -35,7 +36,8 @@ func main() {
 	r.Run()
 }
 `
-	if err := os.WriteFile(filepath.Join(tempDir, "main.go"), []byte(mainGo), 0o644); err != nil {
+	err = os.WriteFile(filepath.Join(tempDir, "main.go"), []byte(mainGo), 0o644)
+	if err != nil {
 		b.Fatalf("Failed to write main.go: %v", err)
 	}
 

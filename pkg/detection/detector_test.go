@@ -128,7 +128,8 @@ go 1.21
 			tempDir := t.TempDir()
 
 			// Setup test files
-			if err := tt.setupFunc(tempDir); err != nil {
+			err := tt.setupFunc(tempDir)
+			if err != nil {
 				t.Fatalf("Failed to setup test: %v", err)
 			}
 
