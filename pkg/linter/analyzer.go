@@ -152,7 +152,7 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 
 		for _, linter := range analysis.DeprecatedLinters {
 			// Check if there's a replacement
-			if replacement, ok := constants.DeprecatedLinters[types.LinterName(linter.Name)]; ok {
+			if replacement, ok := constants.DeprecatedLinters[linter.Name]; ok {
 				fmt.Fprintf(&builder, "  - %s: Use %s instead (%s)\n",
 					linter.Name,
 					replacement.Replacement,

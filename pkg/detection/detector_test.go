@@ -122,13 +122,10 @@ go 1.21
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create temp directory
-			tempDir, err := os.MkdirTemp("", "detection-test-*")
-			if err != nil {
-				t.Fatalf("Failed to create temp dir: %v", err)
-			}
+			t.Parallel()
 
-			defer func() { _ = os.RemoveAll(tempDir) }()
+			// Create temp directory (t.TempDir() automatically cleans up)
+			tempDir := t.TempDir()
 
 			// Setup test files
 			if err := tt.setupFunc(tempDir); err != nil {

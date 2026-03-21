@@ -7,10 +7,9 @@ import (
 )
 
 func setupBenchmarkProject(b *testing.B) string {
-	tempDir, err := os.MkdirTemp("", "detection-bench-*")
-	if err != nil {
-		b.Fatalf("Failed to create temp dir: %v", err)
-	}
+	b.Helper()
+
+	tempDir := b.TempDir()
 
 	// Create go.mod
 	goMod := `module test
@@ -46,8 +45,7 @@ func main() {
 func BenchmarkDetector_Detect(b *testing.B) {
 	tempDir := setupBenchmarkProject(b)
 
-	defer func() { _ = os.RemoveAll(tempDir) }()
-
+	// b.TempDir() automatically cleans up
 	detector := NewDetector(tempDir)
 
 	for b.Loop() {
@@ -58,8 +56,7 @@ func BenchmarkDetector_Detect(b *testing.B) {
 func BenchmarkDetector_hasMainPackage(b *testing.B) {
 	tempDir := setupBenchmarkProject(b)
 
-	defer func() { _ = os.RemoveAll(tempDir) }()
-
+	// b.TempDir() automatically cleans up
 	detector := NewDetector(tempDir)
 
 	for b.Loop() {
@@ -70,8 +67,7 @@ func BenchmarkDetector_hasMainPackage(b *testing.B) {
 func BenchmarkDetector_analyzeGoMod(b *testing.B) {
 	tempDir := setupBenchmarkProject(b)
 
-	defer func() { _ = os.RemoveAll(tempDir) }()
-
+	// b.TempDir() automatically cleans up
 	detector := NewDetector(tempDir)
 
 	for b.Loop() {
