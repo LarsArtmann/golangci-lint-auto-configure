@@ -19,7 +19,7 @@ func newReportCommand(
 	cmd := &cobra.Command{
 		Use:   "report",
 		Short: "Generate HTML report of configuration",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			if verbose {
 				logger.SetLevel(log.DebugLevel)
 			}

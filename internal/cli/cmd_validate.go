@@ -28,7 +28,7 @@ This command performs two levels of validation:
 
 Use --skip-golangci-lint to skip the schema validation (faster).
 Use --verbose to see detailed validation output.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			if verbose {
 				logger.SetLevel(log.DebugLevel)
 			}

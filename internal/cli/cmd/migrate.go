@@ -39,7 +39,7 @@ This command:
 
 Use --dry-run to preview changes without modifying files.
 Use --skip-validation if the v1 config has known issues.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			// Read flags dynamically to get parsed values
 			verbose, _ := cmd.Flags().GetBool("verbose")
 			if verbose {

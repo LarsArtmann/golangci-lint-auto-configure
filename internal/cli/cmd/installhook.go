@@ -23,7 +23,7 @@ The hook will:
 3. Warn if optimizations are available
 
 The hook is installed at .git/hooks/pre-commit`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			// Check if we're in a git repository
 			if _, err := os.Stat(".git"); os.IsNotExist(err) {
 				return apperrors.ErrNotGitRepository

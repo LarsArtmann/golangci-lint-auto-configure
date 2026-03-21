@@ -47,7 +47,7 @@ type golangciLintFormattersOutput struct {
 }
 
 // FindBinary finds the golangci-lint binary in PATH.
-func (a *Analyzer) FindBinary(ctx context.Context) error {
+func (a *Analyzer) FindBinary(_ context.Context) error {
 	path, err := exec.LookPath("golangci-lint")
 	if err != nil {
 		return apperrors.NewAnalysisError("golangci-lint not found in PATH", "", err)
