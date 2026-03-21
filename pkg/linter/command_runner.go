@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strings"
 
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 )
@@ -14,8 +15,17 @@ func (a *Analyzer) runLintersCommand(ctx context.Context, configPath string) ([]
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		outputStr := strings.TrimSpace(string(output))
 		a.logger.Debugf("golangci-lint linters command failed: %v", err)
-		a.logger.Debugf("Output: %s", string(output))
+		a.logger.Debugf("Output: %s", outputStr)
+
+		if outputStr != "" {
+			return output, apperrors.NewAnalysisError(
+				fmt.Sprintf("golangci-lint linters command failed: %s", outputStr),
+				"",
+				err,
+			)
+		}
 
 		return output, apperrors.NewAnalysisError("golangci-lint linters command failed", "", err)
 	}
@@ -29,7 +39,11 @@ func (a *Analyzer) runFormattersCommand(ctx context.Context, configPath string) 
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		// Command may not exist in older golangci-lint versions
+		outputStr := strings.TrimSpace(string(output))
+		if outputStr != "" {
+			return nil, fmt.Errorf("formatters command not available: %s (cause: %w)", outputStr, err)
+		}
+
 		return nil, fmt.Errorf("formatters command not available: %w", err)
 	}
 
