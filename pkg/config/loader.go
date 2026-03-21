@@ -286,6 +286,7 @@ func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool {
 	cmd.Dir = startDir
 
 	err := cmd.Run()
+
 	return err == nil
 }
 

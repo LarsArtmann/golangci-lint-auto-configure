@@ -84,6 +84,7 @@ func runConfigure(
 		if !inGitRepo {
 			logger.Warnf("⚠️  Creating config without git version control - changes cannot be easily reverted")
 		}
+
 		logger.Infof("No config file found, creating default: %s", configFile)
 
 		defaultConfig := configLoader.CreateDefaultConfig(ctx)

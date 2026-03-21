@@ -16,12 +16,13 @@ func (a *Analyzer) runLintersCommand(ctx context.Context, configPath string) ([]
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		outputStr := strings.TrimSpace(string(output))
+
 		a.logger.Debugf("golangci-lint linters command failed: %v", err)
 		a.logger.Debugf("Output: %s", outputStr)
 
 		if outputStr != "" {
 			return output, apperrors.NewAnalysisError(
-				fmt.Sprintf("golangci-lint linters command failed: %s", outputStr),
+				"golangci-lint linters command failed: "+outputStr,
 				"",
 				err,
 			)

@@ -203,6 +203,7 @@ linters:
 
 			// Should succeed with warning about git
 			Expect(err).NotTo(HaveOccurred())
+
 			outputStr := string(output)
 			Expect(outputStr).To(ContainSubstring("git"))
 			Expect(outputStr).To(ContainSubstring("backup"))
