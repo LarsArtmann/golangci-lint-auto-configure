@@ -72,8 +72,18 @@ func runConfigure(
 		configFile = configLoader.FindOrGetDefaultConfigPath(".")
 	}
 
+	// Check git repository status FIRST - warn but don't block
+	inGitRepo := configLoader.IsGitRepo(ctx, ".")
+	if !inGitRepo {
+		logger.Warnf("⚠️  Not in a git repository - backup files won't be created")
+		logger.Warnf("   (Initialize with: git init)")
+	}
+
 	// Check if config file exists, create default if not
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		if !inGitRepo {
+			logger.Warnf("⚠️  Creating config without git version control - changes cannot be easily reverted")
+		}
 		logger.Infof("No config file found, creating default: %s", configFile)
 
 		defaultConfig := configLoader.CreateDefaultConfig(ctx)

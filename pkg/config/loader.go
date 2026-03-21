@@ -280,14 +280,19 @@ func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] 
 	return mo.Ok(Empty{})
 }
 
-// EnsureGitRepo checks if we're inside a git repository.
-// Since git provides version control, backup files are redundant.
-func (l *Loader) EnsureGitRepo(ctx context.Context, startDir string) error {
+// IsGitRepo checks if we're inside a git repository.
+func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool {
 	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--is-inside-work-tree")
 	cmd.Dir = startDir
 
 	err := cmd.Run()
-	if err != nil {
+	return err == nil
+}
+
+// EnsureGitRepo checks if we're inside a git repository and returns an error if not.
+// Since git provides version control, backup files are redundant.
+func (l *Loader) EnsureGitRepo(ctx context.Context, startDir string) error {
+	if !l.IsGitRepo(ctx, startDir) {
 		return apperrors.NewConfigError(
 			"not in a git repository - git provides version control, so backup files are not created. "+
 				"Please initialize a git repository first: git init",

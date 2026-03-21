@@ -147,9 +147,9 @@ func (f *Fixer) FixConfigResult(
 		formatterFixes++
 
 		if dryRun {
-			f.logger.Infof("[DRY-RUN] Would enable formatter: golines (formats code and fixes long lines)")
+			f.logger.Debugf("[DRY-RUN] Would enable formatter: golines (formats code and fixes long lines)")
 		} else {
-			f.logger.Infof("Enabling formatter: golines (formats code and fixes long lines)")
+			f.logger.Debugf("Enabling formatter: golines (formats code and fixes long lines)")
 
 			formatterSet["golines"] = true
 		}
@@ -165,9 +165,9 @@ func (f *Fixer) FixConfigResult(
 				redundantFixes++
 
 				if dryRun {
-					f.logger.Infof("[DRY-RUN] Would remove redundant linter: %s (%s)", linterName, reason)
+					f.logger.Debugf("[DRY-RUN] Would remove redundant linter: %s (%s)", linterName, reason)
 				} else {
-					f.logger.Infof("Removing redundant linter: %s (%s)", linterName, reason)
+					f.logger.Debugf("Removing redundant linter: %s (%s)", linterName, reason)
 
 					delete(linterSet, string(linterName))
 				}
@@ -176,7 +176,7 @@ func (f *Fixer) FixConfigResult(
 	}
 
 	for _, rec := range analysis.LinterRecommendations {
-		if rec.Priority < priority {
+		if rec.Priority > priority {
 			continue
 		}
 
@@ -207,8 +207,7 @@ func (f *Fixer) FixConfigResult(
 	totalFixes := deprecationFixes + enableFixes + formatterFixes + redundantFixes
 
 	if dryRun {
-		f.logger.Infof("\n[DRY-RUN] Would apply %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
-			totalFixes, enableFixes, formatterFixes, deprecationFixes, redundantFixes)
+		f.logger.Infof("[DRY-RUN] Would apply %d fixes", totalFixes)
 
 		return types.OkMigration(&types.MigrationResult{
 			Success:      true,
@@ -225,10 +224,7 @@ func (f *Fixer) FixConfigResult(
 		})
 	}
 
-	// Ensure we're in a git repo (git provides version control, no backup needed)
-	if err := f.configLoader.EnsureGitRepo(ctx, "."); err != nil {
-		return types.ErrMigration(err)
-	}
+	f.logger.Infof("Applying %d fixes...", totalFixes)
 
 	// Convert final linter set to sorted slice for consistent output
 	enabledLinters = make([]string, 0, len(linterSet))
