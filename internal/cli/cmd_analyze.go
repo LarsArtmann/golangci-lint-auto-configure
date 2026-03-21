@@ -21,7 +21,7 @@ func newAnalyzeCommand(
 	cmd := &cobra.Command{
 		Use:   "analyze",
 		Short: "Analyze golangci-lint configuration and show recommendations",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			if verbose {
 				logger.SetLevel(log.DebugLevel)
 			}

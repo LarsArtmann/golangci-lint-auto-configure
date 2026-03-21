@@ -39,7 +39,7 @@ Or use --preset for predefined linter sets:
   - strict: Maximum linting (CI/CD, strict quality)
   - security: Security-focused only
   - performance: Performance optimization only`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			return runConfigure(cmd.Context(), logger, analyzer, configLoader, priority, preset, dryRun, configPath)
 		},
 	}
