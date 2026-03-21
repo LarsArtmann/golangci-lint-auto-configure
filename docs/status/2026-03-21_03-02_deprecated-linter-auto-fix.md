@@ -16,33 +16,33 @@ Successfully implemented automatic handling of deprecated/removed golangci-lint 
 
 ### A) Fully Done ✅
 
-| Task | Status | Details |
-|------|--------|---------|
-| **Root cause analysis** | ✅ DONE | Exit status 3 from golangci-lint linters command due to unknown linters in config |
-| **Better error messages** | ✅ DONE | Error messages now show actual golangci-lint output (e.g., "unknown linters: 'deadcode,varcheck...'") |
-| **Deprecated linter mappings** | ✅ DONE | Added 9 deprecated linters: deadcode, varcheck, structcheck, gosimple, exhaustivestruct, interfacer, maligned, nosnakecase, wsl |
-| **Pre-fix deprecated linters** | ✅ DONE | `preFixDeprecatedLinters()` replaces deprecated linters BEFORE running `golangci-lint linters` command |
-| **Handle disabled deprecated linters** | ✅ DONE | Also checks `linters.disable` list for deprecated linters |
-| **Dry-run mode handling** | ✅ DONE | Shows what would be fixed without running broken `golangci-lint linters` command |
-| **Tests passing** | ✅ DONE | All 5 test suites pass (67 specs) |
+| Task                                   | Status  | Details                                                                                                                         |
+| -------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Root cause analysis**                | ✅ DONE | Exit status 3 from golangci-lint linters command due to unknown linters in config                                               |
+| **Better error messages**              | ✅ DONE | Error messages now show actual golangci-lint output (e.g., "unknown linters: 'deadcode,varcheck...'")                           |
+| **Deprecated linter mappings**         | ✅ DONE | Added 9 deprecated linters: deadcode, varcheck, structcheck, gosimple, exhaustivestruct, interfacer, maligned, nosnakecase, wsl |
+| **Pre-fix deprecated linters**         | ✅ DONE | `preFixDeprecatedLinters()` replaces deprecated linters BEFORE running `golangci-lint linters` command                          |
+| **Handle disabled deprecated linters** | ✅ DONE | Also checks `linters.disable` list for deprecated linters                                                                       |
+| **Dry-run mode handling**              | ✅ DONE | Shows what would be fixed without running broken `golangci-lint linters` command                                                |
+| **Tests passing**                      | ✅ DONE | All 5 test suites pass (67 specs)                                                                                               |
 
 ### B) Partially Done ⚠️
 
-| Task | Status | Details |
-|------|--------|---------|
-| **None** | - | All tasks completed |
+| Task     | Status | Details             |
+| -------- | ------ | ------------------- |
+| **None** | -      | All tasks completed |
 
 ### C) Not Started ❌
 
-| Task | Status | Details |
-|------|--------|---------|
-| **None** | - | All planned work completed |
+| Task     | Status | Details                    |
+| -------- | ------ | -------------------------- |
+| **None** | -      | All planned work completed |
 
 ### D) Totally Fucked Up 💀
 
-| Issue | Status | Details |
-|-------|--------|---------|
-| **None** | ✅ | No critical issues |
+| Issue    | Status | Details            |
+| -------- | ------ | ------------------ |
+| **None** | ✅     | No critical issues |
 
 ---
 
@@ -107,6 +107,7 @@ Successfully implemented automatic handling of deprecated/removed golangci-lint 
 **Example:** `golint` was renamed to `revive`, but `revive` has different default settings. Simply replacing `golint` with `revive` might change linting behavior.
 
 **Options Considered:**
+
 1. Just do 1:1 replacement (current approach) - simple but may change behavior
 2. Copy settings from old to new linter - complex, settings may not map
 3. Ask user for confirmation when linter has different defaults - adds friction
@@ -128,7 +129,8 @@ Last commit: fd11a1f (feat(linter): add comprehensive deprecated linter auto-fix
 ### Changes Since Last Commit
 
 **Formatting-only changes detected** (from linter):
-- `.gitignore` - Added node_modules/ and *_templ.go patterns
+
+- `.gitignore` - Added node_modules/ and \*\_templ.go patterns
 - `pkg/linter/command_runner.go` - Minor formatting
 - `pkg/linter/fixer.go` - Minor formatting (blank lines)
 - `internal/cli/cmd_configure.go` - Minor formatting
@@ -175,16 +177,16 @@ Test Suite Passed
 
 ## Files Modified This Session
 
-| File | Changes | Purpose |
-|------|---------|---------|
-| `pkg/constants/rules.go` | +9 deprecated mappings | Maps old linter names to new |
-| `pkg/linter/command_runner.go` | Better error messages | Shows actual golangci-lint errors |
-| `pkg/linter/fixer.go` | +preFixDeprecatedLinters() | Pre-fixes configs before analysis |
-| `pkg/linter/fixer.go` | +calculateDryRunResultWithDeprecated() | Handles dry-run with broken configs |
-| `internal/cli/cmd_configure.go` | Minor formatting | Linter cleanup |
-| `internal/cli/commands_test.go` | Minor formatting | Linter cleanup |
-| `pkg/config/loader.go` | Minor formatting | Linter cleanup |
-| `.gitignore` | +node_modules, +*_templ.go | Better ignore patterns |
+| File                            | Changes                                | Purpose                             |
+| ------------------------------- | -------------------------------------- | ----------------------------------- |
+| `pkg/constants/rules.go`        | +9 deprecated mappings                 | Maps old linter names to new        |
+| `pkg/linter/command_runner.go`  | Better error messages                  | Shows actual golangci-lint errors   |
+| `pkg/linter/fixer.go`           | +preFixDeprecatedLinters()             | Pre-fixes configs before analysis   |
+| `pkg/linter/fixer.go`           | +calculateDryRunResultWithDeprecated() | Handles dry-run with broken configs |
+| `internal/cli/cmd_configure.go` | Minor formatting                       | Linter cleanup                      |
+| `internal/cli/commands_test.go` | Minor formatting                       | Linter cleanup                      |
+| `pkg/config/loader.go`          | Minor formatting                       | Linter cleanup                      |
+| `.gitignore`                    | +node_modules, +\*\_templ.go           | Better ignore patterns              |
 
 ---
 
@@ -200,12 +202,12 @@ Test Suite Passed
 
 ## Risks & Concerns
 
-| Risk | Severity | Mitigation |
-|------|----------|------------|
-| Pre-fix modifies config before analysis | Low | Required to prevent golangci-lint failure |
-| No backup during pre-fix | Medium | Should add backup mechanism |
-| Some deprecated linters may have no direct replacement | Low | Current mappings cover all known cases |
-| Replacement linters may have different defaults | Medium | Document and recommend review |
+| Risk                                                   | Severity | Mitigation                                |
+| ------------------------------------------------------ | -------- | ----------------------------------------- |
+| Pre-fix modifies config before analysis                | Low      | Required to prevent golangci-lint failure |
+| No backup during pre-fix                               | Medium   | Should add backup mechanism               |
+| Some deprecated linters may have no direct replacement | Low      | Current mappings cover all known cases    |
+| Replacement linters may have different defaults        | Medium   | Document and recommend review             |
 
 ---
 
@@ -218,4 +220,4 @@ Test Suite Passed
 
 ---
 
-*Report generated: 2026-03-21 03:02 CET*
+_Report generated: 2026-03-21 03:02 CET_
