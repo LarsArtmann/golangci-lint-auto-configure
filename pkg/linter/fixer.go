@@ -255,8 +255,20 @@ func (f *Fixer) FixConfigResult(
 		enabledLinters = append(enabledLinters, linter)
 	}
 
+	// Remove explicitly disabled linters from the enable list
+	disabledLintersList := make([]string, 0)
+	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter string) bool {
+		if _, isDisabled := constants.DisabledLinters[types.LinterName(linter)]; isDisabled {
+			disabledLintersList = append(disabledLintersList, linter)
+
+			return true
+		}
+
+		return false
+	})
+
 	cfg.Linters.Enable = enabledLinters
-	cfg.Linters.Disable = []string{}
+	cfg.Linters.Disable = disabledLintersList
 
 	// Convert formatter set to slice and update config
 	if len(formatterSet) > 0 {

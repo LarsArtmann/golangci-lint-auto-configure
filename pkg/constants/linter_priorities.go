@@ -109,7 +109,6 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"err113":                    types.LinterPriorityMedium,
 	"exptostd":                  types.LinterPriorityMedium,
 	"fatcontext":                types.LinterPriorityMedium,
-	"funcorder":                 types.LinterPriorityMedium,
 	"gocheckcompilerdirectives": types.LinterPriorityMedium,
 	"goprintffuncname":          types.LinterPriorityMedium,
 	"iface":                     types.LinterPriorityMedium,

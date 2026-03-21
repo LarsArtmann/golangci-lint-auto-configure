@@ -108,7 +108,6 @@ var LinterReasons = map[types.LinterName]string{
 	"err113":                    "Check errors handling expressions",
 	"exptostd":                  "Detects functions from golang.org/x/exp/ that can be replaced by std functions",
 	"fatcontext":                "Detects nested contexts in loops and function literals",
-	"funcorder":                 "Checks the order of functions, methods, and constructors",
 	"gocheckcompilerdirectives": "Checks that go compiler directive comments are valid",
 	"goprintffuncname":          "Checks that printf-like functions are named with f at the end",
 	"iface":                     "Detect incorrect use of interfaces, helping avoid interface pollution",

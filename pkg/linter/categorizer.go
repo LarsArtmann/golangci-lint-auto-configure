@@ -17,6 +17,13 @@ func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo) []types
 			continue
 		}
 
+		// Skip explicitly disabled linters - they should never be recommended
+		if _, isDisabled := constants.DisabledLinters[linter.Name]; isDisabled {
+			a.logger.Debugf("Skipping explicitly disabled linter in analysis: %s", linter.Name)
+
+			continue
+		}
+
 		rec := types.LinterRecommendation{
 			Name:   linter.Name,
 			Reason: a.getLinterReason(string(linter.Name)),
