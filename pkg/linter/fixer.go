@@ -195,9 +195,9 @@ func (f *Fixer) FixConfigResult(
 			enableFixes++ // Count the fix regardless of dry-run mode
 
 			if dryRun {
-				f.logger.Infof("[DRY-RUN] Would enable: %s (%s)", lintName, rec.Reason)
+				f.logger.Debugf("[DRY-RUN] Would enable: %s (%s)", lintName, rec.Reason)
 			} else {
-				f.logger.Infof("Enabling: %s (%s)", lintName, rec.Reason)
+				f.logger.Debugf("Enabling: %s (%s)", lintName, rec.Reason)
 
 				linterSet[lintName] = true
 			}
