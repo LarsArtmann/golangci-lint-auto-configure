@@ -79,6 +79,9 @@ func runConfigure(
 		logger.Warnf("   (Initialize with: git init)")
 	}
 
+	// Check for multiple config files
+	configLoader.HasMultipleConfigFiles(".")
+
 	// Check if config file exists, create default if not
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		if !inGitRepo {

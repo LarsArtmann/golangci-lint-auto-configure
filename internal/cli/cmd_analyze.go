@@ -37,6 +37,8 @@ func newAnalyzeCommand(
 				}
 			}
 
+			configLoader.HasMultipleConfigFiles(".")
+
 			logger.Infof("Analyzing configuration: %s", configFile)
 
 			// Perform analysis

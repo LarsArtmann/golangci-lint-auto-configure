@@ -136,6 +136,46 @@ func (l *Loader) FindConfigFile(startDir string) (string, error) {
 	return result.Get()
 }
 
+// FindAllConfigFiles returns all golangci-lint config files found in the directory.
+func (l *Loader) FindAllConfigFiles(startDir string) []string {
+	defaultNames := []string{
+		".golangci.yml",
+		".golangci.yaml",
+		".golangci.toml",
+		".golangci.json",
+	}
+
+	var found []string
+
+	for _, name := range defaultNames {
+		path := filepath.Join(startDir, name)
+		if _, err := l.fs.Stat(path); err == nil {
+			found = append(found, path)
+		}
+	}
+
+	return found
+}
+
+// HasMultipleConfigFiles checks if multiple golangci-lint config files exist and logs a warning.
+func (l *Loader) HasMultipleConfigFiles(startDir string) bool {
+	configs := l.FindAllConfigFiles(startDir)
+
+	if len(configs) > 1 {
+		l.logger.Warnf("⚠️  Multiple golangci-lint config files detected:")
+
+		for _, cfg := range configs {
+			l.logger.Warnf("   - %s", cfg)
+		}
+
+		l.logger.Warnf("   golangci-lint uses the first match in search order: %s", configs[0])
+
+		return true
+	}
+
+	return false
+}
+
 // FindConfigFileResult searches for a config file and returns a Result type.
 func (l *Loader) FindConfigFileResult(startDir string) types.StringResult {
 	defaultNames := []string{

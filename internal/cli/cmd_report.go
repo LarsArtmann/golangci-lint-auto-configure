@@ -35,6 +35,8 @@ func newReportCommand(
 				}
 			}
 
+			configLoader.HasMultipleConfigFiles(".")
+
 			logger.Infof("Generating %s report for: %s", reportFormat, configFile)
 
 			// Analyze configuration

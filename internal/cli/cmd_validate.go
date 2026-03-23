@@ -44,6 +44,8 @@ Use --verbose to see detailed validation output.`,
 				}
 			}
 
+			configLoader.HasMultipleConfigFiles(".")
+
 			logger.Infof("Validating configuration: %s", configFile)
 
 			// Level 1: Basic load and validate

@@ -228,6 +228,51 @@ timeout = "5m"
 		})
 	})
 
+	Context("FindAllConfigFiles", func() {
+		It("should find all config files", func() {
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0o644)).To(Succeed())
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yaml"), []byte("version: 1"), 0o644)).To(Succeed())
+
+			found := loader.FindAllConfigFiles(testDir)
+
+			Expect(found).To(HaveLen(2))
+			Expect(found).To(ContainElement(filepath.Join(testDir, ".golangci.yml")))
+			Expect(found).To(ContainElement(filepath.Join(testDir, ".golangci.yaml")))
+
+			Expect(os.Remove(filepath.Join(testDir, ".golangci.yml"))).To(Succeed())
+			Expect(os.Remove(filepath.Join(testDir, ".golangci.yaml"))).To(Succeed())
+		})
+
+		It("should return empty when no config files exist", func() {
+			found := loader.FindAllConfigFiles(testDir)
+			Expect(found).To(BeEmpty())
+		})
+	})
+
+	Context("HasMultipleConfigFiles", func() {
+		It("should return false when only one config exists", func() {
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0o644)).To(Succeed())
+
+			result := loader.HasMultipleConfigFiles(testDir)
+
+			Expect(result).To(BeFalse())
+
+			Expect(os.Remove(filepath.Join(testDir, ".golangci.yml"))).To(Succeed())
+		})
+
+		It("should return true and log warning when multiple configs exist", func() {
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0o644)).To(Succeed())
+			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yaml"), []byte("version: 1"), 0o644)).To(Succeed())
+
+			result := loader.HasMultipleConfigFiles(testDir)
+
+			Expect(result).To(BeTrue())
+
+			Expect(os.Remove(filepath.Join(testDir, ".golangci.yml"))).To(Succeed())
+			Expect(os.Remove(filepath.Join(testDir, ".golangci.yaml"))).To(Succeed())
+		})
+	})
+
 	Context("ValidateConfig", func() {
 		It("should return error for empty timeout", func() {
 			cfg := &config.Config{}

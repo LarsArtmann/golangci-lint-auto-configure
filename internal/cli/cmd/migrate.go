@@ -57,6 +57,8 @@ Use --skip-validation if the v1 config has known issues.`,
 				}
 			}
 
+			configLoader.HasMultipleConfigFiles(".")
+
 			// Read other flags
 			dryRun, _ := cmd.Flags().GetBool("dry-run")
 			skipValidation, _ := cmd.Flags().GetBool("skip-validation")
