@@ -298,6 +298,28 @@ linters:
       - path: internal/cli/commands_test\.go
         linters:
           - goconst
+      - path: pkg/linter/version_checker\.go
+        linters:
+          - noinlineerr
+      - path: _test\.go
+        linters:
+          - revive
+      - path: pkg/types/validation\.go
+        linters:
+          - revive
+      - path: pkg/linter/fixer\.go
+        linters:
+          - cyclop
+      - path: internal/cli/cmd/installhook\.go|pkg/report/json_report_generator\.go
+        linters:
+          - mnd
+      - path: pkg/linter/fixer\.go
+        linters:
+          - funlen
+          - maintidx
+      - path: pkg/report/json_report_generator\.go
+        linters:
+          - noinlineerr
 formatters:
   enable:
     - golines

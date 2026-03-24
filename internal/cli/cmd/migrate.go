@@ -148,12 +148,12 @@ Use --skip-validation if the v1 config has known issues.`,
 }
 
 // ShowMigrationChanges displays the differences between old and new config.
-func ShowMigrationChanges(logger *log.Logger, old, new *config.Config) {
-	oldLinters := len(old.Linters.Enable)
-	newLinters := len(new.Linters.Enable)
+func ShowMigrationChanges(logger *log.Logger, oldCfg, newCfg *config.Config) {
+	oldLinters := len(oldCfg.Linters.Enable)
+	newLinters := len(newCfg.Linters.Enable)
 
-	if old.Version != new.Version {
-		logger.Infof("  Version: %s -> %s", old.Version, new.Version)
+	if oldCfg.Version != newCfg.Version {
+		logger.Infof("  Version: %s -> %s", oldCfg.Version, newCfg.Version)
 	}
 
 	if oldLinters != newLinters {
@@ -161,7 +161,7 @@ func ShowMigrationChanges(logger *log.Logger, old, new *config.Config) {
 	}
 
 	// Check for renamed fields (basic check)
-	if old.Run.Timeout != new.Run.Timeout {
-		logger.Infof("  Timeout: %s -> %s", old.Run.Timeout, new.Run.Timeout)
+	if oldCfg.Run.Timeout != newCfg.Run.Timeout {
+		logger.Infof("  Timeout: %s -> %s", oldCfg.Run.Timeout, newCfg.Run.Timeout)
 	}
 }

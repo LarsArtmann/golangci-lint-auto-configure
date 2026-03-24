@@ -44,7 +44,7 @@ func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo) []types
 
 // categorizeFormatters categorizes disabled formatters by priority.
 func (a *Analyzer) categorizeFormatters(disabledFormatters []types.FormatterInfo) []types.FormatterRecommendation {
-	var recommendations []types.FormatterRecommendation
+	recommendations := make([]types.FormatterRecommendation, 0, len(disabledFormatters))
 
 	for _, formatter := range disabledFormatters {
 		name := types.FormatterName(formatter.Name)

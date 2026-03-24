@@ -36,14 +36,14 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 
 // golangciLintOutput represents JSON output from golangci-lint linters command.
 type golangciLintOutput struct {
-	Enabled  []types.LinterInfo `json:"Enabled"`
-	Disabled []types.LinterInfo `json:"Disabled"`
+	Enabled  []types.LinterInfo `json:"enabled"`
+	Disabled []types.LinterInfo `json:"disabled"`
 }
 
 // golangciLintFormattersOutput represents JSON output from golangci-lint formatters command.
 type golangciLintFormattersOutput struct {
-	Enabled  []types.FormatterInfo `json:"Enabled"`
-	Disabled []types.FormatterInfo `json:"Disabled"`
+	Enabled  []types.FormatterInfo `json:"enabled"`
+	Disabled []types.FormatterInfo `json:"disabled"`
 }
 
 // FindBinary finds the golangci-lint binary in PATH.

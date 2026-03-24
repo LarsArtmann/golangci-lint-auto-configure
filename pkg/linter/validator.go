@@ -36,7 +36,7 @@ func NewValidator() *Validator {
 // ValidateLinters checks for deprecated and redundant linters.
 func (v *Validator) ValidateLinters(
 	enabledLinters []string,
-	analysis *types.ConfigAnalysis,
+	_ *types.ConfigAnalysis,
 	formatterSet map[string]bool,
 	shouldEnableGolines bool,
 	dryRun bool,

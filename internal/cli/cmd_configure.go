@@ -137,7 +137,7 @@ func runConfigure(
 
 // applyPreset applies a preset linter configuration.
 func applyPreset(
-	ctx context.Context,
+	_ context.Context,
 	logger *log.Logger,
 	configLoader *config.Loader,
 	configFile, preset string,

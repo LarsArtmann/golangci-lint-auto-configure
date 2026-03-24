@@ -105,7 +105,7 @@ func (d *Detector) Detect() ProjectType {
 func (d *Detector) isMonorepo() bool {
 	count := 0
 
-	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(d.rootDir, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
 			return filepath.SkipDir
 		}

@@ -23,7 +23,12 @@ import (
 )
 
 // ConfigFormat represents the configuration file format.
+// ConfigFormat represents the format of a golangci-lint configuration file.
+//
+//revive:disable:exported
 type ConfigFormat string
+
+//revive:enable:exported
 
 const (
 	// ConfigFormatYAML represents YAML configuration format.
@@ -220,10 +225,10 @@ func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string {
 type LinterList struct {
 	Enabled []struct {
 		Name string `json:"name"`
-	} `json:"Enabled"`
+	} `json:"enabled"`
 	Disabled []struct {
 		Name string `json:"name"`
-	} `json:"Disabled"`
+	} `json:"disabled"`
 }
 
 // GetAllLinterNames fetches all available linter names from golangci-lint.

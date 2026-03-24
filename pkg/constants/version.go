@@ -1,4 +1,4 @@
-// Package constants provides centralized configuration values for the golangci-linter-auto-configure tool.
+// Package constants provides version information for the tool and minimum version requirements.
 package constants
 
 // MinGolangCILintVersion is the minimum required version of golangci-lint.

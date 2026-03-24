@@ -34,6 +34,8 @@ func writeGoFile(dir, name, content string) error {
 }
 
 func TestDetector_Detect(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name        string
 		setupFunc   func(dir string) error
