@@ -140,7 +140,7 @@ func (b *Builder) BuildAutoConfigureWorkflow(
 	workflowID := types.MustWorkflowID("golangci-lint-auto-configure")
 	workflowName := types.WorkflowName("Automatically analyze and configure golangci-lint")
 
-	wf := workflowpkg.NewUnifiedWorkflow(workflowID, workflowName)
+	workflow := workflowpkg.NewUnifiedWorkflow(workflowID, workflowName)
 
 	// Set up activity context
 	activityCtx := &ActivityContext{
@@ -154,7 +154,7 @@ func (b *Builder) BuildAutoConfigureWorkflow(
 	}
 
 	// Add analysis activity
-	wf.Step(
+	workflow.Step(
 		types.MustActivityID("analyze-config"),
 		func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 			ctx.Input = activityCtx
@@ -164,7 +164,7 @@ func (b *Builder) BuildAutoConfigureWorkflow(
 	)
 
 	// Add validation activity (depends on analysis)
-	wf.Step(types.MustActivityID("validate-config"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
+	workflow.Step(types.MustActivityID("validate-config"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 		ctx.Input = activityCtx
 
 		return ValidationActivity(ctx)
@@ -172,14 +172,14 @@ func (b *Builder) BuildAutoConfigureWorkflow(
 		DependsOn(types.MustActivityID("analyze-config"))
 
 	// Add report generation activity (depends on validation)
-	wf.Step(types.MustActivityID("generate-report"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
+	workflow.Step(types.MustActivityID("generate-report"), func(ctx workflowpkg.ActivityContext) (*types.ActivityResult, error) {
 		ctx.Input = activityCtx
 
 		return ReportActivity(ctx)
 	}).
 		DependsOn(types.MustActivityID("validate-config"))
 
-	return wf, nil
+	return workflow, nil
 }
 
 // ExecuteAutoConfigureWorkflow executes the auto-configure workflow.
@@ -189,14 +189,14 @@ func (b *Builder) ExecuteAutoConfigureWorkflow(
 	dryRun, generateHTML bool,
 	outputPath string,
 ) (workflowpkg.WorkflowRun, error) {
-	wf, err := b.BuildAutoConfigureWorkflow(ctx, configPath, dryRun, generateHTML, outputPath)
+	workflow, err := b.BuildAutoConfigureWorkflow(ctx, configPath, dryRun, generateHTML, outputPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build workflow: %w", err)
 	}
 
-	b.logger.Infof("Executing workflow: %s", wf.GetName())
+	b.logger.Infof("Executing workflow: %s", workflow.GetName())
 
-	run, err := wf.Execute(ctx)
+	run, err := workflow.Execute(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("workflow execution failed: %w", err)
 	}

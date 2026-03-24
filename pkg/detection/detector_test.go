@@ -1,10 +1,12 @@
-package detection
+package detection_test
 
 import (
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	detectionpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/detection"
 )
 
 // writeGoMod creates a go.mod file with optional require dependencies.
@@ -14,12 +16,12 @@ func writeGoMod(dir string, requires ...string) error {
 go 1.21
 `
 
-	var contentSb15 strings.Builder
+	var contentBuilder strings.Builder
 	for _, req := range requires {
-		contentSb15.WriteString("\nrequire " + req)
+		contentBuilder.WriteString("\nrequire " + req)
 	}
 
-	content += contentSb15.String()
+	content += contentBuilder.String()
 
 	content += "\n"
 
@@ -35,7 +37,7 @@ func TestDetector_Detect(t *testing.T) {
 	tests := []struct {
 		name        string
 		setupFunc   func(dir string) error
-		want        ProjectType
+		want        detectionpkg.ProjectType
 		description string
 	}{
 		{
@@ -51,7 +53,7 @@ func TestDetector_Detect(t *testing.T) {
 func main() {}
 `)
 			},
-			want:        ProjectTypeCLI,
+			want:        detectionpkg.ProjectTypeCLI,
 			description: "Should detect CLI project with cobra and main package",
 		},
 		{
@@ -67,7 +69,7 @@ func main() {}
 func Hello() string { return "hello" }
 `)
 			},
-			want:        ProjectTypeLibrary,
+			want:        detectionpkg.ProjectTypeLibrary,
 			description: "Should detect library project without main",
 		},
 		{
@@ -88,7 +90,7 @@ func main() {
 }
 `)
 			},
-			want:        ProjectTypeWeb,
+			want:        detectionpkg.ProjectTypeWeb,
 			description: "Should detect web project with gin and main",
 		},
 		{
@@ -115,30 +117,30 @@ go 1.21
 go 1.21
 `), 0o644)
 			},
-			want:        ProjectTypeMonorepo,
+			want:        detectionpkg.ProjectTypeMonorepo,
 			description: "Should detect monorepo with multiple go.mod files",
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
 			// Create temp directory (t.TempDir() automatically cleans up)
 			tempDir := t.TempDir()
 
 			// Setup test files
-			err := tt.setupFunc(tempDir)
+			err := testCase.setupFunc(tempDir)
 			if err != nil {
 				t.Fatalf("Failed to setup test: %v", err)
 			}
 
 			// Run detection
-			detector := NewDetector(tempDir)
+			detector := detectionpkg.NewDetector(tempDir)
 			got := detector.Detect()
 
-			if got != tt.want {
-				t.Errorf("Detect() = %v, want %v - %s", got, tt.want, tt.description)
+			if got != testCase.want {
+				t.Errorf("Detect() = %v, want %v - %s", got, testCase.want, testCase.description)
 			}
 		})
 	}
@@ -146,21 +148,21 @@ go 1.21
 
 func TestProjectType_String(t *testing.T) {
 	tests := []struct {
-		projectType ProjectType
+		projectType detectionpkg.ProjectType
 		want        string
 	}{
-		{ProjectTypeCLI, "CLI"},
-		{ProjectTypeLibrary, "Library"},
-		{ProjectTypeWeb, "Web"},
-		{ProjectTypeAPI, "API"},
-		{ProjectTypeMonorepo, "Monorepo"},
-		{ProjectTypeUnknown, "Unknown"},
+		{detectionpkg.ProjectTypeCLI, "CLI"},
+		{detectionpkg.ProjectTypeLibrary, "Library"},
+		{detectionpkg.ProjectTypeWeb, "Web"},
+		{detectionpkg.ProjectTypeAPI, "API"},
+		{detectionpkg.ProjectTypeMonorepo, "Monorepo"},
+		{detectionpkg.ProjectTypeUnknown, "Unknown"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			if got := tt.projectType.String(); got != tt.want {
-				t.Errorf("String() = %v, want %v", got, tt.want)
+	for _, testCase := range tests {
+		t.Run(testCase.want, func(t *testing.T) {
+			if got := testCase.projectType.String(); got != testCase.want {
+				t.Errorf("String() = %v, want %v", got, testCase.want)
 			}
 		})
 	}
@@ -168,20 +170,20 @@ func TestProjectType_String(t *testing.T) {
 
 func TestGetRecommendedLinters(t *testing.T) {
 	// Test that each project type returns linters
-	projectTypes := []ProjectType{
-		ProjectTypeCLI,
-		ProjectTypeLibrary,
-		ProjectTypeWeb,
-		ProjectTypeAPI,
-		ProjectTypeMonorepo,
-		ProjectTypeUnknown,
+	projectTypes := []detectionpkg.ProjectType{
+		detectionpkg.ProjectTypeCLI,
+		detectionpkg.ProjectTypeLibrary,
+		detectionpkg.ProjectTypeWeb,
+		detectionpkg.ProjectTypeAPI,
+		detectionpkg.ProjectTypeMonorepo,
+		detectionpkg.ProjectTypeUnknown,
 	}
 
-	for _, pt := range projectTypes {
-		t.Run(pt.String(), func(t *testing.T) {
-			linters := GetRecommendedLinters(pt)
+	for _, projectType := range projectTypes {
+		t.Run(projectType.String(), func(t *testing.T) {
+			linters := detectionpkg.GetRecommendedLinters(projectType)
 			if len(linters) == 0 {
-				t.Errorf("GetRecommendedLinters(%v) returned empty list", pt)
+				t.Errorf("GetRecommendedLinters(%v) returned empty list", projectType)
 			}
 			// Check that essential linters are present
 			hasGosec := false
@@ -198,11 +200,11 @@ func TestGetRecommendedLinters(t *testing.T) {
 			}
 
 			if !hasGosec {
-				t.Errorf("GetRecommendedLinters(%v) missing gosec", pt)
+				t.Errorf("GetRecommendedLinters(%v) missing gosec", projectType)
 			}
 
 			if !hasErrcheck {
-				t.Errorf("GetRecommendedLinters(%v) missing errcheck", pt)
+				t.Errorf("GetRecommendedLinters(%v) missing errcheck", projectType)
 			}
 		})
 	}

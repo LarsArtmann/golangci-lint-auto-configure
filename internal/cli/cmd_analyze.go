@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const formatJSON = "json"
+
 // newAnalyzeCommand creates the analyze command.
 func newAnalyzeCommand(
 	logger *log.Logger,
@@ -49,7 +51,7 @@ func newAnalyzeCommand(
 
 			// Output based on format
 			switch format {
-			case "json":
+			case formatJSON:
 				data, jsonErr := json.MarshalIndent(analysis, "", "  ")
 				if jsonErr != nil {
 					return fmt.Errorf("failed to marshal analysis to JSON: %w", jsonErr)

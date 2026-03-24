@@ -29,15 +29,15 @@ func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAn
 		Analysis: analysis,
 	}
 
-	f, err := os.Create(outputPath)
+	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
 
-	defer func() { _ = f.Close() }()
+	defer func() { _ = outputFile.Close() }()
 
 	//nolint:contextcheck // Context comes from caller; templ.Render receives it correctly
-	err = Report(data).Render(ctx, f)
+	err = Report(data).Render(ctx, outputFile)
 	if err != nil {
 		return fmt.Errorf("failed to render report: %w", err)
 	}

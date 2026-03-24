@@ -1,7 +1,6 @@
 package cli_test
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +9,12 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+const testConfigContentMinimal = `version: "2"
+linters:
+  enable:
+    - errcheck
+`
 
 func TestCLICommands(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -34,12 +39,7 @@ var _ = Describe("CLI Integration Tests", func() {
 		cmd.Env = append(os.Environ(), "GOOS=darwin", "GOARCH=arm64")
 
 		output, err := cmd.CombinedOutput()
-		if err != nil {
-			// Print build output for debugging
-			fmt.Println("Build failed:", string(output))
-		}
-
-		Expect(err).NotTo(HaveOccurred(), "Failed to build the CLI binary")
+		Expect(err).NotTo(HaveOccurred(), "Failed to build the CLI binary: "+string(output))
 
 		return binaryPath
 	}
@@ -138,13 +138,8 @@ linters:
 			initGitRepo()
 
 			binaryPath := buildBinary()
-			configContent := `version: "2"
-linters:
-  enable:
-    - errcheck
-`
 			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			Expect(os.WriteFile(configPath, []byte(testConfigContentMinimal), 0o644)).To(Succeed())
 
 			cmd := exec.Command(binaryPath, "configure", "--config", configPath, "--dry-run")
 			output, err := cmd.CombinedOutput()

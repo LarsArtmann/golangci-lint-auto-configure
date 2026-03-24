@@ -181,13 +181,13 @@ func (c *Client) FixConfig(ctx context.Context, configPath string, opts FixOptio
 //	}
 //	fmt.Println(result.Message)
 func SimpleFix(ctx context.Context, opts Options, configPath string, dryRun bool) (*types.MigrationResult, error) {
-	c := New(opts)
+	clientObj := New(opts)
 
 	if opts.Verbose {
-		c.logger.Infof("Analyzing and fixing configuration: %s", configPath)
+		clientObj.logger.Infof("Analyzing and fixing configuration: %s", configPath)
 	}
 
-	result, err := c.FixConfig(ctx, configPath, FixOptions{
+	result, err := clientObj.FixConfig(ctx, configPath, FixOptions{
 		Priority: types.LinterPriorityHigh,
 		DryRun:   dryRun,
 	})
@@ -196,7 +196,7 @@ func SimpleFix(ctx context.Context, opts Options, configPath string, dryRun bool
 	}
 
 	if opts.Verbose {
-		c.logger.Infof("Fix complete: %d fixes applied", result.FixesApplied)
+		clientObj.logger.Infof("Fix complete: %d fixes applied", result.FixesApplied)
 	}
 
 	return result, nil
@@ -210,21 +210,21 @@ func SimpleFix(ctx context.Context, opts Options, configPath string, dryRun bool
 //	summary := client.SimpleAnalyze(context.Background(), client.Options{Verbose: true}, ".golangci.yml")
 //	fmt.Println(summary)
 func SimpleAnalyze(ctx context.Context, opts Options, configPath string) (string, error) {
-	c := New(opts)
+	clientObj := New(opts)
 
 	if opts.Verbose {
-		c.logger.Infof("Analyzing configuration: %s", configPath)
+		clientObj.logger.Infof("Analyzing configuration: %s", configPath)
 	}
 
-	analysis, err := c.AnalyzeConfig(ctx, configPath)
+	analysis, err := clientObj.AnalyzeConfig(ctx, configPath)
 	if err != nil {
 		return "", fmt.Errorf("analysis failed: %w", err)
 	}
 
 	if opts.Verbose {
-		c.logger.Infof("Analysis complete: %d enabled linters, %d disabled linters",
+		clientObj.logger.Infof("Analysis complete: %d enabled linters, %d disabled linters",
 			len(analysis.EnabledLinters), len(analysis.DisabledLinters))
 	}
 
-	return c.GetSummary(analysis), nil
+	return clientObj.GetSummary(analysis), nil
 }

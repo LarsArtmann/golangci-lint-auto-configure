@@ -167,15 +167,15 @@ func (d *Differ) FormatChanges(changes []Change) string {
 		return "No changes detected"
 	}
 
-	var sb strings.Builder
+	var builder strings.Builder
 
 	added := 0
 	removed := 0
 	modified := 0
 
 	// Group by type
-	for _, c := range changes {
-		switch c.Type {
+	for _, change := range changes {
+		switch change.Type {
 		case ChangeTypeAdded:
 			added++
 		case ChangeTypeRemoved:
@@ -185,25 +185,25 @@ func (d *Differ) FormatChanges(changes []Change) string {
 		}
 	}
 
-	fmt.Fprintf(&sb, "Changes: %d added, %d removed, %d modified\n\n", added, removed, modified)
+	fmt.Fprintf(&builder, "Changes: %d added, %d removed, %d modified\n\n", added, removed, modified)
 
 	// Sort changes by path
 	sort.Slice(changes, func(i, j int) bool {
 		return changes[i].Path < changes[j].Path
 	})
 
-	for _, c := range changes {
-		switch c.Type {
+	for _, change := range changes {
+		switch change.Type {
 		case ChangeTypeAdded:
-			fmt.Fprintf(&sb, "+ %s\n", c.Description)
+			fmt.Fprintf(&builder, "+ %s\n", change.Description)
 		case ChangeTypeRemoved:
-			fmt.Fprintf(&sb, "- %s\n", c.Description)
+			fmt.Fprintf(&builder, "- %s\n", change.Description)
 		case ChangeTypeModified:
-			fmt.Fprintf(&sb, "~ %s\n", c.Description)
+			fmt.Fprintf(&builder, "~ %s\n", change.Description)
 		}
 	}
 
-	return sb.String()
+	return builder.String()
 }
 
 // GetSummary returns a brief summary of changes.

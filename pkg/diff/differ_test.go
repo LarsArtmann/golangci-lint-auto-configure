@@ -1,14 +1,15 @@
-package diff
+package diff_test
 
 import (
 	"strings"
 	"testing"
 
+	diffpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/diff"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
 func TestDiffer_Compare(t *testing.T) {
-	differ := NewDiffer()
+	differ := diffpkg.NewDiffer()
 
 	baseConfigV2WithErrcheck := &types.Config{
 		Version: "2",
@@ -76,58 +77,58 @@ func TestDiffer_Compare(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			changes := differ.Compare(tt.old, tt.new)
-			if len(changes) != tt.wantChanges {
-				t.Errorf("Compare() returned %d changes, want %d - %s", len(changes), tt.wantChanges, tt.description)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			changes := differ.Compare(testCase.old, testCase.new)
+			if len(changes) != testCase.wantChanges {
+				t.Errorf("Compare() returned %d changes, want %d - %s", len(changes), testCase.wantChanges, testCase.description)
 			}
 		})
 	}
 }
 
 func TestDiffer_FormatChanges(t *testing.T) {
-	differ := NewDiffer()
+	differ := diffpkg.NewDiffer()
 
 	tests := []struct {
 		name    string
-		changes []Change
+		changes []diffpkg.Change
 		want    []string // substrings that should be present
 	}{
 		{
 			name:    "no changes",
-			changes: []Change{},
+			changes: []diffpkg.Change{},
 			want:    []string{"No changes detected"},
 		},
 		{
 			name: "added linter",
-			changes: []Change{
-				{Type: ChangeTypeAdded, Path: "linters.enable.gosec", Description: "Enabled linter: gosec"},
+			changes: []diffpkg.Change{
+				{Type: diffpkg.ChangeTypeAdded, Path: "linters.enable.gosec", Description: "Enabled linter: gosec"},
 			},
 			want: []string{"1 added", "+ Enabled linter: gosec"},
 		},
 		{
 			name: "removed linter",
-			changes: []Change{
-				{Type: ChangeTypeRemoved, Path: "linters.enable.errcheck", Description: "Disabled linter: errcheck"},
+			changes: []diffpkg.Change{
+				{Type: diffpkg.ChangeTypeRemoved, Path: "linters.enable.errcheck", Description: "Disabled linter: errcheck"},
 			},
 			want: []string{"1 removed", "- Disabled linter: errcheck"},
 		},
 		{
 			name: "modified timeout",
-			changes: []Change{
-				{Type: ChangeTypeModified, Path: "run.timeout", Description: "Timeout changed from 5m to 10m"},
+			changes: []diffpkg.Change{
+				{Type: diffpkg.ChangeTypeModified, Path: "run.timeout", Description: "Timeout changed from 5m to 10m"},
 			},
 			want: []string{"1 modified", "~ Timeout changed from 5m to 10m"},
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := differ.FormatChanges(tt.changes)
-			for _, want := range tt.want {
-				if !strings.Contains(got, want) {
-					t.Errorf("FormatChanges() = %q, should contain %q", got, want)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			got := differ.FormatChanges(testCase.changes)
+			for _, wantStr := range testCase.want {
+				if !strings.Contains(got, wantStr) {
+					t.Errorf("FormatChanges() = %q, should contain %q", got, wantStr)
 				}
 			}
 		})
@@ -135,43 +136,43 @@ func TestDiffer_FormatChanges(t *testing.T) {
 }
 
 func TestDiffer_GetSummary(t *testing.T) {
-	differ := NewDiffer()
+	differ := diffpkg.NewDiffer()
 
 	tests := []struct {
 		name    string
-		changes []Change
+		changes []diffpkg.Change
 		want    string
 	}{
 		{
 			name:    "no changes",
-			changes: []Change{},
+			changes: []diffpkg.Change{},
 			want:    "No changes",
 		},
 		{
 			name: "mixed changes",
-			changes: []Change{
-				{Type: ChangeTypeAdded},
-				{Type: ChangeTypeAdded},
-				{Type: ChangeTypeRemoved},
-				{Type: ChangeTypeModified},
+			changes: []diffpkg.Change{
+				{Type: diffpkg.ChangeTypeAdded},
+				{Type: diffpkg.ChangeTypeAdded},
+				{Type: diffpkg.ChangeTypeRemoved},
+				{Type: diffpkg.ChangeTypeModified},
 			},
 			want: "2 added, 1 removed, 1 modified",
 		},
 		{
 			name: "only added",
-			changes: []Change{
-				{Type: ChangeTypeAdded},
-				{Type: ChangeTypeAdded},
+			changes: []diffpkg.Change{
+				{Type: diffpkg.ChangeTypeAdded},
+				{Type: diffpkg.ChangeTypeAdded},
 			},
 			want: "2 added",
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := differ.GetSummary(tt.changes)
-			if got != tt.want {
-				t.Errorf("GetSummary() = %q, want %q", got, tt.want)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			got := differ.GetSummary(testCase.changes)
+			if got != testCase.want {
+				t.Errorf("GetSummary() = %q, want %q", got, testCase.want)
 			}
 		})
 	}
@@ -179,19 +180,19 @@ func TestDiffer_GetSummary(t *testing.T) {
 
 func TestChangeType_String(t *testing.T) {
 	tests := []struct {
-		changeType ChangeType
+		changeType diffpkg.ChangeType
 		want       string
 	}{
-		{ChangeTypeAdded, "ADDED"},
-		{ChangeTypeRemoved, "REMOVED"},
-		{ChangeTypeModified, "MODIFIED"},
-		{ChangeType(99), "UNKNOWN"},
+		{diffpkg.ChangeTypeAdded, "ADDED"},
+		{diffpkg.ChangeTypeRemoved, "REMOVED"},
+		{diffpkg.ChangeTypeModified, "MODIFIED"},
+		{diffpkg.ChangeType(99), "UNKNOWN"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			if got := tt.changeType.String(); got != tt.want {
-				t.Errorf("String() = %q, want %q", got, tt.want)
+	for _, testCase := range tests {
+		t.Run(testCase.want, func(t *testing.T) {
+			if got := testCase.changeType.String(); got != testCase.want {
+				t.Errorf("String() = %q, want %q", got, testCase.want)
 			}
 		})
 	}

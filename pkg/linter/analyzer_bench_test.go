@@ -1,21 +1,21 @@
-package linter
+package linter_test
 
 import (
 	"context"
 	"testing"
 
 	"github.com/charmbracelet/log"
+	linterpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 )
+
+const defaultTestConfigPath = "../../.golangci.yml"
 
 func BenchmarkAnalyzer_AnalyzeConfig(b *testing.B) {
 	logger := log.NewWithOptions(nil, log.Options{ReportCaller: false, Level: log.ErrorLevel})
-	analyzer := NewAnalyzer(logger)
-
-	// Find a real config to analyze
-	configPath := "../../.golangci.yml"
+	analyzer := linterpkg.NewAnalyzer(logger)
 
 	for b.Loop() {
-		_, err := analyzer.AnalyzeConfig(context.Background(), configPath)
+		_, err := analyzer.AnalyzeConfig(context.Background(), defaultTestConfigPath)
 		if err != nil {
 			b.Fatalf("AnalyzeConfig failed: %v", err)
 		}
@@ -24,12 +24,9 @@ func BenchmarkAnalyzer_AnalyzeConfig(b *testing.B) {
 
 func BenchmarkAnalyzer_GetLintersByPriority(b *testing.B) {
 	logger := log.NewWithOptions(nil, log.Options{ReportCaller: false, Level: log.ErrorLevel})
-	analyzer := NewAnalyzer(logger)
+	analyzer := linterpkg.NewAnalyzer(logger)
 
-	// Get real recommendations
-	configPath := "../../.golangci.yml"
-
-	analysis, err := analyzer.AnalyzeConfig(context.Background(), configPath)
+	analysis, err := analyzer.AnalyzeConfig(context.Background(), defaultTestConfigPath)
 	if err != nil {
 		b.Fatalf("Setup failed: %v", err)
 	}
@@ -43,34 +40,14 @@ func BenchmarkAnalyzer_GetLintersByPriority(b *testing.B) {
 
 func BenchmarkAnalyzer_FormatRecommendations(b *testing.B) {
 	logger := log.NewWithOptions(nil, log.Options{ReportCaller: false, Level: log.ErrorLevel})
-	analyzer := NewAnalyzer(logger)
+	analyzer := linterpkg.NewAnalyzer(logger)
 
-	configPath := "../../.golangci.yml"
-
-	analysis, err := analyzer.AnalyzeConfig(context.Background(), configPath)
+	analysis, err := analyzer.AnalyzeConfig(context.Background(), defaultTestConfigPath)
 	if err != nil {
 		b.Fatalf("Setup failed: %v", err)
 	}
 
 	for b.Loop() {
 		_ = analyzer.FormatRecommendations(analysis)
-	}
-}
-
-func BenchmarkAnalyzer_categorizeLinters(b *testing.B) {
-	logger := log.NewWithOptions(nil, log.Options{ReportCaller: false, Level: log.ErrorLevel})
-	analyzer := NewAnalyzer(logger)
-
-	configPath := "../../.golangci.yml"
-
-	analysis, err := analyzer.AnalyzeConfig(context.Background(), configPath)
-	if err != nil {
-		b.Fatalf("Setup failed: %v", err)
-	}
-
-	disabledLinters := analysis.DisabledLinters
-
-	for b.Loop() {
-		_ = analyzer.categorizeLinters(disabledLinters)
 	}
 }

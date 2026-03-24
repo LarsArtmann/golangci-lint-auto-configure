@@ -1,9 +1,11 @@
-package detection
+package detection_test
 
 import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	detectionpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/detection"
 )
 
 func setupBenchmarkProject(b *testing.B) string {
@@ -50,46 +52,24 @@ func BenchmarkDetector_Detect(b *testing.B) {
 	tempDir := setupBenchmarkProject(b)
 
 	// b.TempDir() automatically cleans up
-	detector := NewDetector(tempDir)
+	detector := detectionpkg.NewDetector(tempDir)
 
 	for b.Loop() {
 		_ = detector.Detect()
 	}
 }
 
-func BenchmarkDetector_hasMainPackage(b *testing.B) {
-	tempDir := setupBenchmarkProject(b)
-
-	// b.TempDir() automatically cleans up
-	detector := NewDetector(tempDir)
-
-	for b.Loop() {
-		_ = detector.hasMainPackage()
-	}
-}
-
-func BenchmarkDetector_analyzeGoMod(b *testing.B) {
-	tempDir := setupBenchmarkProject(b)
-
-	// b.TempDir() automatically cleans up
-	detector := NewDetector(tempDir)
-
-	for b.Loop() {
-		_, _ = detector.analyzeGoMod()
-	}
-}
-
 func BenchmarkGetRecommendedLinters(b *testing.B) {
-	projectTypes := []ProjectType{
-		ProjectTypeCLI,
-		ProjectTypeLibrary,
-		ProjectTypeWeb,
-		ProjectTypeAPI,
+	projectTypes := []detectionpkg.ProjectType{
+		detectionpkg.ProjectTypeCLI,
+		detectionpkg.ProjectTypeLibrary,
+		detectionpkg.ProjectTypeWeb,
+		detectionpkg.ProjectTypeAPI,
 	}
 
 	for b.Loop() {
-		for _, pt := range projectTypes {
-			_ = GetRecommendedLinters(pt)
+		for _, projectType := range projectTypes {
+			_ = detectionpkg.GetRecommendedLinters(projectType)
 		}
 	}
 }

@@ -32,6 +32,14 @@ const (
 	ConfigFormatTOML ConfigFormat = "toml"
 	// ConfigFormatJSON represents JSON configuration format.
 	ConfigFormatJSON ConfigFormat = "json"
+
+	// Default file permissions for config files (read/write for owner only).
+	defaultFilePermissions = 0o600
+
+	// DefaultMaxIssuesPerLinter is the default maximum issues per linter.
+	DefaultMaxIssuesPerLinter = 50
+	// DefaultMaxSameIssues is the default maximum same issues.
+	DefaultMaxSameIssues = 10
 )
 
 // Re-export types for backward compatibility.
@@ -270,8 +278,8 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 			Enable: allLinters,
 		},
 		Issues: IssuesConfig{
-			MaxIssuesPerLinter: 50,
-			MaxSameIssues:      10,
+			MaxIssuesPerLinter: DefaultMaxIssuesPerLinter,
+			MaxSameIssues:      DefaultMaxSameIssues,
 		},
 	}
 }
@@ -311,7 +319,7 @@ func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] 
 		return mo.Err[Empty](apperrors.NewConfigError("failed to marshal config", path, err))
 	}
 
-	if err := afero.WriteFile(l.fs, path, data, 0o600); err != nil {
+	if err := afero.WriteFile(l.fs, path, data, defaultFilePermissions); err != nil {
 		return mo.Err[Empty](apperrors.NewConfigError("failed to write config file", path, err))
 	}
 

@@ -14,14 +14,14 @@ func main() {
 	slog.Info("golangci-linter-auto-configure API Usage Example")
 
 	// Create client with verbose logging
-	c := client.New(client.Options{
+	clientObj := client.New(client.Options{
 		Verbose: true,
 	})
 
 	// Analyze configuration
 	configPath := ".golangci.yml"
 
-	analysis, err := c.AnalyzeConfig(context.Background(), configPath)
+	analysis, err := clientObj.AnalyzeConfig(context.Background(), configPath)
 	if err != nil {
 		slog.Error("Analysis failed", "error", err)
 		os.Exit(1)
@@ -65,5 +65,5 @@ func main() {
 	}
 
 	// Show summary
-	slog.Info("Summary", "message", c.GetSummary(analysis))
+	slog.Info("Summary", "message", clientObj.GetSummary(analysis))
 }
