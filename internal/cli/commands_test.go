@@ -151,7 +151,7 @@ linters:
 
 			// Verify original file unchanged
 			content, _ := os.ReadFile(configPath)
-			Expect(string(content)).To(Equal(configContent))
+			Expect(string(content)).To(Equal(testConfigContentMinimal))
 		})
 
 		It("should require git repository for config modification", func() {

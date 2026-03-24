@@ -210,15 +210,15 @@ timeout = "5m"
 				{"json", ".golangci.json"},
 			}
 
-			for _, tc := range testCases {
-				Expect(os.WriteFile(filepath.Join(testDir, tc.filename), []byte("version: 1"), 0o644)).To(Succeed())
+			for _, testCase := range testCases {
+				Expect(os.WriteFile(filepath.Join(testDir, testCase.filename), []byte("version: 1"), 0o644)).To(Succeed())
 
 				found, err := loader.FindConfigFile(testDir)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(found).To(Equal(filepath.Join(testDir, tc.filename)))
+				Expect(found).To(Equal(filepath.Join(testDir, testCase.filename)))
 
-				Expect(os.Remove(filepath.Join(testDir, tc.filename))).To(Succeed())
+				Expect(os.Remove(filepath.Join(testDir, testCase.filename))).To(Succeed())
 			}
 		})
 
