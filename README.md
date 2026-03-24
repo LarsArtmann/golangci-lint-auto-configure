@@ -1,6 +1,6 @@
 # golangci-linter-auto-configure
 
-**Automatically configure and optimize golangci-lint with smart recommendations, missing linter detection, and auto-fixing capabilities.**
+**Automatically configure, optimize, and maintain golangci-lint configurations for Go projects with smart linter recommendations, deprecation handling, and auto-fixing.**
 
 ## Purpose
 
@@ -107,8 +107,6 @@ Create JSON reports for CI/CD:
 ```bash
 golangci-linter-auto-configure report --output analysis.json --format json
 ```
-
-### Validate Configuration
 
 ## Example Workflows
 
