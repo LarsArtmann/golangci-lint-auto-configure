@@ -85,7 +85,7 @@ func (f *Fixer) FixConfigResult(
 	if dryRun && hasDeprecatedLinters {
 		f.logger.Infof("Dry-run with deprecated linters - skipping analysis (run without --dry-run to fix)")
 
-		return f.calculateDryRunResultWithDeprecated(cfg, configPath, priority)
+		return f.calculateDryRunResultWithDeprecated(cfg)
 	}
 
 	f.logger.Infof("Analyzing configuration...")
@@ -414,11 +414,7 @@ func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dr
 // calculateDryRunResultWithDeprecated calculates the dry-run result when deprecated linters are present.
 // Since the config has deprecated linters, we can't run golangci-lint linters for analysis,
 // so we just report what would be fixed regarding deprecated linters.
-func (f *Fixer) calculateDryRunResultWithDeprecated(
-	cfg *types.Config,
-	configPath string,
-	priority types.LinterPriority,
-) types.MigrationResultType {
+func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.MigrationResultType {
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
 	deprecationFixes := 0
 
