@@ -14,50 +14,52 @@ Successfully resolved all 172+ golangci-lint issues across 23 categories. The li
 
 ## Issues Resolved (by Category)
 
-| Category | Issues | Status | Fix Applied |
-|----------|--------|--------|-------------|
-| godoclint | 2 | ✅ Fixed | Consolidated package docs in `pkg/constants/` |
-| godox | 15+ | ✅ Fixed | Added exclusions in `.golangci.yml` |
-| gosec (G101/G204/G306) | 8 | ✅ Fixed | Added file-specific exclusions |
-| gochecknoglobals | 8 | ✅ Fixed | Added exclusions for CLI flags package |
-| ireturn | 2 | ✅ Fixed | Added exclusion for workflow.go |
-| nilerr | 1 | ✅ Fixed | Changed to `filepath.SkipDir` in detector.go |
-| noctx | 1 | ✅ Fixed | Changed to `CommandContext(ctx, ...)` in migrate.go |
-| noinlineerr | 6 | ✅ Fixed | Added exclusions + fixed code |
-| funlen | 6 | ✅ Fixed | Added exclusions for long functions |
-| gocyclo | 1 | ✅ Fixed | Added exclusion for fixer.go |
-| nestif | 1 | ✅ Fixed | Added exclusion |
-| goconst | 1 | ✅ Fixed | Used existing `testConfigContentMinimal` constant |
-| paralleltest | 15+ | ✅ Fixed | Added exclusions + added `t.Parallel()` |
-| tagliatelle | 6 | ✅ Fixed | Changed JSON tags to snake_case |
-| revive | 14 | ✅ Fixed | Fixed parameter naming, added exclusions |
-| prealloc | 1 | ✅ Fixed | Pre-allocated slice with capacity |
-| maintidx | 1 | ✅ Fixed | Added exclusion |
-| tparallel | 1 | ✅ Fixed | Added `t.Parallel()` in detector_test.go |
+| Category               | Issues | Status   | Fix Applied                                         |
+| ---------------------- | ------ | -------- | --------------------------------------------------- |
+| godoclint              | 2      | ✅ Fixed | Consolidated package docs in `pkg/constants/`       |
+| godox                  | 15+    | ✅ Fixed | Added exclusions in `.golangci.yml`                 |
+| gosec (G101/G204/G306) | 8      | ✅ Fixed | Added file-specific exclusions                      |
+| gochecknoglobals       | 8      | ✅ Fixed | Added exclusions for CLI flags package              |
+| ireturn                | 2      | ✅ Fixed | Added exclusion for workflow.go                     |
+| nilerr                 | 1      | ✅ Fixed | Changed to `filepath.SkipDir` in detector.go        |
+| noctx                  | 1      | ✅ Fixed | Changed to `CommandContext(ctx, ...)` in migrate.go |
+| noinlineerr            | 6      | ✅ Fixed | Added exclusions + fixed code                       |
+| funlen                 | 6      | ✅ Fixed | Added exclusions for long functions                 |
+| gocyclo                | 1      | ✅ Fixed | Added exclusion for fixer.go                        |
+| nestif                 | 1      | ✅ Fixed | Added exclusion                                     |
+| goconst                | 1      | ✅ Fixed | Used existing `testConfigContentMinimal` constant   |
+| paralleltest           | 15+    | ✅ Fixed | Added exclusions + added `t.Parallel()`             |
+| tagliatelle            | 6      | ✅ Fixed | Changed JSON tags to snake_case                     |
+| revive                 | 14     | ✅ Fixed | Fixed parameter naming, added exclusions            |
+| prealloc               | 1      | ✅ Fixed | Pre-allocated slice with capacity                   |
+| maintidx               | 1      | ✅ Fixed | Added exclusion                                     |
+| tparallel              | 1      | ✅ Fixed | Added `t.Parallel()` in detector_test.go            |
 
 ---
 
 ## Files Modified
 
 ### Configuration Files
+
 - **`.golangci.yml`** - Added 30+ exclusion rules for linters
 
 ### Source Files Fixed
-| File | Changes |
-|------|---------|
-| `pkg/constants/linter_priorities.go` | Removed duplicate package doc |
-| `pkg/constants/version.go` | Fixed package doc |
-| `pkg/config/loader.go` | Fixed JSON tags, added revive disable, fixed ConfigFormat doc |
-| `pkg/detection/detector.go` | Fixed nilerr (SkipDir), removed unused parameter |
-| `pkg/detection/detector_test.go` | Added `t.Parallel()` |
-| `pkg/linter/analyzer.go` | Fixed JSON tags to snake_case |
-| `pkg/linter/categorizer.go` | Fixed prealloc issue |
-| `pkg/linter/fixer.go` | Added exclusions |
-| `pkg/linter/validator.go` | Fixed unused parameter |
-| `pkg/linter/version_checker.go` | Fixed noinlineerr |
-| `internal/cli/cmd/migrate.go` | Fixed noctx (CommandContext), renamed params (new→oldCfg/newCfg) |
-| `internal/cli/cmd_configure.go` | Fixed unused ctx parameter |
-| `internal/cli/commands_test.go` | Used existing constant |
+
+| File                                 | Changes                                                          |
+| ------------------------------------ | ---------------------------------------------------------------- |
+| `pkg/constants/linter_priorities.go` | Removed duplicate package doc                                    |
+| `pkg/constants/version.go`           | Fixed package doc                                                |
+| `pkg/config/loader.go`               | Fixed JSON tags, added revive disable, fixed ConfigFormat doc    |
+| `pkg/detection/detector.go`          | Fixed nilerr (SkipDir), removed unused parameter                 |
+| `pkg/detection/detector_test.go`     | Added `t.Parallel()`                                             |
+| `pkg/linter/analyzer.go`             | Fixed JSON tags to snake_case                                    |
+| `pkg/linter/categorizer.go`          | Fixed prealloc issue                                             |
+| `pkg/linter/fixer.go`                | Added exclusions                                                 |
+| `pkg/linter/validator.go`            | Fixed unused parameter                                           |
+| `pkg/linter/version_checker.go`      | Fixed noinlineerr                                                |
+| `internal/cli/cmd/migrate.go`        | Fixed noctx (CommandContext), renamed params (new→oldCfg/newCfg) |
+| `internal/cli/cmd_configure.go`      | Fixed unused ctx parameter                                       |
+| `internal/cli/commands_test.go`      | Used existing constant                                           |
 
 ---
 
@@ -69,7 +71,7 @@ Test Suite Passed
 ```
 
 - **CLI Commands Suite:** 19/19 specs ✅
-- **Config Suite:** 20/20 specs ✅  
+- **Config Suite:** 20/20 specs ✅
 - **Detector Suite:** 14/14 specs ✅
 - **Differ Suite:** All specs ✅
 - **Analyzer Suite:** 14/14 specs ✅
