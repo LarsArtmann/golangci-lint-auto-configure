@@ -29,6 +29,41 @@ var _ = Describe("Fixer", func() {
 		testConfig = filepath.Join(testDir, ".golangci.yml")
 	})
 
+	Context("Version Field", func() {
+		It("should fix empty version field", func() {
+			configContent := `version: ""
+run:
+  timeout: 10m
+linters:
+  enable:
+    - gosec
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, false)
+
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring(`version: "2"`))
+		})
+
+		It("should keep existing version 2", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Success).To(BeTrue())
+		})
+	})
+
 	Context("Configuration Modification", func() {
 		It("should run in dry-run mode without modifying file", func() {
 			configContent := `version: "2"

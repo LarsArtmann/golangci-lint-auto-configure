@@ -71,6 +71,11 @@ func (f *Fixer) FixConfigResult(
 		}
 	}
 
+	// Pre-fix version field before analysis to prevent golangci-lint linters command from failing
+	if err := f.preFixVersion(cfg, configPath, dryRun); err != nil {
+		return types.ErrMigration(apperrors.NewAnalysisError("failed to pre-fix version field", configPath, err))
+	}
+
 	// Pre-fix deprecated linters before analysis to prevent golangci-lint linters command from failing
 	if err := f.preFixDeprecatedLinters(cfg, configPath, dryRun); err != nil {
 		return types.ErrMigration(apperrors.NewAnalysisError("failed to pre-fix deprecated linters", configPath, err))
@@ -310,6 +315,34 @@ func contains(slice []string, item string) bool {
 // preFixDeprecatedLinters replaces deprecated linters in the config before analysis.
 // This is necessary because golangci-lint linters command will fail if the config
 // contains deprecated/removed linters (even in the disable list).
+func (f *Fixer) preFixVersion(cfg *types.Config, configPath string, dryRun bool) error {
+	if cfg.Version == "2" {
+		return nil // Version is already correct
+	}
+
+	if cfg.Version == "" {
+		f.logger.Infof("Version field is empty, setting to \"2\" for golangci-lint v2 compatibility")
+	} else {
+		f.logger.Infof("Version field is \"%s\", setting to \"2\" for golangci-lint v2 compatibility", cfg.Version)
+	}
+
+	if dryRun {
+		f.logger.Infof("[DRY-RUN] Would set version to \"2\"")
+
+		return nil
+	}
+
+	cfg.Version = "2"
+
+	// Save the fixed config so that golangci-lint linters command will work
+	err := f.configLoader.SaveConfig(cfg, configPath)
+	if err != nil {
+		return fmt.Errorf("failed to save pre-fixed config: %w", err)
+	}
+
+	return nil
+}
+
 func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dryRun bool) error {
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
 	disabledLinters := f.configLoader.GetLintersDisabled(cfg)
