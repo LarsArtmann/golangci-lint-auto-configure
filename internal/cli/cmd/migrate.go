@@ -109,7 +109,8 @@ Use --skip-validation if the v1 config has known issues.`,
 			// Run golangci-lint migrate
 			logger.Infof("Running golangci-lint migrate...")
 
-			migrateCmd := exec.Command("golangci-lint", migrateArgs...)
+			ctx := cmd.Context()
+			migrateCmd := exec.CommandContext(ctx, "golangci-lint", migrateArgs...)
 
 			output, err := migrateCmd.CombinedOutput()
 			if err != nil {

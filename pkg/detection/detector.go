@@ -107,7 +107,7 @@ func (d *Detector) isMonorepo() bool {
 
 	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return nil
+			return filepath.SkipDir
 		}
 
 		if info.Name() == "go.mod" {

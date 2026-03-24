@@ -1,4 +1,4 @@
-// Package constants provides centralized configuration values for the golangci-linter-auto-configure tool.
+// Package constants contains linter priority configurations and linter reason mappings.
 package constants
 
 import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"

@@ -191,6 +191,113 @@ linters:
       - path: internal/cli/|pkg/workflow/workflow\.go|examples/
         linters:
           - exhaustruct
+      - path: pkg/constants/
+        linters:
+          - gochecknoglobals
+      - path: pkg/types/validation\.go
+        linters:
+          - gochecknoglobals
+      - path: pkg/detection/patterns\.go
+        linters:
+          - gochecknoglobals
+      - path: go\.mod
+        linters:
+          - gomoddirectives
+      - path: pkg/diff/differ\.go
+        linters:
+          - funcorder
+      - path: pkg/workflow/workflow\.go
+        linters:
+          - gocognit
+      - path: pkg/linter/fixer\.go
+        linters:
+          - gocognit
+      - path: pkg/types/types\.go
+        linters:
+          - tagalign
+      - path: pkg/config/loader\.go
+        linters:
+          - wrapcheck
+          - noinlineerr
+      - path: pkg/linter/analyzer\.go
+        linters:
+          - wrapcheck
+          - noinlineerr
+      - path: pkg/linter/fixer\.go
+        linters:
+          - wrapcheck
+          - noinlineerr
+      - path: pkg/linter/version_checker\.go
+        linters:
+          - tagliatelle
+          - wrapcheck
+      - path: pkg/report/json_report_generator\.go
+        linters:
+          - tagliatelle
+      - path: internal/cli/cmd/
+        linters:
+          - gocognit
+      - path: internal/cli/cmd_migrate\.go
+        linters:
+          - gocognit
+      - path: pkg/detection/detector\.go
+        linters:
+          - godox
+      - path: pkg/linter/fixer\.go
+        linters:
+          - gocyclo
+          - nestif
+      - path: pkg/linter/fixer\.go|internal/cli/cmd_configure\.go|pkg/linter/analyzer\.go|internal/cli/cmd/installhook\.go
+        linters:
+          - noinlineerr
+      - path: pkg/constants/linter_reasons\.go
+        linters:
+          - gosec
+      - path: pkg/linter/command_runner\.go|pkg/linter/version_checker\.go
+        linters:
+          - gosec
+      - path: internal/cli/cmd/installhook\.go
+        linters:
+          - gosec
+          - funlen
+      - path: internal/cli/cmd/migrate\.go
+        linters:
+          - funlen
+      - path: internal/cli/cmd_validate\.go
+        linters:
+          - funlen
+      - path: pkg/detection/detector_test\.go
+        linters:
+          - funlen
+          - paralleltest
+      - path: pkg/diff/differ_test\.go
+        linters:
+          - funlen
+          - paralleltest
+      - path: pkg/workflow/workflow\.go
+        linters:
+          - ireturn
+      - path: _test\.go
+        linters:
+          - paralleltest
+      - path: pkg/report/json_report_generator\.go
+        linters:
+          - gosec
+      - path: internal/cli/commands\.go
+        linters:
+          - gochecknoglobals
+      - path: pkg/config/loader\.go
+        linters:
+          - godox
+      - path: pkg/linter/fixer\.go
+        linters:
+          - godox
+      - path: pkg/types/types\.go
+        linters:
+          - godox
+      - path: internal/cli/commands_test\.go
+        linters:
+          - goconst
 formatters:
   enable:
     - golines

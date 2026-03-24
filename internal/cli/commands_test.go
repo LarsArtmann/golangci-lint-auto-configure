@@ -183,11 +183,7 @@ linters:
 
 		It("should succeed with warning when not in a git repository", func() {
 			binaryPath := buildBinary()
-			configContent := `version: "2"
-linters:
-  enable:
-    - errcheck
-`
+			configContent := testConfigContentMinimal
 			configPath := filepath.Join(testDir, ".golangci.yml")
 			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
