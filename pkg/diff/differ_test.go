@@ -81,7 +81,12 @@ func TestDiffer_Compare(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			changes := differ.Compare(testCase.old, testCase.new)
 			if len(changes) != testCase.wantChanges {
-				t.Errorf("Compare() returned %d changes, want %d - %s", len(changes), testCase.wantChanges, testCase.description)
+				t.Errorf(
+					"Compare() returned %d changes, want %d - %s",
+					len(changes),
+					testCase.wantChanges,
+					testCase.description,
+				)
 			}
 		})
 	}
@@ -110,7 +115,11 @@ func TestDiffer_FormatChanges(t *testing.T) {
 		{
 			name: "removed linter",
 			changes: []diffpkg.Change{
-				{Type: diffpkg.ChangeTypeRemoved, Path: "linters.enable.errcheck", Description: "Disabled linter: errcheck"},
+				{
+					Type:        diffpkg.ChangeTypeRemoved,
+					Path:        "linters.enable.errcheck",
+					Description: "Disabled linter: errcheck",
+				},
 			},
 			want: []string{"1 removed", "- Disabled linter: errcheck"},
 		},

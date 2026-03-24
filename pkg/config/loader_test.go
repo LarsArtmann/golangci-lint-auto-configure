@@ -211,7 +211,9 @@ timeout = "5m"
 			}
 
 			for _, testCase := range testCases {
-				Expect(os.WriteFile(filepath.Join(testDir, testCase.filename), []byte("version: 1"), 0o644)).To(Succeed())
+				Expect(
+					os.WriteFile(filepath.Join(testDir, testCase.filename), []byte("version: 1"), 0o644),
+				).To(Succeed())
 
 				found, err := loader.FindConfigFile(testDir)
 
