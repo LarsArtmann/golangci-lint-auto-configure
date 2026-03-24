@@ -132,6 +132,13 @@ func runConfigure(
 
 	logger.Infof("%s", result.Message)
 
+	if len(result.NextSteps) > 0 {
+		logger.Infof("Next steps:")
+		for _, step := range result.NextSteps {
+			logger.Infof("  → %s", step)
+		}
+	}
+
 	return nil
 }
 

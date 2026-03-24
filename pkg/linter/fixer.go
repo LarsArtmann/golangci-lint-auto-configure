@@ -241,6 +241,10 @@ func (f *Fixer) FixConfigResult(
 			Success:      true,
 			FixesApplied: totalFixes,
 			Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", totalFixes),
+			NextSteps: []string{
+				"Run without --dry-run to apply these fixes",
+				"Then run 'golangci-lint run --fix' to auto-fix code issues",
+			},
 		})
 	}
 
@@ -249,6 +253,10 @@ func (f *Fixer) FixConfigResult(
 			Success:      true,
 			FixesApplied: 0,
 			Message:      "No fixes to apply",
+			NextSteps: []string{
+				"Your configuration is already up to date",
+				"Run 'golangci-lint run' to check for code issues",
+			},
 		})
 	}
 
@@ -303,6 +311,10 @@ func (f *Fixer) FixConfigResult(
 			deprecationFixes,
 			redundantFixes,
 		),
+		NextSteps: []string{
+			"Run 'golangci-lint run --fix' to auto-fix code issues found by the newly enabled linters",
+			"Run 'golangci-lint run' to see remaining issues that require manual fixes",
+		},
 	}
 
 	return types.OkMigration(result)

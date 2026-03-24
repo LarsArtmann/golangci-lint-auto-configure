@@ -127,9 +127,10 @@ type ConfigAnalysis struct {
 
 // MigrationResult represents the result of a configuration migration.
 type MigrationResult struct {
-	Success      bool   `json:"success"`
-	FixesApplied int    `json:"fixes_applied"`
-	Message      string `json:"message"`
+	Success      bool     `json:"success"`
+	FixesApplied int      `json:"fixes_applied"`
+	Message      string   `json:"message"`
+	NextSteps    []string `json:"next_steps,omitempty"`
 }
 
 // ValidationError represents a configuration validation error.
