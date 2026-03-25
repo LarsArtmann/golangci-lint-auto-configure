@@ -1,3 +1,4 @@
+// Package types contains core type definitions and result types for railway-oriented programming.
 package types
 
 import (

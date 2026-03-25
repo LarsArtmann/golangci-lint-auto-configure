@@ -11,6 +11,7 @@ import (
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -82,7 +83,50 @@ func runConfigure(
 	// Check for multiple config files
 	configLoader.HasMultipleConfigFiles(".")
 
-	// Check if config file exists, create default if not
+	// Ensure config file exists
+	if err := ensureConfigFile(ctx, configFile, inGitRepo, logger, configLoader); err != nil {
+		return err
+	}
+
+	logger.Infof("Configuring golangci-lint with config: %s", configFile)
+
+	// Handle preset mode
+	if preset != "" {
+		return applyPreset(ctx, logger, configLoader, configFile, preset, dryRun)
+	}
+
+	// Create fixer and apply fixes
+	fixer := linter.NewFixer(logger, analyzer)
+
+	linterPriority := parsePriorityParam(priorityParam)
+
+	result, err := fixer.FixConfig(ctx, configFile, linterPriority, dryRun)
+	if err != nil {
+		return fmt.Errorf("failed to fix configuration: %w", err)
+	}
+
+	fmt.Fprintln(os.Stdout, "\n"+ui.FormatConfigHeader(configFile))
+	fmt.Fprintln(os.Stdout, ui.FormatFixResult(result))
+
+	if len(result.NextSteps) > 0 {
+		logger.Infof("Next steps:")
+
+		for _, step := range result.NextSteps {
+			logger.Infof("  → %s", step)
+		}
+	}
+
+	return nil
+}
+
+// ensureConfigFile creates a default config file if it doesn't exist.
+func ensureConfigFile(
+	ctx context.Context,
+	configFile string,
+	inGitRepo bool,
+	logger *log.Logger,
+	configLoader *config.Loader,
+) error {
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		if !inGitRepo {
 			logger.Warnf("⚠️  Creating config without git version control - changes cannot be easily reverted")
@@ -100,46 +144,23 @@ func runConfigure(
 		return fmt.Errorf("failed to check config file: %w", err)
 	}
 
-	logger.Infof("Configuring golangci-lint with config: %s", configFile)
+	return nil
+}
 
-	// Handle preset mode
-	if preset != "" {
-		return applyPreset(ctx, logger, configLoader, configFile, preset, dryRun)
-	}
-
-	// Create fixer and apply fixes
-	fixer := linter.NewFixer(logger, analyzer)
-
-	var linterPriority types.LinterPriority
-
+// parsePriorityParam converts a priority string to LinterPriority.
+func parsePriorityParam(priorityParam string) types.LinterPriority {
 	switch priorityParam {
 	case "critical":
-		linterPriority = types.LinterPriorityCritical
+		return types.LinterPriorityCritical
 	case "high":
-		linterPriority = types.LinterPriorityHigh
+		return types.LinterPriorityHigh
 	case "medium":
-		linterPriority = types.LinterPriorityMedium
+		return types.LinterPriorityMedium
 	case "optional":
-		linterPriority = types.LinterPriorityOptional
+		return types.LinterPriorityOptional
 	default:
-		linterPriority = types.LinterPriorityHigh
+		return types.LinterPriorityHigh
 	}
-
-	result, err := fixer.FixConfig(ctx, configFile, linterPriority, dryRun)
-	if err != nil {
-		return fmt.Errorf("failed to fix configuration: %w", err)
-	}
-
-	logger.Infof("%s", result.Message)
-
-	if len(result.NextSteps) > 0 {
-		logger.Infof("Next steps:")
-		for _, step := range result.NextSteps {
-			logger.Infof("  → %s", step)
-		}
-	}
-
-	return nil
 }
 
 // applyPreset applies a preset linter configuration.

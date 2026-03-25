@@ -3,10 +3,12 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/log"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -57,14 +59,12 @@ func newAnalyzeCommand(
 					return fmt.Errorf("failed to marshal analysis to JSON: %w", jsonErr)
 				}
 
-				logger.Info(string(data))
+				fmt.Fprintln(os.Stdout, string(data))
 			default:
-				// Default text output
-				recommendations := analyzer.FormatRecommendations(analysis)
-				summary := analyzer.GetSummary(analysis)
-
-				logger.Info("\n" + recommendations)
-				logger.Infof("Summary: %s", summary)
+				// Default styled text output
+				fmt.Fprint(os.Stdout, ui.FormatConfigHeader(configFile))
+				fmt.Fprint(os.Stdout, ui.FormatRecommendations(analysis))
+				fmt.Fprint(os.Stdout, ui.FormatSummary(analysis))
 			}
 
 			return nil

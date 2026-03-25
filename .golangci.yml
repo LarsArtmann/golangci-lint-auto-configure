@@ -307,6 +307,10 @@ linters:
       - path: pkg/types/validation\.go
         linters:
           - revive
+      - path: pkg/types/
+        linters:
+          - revive
+        text: "var-naming: avoid meaningless package names"
       - path: pkg/linter/fixer\.go
         linters:
           - cyclop

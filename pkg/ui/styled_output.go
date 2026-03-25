@@ -1,190 +1,112 @@
 package ui
 
-import (
-	"github.com/charmbracelet/lipgloss"
-)
+import "github.com/charmbracelet/lipgloss"
 
-// Color definitions
+// Color definitions - intentional global constants for consistent UI styling.
+//
+//nolint:gochecknoglobals
 var (
-	// Primary brand colors
-	PrimaryColor   = lipgloss.Color("#667eea")
-	SecondaryColor = lipgloss.Color("#764ba2")
-
-	// Priority colors
-	CriticalColor = lipgloss.Color("#dc3545")
-	HighColor     = lipgloss.Color("#fd7e14")
-	MediumColor   = lipgloss.Color("#ffc107")
-	OptionalColor = lipgloss.Color("#17a2b8")
-	SuccessColor  = lipgloss.Color("#28a745")
-	MutedColor    = lipgloss.Color("#6c757d")
-
-	// Text colors
-	TextColor    = lipgloss.Color("#eaeaea")
-	HeadingColor = lipgloss.Color("#ffffff")
-	SubtextColor = lipgloss.Color("#a0a0a0")
-
-	// Background
-	BgColor         = lipgloss.Color("#1a1a2e")
-	CardBgColor     = lipgloss.Color("#16213e")
+	PrimaryColor    = lipgloss.Color("#667eea")
+	CriticalColor   = lipgloss.Color("#dc3545")
+	HighColor       = lipgloss.Color("#fd7e14")
+	MediumColor     = lipgloss.Color("#ffc107")
+	OptionalColor   = lipgloss.Color("#17a2b8")
+	SuccessColor    = lipgloss.Color("#28a745")
+	MutedColor      = lipgloss.Color("#6c757d")
+	HeadingColor    = lipgloss.Color("#ffffff")
+	SubtextColor    = lipgloss.Color("#a0a0a0")
 	CardBorderColor = lipgloss.Color("#4a4a6a")
 )
 
-// Text styles
-var (
-	TitleStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(HeadingColor).
-			Background(PrimaryColor).
-			Padding(1, 2).
-			Width(60).
-			Align(lipgloss.Center)
+// SuccessMsg returns a success message.
+func SuccessMsg(msg string) string {
+	return lipgloss.NewStyle().
+		Foreground(SuccessColor).
+		Bold(true).
+		Render("✓ " + msg)
+}
 
-	HeadingStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(HeadingColor).
-			Padding(0, 1).
-			MarginBottom(1)
+// ErrorMsg returns an error message.
+func ErrorMsg(msg string) string {
+	return lipgloss.NewStyle().
+		Foreground(CriticalColor).
+		Bold(true).
+		Render("✗ " + msg)
+}
 
-	SubheadingStyle = lipgloss.NewStyle().
-			Foreground(SubtextColor).
-			PaddingLeft(2)
+// WarningMsg returns a warning message.
+func WarningMsg(msg string) string {
+	return lipgloss.NewStyle().
+		Foreground(HighColor).
+		Bold(true).
+		Render("⚠ " + msg)
+}
 
-	BodyStyle = lipgloss.NewStyle().
-			Foreground(TextColor)
+// InfoMsg returns an info message.
+func InfoMsg(msg string) string {
+	return lipgloss.NewStyle().
+		Foreground(OptionalColor).
+		Render("ℹ " + msg)
+}
 
-	CodeStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#e0e0e0")).
-			Background(lipgloss.Color("#2d2d44")).
+// PriorityBadge returns a styled priority badge.
+func PriorityBadge(priority int) string {
+	var style lipgloss.Style
+
+	switch priority {
+	case priorityCritical:
+		style = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#ffffff")).
+			Background(CriticalColor).
 			Padding(0, 1)
-)
-
-// Priority badge styles
-var (
-	CriticalBadgeStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#ffffff")).
-				Background(CriticalColor).
-				Padding(0, 1).
-				MarginRight(1)
-
-	HighBadgeStyle = lipgloss.NewStyle().
+	case priorityHigh:
+		style = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#ffffff")).
 			Background(HighColor).
-			Padding(0, 1).
-			MarginRight(1)
-
-	MediumBadgeStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#212529")).
-				Background(MediumColor).
-				Padding(0, 1).
-				MarginRight(1)
-
-	OptionalBadgeStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#ffffff")).
-				Background(OptionalColor).
-				Padding(0, 1).
-				MarginRight(1)
-)
-
-// Status styles
-var (
-	SuccessStyle = lipgloss.NewStyle().
-			Foreground(SuccessColor).
-			Bold(true)
-
-	ErrorStyle = lipgloss.NewStyle().
-			Foreground(CriticalColor).
-			Bold(true)
-
-	WarningStyle = lipgloss.NewStyle().
-			Foreground(HighColor).
-			Bold(true)
-
-	InfoStyle = lipgloss.NewStyle().
-			Foreground(OptionalColor)
-)
-
-// Card styles provide styled card output.
-var (
-	CardStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(CardBorderColor).
-			Background(CardBgColor).
-			Padding(1, 2).
-			MarginBottom(1)
-
-	CardTitleStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(HeadingColor).
-			MarginBottom(1)
-)
-
-// Box styles for sections provide styled box output.
-var (
-	BoxStyle = lipgloss.NewStyle().
-		Border(lipgloss.DoubleBorder()).
-		BorderForeground(PrimaryColor).
-		Padding(1, 2).
-		MarginBottom(1)
-)
-
-// GetPriorityBadge returns the appropriate badge style for a priority level.
-func GetPriorityBadge(priority int) lipgloss.Style {
-	switch priority {
-	case 0:
-		return CriticalBadgeStyle
-	case 1:
-		return HighBadgeStyle
-	case 2:
-		return MediumBadgeStyle
+			Padding(0, 1)
+	case priorityMedium:
+		style = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#212529")).
+			Background(MediumColor).
+			Padding(0, 1)
 	default:
-		return OptionalBadgeStyle
+		style = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#ffffff")).
+			Background(OptionalColor).
+			Padding(0, 1)
 	}
+
+	name := priorityName(priority)
+
+	return style.Render(name)
 }
 
-// GetPriorityColor returns the appropriate color for a priority level.
-func GetPriorityColor(priority int) lipgloss.Color {
-	switch priority {
-	case 0:
-		return CriticalColor
-	case 1:
-		return HighColor
-	case 2:
-		return MediumColor
-	default:
-		return OptionalColor
-	}
+// Code returns styled code text.
+func Code(text string) string {
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#e0e0e0")).
+		Background(lipgloss.Color("#2d2d44")).
+		Padding(0, 1).
+		Render(text)
 }
 
-// GetPriorityName returns the human-readable name for a priority level.
-func GetPriorityName(priority int) string {
+// SectionHeader returns a styled section header.
+func SectionHeader(title string) string {
+	return lipgloss.NewStyle().
+		Foreground(PrimaryColor).
+		Bold(true).
+		Render("━━ " + title + " ")
+}
+
+func priorityName(priority int) string {
 	switch priority {
-	case 0:
+	case priorityCritical:
 		return "CRITICAL"
-	case 1:
+	case priorityHigh:
 		return "HIGH"
-	case 2:
+	case priorityMedium:
 		return "MEDIUM"
 	default:
 		return "OPTIONAL"
 	}
-}
-
-// HorizontalRule creates a visual divider.
-func HorizontalRule() string {
-	return lipgloss.NewStyle().
-		Foreground(CardBorderColor).
-		Render("─────────────────────────────────────────────────────")
-}
-
-// SectionDivider creates a decorated section divider.
-func SectionDivider(title string) string {
-	if title == "" {
-		return HorizontalRule()
-	}
-	style := lipgloss.NewStyle().
-		Foreground(PrimaryColor).
-		Bold(true)
-	return style.Render("━━ "+title+" ") + lipgloss.NewStyle().
-		Foreground(CardBorderColor).
-		Render("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 }
