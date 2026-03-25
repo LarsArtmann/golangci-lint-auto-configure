@@ -24,7 +24,6 @@ type WizardResult struct {
 
 // RunLinterSelectionWizard runs an interactive TUI wizard for linter selection.
 func RunLinterSelectionWizard(analysis *types.ConfigAnalysis) (*WizardResult, error) {
-	var result WizardResult
 	var selectedLinters []string
 
 	// Create a map to track selections
@@ -32,6 +31,7 @@ func RunLinterSelectionWizard(analysis *types.ConfigAnalysis) (*WizardResult, er
 
 	// Create huh group for linters by priority
 	var groups []*huh.Group
+	var multiSelects []*huh.MultiSelect[string]
 
 	// Priority labels
 	priorityLabels := []string{"Critical", "High Priority", "Medium Priority", "Optional"}
@@ -84,11 +84,11 @@ func RunLinterSelectionWizard(analysis *types.ConfigAnalysis) (*WizardResult, er
 		multiSelect := huh.NewMultiSelect[string]().
 			Title(priorityLabels[p]).
 			Description(priorityDescriptions[p]).
-			Options(options...).
-			WithMini(true)
+			Options(options...)
 
 		group := huh.NewGroup(multiSelect)
 		groups = append(groups, group)
+		multiSelects = append(multiSelects, multiSelect)
 	}
 
 	if len(groups) == 0 {
@@ -137,12 +137,10 @@ func RunLinterSelectionWizard(analysis *types.ConfigAnalysis) (*WizardResult, er
 	}
 
 	// Collect selected linters from all multi-selects
-	for _, group := range groups[1 : len(groups)-1] { // Skip priority and confirm groups
-		for _, field := range group.Fields() {
-			if ms, ok := field.(*huh.MultiSelect[string]); ok {
-				for _, v := range ms.GetValue() {
-					selections[v] = true
-				}
+	for _, ms := range multiSelects {
+		if values, ok := ms.GetValue().([]string); ok {
+			for _, v := range values {
+				selections[v] = true
 			}
 		}
 	}

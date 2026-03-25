@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -111,8 +112,8 @@ func (m SpinnerModel) View() string {
 // Messages for the spinner model.
 type (
 	SetStatusMsg struct{ Status string }
-	SetErrorMsg struct{ Err error }
-	SetDoneMsg  struct{}
+	SetErrorMsg  struct{ Err error }
+	SetDoneMsg   struct{}
 )
 
 // SetStatus sets the status message.
@@ -200,12 +201,15 @@ func RunSpinnerWithStatus(message string, work func(func(string)) error) error {
 
 // ProgressDisplay displays a simple progress indicator.
 func ProgressDisplay(current, total int, label string) string {
+	if total <= 0 {
+		total = 1
+	}
 	width := 40
 	filled := (current * width) / total
 	empty := width - filled
 
 	progressBar := SuccessStyle.Render(repeatString("█", filled)) +
-		MutedColor.Render(repeatString("░", empty))
+		lipgloss.NewStyle().Foreground(MutedColor).Render(repeatString("░", empty))
 
 	return fmt.Sprintf("%s [%s] %d%% %s",
 		BodyStyle.Render(label),
@@ -216,11 +220,15 @@ func ProgressDisplay(current, total int, label string) string {
 }
 
 func repeatString(s string, count int) string {
-	result := ""
-	for i := 0; i < count; i++ {
-		result += s
+	if count <= 0 || s == "" {
+		return ""
 	}
-	return result
+	var b strings.Builder
+	b.Grow(count * len(s))
+	for i := 0; i < count; i++ {
+		b.WriteString(s)
+	}
+	return b.String()
 }
 
 // MultiSpinner allows running multiple spinners with output capture.
