@@ -40,3 +40,5 @@ docs/public/
 node_modules/
 # Add pattern for Templ generated files
 *_templ.go
+# Build artifacts
+/golangcli-linter-auto-configure
