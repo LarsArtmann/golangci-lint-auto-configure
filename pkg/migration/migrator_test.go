@@ -57,6 +57,19 @@ var _ = Describe("Migrator", func() {
 		})
 	})
 
+	Describe("SetNoEmojis", func() {
+		It("should set no emojis mode", func() {
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			Expect(os.WriteFile(configPath, []byte("version: \"2\""), 0o644)).To(Succeed())
+
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			m.SetNoEmojis(false)
+			// No error means success
+		})
+	})
+
 	Describe("MigrateToV2", func() {
 		Context("with already v2 config", func() {
 			It("should not migrate when config is already v2 with all required fields", func() {
@@ -228,6 +241,100 @@ linters:
 				Expect(err).NotTo(HaveOccurred())
 				Expect(string(currentContent)).To(Equal(string(originalContent)))
 			})
+		})
+	})
+})
+
+var _ = Describe("MigrationRules", func() {
+	Describe("DefaultRules", func() {
+		It("should return rules with valid versions", func() {
+			rules := migration.DefaultRules()
+			Expect(rules).NotTo(BeNil())
+			Expect(rules.IsValidVersion("2")).To(BeTrue())
+			Expect(rules.IsValidVersion("2.8")).To(BeTrue())
+			Expect(rules.IsValidVersion("1")).To(BeFalse())
+		})
+
+		It("should return deprecated properties for known linters", func() {
+			rules := migration.DefaultRules()
+			props := rules.GetDeprecatedProperties("cyclop")
+			Expect(props).To(ContainElement("skip-tests"))
+		})
+
+		It("should return empty slice for unknown linters", func() {
+			rules := migration.DefaultRules()
+			props := rules.GetDeprecatedProperties("unknown-linter")
+			Expect(props).To(BeEmpty())
+		})
+
+		It("should identify linters without settings", func() {
+			rules := migration.DefaultRules()
+			Expect(rules.IsLinterWithoutSettings("containedctx")).To(BeTrue())
+			Expect(rules.IsLinterWithoutSettings("errcheck")).To(BeFalse())
+		})
+
+		It("should map modernize disable values", func() {
+			rules := migration.DefaultRules()
+			mapped, exists := rules.MapModernizeDisable("forvar")
+			Expect(exists).To(BeTrue())
+			Expect(mapped).To(Equal("forvar"))
+		})
+
+		It("should return false for unknown modernize disable values", func() {
+			rules := migration.DefaultRules()
+			_, exists := rules.MapModernizeDisable("unknown")
+			Expect(exists).To(BeFalse())
+		})
+
+		It("should map sloglint key-naming-case values", func() {
+			rules := migration.DefaultRules()
+			mapped, exists := rules.MapSloglintKeyNamingCase("snake")
+			Expect(exists).To(BeTrue())
+			Expect(mapped).To(Equal("snake"))
+		})
+
+		It("should map camelCase to camel", func() {
+			rules := migration.DefaultRules()
+			mapped, exists := rules.MapSloglintKeyNamingCase("camelCase")
+			Expect(exists).To(BeTrue())
+			Expect(mapped).To(Equal("camel"))
+		})
+
+		It("should return false for unknown sloglint values", func() {
+			rules := migration.DefaultRules()
+			_, exists := rules.MapSloglintKeyNamingCase("unknown")
+			Expect(exists).To(BeFalse())
+		})
+	})
+})
+
+var _ = Describe("Validator", func() {
+	Describe("MockValidator", func() {
+		It("should always return nil", func() {
+			v := migration.MockValidator{}
+			Expect(v.ValidateConfig("any-path")).To(BeNil())
+		})
+	})
+
+	Describe("VersionValidator", func() {
+		It("should validate existing config file with version 2", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			v := migration.VersionValidator{Version: "2"}
+			Expect(v.ValidateConfig(configPath)).To(BeNil())
+		})
+
+		It("should return error for non-existent file", func() {
+			v := migration.VersionValidator{Version: "2"}
+			err := v.ValidateConfig("/non/existent/path.yml")
+			Expect(err).To(HaveOccurred())
 		})
 	})
 })
