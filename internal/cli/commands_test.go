@@ -11,6 +11,8 @@ import (
 )
 
 const testConfigContentMinimal = `version: "2"
+run:
+  timeout: 5m
 linters:
   enable:
     - errcheck

@@ -37,31 +37,37 @@ func (c *Config) UnmarshalYAML(unmarshal func(any) error) error {
 			if _, hasExcludeRules := issuesMap["exclude-rules"]; hasExcludeRules {
 				if excludeRules, exists := issuesMap["exclude-rules"]; exists {
 					temp["exclude-rules"] = excludeRules
+
 					delete(issuesMap, "exclude-rules")
 				}
 
 				if excludeFiles, exists := issuesMap["exclude-files"]; exists {
 					temp["exclude-files"] = excludeFiles
+
 					delete(issuesMap, "exclude-files")
 				}
 
 				if excludeDirs, exists := issuesMap["exclude-dirs"]; exists {
 					temp["exclude-dirs"] = excludeDirs
+
 					delete(issuesMap, "exclude-dirs")
 				}
 
 				if excludeUseDefault, exists := issuesMap["exclude-use-default"]; exists {
 					temp["exclude-use-default"] = excludeUseDefault
+
 					delete(issuesMap, "exclude-use-default")
 				}
 
 				if excludeRulesUseDefault, exists := issuesMap["exclude-rules-use-default"]; exists {
 					temp["exclude-rules-use-default"] = excludeRulesUseDefault
+
 					delete(issuesMap, "exclude-rules-use-default")
 				}
 
 				if excludeDirUseDefault, exists := issuesMap["exclude-dir-use-default"]; exists {
 					temp["exclude-dir-use-default"] = excludeDirUseDefault
+
 					delete(issuesMap, "exclude-dir-use-default")
 				}
 

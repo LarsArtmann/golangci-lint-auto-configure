@@ -225,7 +225,7 @@ linters:
 			Expect(string(content)).To(ContainSubstring(`timeout: 10m`))
 		})
 
-		It("should fix invalid timeout even in dry-run mode (required for analysis)", func() {
+		It("should NOT fix invalid timeout in dry-run mode (file unchanged)", func() {
 			configContent := `version: "2"
 run:
   timeout: ""
@@ -235,14 +235,16 @@ linters:
 `
 			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
 
-			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
+			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
 
 			Expect(err).NotTo(HaveOccurred())
+			Expect(result.IsSuccess()).To(BeTrue())
+			Expect(result.FixesApplied).To(Equal(1))
 
-			// File should be modified even in dry-run mode because invalid timeout breaks analysis
+			// File should NOT be modified in dry-run mode
 			content, err := os.ReadFile(testConfig)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(content)).To(ContainSubstring(`timeout: 5m`))
+			Expect(string(content)).To(ContainSubstring(`timeout: ""`))
 		})
 	})
 })

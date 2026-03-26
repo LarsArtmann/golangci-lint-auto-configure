@@ -116,11 +116,13 @@ func (r *MigrationRules) IsLinterWithoutSettings(linterName string) bool {
 // MapModernizeDisable maps old modernize disable values to new valid values.
 func (r *MigrationRules) MapModernizeDisable(oldValue string) (string, bool) {
 	mapped, exists := r.ModernizeDisableMappings[oldValue]
+
 	return mapped, exists
 }
 
 // MapSloglintKeyNamingCase maps old sloglint key-naming-case values to valid ones.
 func (r *MigrationRules) MapSloglintKeyNamingCase(oldValue string) (string, bool) {
 	mapped, exists := r.SloglintKeyNamingCaseMappings[oldValue]
+
 	return mapped, exists
 }

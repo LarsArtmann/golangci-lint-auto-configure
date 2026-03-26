@@ -69,11 +69,19 @@ func (f *Fixer) FixConfigResult(
 	}
 
 	// Pre-fix invalid duration fields before analysis to prevent golangci-lint from failing
-	if err := f.preFixInvalidDurations(cfg, configPath, dryRun); err != nil {
+	hasInvalidDurations, err := f.preFixInvalidDurations(cfg, configPath, dryRun)
+	if err != nil {
 		return types.ErrMigration(apperrors.NewAnalysisError(
 			fmt.Sprintf("failed to pre-fix invalid durations (priority=%d, dryRun=%t)", priority, dryRun),
 			configPath, err,
 		))
+	}
+
+	// In dry-run mode with invalid durations, skip analysis (config is broken, can't run golangci-lint linters)
+	if dryRun && hasInvalidDurations {
+		f.logger.Infof("Dry-run with invalid durations - skipping analysis (run without --dry-run to fix)")
+
+		return f.calculateDryRunResultWithInvalidDurations(cfg)
 	}
 
 	// Pre-fix version field before analysis to prevent golangci-lint linters command from failing

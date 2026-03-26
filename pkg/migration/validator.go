@@ -25,7 +25,9 @@ func (v DefaultValidator) ValidateConfig(m *Migrator) error {
 	}
 
 	cmd := exec.Command(golangciLintPath, "config", "verify")
+
 	var stderr bytes.Buffer
+
 	cmd.Stderr = &stderr
 
 	err = cmd.Run()
@@ -56,5 +58,6 @@ func (v FailingValidator) ValidateConfig(_ *Migrator) error {
 	if v.ErrorMessage == "" {
 		return errors.New("mock validation failed")
 	}
+
 	return fmt.Errorf("%s", v.ErrorMessage)
 }

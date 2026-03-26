@@ -50,39 +50,67 @@ func (f *Fixer) preFixVersion(cfg *types.Config, configPath string, dryRun bool)
 // preFixInvalidDurations fixes invalid duration fields in the config.
 // This is necessary because golangci-lint will fail with "time: invalid duration" error
 // if fields like run.timeout have invalid values (e.g., empty string).
-// NOTE: This always saves the file, even in dry-run mode, because invalid durations
-// will cause the golangci-lint linters command to fail during analysis.
-func (f *Fixer) preFixInvalidDurations(cfg *types.Config, configPath string, dryRun bool) error {
+// Returns true if the config has invalid durations that need fixing.
+func (f *Fixer) preFixInvalidDurations(
+	cfg *types.Config,
+	configPath string,
+	dryRun bool,
+) (needsFixing bool, err error) {
+	// Check if timeout is empty or invalid
 	if cfg.Run.Timeout == "" {
-		f.logger.Infof("run.timeout is empty, setting to %q", DefaultTimeout)
+		f.logger.Infof("run.timeout is empty, would set to %q", DefaultTimeout)
 
 		if dryRun {
-			f.logger.Warnf("[DRY-RUN] Pre-fixing invalid timeout (required for analysis to proceed)")
+			f.logger.Infof("[DRY-RUN] Would set run.timeout to %q", DefaultTimeout)
+
+			return true, nil // Needs fixing, but don't save in dry-run
 		}
 
 		cfg.Run.Timeout = DefaultTimeout
-	} else if _, err := time.ParseDuration(cfg.Run.Timeout); err != nil {
-		f.logger.Infof("run.timeout %q is invalid, setting to %q", cfg.Run.Timeout, DefaultTimeout)
+	} else if _, parseErr := time.ParseDuration(cfg.Run.Timeout); parseErr != nil {
+		f.logger.Infof("run.timeout %q is invalid, would set to %q", cfg.Run.Timeout, DefaultTimeout)
 
 		if dryRun {
-			f.logger.Warnf("[DRY-RUN] Pre-fixing invalid timeout (required for analysis to proceed)")
+			f.logger.Infof("[DRY-RUN] Would set run.timeout to %q", DefaultTimeout)
+
+			return true, nil // Needs fixing, but don't save in dry-run
 		}
 
 		cfg.Run.Timeout = DefaultTimeout
 	} else {
-		return nil
+		return false, nil // No fix needed
 	}
 
-	err := f.configLoader.SaveConfig(cfg, configPath)
+	// Save the fixed config (only in non-dry-run mode)
+	err = f.configLoader.SaveConfig(cfg, configPath)
 	if err != nil {
-		return apperrors.NewConfigError(
+		return false, apperrors.NewConfigError(
 			fmt.Sprintf("failed to save pre-fixed config (dryRun=%t)", dryRun),
 			configPath,
 			err,
 		)
 	}
 
-	return nil
+	return false, nil // Fixed, no longer needs fixing
+}
+
+// calculateDryRunResultWithInvalidDurations calculates the dry-run result when invalid durations are present.
+// Since the config has invalid durations, we can't run golangci-lint linters for analysis,
+// so we just report what would be fixed regarding durations.
+func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) types.MigrationResultType {
+	f.logger.Infof("[DRY-RUN] Would fix invalid run.timeout: %q -> %q", cfg.Run.Timeout, DefaultTimeout)
+
+	return types.OkMigration(&types.MigrationResult{
+		FixesApplied: 1,
+		Message: fmt.Sprintf(
+			"Would apply 1 fix (dry-run mode, skipped analysis due to invalid duration: run.timeout=%q)",
+			cfg.Run.Timeout,
+		),
+		NextSteps: []string{
+			"Run without --dry-run to fix the invalid duration",
+			"Then run 'golangci-lint run --fix' to auto-fix code issues",
+		},
+	})
 }
 
 // preFixDeprecatedLinters replaces deprecated linters in the config before analysis.

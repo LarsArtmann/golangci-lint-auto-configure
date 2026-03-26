@@ -10,15 +10,20 @@ func normalizeLocalPrefixes(settings map[string]any) int {
 		case string:
 			if v != "" {
 				settings["local-prefixes"] = []string{v}
+
 				return 1
 			}
+
 			delete(settings, "local-prefixes")
+
 			return 1
 		case nil:
 			delete(settings, "local-prefixes")
+
 			return 1
 		}
 	}
+
 	return 0
 }
 
@@ -32,9 +37,11 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 			for _, prop := range propsToRemove {
 				if _, exists := linterSettings[prop]; exists {
 					delete(linterSettings, prop)
+
 					fixes++
 				}
 			}
+
 			if len(linterSettings) == 0 {
 				delete(settings, linterName)
 			}
@@ -45,6 +52,7 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 	for _, linterName := range rules.LintersWithoutSettings {
 		if _, exists := settings[linterName]; exists {
 			delete(settings, linterName)
+
 			fixes++
 		}
 	}
@@ -55,9 +63,11 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 			for _, setting := range rules.GocriticSettingsToRemove {
 				if _, exists := gocriticSettings[setting]; exists {
 					delete(gocriticSettings, setting)
+
 					fixes++
 				}
 			}
+
 			if len(gocriticSettings) == 0 {
 				delete(gocritic, "settings")
 			}
@@ -74,6 +84,7 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 		if excludes, exists := gosec["excludes"]; exists {
 			if excludes == nil {
 				delete(gosec, "excludes")
+
 				fixes++
 			}
 		}
@@ -87,9 +98,11 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 					if p, exists := itemMap["p"]; exists {
 						itemMap["pattern"] = p
 						delete(itemMap, "p")
+
 						fixes++
 					}
 				}
+
 				forbid[i] = item
 			}
 		}
@@ -99,18 +112,21 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 	if modernize, ok := settings["modernize"].(map[string]any); ok {
 		if disable, ok := modernize["disable"].([]any); ok {
 			var newDisable []any
+
 			for _, item := range disable {
 				if str, ok := item.(string); ok {
 					if mapped, exists := rules.MapModernizeDisable(str); exists {
 						if mapped != str {
 							fixes++
 						}
+
 						newDisable = append(newDisable, mapped)
 					} else {
 						newDisable = append(newDisable, str)
 					}
 				}
 			}
+
 			if fixes > 0 {
 				modernize["disable"] = newDisable
 			}
@@ -127,6 +143,7 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 				}
 			} else {
 				delete(sloglint, "key-naming-case")
+
 				fixes++
 			}
 		}
@@ -143,6 +160,7 @@ func migrateFormattersSettings(formatters map[string]any) int {
 	if gci, ok := formatters["gci"].(map[string]any); ok {
 		if _, exists := gci["skip-generated"]; exists {
 			delete(gci, "skip-generated")
+
 			fixes++
 		}
 	}

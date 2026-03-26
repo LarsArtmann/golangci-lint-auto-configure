@@ -36,6 +36,7 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 
 	if m.migrateIssuesExcludeRules(config) {
 		fixes++
+
 		if m.verbose {
 			fmt.Printf("%s Migrated 'issues.exclude-rules' to 'linters.exclusions.rules'\n", m.getCheckmark())
 		}
@@ -43,6 +44,7 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 
 	if m.migrateIssuesExcludeDirs(config) {
 		fixes++
+
 		if m.verbose {
 			fmt.Printf("%s Migrated 'issues.exclude-dirs' to exclusions.paths\n", m.getCheckmark())
 		}
@@ -50,6 +52,7 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 
 	if m.migrateIssuesExcludeFiles(config) {
 		fixes++
+
 		if m.verbose {
 			fmt.Printf("%s Migrated 'issues.exclude-files' to exclusions.paths\n", m.getCheckmark())
 		}
@@ -125,12 +128,15 @@ func (m *Migrator) migrateIssuesFlags(config *Config) int {
 		if config.ExcludeUseDefault != nil {
 			count++
 		}
+
 		if config.ExcludeRulesUseDefault != nil {
 			count++
 		}
+
 		if config.ExcludeDirUseDefault != nil {
 			count++
 		}
+
 		return count
 	}
 
@@ -162,8 +168,10 @@ func (m *Migrator) migrateFormatters(config *Config) bool {
 		"gofumpt":   true,
 	}
 
-	var lintersToKeep []string
-	var formattersToEnable []string
+	var (
+		lintersToKeep      []string
+		formattersToEnable []string
+	)
 
 	for _, linter := range config.Linters.Enable {
 		if formatterNames[linter] {
@@ -200,6 +208,7 @@ func migrateFormatterSettingsFromLinters(config *Config) int {
 		if settings, exists := config.Linters.Settings[name]; exists {
 			config.Formatters.Settings[name] = settings
 			delete(config.Linters.Settings, name)
+
 			fixes++
 		}
 	}
@@ -214,15 +223,19 @@ func (m *Migrator) migrateOutputProperties(config *Config) int {
 		if config.Output.PrintIssuedLines {
 			count++
 		}
+
 		if config.Output.PrintLinterName {
 			count++
 		}
+
 		if config.Output.SortResults {
 			count++
 		}
+
 		if config.Output.Format != "" {
 			count++
 		}
+
 		return count
 	}
 
@@ -261,6 +274,7 @@ func migrateVersion(version *string, rules *MigrationRules) bool {
 
 	if v == "" {
 		*version = "2"
+
 		return true
 	}
 
@@ -272,11 +286,13 @@ func migrateVersion(version *string, rules *MigrationRules) bool {
 	if len(versionNum) > 0 && versionNum[0] == '1' {
 		if len(versionNum) == 1 || versionNum[1] == '.' {
 			*version = "2"
+
 			return true
 		}
 	}
 
 	*version = "2"
+
 	return true
 }
 
@@ -284,7 +300,9 @@ func migrateVersion(version *string, rules *MigrationRules) bool {
 func migrateRunSettings(run *Run) bool {
 	if run.Timeout == "" {
 		run.Timeout = defaultRunTimeout
+
 		return true
 	}
+
 	return false
 }
