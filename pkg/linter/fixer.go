@@ -15,12 +15,12 @@ import (
 // Fixer provides functionality to fix golangci-lint configurations.
 type Fixer struct {
 	configLoader types.ConfigLoader
-	analyzer     *Analyzer
+	analyzer     types.LinterAnalyzer
 	logger       *log.Logger
 }
 
 // NewFixer creates a new fixer.
-func NewFixer(logger *log.Logger, analyzer *Analyzer, configLoader types.ConfigLoader) *Fixer {
+func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader types.ConfigLoader) *Fixer {
 	return &Fixer{
 		configLoader: configLoader,
 		analyzer:     analyzer,
