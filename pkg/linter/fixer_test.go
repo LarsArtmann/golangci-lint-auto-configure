@@ -60,7 +60,7 @@ linters:
 			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.Success).To(BeTrue())
+			Expect(result.IsSuccess()).To(BeTrue())
 		})
 	})
 
@@ -77,7 +77,7 @@ linters:
 			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.Success).To(BeTrue())
+			Expect(result.IsSuccess()).To(BeTrue())
 		})
 
 		It("should handle missing config file gracefully", func() {

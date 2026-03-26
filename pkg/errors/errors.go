@@ -134,3 +134,39 @@ func IsReportError(err error) bool {
 
 	return stderrors.As(err, &reportErr)
 }
+
+// MigrationError represents a migration-related error.
+type MigrationError struct {
+	Message string
+	Config  string
+	Cause   error
+}
+
+func (e *MigrationError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("%s (config: %s): %v", e.Message, e.Config, e.Cause)
+	}
+
+	return fmt.Sprintf("%s (config: %s)", e.Message, e.Config)
+}
+
+// Unwrap returns the underlying error for error chaining.
+func (e *MigrationError) Unwrap() error {
+	return e.Cause
+}
+
+// NewMigrationError creates a new migration error.
+func NewMigrationError(msg, config string, err error) *MigrationError {
+	return &MigrationError{
+		Message: msg,
+		Config:  config,
+		Cause:   err,
+	}
+}
+
+// IsMigrationError checks if an error is a MigrationError.
+func IsMigrationError(err error) bool {
+	var migrationErr *MigrationError
+
+	return stderrors.As(err, &migrationErr)
+}

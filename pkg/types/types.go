@@ -127,10 +127,20 @@ type ConfigAnalysis struct {
 
 // MigrationResult represents the result of a configuration migration.
 type MigrationResult struct {
-	Success      bool     `json:"success"`
 	FixesApplied int      `json:"fixes_applied"`
 	Message      string   `json:"message"`
 	NextSteps    []string `json:"next_steps,omitempty"`
+	Error        error    `json:"-"` // Error is not serialized to JSON
+}
+
+// IsSuccess returns true if the migration was successful.
+func (m *MigrationResult) IsSuccess() bool {
+	return m.Error == nil
+}
+
+// IsFailure returns true if the migration failed.
+func (m *MigrationResult) IsFailure() bool {
+	return m.Error != nil
 }
 
 // ValidationError represents a configuration validation error.

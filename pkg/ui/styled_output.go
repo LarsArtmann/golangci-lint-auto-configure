@@ -2,26 +2,25 @@ package ui
 
 import "charm.land/lipgloss/v2"
 
-// Color definitions - intentional global constants for consistent UI styling.
-//
-//nolint:gochecknoglobals
-var (
-	PrimaryColor    = lipgloss.Color("#667eea")
-	CriticalColor   = lipgloss.Color("#dc3545")
-	HighColor       = lipgloss.Color("#fd7e14")
-	MediumColor     = lipgloss.Color("#ffc107")
-	OptionalColor   = lipgloss.Color("#17a2b8")
-	SuccessColor    = lipgloss.Color("#28a745")
-	MutedColor      = lipgloss.Color("#6c757d")
-	HeadingColor    = lipgloss.Color("#ffffff")
-	SubtextColor    = lipgloss.Color("#a0a0a0")
-	CardBorderColor = lipgloss.Color("#4a4a6a")
+// Color values as hex strings for compile-time safety.
+// These are package-level constants to avoid magic numbers in code.
+
+const (
+	colorPrimary  = "#667eea"
+	colorCritical = "#dc3545"
+	colorHigh     = "#fd7e14"
+	colorMedium   = "#ffc107"
+	colorOptional = "#17a2b8"
+	colorSuccess  = "#28a745"
+	colorHeading  = "#ffffff"
+	colorCodeFg   = "#e0e0e0"
+	colorCodeBg   = "#2d2d44"
 )
 
 // SuccessMsg returns a success message.
 func SuccessMsg(msg string) string {
 	return lipgloss.NewStyle().
-		Foreground(SuccessColor).
+		Foreground(lipgloss.Color(colorSuccess)).
 		Bold(true).
 		Render("✓ " + msg)
 }
@@ -29,7 +28,7 @@ func SuccessMsg(msg string) string {
 // ErrorMsg returns an error message.
 func ErrorMsg(msg string) string {
 	return lipgloss.NewStyle().
-		Foreground(CriticalColor).
+		Foreground(lipgloss.Color(colorCritical)).
 		Bold(true).
 		Render("✗ " + msg)
 }
@@ -37,7 +36,7 @@ func ErrorMsg(msg string) string {
 // WarningMsg returns a warning message.
 func WarningMsg(msg string) string {
 	return lipgloss.NewStyle().
-		Foreground(HighColor).
+		Foreground(lipgloss.Color(colorHigh)).
 		Bold(true).
 		Render("⚠ " + msg)
 }
@@ -45,7 +44,7 @@ func WarningMsg(msg string) string {
 // InfoMsg returns an info message.
 func InfoMsg(msg string) string {
 	return lipgloss.NewStyle().
-		Foreground(OptionalColor).
+		Foreground(lipgloss.Color(colorOptional)).
 		Render("ℹ " + msg)
 }
 
@@ -56,23 +55,23 @@ func PriorityBadge(priority int) string {
 	switch priority {
 	case priorityCritical:
 		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#ffffff")).
-			Background(CriticalColor).
+			Foreground(lipgloss.Color(colorHeading)).
+			Background(lipgloss.Color(colorCritical)).
 			Padding(0, 1)
 	case priorityHigh:
 		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#ffffff")).
-			Background(HighColor).
+			Foreground(lipgloss.Color(colorHeading)).
+			Background(lipgloss.Color(colorHigh)).
 			Padding(0, 1)
 	case priorityMedium:
 		style = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#212529")).
-			Background(MediumColor).
+			Background(lipgloss.Color(colorMedium)).
 			Padding(0, 1)
 	default:
 		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#ffffff")).
-			Background(OptionalColor).
+			Foreground(lipgloss.Color(colorHeading)).
+			Background(lipgloss.Color(colorOptional)).
 			Padding(0, 1)
 	}
 
@@ -84,8 +83,8 @@ func PriorityBadge(priority int) string {
 // Code returns styled code text.
 func Code(text string) string {
 	return lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#e0e0e0")).
-		Background(lipgloss.Color("#2d2d44")).
+		Foreground(lipgloss.Color(colorCodeFg)).
+		Background(lipgloss.Color(colorCodeBg)).
 		Padding(0, 1).
 		Render(text)
 }
@@ -93,7 +92,7 @@ func Code(text string) string {
 // SectionHeader returns a styled section header.
 func SectionHeader(title string) string {
 	return lipgloss.NewStyle().
-		Foreground(PrimaryColor).
+		Foreground(lipgloss.Color(colorPrimary)).
 		Bold(true).
 		Render("━━ " + title + " ")
 }

@@ -1,7 +1,6 @@
 package detection
 
 // TODO: This file is 327 lines - close to 350 limit, consider splitting
-// TODO: Add caching for repeated project type detection
 // TODO: Extract framework detection patterns into configurable data
 // TODO: Consider using AST parsing instead of string matching for accuracy
 // TODO: Add support for detecting test-only projects
@@ -12,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 // ProjectType represents the type of Go project.
@@ -56,6 +56,9 @@ func (p ProjectType) String() string {
 // Detector analyzes project structure to determine project type.
 type Detector struct {
 	rootDir string
+	cache   ProjectType
+	cached  bool
+	mu      sync.Mutex
 }
 
 // NewDetector creates a new project type detector.
@@ -65,6 +68,27 @@ func NewDetector(rootDir string) *Detector {
 
 // Detect analyzes the project and returns the detected type.
 func (d *Detector) Detect() ProjectType {
+	d.mu.Lock()
+	if d.cached {
+		d.mu.Unlock()
+
+		return d.cache
+	}
+	d.mu.Unlock()
+
+	// Perform detection
+	projectType := d.detect()
+
+	d.mu.Lock()
+	d.cache = projectType
+	d.cached = true
+	d.mu.Unlock()
+
+	return projectType
+}
+
+// detect performs the actual detection logic without caching.
+func (d *Detector) detect() ProjectType {
 	// Check for monorepo first (multiple go.mod files)
 	if d.isMonorepo() {
 		return ProjectTypeMonorepo

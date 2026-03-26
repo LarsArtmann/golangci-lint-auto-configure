@@ -238,7 +238,6 @@ func (f *Fixer) FixConfigResult(
 		f.logger.Infof("[DRY-RUN] Would apply %d fixes", totalFixes)
 
 		return types.OkMigration(&types.MigrationResult{
-			Success:      true,
 			FixesApplied: totalFixes,
 			Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", totalFixes),
 			NextSteps: []string{
@@ -250,7 +249,6 @@ func (f *Fixer) FixConfigResult(
 
 	if totalFixes == 0 {
 		return types.OkMigration(&types.MigrationResult{
-			Success:      true,
 			FixesApplied: 0,
 			Message:      "No fixes to apply",
 			NextSteps: []string{
@@ -301,7 +299,6 @@ func (f *Fixer) FixConfigResult(
 	}
 
 	result := &types.MigrationResult{
-		Success:      true,
 		FixesApplied: totalFixes,
 		Message: fmt.Sprintf(
 			"Successfully applied %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
@@ -461,7 +458,6 @@ func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.Mig
 	f.logger.Infof("[DRY-RUN] Would apply %d fixes", deprecationFixes)
 
 	return types.OkMigration(&types.MigrationResult{
-		Success:      true,
 		FixesApplied: deprecationFixes,
 		Message: fmt.Sprintf(
 			"Would apply %d fixes (dry-run mode, skipped analysis due to deprecated linters)",

@@ -90,11 +90,11 @@ func FormatDryRunWarning() string {
 
 // FormatFixResult formats a fix result.
 func FormatFixResult(result *types.MigrationResult) string {
-	if result.Success && result.FixesApplied == 0 {
+	if result.IsSuccess() && result.FixesApplied == 0 {
 		return SuccessMsg("No fixes needed - Configuration is optimal")
 	}
 
-	if result.Success {
+	if result.IsSuccess() {
 		return SuccessMsg(fmt.Sprintf("Applied %d fixes", result.FixesApplied)) +
 			"\n\n  " + result.Message
 	}

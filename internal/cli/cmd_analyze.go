@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
@@ -13,6 +14,26 @@ import (
 )
 
 const formatJSON = "json"
+
+const (
+	spinnerFrames      = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+	spinnerDelayMillis = 50
+)
+
+// spinner prints a simple animated spinner.
+func spinner(message string, done chan bool) {
+	for {
+		select {
+		case <-done:
+			return
+		default:
+			for _, frame := range spinnerFrames {
+				fmt.Fprintf(os.Stdout, "\r%c %s", frame, message)
+				time.Sleep(time.Duration(spinnerDelayMillis) * time.Millisecond)
+			}
+		}
+	}
+}
 
 // newAnalyzeCommand creates the analyze command.
 func newAnalyzeCommand(
@@ -45,8 +66,18 @@ func newAnalyzeCommand(
 
 			logger.Infof("Analyzing configuration: %s", configFile)
 
+			// Start spinner during analysis
+			spinnerDone := make(chan bool, 1)
+			go spinner("Analyzing configuration...", spinnerDone)
+
 			// Perform analysis
 			analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
+
+			// Stop spinner
+			spinnerDone <- true
+
+			fmt.Fprintf(os.Stdout, "\r\033[K") // Clear the line
+
 			if err != nil {
 				return fmt.Errorf("failed to analyze config: %w", err)
 			}
