@@ -312,29 +312,23 @@ var _ = Describe("Validator", func() {
 	Describe("MockValidator", func() {
 		It("should always return nil", func() {
 			v := migration.MockValidator{}
-			Expect(v.ValidateConfig("any-path")).To(BeNil())
+			Expect(v.ValidateConfig(nil)).To(BeNil())
 		})
 	})
 
-	Describe("VersionValidator", func() {
-		It("should validate existing config file with version 2", func() {
-			testDir := GinkgoT().TempDir()
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			configContent := `version: "2"
-linters:
-  enable:
-    - errcheck
-`
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-			v := migration.VersionValidator{Version: "2"}
-			Expect(v.ValidateConfig(configPath)).To(BeNil())
+	Describe("FailingValidator", func() {
+		It("should return error with default message", func() {
+			v := migration.FailingValidator{}
+			err := v.ValidateConfig(nil)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("mock validation failed"))
 		})
 
-		It("should return error for non-existent file", func() {
-			v := migration.VersionValidator{Version: "2"}
-			err := v.ValidateConfig("/non/existent/path.yml")
+		It("should return error with custom message", func() {
+			v := migration.FailingValidator{ErrorMessage: "custom error"}
+			err := v.ValidateConfig(nil)
 			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("custom error"))
 		})
 	})
 })
