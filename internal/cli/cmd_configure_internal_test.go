@@ -128,7 +128,6 @@ func TestApplyPreset_ValidPreset(t *testing.T) {
 	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "minimal", false)
-
 	if err != nil {
 		t.Errorf("applyPreset() error = %v, want nil", err)
 	}
@@ -150,7 +149,6 @@ func TestApplyPreset_DryRun(t *testing.T) {
 	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "minimal", true)
-
 	if err != nil {
 		t.Errorf("applyPreset() dry-run error = %v, want nil", err)
 	}
@@ -207,7 +205,6 @@ func TestApplyPreset_AllPresets(t *testing.T) {
 			logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
 
 			err := applyPreset(context.Background(), logger, mock, "/test/config.yml", preset, false)
-
 			if err != nil {
 				t.Errorf("applyPreset(%q) error = %v, want nil", preset, err)
 			}

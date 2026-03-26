@@ -1,10 +1,5 @@
 package linter
 
-// TODO: Consider using a transaction pattern for config changes (all or nothing)
-// TODO: Extract duplicate linter detection into a separate validation step
-// TODO: Add rollback mechanism for failed config saves
-// TODO: Consider using immutable config copies for safer modifications
-
 import (
 	"context"
 	"fmt"

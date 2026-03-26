@@ -1,10 +1,5 @@
 package config
 
-// TODO: Extract LinterList type into types package for consistency
-// TODO: Consider using io.Reader/Writer interfaces instead of file paths for testability
-// TODO: Add context.Context support for cancellation
-// TODO: Extract default config values into constants
-
 import (
 	"context"
 	"encoding/json"
