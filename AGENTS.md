@@ -11,6 +11,7 @@ This guide provides essential information for agents working on the golangci-lin
 - Recommending optimal linter settings based on project type
 - Auto-fixing configuration issues
 - Automatically replacing deprecated linters with their successors
+- Migrating v1 configs to v2 format (merged from golangci-config-migrator)
 - Generating HTML/JSON reports
 
 ## Essential Commands
@@ -95,6 +96,15 @@ golangci-linter-auto-configure/
 │   │   └── report.templ           # HTML template (generates Go code)
 │   ├── workflow/
 │   │   └── workflow.go            # Workflow orchestration (uses universal-workflow)
+│   ├── migration/                   # v1 to v2 config migration (merged from golangci-config-migrator)
+│   │   ├── migrator.go             # Main migrator struct and logic
+│   │   ├── migrations.go           # Migration helpers
+│   │   ├── migrations_linters_settings.go # Linter-specific migrations
+│   │   ├── config_types.go         # YAML config structs for v1/v2
+│   │   ├── rules.go                # Migration rules
+│   │   ├── validator.go            # Config validation
+│   │   ├── yaml_loader.go          # Load/Save YAML configs
+│   │   └── testdata/               # Test fixtures for migration
 │   └── errors/
 │       └── errors.go              # Custom error types (ConfigError, AnalysisError)
 ├── internal/
