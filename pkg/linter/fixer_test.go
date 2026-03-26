@@ -166,4 +166,83 @@ linters:
 			Expect(string(content)).NotTo(ContainSubstring("wsl:"))
 		})
 	})
+
+	Context("Invalid Duration Fields", func() {
+		It("should fix empty timeout field", func() {
+			configContent := `version: "2"
+run:
+  timeout: ""
+linters:
+  enable:
+    - gosec
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, false)
+
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring(`timeout: 5m`))
+		})
+
+		It("should fix invalid timeout format", func() {
+			configContent := `version: "2"
+run:
+  timeout: invalid
+linters:
+  enable:
+    - gosec
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, false)
+
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring(`timeout: 5m`))
+		})
+
+		It("should keep valid timeout unchanged", func() {
+			configContent := `version: "2"
+run:
+  timeout: 10m
+linters:
+  enable:
+    - gosec
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
+
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring(`timeout: 10m`))
+		})
+
+		It("should fix invalid timeout even in dry-run mode (required for analysis)", func() {
+			configContent := `version: "2"
+run:
+  timeout: ""
+linters:
+  enable:
+    - gosec
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
+
+			Expect(err).NotTo(HaveOccurred())
+
+			// File should be modified even in dry-run mode because invalid timeout breaks analysis
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring(`timeout: 5m`))
+		})
+	})
 })

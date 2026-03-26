@@ -2,12 +2,16 @@ package linter
 
 import (
 	"fmt"
+	"time"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
+
+// DefaultTimeout is the default timeout value used when the config has an invalid duration.
+const DefaultTimeout = "5m"
 
 // preFixVersion ensures the config has the correct version field for golangci-lint v2.
 // This is necessary because golangci-lint linters command will fail if the config
@@ -30,6 +34,44 @@ func (f *Fixer) preFixVersion(cfg *types.Config, configPath string, dryRun bool)
 	}
 
 	cfg.Version = "2"
+
+	err := f.configLoader.SaveConfig(cfg, configPath)
+	if err != nil {
+		return apperrors.NewConfigError(
+			fmt.Sprintf("failed to save pre-fixed config (dryRun=%t)", dryRun),
+			configPath,
+			err,
+		)
+	}
+
+	return nil
+}
+
+// preFixInvalidDurations fixes invalid duration fields in the config.
+// This is necessary because golangci-lint will fail with "time: invalid duration" error
+// if fields like run.timeout have invalid values (e.g., empty string).
+// NOTE: This always saves the file, even in dry-run mode, because invalid durations
+// will cause the golangci-lint linters command to fail during analysis.
+func (f *Fixer) preFixInvalidDurations(cfg *types.Config, configPath string, dryRun bool) error {
+	if cfg.Run.Timeout == "" {
+		f.logger.Infof("run.timeout is empty, setting to %q", DefaultTimeout)
+
+		if dryRun {
+			f.logger.Warnf("[DRY-RUN] Pre-fixing invalid timeout (required for analysis to proceed)")
+		}
+
+		cfg.Run.Timeout = DefaultTimeout
+	} else if _, err := time.ParseDuration(cfg.Run.Timeout); err != nil {
+		f.logger.Infof("run.timeout %q is invalid, setting to %q", cfg.Run.Timeout, DefaultTimeout)
+
+		if dryRun {
+			f.logger.Warnf("[DRY-RUN] Pre-fixing invalid timeout (required for analysis to proceed)")
+		}
+
+		cfg.Run.Timeout = DefaultTimeout
+	} else {
+		return nil
+	}
 
 	err := f.configLoader.SaveConfig(cfg, configPath)
 	if err != nil {

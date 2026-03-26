@@ -1,0 +1,17 @@
+# v1 configuration with only some deprecated properties
+version: "1"
+run:
+  timeout: 5m
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - dupl
+  exclude-dirs:
+    - .git
+output:
+  print-issued-lines: true
+linters:
+  enable:
+    - gofmt
+    - errcheck

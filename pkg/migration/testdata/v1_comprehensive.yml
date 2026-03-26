@@ -1,0 +1,180 @@
+# Comprehensive v1 configuration with ALL deprecated settings
+# This file tests migration of all identified deprecated properties to v2.x format
+# Based on validation output from 147 projects
+
+version: "1.54"
+
+run:
+  timeout: ""
+  tests: true
+  issues:
+    exclude-use-default: true
+    exclude-rules-use-default: true
+    exclude-dir-use-default: true
+    exclude-rules:
+      - path: _test\.go
+        linters:
+          - dupl
+    exclude-files:
+      - "*_generated.go"
+    exclude-dirs:
+      - .git
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  sort-results: true
+
+linters:
+  enable:
+    - gofmt
+    - goimports
+    - gofumpt
+    - cyclop
+    - exhaustive
+    - fatcontext
+    - gochecksumtype
+    - gomodguard
+    - nolintlint
+    - tagliatelle
+    - unused
+    - wrapcheck
+    - gocritic
+    - containedctx
+    - contextcheck
+    - gochecknoglobals
+    - gochecknoinits
+    - intrange
+    - mirror
+    - nilnesserr
+    - stylecheck
+    - testableexamples
+    - wastedassign
+    - zerologlint
+    - gosec
+    - forbidigo
+    - modernize
+    - sloglint
+    - gci
+  disable:
+    - gosimple
+
+linters-settings:
+  # Formatter settings that should be moved to formatters.settings
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: github.com/myorg/mypackage
+  gofumpt:
+    extra-rules: true
+  gci:
+    sections:
+      - standard
+      - default
+    skip-generated: true
+
+  # Deprecated properties to remove
+  cyclop:
+    skip-tests: true
+    max-complexity: 10
+  exhaustive:
+    check-generated: true
+    default-signifies-exhaustive: true
+  fatcontext:
+    ignore-len: true
+  gochecksumtype:
+    exhaustive: true
+  gomodguard:
+    local-replace-directives: true
+    allowed:
+      modules:
+        - golang.org/x/sync
+  nolintlint:
+    allow-leading-space: true
+    require-explanation: true
+  tagliatelle:
+    use-field-name: true
+    case:
+      rules:
+        json: snake
+  unused:
+    check-exported: true
+  wrapcheck:
+    ignoreSigs:
+      - .Error(
+      - .Errorf(
+    ignoreSigRegexps:
+      - ^fmt\.
+    ignorePackageGlobs:
+      - encoding/json
+
+  # gocritic with deprecated checker settings
+  gocritic:
+    enabled-tags:
+      - diagnostic
+    settings:
+      appendAssign:
+        allowMapIndex: true
+      dogsled:
+        maxBlankIdentifiers: 2
+      errcheck:
+        checkTypeAssertions: true
+      hexLiteral:
+        style: camelCase
+      paramTypeCombine:
+        replaceLocalWithGlobal: true
+      unimport:
+        checkExported: true
+      captLocal:
+        paramsOnly: true
+
+  # Linters that no longer support ANY settings
+  containedctx:
+    enable: true
+  contextcheck:
+    check-enable: true
+  gochecknoglobals:
+    check-exported: true
+  gochecknoinits:
+    check-exported: true
+  intrange:
+    enable: true
+  mirror:
+    check: true
+  nilnesserr:
+    enable: true
+  stylecheck:
+    checks: ["all"]
+  testableexamples:
+    enabled: true
+  wastedassign:
+    check: true
+  zerologlint:
+    enable: true
+
+  # Type conversions needed
+  gosec:
+    excludes: null
+  forbidigo:
+    forbid:
+      - p: ^print$
+        msg: "use logging instead"
+      - pattern: ^fmt\.Print
+        msg: "use logging instead"
+  modernize:
+    disable:
+      - slicesloop
+      - stditer
+      - forvar
+  sloglint:
+    key-naming-case: camelCase
+
+  # Valid settings that should be preserved
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  misspell:
+    locale: US

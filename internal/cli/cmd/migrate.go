@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
-	"os/exec"
-	"strings"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/migration"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +31,7 @@ func NewMigrateCommand(
 
 This command:
 1. Verifies you're in a git repository (for version control)
-2. Runs golangci-lint migrate to convert the schema
+2. Migrates the configuration to v2 schema
 3. Validates the migrated configuration
 4. Shows what changed
 
@@ -65,7 +63,6 @@ Use --skip-validation if the v1 config has known issues.`,
 			// Read other flags
 			dryRun, _ := cmd.Flags().GetBool("dry-run")
 			skipValidation, _ := cmd.Flags().GetBool("skip-validation")
-			outputFormat, _ := cmd.Flags().GetString("format")
 
 			logger.Infof("Migrating configuration: %s", configFile)
 
@@ -73,8 +70,8 @@ Use --skip-validation if the v1 config has known issues.`,
 			oldConfig, err := configLoader.LoadConfig(configFile)
 			if err != nil {
 				return fmt.Errorf(
-					"could not load config (configFile=%s, dryRun=%t, skipValidation=%t, outputFormat=%q): %w",
-					configFile, dryRun, skipValidation, outputFormat, err,
+					"could not load config (configFile=%s, dryRun=%t, skipValidation=%t): %w",
+					configFile, dryRun, skipValidation, err,
 				)
 			}
 
@@ -85,56 +82,46 @@ Use --skip-validation if the v1 config has known issues.`,
 				return nil
 			}
 
-			// Ensure we're in a git repo (git provides version control, no backup needed)
-			if !dryRun {
-				err := configLoader.EnsureGitRepo(context.Background(), ".")
-				if err != nil {
-					return fmt.Errorf("failed to ensure git repo (dryRun=%t): %w", dryRun, err)
-				}
-			} else {
-				logger.Infof("[DRY-RUN] Would verify git repository")
+			// Create migrator
+			migrator, err := migration.NewMigrator(configFile, verbose)
+			if err != nil {
+				return fmt.Errorf("failed to create migrator: %w", err)
 			}
 
-			// Build golangci-lint migrate command
-			migrateArgs := []string{"migrate", "--config", configFile}
+			migrator.SetDryRun(dryRun)
+
 			if skipValidation {
-				migrateArgs = append(migrateArgs, "--skip-validation")
-			}
-
-			if outputFormat != "" {
-				migrateArgs = append(migrateArgs, "--format", outputFormat)
+				migrator.SetValidator(migration.MockValidator{})
+				logger.Infof("Skipping validation as requested")
 			}
 
 			if dryRun {
-				logger.Infof("[DRY-RUN] Would run: golangci-lint %s", strings.Join(migrateArgs, " "))
+				logger.Infof("[DRY-RUN] Would migrate configuration from v1 to v2")
+			}
+
+			// Run migration
+			success, fixesApplied, err := migrator.MigrateToV2()
+			if err != nil {
+				return fmt.Errorf(
+					"migration failed (configFile=%s, dryRun=%t, skipValidation=%t): %w",
+					configFile, dryRun, skipValidation, err,
+				)
+			}
+
+			if !success {
+				logger.Infof("No migration needed (already at v2.x)")
+
+				return nil
+			}
+
+			if dryRun {
+				logger.Infof("[DRY-RUN] Would apply %d fixes", fixesApplied)
 				logger.Infof("[DRY-RUN] Migration preview complete")
 
 				return nil
 			}
 
-			// Run golangci-lint migrate
-			logger.Infof("Running golangci-lint migrate...")
-
-			ctx := cmd.Context()
-			migrateCmd := exec.CommandContext(ctx, "golangci-lint", migrateArgs...)
-
-			output, err := migrateCmd.CombinedOutput()
-			if err != nil {
-				logger.Errorf("Migration failed: %v", err)
-				logger.Infof("Output: %s", string(output))
-				logger.Infof("Use git to restore if needed")
-
-				return fmt.Errorf(
-					"migration failed (configFile=%s, dryRun=%t, skipValidation=%t, outputFormat=%q): %w",
-					configFile, dryRun, skipValidation, outputFormat, err,
-				)
-			}
-
-			logger.Infof("Migration completed successfully")
-
-			if len(output) > 0 {
-				logger.Infof("Output: %s", string(output))
-			}
+			logger.Infof("Configuration migrated successfully (%d fixes applied)!", fixesApplied)
 
 			// Load new config to show changes
 			newConfig, err := configLoader.LoadConfig(configFile)
@@ -144,14 +131,12 @@ Use --skip-validation if the v1 config has known issues.`,
 				ShowMigrationChanges(logger, oldConfig, newConfig)
 			}
 
-			logger.Infof("Configuration migrated successfully!")
-
 			return nil
 		},
 	}
 
 	cmd.Flags().BoolVar(&flags.SkipValidation, "skip-validation", false, "Skip validation of v1 configuration")
-	cmd.Flags().StringVar(&flags.OutputFormat, "format", "", "Output format (yml, yaml, toml, json)")
+	cmd.Flags().StringVar(&flags.OutputFormat, "format", "", "Output format (deprecated: format migration is no longer supported)")
 
 	return cmd
 }

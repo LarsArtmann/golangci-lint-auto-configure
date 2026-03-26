@@ -1,0 +1,67 @@
+# golangci-lint v2 configuration - expected output after migrating v1_full.yml
+# This file represents the expected v2.x configuration after migration
+
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  issues:
+    exclude:
+      use-default: false # Migrated from exclude-use-default: true
+      rules: # Migrated from exclude-rules
+        - path: _test\.go
+          linters:
+            - dupl
+        - path: internal/
+          linters:
+            - gosec
+      dirs: # Migrated from exclude-dirs
+        - .git
+        - .idea
+      files: # Migrated from exclude-files
+        - "*_generated.go"
+        - "*.pb.go"
+
+linters:
+  enable:
+    - golint
+    - vet
+    - errcheck
+    - staticcheck
+  disable:
+    - gosimple
+    - unused
+  enable-all: false
+  fast: false
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+  settings: # Migrated from linters-settings
+    goimports:
+      local-prefixes: github.com/myorg/mypackage
+    golint:
+      min-confidence: 0.8
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    staticcheck:
+      checks: ["all"]
+    dupl:
+      threshold: 100
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    misspell:
+      locale: US
+    lll:
+      line-length: 120
+    unused:
+      checks: ["all"]
+    unconvert:
+      acute: false
+    gocyclo:
+      min-complexity: 10

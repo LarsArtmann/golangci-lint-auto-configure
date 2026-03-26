@@ -1,0 +1,8 @@
+# Minimal v1 configuration for testing
+version: "1"
+run:
+  timeout: 3m
+linters:
+  enable:
+    - gofmt
+    - goimports
