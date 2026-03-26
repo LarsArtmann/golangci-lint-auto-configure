@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"charm.land/log/v2"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
@@ -249,17 +250,22 @@ func (l *Loader) GetAllLinterNames(ctx context.Context) ([]string, error) {
 	return linterNames, nil
 }
 
-// getLocalGoVersion returns the locally installed Go version.
+// GetLocalGoVersion returns the locally installed Go version.
 // Returns an empty string if the version cannot be determined.
-func getLocalGoVersion() string {
-	output, err := exec.Command("go", "version").Output()
+//
+
+func GetLocalGoVersion() string {
+	ctx, cancel := context.WithTimeout(context.Background(), GoVersionTimeout)
+	defer cancel()
+
+	output, err := exec.CommandContext(ctx, "go", "version").Output()
 	if err != nil {
 		return ""
 	}
 
 	// Parse output like: go version go1.26.1 darwin/arm64
-	parts := strings.Fields(string(output))
-	for _, part := range parts {
+	parts := strings.FieldsSeq(string(output))
+	for part := range parts {
 		if strings.HasPrefix(part, "go") && len(part) > 2 {
 			// Extract version without "go" prefix: go1.26.1 -> 1.26.1
 			return strings.TrimPrefix(part, "go")
@@ -268,6 +274,9 @@ func getLocalGoVersion() string {
 
 	return ""
 }
+
+// GoVersionTimeout is the timeout for getting the local Go version.
+const GoVersionTimeout = 5 * time.Second
 
 // CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled.
 func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
@@ -288,7 +297,7 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 	}
 
 	// Detect local Go version
-	goVersion := getLocalGoVersion()
+	goVersion := GetLocalGoVersion() //nolint:contextcheck // Creates its own context internally
 	if goVersion != "" {
 		l.logger.Infof("Detected local Go version: %s", goVersion)
 	}

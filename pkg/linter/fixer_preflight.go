@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"charm.land/log/v2"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
@@ -55,34 +54,23 @@ func (f *Fixer) preFixInvalidDurations(
 	cfg *types.Config,
 	configPath string,
 	dryRun bool,
-) (needsFixing bool, err error) {
-	// Check if timeout is empty or invalid
-	if cfg.Run.Timeout == "" {
-		f.logger.Infof("run.timeout is empty, would set to %q", DefaultTimeout)
-
-		if dryRun {
-			f.logger.Infof("[DRY-RUN] Would set run.timeout to %q", DefaultTimeout)
-
-			return true, nil // Needs fixing, but don't save in dry-run
-		}
-
-		cfg.Run.Timeout = DefaultTimeout
-	} else if _, parseErr := time.ParseDuration(cfg.Run.Timeout); parseErr != nil {
-		f.logger.Infof("run.timeout %q is invalid, would set to %q", cfg.Run.Timeout, DefaultTimeout)
-
-		if dryRun {
-			f.logger.Infof("[DRY-RUN] Would set run.timeout to %q", DefaultTimeout)
-
-			return true, nil // Needs fixing, but don't save in dry-run
-		}
-
-		cfg.Run.Timeout = DefaultTimeout
-	} else {
-		return false, nil // No fix needed
+) (bool, error) {
+	needsFix, reason := needsDurationFix(cfg.Run.Timeout)
+	if !needsFix {
+		return false, nil
 	}
 
-	// Save the fixed config (only in non-dry-run mode)
-	err = f.configLoader.SaveConfig(cfg, configPath)
+	f.logger.Infof("%s, would set to %q", reason, DefaultTimeout)
+
+	if dryRun {
+		f.logger.Infof("[DRY-RUN] Would set run.timeout to %q", DefaultTimeout)
+
+		return true, nil
+	}
+
+	cfg.Run.Timeout = DefaultTimeout
+
+	err := f.configLoader.SaveConfig(cfg, configPath)
 	if err != nil {
 		return false, apperrors.NewConfigError(
 			fmt.Sprintf("failed to save pre-fixed config (dryRun=%t)", dryRun),
@@ -91,7 +79,22 @@ func (f *Fixer) preFixInvalidDurations(
 		)
 	}
 
-	return false, nil // Fixed, no longer needs fixing
+	return false, nil
+}
+
+// needsDurationFix checks if the timeout value needs to be fixed.
+// Returns true and a reason if fixing is needed, false otherwise.
+func needsDurationFix(timeout string) (bool, string) {
+	if timeout == "" {
+		return true, "run.timeout is empty"
+	}
+
+	_, err := time.ParseDuration(timeout)
+	if err != nil {
+		return true, fmt.Sprintf("run.timeout %q is invalid", timeout)
+	}
+
+	return false, ""
 }
 
 // calculateDryRunResultWithInvalidDurations calculates the dry-run result when invalid durations are present.
@@ -227,114 +230,4 @@ func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.Mig
 			deprecationFixes,
 		),
 	})
-}
-
-// FixerPreflight provides pre-flight fixing functionality.
-type FixerPreflight struct {
-	logger       *log.Logger
-	configLoader types.ConfigLoader
-}
-
-// NewFixerPreflight creates a new pre-flight fixer.
-func NewFixerPreflight(logger *log.Logger, configLoader types.ConfigLoader) *FixerPreflight {
-	return &FixerPreflight{
-		logger:       logger,
-		configLoader: configLoader,
-	}
-}
-
-// EnsureVersion ensures the config has the correct version field.
-func (p *FixerPreflight) EnsureVersion(cfg *types.Config, configPath string, dryRun bool) error {
-	if cfg.Version == "2" {
-		return nil
-	}
-
-	if cfg.Version == "" {
-		p.logger.Infof("Version field is empty, setting to \"2\" for golangci-lint v2 compatibility")
-	} else {
-		p.logger.Infof("Version field is \"%s\", setting to \"2\" for golangci-lint v2 compatibility", cfg.Version)
-	}
-
-	if dryRun {
-		p.logger.Infof("[DRY-RUN] Would set version to \"2\"")
-
-		return nil
-	}
-
-	cfg.Version = "2"
-
-	err := p.configLoader.SaveConfig(cfg, configPath)
-	if err != nil {
-		return apperrors.NewConfigError(
-			fmt.Sprintf("failed to save pre-fixed config (dryRun=%t)", dryRun),
-			configPath,
-			err,
-		)
-	}
-
-	return nil
-}
-
-// RemoveDeprecatedLinters removes deprecated linters from the config.
-func (p *FixerPreflight) RemoveDeprecatedLinters(cfg *types.Config, configPath string, dryRun bool) ([]string, error) {
-	enabledLinters := p.configLoader.GetLintersEnabled(cfg)
-	disabledLinters := p.configLoader.GetLintersDisabled(cfg)
-
-	var deprecatedFound []string
-
-	linterSet := make(map[string]bool)
-
-	for _, linter := range enabledLinters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			deprecatedFound = append(deprecatedFound, linter)
-
-			continue
-		}
-
-		linterSet[linter] = true
-	}
-
-	disabledSet := make(map[string]bool)
-
-	for _, linter := range disabledLinters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			deprecatedFound = append(deprecatedFound, linter+" (disabled)")
-
-			continue
-		}
-
-		disabledSet[linter] = true
-	}
-
-	if len(deprecatedFound) == 0 {
-		return nil, nil
-	}
-
-	if dryRun {
-		p.logger.Infof("[DRY-RUN] Would pre-fix %d deprecated linters: %v", len(deprecatedFound), deprecatedFound)
-
-		return deprecatedFound, nil
-	}
-
-	p.logger.Infof("Pre-fixing %d deprecated linters: %v", len(deprecatedFound), deprecatedFound)
-
-	fixedEnabled := make([]string, 0, len(linterSet))
-	for linter := range linterSet {
-		fixedEnabled = append(fixedEnabled, linter)
-	}
-
-	fixedDisabled := make([]string, 0, len(disabledSet))
-	for linter := range disabledSet {
-		fixedDisabled = append(fixedDisabled, linter)
-	}
-
-	cfg.Linters.Enable = fixedEnabled
-	cfg.Linters.Disable = fixedDisabled
-
-	err := p.configLoader.SaveConfig(cfg, configPath)
-	if err != nil {
-		return nil, apperrors.NewAnalysisError("failed to save pre-fixed config", configPath, err)
-	}
-
-	return deprecatedFound, nil
 }

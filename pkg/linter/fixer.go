@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
@@ -312,6 +313,18 @@ func (f *Fixer) FixConfigResult(
 		}
 
 		cfg.Formatters.Enable = enabledFormatters
+	}
+
+	// Auto-detect and set local Go version
+	if goVersion := config.GetLocalGoVersion(); goVersion != "" { //nolint:contextcheck // Creates its own context
+		if cfg.Run.Go != goVersion {
+			if dryRun {
+				f.logger.Infof("[DRY-RUN] Would set run.go: %q -> %q", cfg.Run.Go, goVersion)
+			} else {
+				f.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, goVersion)
+				cfg.Run.Go = goVersion
+			}
+		}
 	}
 
 	f.logger.Infof("Saving configuration...")
