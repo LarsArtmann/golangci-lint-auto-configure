@@ -1,14 +1,14 @@
 #!/bin/bash
-# Pre-commit hook for golangci-linter-auto-configure
-# This hook runs golangci-linter-auto-configure to ensure your config is optimized
+# Pre-commit hook for golangci-lint-auto-configure
+# This hook runs golangci-lint-auto-configure to ensure your config is optimized
 
 set -e
 
-echo "Running golangci-linter-auto-configure pre-commit hook..."
+echo "Running golangci-lint-auto-configure pre-commit hook..."
 
-# Check if golangci-linter-auto-configure is installed
-if ! command -v golangci-linter-auto-configure &> /dev/null; then
-    echo "Error: golangci-linter-auto-configure is not installed"
+# Check if golangci-lint-auto-configure is installed
+if ! command -v golangci-lint-auto-configure &> /dev/null; then
+    echo "Error: golangci-lint-auto-configure is not installed"
     echo "Install it from: https://github.com/LarsArtmann/golangcli-linter-auto-configure"
     exit 1
 fi
@@ -31,14 +31,14 @@ echo "Found config: $CONFIG_FILE"
 
 # Run analyze to check for recommendations
 echo "Analyzing configuration..."
-if ! golangci-linter-auto-configure analyze --config "$CONFIG_FILE"; then
+if ! golangci-lint-auto-configure analyze --config "$CONFIG_FILE"; then
     echo "Warning: Analysis found issues with your configuration"
-    echo "Run 'golangci-linter-auto-configure configure' to auto-fix"
+    echo "Run 'golangci-lint-auto-configure configure' to auto-fix"
 fi
 
 # Optional: Auto-configure (uncomment to enable)
 # echo "Auto-configuring..."
-# golangci-linter-auto-configure configure --config "$CONFIG_FILE"
+# golangci-lint-auto-configure configure --config "$CONFIG_FILE"
 
 echo "Pre-commit hook completed successfully!"
 exit 0

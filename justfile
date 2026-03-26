@@ -1,4 +1,4 @@
-# Justfile for golangci-linter-auto-configure
+# Justfile for golangci-lint-auto-configure
 # Common development tasks
 
 default: help
@@ -18,7 +18,7 @@ help:
 
 build:
     @echo "Building CLI..."
-    @go build -o bin/golangci-linter-auto-configure ./cmd/golangci-linter-auto-configure
+    @go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 
 test:
     @echo "Running tests..."
@@ -46,29 +46,29 @@ lint:
 
 run build *args:
     @echo "Running CLI..."
-    @./bin/golangci-linter-auto-configure {{args}}
+    @./bin/golangci-lint-auto-configure {{args}}
 
 analyze build *args:
-    @./bin/golangci-linter-auto-configure analyze {{args}}
+    @./bin/golangci-lint-auto-configure analyze {{args}}
 
 configure build *args:
-    @./bin/golangci-linter-auto-configure configure {{args}}
+    @./bin/golangci-lint-auto-configure configure {{args}}
 
 validate build *args:
-    @./bin/golangci-linter-auto-configure validate {{args}}
+    @./bin/golangci-lint-auto-configure validate {{args}}
 
 # Dogfood: Run the tool on itself (follows Dogfooding First principle)
 dogfood: build
-    @echo "🐕 Dogfooding: Running golangci-linter-auto-configure on itself..."
-    @./bin/golangci-linter-auto-configure analyze
+    @echo "🐕 Dogfooding: Running golangci-lint-auto-configure on itself..."
+    @./bin/golangci-lint-auto-configure analyze
     @echo ""
     @echo "✅ Dogfooding complete!"
 
 report build *args:
-    @./bin/golangci-linter-auto-configure report {{args}}
+    @./bin/golangci-lint-auto-configure report {{args}}
 
 migrate build *args:
-    @./bin/golangci-linter-auto-configure migrate {{args}}
+    @./bin/golangci-lint-auto-configure migrate {{args}}
 
 clean:
     @echo "Cleaning build artifacts..."
@@ -77,7 +77,7 @@ clean:
 
 install: build
     @echo "Installing CLI..."
-    @go install ./cmd/golangci-linter-auto-configure
+    @go install ./cmd/golangci-lint-auto-configure
 
 # Install locally with version ldflags
 install-local:
@@ -85,8 +85,8 @@ install-local:
     echo "Installing locally with version..."
     VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
     GOPATH=$(go env GOPATH)
-    go build -ldflags "-X main.version=$VERSION" -o "$GOPATH/bin/golangci-linter-auto-configure" ./cmd/golangci-linter-auto-configure
-    echo "Installed golangci-linter-auto-configure v$VERSION to $GOPATH/bin/"
+    go build -ldflags "-X main.version=$VERSION" -o "$GOPATH/bin/golangci-lint-auto-configure" ./cmd/golangci-lint-auto-configure
+    echo "Installed golangci-lint-auto-configure v$VERSION to $GOPATH/bin/"
 
 fmt:
     @echo "Formatting code..."

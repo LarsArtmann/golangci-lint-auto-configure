@@ -185,7 +185,7 @@ issues:
 **User Experience:**
 
 ```bash
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 INFO No config file found, creating default: .golangci.yml
 INFO Configuring golangci-lint with config: .golangci.yml
 INFO Enabling: gosec (Security vulnerability scanning)
@@ -238,7 +238,7 @@ issues:
 **User Experience:**
 
 ```bash
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 INFO No config file found, creating default: .golangci.yml
 INFO Enabled 100 linters in default configuration
 INFO Enabling: arangolint (Linter is disabled but may be useful)
@@ -374,7 +374,7 @@ composite coverage: 40.9% of statements
 
 ```bash
 $ cd /tmp/test-new
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 INFO No config file found, creating default: .golangci.yml
 INFO Enabled 100 linters in default configuration
 INFO Successfully enabled 100 linters
@@ -417,7 +417,7 @@ $ golangci-lint config verify
 
 ```bash
 # Simulate golangci-lint not available
-$ PATH="" golangci-linter-auto-configure configure
+$ PATH="" golangci-lint-auto-configure configure
 INFO Failed to fetch all linters, using critical set: ...
 INFO Successfully enabled 5 linters
 ```
@@ -498,21 +498,21 @@ Linters: LintersConfig{
 **Option 1: Accept all linters (recommended)**
 
 ```bash
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 # Use default with all linters
 ```
 
 **Option 2: Use priority flag**
 
 ```bash
-$ golangci-linter-auto-configure configure --priority critical
+$ golangci-lint-auto-configure configure --priority critical
 # Only enable critical linters
 ```
 
 **Option 3: Start from all and disable unwanted**
 
 ```bash
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 # Get all linters, then edit .golangci.yml to disable specific ones
 ```
 
@@ -522,7 +522,7 @@ $ golangci-linter-auto-configure configure
 
 ```bash
 # Existing configs work unchanged
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 INFO Configuring golangci-lint with config: .golangci.yml
 INFO No linters to enable (all already enabled in your config)
 # Your existing config is preserved
@@ -726,7 +726,7 @@ If you prefer to start with fewer linters:
 
 1. **Use Priority Flag:**
    ```bash
-   golangci-linter-auto-configure configure --priority critical
+   golangci-lint-auto-configure configure --priority critical
    # Only enables critical security/correctness linters
    ```
 ````
@@ -748,7 +748,7 @@ If you prefer to start with fewer linters:
 3. **Remove and Reconfigure:**
    ```bash
    rm .golangci.yml
-   golangci-linter-auto-configure configure --priority high
+   golangci-lint-auto-configure configure --priority high
    # Creates new config with high-priority linters
    ```
 

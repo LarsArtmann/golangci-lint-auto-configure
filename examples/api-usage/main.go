@@ -1,4 +1,4 @@
-// Example of using golangci-linter-auto-configure as a library
+// Example of using golangci-lint-auto-configure as a library
 package main
 
 import (
@@ -18,7 +18,7 @@ func main() {
 	})
 	slog.SetDefault(slog.New(logger))
 
-	slog.Info("golangci-linter-auto-configure API Usage Example")
+	slog.Info("golangci-lint-auto-configure API Usage Example")
 
 	// Create client with verbose logging
 	clientObj := client.New(client.Options{

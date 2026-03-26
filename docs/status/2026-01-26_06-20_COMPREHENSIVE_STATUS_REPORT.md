@@ -1,7 +1,7 @@
 # 🎯 COMPREHENSIVE STATUS REPORT
 
 **Generated**: January 26, 2026 at 06:20  
-**Version**: golangci-linter-auto-configure v0.1.0-dev  
+**Version**: golangci-lint-auto-configure v0.1.0-dev  
 **Go Version**: 1.26rc2  
 **golangci-lint Version**: v2.8.0 ✅  
 **Branch**: master (up to date with origin/master)
@@ -54,7 +54,7 @@
   - Supports `--priority` flag (critical/high/medium/optional)
 - **Usage Example**:
   ```bash
-  ./bin/golangci-linter-auto-configure configure --priority high --config .golangci.yml
+  ./bin/golangci-lint-auto-configure configure --priority high --config .golangci.yml
   ```
 - **Test**: ✅ Works with examples/minimal.golangci.yml
 
@@ -105,9 +105,9 @@
 - **File Pattern**: `<config>.backup` (timestamped)
 - **Usage**:
   ```bash
-  ./bin/golangci-linter-auto-configure restore --backup-path .golangci.yml.backup
+  ./bin/golangci-lint-auto-configure restore --backup-path .golangci.yml.backup
   # or
-  ./bin/golangci-linter-auto-configure restore .golangci.yml.backup
+  ./bin/golangci-lint-auto-configure restore .golangci.yml.backup
   ```
 
 ### 3. Error Handling & Context ✅
@@ -132,7 +132,7 @@
   - `pkg/linter/analyzer.go`: 5 error sites updated
   - `pkg/linter/fixer.go`: 4 error sites updated
 - **Impact**: All error paths now provide rich context
-- **Testing**: ✅ Verified with `golangci-linter-auto-configure analyze`
+- **Testing**: ✅ Verified with `golangci-lint-auto-configure analyze`
 
 ### 4. golangci-lint Version Check ✅ NEWLY ADDED
 
@@ -197,8 +197,8 @@ Please upgrade: https://golangci-lint.run/usage/install/
 
 ```bash
 ✓ golangci-lint linters --config examples/minimal.golangci.yml  # Output: 10 linters enabled
-✓ ./bin/golangci-linter-auto-configure analyze --config examples/minimal.golangci.yml  # Works
-✓ ./bin/golangci-linter-auto-configure configure --config examples/minimal.golangci.yml --priority high --dry-run  # Works
+✓ ./bin/golangci-lint-auto-configure analyze --config examples/minimal.golangci.yml  # Works
+✓ ./bin/golangci-lint-auto-configure configure --config examples/minimal.golangci.yml --priority high --dry-run  # Works
 ```
 
 ### 6. Testing Infrastructure ✅
@@ -506,8 +506,8 @@ RUN apk add --no-cache git
 RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v2.8.0
 COPY . /app
 WORKDIR /app
-RUN go build -o /usr/local/bin/golangci-linter-auto-configure ./cmd/...
-ENTRYPOINT ["golangci-linter-auto-configure"]
+RUN go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/...
+ENTRYPOINT ["golangci-lint-auto-configure"]
 ```
 
 **Value**: Medium (helps CI/CD adoption)
@@ -718,8 +718,8 @@ This question is blocking my prioritization. The Pareto Principle says ship at 8
 - [x] `go test ./...` - PASS (34/34 specs)
 - [x] `go test ./... -race` - PASS (no races)
 - [x] `golangci-lint --version` - v2.8.0 ✅
-- [x] `./bin/golangci-linter-auto-configure analyze` - WORKS
-- [x] `./bin/golangci-linter-auto-configure configure --dry-run` - WORKS
+- [x] `./bin/golangci-lint-auto-configure analyze` - WORKS
+- [x] `./bin/golangci-lint-auto-configure configure --dry-run` - WORKS
 
 ### Version Check
 

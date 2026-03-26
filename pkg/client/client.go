@@ -1,4 +1,4 @@
-// Package client provides a high-level API for integrating golangci-linter-auto-configure into other Go applications.
+// Package client provides a high-level API for integrating golangci-lint-auto-configure into other Go applications.
 // It offers a simplified interface that abstracts away the internal package structure and handles common use cases.
 package client
 

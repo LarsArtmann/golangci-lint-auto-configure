@@ -1,7 +1,7 @@
 # 🚀 PRODUCTION READY STATUS REPORT
 
 **Generated**: January 26, 2026 at 06:56
-**Version**: golangci-linter-auto-configure v0.1.0
+**Version**: golangci-lint-auto-configure v0.1.0
 **Go Version**: 1.26rc2
 **golangci-lint Version**: v2.8.0 ✅
 **Branch**: master (up to date with origin/master)
@@ -68,7 +68,7 @@
 #### `configure` Command ✅
 
 ```bash
-golangci-linter-auto-configure configure [flags]
+golangci-lint-auto-configure configure [flags]
 ```
 
 **Features**:
@@ -90,7 +90,7 @@ golangci-linter-auto-configure configure [flags]
 #### `analyze` Command ✅
 
 ```bash
-golangci-linter-auto-configure analyze [flags]
+golangci-lint-auto-configure analyze [flags]
 ```
 
 **Features**:
@@ -111,7 +111,7 @@ golangci-linter-auto-configure analyze [flags]
 #### `validate` Command ✅
 
 ```bash
-golangci-linter-auto-configure validate [flags]
+golangci-lint-auto-configure validate [flags]
 ```
 
 **Features**:
@@ -130,7 +130,7 @@ golangci-linter-auto-configure validate [flags]
 #### `restore` Command ✅
 
 ```bash
-golangci-linter-auto-configure restore [flags]
+golangci-lint-auto-configure restore [flags]
 ```
 
 **Features**:
@@ -149,7 +149,7 @@ golangci-linter-auto-configure restore [flags]
 #### `report` Command ✅
 
 ```bash
-golangci-linter-auto-configure report [flags]
+golangci-lint-auto-configure report [flags]
 ```
 
 **Features**:
@@ -166,7 +166,7 @@ golangci-linter-auto-configure report [flags]
 #### `migrate` Command ✅
 
 ```bash
-golangci-linter-auto-configure migrate [flags]
+golangci-lint-auto-configure migrate [flags]
 ```
 
 **Features**:
@@ -419,7 +419,7 @@ if semver.Compare(currentVersion, minVersion) < 0 {
 **Hooks Included**:
 
 1. **golangci-configure**: Auto-configure golangci-lint before commit
-   - Command: `golangci-linter-auto-configure configure --priority high --dry-run`
+   - Command: `golangci-lint-auto-configure configure --priority high --dry-run`
    - Always runs on pre-commit stage
 
 2. **golangci-lint**: Run linters on changed Go files
@@ -473,7 +473,7 @@ if semver.Compare(currentVersion, minVersion) < 0 {
    - Downloads and verifies dependencies
    - Builds with CGO_ENABLED=0
    - Strips symbols (`-ldflags="-s -w"`) for smaller binary
-   - Output: `/usr/local/bin/golangci-linter-auto-configure`
+   - Output: `/usr/local/bin/golangci-lint-auto-configure`
 
 2. **Runtime Stage** (golangci/golangci-lint:2.1.5-alpine)
    - Installs git and bash
@@ -516,23 +516,23 @@ if semver.Compare(currentVersion, minVersion) < 0 {
 
 ```bash
 # Build image
-docker build -t golangci-linter-auto-configure .
+docker build -t golangci-lint-auto-configure .
 
 # Analyze current project
-docker run --rm -v $(pwd):/app golangci-linter-auto-configure analyze
+docker run --rm -v $(pwd):/app golangci-lint-auto-configure analyze
 
 # Configure with dry-run
-docker run --rm -v $(pwd):/app golangci-linter-auto-configure configure --dry-run
+docker run --rm -v $(pwd):/app golangci-lint-auto-configure configure --dry-run
 
 # Configure for high priority
-docker run --rm -v $(pwd):/app golangci-linter-auto-configure configure --priority high
+docker run --rm -v $(pwd):/app golangci-lint-auto-configure configure --priority high
 
 # Use as base image in Dockerfile
-FROM golangci-linter-auto-configure AS linter
+FROM golangci-lint-auto-configure AS linter
 
 # CI/CD with GitHub Actions
-- name: Lint with golangci-linter-auto-configure
-  uses: docker://golangci-linter-auto-configure
+- name: Lint with golangci-lint-auto-configure
+  uses: docker://golangci-lint-auto-configure
 ```
 
 ### 11. Project Linting Configuration ✅
@@ -729,7 +729,7 @@ git push origin v0.1.0
 **Content**:
 
 ````markdown
-# golangci-linter-auto-configure v0.1.0
+# golangci-lint-auto-configure v0.1.0
 
 ## 🎉 First Production Release
 
@@ -751,7 +751,7 @@ Automatically configure and optimize golangci-lint with smart recommendations.
 ## Installation
 
 ```bash
-go install github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-linter-auto-configure@v0.1.0
+go install github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-lint-auto-configure@v0.1.0
 ```
 ````
 
@@ -764,10 +764,10 @@ go install github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-l
 
 ```bash
 # Analyze your configuration
-golangci-linter-auto-configure analyze
+golangci-lint-auto-configure analyze
 
 # Auto-configure with recommendations
-golangci-linter-auto-configure configure
+golangci-lint-auto-configure configure
 
 # Use an example config
 cp examples/standard.golangci.yml .golangci.yml

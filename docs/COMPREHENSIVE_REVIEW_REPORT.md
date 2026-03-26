@@ -112,7 +112,7 @@ All verified files follow the standard 5-section format:
 #### 1. CLI Commands (6/6 Working) ✅
 
 ```bash
-$ ./bin/golangci-linter-auto-configure --help
+$ ./bin/golangci-lint-auto-configure --help
 ✅ Shows all 6 commands:
   - analyze
   - configure
@@ -138,7 +138,7 @@ $ ./bin/golangci-linter-auto-configure --help
 **Test 1: Analyze Command**
 
 ```bash
-$ ./bin/golangci-linter-auto-configure analyze --config .golangci.yml
+$ ./bin/golangci-lint-auto-configure analyze --config .golangci.yml
 INFO Analyzing configuration: .golangci.yml
 INFO
 ⚠️  1 DEPRECATED linter(s) are enabled (should be migrated):
@@ -152,7 +152,7 @@ INFO Summary: Found 0 disabled linters: 1 DEPRECATED (see details above)
 **Test 2: Validate Command**
 
 ```bash
-$ ./bin/golangci-linter-auto-configure validate --config .golangci.yml
+$ ./bin/golangci-lint-auto-configure validate --config .golangci.yml
 INFO Validating configuration: .golangci.yml
 INFO Configuration is valid
 ```
@@ -162,7 +162,7 @@ INFO Configuration is valid
 **Test 3: Report Command**
 
 ```bash
-$ ./bin/golangci-linter-auto-configure report --config .golangci.yml
+$ ./bin/golangci-lint-auto-configure report --config .golangci.yml
 INFO Generating html report for: .golangci.yml
 INFO Generating HTML report: report.html
 INFO Report generated successfully: report.html
@@ -173,7 +173,7 @@ INFO Report generated successfully: report.html
 **Test 4: Configure Command (Dry-Run)**
 
 ```bash
-$ ./bin/golangci-linter-auto-configure configure --priority critical --dry-run --config .golangci.yml
+$ ./bin/golangci-lint-auto-configure configure --priority critical --dry-run --config .golangci.yml
 INFO Configuring golangci-lint with config: .golangci.yml
 INFO Loading configuration: .golangci.yml
 INFO Analyzing configuration...
@@ -228,9 +228,9 @@ a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
 ### Code Organization
 
 ```
-golangci-linter-auto-configure/
+golangci-lint-auto-configure/
 ├── cmd/                    # Entry points
-│   └── golangci-linter-auto-configure/
+│   └── golangci-lint-auto-configure/
 ├── internal/                # Private packages
 │   ├── cli/               # CLI commands (commands.go)
 │   └── di/                 # Dependency injection

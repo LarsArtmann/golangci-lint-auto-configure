@@ -8,7 +8,7 @@
 
 ## 🎯 Executive Summary
 
-This document outlines a comprehensive, systematic plan to elevate **golangci-linter-auto-configure** from a working MVP to production-ready software with enterprise-grade architecture, type-safety, and developer experience.
+This document outlines a comprehensive, systematic plan to elevate **golangci-lint-auto-configure** from a working MVP to production-ready software with enterprise-grade architecture, type-safety, and developer experience.
 
 ### Current State
 

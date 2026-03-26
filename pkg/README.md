@@ -1,6 +1,6 @@
 # pkg/ - Public API Package
 
-This directory contains the public API for `golangci-linter-auto-configure`, designed for integration into other Go applications.
+This directory contains the public API for `golangci-lint-auto-configure`, designed for integration into other Go applications.
 
 ## Quick Start
 

@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Conducted comprehensive validation across **147 projects** using `golangci-linter-auto-configure validate` command. Identified **10 projects with validation failures (6.8% failure rate)** across **4 distinct error categories**. The analysis reveals that most failures stem from v1→v2 migration artifacts, deprecated settings, and type mismatches - all of which are **automatically fixable**.
+Conducted comprehensive validation across **147 projects** using `golangci-lint-auto-configure validate` command. Identified **10 projects with validation failures (6.8% failure rate)** across **4 distinct error categories**. The analysis reveals that most failures stem from v1→v2 migration artifacts, deprecated settings, and type mismatches - all of which are **automatically fixable**.
 
 **Key Insight:** The existing `migrate` command handles v1→v2 schema migration, but there's a gap for "v2 configs with deprecated/invalid settings" - configs that are technically v2 but contain invalid options. This calls for a new `repair` or `fix` command.
 
@@ -426,11 +426,11 @@ The `migrate` command (`internal/cli/cmd/migrate.go`) provides an excellent temp
 
 ```bash
 # For v1 configs - use migrate
-golangci-linter-auto-configure migrate
+golangci-lint-auto-configure migrate
 
 # For v2 configs with errors - use repair (after implementation)
-golangci-linter-auto-configure repair --dry-run  # Preview
-golangci-linter-auto-configure repair            # Apply fixes
+golangci-lint-auto-configure repair --dry-run  # Preview
+golangci-lint-auto-configure repair            # Apply fixes
 ```
 
 ### For Developers

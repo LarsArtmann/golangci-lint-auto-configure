@@ -163,7 +163,7 @@ func Execute() error {
 
    ```
    USAGE
-     golangci-linter-auto-configure [command] [--flags]
+     golangci-lint-auto-configure [command] [--flags]
 
    COMMANDS
      analyze               Analyze golangci-lint configuration and show recommendations
@@ -179,34 +179,34 @@ func Execute() error {
      -c --config           Path to golangci-lint config file
      -d --dry-run          Show what would be done without making changes
      --format              Output format (html, json) (html)
-     -h --help             Help for golangci-linter-auto-configure
+     -h --help             Help for golangci-lint-auto-configure
      --html                Generate HTML report
      --output              Output path for HTML report (report.html)
      --priority            Minimum priority level to enable (critical, high, medium, optional) (high)
      -v --verbose          Enable verbose output
-     --version             Version for golangci-linter-auto-configure
+     --version             Version for golangci-lint-auto-configure
    ```
 
 2. **Automatic Version Flag**
 
    ```bash
-   $ golangci-linter-auto-configure --version
-   golangci-linter-auto-configure version unknown (built from source)
+   $ golangci-lint-auto-configure --version
+   golangci-lint-auto-configure version unknown (built from source)
    ```
 
 3. **Shell Completion Generation**
 
    ```bash
-   $ golangci-linter-auto-configure completion bash
-   # bash completion V2 for golangci-linter-auto-configure
+   $ golangci-lint-auto-configure completion bash
+   # bash completion V2 for golangci-lint-auto-configure
    ...
 
-   $ golangci-linter-auto-configure completion zsh
-   # zsh completion for golangci-linter-auto-configure
+   $ golangci-lint-auto-configure completion zsh
+   # zsh completion for golangci-lint-auto-configure
    ...
 
-   $ golangci-linter-auto-configure completion fish
-   # fish completion for golangci-linter-auto-configure
+   $ golangci-lint-auto-configure completion fish
+   # fish completion for golangci-lint-auto-configure
    ...
    ```
 
@@ -243,7 +243,7 @@ can't load config: can't unmarshal config by viper:
 $ golangci-lint config verify
 # No output - configuration is valid ✅
 
-$ golangci-linter-auto-configure validate
+$ golangci-lint-auto-configure validate
 INFO Validating configuration: .golangci.yml
 INFO Configuration is valid ✅
 ```
@@ -266,7 +266,7 @@ Will run 16 of 16 specs
 Ran 16 of 16 Specs in 0.012 seconds
 SUCCESS! -- 16 Passed | 0 Failed ✅
 
-$ golangci-linter-auto-configure analyze
+$ golangci-lint-auto-configure analyze
 INFO Analyzing configuration: .golangci.yml
 INFO
 ⚠️  1 HIGH VALUE linter(s) are disabled
@@ -274,12 +274,12 @@ INFO
 💡 72 OPTIONAL linter(s) are disabled
 INFO Summary: Found 84 disabled linters ✅
 
-$ golangci-linter-auto-configure configure --dry-run
+$ golangci-lint-auto-configure configure --dry-run
 INFO Configuring golangci-lint with config: .golangci.yml
 ... [DRY-RUN] Would enable 84 linters
 INFO Would apply 84 fixes (dry-run mode) ✅
 
-$ golangci-linter-auto-configure report --output /tmp/test.html
+$ golangci-lint-auto-configure report --output /tmp/test.html
 INFO Generating html report for: .golangci.yml
 INFO Generating HTML report: /tmp/test.html
 INFO Report generated successfully ✅
@@ -355,7 +355,7 @@ $ golangci-lint config verify
 
 ### Binary (1 file)
 
-6. **bin/golangci-linter-auto-configure** (rebuilt)
+6. **bin/golangci-lint-auto-configure** (rebuilt)
 
 **Total:** 6 files changed, 99 insertions(+), 41 deletions(-)
 

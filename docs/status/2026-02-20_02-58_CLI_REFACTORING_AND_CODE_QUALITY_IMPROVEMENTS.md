@@ -174,10 +174,10 @@ $ just build
 Building CLI...
 ✓ Success
 
-$ ./bin/golangci-linter-auto-configure --version
-golangci-linter-auto-configure version dev
+$ ./bin/golangci-lint-auto-configure --version
+golangci-lint-auto-configure version dev
 
-$ ./bin/golangci-linter-auto-configure migrate --help
+$ ./bin/golangci-lint-auto-configure migrate --help
 Migrates golangci-lint configuration from v1 to v2 schema...
 ✓ All commands functional
 ```
@@ -240,9 +240,9 @@ cmd := clicmd.NewMigrateCommand(logger, configLoader, flags)
 **No breaking changes** - CLI interface remains identical:
 
 ```bash
-golangci-linter-auto-configure migrate --config .golangci.yml
-golangci-linter-auto-configure completion bash
-golangci-linter-auto-configure install-hook
+golangci-lint-auto-configure migrate --config .golangci.yml
+golangci-lint-auto-configure completion bash
+golangci-lint-auto-configure install-hook
 ```
 
 ---

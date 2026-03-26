@@ -1,7 +1,7 @@
 # Validation Analysis: 147 Projects Scan Results
 
 **Date:** 2026-02-25  
-**Command:** `golangci-linter-auto-configure validate`  
+**Command:** `golangci-lint-auto-configure validate`  
 **Projects Scanned:** 147  
 **Failures:** 10 projects (6.8% failure rate)
 
@@ -224,7 +224,7 @@ Common type errors:
 
 3. **Add Config Migration Command**
    ```bash
-   golangci-linter-auto-configure migrate --from-v1
+   golangci-lint-auto-configure migrate --from-v1
    ```
 
 ### Medium-Term Improvements

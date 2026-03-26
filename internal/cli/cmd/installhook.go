@@ -42,9 +42,9 @@ set -e
 echo "Running golangci-lint-auto-configure pre-commit hook..."
 
 # Check if golangci-lint-auto-configure is installed
-if ! command -v golangci-linter-auto-configure &> /dev/null; then
-    echo "Error: golangci-linter-auto-configure is not installed"
-    echo "Install from: https://github.com/LarsArtmann/golangcli-linter-auto-configure"
+if ! command -v golangci-lint-auto-configure &> /dev/null; then
+    echo "Error: golangci-lint-auto-configure is not installed"
+    echo "Install from: https://github.com/LarsArtmann/golangci-lint-auto-configure"
     exit 1
 fi
 
@@ -65,10 +65,10 @@ fi
 echo "Found config: $CONFIG_FILE"
 
 # Run analyze
-if ! golangci-linter-auto-configure analyze --config "$CONFIG_FILE"; then
+if ! golangci-lint-auto-configure analyze --config "$CONFIG_FILE"; then
     echo ""
     echo "Warning: Your configuration could be optimized"
-    echo "Run 'golangci-linter-auto-configure configure' to auto-fix"
+    echo "Run 'golangci-lint-auto-configure configure' to auto-fix"
     echo ""
     # Don't block commit, just warn
 fi

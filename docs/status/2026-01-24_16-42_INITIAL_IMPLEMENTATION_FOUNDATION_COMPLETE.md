@@ -21,7 +21,7 @@
   - Contributing guidelines
 
 - ✅ **Directory Structure**
-  - `cmd/golangci-linter-auto-configure/` - Main entry point
+  - `cmd/golangci-lint-auto-configure/` - Main entry point
   - `pkg/types/` - Core data structures
   - `pkg/constants/` - Static configuration data
   - `pkg/linter/` - Analysis and categorization logic
@@ -108,7 +108,7 @@
 
 ### Main Entry Point
 
-- ✅ **cmd/golangci-linter-auto-configure/main.go** (10 lines)
+- ✅ **cmd/golangci-lint-auto-configure/main.go** (10 lines)
   - Minimal main.go with cli.Main() call
   - Clean separation of concerns
 
@@ -410,7 +410,7 @@
 
 23. **Add Configuration File**
 
-- `~/.config/golangci-linter-auto-configure/config.yml`
+- `~/.config/golangci-lint-auto-configure/config.yml`
 - User preferences (default preset, auto-fix behavior)
 - Log level configuration
 
@@ -439,7 +439,7 @@
 
 2. **Build and Verify**
    - Build CLI binary
-   - Run `golangci-linter-auto-configure --help`
+   - Run `golangci-lint-auto-configure --help`
    - Verify all commands are available
 
 3. **Create Test Config File**
@@ -448,7 +448,7 @@
    - Verify it loads correctly
 
 4. **Run Basic Integration Test**
-   - Run `golangci-linter-auto-configure analyze`
+   - Run `golangci-lint-auto-configure analyze`
    - Verify linter analysis works
    - Check output format
 
@@ -603,7 +603,7 @@ Go is completely ignoring the `replace` directive and trying to fetch `github.co
 **Current Setup:**
 
 ```go
-// golangci-linter-auto-configure/go.mod
+// golangci-lint-auto-configure/go.mod
 module github.com/larsartmann/golangcli-linter-auto-configure
 
 go 1.24.2

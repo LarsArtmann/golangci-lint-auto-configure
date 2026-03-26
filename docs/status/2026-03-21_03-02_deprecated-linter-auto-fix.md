@@ -1,7 +1,7 @@
 # Status Report: 2026-03-21 03:02
 
 **Date:** 2026-03-21 03:02 CET  
-**Project:** golangci-linter-auto-configure  
+**Project:** golangci-lint-auto-configure  
 **Branch:** master
 
 ---
@@ -147,7 +147,7 @@ Last commit: fd11a1f (feat(linter): add comprehensive deprecated linter auto-fix
 
 ```
 $ cd /Users/larsartmann/projects/KeyCountdown
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 
 INFO Pre-fixing 6 deprecated linters: [deadcode varcheck structcheck gosimple exhaustivestruct (disabled) wsl (disabled)]
 INFO Successfully applied 54 fixes (49 linters, 1 formatters, 4 deprecated, 0 redundant)
@@ -156,7 +156,7 @@ INFO Successfully applied 54 fixes (49 linters, 1 formatters, 4 deprecated, 0 re
 ### Dry-Run Mode
 
 ```
-$ golangci-linter-auto-configure configure --dry-run
+$ golangci-lint-auto-configure configure --dry-run
 
 INFO [DRY-RUN] Would pre-fix 6 deprecated linters
 INFO Dry-run with deprecated linters - skipping analysis (run without --dry-run to fix)

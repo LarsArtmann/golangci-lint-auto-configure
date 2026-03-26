@@ -86,7 +86,7 @@ type golangciLintVersion struct {
 ### Integration Test
 
 ```bash
-$ just build && ./bin/golangci-linter-auto-configure analyze --config examples/minimal.golangci.yml
+$ just build && ./bin/golangci-lint-auto-configure analyze --config examples/minimal.golangci.yml
 INFO Analyzing configuration: examples/minimal.golangci.yml
 # Version check succeeds silently (no errors)
 INFO 🚨 7 CRITICAL linter(s) are disabled...
@@ -126,7 +126,7 @@ Per-call: ~27ms faster
 $ go build ./...
 SUCCESS
 $ just build
-SUCCESS (binary created: bin/golangci-linter-auto-configure)
+SUCCESS (binary created: bin/golangci-lint-auto-configure)
 ```
 
 **Result**: ✅ Builds successfully
@@ -276,7 +276,7 @@ $ git show --stat e583b13
  2 files changed, 62 insertions(+), 5 deletions(-)
 
 $ git push
-To github.com:LarsArtmann/golangci-linter-auto-configure.git
+To github.com:LarsArtmann/golangci-lint-auto-configure.git
    14af506..e583b13  master -> master
 ```
 

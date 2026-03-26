@@ -46,7 +46,7 @@
 | **1.9**  | Implement fish completion in `cmd/fish-completion.go` | 15min    | ✅ COMPLETE | Cobra auto-generates fish completion   |
 | **1.10** | Test all shell completions                            | 15min    | ✅ COMPLETE | All 4 shells tested and working        |
 
-**Result**: All shell completions functional (bash, zsh, fish, powershell) via Cobra's built-in completion system. Users can generate completion scripts with `golangci-linter-auto-configure completion <shell>`.
+**Result**: All shell completions functional (bash, zsh, fish, powershell) via Cobra's built-in completion system. Users can generate completion scripts with `golangci-lint-auto-configure completion <shell>`.
 
 ### Task Group 3: JSON Report Output Format (3/4 tasks - 75%)
 

@@ -30,7 +30,7 @@ Implemented automatic configuration file creation with sensible defaults and fix
 Previously, users had to manually create a `.golangci.yml` file before running the tool:
 
 ```bash
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 ERROR: no config file found
 ```
 
@@ -187,7 +187,7 @@ if err != nil {
 **Scenario 1: New User (No Config File)**
 
 ```bash
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 ERROR: no config file found
 # User must manually create .golangci.yml first
 ```
@@ -195,7 +195,7 @@ ERROR: no config file found
 **Scenario 2: Analysis Bug**
 
 ```bash
-$ golangci-linter-auto-configure analyze
+$ golangci-lint-auto-configure analyze
 INFO Analyzing configuration: .golangci.yml
 # ❌ Analysis uses default settings, not the actual config
 # ❌ Recommendations are inaccurate
@@ -206,7 +206,7 @@ INFO Analyzing configuration: .golangci.yml
 **Scenario 1: New User (Auto-Creation)**
 
 ```bash
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 INFO No config file found, creating default: .golangci.yml
 INFO Configuring golangci-lint with config: .golangci.yml
 INFO Applied 5 fixes
@@ -217,7 +217,7 @@ Backup created: .golangci.yml.backup
 **Scenario 2: Accurate Analysis**
 
 ```bash
-$ golangci-linter-auto-configure analyze
+$ golangci-lint-auto-configure analyze
 INFO Analyzing configuration: .golangci.yml
 
 🚨 2 CRITICAL linter(s) are disabled:
@@ -263,8 +263,8 @@ $ just build
 Building CLI...
 ✅ Success
 
-$ ./bin/golangci-linter-auto-configure --version
-golangci-linter-auto-configure version dev
+$ ./bin/golangci-lint-auto-configure --version
+golangci-lint-auto-configure version dev
 ```
 
 ### Functional Testing
@@ -273,7 +273,7 @@ golangci-linter-auto-configure version dev
 
 ```bash
 $ cd /tmp/test-project
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 INFO No config file found, creating default: .golangci.yml
 INFO Configuring golangci-lint with config: .golangci.yml
 INFO Applied 5 fixes
@@ -291,7 +291,7 @@ linters:
     - errcheck
     - staticcheck
 
-$ golangci-linter-auto-configure analyze
+$ golangci-lint-auto-configure analyze
 INFO Analyzing configuration: .golangci.yml
 
 🚨 3 CRITICAL linter(s) are disabled:
@@ -309,7 +309,7 @@ Summary: Found 3 disabled linters ✅
 $ golangci-lint config verify
 # No output - configuration is valid ✅
 
-$ golangci-linter-auto-configure validate
+$ golangci-lint-auto-configure validate
 INFO Validating configuration: .golangci.yml
 INFO Configuration is valid ✅
 ```

@@ -42,13 +42,13 @@
 Restore backup command is 100% complete and tested. Users can restore configurations from backups with:
 
 - Flag-based operation: `--backup-path <file>`
-- Positional argument: `golangci-linter-auto-configure restore <file>`
+- Positional argument: `golangci-lint-auto-configure restore <file>`
 - Automatic target path detection
 - Backup file existence validation
 - Full error handling
 - Detailed logging
 
-**Integration**: Command registered in CLI root, accessible via `golangci-linter-auto-configure restore`.
+**Integration**: Command registered in CLI root, accessible via `golangci-lint-auto-configure restore`.
 
 ### Task Group 2: Shell Completion (6/6 tasks - 100%) ✅
 
@@ -65,10 +65,10 @@ Restore backup command is 100% complete and tested. Users can restore configurat
 
 All shell completions are working via Cobra's built-in completion system. Users can generate completion scripts for:
 
-- **bash**: `golangci-linter-auto-configure completion bash`
-- **zsh**: `golangci-linter-auto-configure completion zsh`
-- **fish**: `golangci-linter-auto-configure completion fish`
-- **powershell**: `golangci-linter-auto-configure completion powershell`
+- **bash**: `golangci-lint-auto-configure completion bash`
+- **zsh**: `golangci-lint-auto-configure completion zsh`
+- **fish**: `golangci-lint-auto-configure completion fish`
+- **powershell**: `golangci-lint-auto-configure completion powershell`
 
 All scripts tested and validated. No custom implementation needed - Cobra handles everything.
 
@@ -938,25 +938,25 @@ WORKDIR /app
 COPY go.* ./
 RUN go mod download
 RUN go mod verify
-RUN go build -o /app/golangci-linter-auto-configure ./cmd/golangci-linter-auto-configure
+RUN go build -o /app/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 
 # Install golangci-lint
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/bin/
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates bash
-COPY --from=builder /app/golangci-linter-auto-configure /usr/local/bin/
+COPY --from=builder /app/golangci-lint-auto-configure /usr/local/bin/
 COPY --from=builder /usr/local/bin/golangci-lint /usr/local/bin/
 
 WORKDIR /workspace
-ENTRYPOINT ["/usr/local/bin/golangci-linter-auto-configure"]
+ENTRYPOINT ["/usr/local/bin/golangci-lint-auto-configure"]
 ```
 
 ```yaml
 # docker-compose.yml
 version: "3.8"
 services:
-  golangci-linter-auto-configure:
+  golangci-lint-auto-configure:
     build: .
     volumes:
       - ./:/workspace
@@ -995,7 +995,7 @@ report.json
 all: build test
 
 build:
-	go build -o bin/golangci-linter-auto-configure cmd/golangci-linter-auto-configure
+	go build -o bin/golangci-lint-auto-configure cmd/golangci-lint-auto-configure
 
 test:
 	go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
@@ -1008,16 +1008,16 @@ clean:
 	find . -name "*.json" -delete
 
 install: build
-	install -m 0755 bin/golangci-linter-auto-configure ${GOPATH}/bin/
+	install -m 0755 bin/golangci-lint-auto-configure ${GOPATH}/bin/
 
 release:
 	goreleaser release --rm-dist
 
 validate:
-	go run cmd/golangci-linter-auto-configure validate --config test.golangci.yml
+	go run cmd/golangci-lint-auto-configure validate --config test.golangci.yml
 
 report:
-	go run cmd/golangci-linter-auto-configure report --config test.golangci.yml
+	go run cmd/golangci-lint-auto-configure report --config test.golangci.yml
 
 help:
 	@echo "Available targets:"
@@ -2122,7 +2122,7 @@ func newProfilingCommand(logger *log.Logger) *cobra.Command {
 1. Recreate `pkg/report/json_report_generator.go` with correct code
 2. Verify file is written to disk
 3. Test compilation: `go build ./...`
-4. Test JSON generation: `go run cmd/golangci-linter-auto-configure report --format json`
+4. Test JSON generation: `go run cmd/golangci-lint-auto-configure report --format json`
 
 #### 4. ✅ COMMIT ALL EXISTING WORK (HIGH - 15 MINUTES)
 

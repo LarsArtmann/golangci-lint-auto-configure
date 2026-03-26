@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The golangci-linter-auto-configure tool is **fully functional and production-ready**. Recent work has focused on architectural improvements following the HOW_TO_GOLANG guidelines, particularly the 250-line file limit rule. The tool successfully analyzes configurations, detects missing linters, and provides actionable recommendations.
+The golangci-lint-auto-configure tool is **fully functional and production-ready**. Recent work has focused on architectural improvements following the HOW_TO_GOLANG guidelines, particularly the 250-line file limit rule. The tool successfully analyzes configurations, detects missing linters, and provides actionable recommendations.
 
 ### Key Metrics
 
@@ -366,8 +366,8 @@ Tasks:
 ## Appendix: Current File Structure
 
 ```
-golangci-linter-auto-configure/
-├── cmd/golangci-linter-auto-configure/main.go
+golangci-lint-auto-configure/
+├── cmd/golangci-lint-auto-configure/main.go
 ├── internal/cli/
 │   ├── commands.go (540 lines) ⚠️ OVER LIMIT
 │   └── commands_test.go (416 lines) ⚠️ OVER LIMIT

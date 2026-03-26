@@ -1,4 +1,4 @@
-# golangci-linter-auto-configure
+# golangci-lint-auto-configure
 
 **Automatically configure, optimize, and maintain golangci-lint configurations for Go projects with smart linter recommendations, deprecation handling, and auto-fixing.**
 
@@ -17,12 +17,12 @@ This tool automatically configures golangci-lint for Go projects by:
 
 ```bash
 # Install the latest version
-go install github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-linter-auto-configure@latest
+go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
 
 # Or build from source
-git clone https://github.com/larsartmann/golangcli-linter-auto-configure
-cd golangci-linter-auto-configure
-go build -o /usr/local/bin/golangci-linter-auto-configure ./cmd/golangci-linter-auto-configure
+git clone https://github.com/larsartmann/golangci-lint-auto-configure
+cd golangci-lint-auto-configure
+go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 ```
 
 ## Requirements
@@ -39,13 +39,13 @@ See what linters you're missing:
 
 ```bash
 # Analyze current directory
-golangci-linter-auto-configure analyze
+golangci-lint-auto-configure analyze
 
 # Analyze specific config
-golangci-linter-auto-configure analyze --config .golangci.yml
+golangci-lint-auto-configure analyze --config .golangci.yml
 
 # Verbose output with debug logs
-golangci-linter-auto-configure analyze --verbose
+golangci-lint-auto-configure analyze --verbose
 ```
 
 **Output Example:**
@@ -69,16 +69,16 @@ Automatically enable recommended linters:
 
 ```bash
 # Dry-run to see what would change
-golangci-linter-auto-configure configure --dry-run
+golangci-lint-auto-configure configure --dry-run
 
 # Apply changes
-golangci-linter-auto-configure configure
+golangci-lint-auto-configure configure
 
 # Configure with specific priority level
-golangci-linter-auto-configure configure --priority critical   # Security only
-golangci-linter-auto-configure configure --priority high       # Recommended (default)
-golangci-linter-auto-configure configure --priority medium     # Include style linters
-golangci-linter-auto-configure configure --priority optional   # All linters
+golangci-lint-auto-configure configure --priority critical   # Security only
+golangci-lint-auto-configure configure --priority high       # Recommended (default)
+golangci-lint-auto-configure configure --priority medium     # Include style linters
+golangci-lint-auto-configure configure --priority optional   # All linters
 ```
 
 **Automatic Deprecation Handling:**
@@ -97,7 +97,7 @@ The tool automatically detects and replaces deprecated linters with their recomm
 Check if your config is valid:
 
 ```bash
-golangci-linter-auto-configure validate --config .golangci.yml
+golangci-lint-auto-configure validate --config .golangci.yml
 ```
 
 ### Generate Reports
@@ -105,7 +105,7 @@ golangci-linter-auto-configure validate --config .golangci.yml
 Create JSON reports for CI/CD:
 
 ```bash
-golangci-linter-auto-configure report --output analysis.json --format json
+golangci-lint-auto-configure report --output analysis.json --format json
 ```
 
 ## Example Workflows
@@ -114,10 +114,10 @@ golangci-linter-auto-configure report --output analysis.json --format json
 
 ```bash
 # 1. Analyze what's missing
-golangci-linter-auto-configure analyze
+golangci-lint-auto-configure analyze
 
 # 2. Apply recommendations
-golangci-linter-auto-configure configure --priority high
+golangci-lint-auto-configure configure --priority high
 
 # 3. Verify with golangci-lint
 golangci-lint run ./...
@@ -133,8 +133,8 @@ cp examples/web-project.golangci.yml .golangci.yml
 vim .golangci.yml
 
 # Run the tool to optimize
-golangci-linter-auto-configure configure --dry-run
-golangci-linter-auto-configure configure
+golangci-lint-auto-configure configure --dry-run
+golangci-lint-auto-configure configure
 ```
 
 ### CI/CD Integration
@@ -153,10 +153,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25"
-      - name: Install golangci-linter-auto-configure
-        run: go install github.com/larsartmann/golangcli-linter-auto-configure/cmd/golangci-linter-auto-configure@latest
+      - name: Install golangci-lint-auto-configure
+        run: go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
       - name: Auto-configure
-        run: golangci-linter-auto-configure configure
+        run: golangci-lint-auto-configure configure
       - name: Run linters
         run: golangci-lint run ./...
 ```
@@ -240,12 +240,12 @@ go tool cover -html=coverage.out
 
 ```bash
 # Clone and build
-git clone https://github.com/larsartmann/golangcli-linter-auto-configure
-cd golangci-linter-auto-configure
-go build -o bin/golangci-linter-auto-configure ./cmd/golangci-linter-auto-configure
+git clone https://github.com/larsartmann/golangci-lint-auto-configure
+cd golangci-lint-auto-configure
+go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 
 # Run locally
-./bin/golangci-linter-auto-configure --help
+./bin/golangci-lint-auto-configure --help
 ```
 
 ## Contributing

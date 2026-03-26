@@ -1,10 +1,10 @@
-# Agent Guide: golangci-linter-auto-configure
+# Agent Guide: golangci-lint-auto-configure
 
-This guide provides essential information for agents working on the golangci-linter-auto-configure codebase.
+This guide provides essential information for agents working on the golangci-lint-auto-configure codebase.
 
 ## Project Overview
 
-**golangci-linter-auto-configure** is a Go CLI tool that automatically configures and optimizes golangci-lint configurations by:
+**golangci-lint-auto-configure** is a Go CLI tool that automatically configures and optimizes golangci-lint configurations by:
 
 - Analyzing existing golangci-lint configs
 - Detecting missing linters with smart categorization
@@ -36,12 +36,12 @@ just tidy           # Tidy go.mod
 **CLI Commands (after build):**
 
 ```bash
-./bin/golangci-linter-auto-configure configure [--priority critical|high|medium|optional] [--dry-run]
-./bin/golangci-linter-auto-configure analyze [--config .golangci.yml]
-./bin/golangci-linter-auto-configure validate [--config .golangci.yml]
-./bin/golangci-linter-auto-configure report [--format html|json] [--output path]
-./bin/golangci-linter-auto-configure migrate [--skip-validation]
-./bin/golangci-linter-auto-configure install-hook
+./bin/golangci-lint-auto-configure configure [--priority critical|high|medium|optional] [--dry-run]
+./bin/golangci-lint-auto-configure analyze [--config .golangci.yml]
+./bin/golangci-lint-auto-configure validate [--config .golangci.yml]
+./bin/golangci-lint-auto-configure report [--format html|json] [--output path]
+./bin/golangci-lint-auto-configure migrate [--skip-validation]
+./bin/golangci-lint-auto-configure install-hook
 ```
 
 ## Technology Stack
@@ -67,9 +67,9 @@ just tidy           # Tidy go.mod
 ### Directory Structure
 
 ```
-golangci-linter-auto-configure/
+golangci-lint-auto-configure/
 ├── cmd/
-│   └── golangci-linter-auto-configure/
+│   └── golangci-lint-auto-configure/
 │       └── main.go                    # Entry point, sets version via ldflags
 ├── pkg/
 │   ├── types/                        # Core type definitions and interfaces
@@ -558,14 +558,14 @@ Built-in hooks:
 
 1. Edit `pkg/report/report.templ`
 2. Run `templ generate` to compile to Go
-3. Test report generation: `./bin/golangci-linter-auto-configure report`
+3. Test report generation: `./bin/golangci-lint-auto-configure report`
 4. Verify HTML output in browser
 
 ### Debugging Issues
 
 1. Enable verbose mode: `--verbose` flag or `logger.SetLevel(log.DebugLevel)`
 2. Check golangci-lint version: `golangci-lint version`
-3. Verify config file exists and is valid: `golangci-linter-auto-configure validate`
+3. Verify config file exists and is valid: `golangci-lint-auto-configure validate`
 4. Check test coverage: `just coverage-html`
 5. Run specific tests: `ginkgo -r --focus="TestName"`
 
@@ -600,7 +600,7 @@ just test           # Run tests
 just lint           # Run linters
 just build          # Build binary
 just install-local  # Install with version
-./bin/golangci-linter-auto-configure --help
+./bin/golangci-lint-auto-configure --help
 ```
 
 ### Release Preparation
@@ -728,9 +728,9 @@ run, err := wf.Execute(ctx)
 ### Runtime Issues
 
 1. Enable verbose logging: `--verbose` flag
-2. Check binary path: `which golangci-linter-auto-configure`
+2. Check binary path: `which golangci-lint-auto-configure`
 3. Verify config file exists: `ls .golangci.yml`
-4. Check version info: `./bin/golangci-linter-auto-configure --help`
+4. Check version info: `./bin/golangci-lint-auto-configure --help`
 
 ## External References
 

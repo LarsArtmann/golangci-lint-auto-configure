@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-This document captures key architectural decisions made during the development of golangci-linter-auto-configure.
+This document captures key architectural decisions made during the development of golangci-lint-auto-configure.
 
 ## ADR-001: Railway-Oriented Programming with Result Types
 

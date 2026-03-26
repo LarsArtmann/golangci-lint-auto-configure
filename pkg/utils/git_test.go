@@ -1,4 +1,4 @@
-// Copyright (c) 2026 golangci-linter-auto-configure
+// Copyright (c) 2026 golangci-lint-auto-configure
 // SPDX-License-Identifier: Apache-2.0
 
 package utils_test

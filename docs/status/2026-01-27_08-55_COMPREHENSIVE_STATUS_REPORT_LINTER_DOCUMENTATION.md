@@ -1,7 +1,7 @@
 # Comprehensive Status Report - Linter Documentation Project
 
 **Date:** Tuesday, January 27, 2026, 08:55 CET
-**Project:** golangci-linter-auto-configure
+**Project:** golangci-lint-auto-configure
 **Task:** Comprehensive documentation for all golangci-lint linters
 **Report Type:** Full Status Update with Critical Analysis
 
@@ -447,7 +447,7 @@ This is GOOD - no half-finished work in progress.
 
 **Details:**
 
-- `/bin/golangci-linter-auto-configure` is 9,724,418 bytes
+- `/bin/golangci-lint-auto-configure` is 9,724,418 bytes
 - Binary files should NOT be in version control
 - Bloats repository size
 - Prevents efficient cloning
@@ -623,7 +623,7 @@ echo "/bin/" >> .gitignore
 
 # 2. Remove from git history
 git filter-branch --force --index-filter \
-  'git rm --cached --ignore-unmatch bin/golangci-linter-auto-configure' \
+  'git rm --cached --ignore-unmatch bin/golangci-lint-auto-configure' \
   --prune-empty --tag-name-filter cat -- --all
 
 # 3. Commit .gitignore

@@ -86,7 +86,7 @@ func runConfigure(ctx context.Context, ...) error {
 
 - Build passes
 - Tests pass
-- Can cancel `golangci-linter-auto-configure configure` with Ctrl+C
+- Can cancel `golangci-lint-auto-configure configure` with Ctrl+C
 
 ---
 
@@ -227,7 +227,7 @@ type FieldError struct {
 **Better:** Add `--timeout` flag per operation type
 
 ```bash
-golangci-linter-auto-configure configure --fetch-timeout=30s --git-timeout=5s
+golangci-lint-auto-configure configure --fetch-timeout=30s --git-timeout=5s
 ```
 
 ---

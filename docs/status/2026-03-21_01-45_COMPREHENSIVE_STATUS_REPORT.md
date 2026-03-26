@@ -51,7 +51,7 @@ The codebase is in good shape with recent improvements to deprecated linter hand
 
 ### 3. CLI Functionality Verified (WORKING)
 
-The existing binary (`./bin/golangci-linter-auto-configure`) works correctly:
+The existing binary (`./bin/golangci-lint-auto-configure`) works correctly:
 
 - `analyze` command: ✅ Working
 - `analyze --format json`: ✅ Working
@@ -167,7 +167,7 @@ sudo rm -rf ~/go/pkg/mod/golang.org/toolchain*
 GOTOOLCHAIN=go1.26.1 go version
 ```
 
-**Workaround:** Existing binary at `./bin/golangci-linter-auto-configure` still works.
+**Workaround:** Existing binary at `./bin/golangci-lint-auto-configure` still works.
 
 ---
 

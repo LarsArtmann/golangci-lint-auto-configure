@@ -149,11 +149,11 @@ All changes compile, all tests pass, no breaking changes introduced.
 
 ### Priority 1: Critical (Do Now)
 
-| #   | Task                                                           | Est. Time | Impact |
-| --- | -------------------------------------------------------------- | --------- | ------ |
-| 1   | Commit current changes with detailed message                   | 5 min     | High   |
-| 2   | Run `just lint` to verify no regressions                       | 2 min     | High   |
-| 3   | Test `./bin/golangci-linter-auto-configure configure` manually | 5 min     | High   |
+| #   | Task                                                         | Est. Time | Impact |
+| --- | ------------------------------------------------------------ | --------- | ------ |
+| 1   | Commit current changes with detailed message                 | 5 min     | High   |
+| 2   | Run `just lint` to verify no regressions                     | 2 min     | High   |
+| 3   | Test `./bin/golangci-lint-auto-configure configure` manually | 5 min     | High   |
 
 ### Priority 2: Important (This Week)
 

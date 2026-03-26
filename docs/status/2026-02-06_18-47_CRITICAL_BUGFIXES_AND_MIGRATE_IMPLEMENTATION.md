@@ -113,9 +113,9 @@ logger.Warnf("Migration functionality not yet implemented")
 **Usage:**
 
 ```bash
-golangci-linter-auto-configure migrate
-golangci-linter-auto-configure migrate --skip-validation
-golangci-linter-auto-configure migrate --format yaml
+golangci-lint-auto-configure migrate
+golangci-lint-auto-configure migrate --skip-validation
+golangci-lint-auto-configure migrate --format yaml
 ```
 
 **Error Handling:**

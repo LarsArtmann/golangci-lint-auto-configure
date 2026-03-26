@@ -1,7 +1,7 @@
 # 🚀 PRODUCTION READY - EXCELLENT STATUS
 
 **Generated**: January 27, 2026 at 17:05 CET
-**Project**: golangci-linter-auto-configure
+**Project**: golangci-lint-auto-configure
 **Branch**: master (up to date with origin/master)
 **Reviewer**: Crush (AI Assistant)
 **Review Methodology**: READ, UNDERSTAND, RESEARCH, REFLECT, VERIFY
@@ -141,7 +141,7 @@ detects missing linters with smart categorization, and provides
 actionable recommendations to improve your Go code quality.
 
 USAGE
-  golangci-linter-auto-configure [command] [--flags]
+  golangci-lint-auto-configure [command] [--flags]
 
 COMMANDS
   analyze               Analyze golangci-lint configuration and show recommendations
@@ -157,12 +157,12 @@ FLAGS
   -c --config           Path to golangci-lint config file
   -d --dry-run          Show what would be done without making changes
   --format              Output format (html, json) (html)
-  -h --help             Help for golangci-linter-auto-configure
+  -h --help             Help for golangci-lint-auto-configure
   --html                Generate HTML report
   --output              Output path for HTML report (report.html)
   --priority            Minimum priority level to enable (critical, high, medium, optional) (high)
   -v --verbose          Enable verbose output
-  --version             Version for golangci-linter-auto-configure
+  --version             Version for golangci-lint-auto-configure
 ```
 
 ---
@@ -603,7 +603,7 @@ $ golangci-lint linters --json | jq '.Enabled[] | select(.name=="wsl")'
   "originalURL": "https://github.com/bombsimon/wsl"
 }
 
-$ ./bin/golangci-linter-auto-configure analyze --config .golangci.yml
+$ ./bin/golangci-lint-auto-configure analyze --config .golangci.yml
 INFO
 ⚠️  1 DEPRECATED linter(s) are enabled (should be migrated):
   - wsl: Use wsl_v5 instead (Add or remove empty lines.)

@@ -32,10 +32,10 @@ var _ = Describe("CLI Integration Tests", func() {
 
 	// Helper function to build the binary
 	buildBinary := func() string {
-		binaryPath := filepath.Join(testDir, "golangci-linter-auto-configure")
+		binaryPath := filepath.Join(testDir, "golangci-lint-auto-configure")
 		// Get absolute path to the project root
 		projectRoot, _ := filepath.Abs(filepath.Join("..", ".."))
-		cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/golangci-linter-auto-configure")
+		cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/golangci-lint-auto-configure")
 		cmd.Dir = projectRoot
 
 		cmd.Env = append(os.Environ(), "GOOS=darwin", "GOARCH=arm64")
@@ -280,7 +280,7 @@ linters:
 			output, err := cmd.CombinedOutput()
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("golangci-linter-auto-configure"))
+			Expect(string(output)).To(ContainSubstring("golangci-lint-auto-configure"))
 			Expect(string(output)).To(ContainSubstring("COMMANDS"))
 		})
 

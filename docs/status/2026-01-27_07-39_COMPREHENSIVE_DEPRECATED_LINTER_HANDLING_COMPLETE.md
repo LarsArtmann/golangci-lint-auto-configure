@@ -81,7 +81,7 @@ linters:
 **Verification:**
 
 ```bash
-./bin/golangci-linter-auto-configure analyze --config test.golangci.yml
+./bin/golangci-lint-auto-configure analyze --config test.golangci.yml
 # Now correctly shows only 3 CRITICAL disabled instead of 107
 # Because test.golangci.yml has 10 linters enabled
 ```
@@ -136,7 +136,7 @@ func (a *Analyzer) calculateDeprecatedLinters(analysis *types.ConfigAnalysis) {
 **Workflow A: Discovering Deprecated Linters**
 
 ```bash
-$ golangci-linter-auto-configure analyze
+$ golangci-lint-auto-configure analyze
 ⚠️  1 DEPRECATED linter(s) are enabled:
   - wsl: Use wsl_v5 instead
 
@@ -161,7 +161,7 @@ linters:
 sed -i 's/wsl/wsl_v5/g' .golangci.yml
 
 # Option 2: Use configure command (automatic)
-golangci-linter-auto-configure configure  # Already handles deprecation
+golangci-lint-auto-configure configure  # Already handles deprecation
 ```
 
 **Supported Deprecated Linter:**
@@ -235,7 +235,7 @@ composite coverage: 41.4% of statements
 **Scenario 1: Current .golangci.yml (with wsl + wsl_v5)**
 
 ```bash
-$ golangci-linter-auto-configure analyze
+$ golangci-lint-auto-configure analyze
 ⚠️  1 DEPRECATED linter(s) are enabled (should be migrated):
   - wsl: Use wsl_v5 instead (Add or remove empty lines.)
 
@@ -255,7 +255,7 @@ linters:
     - staticcheck
     - govet
 
-$ golangci-linter-auto-configure analyze --config /tmp/minimal.yml
+$ golangci-lint-auto-configure analyze --config /tmp/minimal.yml
 ⚠️  7 CRITICAL linter(s) are disabled:
   - loggercheck: ...
   - noctx: ...
@@ -274,7 +274,7 @@ linters:
     - errcheck
     - wsl  # deprecated
 
-$ golangci-linter-auto-configure analyze --config /tmp/deprecated.yml
+$ golangci-lint-auto-configure analyze --config /tmp/deprecated.yml
 ⚠️  1 DEPRECATED linter(s) are enabled (should be migrated):
   - wsl: Use wsl_v5 instead
 ```
@@ -291,7 +291,7 @@ linters:
     - errcheck
     - wsl_v5  # not deprecated, replacement for wsl
 
-$ golangci-linter-auto-configure analyze --config /tmp/correct.yml
+$ golangci-lint-auto-configure analyze --config /tmp/correct.yml
 INFO Summary: All linters enabled - no recommendations
 ```
 
@@ -321,7 +321,7 @@ Total changes:
 ### Binary Size
 
 ```
-- bin/golangci-linter-auto-configure: ~15MB (compiled binary)
+- bin/golangci-lint-auto-configure: ~15MB (compiled binary)
 ```
 
 ---
@@ -433,7 +433,7 @@ Describe("Analyzer", func() {
 ### Example 1: Analyze Current Config with Deprecated Linter
 
 ```bash
-$ golangci-linter-auto-configure analyze
+$ golangci-lint-auto-configure analyze
 INFO Analyzing configuration: .golangci.yml
 
 ⚠️  1 DEPRECATED linter(s) are enabled (should be migrated):
@@ -456,7 +456,7 @@ Exit code: 0
 ### Example 2: Configure Command Handles Deprecation Automatically
 
 ```bash
-$ golangci-linter-auto-configure configure
+$ golangci-lint-auto-configure configure
 INFO Loading configuration: .golangci.yml
 INFO Analyzing configuration...
 INFO Replacing deprecated linter: wsl -> wsl_v5 (...)
@@ -478,7 +478,7 @@ linters:
     - errcheck
     - staticcheck
 
-$ golangci-linter-auto-configure analyze
+$ golangci-lint-auto-configure analyze
 🚨 8 CRITICAL linter(s) are disabled
 ⚠️  16 HIGH VALUE linter(s) are disabled
 ℹ️  12 MEDIUM VALUE linter(s) are disabled
@@ -488,7 +488,7 @@ $ golangci-linter-auto-configure analyze
 ### Example 4: JSON Output with Deprecated Info
 
 ```bash
-$ golangci-linter-auto-configure analyze --format json | jq '.deprecated_linters'
+$ golangci-lint-auto-configure analyze --format json | jq '.deprecated_linters'
 [
   {
     "name": "wsl",
@@ -524,7 +524,7 @@ $ golangci-linter-auto-configure analyze --format json | jq '.deprecated_linters
 
 ### ✅ PRODUCTION READY
 
-The golangci-linter-auto-configure tool now provides **comprehensive deprecated linter handling** that:
+The golangci-lint-auto-configure tool now provides **comprehensive deprecated linter handling** that:
 
 1. **Detects deprecated linters accurately** - Reads from golangci-lint's deprecated flag
 2. **Provides clear migration guidance** - Shows which linter to use instead

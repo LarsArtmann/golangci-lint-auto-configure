@@ -1,7 +1,7 @@
 # COMPREHENSIVE STATUS REPORT
 
 **Generated:** 2026-03-26 20:46 CET
-**Project:** golangci-linter-auto-configure
+**Project:** golangci-lint-auto-configure
 
 ---
 
