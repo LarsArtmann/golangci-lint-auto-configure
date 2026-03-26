@@ -63,7 +63,12 @@ type Detector struct {
 
 // NewDetector creates a new project type detector.
 func NewDetector(rootDir string) *Detector {
-	return &Detector{rootDir: rootDir}
+	return &Detector{
+		rootDir: rootDir,
+		cache:   ProjectTypeUnknown,
+		cached:  false,
+		mu:      sync.Mutex{},
+	}
 }
 
 // Detect analyzes the project and returns the detected type.
