@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 

@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/fang"
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	clicmd "github.com/larsartmann/golangcli-linter-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"

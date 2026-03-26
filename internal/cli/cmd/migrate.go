@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/spf13/cobra"
 )

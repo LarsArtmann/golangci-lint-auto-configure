@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	linterpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 )
 

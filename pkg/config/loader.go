@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	"github.com/pelletier/go-toml/v2"

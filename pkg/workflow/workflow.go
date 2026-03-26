@@ -7,7 +7,7 @@ import (
 
 	"github.com/LarsArtmann/universal-workflow/pkg/types"
 	workflowpkg "github.com/LarsArtmann/universal-workflow/pkg/workflow"
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 )

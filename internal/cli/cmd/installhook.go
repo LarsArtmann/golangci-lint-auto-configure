@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/spf13/cobra"
 )

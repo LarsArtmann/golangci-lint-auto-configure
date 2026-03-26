@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
