@@ -132,7 +132,6 @@ linters:
             - charm.land/log/v2
             - charm.land/lipgloss/v2
             - github.com/larsartmann/golangcli-linter-auto-configure
-            - github.com/LarsArtmann/universal-workflow
             - github.com/spf13/cobra
             - github.com/spf13/afero
             - github.com/stretchr/testify
@@ -187,10 +186,7 @@ linters:
       - path: pkg/errors/errors\.go
         linters:
           - funcorder
-      - path: pkg/workflow/workflow\.go
-        linters:
-          - containedctx
-      - path: internal/cli/|pkg/workflow/workflow\.go|examples/|pkg/client/client\.go
+      - path: internal/cli/|examples/|pkg/client/client\.go
         linters:
           - exhaustruct
       - path: pkg/constants/
@@ -208,9 +204,6 @@ linters:
       - path: pkg/diff/differ\.go
         linters:
           - funcorder
-      - path: pkg/workflow/workflow\.go
-        linters:
-          - gocognit
       - path: pkg/linter/fixer\.go
         linters:
           - gocognit
@@ -276,9 +269,6 @@ linters:
         linters:
           - funlen
           - paralleltest
-      - path: pkg/workflow/workflow\.go
-        linters:
-          - ireturn
       - path: _test\.go
         linters:
           - paralleltest
