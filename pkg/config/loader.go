@@ -249,6 +249,26 @@ func (l *Loader) GetAllLinterNames(ctx context.Context) ([]string, error) {
 	return linterNames, nil
 }
 
+// getLocalGoVersion returns the locally installed Go version.
+// Returns an empty string if the version cannot be determined.
+func getLocalGoVersion() string {
+	output, err := exec.Command("go", "version").Output()
+	if err != nil {
+		return ""
+	}
+
+	// Parse output like: go version go1.26.1 darwin/arm64
+	parts := strings.Fields(string(output))
+	for _, part := range parts {
+		if strings.HasPrefix(part, "go") && len(part) > 2 {
+			// Extract version without "go" prefix: go1.26.1 -> 1.26.1
+			return strings.TrimPrefix(part, "go")
+		}
+	}
+
+	return ""
+}
+
 // CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled.
 func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 	// Fetch all available linters dynamically
@@ -267,10 +287,17 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 		l.logger.Infof("Enabled %d linters in default configuration", len(allLinters))
 	}
 
+	// Detect local Go version
+	goVersion := getLocalGoVersion()
+	if goVersion != "" {
+		l.logger.Infof("Detected local Go version: %s", goVersion)
+	}
+
 	return &Config{
 		Version: "2",
 		Run: RunConfig{
 			Timeout:        "5m",
+			Go:             goVersion,
 			IssuesExitCode: 1,
 			Tests:          true,
 		},

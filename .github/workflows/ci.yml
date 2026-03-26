@@ -80,7 +80,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.26"
           cache: true
           cache-dependency-path: go.sum
 
@@ -121,7 +121,7 @@ jobs:
           echo "## 🎯 Go CI/CD Workflow Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Tests on Go 1.23, 1.24, 1.25" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Tests on Go 1.25, 1.26" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Race condition detection enabled" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Coverage report uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

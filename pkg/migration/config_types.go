@@ -25,10 +25,10 @@ type Config struct {
 
 // UnmarshalYAML custom unmarshaler to handle both v1 and v2 issues structures.
 //
-//nolint:gocognit,nestif,noinlineerr,wrapcheck,wsl_v5,golines // Complex migration logic requires nested conditionals
+//nolint:gocognit,nestif,wrapcheck,wsl_v5,golines // Complex migration logic requires nested conditionals
 func (c *Config) UnmarshalYAML(unmarshal func(any) error) error {
 	temp := make(map[string]any)
-	err := unmarshal(&temp)
+	err := unmarshal(&temp) //nolint:noinlineerr // Standard pattern for YAML unmarshaling
 	if err != nil {
 		return err
 	}

@@ -20,7 +20,7 @@ type Validator interface {
 // DefaultValidator uses golangci-lint for validation.
 type DefaultValidator struct{}
 
-func (v DefaultValidator) ValidateConfig(m *Migrator) error {
+func (v DefaultValidator) ValidateConfig(migrator *Migrator) error {
 	golangciLintPath, err := exec.LookPath("golangci-lint")
 	if err != nil {
 		return fmt.Errorf("golangci-lint not found: %w", err)
@@ -41,7 +41,7 @@ func (v DefaultValidator) ValidateConfig(m *Migrator) error {
 		return fmt.Errorf("config validation failed: %w\nOutput: %s", err, stderr.String())
 	}
 
-	if m.verbose {
+	if migrator.verbose {
 		//nolint:forbidigo // CLI output
 		fmt.Println("Configuration is valid")
 	}
@@ -66,5 +66,6 @@ func (v FailingValidator) ValidateConfig(_ *Migrator) error {
 		return ErrMockValidationFailed
 	}
 
-	return errors.New(v.ErrorMessage)
+	//nolint:goerr113 // Test helper that needs dynamic error message
+	return fmt.Errorf("%s", v.ErrorMessage)
 }
