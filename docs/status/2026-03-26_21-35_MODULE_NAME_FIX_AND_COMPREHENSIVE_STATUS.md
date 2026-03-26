@@ -1,4 +1,5 @@
 # COMPREHENSIVE STATUS REPORT
+
 ## golangci-lint-auto-configure
 
 **Date:** 2026-03-26 21:35
@@ -16,19 +17,19 @@
 
 ## A) FULLY DONE ✅
 
-| Task | Commit | Impact |
-|------|--------|--------|
-| **Module name typo fix** | `f63bea6` | CRITICAL - Project now buildable for all |
-| **Remove pkg/workflow/** | `2e80bf3` | Removed ghost code blocking other devs |
-| **Remove universal-workflow replace** | `2e80bf3` | Eliminated local-only dependency |
-| **Remove go-composable-business-types replace** | `2e80bf3` | Fixed invalid version dependency |
-| **Delete pkg/formatters/** | `2e80bf3` | Removed empty directory |
-| **Delete pkg/linter/validator.go** | `2e80bf3` | Removed ghost code (not imported) |
-| **Clean .golangci.yml** | `4233627` | Removed stale workflow exclusions |
-| **Extract shared git utilities** | `cf938c4` | Created pkg/utils/git.go |
-| **Preflight fixing logic extraction** | `a5a5612` | Better error messages with context |
-| **Fixer dependency injection** | `001dfc8` | Inject configLoader into Fixer |
-| **Migration package documentation** | `6664295` | Updated AGENTS.md |
+| Task                                            | Commit    | Impact                                   |
+| ----------------------------------------------- | --------- | ---------------------------------------- |
+| **Module name typo fix**                        | `f63bea6` | CRITICAL - Project now buildable for all |
+| **Remove pkg/workflow/**                        | `2e80bf3` | Removed ghost code blocking other devs   |
+| **Remove universal-workflow replace**           | `2e80bf3` | Eliminated local-only dependency         |
+| **Remove go-composable-business-types replace** | `2e80bf3` | Fixed invalid version dependency         |
+| **Delete pkg/formatters/**                      | `2e80bf3` | Removed empty directory                  |
+| **Delete pkg/linter/validator.go**              | `2e80bf3` | Removed ghost code (not imported)        |
+| **Clean .golangci.yml**                         | `4233627` | Removed stale workflow exclusions        |
+| **Extract shared git utilities**                | `cf938c4` | Created pkg/utils/git.go                 |
+| **Preflight fixing logic extraction**           | `a5a5612` | Better error messages with context       |
+| **Fixer dependency injection**                  | `001dfc8` | Inject configLoader into Fixer           |
+| **Migration package documentation**             | `6664295` | Updated AGENTS.md                        |
 
 ### Test Status
 
@@ -50,11 +51,11 @@ pkg/utils      ✅ PASS
 
 ## B) PARTIALLY DONE ⏳
 
-| Task | Status | Blocker |
-|------|--------|---------|
-| **Documentation updates** | 55 files modified but uncommitted | Need review for correctness |
-| **CLI integration tests** | Tests exist but timeout | Binary rebuild per test is slow |
-| **Pre-commit hook** | Works but times out on full run | Integration tests too slow |
+| Task                      | Status                            | Blocker                         |
+| ------------------------- | --------------------------------- | ------------------------------- |
+| **Documentation updates** | 55 files modified but uncommitted | Need review for correctness     |
+| **CLI integration tests** | Tests exist but timeout           | Binary rebuild per test is slow |
+| **Pre-commit hook**       | Works but times out on full run   | Integration tests too slow      |
 
 ### Unstaged Changes (55 files)
 
@@ -66,14 +67,14 @@ pkg/utils      ✅ PASS
 
 ## C) NOT STARTED 📋
 
-| Priority | Task | Effort |
-|----------|------|--------|
-| High | Add tests for pkg/report | Medium |
-| High | Add tests for pkg/types | Medium |
-| Medium | Review and commit documentation updates | Low |
-| Medium | Fix CLI integration test timeout | Medium |
-| Low | Remove unused dependencies (go mod tidy warnings) | Low |
-| Low | Add benchmarks for hot paths | Medium |
+| Priority | Task                                              | Effort |
+| -------- | ------------------------------------------------- | ------ |
+| High     | Add tests for pkg/report                          | Medium |
+| High     | Add tests for pkg/types                           | Medium |
+| Medium   | Review and commit documentation updates           | Low    |
+| Medium   | Fix CLI integration test timeout                  | Medium |
+| Low      | Remove unused dependencies (go mod tidy warnings) | Low    |
+| Low      | Add benchmarks for hot paths                      | Medium |
 
 ---
 
@@ -93,11 +94,11 @@ Status:  ✅ FIXED in commit f63bea6
 
 ### Pre-existing Issues (Minor)
 
-| Issue | Location | Severity |
-|-------|----------|----------|
-| Unused dependencies | go.mod lines 24-48 | Low (warnings only) |
-| gopls compiler errors | internal/cli/cmd/migrate.go | Low (IDE caching) |
-| CLI tests timeout | internal/cli/*_test.go | Medium |
+| Issue                 | Location                    | Severity            |
+| --------------------- | --------------------------- | ------------------- |
+| Unused dependencies   | go.mod lines 24-48          | Low (warnings only) |
+| gopls compiler errors | internal/cli/cmd/migrate.go | Low (IDE caching)   |
+| CLI tests timeout     | internal/cli/\*\_test.go    | Medium              |
 
 ---
 
@@ -188,24 +189,24 @@ Then run: `go test -tags=integration ./internal/cli/...` only when needed.
 
 ## Commits This Session
 
-| SHA | Message |
-|-----|---------|
+| SHA       | Message                                                                                       |
+| --------- | --------------------------------------------------------------------------------------------- |
 | `f63bea6` | fix: correct module name from golangcli-linter-auto-configure to golangci-lint-auto-configure |
-| `4233627` | chore: remove stale workflow references from golangci.yml |
-| `2e80bf3` | refactor: remove unused workflow package and local replace dependencies |
+| `4233627` | chore: remove stale workflow references from golangci.yml                                     |
+| `2e80bf3` | refactor: remove unused workflow package and local replace dependencies                       |
 
 ---
 
 ## Metrics
 
-| Metric | Value |
-|--------|-------|
-| Total commits pushed | 3 |
-| Files changed | 44 |
-| Tests passing | 8/8 packages |
-| Build status | ✅ SUCCESS |
-| Coverage | Not measured this session |
-| Unstaged changes | 55 files |
+| Metric               | Value                     |
+| -------------------- | ------------------------- |
+| Total commits pushed | 3                         |
+| Files changed        | 44                        |
+| Tests passing        | 8/8 packages              |
+| Build status         | ✅ SUCCESS                |
+| Coverage             | Not measured this session |
+| Unstaged changes     | 55 files                  |
 
 ---
 
@@ -217,5 +218,5 @@ Then run: `go test -tags=integration ./internal/cli/...` only when needed.
 
 ---
 
-*Generated: 2026-03-26 21:35*
-*Assistant: GLM-5 via Crush*
+_Generated: 2026-03-26 21:35_
+_Assistant: GLM-5 via Crush_
