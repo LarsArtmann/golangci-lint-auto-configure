@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -14,16 +15,18 @@ import (
 
 var _ = Describe("Fixer", func() {
 	var (
-		fixer      *linter.Fixer
-		analyzer   *linter.Analyzer
-		testConfig string
-		logger     *log.Logger
+		fixer       *linter.Fixer
+		analyzer    *linter.Analyzer
+		testConfig  string
+		logger      *log.Logger
+		configTypes types.ConfigLoader
 	)
 
 	BeforeEach(func() {
 		logger = log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
 		analyzer = linter.NewAnalyzer(logger)
-		fixer = linter.NewFixer(logger, analyzer)
+		configTypes = config.NewLoader(logger)
+		fixer = linter.NewFixer(logger, analyzer, configTypes)
 
 		testDir := GinkgoT().TempDir()
 		testConfig = filepath.Join(testDir, ".golangci.yml")

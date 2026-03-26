@@ -102,7 +102,7 @@ func runConfigure(
 	}
 
 	// Create fixer and apply fixes
-	fixer := linter.NewFixer(logger, analyzer)
+	fixer := linter.NewFixer(logger, analyzer, configLoader)
 
 	linterPriority := ParsePriorityParam(priorityParam)
 

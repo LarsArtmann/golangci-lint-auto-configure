@@ -45,10 +45,12 @@ func New(opts Options) *Client {
 
 	analyzer := linter.NewAnalyzer(logger)
 
+	configLoader := config.NewLoader(logger)
+
 	return &Client{
-		configLoader: config.NewLoader(logger),
+		configLoader: configLoader,
 		analyzer:     analyzer,
-		fixer:        linter.NewFixer(logger, analyzer),
+		fixer:        linter.NewFixer(logger, analyzer, configLoader),
 		logger:       logger,
 	}
 }

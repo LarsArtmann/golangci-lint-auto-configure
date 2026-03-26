@@ -175,7 +175,7 @@ linters:
           - exhaustruct
           - err113
           - wrapcheck
-      - path: internal/cli|examples/|cmd/
+      - path: internal/cli|examples/|cmd/|pkg/config/
         linters:
           - depguard
       - path: _test\.go

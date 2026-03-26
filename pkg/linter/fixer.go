@@ -6,7 +6,6 @@ import (
 	"slices"
 
 	"charm.land/log/v2"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
@@ -14,15 +13,15 @@ import (
 
 // Fixer provides functionality to fix golangci-lint configurations.
 type Fixer struct {
-	configLoader *config.Loader
+	configLoader types.ConfigLoader
 	analyzer     *Analyzer
 	logger       *log.Logger
 }
 
 // NewFixer creates a new fixer.
-func NewFixer(logger *log.Logger, analyzer *Analyzer) *Fixer {
+func NewFixer(logger *log.Logger, analyzer *Analyzer, configLoader types.ConfigLoader) *Fixer {
 	return &Fixer{
-		configLoader: config.NewLoader(logger),
+		configLoader: configLoader,
 		analyzer:     analyzer,
 		logger:       logger,
 	}
