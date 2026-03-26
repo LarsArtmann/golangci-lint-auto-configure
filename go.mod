@@ -1,6 +1,6 @@
 module github.com/larsartmann/golangcli-linter-auto-configure
 
-go 1.26.1
+go 1.26.0
 
 require (
 	charm.land/lipgloss/v2 v2.0.2
