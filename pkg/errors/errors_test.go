@@ -22,6 +22,7 @@ func TestErrors(t *testing.T) {
 var _ = Describe("Sentinel Errors", func() {
 	It("should have correct error messages", func() {
 		Expect(apperrors.ErrNotGitRepository.Error()).To(ContainSubstring("not a git repository"))
+		Expect(apperrors.ErrNotInGitWorkingTree.Error()).To(ContainSubstring("not inside git working tree"))
 		Expect(apperrors.ErrHookAlreadyExists.Error()).To(ContainSubstring("hook already exists"))
 		Expect(apperrors.ErrUnknownPreset.Error()).To(ContainSubstring("unknown preset"))
 		Expect(apperrors.ErrInvalidActivityContext.Error()).To(ContainSubstring("invalid activity context"))
