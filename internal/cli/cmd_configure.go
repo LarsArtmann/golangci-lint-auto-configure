@@ -108,7 +108,10 @@ func runConfigure(
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, dryRun)
 	if err != nil {
-		return fmt.Errorf("failed to fix configuration: %w", err)
+		return fmt.Errorf(
+			"failed to fix configuration (priorityParam=%s, preset=%s, dryRun=%t): %w",
+			priorityParam, preset, dryRun, err,
+		)
 	}
 
 	fmt.Fprintln(os.Stdout, "\n"+ui.FormatConfigHeader(configFile))
@@ -144,10 +147,16 @@ func ensureConfigFile(
 
 		err := configLoader.SaveConfig(defaultConfig, configFile)
 		if err != nil {
-			return fmt.Errorf("failed to create default config: %w", err)
+			return fmt.Errorf(
+				"failed to create default config (inGitRepo=%t): %w",
+				inGitRepo, err,
+			)
 		}
 	} else if err != nil {
-		return fmt.Errorf("failed to check config file: %w", err)
+		return fmt.Errorf(
+			"failed to check config file (inGitRepo=%t): %w",
+			inGitRepo, err,
+		)
 	}
 
 	return nil
@@ -182,16 +191,21 @@ func applyPreset(
 	// Load current config
 	cfg, err := configLoader.LoadConfig(configFile)
 	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
+		return fmt.Errorf(
+			"failed to load config (preset=%s, dryRun=%t): %w",
+			preset, dryRun, err,
+		)
 	}
 
 	// Get preset linters
 	linters, ok := constants.PresetLinters[preset]
 	if !ok {
 		return fmt.Errorf(
-			"%w: %s (valid: minimal, standard, strict, security, performance)",
+			"%w: %s (valid: minimal, standard, strict, security, performance, preset=%s, dryRun=%t)",
 			apperrors.ErrUnknownPreset,
 			preset,
+			preset,
+			dryRun,
 		)
 	}
 
@@ -217,7 +231,10 @@ func applyPreset(
 
 	// Save config
 	if err := configLoader.SaveConfig(cfg, configFile); err != nil {
-		return fmt.Errorf("failed to save config: %w", err)
+		return fmt.Errorf(
+			"failed to save config (preset=%s, dryRun=%t, linterCount=%d): %w",
+			preset, dryRun, len(linterNames), err,
+		)
 	}
 
 	logger.Infof("✅ Applied preset %s with %d linters", preset, len(linterNames))

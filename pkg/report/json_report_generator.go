@@ -69,12 +69,12 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 	// Marshal to JSON with indentation
 	jsonData, err := json.MarshalIndent(jsonReport, "", "  ")
 	if err != nil {
-		return fmt.Errorf("failed to marshal JSON report: %w", err)
+		return fmt.Errorf("failed to marshal JSON report (outputPath=%s): %w", outputPath, err)
 	}
 
 	// Write to file
 	if err := os.WriteFile(outputPath, jsonData, 0o644); err != nil {
-		return fmt.Errorf("failed to write JSON report to %s: %w", outputPath, err)
+		return fmt.Errorf("failed to write JSON report (outputPath=%s): %w", outputPath, err)
 	}
 
 	g.logger.Infof("JSON report generated successfully: %s", outputPath)

@@ -50,7 +50,10 @@ func (f *Fixer) FixConfigResult(
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
 	if err != nil {
-		return types.ErrMigration(apperrors.NewAnalysisError("failed to load config", configPath, err))
+		return types.ErrMigration(apperrors.NewAnalysisError(
+			fmt.Sprintf("failed to load config (priority=%d, dryRun=%t)", priority, dryRun),
+			configPath, err,
+		))
 	}
 
 	// Check for deprecated linters before analysis
@@ -67,12 +70,18 @@ func (f *Fixer) FixConfigResult(
 
 	// Pre-fix version field before analysis to prevent golangci-lint linters command from failing
 	if err := f.preFixVersion(cfg, configPath, dryRun); err != nil {
-		return types.ErrMigration(apperrors.NewAnalysisError("failed to pre-fix version field", configPath, err))
+		return types.ErrMigration(apperrors.NewAnalysisError(
+			fmt.Sprintf("failed to pre-fix version field (priority=%d, dryRun=%t)", priority, dryRun),
+			configPath, err,
+		))
 	}
 
 	// Pre-fix deprecated linters before analysis to prevent golangci-lint linters command from failing
 	if err := f.preFixDeprecatedLinters(cfg, configPath, dryRun); err != nil {
-		return types.ErrMigration(apperrors.NewAnalysisError("failed to pre-fix deprecated linters", configPath, err))
+		return types.ErrMigration(apperrors.NewAnalysisError(
+			fmt.Sprintf("failed to pre-fix deprecated linters (priority=%d, dryRun=%t)", priority, dryRun),
+			configPath, err,
+		))
 	}
 
 	// In dry-run mode with deprecated linters, skip analysis (config is broken, can't run golangci-lint linters)
@@ -86,7 +95,10 @@ func (f *Fixer) FixConfigResult(
 
 	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return types.ErrMigration(apperrors.NewAnalysisError("failed to analyze config", configPath, err))
+		return types.ErrMigration(apperrors.NewAnalysisError(
+			fmt.Sprintf("failed to analyze config (priority=%d, dryRun=%t)", priority, dryRun),
+			configPath, err,
+		))
 	}
 
 	disabledLinters := f.configLoader.GetLintersDisabled(cfg)
@@ -289,7 +301,10 @@ func (f *Fixer) FixConfigResult(
 	f.logger.Infof("Saving configuration...")
 
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
-		return types.ErrMigration(apperrors.NewAnalysisError("failed to save config", configPath, err))
+		return types.ErrMigration(apperrors.NewAnalysisError(
+			fmt.Sprintf("failed to save config (priority=%d, dryRun=%t)", priority, dryRun),
+			configPath, err,
+		))
 	}
 
 	result := &types.MigrationResult{
@@ -313,149 +328,4 @@ func (f *Fixer) FixConfigResult(
 
 func contains(slice []string, item string) bool {
 	return slices.Contains(slice, item)
-}
-
-// preFixDeprecatedLinters replaces deprecated linters in the config before analysis.
-// This is necessary because golangci-lint linters command will fail if the config
-// contains deprecated/removed linters (even in the disable list).
-func (f *Fixer) preFixVersion(cfg *types.Config, configPath string, dryRun bool) error {
-	if cfg.Version == "2" {
-		return nil // Version is already correct
-	}
-
-	if cfg.Version == "" {
-		f.logger.Infof("Version field is empty, setting to \"2\" for golangci-lint v2 compatibility")
-	} else {
-		f.logger.Infof("Version field is \"%s\", setting to \"2\" for golangci-lint v2 compatibility", cfg.Version)
-	}
-
-	if dryRun {
-		f.logger.Infof("[DRY-RUN] Would set version to \"2\"")
-
-		return nil
-	}
-
-	cfg.Version = "2"
-
-	// Save the fixed config so that golangci-lint linters command will work
-	err := f.configLoader.SaveConfig(cfg, configPath)
-	if err != nil {
-		return fmt.Errorf("failed to save pre-fixed config: %w", err)
-	}
-
-	return nil
-}
-
-func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dryRun bool) error {
-	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
-	disabledLinters := f.configLoader.GetLintersDisabled(cfg)
-
-	// Track if any deprecated linters were found
-	var deprecatedFound []string
-
-	// Build set from existing enabled linters, replacing deprecated ones
-	linterSet := make(map[string]bool)
-
-	for _, linter := range enabledLinters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			deprecatedFound = append(deprecatedFound, linter)
-
-			continue
-		}
-
-		linterSet[linter] = true
-	}
-
-	// Also check disabled linters for deprecated ones
-	disabledSet := make(map[string]bool)
-
-	for _, linter := range disabledLinters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			deprecatedFound = append(deprecatedFound, linter+" (disabled)")
-
-			continue
-		}
-
-		disabledSet[linter] = true
-	}
-
-	if len(deprecatedFound) == 0 {
-		return nil // No deprecated linters to fix
-	}
-
-	if dryRun {
-		f.logger.Infof("[DRY-RUN] Would pre-fix %d deprecated linters: %v", len(deprecatedFound), deprecatedFound)
-
-		return nil
-	}
-
-	f.logger.Infof("Pre-fixing %d deprecated linters: %v", len(deprecatedFound), deprecatedFound)
-
-	// Convert sets to sorted slices
-	fixedEnabled := make([]string, 0, len(linterSet))
-	for linter := range linterSet {
-		fixedEnabled = append(fixedEnabled, linter)
-	}
-
-	fixedDisabled := make([]string, 0, len(disabledSet))
-	for linter := range disabledSet {
-		fixedDisabled = append(fixedDisabled, linter)
-	}
-
-	cfg.Linters.Enable = fixedEnabled
-	cfg.Linters.Disable = fixedDisabled
-
-	// Save the fixed config so that golangci-lint linters command will work
-	err := f.configLoader.SaveConfig(cfg, configPath)
-	if err != nil {
-		return fmt.Errorf("failed to save pre-fixed config: %w", err)
-	}
-
-	return nil
-}
-
-// calculateDryRunResultWithDeprecated calculates the dry-run result when deprecated linters are present.
-// Since the config has deprecated linters, we can't run golangci-lint linters for analysis,
-// so we just report what would be fixed regarding deprecated linters.
-func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.MigrationResultType {
-	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
-	deprecationFixes := 0
-
-	linterSet := make(map[string]bool)
-
-	for _, linter := range enabledLinters {
-		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			deprecationFixes++
-
-			delete(linterSet, linter)
-
-			if !linterSet[string(replacement.Replacement)] {
-				f.logger.Infof(
-					"[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)",
-					linter,
-					replacement.Replacement,
-					replacement.Reason,
-				)
-				linterSet[string(replacement.Replacement)] = true
-			} else {
-				f.logger.Infof(
-					"[DRY-RUN] Would remove deprecated %s (keeping existing %s)",
-					linter,
-					replacement.Replacement,
-				)
-			}
-		} else {
-			linterSet[linter] = true
-		}
-	}
-
-	f.logger.Infof("[DRY-RUN] Would apply %d fixes", deprecationFixes)
-
-	return types.OkMigration(&types.MigrationResult{
-		FixesApplied: deprecationFixes,
-		Message: fmt.Sprintf(
-			"Would apply %d fixes (dry-run mode, skipped analysis due to deprecated linters)",
-			deprecationFixes,
-		),
-	})
 }

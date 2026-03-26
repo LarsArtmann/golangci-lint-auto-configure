@@ -129,7 +129,7 @@ func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string {
 func (c *Client) SaveConfig(cfg *config.Config, path string) error {
 	err := c.configLoader.SaveConfig(cfg, path)
 	if err != nil {
-		return fmt.Errorf("failed to save config: %w", err)
+		return fmt.Errorf("failed to save config (path=%s): %w", path, err)
 	}
 
 	return nil
@@ -166,7 +166,7 @@ func (c *Client) FixConfig(ctx context.Context, configPath string, opts FixOptio
 
 	result, err := c.fixer.FixConfig(ctx, configPath, opts.Priority, opts.DryRun)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fix config: %w", err)
+		return nil, fmt.Errorf("failed to fix config (priority=%d, dryRun=%t): %w", opts.Priority, opts.DryRun, err)
 	}
 
 	return result, nil
@@ -194,7 +194,7 @@ func SimpleFix(ctx context.Context, opts Options, configPath string, dryRun bool
 		DryRun:   dryRun,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("fix failed: %w", err)
+		return nil, fmt.Errorf("fix failed (dryRun=%t, verbose=%t): %w", dryRun, opts.Verbose, err)
 	}
 
 	if opts.Verbose {
@@ -220,7 +220,7 @@ func SimpleAnalyze(ctx context.Context, opts Options, configPath string) (string
 
 	analysis, err := clientObj.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return "", fmt.Errorf("analysis failed: %w", err)
+		return "", fmt.Errorf("analysis failed (verbose=%t): %w", opts.Verbose, err)
 	}
 
 	if opts.Verbose {

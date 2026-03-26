@@ -58,7 +58,7 @@ func newAnalyzeCommand(
 
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
-					return fmt.Errorf("failed to find config file: %w", err)
+					return fmt.Errorf("failed to find config file (format=%s): %w", format, err)
 				}
 			}
 
@@ -79,7 +79,7 @@ func newAnalyzeCommand(
 			fmt.Fprintf(os.Stdout, "\r\033[K") // Clear the line
 
 			if err != nil {
-				return fmt.Errorf("failed to analyze config: %w", err)
+				return fmt.Errorf("failed to analyze config (format=%s): %w", format, err)
 			}
 
 			// Output based on format
@@ -87,7 +87,7 @@ func newAnalyzeCommand(
 			case formatJSON:
 				data, jsonErr := json.MarshalIndent(analysis, "", "  ")
 				if jsonErr != nil {
-					return fmt.Errorf("failed to marshal analysis to JSON: %w", jsonErr)
+					return fmt.Errorf("failed to marshal analysis to JSON (format=%s): %w", format, jsonErr)
 				}
 
 				fmt.Fprintln(os.Stdout, string(data))

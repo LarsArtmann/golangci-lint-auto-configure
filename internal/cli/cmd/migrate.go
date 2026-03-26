@@ -53,7 +53,10 @@ Use --skip-validation if the v1 config has known issues.`,
 
 				configFile, err = configLoader.FindConfigFile(".")
 				if err != nil {
-					return fmt.Errorf("no config file found: %w", err)
+					return fmt.Errorf(
+						"no config file found (configPath=%q, verbose=%t): %w",
+						flags.ConfigPath, verbose, err,
+					)
 				}
 			}
 
@@ -69,7 +72,10 @@ Use --skip-validation if the v1 config has known issues.`,
 			// Load current config to check version
 			oldConfig, err := configLoader.LoadConfig(configFile)
 			if err != nil {
-				return fmt.Errorf("could not load config: %w", err)
+				return fmt.Errorf(
+					"could not load config (configFile=%s, dryRun=%t, skipValidation=%t, outputFormat=%q): %w",
+					configFile, dryRun, skipValidation, outputFormat, err,
+				)
 			}
 
 			// Check if already v2
@@ -83,7 +89,7 @@ Use --skip-validation if the v1 config has known issues.`,
 			if !dryRun {
 				err := configLoader.EnsureGitRepo(context.Background(), ".")
 				if err != nil {
-					return fmt.Errorf("failed to ensure git repo: %w", err)
+					return fmt.Errorf("failed to ensure git repo (dryRun=%t): %w", dryRun, err)
 				}
 			} else {
 				logger.Infof("[DRY-RUN] Would verify git repository")
@@ -118,7 +124,10 @@ Use --skip-validation if the v1 config has known issues.`,
 				logger.Infof("Output: %s", string(output))
 				logger.Infof("Use git to restore if needed")
 
-				return fmt.Errorf("migration failed: %w", err)
+				return fmt.Errorf(
+					"migration failed (configFile=%s, dryRun=%t, skipValidation=%t, outputFormat=%q): %w",
+					configFile, dryRun, skipValidation, outputFormat, err,
+				)
 			}
 
 			logger.Infof("Migration completed successfully")

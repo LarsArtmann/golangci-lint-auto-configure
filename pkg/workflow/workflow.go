@@ -191,14 +191,20 @@ func (b *Builder) ExecuteAutoConfigureWorkflow(
 ) (workflowpkg.WorkflowRun, error) {
 	workflow, err := b.BuildAutoConfigureWorkflow(ctx, configPath, dryRun, generateHTML, outputPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to build workflow: %w", err)
+		return nil, fmt.Errorf(
+			"failed to build workflow (dryRun=%t, generateHTML=%t, outputPath=%s): %w",
+			dryRun, generateHTML, outputPath, err,
+		)
 	}
 
 	b.logger.Infof("Executing workflow: %s", workflow.GetName())
 
 	run, err := workflow.Execute(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("workflow execution failed: %w", err)
+		return nil, fmt.Errorf(
+			"workflow execution failed (dryRun=%t, generateHTML=%t, outputPath=%s): %w",
+			dryRun, generateHTML, outputPath, err,
+		)
 	}
 
 	return run, nil
