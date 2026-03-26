@@ -6,7 +6,6 @@ package migration
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"os/exec"
 	"time"
@@ -66,6 +65,6 @@ func (v FailingValidator) ValidateConfig(_ *Migrator) error {
 		return ErrMockValidationFailed
 	}
 
-	//nolint:goerr113 // Test helper that needs dynamic error message
+	//nolint:err113 // Test helper that needs dynamic error message
 	return fmt.Errorf("%s", v.ErrorMessage)
 }
