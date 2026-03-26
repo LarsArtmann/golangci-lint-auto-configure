@@ -129,6 +129,8 @@ linters:
           allow:
             - $gostd
             - github.com/charmbracelet
+            - charm.land/log/v2
+            - charm.land/lipgloss/v2
             - github.com/larsartmann/golangcli-linter-auto-configure
             - github.com/LarsArtmann/universal-workflow
             - github.com/spf13/cobra
@@ -146,7 +148,7 @@ linters:
       exclude:
         - .*\.Test.*
         - .*Test.*
-        - github.com/charmbracelet/log.Options
+        - charm.land/log.Options
         - github.com/larsartmann/golangcli-linter-auto-configure/pkg/types.*
     funlen:
       lines: 80
@@ -188,7 +190,7 @@ linters:
       - path: pkg/workflow/workflow\.go
         linters:
           - containedctx
-      - path: internal/cli/|pkg/workflow/workflow\.go|examples/
+      - path: internal/cli/|pkg/workflow/workflow\.go|examples/|pkg/client/client\.go
         linters:
           - exhaustruct
       - path: pkg/constants/

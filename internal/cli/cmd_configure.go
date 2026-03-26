@@ -15,6 +15,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// presetConfigLoader defines the interface needed for applyPreset.
+type presetConfigLoader interface {
+	LoadConfig(path string) (*types.Config, error)
+	SaveConfig(config *types.Config, path string) error
+}
+
 // newConfigureCommand creates the configure command.
 func newConfigureCommand(
 	logger *log.Logger,
@@ -98,7 +104,7 @@ func runConfigure(
 	// Create fixer and apply fixes
 	fixer := linter.NewFixer(logger, analyzer)
 
-	linterPriority := parsePriorityParam(priorityParam)
+	linterPriority := ParsePriorityParam(priorityParam)
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, dryRun)
 	if err != nil {
@@ -147,8 +153,8 @@ func ensureConfigFile(
 	return nil
 }
 
-// parsePriorityParam converts a priority string to LinterPriority.
-func parsePriorityParam(priorityParam string) types.LinterPriority {
+// ParsePriorityParam converts a priority string to LinterPriority.
+func ParsePriorityParam(priorityParam string) types.LinterPriority {
 	switch priorityParam {
 	case "critical":
 		return types.LinterPriorityCritical
@@ -167,7 +173,7 @@ func parsePriorityParam(priorityParam string) types.LinterPriority {
 func applyPreset(
 	_ context.Context,
 	logger *log.Logger,
-	configLoader *config.Loader,
+	configLoader presetConfigLoader,
 	configFile, preset string,
 	dryRun bool,
 ) error {
