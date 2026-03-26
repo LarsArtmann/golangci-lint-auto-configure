@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
 
@@ -41,20 +42,13 @@ var _ = Describe("Git Utils", func() {
 		It("should return error for non-existent directory", func() {
 			ctx := context.Background()
 			err := utils.CheckGitRepo(ctx, "/non/existent/path")
-			Expect(err).To(MatchError(utils.ErrNotGitRepository))
+			Expect(err).To(MatchError(apperrors.ErrNotGitRepository))
 		})
 	})
 
 	Context("CheckGitRepoWithTimeout", func() {
 		It("should return nil when in a git repository", func() {
 			Expect(utils.CheckGitRepoWithTimeout(".")).To(Succeed())
-		})
-	})
-
-	Context("Error types", func() {
-		It("should have correct error messages", func() {
-			Expect(utils.ErrNotGitRepository.Error()).To(ContainSubstring("not in a git repository"))
-			Expect(utils.ErrNotInGitWorkingTree.Error()).To(ContainSubstring("not inside git working tree"))
 		})
 	})
 

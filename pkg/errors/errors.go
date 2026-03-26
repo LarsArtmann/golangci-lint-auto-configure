@@ -9,6 +9,8 @@ import (
 var (
 	// ErrNotGitRepository indicates the current directory is not a git repository.
 	ErrNotGitRepository = stderrors.New("not a git repository (no .git directory found)")
+	// ErrNotInGitWorkingTree indicates the current directory is not inside a git working tree.
+	ErrNotInGitWorkingTree = stderrors.New("not inside git working tree")
 	// ErrHookAlreadyExists indicates the pre-commit hook already exists.
 	ErrHookAlreadyExists = stderrors.New("hook already exists")
 	// ErrUnknownPreset indicates an invalid preset name was provided.
