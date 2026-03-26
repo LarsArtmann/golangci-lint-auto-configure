@@ -6,6 +6,8 @@ package migration
 import "slices"
 
 // MigrationRules contains all the rules and mappings needed for configuration migration.
+//
+//nolint:revive // Stuttering name is acceptable here for clarity
 type MigrationRules struct {
 	ValidVersions                 map[string]bool
 	RemovedLinterSettings         map[string][]string

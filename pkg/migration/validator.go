@@ -5,9 +5,11 @@ package migration
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os/exec"
+	"time"
 )
 
 // Validator is an interface for configuration validation.
@@ -24,7 +26,11 @@ func (v DefaultValidator) ValidateConfig(m *Migrator) error {
 		return fmt.Errorf("golangci-lint not found: %w", err)
 	}
 
-	cmd := exec.Command(golangciLintPath, "config", "verify")
+	//nolint:mnd // 30 seconds is a reasonable timeout for config validation
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, golangciLintPath, "config", "verify")
 
 	var stderr bytes.Buffer
 
@@ -36,6 +42,7 @@ func (v DefaultValidator) ValidateConfig(m *Migrator) error {
 	}
 
 	if m.verbose {
+		//nolint:forbidigo // CLI output
 		fmt.Println("Configuration is valid")
 	}
 
@@ -56,8 +63,8 @@ type FailingValidator struct {
 
 func (v FailingValidator) ValidateConfig(_ *Migrator) error {
 	if v.ErrorMessage == "" {
-		return errors.New("mock validation failed")
+		return ErrMockValidationFailed
 	}
 
-	return fmt.Errorf("%s", v.ErrorMessage)
+	return errors.New(v.ErrorMessage)
 }

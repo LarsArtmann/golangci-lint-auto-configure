@@ -38,6 +38,7 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 		fixes++
 
 		if m.verbose {
+			//nolint:forbidigo // CLI output
 			fmt.Printf("%s Migrated 'issues.exclude-rules' to 'linters.exclusions.rules'\n", m.getCheckmark())
 		}
 	}
@@ -46,6 +47,7 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 		fixes++
 
 		if m.verbose {
+			//nolint:forbidigo // CLI output
 			fmt.Printf("%s Migrated 'issues.exclude-dirs' to exclusions.paths\n", m.getCheckmark())
 		}
 	}
@@ -54,6 +56,7 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 		fixes++
 
 		if m.verbose {
+			//nolint:forbidigo // CLI output
 			fmt.Printf("%s Migrated 'issues.exclude-files' to exclusions.paths\n", m.getCheckmark())
 		}
 	}
@@ -65,6 +68,8 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 }
 
 // migrateIssuesExcludeRules migrates issues.exclude-rules to linters.exclusions.rules.
+//
+//nolint:exhaustruct // Only partial fields needed for migration
 func (m *Migrator) migrateIssuesExcludeRules(config *Config) bool {
 	if len(config.ExcludeRules) == 0 {
 		return false
@@ -266,6 +271,7 @@ func (m *Migrator) migrateOutputProperties(config *Config) int {
 
 // migrateVersion ensures the config has a valid v2 version string.
 func migrateVersion(version *string, rules *MigrationRules) bool {
+	//nolint:varnamelen // 'v' is clear enough in this context
 	v := *version
 
 	if rules.IsValidVersion(v) {

@@ -38,6 +38,7 @@ func SaveConfig(config *Config, path string) error {
 	var buf bytes.Buffer
 
 	encoder := yaml.NewEncoder(&buf)
+	//nolint:mnd // 2-space indentation is standard for YAML
 	encoder.SetIndent(2)
 
 	err := encoder.Encode(config)

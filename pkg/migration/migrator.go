@@ -68,7 +68,7 @@ func (m *Migrator) SetNoEmojis(noEmojis bool) {
 // MigrateToV2 migrates configuration to golangci-lint v2.x schema.
 // Returns: (success bool, fixesApplied int, error error).
 //
-//nolint:gocognit // Migration logic is inherently complex with multiple steps
+//nolint:gocognit,gocyclo,cyclop // Migration logic is inherently complex with multiple steps
 func (m *Migrator) MigrateToV2() (bool, int, error) {
 	cfg, err := LoadConfig(m.configPath)
 	if err != nil {
@@ -242,6 +242,7 @@ func (m *Migrator) getCheckmark() string {
 
 // checkGitRepository verifies we're inside a git repository.
 func (m *Migrator) checkGitRepository() error {
+	//nolint:mnd // 5 seconds is a reasonable timeout for git operations
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
