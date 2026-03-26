@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/utils"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
 
 // Static errors for better error handling.

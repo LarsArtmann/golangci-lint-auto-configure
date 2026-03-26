@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // Change represents a single change between two configs.

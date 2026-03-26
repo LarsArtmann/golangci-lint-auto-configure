@@ -1,6 +1,6 @@
 package constants
 
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 
 // DeprecatedLinters maps deprecated linter names to their recommended replacements.
 var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{

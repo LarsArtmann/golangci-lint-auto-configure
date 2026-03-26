@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"charm.land/log/v2"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // Options configures the client behavior.

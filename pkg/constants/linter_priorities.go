@@ -1,6 +1,6 @@
 package constants
 
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 
 // LinterPriorities maps linter names to their priority levels.
 var LinterPriorities = map[types.LinterName]types.LinterPriority{

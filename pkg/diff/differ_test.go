@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	diffpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/diff"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	diffpkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/diff"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 func TestDiffer_Compare(t *testing.T) {

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
-	uipkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/ui"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	uipkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/ui"
 )
 
 func TestFormatRecommendations_AllEnabled(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 )
 
 // runLintersCommand runs `golangci-lint linters` and returns JSON output.

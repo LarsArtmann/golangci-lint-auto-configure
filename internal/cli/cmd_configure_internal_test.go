@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"charm.land/log/v2"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // mockPresetConfigLoader is a mock implementation of presetConfigLoader for testing.

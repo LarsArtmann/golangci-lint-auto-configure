@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"charm.land/log/v2"
-	linterpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
+	linterpkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 )
 
 const defaultTestConfigPath = "../../.golangci.yml"

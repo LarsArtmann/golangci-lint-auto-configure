@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/migration"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/migration"
 )
 
 func TestMigration(t *testing.T) {

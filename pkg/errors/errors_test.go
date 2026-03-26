@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 )
 
 func TestErrors(t *testing.T) {

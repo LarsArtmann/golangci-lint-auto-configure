@@ -8,9 +8,9 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/charmbracelet/fang"
-	clicmd "github.com/larsartmann/golangcli-linter-auto-configure/internal/cli/cmd"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
+	clicmd "github.com/larsartmann/golangci-lint-auto-configure/internal/cli/cmd"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +37,7 @@ func NewRootCommand() *cobra.Command {
 	slog.SetDefault(slog.New(logger))
 
 	rootCmd := &cobra.Command{
-		Use:   "golangci-linter-auto-configure",
+		Use:   "golangci-lint-auto-configure",
 		Short: "Automatically configure and optimize golangci-lint",
 		Long: `A tool that automatically analyzes golangci-lint configurations,
 detects missing linters with smart categorization, and provides

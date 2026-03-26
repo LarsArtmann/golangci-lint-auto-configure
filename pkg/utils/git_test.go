@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/utils"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
 
 func TestUtils(t *testing.T) {

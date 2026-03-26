@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	detectionpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/detection"
+	detectionpkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
 )
 
 func setupBenchmarkProject(b *testing.B) string {

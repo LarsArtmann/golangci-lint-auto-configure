@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/larsartmann/golangcli-linter-auto-configure/internal/cli"
+	"github.com/larsartmann/golangci-lint-auto-configure/internal/cli"
 )
 
 var version = "dev"

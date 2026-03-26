@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	detectionpkg "github.com/larsartmann/golangcli-linter-auto-configure/pkg/detection"
+	detectionpkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
 )
 
 // writeGoMod creates a go.mod file with optional require dependencies.

@@ -5,8 +5,8 @@ import (
 	"os/exec"
 
 	"charm.land/log/v2"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
-	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/spf13/cobra"
 )
 

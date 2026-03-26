@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"charm.land/log/v2"
-	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/utils"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/samber/mo"
 	"github.com/spf13/afero"

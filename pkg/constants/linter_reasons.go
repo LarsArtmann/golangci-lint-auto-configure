@@ -1,6 +1,6 @@
 package constants
 
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 
 // LinterReasons provides human-readable reasons for each linter recommendation.
 var LinterReasons = map[types.LinterName]string{

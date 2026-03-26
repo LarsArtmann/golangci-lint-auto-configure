@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
-	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"golang.org/x/mod/semver"
 )
 

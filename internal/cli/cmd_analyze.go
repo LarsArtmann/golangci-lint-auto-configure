@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"charm.land/log/v2"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/ui"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/ui"
 	"github.com/spf13/cobra"
 )
 

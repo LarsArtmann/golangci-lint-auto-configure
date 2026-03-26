@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
-	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
-	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // DefaultTimeout is the default timeout value used when the config has an invalid duration.
