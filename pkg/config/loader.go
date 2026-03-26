@@ -12,6 +12,7 @@ import (
 	"charm.land/log/v2"
 	apperrors "github.com/larsartmann/golangcli-linter-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/utils"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/samber/mo"
 	"github.com/spf13/afero"
@@ -366,23 +367,18 @@ func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] 
 
 // IsGitRepo checks if we're inside a git repository.
 func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool {
-	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--is-inside-work-tree")
-	cmd.Dir = startDir
-
-	err := cmd.Run()
-
-	return err == nil
+	return utils.IsGitRepo(ctx, startDir)
 }
 
 // EnsureGitRepo checks if we're inside a git repository and returns an error if not.
 // Since git provides version control, backup files are redundant.
 func (l *Loader) EnsureGitRepo(ctx context.Context, startDir string) error {
-	if !l.IsGitRepo(ctx, startDir) {
+	if err := utils.CheckGitRepo(ctx, startDir); err != nil {
 		return apperrors.NewConfigError(
 			"not in a git repository - git provides version control, so backup files are not created. "+
 				"Please initialize a git repository first: git init",
 			startDir,
-			nil,
+			err,
 		)
 	}
 

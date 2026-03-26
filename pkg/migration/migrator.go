@@ -4,18 +4,15 @@
 package migration
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"os/exec"
-	"time"
+
+	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/utils"
 )
 
 // Static errors for better error handling.
 var (
 	ErrConfigPathEmpty      = errors.New("config path cannot be empty")
-	ErrNotGitRepository     = errors.New("not in a git repository (use git init or clone a repo first)")
-	ErrNotInGitWorkingTree  = errors.New("not inside git working tree")
 	ErrMockValidationFailed = errors.New("mock validation failed")
 )
 
@@ -244,20 +241,5 @@ func (m *Migrator) getCheckmark() string {
 
 // checkGitRepository verifies we're inside a git repository.
 func (m *Migrator) checkGitRepository() error {
-	//nolint:mnd // 5 seconds is a reasonable timeout for git operations
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--is-inside-work-tree")
-
-	output, err := cmd.Output()
-	if err != nil {
-		return ErrNotGitRepository
-	}
-
-	if string(output[:len(output)-1]) != "true" {
-		return ErrNotInGitWorkingTree
-	}
-
-	return nil
+	return utils.CheckGitRepoWithTimeout(".")
 }
