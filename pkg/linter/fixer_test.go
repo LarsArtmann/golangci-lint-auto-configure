@@ -101,4 +101,66 @@ linters:
 			Expect(err).To(HaveOccurred())
 		})
 	})
+
+	Context("Deprecated Linters", func() {
+		It("should detect deprecated linter wsl and suggest wsl_v5", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+    - wsl
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, true)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.IsSuccess()).To(BeTrue())
+			// Dry-run should report fixes but not modify
+			Expect(result.FixesApplied).To(BeNumerically(">", 0))
+		})
+
+		It("should handle config with only deprecated linters", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - wsl
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, true)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.IsSuccess()).To(BeTrue())
+			Expect(result.FixesApplied).To(BeNumerically(">", 0))
+		})
+
+		It("should fix deprecated linters in non-dry-run mode", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+    - wsl
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, false)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.IsSuccess()).To(BeTrue())
+			Expect(result.FixesApplied).To(BeNumerically(">", 0))
+
+			// Verify file was modified - wsl should be replaced with wsl_v5
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("wsl_v5"))
+			Expect(string(content)).NotTo(ContainSubstring("wsl:"))
+		})
+	})
 })
