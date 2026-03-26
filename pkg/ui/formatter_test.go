@@ -1,7 +1,7 @@
 package ui_test
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 	"testing"
 

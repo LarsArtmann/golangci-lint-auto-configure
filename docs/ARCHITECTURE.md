@@ -21,6 +21,7 @@ type ConfigResult = mo.Result[*Config]
 ```
 
 Success and error helpers:
+
 ```go
 func OkMigration(result *MigrationResult) MigrationResultType
 func ErrMigration(err error) MigrationResultType
@@ -29,12 +30,14 @@ func ErrMigration(err error) MigrationResultType
 ### Consequences
 
 **Positive:**
+
 - Explicit error handling at each step
 - Composable operations
 - No nil pointer dereference panics
 - Clear success/failure paths
 
 **Negative:**
+
 - Additional verbosity in calling code
 - Learning curve for contributors unfamiliar with ROP
 
@@ -68,11 +71,13 @@ func (m *MigrationResult) IsFailure() bool { return m.Error != nil }
 ### Consequences
 
 **Positive:**
+
 - Single source of truth for success/failure
 - Error information preserved in the result struct
 - Cleaner conditional logic (`if result.IsSuccess()` vs `if err == nil && result.Success`)
 
 **Negative:**
+
 - Requires updating all call sites that checked `Success` field
 
 ---
@@ -105,14 +110,14 @@ func (d *Detector) Detect() ProjectType {
         return d.cache
     }
     d.mu.Unlock()
-    
+
     projectType := d.detect()
-    
+
     d.mu.Lock()
     d.cache = projectType
     d.cached = true
     d.mu.Unlock()
-    
+
     return projectType
 }
 ```
@@ -120,11 +125,13 @@ func (d *Detector) Detect() ProjectType {
 ### Consequences
 
 **Positive:**
+
 - Eliminates redundant file system operations
 - Thread-safe for concurrent access
 - Transparent to callers
 
 **Negative:**
+
 - Slight memory overhead for cached value
 - Cache cannot be invalidated (acceptable for CLI use case)
 
@@ -170,6 +177,7 @@ type ReportError struct {
 ```
 
 Helper functions allow type checking:
+
 ```go
 func IsConfigError(err error) bool
 func IsAnalysisError(err error) bool
@@ -180,11 +188,13 @@ func IsReportError(err error) bool
 ### Consequences
 
 **Positive:**
+
 - Rich error context with file paths, config names, etc.
 - Type-safe error handling
 - Easier debugging with structured error information
 
 **Negative:**
+
 - More error types to maintain
 - Slightly more verbose error creation
 
@@ -227,11 +237,13 @@ func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader {
 ### Consequences
 
 **Positive:**
+
 - Testable with in-memory filesystems (afero.MemMapFs)
 - Consistent filesystem abstraction
 - Easy to mock for unit tests
 
 **Negative:**
+
 - Additional dependency
 - Slight performance overhead vs direct os calls
 
@@ -259,11 +271,13 @@ func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool
 ### Consequences
 
 **Positive:**
+
 - Operations can be cancelled
 - Timeouts can be applied
 - Better resource management
 
 **Negative:**
+
 - Context must be passed through call stack
 - Must handle context cancellation explicitly
 
@@ -299,11 +313,13 @@ func (fn FormatterName) String() string {
 ### Consequences
 
 **Positive:**
+
 - Type safety for linter/formatter names
 - Compile-time error for typos
 - Self-documenting code
 
 **Negative:**
+
 - Need to convert when interacting with external systems
 - Slight verbosity in type conversions
 
@@ -335,11 +351,13 @@ cmd := &cobra.Command{
 ### Consequences
 
 **Positive:**
+
 - Standard Go CLI patterns
 - Built-in help, flags, and subcommand support
 - Well-maintained library
 
 **Negative:**
+
 - Additional dependency
 - Some deprecated APIs in older versions
 
@@ -350,12 +368,14 @@ cmd := &cobra.Command{
 ### Potential Split of fixer.go
 
 The `fixer.go` file is ~470 lines and handles multiple responsibilities:
+
 - Version fixing
 - Deprecated linter handling
 - Dry-run calculations
 - Actual config application
 
 Future refactoring could extract:
+
 - `fixer_version.go` - version field fixing
 - `fixer_deprecated.go` - deprecated linter handling
 - `fixer_dryrun.go` - dry-run calculations
