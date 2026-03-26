@@ -7,21 +7,21 @@
 
 ## Task Summary Table
 
-| # | Task | Phase | Priority | Effort | Impact | Status |
-|---|------|-------|----------|--------|--------|--------|
-| 0.1 | Fix Go toolchain (free disk) | 0 | P0 | 30min | Critical | Pending |
-| 0.2 | Verify build works | 0 | P0 | 10min | Critical | Pending |
-| 0.3 | Run tests | 0 | P0 | 15min | Critical | Pending |
-| 1.1 | Clear stale diagnostics | 1 | P1 | 5min | Medium | Pending |
-| 1.2 | Fix global variable warnings | 1 | P1 | 15min | Low | Pending |
-| 1.3 | Verify templ generates | 1 | P1 | 10min | Medium | Pending |
-| 1.4 | Consolidate duplicate code | 1 | P1 | 20min | Medium | Pending |
-| 2.1 | Add UI unit tests | 2 | P2 | 30min | Medium | Pending |
-| 2.2 | Add progress spinner | 2 | P2 | 45min | Medium | Pending |
-| 2.3 | Improve error messages | 2 | P2 | 30min | Medium | Pending |
-| 2.4 | Add verbose mode | 2 | P2 | 20min | Low | Pending |
-| 3.1 | TUI wizard (optional) | 3 | P3 | 2hr | Low | Future |
-| 3.2 | Preset editor (optional) | 3 | P3 | 2hr | Low | Future |
+| #   | Task                         | Phase | Priority | Effort | Impact   | Status  |
+| --- | ---------------------------- | ----- | -------- | ------ | -------- | ------- |
+| 0.1 | Fix Go toolchain (free disk) | 0     | P0       | 30min  | Critical | Pending |
+| 0.2 | Verify build works           | 0     | P0       | 10min  | Critical | Pending |
+| 0.3 | Run tests                    | 0     | P0       | 15min  | Critical | Pending |
+| 1.1 | Clear stale diagnostics      | 1     | P1       | 5min   | Medium   | Pending |
+| 1.2 | Fix global variable warnings | 1     | P1       | 15min  | Low      | Pending |
+| 1.3 | Verify templ generates       | 1     | P1       | 10min  | Medium   | Pending |
+| 1.4 | Consolidate duplicate code   | 1     | P1       | 20min  | Medium   | Pending |
+| 2.1 | Add UI unit tests            | 2     | P2       | 30min  | Medium   | Pending |
+| 2.2 | Add progress spinner         | 2     | P2       | 45min  | Medium   | Pending |
+| 2.3 | Improve error messages       | 2     | P2       | 30min  | Medium   | Pending |
+| 2.4 | Add verbose mode             | 2     | P2       | 20min  | Low      | Pending |
+| 3.1 | TUI wizard (optional)        | 3     | P3       | 2hr    | Low      | Future  |
+| 3.2 | Preset editor (optional)     | 3     | P3       | 2hr    | Low      | Future  |
 
 ---
 
@@ -36,6 +36,7 @@
 **Root Cause**: Disk was at 100% capacity, corrupting Go build cache.
 
 **Steps**:
+
 ```bash
 # 1. Clean Go caches
 rm -rf ~/go/pkg/mod/cache
@@ -61,6 +62,7 @@ go build ./...
 ```
 
 **Verification**:
+
 - `df -h /` shows >10GB free
 - `go version` works
 - `go build ./...` succeeds
@@ -74,6 +76,7 @@ go build ./...
 **Description**: Confirm `go build ./...` completes without errors.
 
 **Steps**:
+
 ```bash
 go build ./...
 ```
@@ -81,6 +84,7 @@ go build ./...
 **Expected Output**: No errors (warnings OK)
 
 **If Fails**:
+
 1. Check specific error message
 2. Verify Go version: `go version` (should be 1.26+)
 3. Verify module cache: `go env GOMODCACHE`
@@ -97,11 +101,13 @@ go build ./...
 **Description**: Confirm all existing tests pass.
 
 **Steps**:
+
 ```bash
 go test ./pkg/... ./internal/...
 ```
 
 **Expected Output**: All tests pass
+
 ```
 ok      github.com/larsartmann/golangcli-linter-auto-configure/pkg/config
 ok      github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter
@@ -110,6 +116,7 @@ ok      github.com/larsartmann/golangcli-linter-auto-configure/internal/cli
 ```
 
 **If Fails**:
+
 1. Check specific test failures
 2. Run `go test -v ./pkg/...` for verbose output
 3. Fix failing tests before proceeding
@@ -129,6 +136,7 @@ ok      github.com/larsartmann/golangcli-linter-auto-configure/internal/cli
 **Root Cause**: LSP caches file references even after deletion.
 
 **Steps**:
+
 1. Use `lsp_restart` tool, OR
 2. Close and reopen project in IDE, OR
 3. Wait for IDE to refresh (automatic)
@@ -144,6 +152,7 @@ ok      github.com/larsartmann/golangcli-linter-auto-configure/internal/cli
 **Description**: Address `gochecknoglobals` warnings in styled_output.go.
 
 **Current State** (lines 8-19):
+
 ```go
 //nolint:gochecknoglobals
 var (
@@ -163,6 +172,7 @@ var (
 **Problem**: Global variables cause linter warnings.
 
 **Solution Option A - Keep globals with better comment**:
+
 ```go
 // Colors is a map of named colors for consistent UI styling.
 // These are intentionally global to allow style composition across functions.
@@ -177,6 +187,7 @@ var Colors = struct {
 ```
 
 **Solution Option B - Use const strings, convert at use site**:
+
 ```go
 // Color values as hex strings (const for compile-time safety)
 const (
@@ -202,6 +213,7 @@ func primaryColor() lipgloss.Color { return lipgloss.Color(colorPrimary) }
 **Description**: Ensure HTML report template compiles correctly.
 
 **Steps**:
+
 ```bash
 templ generate
 ```
@@ -209,6 +221,7 @@ templ generate
 **Expected Output**: `pkg/report/report_templ.go` regenerated without errors
 
 **Current Potential Issue** (from report.templ line 150):
+
 ```templ
 style={ fmt.Sprintf("width:%d%%", getCoveragePercent(data.Analysis)) }
 ```
@@ -226,6 +239,7 @@ This should work - `fmt` is imported at top of file.
 **Description**: Remove duplicate FormatRecommendations/GetSummary implementations.
 
 **Current State**:
+
 1. `pkg/ui/formatter.go:FormatRecommendations()` - Groups recommendations by priority, shows enabled/disabled status
 2. `pkg/linter/analyzer.go:FormatRecommendations()` - Similar but different output format
 
@@ -233,14 +247,15 @@ This should work - `fmt` is imported at top of file.
 
 **Decision Needed**: Which to keep?
 
-| Option | Pros | Cons |
-|--------|------|------|
-| Keep UI version | Separation of concerns | Must pass analysis object |
-| Keep Analyzer version | Already has tests | Mixes UI concerns |
+| Option                | Pros                   | Cons                      |
+| --------------------- | ---------------------- | ------------------------- |
+| Keep UI version       | Separation of concerns | Must pass analysis object |
+| Keep Analyzer version | Already has tests      | Mixes UI concerns         |
 
 **Recommendation**: Keep `pkg/ui/formatter.go` version since it's in the UI layer. The Analyzer's `FormatRecommendations` should be removed or renamed to `FormatPlainRecommendations`.
 
 **Steps**:
+
 1. Compare both implementations
 2. Decide which formatting logic to keep
 3. Remove duplicate from `analyzer.go`
@@ -345,6 +360,7 @@ func TestFormatFixResult_Failure(t *testing.T) {
 **File to Modify**: `internal/cli/cmd_analyze.go`
 
 **Current Code** (simplified):
+
 ```go
 // Perform analysis
 analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
@@ -354,6 +370,7 @@ if err != nil {
 ```
 
 **Enhanced Code**:
+
 ```go
 import (
     "github.com/charmbracelet/bubbles/spinner"
@@ -384,6 +401,7 @@ if err != nil {
 **Note**: Consider using bubbles' `Spinner` type with tea.Model for proper terminal handling.
 
 **Alternative (simpler)**: Just show a simple text spinner:
+
 ```go
 fmt.Fprint(os.Stdout, "Analyzing... ")
 for range time.Tick(time.Second) {
@@ -408,6 +426,7 @@ for range time.Tick(time.Second) {
 **File to Modify**: `pkg/errors/errors.go`
 
 **Current Pattern**:
+
 ```go
 type AnalysisError struct {
     Message string
@@ -417,6 +436,7 @@ type AnalysisError struct {
 ```
 
 **Enhanced Pattern**:
+
 ```go
 type AnalysisError struct {
     Message   string
@@ -438,6 +458,7 @@ func (e AnalysisError) Error() string {
 ```
 
 **Usage Example**:
+
 ```go
 return AnalysisError{
     Message:   "golangci-lint not found",
@@ -460,6 +481,7 @@ return AnalysisError{
 **File to Modify**: `pkg/linter/analyzer.go`
 
 **Current Code**:
+
 ```go
 func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) types.AnalysisResult {
     if err := a.FindBinary(ctx); err != nil {
@@ -470,6 +492,7 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 ```
 
 **Enhanced Code**:
+
 ```go
 func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) types.AnalysisResult {
     a.logger.Debugf("Step 1/4: Finding golangci-lint binary...")
@@ -534,21 +557,21 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 
 ## Time Summary
 
-| Phase | Tasks | Total Time |
-|-------|-------|------------|
-| Phase 0 | 3 | ~55 minutes |
-| Phase 1 | 4 | ~50 minutes |
-| Phase 2 | 4 | ~2 hours 5 minutes |
-| Phase 3 | 2 | ~4 hours (optional) |
-| **Total** | **13** | **~3.5 hours** |
+| Phase     | Tasks  | Total Time          |
+| --------- | ------ | ------------------- |
+| Phase 0   | 3      | ~55 minutes         |
+| Phase 1   | 4      | ~50 minutes         |
+| Phase 2   | 4      | ~2 hours 5 minutes  |
+| Phase 3   | 2      | ~4 hours (optional) |
+| **Total** | **13** | **~3.5 hours**      |
 
 ---
 
 ## Customer Value Impact
 
-| Phase | Customer Value Delivered |
-|-------|-------------------------|
+| Phase   | Customer Value Delivered                  |
+| ------- | ----------------------------------------- |
 | Phase 0 | Unblocks all work, restores functionality |
-| Phase 1 | Clean codebase, fewer warnings |
-| Phase 2 | Better UX, reliability, test coverage |
-| Phase 3 | Advanced features (low priority) |
+| Phase 1 | Clean codebase, fewer warnings            |
+| Phase 2 | Better UX, reliability, test coverage     |
+| Phase 3 | Advanced features (low priority)          |
