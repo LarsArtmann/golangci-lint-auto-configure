@@ -1,8 +1,5 @@
 package types
 
-// TODO: Consider using generics for ConfigResult types to reduce boilerplate
-// TODO: Consider using time.Duration instead of string for timeout fields
-
 import (
 	"context"
 	"fmt"

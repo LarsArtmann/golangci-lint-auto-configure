@@ -1,10 +1,5 @@
 package detection
 
-// TODO: This file is 327 lines - close to 350 limit, consider splitting
-// TODO: Extract framework detection patterns into configurable data
-// TODO: Consider using AST parsing instead of string matching for accuracy
-// TODO: Add support for detecting test-only projects
-
 import (
 	"bufio"
 	"io"
