@@ -46,13 +46,13 @@ var _ = Describe("ConfigError", func() {
 	})
 
 	It("should include cause in error message", func() {
-		cause := fmt.Errorf("underlying error")
+		cause := errors.New("underlying error")
 		err := apperrors.NewConfigError("failed to load", "/path/to/config.yml", cause)
 		Expect(err.Error()).To(ContainSubstring("underlying error"))
 	})
 
 	It("should unwrap to cause", func() {
-		cause := fmt.Errorf("underlying error")
+		cause := errors.New("underlying error")
 		err := apperrors.NewConfigError("failed to load", "/path/to/config.yml", cause)
 		Expect(stderrors.Unwrap(err)).To(Equal(cause))
 	})
@@ -60,7 +60,7 @@ var _ = Describe("ConfigError", func() {
 	It("should be detectable with IsConfigError", func() {
 		err := apperrors.NewConfigError("failed", "/path", nil)
 		Expect(apperrors.IsConfigError(err)).To(BeTrue())
-		Expect(apperrors.IsConfigError(fmt.Errorf("other error"))).To(BeFalse())
+		Expect(apperrors.IsConfigError(errors.New("other error"))).To(BeFalse())
 	})
 })
 
@@ -73,13 +73,13 @@ var _ = Describe("AnalysisError", func() {
 	})
 
 	It("should include cause in error message", func() {
-		cause := fmt.Errorf("underlying error")
+		cause := errors.New("underlying error")
 		err := apperrors.NewAnalysisError("analysis failed", "analyzer.go", cause)
 		Expect(err.Error()).To(ContainSubstring("underlying error"))
 	})
 
 	It("should unwrap to cause", func() {
-		cause := fmt.Errorf("underlying error")
+		cause := errors.New("underlying error")
 		err := apperrors.NewAnalysisError("analysis failed", "analyzer.go", cause)
 		Expect(stderrors.Unwrap(err)).To(Equal(cause))
 	})
@@ -87,7 +87,7 @@ var _ = Describe("AnalysisError", func() {
 	It("should be detectable with IsAnalysisError", func() {
 		err := apperrors.NewAnalysisError("failed", "file.go", nil)
 		Expect(apperrors.IsAnalysisError(err)).To(BeTrue())
-		Expect(apperrors.IsAnalysisError(fmt.Errorf("other error"))).To(BeFalse())
+		Expect(apperrors.IsAnalysisError(errors.New("other error"))).To(BeFalse())
 	})
 })
 
@@ -100,13 +100,13 @@ var _ = Describe("ReportError", func() {
 	})
 
 	It("should include cause in error message", func() {
-		cause := fmt.Errorf("underlying error")
+		cause := errors.New("underlying error")
 		err := apperrors.NewReportError("report failed", "/path/to/report.html", cause)
 		Expect(err.Error()).To(ContainSubstring("underlying error"))
 	})
 
 	It("should unwrap to cause", func() {
-		cause := fmt.Errorf("underlying error")
+		cause := errors.New("underlying error")
 		err := apperrors.NewReportError("report failed", "/path/to/report.html", cause)
 		Expect(stderrors.Unwrap(err)).To(Equal(cause))
 	})
@@ -114,7 +114,7 @@ var _ = Describe("ReportError", func() {
 	It("should be detectable with IsReportError", func() {
 		err := apperrors.NewReportError("failed", "/path", nil)
 		Expect(apperrors.IsReportError(err)).To(BeTrue())
-		Expect(apperrors.IsReportError(fmt.Errorf("other error"))).To(BeFalse())
+		Expect(apperrors.IsReportError(errors.New("other error"))).To(BeFalse())
 	})
 })
 
@@ -127,13 +127,13 @@ var _ = Describe("MigrationError", func() {
 	})
 
 	It("should include cause in error message", func() {
-		cause := fmt.Errorf("underlying error")
+		cause := errors.New("underlying error")
 		err := apperrors.NewMigrationError("migration failed", ".golangci.yml", cause)
 		Expect(err.Error()).To(ContainSubstring("underlying error"))
 	})
 
 	It("should unwrap to cause", func() {
-		cause := fmt.Errorf("underlying error")
+		cause := errors.New("underlying error")
 		err := apperrors.NewMigrationError("migration failed", ".golangci.yml", cause)
 		Expect(stderrors.Unwrap(err)).To(Equal(cause))
 	})
@@ -141,13 +141,13 @@ var _ = Describe("MigrationError", func() {
 	It("should be detectable with IsMigrationError", func() {
 		err := apperrors.NewMigrationError("failed", ".golangci.yml", nil)
 		Expect(apperrors.IsMigrationError(err)).To(BeTrue())
-		Expect(apperrors.IsMigrationError(fmt.Errorf("other error"))).To(BeFalse())
+		Expect(apperrors.IsMigrationError(errors.New("other error"))).To(BeFalse())
 	})
 })
 
 var _ = Describe("Error Chaining", func() {
 	It("should support wrapping multiple levels", func() {
-		cause := fmt.Errorf("root cause")
+		cause := errors.New("root cause")
 		configErr := apperrors.NewConfigError("config error", "/path", cause)
 		wrapped := fmt.Errorf("operation failed: %w", configErr)
 
