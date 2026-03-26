@@ -6,11 +6,18 @@ import (
 	"log/slog"
 	"os"
 
+	"charm.land/log/v2"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/client"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
 )
 
 func main() {
+	logger := log.NewWithOptions(os.Stdout, log.Options{
+		ReportTimestamp: true,
+		Level:           log.InfoLevel,
+	})
+	slog.SetDefault(slog.New(logger))
+
 	slog.Info("golangci-linter-auto-configure API Usage Example")
 
 	// Create client with verbose logging

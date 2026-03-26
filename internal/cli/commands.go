@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/charmbracelet/fang"
 	"charm.land/log/v2"
+	"github.com/charmbracelet/fang"
 	clicmd "github.com/larsartmann/golangcli-linter-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
 	"github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
@@ -29,15 +29,12 @@ var (
 
 // NewRootCommand creates the root CLI command.
 func NewRootCommand() *cobra.Command {
-	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	})))
-
 	logger := log.NewWithOptions(os.Stdout, log.Options{
 		ReportCaller: false,
 		TimeFormat:   "15:04:05",
 		Level:        log.InfoLevel,
 	})
+	slog.SetDefault(slog.New(logger))
 
 	rootCmd := &cobra.Command{
 		Use:   "golangci-linter-auto-configure",
@@ -98,9 +95,12 @@ func Execute(ctx context.Context) error {
 
 // Main is the entry point.
 func Main() {
-	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	})))
+	logger := log.NewWithOptions(os.Stdout, log.Options{
+		ReportCaller: false,
+		TimeFormat:   "15:04:05",
+		Level:        log.InfoLevel,
+	})
+	slog.SetDefault(slog.New(logger))
 
 	err := Execute(context.Background())
 	if err != nil {
