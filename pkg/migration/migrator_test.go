@@ -312,7 +312,7 @@ var _ = Describe("Validator", func() {
 	Describe("MockValidator", func() {
 		It("should always return nil", func() {
 			v := migration.MockValidator{}
-			Expect(v.ValidateConfig(nil)).To(BeNil())
+			Expect(v.ValidateConfig(nil)).To(Succeed())
 		})
 	})
 
