@@ -19,7 +19,12 @@ func writeConfig(path, content string) {
 }
 
 // fixAndRead writes config, runs fix, and returns the resulting file content.
-func fixAndRead(fixer *linter.Fixer, configPath, content string, priority types.LinterPriority, dryRun bool) (string, error) {
+func fixAndRead(
+	fixer *linter.Fixer,
+	configPath, content string,
+	priority types.LinterPriority,
+	dryRun bool,
+) (string, error) {
 	writeConfig(configPath, content)
 	_, err := fixer.FixConfig(context.Background(), configPath, priority, dryRun)
 	if err != nil {
@@ -42,7 +47,13 @@ func testDeprecatedLinterDryRun(fixer *linter.Fixer, configPath, content string)
 }
 
 // testFixResult writes config, runs fix, and verifies the result contains expected substring.
-func testFixResult(fixer *linter.Fixer, configPath, content string, priority types.LinterPriority, dryRun bool, expected string) {
+func testFixResult(
+	fixer *linter.Fixer,
+	configPath, content string,
+	priority types.LinterPriority,
+	dryRun bool,
+	expected string,
+) {
 	contentResult, err := fixAndRead(fixer, configPath, content, priority, dryRun)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(contentResult).To(ContainSubstring(expected))
@@ -183,15 +194,36 @@ linters:
 
 	Context("Invalid Duration Fields", func() {
 		It("should fix empty timeout field", func() {
-			testFixResult(fixer, testConfig, timeoutTestConfig(`""`), types.LinterPriorityCritical, false, `timeout: 5m`)
+			testFixResult(
+				fixer,
+				testConfig,
+				timeoutTestConfig(`""`),
+				types.LinterPriorityCritical,
+				false,
+				`timeout: 5m`,
+			)
 		})
 
 		It("should fix invalid timeout format", func() {
-			testFixResult(fixer, testConfig, timeoutTestConfig(`invalid`), types.LinterPriorityCritical, false, `timeout: 5m`)
+			testFixResult(
+				fixer,
+				testConfig,
+				timeoutTestConfig(`invalid`),
+				types.LinterPriorityCritical,
+				false,
+				`timeout: 5m`,
+			)
 		})
 
 		It("should keep valid timeout unchanged", func() {
-			testFixResult(fixer, testConfig, timeoutTestConfig(`10m`), types.LinterPriorityCritical, true, `timeout: 10m`)
+			testFixResult(
+				fixer,
+				testConfig,
+				timeoutTestConfig(`10m`),
+				types.LinterPriorityCritical,
+				true,
+				`timeout: 10m`,
+			)
 		})
 
 		It("should NOT fix invalid timeout in dry-run mode (file unchanged)", func() {
