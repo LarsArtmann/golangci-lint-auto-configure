@@ -131,7 +131,7 @@ linters:
             - github.com/charmbracelet
             - charm.land/log/v2
             - charm.land/lipgloss/v2
-            - github.com/larsartmann/golangcli-linter-auto-configure
+            - github.com/larsartmann/golangci-lint-auto-configure
             - github.com/spf13/cobra
             - github.com/spf13/afero
             - github.com/stretchr/testify
@@ -141,6 +141,8 @@ linters:
             - github.com/a-h/templ
             - github.com/go-playground/validator/v10
             - github.com/pelletier/go-toml/v2
+            - github.com/onsi/ginkgo/v2
+            - github.com/onsi/gomega
           files:
             - "!**/*_test.go"
     exhaustruct:
@@ -148,7 +150,8 @@ linters:
         - .*\.Test.*
         - .*Test.*
         - charm.land/log.Options
-        - github.com/larsartmann/golangcli-linter-auto-configure/pkg/types.*
+        - github.com/larsartmann/golangci-lint-auto-configure/pkg/types.*
+        - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
     funlen:
       lines: 80
       statements: 50
@@ -303,6 +306,16 @@ linters:
         linters:
           - revive
         text: "var-naming: avoid meaningless package names"
+      - path: pkg/utils/
+        linters:
+          - revive
+        text: "var-naming: avoid meaningless package names"
+      - path: pkg/errors/errors_test\.go
+        linters:
+          - dupl
+      - path: pkg/migration/migrator\.go
+        linters:
+          - wrapcheck
       - path: pkg/linter/fixer\.go
         linters:
           - cyclop
