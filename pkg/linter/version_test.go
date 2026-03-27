@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"charm.land/log/v2"
+	linterpkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	linterpkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 )
 
 func TestLinter(t *testing.T) {
@@ -28,6 +28,7 @@ var _ = Describe("Version Check", func() {
 			if err != nil {
 				Skip("golangci-lint not found in PATH")
 			}
+
 			Expect(err).ToNot(HaveOccurred())
 		})
 

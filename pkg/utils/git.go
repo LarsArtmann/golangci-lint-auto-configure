@@ -3,7 +3,7 @@
 
 // Package utils provides shared utility functions for the application.
 //
-//nolint:revive // utils is the conventional name for utility packages
+
 package utils
 
 import (

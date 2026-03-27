@@ -35,9 +35,11 @@ func writeGoFile(dir, name, content string) error {
 
 // setupProjectWithMain creates a project with go.mod and main.go.
 func setupProjectWithMain(dir, require, mainContent string) error {
-	if err := writeGoMod(dir, require); err != nil {
+	err := writeGoMod(dir, require)
+	if err != nil {
 		return err
 	}
+
 	return writeGoFile(dir, "main.go", mainContent)
 }
 

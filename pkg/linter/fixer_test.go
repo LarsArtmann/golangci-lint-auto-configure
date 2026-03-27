@@ -26,14 +26,17 @@ func fixAndRead(
 	dryRun bool,
 ) (string, error) {
 	writeConfig(configPath, content)
+
 	_, err := fixer.FixConfig(context.Background(), configPath, priority, dryRun)
 	if err != nil {
 		return "", err
 	}
+
 	result, err := os.ReadFile(configPath)
 	if err != nil {
 		return "", err
 	}
+
 	return string(result), nil
 }
 

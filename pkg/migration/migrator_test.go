@@ -20,7 +20,7 @@ func TestMigration(t *testing.T) {
 }
 
 // testMigrationWithExpectedContent tests a migration and verifies expected content in the result.
-func testMigrationWithExpectedContent(testDir, configContent string, expectedContent string) {
+func testMigrationWithExpectedContent(testDir, configContent, expectedContent string) {
 	configPath := filepath.Join(testDir, ".golangci.yml")
 	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
@@ -44,6 +44,7 @@ func testSloglintMapping(input, expected string, shouldExist bool) {
 	rules := migration.DefaultRules()
 	mapped, exists := rules.MapSloglintKeyNamingCase(input)
 	Expect(exists).To(Equal(shouldExist))
+
 	if shouldExist {
 		Expect(mapped).To(Equal(expected))
 	}

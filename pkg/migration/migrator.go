@@ -225,7 +225,7 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 
 // validateConfig runs golangci-lint config verify.
 //
-//nolint:wrapcheck // Validator interface returns unwrapped errors
+
 func (m *Migrator) validateConfig() error {
 	return m.validator.ValidateConfig(m)
 }

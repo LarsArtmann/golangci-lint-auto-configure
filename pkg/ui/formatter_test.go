@@ -12,6 +12,7 @@ import (
 // assertFormatFixResult tests FormatFixResult with the given MigrationResult and expected substring.
 func assertFormatFixResult(t *testing.T, result *types.MigrationResult, expected string) {
 	t.Helper()
+
 	output := uipkg.FormatFixResult(result)
 	if !strings.Contains(output, expected) {
 		t.Errorf("expected '%s' in result, got: %s", expected, output)

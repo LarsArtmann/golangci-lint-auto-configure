@@ -78,7 +78,7 @@ var _ = Describe("CLI Integration Tests", func() {
 	}
 
 	// Helper function to test command succeeds with expected output
-	testCommandSuccess := func(configContent string, command string, expectedOutput string) {
+	testCommandSuccess := func(configContent, command, expectedOutput string) {
 		binaryPath := buildBinary()
 		output, err := runCommandWithConfig(binaryPath, configContent, []string{command})
 		Expect(err).NotTo(HaveOccurred())
