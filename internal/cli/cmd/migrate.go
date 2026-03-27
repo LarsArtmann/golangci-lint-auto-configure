@@ -135,7 +135,8 @@ Use --skip-validation if the v1 config has known issues.`,
 		},
 	}
 
-	cmd.Flags().BoolVar(&flags.SkipValidation, "skip-validation", false, "Skip validation of v1 configuration")
+	cmd.Flags().
+		BoolVar(&flags.SkipValidation, "skip-validation", false, "Skip validation of v1 configuration")
 	cmd.Flags().
 		StringVar(&flags.OutputFormat, "format", "", "Output format (deprecated: format migration is no longer supported)")
 

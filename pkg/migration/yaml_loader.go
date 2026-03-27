@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
 const permUserRead = 0o644 // rw-r--r--

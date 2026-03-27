@@ -16,7 +16,7 @@ import (
 	"github.com/pelletier/go-toml/v2"
 	"github.com/samber/mo"
 	"github.com/spf13/afero"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
 // ConfigFormat represents the configuration file format.

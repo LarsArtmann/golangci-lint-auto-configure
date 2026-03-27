@@ -3,7 +3,7 @@
 
 package migration
 
-import "gopkg.in/yaml.v3"
+import "go.yaml.in/yaml/v3"
 
 // Config represents a golangci-lint configuration file.
 // Supports both v1 and v2 schema versions for migration purposes.

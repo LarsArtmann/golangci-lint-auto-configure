@@ -85,14 +85,18 @@ actionable recommendations to improve your Go code quality.`,
 	)
 
 	// Global flags
-	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "Path to golangci-lint config file")
-	rootCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "d", false, "Show what would be done without making changes")
+	rootCmd.PersistentFlags().
+		StringVarP(&configPath, "config", "c", "", "Path to golangci-lint config file")
+	rootCmd.PersistentFlags().
+		BoolVarP(&dryRun, "dry-run", "d", false, "Show what would be done without making changes")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
 	rootCmd.PersistentFlags().BoolVar(&generateHTML, "html", false, "Generate HTML report")
-	rootCmd.PersistentFlags().StringVar(&outputReport, "output", "report.html", "Output path for HTML report")
+	rootCmd.PersistentFlags().
+		StringVar(&outputReport, "output", "report.html", "Output path for HTML report")
 	rootCmd.PersistentFlags().
 		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
-	rootCmd.PersistentFlags().StringVar(&reportFormat, "format", "html", "Output format (html, json)")
+	rootCmd.PersistentFlags().
+		StringVar(&reportFormat, "format", "html", "Output format (html, json)")
 
 	return rootCmd
 }

@@ -5,21 +5,40 @@ import (
 	"testing"
 
 	"charm.land/log/v2"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	linterpkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestCheckVersion_Success(t *testing.T) {
-	// This test requires golangci-lint v2.10.1+ to be installed
-	analyzer := linterpkg.NewAnalyzer(log.Default())
-
-	// First find the binary
-	err := analyzer.FindBinary(context.Background())
-	if err != nil {
-		t.Skipf("golangci-lint not found in PATH: %v", err)
-	}
-
-	// Then check version (should pass with v2.10.1+)
-	err = analyzer.CheckVersion(context.Background())
-	assert.NoError(t, err, "Version check should pass with golangci-lint v2.10.1 or newer")
+func TestLinter(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Linter Suite")
 }
+
+var _ = Describe("Version Check", func() {
+	var analyzer *linterpkg.Analyzer
+
+	BeforeEach(func() {
+		analyzer = linterpkg.NewAnalyzer(log.Default())
+	})
+
+	Context("When golangci-lint is installed", func() {
+		It("should find the binary", func() {
+			err := analyzer.FindBinary(context.Background())
+			if err != nil {
+				Skip("golangci-lint not found in PATH")
+			}
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should pass version check with v2.10.1 or newer", func() {
+			err := analyzer.FindBinary(context.Background())
+			if err != nil {
+				Skip("golangci-lint not found in PATH")
+			}
+
+			err = analyzer.CheckVersion(context.Background())
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+})

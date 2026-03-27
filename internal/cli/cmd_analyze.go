@@ -87,7 +87,11 @@ func newAnalyzeCommand(
 			case formatJSON:
 				data, jsonErr := json.MarshalIndent(analysis, "", "  ")
 				if jsonErr != nil {
-					return fmt.Errorf("failed to marshal analysis to JSON (format=%s): %w", format, jsonErr)
+					return fmt.Errorf(
+						"failed to marshal analysis to JSON (format=%s): %w",
+						format,
+						jsonErr,
+					)
 				}
 
 				fmt.Fprintln(os.Stdout, string(data))

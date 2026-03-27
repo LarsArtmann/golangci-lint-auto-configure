@@ -103,7 +103,8 @@ Use --verbose to see detailed validation output.`,
 		},
 	}
 
-	cmd.Flags().BoolVar(&skipGolangciLint, "skip-golangci-lint", false, "Skip golangci-lint schema validation")
+	cmd.Flags().
+		BoolVar(&skipGolangciLint, "skip-golangci-lint", false, "Skip golangci-lint schema validation")
 
 	return cmd
 }

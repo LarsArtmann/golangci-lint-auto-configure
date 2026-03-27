@@ -231,7 +231,14 @@ linters:
 			configPath := filepath.Join(testDir, ".golangci.yml")
 			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
-			cmd := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "critical")
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+			)
 			_, err := cmd.CombinedOutput()
 
 			Expect(err).NotTo(HaveOccurred())
@@ -251,7 +258,15 @@ linters:
 			configPath := filepath.Join(testDir, ".golangci.yml")
 			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
-			cmd := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "critical", "--dry-run")
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+				"--dry-run",
+			)
 			output, _ := cmd.CombinedOutput()
 
 			// Should show [DRY-RUN] indicator

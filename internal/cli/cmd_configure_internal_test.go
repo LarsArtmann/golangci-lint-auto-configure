@@ -140,7 +140,11 @@ func TestApplyPreset_ValidPreset(t *testing.T) {
 	// Verify minimal preset has linters
 	expectedLinters := constants.PresetLinters["minimal"]
 	if len(mock.savedCfg.Linters.Enable) != len(expectedLinters) {
-		t.Errorf("applyPreset() enabled %d linters, want %d", len(mock.savedCfg.Linters.Enable), len(expectedLinters))
+		t.Errorf(
+			"applyPreset() enabled %d linters, want %d",
+			len(mock.savedCfg.Linters.Enable),
+			len(expectedLinters),
+		)
 	}
 }
 
@@ -204,7 +208,14 @@ func TestApplyPreset_AllPresets(t *testing.T) {
 			mock := &mockPresetConfigLoader{}
 			logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
 
-			err := applyPreset(context.Background(), logger, mock, "/test/config.yml", preset, false)
+			err := applyPreset(
+				context.Background(),
+				logger,
+				mock,
+				"/test/config.yml",
+				preset,
+				false,
+			)
 			if err != nil {
 				t.Errorf("applyPreset(%q) error = %v, want nil", preset, err)
 			}

@@ -21,6 +21,24 @@ type presetConfigLoader interface {
 	SaveConfig(config *types.Config, path string) error
 }
 
+// runFmtCommand runs golangci-lint fmt to format Go source files.
+func runFmtCommand(
+	ctx context.Context,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configFile string,
+) {
+	if err := analyzer.FindBinary(ctx); err != nil {
+		logger.Warnf("⚠️  Could not find golangci-lint binary: %v", err)
+
+		return
+	}
+
+	if err := analyzer.RunFmtCommand(ctx, configFile); err != nil {
+		logger.Warnf("⚠️  golangci-lint fmt failed: %v", err)
+	}
+}
+
 // newConfigureCommand creates the configure command.
 func newConfigureCommand(
 	logger *log.Logger,
@@ -47,7 +65,16 @@ Or use --preset for predefined linter sets:
   - security: Security-focused only
   - performance: Performance optimization only`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			return runConfigure(cmd.Context(), logger, analyzer, configLoader, priority, preset, dryRun, configPath)
+			return runConfigure(
+				cmd.Context(),
+				logger,
+				analyzer,
+				configLoader,
+				priority,
+				preset,
+				dryRun,
+				configPath,
+			)
 		},
 	}
 
@@ -98,7 +125,16 @@ func runConfigure(
 
 	// Handle preset mode
 	if preset != "" {
-		return applyPreset(ctx, logger, configLoader, configFile, preset, dryRun)
+		err := applyPreset(ctx, logger, configLoader, configFile, preset, dryRun)
+		if err != nil {
+			return err
+		}
+
+		if !dryRun {
+			runFmtCommand(ctx, logger, analyzer, configFile)
+		}
+
+		return nil
 	}
 
 	// Create fixer and apply fixes
@@ -116,6 +152,10 @@ func runConfigure(
 
 	fmt.Fprintln(os.Stdout, "\n"+ui.FormatConfigHeader(configFile))
 	fmt.Fprintln(os.Stdout, ui.FormatFixResult(result))
+
+	if !dryRun {
+		runFmtCommand(ctx, logger, analyzer, configFile)
+	}
 
 	if len(result.NextSteps) > 0 {
 		logger.Infof("Next steps:")
@@ -138,7 +178,9 @@ func ensureConfigFile(
 ) error {
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		if !inGitRepo {
-			logger.Warnf("⚠️  Creating config without git version control - changes cannot be easily reverted")
+			logger.Warnf(
+				"⚠️  Creating config without git version control - changes cannot be easily reverted",
+			)
 		}
 
 		logger.Infof("No config file found, creating default: %s", configFile)
