@@ -33,6 +33,14 @@ func writeGoFile(dir, name, content string) error {
 	return os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644)
 }
 
+// setupProjectWithMain creates a project with go.mod and main.go.
+func setupProjectWithMain(dir, require, mainContent string) error {
+	if err := writeGoMod(dir, require); err != nil {
+		return err
+	}
+	return writeGoFile(dir, "main.go", mainContent)
+}
+
 func TestDetector_Detect(t *testing.T) {
 	t.Parallel()
 
@@ -45,12 +53,7 @@ func TestDetector_Detect(t *testing.T) {
 		{
 			name: "CLI project with cobra",
 			setupFunc: func(dir string) error {
-				err := writeGoMod(dir, "github.com/spf13/cobra v1.8.0")
-				if err != nil {
-					return err
-				}
-
-				return writeGoFile(dir, "main.go", `package main
+				return setupProjectWithMain(dir, "github.com/spf13/cobra v1.8.0", `package main
 
 func main() {}
 `)
@@ -77,12 +80,7 @@ func Hello() string { return "hello" }
 		{
 			name: "Web project with gin",
 			setupFunc: func(dir string) error {
-				err := writeGoMod(dir, "github.com/gin-gonic/gin v1.9.0")
-				if err != nil {
-					return err
-				}
-
-				return writeGoFile(dir, "main.go", `package main
+				return setupProjectWithMain(dir, "github.com/gin-gonic/gin v1.9.0", `package main
 
 import "github.com/gin-gonic/gin"
 

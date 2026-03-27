@@ -19,6 +19,36 @@ func TestMigration(t *testing.T) {
 	RunSpecs(t, "Migration Suite")
 }
 
+// testMigrationWithExpectedContent tests a migration and verifies expected content in the result.
+func testMigrationWithExpectedContent(testDir, configContent string, expectedContent string) {
+	configPath := filepath.Join(testDir, ".golangci.yml")
+	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+	m, err := migration.NewMigrator(configPath, false)
+	Expect(err).NotTo(HaveOccurred())
+	m.SetValidator(migration.MockValidator{})
+
+	success, fixes, err := m.MigrateToV2()
+	Expect(err).NotTo(HaveOccurred())
+	Expect(success).To(BeTrue())
+	Expect(fixes).To(BeNumerically(">", 0))
+
+	// Verify the file was updated
+	content, err := os.ReadFile(configPath)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(string(content)).To(ContainSubstring(expectedContent))
+}
+
+// testSloglintMapping tests the sloglint key-naming-case mapping.
+func testSloglintMapping(input, expected string, shouldExist bool) {
+	rules := migration.DefaultRules()
+	mapped, exists := rules.MapSloglintKeyNamingCase(input)
+	Expect(exists).To(Equal(shouldExist))
+	if shouldExist {
+		Expect(mapped).To(Equal(expected))
+	}
+}
+
 var _ = Describe("Migrator", func() {
 	var testDir string
 
@@ -96,33 +126,17 @@ linters:
 
 		Context("with v1 config", func() {
 			It("should migrate version to v2", func() {
-				configPath := filepath.Join(testDir, ".golangci.yml")
 				configContent := `version: "1"
 linters:
   enable:
     - errcheck
 `
-				Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-				m, err := migration.NewMigrator(configPath, false)
-				Expect(err).NotTo(HaveOccurred())
-				m.SetValidator(migration.MockValidator{})
-
-				success, fixes, err := m.MigrateToV2()
-				Expect(err).NotTo(HaveOccurred())
-				Expect(success).To(BeTrue())
-				Expect(fixes).To(BeNumerically(">", 0))
-
-				// Verify the file was updated
-				content, err := os.ReadFile(configPath)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("version: \"2\""))
+				testMigrationWithExpectedContent(testDir, configContent, `version: "2"`)
 			})
 		})
 
 		Context("with formatters in linters.enable", func() {
 			It("should migrate formatters to formatters.enable", func() {
-				configPath := filepath.Join(testDir, ".golangci.yml")
 				configContent := `version: "1"
 linters:
   enable:
@@ -130,21 +144,7 @@ linters:
     - goimports
     - errcheck
 `
-				Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-				m, err := migration.NewMigrator(configPath, false)
-				Expect(err).NotTo(HaveOccurred())
-				m.SetValidator(migration.MockValidator{})
-
-				success, fixes, err := m.MigrateToV2()
-				Expect(err).NotTo(HaveOccurred())
-				Expect(success).To(BeTrue())
-				Expect(fixes).To(BeNumerically(">", 0))
-
-				// Verify the file was updated
-				content, err := os.ReadFile(configPath)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("formatters:"))
+				testMigrationWithExpectedContent(testDir, configContent, "formatters:")
 			})
 		})
 
@@ -287,23 +287,15 @@ var _ = Describe("MigrationRules", func() {
 		})
 
 		It("should map sloglint key-naming-case values", func() {
-			rules := migration.DefaultRules()
-			mapped, exists := rules.MapSloglintKeyNamingCase("snake")
-			Expect(exists).To(BeTrue())
-			Expect(mapped).To(Equal("snake"))
+			testSloglintMapping("snake", "snake", true)
 		})
 
 		It("should map camelCase to camel", func() {
-			rules := migration.DefaultRules()
-			mapped, exists := rules.MapSloglintKeyNamingCase("camelCase")
-			Expect(exists).To(BeTrue())
-			Expect(mapped).To(Equal("camel"))
+			testSloglintMapping("camelCase", "camel", true)
 		})
 
 		It("should return false for unknown sloglint values", func() {
-			rules := migration.DefaultRules()
-			_, exists := rules.MapSloglintKeyNamingCase("unknown")
-			Expect(exists).To(BeFalse())
+			testSloglintMapping("unknown", "", false)
 		})
 	})
 })

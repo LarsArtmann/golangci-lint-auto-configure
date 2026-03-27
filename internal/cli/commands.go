@@ -27,6 +27,23 @@ var (
 	reportFormat string
 )
 
+// resolveConfigPath finds the config file if not specified, with multiple config warning.
+func resolveConfigPath(configLoader *config.Loader, specifiedPath string) (string, error) {
+	configFile := specifiedPath
+	if configFile == "" {
+		var err error
+
+		configFile, err = configLoader.FindConfigFile(".")
+		if err != nil {
+			return "", fmt.Errorf("failed to find config file: %w", err)
+		}
+	}
+
+	configLoader.HasMultipleConfigFiles(".")
+
+	return configFile, nil
+}
+
 // NewRootCommand creates the root CLI command.
 func NewRootCommand() *cobra.Command {
 	logger := log.NewWithOptions(os.Stdout, log.Options{

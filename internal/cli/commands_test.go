@@ -77,19 +77,41 @@ var _ = Describe("CLI Integration Tests", func() {
 		Expect(err).To(HaveOccurred())
 	}
 
+	// Helper function to test command succeeds with expected output
+	testCommandSuccess := func(configContent string, command string, expectedOutput string) {
+		binaryPath := buildBinary()
+		output, err := runCommandWithConfig(binaryPath, configContent, []string{command})
+		Expect(err).NotTo(HaveOccurred())
+		Expect(output).To(ContainSubstring(expectedOutput))
+	}
+
+	// Helper function to test missing config file error
+	testMissingConfigError := func(command string) {
+		binaryPath := buildBinary()
+		cmd := exec.Command(binaryPath, command, "--config", "/non/existent/path.yml")
+		_, err := cmd.CombinedOutput()
+		Expect(err).To(HaveOccurred())
+	}
+
+	// Helper function to test migrate command with v2 config
+	testMigrateCommand := func(expectedOutput string) {
+		configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+		testCommandSuccess(configContent, "migrate", expectedOutput)
+	}
+
 	Context("analyze command", func() {
 		It("should analyze a valid config file", func() {
-			binaryPath := buildBinary()
 			configContent := `version: "2"
 linters:
   enable:
     - errcheck
     - gosec
 `
-			output, err := runCommandWithConfig(binaryPath, configContent, []string{"analyze"})
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(output).To(ContainSubstring("Analyzing configuration"))
+			testCommandSuccess(configContent, "analyze", "Analyzing configuration")
 		})
 
 		It("should show recommendations for minimal config", func() {
@@ -121,12 +143,7 @@ linters:
 		})
 
 		It("should return error for non-existent config file", func() {
-			binaryPath := buildBinary()
-			// The tool searches for fallback config, so we test with validate instead
-			cmd := exec.Command(binaryPath, "validate", "--config", "/non/existent/path.yml")
-			_, err := cmd.CombinedOutput()
-
-			Expect(err).To(HaveOccurred())
+			testMissingConfigError("validate")
 		})
 
 		It("should handle invalid YAML gracefully", func() {
@@ -244,7 +261,6 @@ linters:
 
 	Context("validate command", func() {
 		It("should validate a valid config", func() {
-			binaryPath := buildBinary()
 			configContent := `version: "2"
 run:
   timeout: 5m
@@ -253,10 +269,7 @@ linters:
     - errcheck
     - gosec
 `
-			output, err := runCommandWithConfig(binaryPath, configContent, []string{"validate"})
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(output).To(ContainSubstring("valid"))
+			testCommandSuccess(configContent, "validate", "valid")
 		})
 
 		It("should reject invalid YAML", func() {
@@ -265,11 +278,7 @@ linters:
 		})
 
 		It("should handle missing config file", func() {
-			binaryPath := buildBinary()
-			cmd := exec.Command(binaryPath, "validate", "--config", "/non/existent/path.yml")
-			_, err := cmd.CombinedOutput()
-
-			Expect(err).To(HaveOccurred())
+			testMissingConfigError("validate")
 		})
 	})
 
@@ -325,33 +334,11 @@ linters:
 
 	Context("migrate command", func() {
 		It("should migrate v1 config to v2 successfully", func() {
-			binaryPath := buildBinary()
-			// Use a minimal v2 config since golangci-lint migrate expects valid config
-			configContent := `version: "2"
-linters:
-  enable:
-    - errcheck
-`
-			output, err := runCommandWithConfig(binaryPath, configContent, []string{"migrate"})
-
-			// Migrate command should run successfully (may show warning if already v2)
-			// The command now actually runs golangci-lint migrate
-			Expect(err).NotTo(HaveOccurred())
-			Expect(output).To(ContainSubstring("Migrating configuration"))
+			testMigrateCommand("Migrating configuration")
 		})
 
 		It("should skip migration for v2 configs", func() {
-			binaryPath := buildBinary()
-			configContent := `version: "2"
-linters:
-  enable:
-    - errcheck
-`
-			output, err := runCommandWithConfig(binaryPath, configContent, []string{"migrate"})
-
-			// v2 configs should be skipped (no migration needed)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(output).To(ContainSubstring("already version 2"))
+			testMigrateCommand("already version 2")
 		})
 	})
 

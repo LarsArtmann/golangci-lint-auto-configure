@@ -9,6 +9,15 @@ import (
 	uipkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/ui"
 )
 
+// assertFormatFixResult tests FormatFixResult with the given MigrationResult and expected substring.
+func assertFormatFixResult(t *testing.T, result *types.MigrationResult, expected string) {
+	t.Helper()
+	output := uipkg.FormatFixResult(result)
+	if !strings.Contains(output, expected) {
+		t.Errorf("expected '%s' in result, got: %s", expected, output)
+	}
+}
+
 func TestFormatRecommendations_AllEnabled(t *testing.T) {
 	analysis := &types.ConfigAnalysis{
 		LinterRecommendations: []types.LinterRecommendation{},
@@ -115,12 +124,7 @@ func TestFormatFixResult_Success(t *testing.T) {
 		FixesApplied: 5,
 		Message:      "Applied 5 fixes",
 	}
-
-	output := uipkg.FormatFixResult(result)
-
-	if !strings.Contains(output, "5 fixes") {
-		t.Errorf("expected '5 fixes' in result, got: %s", output)
-	}
+	assertFormatFixResult(t, result, "5 fixes")
 }
 
 func TestFormatFixResult_NoFixes(t *testing.T) {
@@ -128,12 +132,7 @@ func TestFormatFixResult_NoFixes(t *testing.T) {
 		FixesApplied: 0,
 		Message:      "No fixes needed",
 	}
-
-	output := uipkg.FormatFixResult(result)
-
-	if !strings.Contains(output, "No fixes needed") {
-		t.Errorf("expected 'No fixes needed' in result, got: %s", output)
-	}
+	assertFormatFixResult(t, result, "No fixes needed")
 }
 
 func TestFormatFixResult_Failure(t *testing.T) {

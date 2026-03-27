@@ -25,17 +25,10 @@ func newReportCommand(
 			}
 
 			// Find config file if not specified
-			configFile := configPath
-			if configFile == "" {
-				var err error
-
-				configFile, err = configLoader.FindConfigFile(".")
-				if err != nil {
-					return fmt.Errorf("failed to find config file: %w", err)
-				}
+			configFile, err := resolveConfigPath(configLoader, configPath)
+			if err != nil {
+				return err
 			}
-
-			configLoader.HasMultipleConfigFiles(".")
 
 			logger.Infof("Generating %s report for: %s", reportFormat, configFile)
 

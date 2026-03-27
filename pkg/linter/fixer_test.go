@@ -13,6 +13,60 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// writeConfig writes the given content to the test config file.
+func writeConfig(path, content string) {
+	Expect(os.WriteFile(path, []byte(content), 0o644)).To(Succeed())
+}
+
+// fixAndRead writes config, runs fix, and returns the resulting file content.
+func fixAndRead(fixer *linter.Fixer, configPath, content string, priority types.LinterPriority, dryRun bool) (string, error) {
+	writeConfig(configPath, content)
+	_, err := fixer.FixConfig(context.Background(), configPath, priority, dryRun)
+	if err != nil {
+		return "", err
+	}
+	result, err := os.ReadFile(configPath)
+	if err != nil {
+		return "", err
+	}
+	return string(result), nil
+}
+
+// testDeprecatedLinterDryRun tests a deprecated linter scenario in dry-run mode.
+func testDeprecatedLinterDryRun(fixer *linter.Fixer, configPath, content string) {
+	writeConfig(configPath, content)
+	result, err := fixer.FixConfig(context.Background(), configPath, types.LinterPriorityHigh, true)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(result.IsSuccess()).To(BeTrue())
+	Expect(result.FixesApplied).To(BeNumerically(">", 0))
+}
+
+// testFixResult writes config, runs fix, and verifies the result contains expected substring.
+func testFixResult(fixer *linter.Fixer, configPath, content string, priority types.LinterPriority, dryRun bool, expected string) {
+	contentResult, err := fixAndRead(fixer, configPath, content, priority, dryRun)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(contentResult).To(ContainSubstring(expected))
+}
+
+// testFixSuccess writes config and runs fix, verifying success without checking content.
+func testFixSuccess(fixer *linter.Fixer, configPath, content string, priority types.LinterPriority, dryRun bool) {
+	writeConfig(configPath, content)
+	result, err := fixer.FixConfig(context.Background(), configPath, priority, dryRun)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(result.IsSuccess()).To(BeTrue())
+}
+
+// timeoutTestConfig generates a test config with the given timeout value.
+func timeoutTestConfig(timeout string) string {
+	return `version: "2"
+run:
+  timeout: ` + timeout + `
+linters:
+  enable:
+    - gosec
+`
+}
+
 var _ = Describe("Fixer", func() {
 	var (
 		fixer       *linter.Fixer
@@ -41,15 +95,7 @@ linters:
   enable:
     - gosec
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, false)
-
-			Expect(err).NotTo(HaveOccurred())
-
-			content, err := os.ReadFile(testConfig)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(content)).To(ContainSubstring(`version: "2"`))
+			testFixResult(fixer, testConfig, configContent, types.LinterPriorityCritical, false, `version: "2"`)
 		})
 
 		It("should keep existing version 2", func() {
@@ -58,12 +104,7 @@ linters:
   enable:
     - gosec
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result.IsSuccess()).To(BeTrue())
+			testFixSuccess(fixer, testConfig, configContent, types.LinterPriorityCritical, true)
 		})
 	})
 
@@ -75,12 +116,7 @@ linters:
     - gosec
     - errcheck
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result.IsSuccess()).To(BeTrue())
+			testFixSuccess(fixer, testConfig, configContent, types.LinterPriorityCritical, true)
 		})
 
 		It("should handle missing config file gracefully", func() {
@@ -115,14 +151,7 @@ linters:
     - gosec
     - wsl
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, true)
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result.IsSuccess()).To(BeTrue())
-			// Dry-run should report fixes but not modify
-			Expect(result.FixesApplied).To(BeNumerically(">", 0))
+			testDeprecatedLinterDryRun(fixer, testConfig, configContent)
 		})
 
 		It("should handle config with only deprecated linters", func() {
@@ -133,13 +162,7 @@ linters:
   enable:
     - wsl
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, true)
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result.IsSuccess()).To(BeTrue())
-			Expect(result.FixesApplied).To(BeNumerically(">", 0))
+			testDeprecatedLinterDryRun(fixer, testConfig, configContent)
 		})
 
 		It("should fix deprecated linters in non-dry-run mode", func() {
@@ -151,100 +174,28 @@ linters:
     - gosec
     - wsl
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, false)
-
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.IsSuccess()).To(BeTrue())
-			Expect(result.FixesApplied).To(BeNumerically(">", 0))
-
-			// Verify file was modified - wsl should be replaced with wsl_v5
-			content, err := os.ReadFile(testConfig)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(content)).To(ContainSubstring("wsl_v5"))
-			Expect(string(content)).NotTo(ContainSubstring("wsl:"))
+			Expect(content).To(ContainSubstring("wsl_v5"))
+			Expect(content).NotTo(ContainSubstring("wsl:"))
 		})
 	})
 
 	Context("Invalid Duration Fields", func() {
 		It("should fix empty timeout field", func() {
-			configContent := `version: "2"
-run:
-  timeout: ""
-linters:
-  enable:
-    - gosec
-`
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, false)
-
-			Expect(err).NotTo(HaveOccurred())
-
-			content, err := os.ReadFile(testConfig)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(content)).To(ContainSubstring(`timeout: 5m`))
+			testFixResult(fixer, testConfig, timeoutTestConfig(`""`), types.LinterPriorityCritical, false, `timeout: 5m`)
 		})
 
 		It("should fix invalid timeout format", func() {
-			configContent := `version: "2"
-run:
-  timeout: invalid
-linters:
-  enable:
-    - gosec
-`
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, false)
-
-			Expect(err).NotTo(HaveOccurred())
-
-			content, err := os.ReadFile(testConfig)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(content)).To(ContainSubstring(`timeout: 5m`))
+			testFixResult(fixer, testConfig, timeoutTestConfig(`invalid`), types.LinterPriorityCritical, false, `timeout: 5m`)
 		})
 
 		It("should keep valid timeout unchanged", func() {
-			configContent := `version: "2"
-run:
-  timeout: 10m
-linters:
-  enable:
-    - gosec
-`
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
-
-			Expect(err).NotTo(HaveOccurred())
-
-			content, err := os.ReadFile(testConfig)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(content)).To(ContainSubstring(`timeout: 10m`))
+			testFixResult(fixer, testConfig, timeoutTestConfig(`10m`), types.LinterPriorityCritical, true, `timeout: 10m`)
 		})
 
 		It("should NOT fix invalid timeout in dry-run mode (file unchanged)", func() {
-			configContent := `version: "2"
-run:
-  timeout: ""
-linters:
-  enable:
-    - gosec
-`
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
-
-			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, true)
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result.IsSuccess()).To(BeTrue())
-			Expect(result.FixesApplied).To(Equal(1))
-
-			// File should NOT be modified in dry-run mode
-			content, err := os.ReadFile(testConfig)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(content)).To(ContainSubstring(`timeout: ""`))
+			testFixResult(fixer, testConfig, timeoutTestConfig(`""`), types.LinterPriorityCritical, true, `timeout: ""`)
 		})
 	})
 })

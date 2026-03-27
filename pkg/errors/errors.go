@@ -34,12 +34,17 @@ type ConfigError struct {
 	Cause   error
 }
 
-func (e *ConfigError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("%s (path: %s): %v", e.Message, e.Path, e.Cause)
+// formatError creates a formatted error string with optional cause.
+func formatError(msg, location string, cause error, locationLabel string) string {
+	if cause != nil {
+		return fmt.Sprintf("%s (%s: %s): %v", msg, locationLabel, location, cause)
 	}
 
-	return fmt.Sprintf("%s (path: %s)", e.Message, e.Path)
+	return fmt.Sprintf("%s (%s: %s)", msg, locationLabel, location)
+}
+
+func (e *ConfigError) Error() string {
+	return formatError(e.Message, e.Path, e.Cause, "path")
 }
 
 // Unwrap returns the underlying error for error chaining.
@@ -64,11 +69,7 @@ type AnalysisError struct {
 }
 
 func (e *AnalysisError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("%s (file: %s): %v", e.Message, e.File, e.Cause)
-	}
-
-	return fmt.Sprintf("%s (file: %s)", e.Message, e.File)
+	return formatError(e.Message, e.File, e.Cause, "file")
 }
 
 // Unwrap returns the underlying error for error chaining.
@@ -93,11 +94,7 @@ type ReportError struct {
 }
 
 func (e *ReportError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("%s (path: %s): %v", e.Message, e.Path, e.Cause)
-	}
-
-	return fmt.Sprintf("%s (path: %s)", e.Message, e.Path)
+	return formatError(e.Message, e.Path, e.Cause, "path")
 }
 
 // Unwrap returns the underlying error for error chaining.
@@ -145,11 +142,7 @@ type MigrationError struct {
 }
 
 func (e *MigrationError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("%s (config: %s): %v", e.Message, e.Config, e.Cause)
-	}
-
-	return fmt.Sprintf("%s (config: %s)", e.Message, e.Config)
+	return formatError(e.Message, e.Config, e.Cause, "config")
 }
 
 // Unwrap returns the underlying error for error chaining.
