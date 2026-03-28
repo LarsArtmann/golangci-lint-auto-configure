@@ -6,7 +6,13 @@ import (
 )
 
 // categorizeLinters categorizes disabled linters by priority.
-func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo) []types.LinterRecommendation {
+func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo, enabledFormatters []types.FormatterInfo) []types.LinterRecommendation {
+	// Build set of enabled formatter names for efficient lookup
+	enabledFormatterSet := make(map[string]bool)
+	for _, formatter := range enabledFormatters {
+		enabledFormatterSet[formatter.Name] = true
+	}
+
 	var recommendations []types.LinterRecommendation
 
 	for _, linter := range disabledLinters {
@@ -22,6 +28,17 @@ func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo) []types
 			a.logger.Debugf("Skipping explicitly disabled linter in analysis: %s", linter.Name)
 
 			continue
+		}
+
+		// Skip redundant linters when their formatter is enabled
+		if redundantReason, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
+			// Check if the corresponding formatter is enabled
+			// For lll, the corresponding formatter is golines
+			if linter.Name == "lll" && enabledFormatterSet["golines"] {
+				a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, redundantReason)
+
+				continue
+			}
 		}
 
 		rec := types.LinterRecommendation{
