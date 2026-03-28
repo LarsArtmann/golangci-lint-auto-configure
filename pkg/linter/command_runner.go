@@ -54,6 +54,7 @@ func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ..
 			backoff *= 2 // Exponential backoff
 
 			lastErr = err
+
 			continue
 		}
 

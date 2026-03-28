@@ -89,6 +89,7 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 // runVersionCommandWithRetry runs a version command with retry for parallel running errors.
 func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...string) ([]byte, error) {
 	var lastErr error
+
 	backoff := initialBackoff
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
@@ -118,6 +119,7 @@ func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...strin
 
 			backoff *= 2 // Exponential backoff
 			lastErr = err
+
 			continue
 		}
 
