@@ -84,6 +84,12 @@ type LinterReplacement struct {
 	Reason      string     `json:"reason"`
 }
 
+// LinterToFormatter represents a linter that is superseded by a formatter.
+type LinterToFormatter struct {
+	Formatter FormatterName `json:"formatter"`
+	Reason    string        `json:"reason"`
+}
+
 // FormatterName is a strongly-typed formatter name to prevent typos.
 type FormatterName string
 

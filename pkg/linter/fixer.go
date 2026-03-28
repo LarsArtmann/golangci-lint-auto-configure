@@ -207,18 +207,18 @@ func (f *Fixer) FixConfigResult(
 	}
 
 	// Check for redundant linters when formatters are enabled
-	for linterName, reason := range constants.RedundantLinters {
+	for linterName, mapping := range constants.RedundantLinters {
 		if linterSet[string(linterName)] {
 			// Check if the corresponding formatter is being enabled (or would be enabled in dry-run)
-			golinesWillBeEnabled := formatterSet["golines"] || (shouldEnableGolines && dryRun)
+			formatterWillBeEnabled := formatterSet[string(mapping.Formatter)] || (dryRun && string(mapping.Formatter) == "golines" && shouldEnableGolines)
 
-			if linterName == "lll" && golinesWillBeEnabled {
+			if formatterWillBeEnabled {
 				redundantFixes++
 
 				if dryRun {
-					f.logger.Debugf("[DRY-RUN] Would remove redundant linter: %s (%s)", linterName, reason)
+					f.logger.Debugf("[DRY-RUN] Would remove redundant linter: %s (%s)", linterName, mapping.Reason)
 				} else {
-					f.logger.Debugf("Removing redundant linter: %s (%s)", linterName, reason)
+					f.logger.Debugf("Removing redundant linter: %s (%s)", linterName, mapping.Reason)
 
 					delete(linterSet, string(linterName))
 				}

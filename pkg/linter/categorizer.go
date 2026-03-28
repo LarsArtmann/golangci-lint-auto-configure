@@ -31,11 +31,9 @@ func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo, enabled
 		}
 
 		// Skip redundant linters when their formatter is enabled
-		if redundantReason, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
-			// Check if the corresponding formatter is enabled
-			// For lll, the corresponding formatter is golines
-			if linter.Name == "lll" && enabledFormatterSet["golines"] {
-				a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, redundantReason)
+		if mapping, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
+			if enabledFormatterSet[string(mapping.Formatter)] {
+				a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, mapping.Reason)
 
 				continue
 			}
