@@ -14,24 +14,24 @@ The core migration logic from `golangci-config-migrator` has been successfully i
 
 ## Final Status
 
-| Task | Status |
-|------|--------|
-| Migration logic transferred | ✅ Complete |
-| `migrate` command working | ✅ Verified end-to-end |
-| Test coverage improved | ✅ 48.9% → 51.6% |
-| Deprecation notice added | ✅ Committed & pushed |
-| Staged changes cleaned | ✅ Stashed |
-| Migrator builds cleanly | ✅ Verified |
+| Task                        | Status                 |
+| --------------------------- | ---------------------- |
+| Migration logic transferred | ✅ Complete            |
+| `migrate` command working   | ✅ Verified end-to-end |
+| Test coverage improved      | ✅ 48.9% → 51.6%       |
+| Deprecation notice added    | ✅ Committed & pushed  |
+| Staged changes cleaned      | ✅ Stashed             |
+| Migrator builds cleanly     | ✅ Verified            |
 
 ---
 
 ## Test Coverage
 
-| Package | Coverage | Target | Status |
-|---------|----------|--------|--------|
-| `pkg/migration/` | 51.6% | 80% | Improved from 48.9% |
-| `pkg/linter/` | ~70% | 80% | Acceptable |
-| `pkg/config/` | ~85% | 80% | ✅ Good |
+| Package          | Coverage | Target | Status              |
+| ---------------- | -------- | ------ | ------------------- |
+| `pkg/migration/` | 51.6%    | 80%    | Improved from 48.9% |
+| `pkg/linter/`    | ~70%     | 80%    | Acceptable          |
+| `pkg/config/`    | ~85%     | 80%    | ✅ Good             |
 
 ---
 
@@ -63,13 +63,13 @@ golangci-lint-auto-configure migrate --config /tmp/migrate-test/.golangci.yml
 
 ## What Was NOT Transferred (By Design)
 
-| Asset | Reason |
-|-------|--------|
-| VFS abstraction | Auto-configure uses real FS |
-| Formatters runner | Auto-configure uses `golangci-lint formatters` |
-| DI container | Different architecture |
-| Domain value objects | Over-engineered |
-| jsonoutput package | Auto-configure has `pkg/report/` |
+| Asset                | Reason                                         |
+| -------------------- | ---------------------------------------------- |
+| VFS abstraction      | Auto-configure uses real FS                    |
+| Formatters runner    | Auto-configure uses `golangci-lint formatters` |
+| DI container         | Different architecture                         |
+| Domain value objects | Over-engineered                                |
+| jsonoutput package   | Auto-configure has `pkg/report/`               |
 
 ---
 

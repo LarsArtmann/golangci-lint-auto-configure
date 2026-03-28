@@ -50,5 +50,8 @@ var DisabledLinters = map[types.LinterName]struct{}{
 
 // RedundantLinters maps linter names that are superseded by formatters.
 var RedundantLinters = map[types.LinterName]types.LinterToFormatter{
-	"lll": {Formatter: "golines", Reason: "redundant when golines formatter is enabled (golines fixes long lines, lll only reports them)"},
+	"lll": {
+		Formatter: "golines",
+		Reason:    "redundant when golines formatter is enabled (golines fixes long lines, lll only reports them)",
+	},
 }

@@ -281,14 +281,14 @@ graph TD
 
 ### Completed ✅
 
-| Task | Commit | Status |
-|------|--------|--------|
-| Commit current fix | a006833 | ✅ |
-| Refactor RedundantLinters data structure | e106cda | ✅ |
-| Update categorizer to use shared helper | e106cda | ✅ |
-| Update fixer to use shared helper | e106cda | ✅ |
-| Add tests for CategorizeLinters | 95454eb | ✅ |
-| Push to remote | - | ✅ |
+| Task                                     | Commit  | Status |
+| ---------------------------------------- | ------- | ------ |
+| Commit current fix                       | a006833 | ✅     |
+| Refactor RedundantLinters data structure | e106cda | ✅     |
+| Update categorizer to use shared helper  | e106cda | ✅     |
+| Update fixer to use shared helper        | e106cda | ✅     |
+| Add tests for CategorizeLinters          | 95454eb | ✅     |
+| Push to remote                           | -       | ✅     |
 
 ### Deferred ⬜
 

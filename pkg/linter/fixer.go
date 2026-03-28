@@ -210,7 +210,8 @@ func (f *Fixer) FixConfigResult(
 	for linterName, mapping := range constants.RedundantLinters {
 		if linterSet[string(linterName)] {
 			// Check if the corresponding formatter is being enabled (or would be enabled in dry-run)
-			formatterWillBeEnabled := formatterSet[string(mapping.Formatter)] || (dryRun && string(mapping.Formatter) == "golines" && shouldEnableGolines)
+			formatterWillBeEnabled := formatterSet[string(mapping.Formatter)] ||
+				(dryRun && string(mapping.Formatter) == "golines" && shouldEnableGolines)
 
 			if formatterWillBeEnabled {
 				redundantFixes++
