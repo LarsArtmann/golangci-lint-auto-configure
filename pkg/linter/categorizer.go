@@ -5,8 +5,12 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-// categorizeLinters categorizes disabled linters by priority.
-func (a *Analyzer) categorizeLinters(disabledLinters []types.LinterInfo, enabledFormatters []types.FormatterInfo) []types.LinterRecommendation {
+// CategorizeLinters categorizes disabled linters by priority.
+// exported for testing.
+func (a *Analyzer) CategorizeLinters(
+	disabledLinters []types.LinterInfo,
+	enabledFormatters []types.FormatterInfo,
+) []types.LinterRecommendation {
 	// Build set of enabled formatter names for efficient lookup
 	enabledFormatterSet := make(map[string]bool)
 	for _, formatter := range enabledFormatters {

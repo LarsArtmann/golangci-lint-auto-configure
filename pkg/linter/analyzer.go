@@ -115,7 +115,7 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 		DisabledLinters:          jsonLinterOutput.Disabled,
 		EnabledFormatters:        jsonFormatOutput.Enabled,
 		DisabledFormatters:       jsonFormatOutput.Disabled,
-		LinterRecommendations:    a.categorizeLinters(jsonLinterOutput.Disabled, jsonFormatOutput.Enabled),
+		LinterRecommendations:    a.CategorizeLinters(jsonLinterOutput.Disabled, jsonFormatOutput.Enabled),
 		FormatterRecommendations: a.categorizeFormatters(jsonFormatOutput.Disabled),
 	}
 
