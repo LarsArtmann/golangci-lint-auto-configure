@@ -1,4 +1,5 @@
 # Comprehensive Status Report
+
 **Date:** 2026-03-28 01:41 CET  
 **Branch:** master  
 **Last Commit:** c4832bc (feat(linter): add retry logic to formatters commands and update formatter data)
@@ -17,41 +18,41 @@ The parallel golangci-lint running error has been fully resolved with a multi-la
 
 ### A) Fully Done ✅
 
-| Task | Status | Notes |
-|------|--------|-------|
-| Fix "parallel golangci-lint is running" error | ✅ COMPLETE | Multi-layered fix implemented |
-| Add retry logic to `runLintersCommand` | ✅ COMPLETE | 3 retries, exponential backoff |
-| Add retry logic to `runFormattersCommand` | ✅ COMPLETE | Was missing entirely |
-| Add retry logic to `RunFmtCommand` | ✅ COMPLETE | Was missing entirely |
-| Add retry logic to `version_checker.go` | ✅ COMPLETE | Added `runVersionCommandWithRetry` |
-| Update `.golangci.yml` | ✅ COMPLETE | `allow-serial-runners: true` |
-| Add missing formatter priorities | ✅ COMPLETE | `gci` → Medium, `swaggo` → Low |
-| Fix depguard import issue | ✅ COMPLETE | Added `go.yaml.in/yaml/v3` |
-| Fix package comment issue | ✅ COMPLETE | Removed blank line in `pkg/utils/git.go` |
-| Add unparam exclusion for fixer_test.go | ✅ COMPLETE | Resolved test lint issue |
-| Code builds successfully | ✅ COMPLETE | All packages compile |
-| golangci-lint passes | ✅ COMPLETE | No lint issues |
-| Git commits pushed | ✅ COMPLETE | 4 commits in this session |
+| Task                                          | Status      | Notes                                    |
+| --------------------------------------------- | ----------- | ---------------------------------------- |
+| Fix "parallel golangci-lint is running" error | ✅ COMPLETE | Multi-layered fix implemented            |
+| Add retry logic to `runLintersCommand`        | ✅ COMPLETE | 3 retries, exponential backoff           |
+| Add retry logic to `runFormattersCommand`     | ✅ COMPLETE | Was missing entirely                     |
+| Add retry logic to `RunFmtCommand`            | ✅ COMPLETE | Was missing entirely                     |
+| Add retry logic to `version_checker.go`       | ✅ COMPLETE | Added `runVersionCommandWithRetry`       |
+| Update `.golangci.yml`                        | ✅ COMPLETE | `allow-serial-runners: true`             |
+| Add missing formatter priorities              | ✅ COMPLETE | `gci` → Medium, `swaggo` → Low           |
+| Fix depguard import issue                     | ✅ COMPLETE | Added `go.yaml.in/yaml/v3`               |
+| Fix package comment issue                     | ✅ COMPLETE | Removed blank line in `pkg/utils/git.go` |
+| Add unparam exclusion for fixer_test.go       | ✅ COMPLETE | Resolved test lint issue                 |
+| Code builds successfully                      | ✅ COMPLETE | All packages compile                     |
+| golangci-lint passes                          | ✅ COMPLETE | No lint issues                           |
+| Git commits pushed                            | ✅ COMPLETE | 4 commits in this session                |
 
 ### B) Partially Done ⚠️
 
-| Task | Status | Notes |
-|------|--------|-------|
+| Task                            | Status     | Notes                                                            |
+| ------------------------------- | ---------- | ---------------------------------------------------------------- |
 | Ginkgo test suite rerun warning | ⚠️ PARTIAL | Tests pass individually, but Ginkgo warns about rerunning suites |
 
 ### C) Not Started ⏳
 
-| Task | Priority | Notes |
-|------|----------|-------|
-| Dedicated retry logic tests | Medium | Could add unit tests for retry behavior |
-| Performance benchmarking | Low | No benchmarks currently |
-| E2E tests with real golangci-lint | Medium | Would catch lock file issues earlier |
+| Task                              | Priority | Notes                                   |
+| --------------------------------- | -------- | --------------------------------------- |
+| Dedicated retry logic tests       | Medium   | Could add unit tests for retry behavior |
+| Performance benchmarking          | Low      | No benchmarks currently                 |
+| E2E tests with real golangci-lint | Medium   | Would catch lock file issues earlier    |
 
 ### D) Totally Fucked Up 🔥
 
-| Issue | Status | Resolution |
-|-------|--------|------------|
-| None | ✅ N/A | Project is in good shape |
+| Issue | Status | Resolution               |
+| ----- | ------ | ------------------------ |
+| None  | ✅ N/A | Project is in good shape |
 
 ### E) What We Should Improve 🔧
 
@@ -65,12 +66,12 @@ The parallel golangci-lint running error has been fully resolved with a multi-la
 
 ## Recent Commits (Session)
 
-| Commit | Description |
-|--------|-------------|
+| Commit    | Description                                                                    |
+| --------- | ------------------------------------------------------------------------------ |
 | `c4832bc` | feat(linter): add retry logic to formatters commands and update formatter data |
-| `8968a15` | feat(version): add retry logic for parallel golangci-lint errors |
-| `12529ce` | fix(linter): address linting issues in retry logic |
-| `faeea23` | fix(linting): resolve pre-commit hook failures |
+| `8968a15` | feat(version): add retry logic for parallel golangci-lint errors               |
+| `12529ce` | fix(linter): address linting issues in retry logic                             |
+| `faeea23` | fix(linting): resolve pre-commit hook failures                                 |
 
 ---
 
@@ -83,17 +84,19 @@ The parallel golangci-lint running error has been fully resolved with a multi-la
 **Solution - Three Layer Defense:**
 
 1. **Config Layer** (`.golangci.yml`):
+
    ```yaml
    run:
-     allow-serial-runners: true  # Changed from false
+     allow-serial-runners: true # Changed from false
    ```
+
    This makes golangci-lint wait up to 5 seconds for the lock instead of failing immediately.
 
 2. **Retry Layer - Command Runner** (`pkg/linter/command_runner.go`):
    - `runLintersCommand` - Uses `runCommandWithRetry`
    - `runFormattersCommand` - Uses `runCommandWithRetry`
    - `RunFmtCommand` - Uses `runCommandWithRetry`
-   
+
    Retry parameters:
    - Max retries: 3
    - Initial backoff: 500ms
@@ -121,6 +124,7 @@ pkg/utils        ✅ PASS (2.953s)
 ### Ginkgo Suite Issue
 
 The warning:
+
 ```
 It looks like you are running RunSpecs more than once. Ginkgo does not support rerunning suites.
 ```
@@ -128,6 +132,7 @@ It looks like you are running RunSpecs more than once. Ginkgo does not support r
 This occurs because multiple `*_test.go` files in `pkg/linter/` each have their own `RunSpecs` call. This is a known Ginkgo behavior when running all tests in a package via `go test ./pkg/linter/...`. It does not affect test correctness.
 
 **Solutions:**
+
 1. Run tests individually: `go test ./pkg/linter/... --run=TestAnalyzer`
 2. Restructure tests to have a single entry point
 3. Ignore the warning (tests still pass)
@@ -189,12 +194,14 @@ The retry logic I implemented checks for the specific error message "parallel go
    - Use a configuration flag to disable retry (but this adds user burden)
 
 **What I need:**
+
 - Should we add version-specific error message matching?
 - Should we add a fallback mechanism that retries on any error (with version guards)?
 - Should we document this as a known limitation that requires updating when golangci-lint versions change?
 - Is there a better error detection mechanism I'm not aware of?
 
 **Current Implementation:**
+
 ```go
 func isParallelRunningError(output string) bool {
     return strings.Contains(output, "parallel golangci-lint is running")
@@ -208,12 +215,14 @@ This works but is fragile if golangci-lint changes the error message.
 ## Metrics
 
 ### Code Metrics (from scc)
+
 ```
 Files: 183       Lines: 55349       Code: 41365
 Comments: 863     Blanks: 13121     Complexity: 866
 ```
 
 ### Test Coverage
+
 - Config: ✅ Working
 - Detection: ✅ Working
 - Diff: ✅ Working
@@ -224,6 +233,7 @@ Comments: 863     Blanks: 13121     Complexity: 866
 - Utils: ✅ Working
 
 ### Build Status
+
 - ✅ All packages compile
 - ✅ golangci-lint passes with no issues
 - ✅ All tests pass (individually)
@@ -232,13 +242,13 @@ Comments: 863     Blanks: 13121     Complexity: 866
 
 ## Dependencies
 
-| Dependency | Version | Status |
-|------------|---------|--------|
-| Go | 1.25+ | ✅ OK |
-| golangci-lint | 2.8.0+ | ✅ OK |
-| Cobra | latest | ✅ OK |
-| Ginkgo v2 | 2.28.1 | ✅ OK |
-| Templ | latest | ✅ OK |
+| Dependency    | Version | Status |
+| ------------- | ------- | ------ |
+| Go            | 1.25+   | ✅ OK  |
+| golangci-lint | 2.8.0+  | ✅ OK  |
+| Cobra         | latest  | ✅ OK  |
+| Ginkgo v2     | 2.28.1  | ✅ OK  |
+| Templ         | latest  | ✅ OK  |
 
 ---
 
