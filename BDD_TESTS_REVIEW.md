@@ -15,13 +15,13 @@ The project has **test coverage of 29.5%** and demonstrates **inconsistent use o
 
 ### Key Metrics
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Test Coverage | 29.5% | >80% | ❌ Critical Gap |
-| Ginkgo Usage | 8/12 files (67%) | 100% | ⚠️ Inconsistent |
-| E2E Tests | 0 | >5 | ❌ Missing |
-| User Scenario Tests | 0 | >10 | ❌ Missing |
-| Behavior-Driven Tests | ~30% | 100% | ⚠️ Needs Work |
+| Metric                | Value            | Target | Status          |
+| --------------------- | ---------------- | ------ | --------------- |
+| Test Coverage         | 29.5%            | >80%   | ❌ Critical Gap |
+| Ginkgo Usage          | 8/12 files (67%) | 100%   | ⚠️ Inconsistent |
+| E2E Tests             | 0                | >5     | ❌ Missing      |
+| User Scenario Tests   | 0                | >10    | ❌ Missing      |
+| Behavior-Driven Tests | ~30%             | 100%   | ⚠️ Needs Work   |
 
 ---
 
@@ -29,25 +29,25 @@ The project has **test coverage of 29.5%** and demonstrates **inconsistent use o
 
 ### Files Using Ginkgo BDD Framework ✅
 
-| File | BDD Patterns | Quality |
-|------|--------------|---------|
-| `pkg/linter/analyzer_test.go` | ✅ Describe/Context/It | Good |
-| `pkg/linter/fixer_test.go` | ✅ Describe/Context/It + Helpers | Excellent |
-| `pkg/config/loader_test.go` | ✅ Describe/Context/It | Good |
-| `pkg/migration/migrator_test.go` | ✅ Describe/Context/It | Excellent |
-| `pkg/errors/errors_test.go` | ✅ Describe/Context/It | Good |
-| `pkg/utils/git_test.go` | ✅ Describe/Context/It | Good |
-| `pkg/linter/version_test.go` | ✅ Describe/Context/It | Good |
-| `internal/cli/commands_test.go` | ✅ Describe/Context/It | Excellent |
+| File                             | BDD Patterns                     | Quality   |
+| -------------------------------- | -------------------------------- | --------- |
+| `pkg/linter/analyzer_test.go`    | ✅ Describe/Context/It           | Good      |
+| `pkg/linter/fixer_test.go`       | ✅ Describe/Context/It + Helpers | Excellent |
+| `pkg/config/loader_test.go`      | ✅ Describe/Context/It           | Good      |
+| `pkg/migration/migrator_test.go` | ✅ Describe/Context/It           | Excellent |
+| `pkg/errors/errors_test.go`      | ✅ Describe/Context/It           | Good      |
+| `pkg/utils/git_test.go`          | ✅ Describe/Context/It           | Good      |
+| `pkg/linter/version_test.go`     | ✅ Describe/Context/It           | Good      |
+| `internal/cli/commands_test.go`  | ✅ Describe/Context/It           | Excellent |
 
 ### Files NOT Using Ginkgo ❌
 
-| File | Current Framework | Should Use Ginkgo? |
-|------|-------------------|-------------------|
-| `pkg/detection/detector_test.go` | Standard Go testing | ✅ Yes |
-| `pkg/diff/differ_test.go` | Standard Go testing | ✅ Yes |
-| `pkg/ui/formatter_test.go` | Standard Go testing | ✅ Yes |
-| `internal/cli/cmd_configure_internal_test.go` | Standard Go testing | ✅ Yes |
+| File                                          | Current Framework   | Should Use Ginkgo? |
+| --------------------------------------------- | ------------------- | ------------------ |
+| `pkg/detection/detector_test.go`              | Standard Go testing | ✅ Yes             |
+| `pkg/diff/differ_test.go`                     | Standard Go testing | ✅ Yes             |
+| `pkg/ui/formatter_test.go`                    | Standard Go testing | ✅ Yes             |
+| `internal/cli/cmd_configure_internal_test.go` | Standard Go testing | ✅ Yes             |
 
 **Recommendation:** Migrate all test files to Ginkgo for consistency. The AGENTS.md explicitly states: "Ginkgo Testing, Not Standard Go Testing."
 
@@ -62,6 +62,7 @@ The current tests answer "Does this function work?" instead of "Can the user acc
 ### Examples of Implementation-Focused Tests:
 
 #### ❌ Bad Example (from `pkg/linter/analyzer_test.go`):
+
 ```go
 It("should filter linters by priority", func() {
     testCases := []struct {
@@ -78,6 +79,7 @@ It("should filter linters by priority", func() {
 **Problem:** This tests the internal `GetLintersByPriority` method, not user behavior.
 
 #### ✅ What It Should Look Like (End-User Perspective):
+
 ```go
 Context("When a developer wants to enable only critical security linters", func() {
     It("should configure the config file with only critical linters enabled", func() {
@@ -120,21 +122,22 @@ This is **unacceptably low** for a production tool. Target should be **>80%**.
 
 ### Coverage by Package:
 
-| Package | Coverage | Status |
-|---------|----------|--------|
-| `pkg/config` | 61.6% | ⚠️ Needs improvement |
-| `pkg/linter` | ~35% (estimated) | ❌ Critical gap |
+| Package         | Coverage         | Status               |
+| --------------- | ---------------- | -------------------- |
+| `pkg/config`    | 61.6%            | ⚠️ Needs improvement |
+| `pkg/linter`    | ~35% (estimated) | ❌ Critical gap      |
 | `pkg/detection` | ~40% (estimated) | ⚠️ Needs improvement |
 | `pkg/migration` | ~50% (estimated) | ⚠️ Needs improvement |
-| `pkg/diff` | ~60% (estimated) | ⚠️ Needs improvement |
-| `pkg/ui` | ~30% (estimated) | ❌ Critical gap |
-| `pkg/errors` | ~70% (estimated) | ⚠️ Acceptable |
-| `pkg/utils` | ~50% (estimated) | ⚠️ Needs improvement |
-| `internal/cli` | 12.7% | ❌ Critical gap |
+| `pkg/diff`      | ~60% (estimated) | ⚠️ Needs improvement |
+| `pkg/ui`        | ~30% (estimated) | ❌ Critical gap      |
+| `pkg/errors`    | ~70% (estimated) | ⚠️ Acceptable        |
+| `pkg/utils`     | ~50% (estimated) | ⚠️ Needs improvement |
+| `internal/cli`  | 12.7%            | ❌ Critical gap      |
 
 ### Uncovered Functions (0% coverage):
 
 From `pkg/config/loader.go`:
+
 - `FindOrGetDefaultConfigPath` - Critical for user workflow
 - `GetAllLinterNames` - Important for analysis
 - `GetLocalGoVersion` - Important for config generation
@@ -176,6 +179,7 @@ From `pkg/config/loader.go`:
 ### Anti-Patterns Found ❌
 
 1. **Testing private methods directly:**
+
    ```go
    // Bad: Testing internal implementation
    It("should filter linters by priority", func() {
@@ -184,12 +188,14 @@ From `pkg/config/loader.go`:
    ```
 
 2. **Mocking when real implementation would work:**
+
    ```go
    // Bad: Using mock when real config loader is fine
    mock := &mockPresetConfigLoader{...}
    ```
 
 3. **Asserting on strings instead of structured data:**
+
    ```go
    // Bad: Fragile string matching
    Expect(formatted).To(ContainSubstring("🚨 2 CRITICAL"))
@@ -210,6 +216,7 @@ From `pkg/config/loader.go`:
 **Impact:** High - Users could encounter broken workflows
 
 **Missing:**
+
 - Full workflow from `analyze` → `configure` → `validate`
 - Integration with real golangci-lint binary
 - Git repository integration tests
@@ -220,6 +227,7 @@ From `pkg/config/loader.go`:
 **Impact:** High - Core user scenarios untested
 
 **Missing:**
+
 - New user setting up linting for the first time
 - User migrating from v1 to v2 config
 - User troubleshooting a broken config
@@ -230,6 +238,7 @@ From `pkg/config/loader.go`:
 **Impact:** Medium - Poor user experience on errors
 
 **Missing:**
+
 - golangci-lint not installed
 - Invalid YAML syntax
 - Permission denied errors
@@ -241,6 +250,7 @@ From `pkg/config/loader.go`:
 **Impact:** Medium - Potential race conditions
 
 **Missing:**
+
 - Multiple processes accessing same config
 - Parallel test execution safety
 - File locking behavior
@@ -250,6 +260,7 @@ From `pkg/config/loader.go`:
 **Impact:** High - Bugs could reappear
 
 **Missing:**
+
 - Tests for fixed issues (no issue references in tests)
 - Tests for deprecated linter replacements
 - Tests for version compatibility
@@ -259,11 +270,13 @@ From `pkg/config/loader.go`:
 **Impact:** Critical - Tests FAIL when running entire package
 
 **Problem:**
+
 - `pkg/linter/analyzer_test.go` and `pkg/linter/version_test.go` both call `RunSpecs`
 - Ginkgo does not support multiple `RunSpecs` calls in same package
 - Running `ginkgo -r` or `go test ./pkg/linter` FAILS with "Rerunning Suite" error
 
 **Solution:**
+
 - Merge `version_test.go` into `analyzer_test.go` OR
 - Use single `TestLinter` function that includes all specs
 
@@ -461,20 +474,20 @@ A test suite is "superb" when:
 
 ## Appendix: Test File Inventory
 
-| File | Lines | Ginkgo | Coverage | User-Focused | Quality |
-|------|-------|--------|----------|--------------|---------|
-| analyzer_test.go | 176 | ✅ | ~35% | ❌ | Good |
-| fixer_test.go | 236 | ✅ | ~40% | ⚠️ | Excellent |
-| loader_test.go | 327 | ✅ | 61.6% | ❌ | Good |
-| commands_test.go | 391 | ✅ | 12.7% | ⚠️ | Excellent |
-| detector_test.go | 213 | ❌ | ~40% | ❌ | Medium |
-| migrator_test.go | 327 | ✅ | ~50% | ⚠️ | Excellent |
-| differ_test.go | 208 | ❌ | ~60% | ❌ | Medium |
-| errors_test.go | 182 | ✅ | ~70% | ❌ | Good |
-| formatter_test.go | 226 | ❌ | ~30% | ❌ | Medium |
-| git_test.go | 60 | ✅ | ~50% | ❌ | Good |
-| version_test.go | 45 | ✅ | ~60% | ❌ | Good |
-| cmd_configure_internal_test.go | 236 | ❌ | N/A | ❌ | Medium |
+| File                           | Lines | Ginkgo | Coverage | User-Focused | Quality   |
+| ------------------------------ | ----- | ------ | -------- | ------------ | --------- |
+| analyzer_test.go               | 176   | ✅     | ~35%     | ❌           | Good      |
+| fixer_test.go                  | 236   | ✅     | ~40%     | ⚠️           | Excellent |
+| loader_test.go                 | 327   | ✅     | 61.6%    | ❌           | Good      |
+| commands_test.go               | 391   | ✅     | 12.7%    | ⚠️           | Excellent |
+| detector_test.go               | 213   | ❌     | ~40%     | ❌           | Medium    |
+| migrator_test.go               | 327   | ✅     | ~50%     | ⚠️           | Excellent |
+| differ_test.go                 | 208   | ❌     | ~60%     | ❌           | Medium    |
+| errors_test.go                 | 182   | ✅     | ~70%     | ❌           | Good      |
+| formatter_test.go              | 226   | ❌     | ~30%     | ❌           | Medium    |
+| git_test.go                    | 60    | ✅     | ~50%     | ❌           | Good      |
+| version_test.go                | 45    | ✅     | ~60%     | ❌           | Good      |
+| cmd_configure_internal_test.go | 236   | ❌     | N/A      | ❌           | Medium    |
 
 **Total Test Lines:** ~2,627
 **Total Source Lines:** ~8,900 (estimated)
@@ -482,4 +495,4 @@ A test suite is "superb" when:
 
 ---
 
-*End of Review*
+_End of Review_
