@@ -39,10 +39,14 @@ var FormatterInfo = map[types.FormatterName]types.FormatterInfo{
 // FormatterPriorities defines priority levels for formatters.
 var FormatterPriorities = map[types.FormatterName]types.FormatterPriority{
 	// High priority - recommended for most projects
-	"gofumpt":   types.FormatterPriorityHigh,
-	"golines":   types.FormatterPriorityHigh,
+	"gofumpt": types.FormatterPriorityHigh,
+	"golines": types.FormatterPriorityHigh,
+	// Medium priority - useful with specific configurations
 	"gofmt":     types.FormatterPriorityMedium,
 	"goimports": types.FormatterPriorityMedium,
+	"gci":       types.FormatterPriorityMedium,
+	// Low priority - specialized tools
+	"swaggo": types.FormatterPriorityLow,
 }
 
 // FormatterReasons provides human-readable reasons for each formatter recommendation.

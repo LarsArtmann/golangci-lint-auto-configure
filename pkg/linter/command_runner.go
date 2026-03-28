@@ -86,30 +86,13 @@ func (a *Analyzer) runLintersCommand(ctx context.Context, configPath string) ([]
 
 // runFormattersCommand runs `golangci-lint formatters` and returns JSON output.
 func (a *Analyzer) runFormattersCommand(ctx context.Context, configPath string) ([]byte, error) {
-	cmd := exec.CommandContext(ctx, a.golangciLintPath, "formatters", "--config", configPath, "--json")
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		outputStr := strings.TrimSpace(string(output))
-		if outputStr != "" {
-			return nil, fmt.Errorf("formatters command not available: %s (cause: %w)", outputStr, err)
-		}
-
-		return nil, fmt.Errorf("formatters command not available: %w", err)
-	}
-
-	return output, nil
+	return a.runCommandWithRetry(ctx, "formatters", "formatters", "--config", configPath, "--json")
 }
 
 // RunFmtCommand runs `golangci-lint fmt` to format Go source files.
 func (a *Analyzer) RunFmtCommand(ctx context.Context, configPath string) error {
-	cmd := exec.CommandContext(ctx, a.golangciLintPath, "fmt", "--config", configPath)
-
-	output, err := cmd.CombinedOutput()
+	_, err := a.runCommandWithRetry(ctx, "fmt", "fmt", "--config", configPath)
 	if err != nil {
-		outputStr := strings.TrimSpace(string(output))
-		a.logger.Debugf("golangci-lint fmt command output: %s", outputStr)
-
 		return fmt.Errorf("golangci-lint fmt failed: %w", err)
 	}
 
