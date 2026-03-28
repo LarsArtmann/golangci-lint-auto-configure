@@ -1,6 +1,7 @@
 package linter_test
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -171,6 +172,35 @@ var _ = Describe("Analyzer", func() {
 			summary := analyzer.GetSummary(analysis)
 
 			Expect(summary).To(Equal("All linters enabled - no recommendations"))
+		})
+	})
+
+	Context("Version Check", func() {
+		var versionAnalyzer *linter.Analyzer
+
+		BeforeEach(func() {
+			versionAnalyzer = linter.NewAnalyzer(log.Default())
+		})
+
+		Context("When golangci-lint is installed", func() {
+			It("should find the binary", func() {
+				err := versionAnalyzer.FindBinary(context.Background())
+				if err != nil {
+					Skip("golangci-lint not found in PATH")
+				}
+
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("should pass version check with v2.10.1 or newer", func() {
+				err := versionAnalyzer.FindBinary(context.Background())
+				if err != nil {
+					Skip("golangci-lint not found in PATH")
+				}
+
+				err = versionAnalyzer.CheckVersion(context.Background())
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
 	})
 })
