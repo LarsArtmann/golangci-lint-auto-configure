@@ -186,6 +186,62 @@ func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dr
 	return nil
 }
 
+// preFixTypecheck removes typecheck from the config before analysis.
+// This is necessary because golangci-lint linters command will fail if typecheck
+// is in the enable list (typecheck is not a configurable linter in v2).
+func (f *Fixer) preFixTypecheck(cfg *types.Config, configPath string, dryRun bool) error {
+	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
+	disabledLinters := f.configLoader.GetLintersDisabled(cfg)
+
+	var typecheckFound bool
+
+	// Filter out typecheck from enabled linters
+	fixedEnabled := make([]string, 0, len(enabledLinters))
+	for _, linter := range enabledLinters {
+		if linter == "typecheck" {
+			typecheckFound = true
+			continue
+		}
+		fixedEnabled = append(fixedEnabled, linter)
+	}
+
+	// Filter out typecheck from disabled linters
+	fixedDisabled := make([]string, 0, len(disabledLinters))
+	for _, linter := range disabledLinters {
+		if linter == "typecheck" {
+			typecheckFound = true
+			continue
+		}
+		fixedDisabled = append(fixedDisabled, linter)
+	}
+
+	if !typecheckFound {
+		return nil
+	}
+
+	if dryRun {
+		f.logger.Infof("[DRY-RUN] Would remove 'typecheck' from linters list (not configurable in v2)")
+
+		return nil
+	}
+
+	f.logger.Infof("Removing 'typecheck' from linters list (not configurable in v2)")
+
+	cfg.Linters.Enable = fixedEnabled
+	cfg.Linters.Disable = fixedDisabled
+
+	err := f.configLoader.SaveConfig(cfg, configPath)
+	if err != nil {
+		return apperrors.NewConfigError(
+			fmt.Sprintf("failed to save pre-fixed config after removing typecheck (dryRun=%t)", dryRun),
+			configPath,
+			err,
+		)
+	}
+
+	return nil
+}
+
 // calculateDryRunResultWithDeprecated calculates the dry-run result when deprecated linters are present.
 // Since the config has deprecated linters, we can't run golangci-lint linters for analysis,
 // so we just report what would be fixed regarding deprecated linters.

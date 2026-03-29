@@ -101,6 +101,15 @@ func (f *Fixer) FixConfigResult(
 		))
 	}
 
+	// Pre-fix typecheck before analysis to prevent golangci-lint linters command from failing
+	// typecheck is not a configurable linter in v2, it cannot be enabled or disabled
+	if err := f.preFixTypecheck(cfg, configPath, dryRun); err != nil {
+		return types.ErrMigration(apperrors.NewAnalysisError(
+			fmt.Sprintf("failed to pre-fix typecheck (priority=%d, dryRun=%t)", priority, dryRun),
+			configPath, err,
+		))
+	}
+
 	// In dry-run mode with deprecated linters, skip analysis (config is broken, can't run golangci-lint linters)
 	if dryRun && hasDeprecatedLinters {
 		f.logger.Infof("Dry-run with deprecated linters - skipping analysis (run without --dry-run to fix)")

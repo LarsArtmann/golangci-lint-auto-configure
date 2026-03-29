@@ -233,4 +233,47 @@ linters:
 			testFixResult(fixer, testConfig, timeoutTestConfig(`""`), types.LinterPriorityCritical, true, `timeout: ""`)
 		})
 	})
+
+	Context("Typecheck Linter", func() {
+		It("should remove typecheck from enabled linters", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+    - typecheck
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("gosec"))
+			Expect(content).NotTo(ContainSubstring("- typecheck"))
+		})
+
+		It("should remove typecheck from disabled linters", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+  disable:
+    - typecheck
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).NotTo(ContainSubstring("typecheck"))
+		})
+
+		It("should handle typecheck in dry-run mode", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - typecheck
+`
+			testDeprecatedLinterDryRun(fixer, testConfig, configContent)
+		})
+	})
 })
