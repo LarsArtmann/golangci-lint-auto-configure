@@ -8,6 +8,7 @@ import (
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -39,13 +40,32 @@ func runFmtCommand(
 	}
 }
 
+// presetForProjectType returns the recommended preset for a given project type.
+func presetForProjectType(projectType detection.ProjectType) string {
+	switch projectType {
+	case detection.ProjectTypeCLI:
+		return "standard"
+	case detection.ProjectTypeWeb, detection.ProjectTypeAPI:
+		return "strict"
+	case detection.ProjectTypeLibrary:
+		return "minimal"
+	case detection.ProjectTypeMonorepo:
+		return "strict"
+	default:
+		return "standard"
+	}
+}
+
 // newConfigureCommand creates the configure command.
 func newConfigureCommand(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
 ) *cobra.Command {
-	var preset string
+	var (
+		preset  string
+		detect  bool
+	)
 
 	cmd := &cobra.Command{
 		Use:   "configure",
@@ -63,8 +83,23 @@ Or use --preset for predefined linter sets:
   - standard: Recommended for most projects (default)
   - strict: Maximum linting (CI/CD, strict quality)
   - security: Security-focused only
-  - performance: Performance optimization only`,
+  - performance: Performance optimization only
+
+Or use --detect to automatically select a preset based on project type:`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			// Handle --detect flag - auto-detect project type and select preset
+			if detect {
+				detector := detection.NewDetector(".")
+				projectType := detector.Detect()
+				selectedPreset := presetForProjectType(projectType)
+
+				logger.Infof("🔍 Detected project type: %s", projectType.String())
+				logger.Infof("📋 Selected preset: %s", selectedPreset)
+
+				// Use the detected preset
+				preset = selectedPreset
+			}
+
 			return runConfigure(
 				cmd.Context(),
 				logger,
@@ -82,6 +117,8 @@ Or use --preset for predefined linter sets:
 		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
 		StringVar(&preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance)")
+	cmd.Flags().
+		BoolVar(&detect, "detect", false, "Auto-detect project type and select appropriate preset")
 
 	return cmd
 }
