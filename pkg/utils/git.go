@@ -6,6 +6,7 @@ package utils
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
 	"time"
 
@@ -38,12 +39,12 @@ func CheckGitRepo(ctx context.Context, dir string) error {
 
 	output, err := cmd.Output()
 	if err != nil {
-		return apperrors.ErrNotGitRepository
+		return fmt.Errorf("not a git repository (dir=%s): %w", dir, apperrors.ErrNotGitRepository)
 	}
 
 	// Git returns "true" with a newline when inside a work tree
 	if len(output) == 0 || output[0] != 't' {
-		return apperrors.ErrNotInGitWorkingTree
+		return fmt.Errorf("not in git working tree (dir=%s): %w", dir, apperrors.ErrNotInGitWorkingTree)
 	}
 
 	return nil

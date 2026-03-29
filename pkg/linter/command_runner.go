@@ -48,7 +48,7 @@ func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ..
 			select {
 			case <-time.After(backoff):
 			case <-ctx.Done():
-				return nil, fmt.Errorf("retry interrupted: %w", ctx.Err())
+				return nil, fmt.Errorf("retry interrupted for %s %v (lastErr=%w): %w", name, args, lastErr, ctx.Err())
 			}
 
 			backoff *= 2 // Exponential backoff
@@ -77,7 +77,7 @@ func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ..
 		)
 	}
 
-	return nil, lastErr
+	return nil, fmt.Errorf("command %s %v failed after retries: %w", name, args, lastErr)
 }
 
 // runLintersCommand runs `golangci-lint linters` and returns JSON output.

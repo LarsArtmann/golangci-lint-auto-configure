@@ -114,7 +114,7 @@ func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...strin
 			select {
 			case <-time.After(backoff):
 			case <-ctx.Done():
-				return nil, fmt.Errorf("version check retry interrupted: %w", ctx.Err())
+				return nil, fmt.Errorf("version check retry interrupted for args=%v (lastErr=%w): %w", args, lastErr, ctx.Err())
 			}
 
 			backoff *= 2 // Exponential backoff
@@ -127,7 +127,7 @@ func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...strin
 		return output, err
 	}
 
-	return nil, lastErr
+	return nil, fmt.Errorf("version check command %v failed after retries: %w", args, lastErr)
 }
 
 // checkVersionText is a fallback that parses text output from golangci-lint --version
