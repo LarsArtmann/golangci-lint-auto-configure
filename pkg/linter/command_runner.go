@@ -5,14 +5,9 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	"time"
 
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
-)
-
-const (
-	maxRetries     = 3
-	initialBackoff = 500 * time.Millisecond
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
 
 // isParallelRunningError checks if the error output indicates a parallel golangci-lint is running.
@@ -22,43 +17,22 @@ func isParallelRunningError(output string) bool {
 
 // runCommandWithRetry runs a command and retries if a parallel golangci-lint is running.
 func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ...string) ([]byte, error) {
-	var lastErr error
+	config := utils.DefaultConfig()
 
-	backoff := initialBackoff
-
-	for attempt := 0; attempt <= maxRetries; attempt++ {
+	op := func() ([]byte, error) {
 		cmd := exec.CommandContext(ctx, a.golangciLintPath, args...)
 
-		output, err := cmd.CombinedOutput()
+		return cmd.CombinedOutput()
+	}
+
+	shouldRetry := func(err error, output string) bool {
+		return isParallelRunningError(strings.TrimSpace(output))
+	}
+
+	output, err := utils.WithRetry(ctx, config, name, shouldRetry, op)
+	if err != nil {
 		outputStr := strings.TrimSpace(string(output))
 
-		if err == nil {
-			return output, nil
-		}
-
-		// Check if this is a parallel running error and we have retries left
-		if isParallelRunningError(outputStr) && attempt < maxRetries {
-			a.logger.Debugf(
-				"parallel golangci-lint is running, retrying in %v (attempt %d/%d)",
-				backoff,
-				attempt+1,
-				maxRetries,
-			)
-
-			select {
-			case <-time.After(backoff):
-			case <-ctx.Done():
-				return nil, fmt.Errorf("retry interrupted for %s %v (lastErr=%w): %w", name, args, lastErr, ctx.Err())
-			}
-
-			backoff *= 2 // Exponential backoff
-
-			lastErr = err
-
-			continue
-		}
-
-		// Either not a parallel error or out of retries
 		a.logger.Debugf("%s command failed: %v", name, err)
 		a.logger.Debugf("Output: %s", outputStr)
 
@@ -77,7 +51,7 @@ func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ..
 		)
 	}
 
-	return nil, fmt.Errorf("command %s %v failed after retries: %w", name, args, lastErr)
+	return output, nil
 }
 
 // runLintersCommand runs `golangci-lint linters` and returns JSON output.

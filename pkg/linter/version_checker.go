@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"golang.org/x/mod/semver"
 )
 
@@ -88,51 +88,28 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 
 // runVersionCommandWithRetry runs a version command with retry for parallel running errors.
 func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...string) ([]byte, error) {
-	var lastErr error
+	config := utils.DefaultConfig()
 
-	backoff := initialBackoff
-
-	for attempt := 0; attempt <= maxRetries; attempt++ {
+	op := func() ([]byte, error) {
 		cmd := exec.CommandContext(ctx, a.golangciLintPath, args...)
 
-		output, err := cmd.CombinedOutput()
-		outputStr := strings.TrimSpace(string(output))
-
-		if err == nil {
-			return output, nil
-		}
-
-		// Check if this is a parallel running error and we have retries left
-		if isParallelRunningError(outputStr) && attempt < maxRetries {
-			a.logger.Debugf(
-				"parallel golangci-lint is running during version check, retrying in %v (attempt %d/%d)",
-				backoff,
-				attempt+1,
-				maxRetries,
-			)
-
-			select {
-			case <-time.After(backoff):
-			case <-ctx.Done():
-				return nil, fmt.Errorf(
-					"version check retry interrupted for args=%v (lastErr=%w): %w",
-					args,
-					lastErr,
-					ctx.Err(),
-				)
-			}
-
-			backoff *= 2 // Exponential backoff
-			lastErr = err
-
-			continue
-		}
-
-		// Not a parallel error or out of retries - return error
-		return output, err
+		return cmd.CombinedOutput()
 	}
 
-	return nil, fmt.Errorf("version check command %v failed after retries: %w", args, lastErr)
+	shouldRetry := func(err error, output string) bool {
+		return isParallelRunningError(strings.TrimSpace(output))
+	}
+
+	output, err := utils.WithRetry(ctx, config, "version check", shouldRetry, op)
+	if err != nil {
+		return output, apperrors.NewAnalysisError(
+			"version check command failed",
+			"",
+			fmt.Errorf("command %v failed: %w", args, err),
+		)
+	}
+
+	return output, nil
 }
 
 // checkVersionText is a fallback that parses text output from golangci-lint --version
