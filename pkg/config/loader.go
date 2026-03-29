@@ -19,7 +19,6 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
-// ConfigFormat represents the configuration file format.
 // ConfigFormat represents the format of a golangci-lint configuration file.
 //
 //revive:disable:exported
