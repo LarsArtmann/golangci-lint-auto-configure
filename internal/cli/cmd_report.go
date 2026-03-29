@@ -27,7 +27,7 @@ func newReportCommand(
 			// Find config file if not specified
 			configFile, err := resolveConfigPath(configLoader, configPath)
 			if err != nil {
-				return fmt.Errorf("failed to find config file using analyzer (path=%s): %w", analyzer, err)
+				return fmt.Errorf("failed to find config file (configPath=%s): %w", configPath, err)
 			}
 
 			logger.Infof("Generating %s report for: %s", reportFormat, configFile)
@@ -35,7 +35,7 @@ func newReportCommand(
 			// Analyze configuration
 			analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
 			if err != nil {
-				return fmt.Errorf("failed to analyze config with analyzer (path=%s): %w", analyzer, err)
+				return fmt.Errorf("failed to analyze config (configPath=%s): %w", configFile, err)
 			}
 
 			// Determine output path
@@ -52,14 +52,14 @@ func newReportCommand(
 
 				err := jsonGenerator.GenerateJSONReport(analysis, outputPath)
 				if err != nil {
-					return fmt.Errorf("failed to generate JSON report with analyzer (path=%s, outputPath=%s): %w", analyzer, outputPath, err)
+					return fmt.Errorf("failed to generate JSON report (configPath=%s, outputPath=%s): %w", configFile, outputPath, err)
 				}
 			} else {
 				htmlGenerator := report.NewGenerator(logger)
 
 				err := htmlGenerator.GenerateReport(cmd.Context(), analysis, outputPath)
 				if err != nil {
-					return fmt.Errorf("failed to generate HTML report with analyzer (path=%s, outputPath=%s): %w", analyzer, outputPath, err)
+					return fmt.Errorf("failed to generate HTML report (configPath=%s, outputPath=%s): %w", configFile, outputPath, err)
 				}
 			}
 
