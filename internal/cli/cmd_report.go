@@ -52,14 +52,24 @@ func newReportCommand(
 
 				err := jsonGenerator.GenerateJSONReport(analysis, outputPath)
 				if err != nil {
-					return fmt.Errorf("failed to generate JSON report (configPath=%s, outputPath=%s): %w", configFile, outputPath, err)
+					return fmt.Errorf(
+						"failed to generate JSON report (configPath=%s, outputPath=%s): %w",
+						configFile,
+						outputPath,
+						err,
+					)
 				}
 			} else {
 				htmlGenerator := report.NewGenerator(logger)
 
 				err := htmlGenerator.GenerateReport(cmd.Context(), analysis, outputPath)
 				if err != nil {
-					return fmt.Errorf("failed to generate HTML report (configPath=%s, outputPath=%s): %w", configFile, outputPath, err)
+					return fmt.Errorf(
+						"failed to generate HTML report (configPath=%s, outputPath=%s): %w",
+						configFile,
+						outputPath,
+						err,
+					)
 				}
 			}
 

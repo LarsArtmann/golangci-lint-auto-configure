@@ -200,8 +200,10 @@ func (f *Fixer) preFixTypecheck(cfg *types.Config, configPath string, dryRun boo
 	for _, linter := range enabledLinters {
 		if linter == "typecheck" {
 			typecheckFound = true
+
 			continue
 		}
+
 		fixedEnabled = append(fixedEnabled, linter)
 	}
 
@@ -210,8 +212,10 @@ func (f *Fixer) preFixTypecheck(cfg *types.Config, configPath string, dryRun boo
 	for _, linter := range disabledLinters {
 		if linter == "typecheck" {
 			typecheckFound = true
+
 			continue
 		}
+
 		fixedDisabled = append(fixedDisabled, linter)
 	}
 

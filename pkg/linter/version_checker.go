@@ -114,7 +114,12 @@ func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...strin
 			select {
 			case <-time.After(backoff):
 			case <-ctx.Done():
-				return nil, fmt.Errorf("version check retry interrupted for args=%v (lastErr=%w): %w", args, lastErr, ctx.Err())
+				return nil, fmt.Errorf(
+					"version check retry interrupted for args=%v (lastErr=%w): %w",
+					args,
+					lastErr,
+					ctx.Err(),
+				)
 			}
 
 			backoff *= 2 // Exponential backoff
