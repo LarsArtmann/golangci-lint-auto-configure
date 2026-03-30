@@ -59,7 +59,3 @@ require (
 	golang.org/x/tools v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 )
-
-replace github.com/LarsArtmann/universal-workflow v1.0.0 => /Users/larsartmann/projects/universal-workflow
-
-replace github.com/larsartmann/go-composable-business-types => /Users/larsartmann/projects/go-composable-business-types
