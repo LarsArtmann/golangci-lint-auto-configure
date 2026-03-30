@@ -25,7 +25,7 @@ func runCLI(args ...string) ([]byte, error) {
 }
 
 // testConfigCommand creates a test config file, runs a CLI command, and returns the output.
-func testConfigCommand(tempDir string, command string, configContent string) ([]byte, error) {
+func testConfigCommand(tempDir, command, configContent string) ([]byte, error) {
 	configPath := filepath.Join(tempDir, ".golangci.yml")
 	err := os.WriteFile(configPath, []byte(configContent), 0o644)
 	if err != nil {
@@ -35,7 +35,7 @@ func testConfigCommand(tempDir string, command string, configContent string) ([]
 }
 
 // testStandardConfigCommand runs a CLI command with a standard test config
-func testStandardConfigCommand(tempDir string, command string) {
+func testStandardConfigCommand(tempDir, command string) {
 	content := `version: "2"
 run:
   timeout: 5m
