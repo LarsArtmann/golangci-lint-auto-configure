@@ -63,8 +63,8 @@ func newConfigureCommand(
 	configLoader *config.Loader,
 ) *cobra.Command {
 	var (
-		preset  string
-		detect  bool
+		preset string
+		detect bool
 	)
 
 	cmd := &cobra.Command{

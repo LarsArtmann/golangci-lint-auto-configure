@@ -2,6 +2,7 @@ package linter_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -68,6 +69,29 @@ func testFixSuccess(fixer *linter.Fixer, configPath, content string, priority ty
 	result, err := fixer.FixConfig(context.Background(), configPath, priority, dryRun)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(result.IsSuccess()).To(BeTrue())
+}
+
+// testLinterModification tests modification of a specific linter in the config.
+func testLinterModification(
+	fixer *linter.Fixer,
+	configPath string,
+	initialLinter string,
+	priority types.LinterPriority,
+	dryRun bool,
+	assertFunc func(string),
+) {
+	configContent := fmt.Sprintf(`version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+    - %s
+`, initialLinter)
+	writeConfig(configPath, configContent)
+	contentResult, err := fixAndRead(fixer, configPath, configContent, priority, dryRun)
+	Expect(err).NotTo(HaveOccurred())
+	assertFunc(contentResult)
 }
 
 // timeoutTestConfig generates a test config with the given timeout value.
@@ -180,18 +204,10 @@ linters:
 		})
 
 		It("should fix deprecated linters in non-dry-run mode", func() {
-			configContent := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-    - wsl
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("wsl_v5"))
-			Expect(content).NotTo(ContainSubstring("wsl:"))
+			testLinterModification(fixer, testConfig, "wsl", types.LinterPriorityHigh, false, func(content string) {
+				Expect(content).To(ContainSubstring("wsl_v5"))
+				Expect(content).NotTo(ContainSubstring("wsl:"))
+			})
 		})
 	})
 

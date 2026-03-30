@@ -24,6 +24,31 @@ func runCLI(args ...string) ([]byte, error) {
 	return cmd.CombinedOutput()
 }
 
+// testConfigCommand creates a test config file, runs a CLI command, and returns the output.
+func testConfigCommand(tempDir string, command string, configContent string) ([]byte, error) {
+	configPath := filepath.Join(tempDir, ".golangci.yml")
+	err := os.WriteFile(configPath, []byte(configContent), 0o644)
+	if err != nil {
+		return nil, err
+	}
+	return runCLI(command, "--config", configPath)
+}
+
+// testStandardConfigCommand runs a CLI command with a standard test config
+func testStandardConfigCommand(tempDir string, command string) {
+	content := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+	output, err := testConfigCommand(tempDir, command, content)
+	// May fail if golangci-lint not installed, but should handle gracefully
+	Expect(err).ToNot(HaveOccurred())
+	Expect(output).ToNot(BeEmpty())
+}
+
 // TestIntegration runs integration tests for the CLI.
 func TestIntegration(t *testing.T) {
 	// Skip if binary doesn't exist
@@ -110,7 +135,14 @@ linters:
 			Expect(err).NotTo(HaveOccurred())
 
 			// Run dry-run
-			output, err := runCLI("configure", "--config", configPath, "--priority", "high", "--dry-run")
+			output, err := runCLI(
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"high",
+				"--dry-run",
+			)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(string(output)).To(ContainSubstring("DRY-RUN"))
@@ -158,42 +190,13 @@ linters:
 
 	Context("Analyze command", func() {
 		It("should analyze existing config", func() {
-			// Create a config file
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			content := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(content), 0o644)
-			Expect(err).NotTo(HaveOccurred())
-
-			output, err := runCLI("analyze", "--config", configPath)
-			// May fail if golangci-lint not installed, but should handle gracefully
-			_ = output
-			_ = err
+			testStandardConfigCommand(tempDir, "analyze")
 		})
 	})
 
 	Context("Validate command", func() {
 		It("should validate config file", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			content := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(content), 0o644)
-			Expect(err).NotTo(HaveOccurred())
-
-			output, err := runCLI("validate", "--config", configPath)
-			// Command should run, output depends on validation
-			_ = output
-			_ = err
+			testStandardConfigCommand(tempDir, "validate")
 		})
 	})
 })

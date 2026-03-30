@@ -13,9 +13,13 @@ import (
 var _ = Describe("CategorizeLinters", func() {
 	var analyzer *linter.Analyzer
 
+	// createTestLogger creates a standard test logger for use in tests
+	createTestLogger := func() *log.Logger {
+		return log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+	}
+
 	BeforeEach(func() {
-		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
-		analyzer = linter.NewAnalyzer(logger)
+		analyzer = linter.NewAnalyzer(createTestLogger())
 	})
 
 	Context("Redundant Linter Detection", func() {

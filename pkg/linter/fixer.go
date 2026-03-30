@@ -103,7 +103,7 @@ func (f *Fixer) FixConfigResult(
 
 	// Pre-fix typecheck before analysis to prevent golangci-lint linters command from failing
 	// typecheck is not a configurable linter in v2, it cannot be enabled or disabled
-	if err := f.preFixTypecheck(cfg, configPath, dryRun); err != nil {
+	if _, err := f.preFixTypecheck(cfg, configPath, dryRun); err != nil {
 		return types.ErrMigration(apperrors.NewAnalysisError(
 			fmt.Sprintf("failed to pre-fix typecheck (priority=%d, dryRun=%t)", priority, dryRun),
 			configPath, err,
@@ -138,8 +138,8 @@ func (f *Fixer) FixConfigResult(
 	// Track all linters to ensure uniqueness in the final list
 	linterSet := make(map[string]bool)
 
-	// Build set from existing enabled linters
-	for _, linter := range enabledLinters {
+	// Build set from current enabled linters (after pre-fixes)
+	for _, linter := range cfg.Linters.Enable {
 		linterSet[linter] = true
 	}
 

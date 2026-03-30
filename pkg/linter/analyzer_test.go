@@ -27,9 +27,13 @@ var _ = Describe("Analyzer", func() {
 		{Name: "misspell", Priority: types.LinterPriorityMedium},
 	}
 
+	// createTestLogger creates a standard test logger for use in tests
+	createTestLogger := func() *log.Logger {
+		return log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+	}
+
 	BeforeEach(func() {
-		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
-		analyzer = linter.NewAnalyzer(logger)
+		analyzer = linter.NewAnalyzer(createTestLogger())
 	})
 
 	Context("Priority Filtering", func() {
