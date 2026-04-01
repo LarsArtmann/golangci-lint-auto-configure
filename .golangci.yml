@@ -258,20 +258,11 @@ linters:
       - path: internal/cli/cmd/installhook\.go
         linters:
           - gosec
-          - funlen
-      - path: internal/cli/cmd/migrate\.go
-        linters:
-          - funlen
-      - path: internal/cli/cmd_validate\.go
-        linters:
-          - funlen
       - path: pkg/detection/detector_test\.go
         linters:
-          - funlen
           - paralleltest
       - path: pkg/diff/differ_test\.go
         linters:
-          - funlen
           - paralleltest
       - path: pkg/linter/fixer_test\.go
         linters:
@@ -328,7 +319,6 @@ linters:
           - mnd
       - path: pkg/linter/fixer\.go
         linters:
-          - funlen
           - maintidx
       - path: pkg/report/json_report_generator\.go
         linters:
