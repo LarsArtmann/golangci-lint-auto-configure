@@ -13,7 +13,7 @@ func TestDiffer_Compare(t *testing.T) {
 
 	baseConfigV2WithErrcheck := &types.Config{
 		Version: "2",
-		Linters: types.LintersConfig{Enable: []string{"errcheck"}},
+		Linters: types.LintersConfig{LintersMixin: types.LintersMixin{Enable: []string{"errcheck"}}},
 	}
 
 	tests := []struct {
@@ -27,7 +27,7 @@ func TestDiffer_Compare(t *testing.T) {
 			name: "version change",
 			old: &types.Config{
 				Version: "1",
-				Linters: types.LintersConfig{Enable: []string{"errcheck"}},
+				Linters: types.LintersConfig{LintersMixin: types.LintersMixin{Enable: []string{"errcheck"}}},
 			},
 			new:         baseConfigV2WithErrcheck,
 			wantChanges: 1,
@@ -38,7 +38,7 @@ func TestDiffer_Compare(t *testing.T) {
 			old:  baseConfigV2WithErrcheck,
 			new: &types.Config{
 				Version: "2",
-				Linters: types.LintersConfig{Enable: []string{"errcheck", "gosec"}},
+				Linters: types.LintersConfig{LintersMixin: types.LintersMixin{Enable: []string{"errcheck", "gosec"}}},
 			},
 			wantChanges: 1,
 			description: "Should detect added linter",
@@ -47,7 +47,7 @@ func TestDiffer_Compare(t *testing.T) {
 			name: "linter removed",
 			old: &types.Config{
 				Version: "2",
-				Linters: types.LintersConfig{Enable: []string{"errcheck", "gosec"}},
+				Linters: types.LintersConfig{LintersMixin: types.LintersMixin{Enable: []string{"errcheck", "gosec"}}},
 			},
 			new:         baseConfigV2WithErrcheck,
 			wantChanges: 1,
@@ -58,12 +58,12 @@ func TestDiffer_Compare(t *testing.T) {
 			old: &types.Config{
 				Version: "1",
 				Run:     types.RunConfig{Timeout: "5m"},
-				Linters: types.LintersConfig{Enable: []string{"errcheck"}},
+				Linters: types.LintersConfig{LintersMixin: types.LintersMixin{Enable: []string{"errcheck"}}},
 			},
 			new: &types.Config{
 				Version: "2",
 				Run:     types.RunConfig{Timeout: "10m"},
-				Linters: types.LintersConfig{Enable: []string{"gosec"}},
+				Linters: types.LintersConfig{LintersMixin: types.LintersMixin{Enable: []string{"gosec"}}},
 			},
 			wantChanges: 4,
 			description: "Should detect multiple changes (version, timeout, errcheck removed, gosec added)",
