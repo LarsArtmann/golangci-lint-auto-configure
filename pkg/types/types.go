@@ -258,7 +258,7 @@ type LintersMixin struct {
 }
 
 type LintersConfig struct {
-	LintersMixin
+	LintersMixin `yaml:",inline"`
 	Default    string                  `json:"default,omitempty"  toml:"default,omitempty"    yaml:"default,omitempty"`
 	Exclusions LintersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
 }
@@ -293,7 +293,7 @@ type IssuesConfig struct {
 }
 
 type FormattersConfig struct {
-	LintersMixin
+	LintersMixin `yaml:",inline"`
 	Exclusions FormattersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
 }
 
