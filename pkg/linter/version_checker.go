@@ -90,17 +90,17 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...string) ([]byte, error) {
 	config := utils.DefaultConfig()
 
-	op := func() ([]byte, error) {
+	executeOperation := func() ([]byte, error) {
 		cmd := exec.CommandContext(ctx, a.golangciLintPath, args...)
 
 		return cmd.CombinedOutput()
 	}
 
-	shouldRetry := func(err error, output string) bool {
+	shouldRetry := func(_ error, output string) bool {
 		return isParallelRunningError(strings.TrimSpace(output))
 	}
 
-	output, err := utils.WithRetry(ctx, config, "version check", shouldRetry, op)
+	output, err := utils.WithRetry(ctx, config, "version check", shouldRetry, executeOperation)
 	if err != nil {
 		return output, apperrors.NewAnalysisError(
 			"version check command failed",

@@ -1,4 +1,3 @@
-// Package utils provides shared utility functions for the golangci-lint-auto-configure tool.
 package utils
 
 import (
@@ -14,11 +13,16 @@ type Config struct {
 	InitialBackoff time.Duration
 }
 
+const (
+	DefaultMaxRetries     = 3
+	DefaultInitialBackoff = 500 // milliseconds
+)
+
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() Config {
 	return Config{
-		MaxRetries:     3,
-		InitialBackoff: 500 * time.Millisecond,
+		MaxRetries:     DefaultMaxRetries,
+		InitialBackoff: DefaultInitialBackoff * time.Millisecond,
 	}
 }
 
@@ -36,14 +40,14 @@ func WithRetry(
 	config Config,
 	name string,
 	shouldRetry ShouldRetry,
-	op Operation,
+	executeOperation Operation,
 ) ([]byte, error) {
 	var lastErr error
 
 	backoff := config.InitialBackoff
 
 	for attempt := 0; attempt <= config.MaxRetries; attempt++ {
-		output, err := op()
+		output, err := executeOperation()
 		if err == nil {
 			return output, nil
 		}

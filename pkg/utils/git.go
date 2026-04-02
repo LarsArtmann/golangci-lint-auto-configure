@@ -1,7 +1,5 @@
-// Copyright (c) 2026 golangci-lint-auto-configure
-// SPDX-License-Identifier: Apache-2.0
-
-// Package utils provides shared utility functions for the application.
+// Package utils provides shared utility functions for the golangci-lint-auto-configure tool.
+// It includes Git repository detection utilities.
 package utils
 
 import (

@@ -43,6 +43,8 @@ func runFmtCommand(
 // presetForProjectType returns the recommended preset for a given project type.
 func presetForProjectType(projectType detection.ProjectType) string {
 	switch projectType {
+	case detection.ProjectTypeUnknown:
+		return "standard"
 	case detection.ProjectTypeCLI:
 		return "standard"
 	case detection.ProjectTypeWeb, detection.ProjectTypeAPI:
@@ -51,8 +53,6 @@ func presetForProjectType(projectType detection.ProjectType) string {
 		return "minimal"
 	case detection.ProjectTypeMonorepo:
 		return "strict"
-	default:
-		return "standard"
 	}
 }
 
@@ -72,11 +72,11 @@ func newConfigureCommand(
 		Short: "Auto-configure golangci-lint (default command)",
 		Long: `Automatically configures golangci-lint by enabling recommended linters.
 
-Use --priority to filter which linters to enable:
+Use --priority to filter which linters to enable (default: optional):
   - critical: Only enable critical linters (security, correctness)
-  - high: Enable critical and high-value linters (recommended)
+  - high: Enable critical and high-value linters
   - medium: Enable all except optional linters
-  - optional: Enable all linters (may be too strict)
+  - optional: Enable all linters (default)
 
 Or use --preset for predefined linter sets:
   - minimal: Essential linters only (fastest)
@@ -114,7 +114,7 @@ Or use --detect to automatically select a preset based on project type:`,
 	}
 
 	cmd.Flags().
-		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
+		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
 		StringVar(&preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance)")
 	cmd.Flags().

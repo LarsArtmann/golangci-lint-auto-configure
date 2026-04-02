@@ -252,10 +252,8 @@ func (l *Loader) GetAllLinterNames(ctx context.Context) ([]string, error) {
 
 // GetLocalGoVersion returns the locally installed Go version.
 // Returns an empty string if the version cannot be determined.
-//
-
-func GetLocalGoVersion() string {
-	ctx, cancel := context.WithTimeout(context.Background(), GoVersionTimeout)
+func GetLocalGoVersion(ctx context.Context) string {
+	ctx, cancel := context.WithTimeout(ctx, GoVersionTimeout)
 	defer cancel()
 
 	output, err := exec.CommandContext(ctx, "go", "version").Output()
@@ -297,7 +295,7 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 	}
 
 	// Detect local Go version
-	goVersion := GetLocalGoVersion() //nolint:contextcheck // Creates its own context internally
+	goVersion := GetLocalGoVersion(ctx)
 	if goVersion != "" {
 		l.logger.Infof("Detected local Go version: %s", goVersion)
 	}

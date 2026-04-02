@@ -19,17 +19,17 @@ func isParallelRunningError(output string) bool {
 func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ...string) ([]byte, error) {
 	config := utils.DefaultConfig()
 
-	op := func() ([]byte, error) {
+	executeOperation := func() ([]byte, error) {
 		cmd := exec.CommandContext(ctx, a.golangciLintPath, args...)
 
 		return cmd.CombinedOutput()
 	}
 
-	shouldRetry := func(err error, output string) bool {
+	shouldRetry := func(_ error, output string) bool {
 		return isParallelRunningError(strings.TrimSpace(output))
 	}
 
-	output, err := utils.WithRetry(ctx, config, name, shouldRetry, op)
+	output, err := utils.WithRetry(ctx, config, name, shouldRetry, executeOperation)
 	if err != nil {
 		outputStr := strings.TrimSpace(string(output))
 
