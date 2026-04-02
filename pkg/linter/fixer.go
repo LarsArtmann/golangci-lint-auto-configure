@@ -16,17 +16,19 @@ import (
 
 // Fixer provides functionality to fix golangci-lint configurations.
 type Fixer struct {
-	configLoader types.ConfigLoader
-	analyzer     types.LinterAnalyzer
-	logger       *log.Logger
+	configLoader      types.ConfigLoader
+	analyzer          types.LinterAnalyzer
+	logger            *log.Logger
+	formatterManager  *FormatterManager
 }
 
 // NewFixer creates a new fixer.
 func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader types.ConfigLoader) *Fixer {
 	return &Fixer{
-		configLoader: configLoader,
-		analyzer:     analyzer,
-		logger:       logger,
+		configLoader:     configLoader,
+		analyzer:         analyzer,
+		logger:           logger,
+		formatterManager: NewFormatterManager(logger),
 	}
 }
 
@@ -184,11 +186,12 @@ func (f *Fixer) applyLintersFix(
 	linterSet = f.replaceDeprecatedLinters(linterSet, originalEnabled, dryRun, &counts)
 
 	formatterSet := buildLinterSet(cfg.Formatters.Enable)
-	counts.formatter += f.enableCoreFormatters(formatterSet, dryRun)
-	counts.formatter += f.enableGolinesFormatter(formatterSet, analysis, dryRun)
-	counts.formatter += f.enableSwaggoFormatter(formatterSet, configPath, dryRun)
-	counts.redundant += f.removeRedundantLinters(linterSet, formatterSet, dryRun)
-	counts.redundant += f.removeRedundantGofmt(formatterSet, dryRun)
+	fm := NewFormatterManager(f.logger)
+	counts.formatter += fm.EnableCoreFormatters(formatterSet, dryRun)
+	counts.formatter += fm.EnableGolinesFormatter(formatterSet, analysis, dryRun)
+	counts.formatter += fm.EnableSwaggoFormatter(formatterSet, configPath, dryRun)
+	counts.redundant += fm.RemoveRedundantLinters(linterSet, formatterSet, dryRun)
+	counts.redundant += fm.RemoveRedundantGofmt(formatterSet, dryRun)
 
 	counts.enable = f.enableRecommendedLinters(linterSet, disabledLinters, analysis, priority, dryRun)
 
@@ -471,7 +474,8 @@ func (f *Fixer) enableSwaggoFormatter(formatterSet map[string]bool, configPath s
 	rootDir := filepath.Dir(configPath)
 	detector := detection.NewDetector(rootDir)
 
-	if !detector.HasSwaggo() {
+	hasSwaggo, err := detector.HasSwaggo()
+	if err != nil || !hasSwaggo {
 		return 0
 	}
 
@@ -580,36 +584,8 @@ func (f *Fixer) updateConfigFromSets(
 	cfg.Linters.Disable = disabledLintersList
 
 	if len(formatterSet) > 0 {
-		cfg.Formatters.Enable = formattersToOrderedSlice(formatterSet)
+		cfg.Formatters.Enable = f.formatterManager.ToOrderedSlice(formatterSet)
 	}
-}
-
-// formattersToOrderedSlice converts formatter set to ordered slice.
-// Order: gci → goimports → gofumpt → golines → swaggo → others (sorted)
-func formattersToOrderedSlice(set map[string]bool) []string {
-	// Define explicit order
-	order := []string{"gci", "goimports", "gofumpt", "golines", "swaggo"}
-
-	result := make([]string, 0, len(set))
-	remaining := make([]string, 0)
-
-	// First pass: add formatters in explicit order
-	for _, name := range order {
-		if set[name] {
-			result = append(result, name)
-		}
-	}
-
-	// Second pass: add any remaining formatters (sorted alphabetically)
-	for name := range set {
-		if !slices.Contains(order, name) {
-			remaining = append(remaining, name)
-		}
-	}
-
-	slices.Sort(remaining)
-
-	return append(result, remaining...)
 }
 
 func buildLinterSet(items []string) map[string]bool {
