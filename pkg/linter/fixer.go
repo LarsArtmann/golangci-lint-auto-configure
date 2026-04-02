@@ -3,23 +3,21 @@ package linter
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"slices"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // Fixer provides functionality to fix golangci-lint configurations.
 type Fixer struct {
-	configLoader      types.ConfigLoader
-	analyzer          types.LinterAnalyzer
-	logger            *log.Logger
-	formatterManager  *FormatterManager
+	configLoader     types.ConfigLoader
+	analyzer         types.LinterAnalyzer
+	logger           *log.Logger
+	formatterManager *FormatterManager
 }
 
 // NewFixer creates a new fixer.
@@ -186,12 +184,11 @@ func (f *Fixer) applyLintersFix(
 	linterSet = f.replaceDeprecatedLinters(linterSet, originalEnabled, dryRun, &counts)
 
 	formatterSet := buildLinterSet(cfg.Formatters.Enable)
-	fm := NewFormatterManager(f.logger)
-	counts.formatter += fm.EnableCoreFormatters(formatterSet, dryRun)
-	counts.formatter += fm.EnableGolinesFormatter(formatterSet, analysis, dryRun)
-	counts.formatter += fm.EnableSwaggoFormatter(formatterSet, configPath, dryRun)
-	counts.redundant += fm.RemoveRedundantLinters(linterSet, formatterSet, dryRun)
-	counts.redundant += fm.RemoveRedundantGofmt(formatterSet, dryRun)
+	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
+	counts.formatter += f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun)
+	counts.formatter += f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun)
+	counts.redundant += f.formatterManager.RemoveRedundantLinters(linterSet, formatterSet, dryRun)
+	counts.redundant += f.formatterManager.RemoveRedundantGofmt(formatterSet, dryRun)
 
 	counts.enable = f.enableRecommendedLinters(linterSet, disabledLinters, analysis, priority, dryRun)
 
@@ -392,131 +389,6 @@ func (f *Fixer) logDeprecatedReplace(linter string, replacement types.LinterRepl
 			replacement.Reason,
 		)
 	}
-}
-
-// enableGolinesFormatter enables the golines formatter if recommended at high priority.
-func (f *Fixer) enableGolinesFormatter(
-	formatterSet map[string]bool,
-	analysis *types.ConfigAnalysis,
-	dryRun bool,
-) int {
-	shouldEnable := false
-
-	for _, rec := range analysis.FormatterRecommendations {
-		if rec.Name == "golines" && rec.Priority == types.FormatterPriorityHigh {
-			shouldEnable = true
-
-			break
-		}
-	}
-
-	if !shouldEnable || formatterSet["golines"] {
-		return 0
-	}
-
-	if dryRun {
-		f.logger.Debugf("[DRY-RUN] Would enable formatter: golines (formats code and fixes long lines)")
-	} else {
-		f.logger.Debugf("Enabling formatter: golines (formats code and fixes long lines)")
-
-		formatterSet["golines"] = true
-	}
-
-	return 1
-}
-
-// enableCoreFormatters enables the core formatters: gci, gofumpt, goimports.
-func (f *Fixer) enableCoreFormatters(formatterSet map[string]bool, dryRun bool) int {
-	coreFormatters := []string{"gci", "gofumpt", "goimports"}
-	count := 0
-
-	for _, formatter := range coreFormatters {
-		if formatterSet[formatter] {
-			continue
-		}
-
-		count++
-
-		if dryRun {
-			f.logger.Debugf("[DRY-RUN] Would enable formatter: %s", formatter)
-		} else {
-			f.logger.Debugf("Enabling formatter: %s", formatter)
-			formatterSet[formatter] = true
-		}
-	}
-
-	return count
-}
-
-// removeRedundantGofmt removes gofmt when gofumpt is enabled (gofumpt is a superset).
-func (f *Fixer) removeRedundantGofmt(formatterSet map[string]bool, dryRun bool) int {
-	if !formatterSet["gofumpt"] || !formatterSet["gofmt"] {
-		return 0
-	}
-
-	if dryRun {
-		f.logger.Debugf("[DRY-RUN] Would remove redundant formatter: gofmt (gofumpt is enabled and is a superset)")
-	} else {
-		f.logger.Debugf("Removing redundant formatter: gofmt (gofumpt is enabled and is a superset)")
-		delete(formatterSet, "gofmt")
-	}
-
-	return 1
-}
-
-// enableSwaggoFormatter enables the swaggo formatter if swaggo is detected in the project.
-func (f *Fixer) enableSwaggoFormatter(formatterSet map[string]bool, configPath string, dryRun bool) int {
-	if formatterSet["swaggo"] {
-		return 0
-	}
-
-	// Detect if swaggo is used in the project
-	rootDir := filepath.Dir(configPath)
-	detector := detection.NewDetector(rootDir)
-
-	hasSwaggo, err := detector.HasSwaggo()
-	if err != nil || !hasSwaggo {
-		return 0
-	}
-
-	if dryRun {
-		f.logger.Debugf("[DRY-RUN] Would enable formatter: swaggo (detected swaggo usage in project)")
-	} else {
-		f.logger.Debugf("Enabling formatter: swaggo (detected swaggo usage in project)")
-		formatterSet["swaggo"] = true
-	}
-
-	return 1
-}
-
-// removeRedundantLinters removes linters that are superseded by enabled formatters.
-func (f *Fixer) removeRedundantLinters(
-	linterSet map[string]bool,
-	formatterSet map[string]bool,
-	dryRun bool,
-) int {
-	count := 0
-
-	for linterName, mapping := range constants.RedundantLinters {
-		if !linterSet[string(linterName)] {
-			continue
-		}
-
-		if !formatterSet[string(mapping.Formatter)] {
-			continue
-		}
-
-		count++
-
-		if dryRun {
-			f.logger.Debugf("[DRY-RUN] Would remove redundant linter: %s (%s)", linterName, mapping.Reason)
-		} else {
-			f.logger.Debugf("Removing redundant linter: %s (%s)", linterName, mapping.Reason)
-			delete(linterSet, string(linterName))
-		}
-	}
-
-	return count
 }
 
 // enableRecommendedLinters enables recommended linters that aren't already enabled or explicitly disabled.
