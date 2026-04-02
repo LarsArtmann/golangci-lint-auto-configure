@@ -80,7 +80,7 @@ func (f *Fixer) FixConfigResult(
 		return types.ErrMigration(analysisError("analyze config", priority, dryRun, configPath, err))
 	}
 
-	return f.applyLintersFix(cfg, analysis, configPath, priority, dryRun, originalEnabled)
+	return f.applyLintersFix(ctx, cfg, analysis, configPath, priority, dryRun, originalEnabled)
 }
 
 // checkDryRunEarlyReturns checks if we should early-return in dry-run mode.
@@ -168,6 +168,7 @@ func (c fixCounts) total() int {
 
 // applyLintersFix processes linter recommendations, applies fixes, and saves the config.
 func (f *Fixer) applyLintersFix(
+	ctx context.Context,
 	cfg *types.Config,
 	analysis *types.ConfigAnalysis,
 	configPath string,
@@ -199,7 +200,7 @@ func (f *Fixer) applyLintersFix(
 		return noFixesResult()
 	}
 
-	return f.applyAndSave(cfg, linterSet, formatterSet, configPath, priority, dryRun, counts)
+	return f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, counts)
 }
 
 func (f *Fixer) dryRunResult(counts fixCounts) types.MigrationResultType {
@@ -227,6 +228,7 @@ func noFixesResult() types.MigrationResultType {
 }
 
 func (f *Fixer) applyAndSave(
+	ctx context.Context,
 	cfg *types.Config,
 	linterSet, formatterSet map[string]bool,
 	configPath string,
@@ -237,7 +239,7 @@ func (f *Fixer) applyAndSave(
 	f.logger.Infof("Applying %d fixes...", counts.total())
 
 	f.updateConfigFromSets(cfg, linterSet, formatterSet)
-	f.updateGoVersion(cfg)
+	f.updateGoVersion(ctx, cfg)
 	f.updateRunnerSettings(cfg)
 	f.updateBuildTags(cfg)
 
@@ -260,8 +262,8 @@ func (f *Fixer) applyAndSave(
 	})
 }
 
-func (f *Fixer) updateGoVersion(cfg *types.Config) {
-	goVersion := config.GetLocalGoVersion()
+func (f *Fixer) updateGoVersion(ctx context.Context, cfg *types.Config) {
+	goVersion := config.GetLocalGoVersion(ctx)
 	if goVersion == "" {
 		return
 	}

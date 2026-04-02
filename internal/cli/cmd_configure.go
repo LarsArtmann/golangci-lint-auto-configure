@@ -53,6 +53,8 @@ func presetForProjectType(projectType detection.ProjectType) string {
 		return "minimal"
 	case detection.ProjectTypeMonorepo:
 		return "strict"
+	default:
+		return "standard"
 	}
 }
 
