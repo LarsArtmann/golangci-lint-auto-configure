@@ -295,3 +295,48 @@ func (d *Detector) hasAPICodePatterns() bool {
 
 	return found
 }
+
+// HasSwaggo checks if the project uses swaggo for Swagger documentation.
+// It checks both go.mod imports and code annotations.
+func (d *Detector) HasSwaggo() bool {
+	// First check go.mod for swaggo imports
+	_, imports := d.analyzeGoMod()
+	for _, imp := range imports {
+		for _, swaggoImport := range SwaggoImports {
+			if strings.Contains(imp, swaggoImport) {
+				return true
+			}
+		}
+	}
+
+	// Then check code for swaggo annotations
+	found := false
+
+	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return nil
+		}
+		defer closeFile(file)
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			for _, pattern := range SwaggoPatterns {
+				if strings.Contains(line, pattern) {
+					found = true
+
+					return filepath.SkipAll
+				}
+			}
+		}
+
+		return nil
+	})
+
+	return found
+}

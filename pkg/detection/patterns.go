@@ -33,6 +33,28 @@ var APIPatterns = []string{
 	"API",
 }
 
+// SwaggoImports contains swaggo-related import paths.
+var SwaggoImports = []string{
+	"github.com/swaggo/swag",
+	"github.com/swaggo/gin-swagger",
+	"github.com/swaggo/echo-swagger",
+	"github.com/swaggo/fiber-swagger",
+	"github.com/swaggo/http-swagger",
+}
+
+// SwaggoPatterns contains swaggo annotation patterns to search for in code.
+var SwaggoPatterns = []string{
+	"@Summary",
+	"@Description",
+	"@Tags",
+	"@Accept",
+	"@Produce",
+	"@Param",
+	"@Success",
+	"@Failure",
+	"@Router",
+}
+
 // RecommendedLinters maps project types to their recommended linters.
 var RecommendedLinters = map[ProjectType][]string{
 	ProjectTypeCLI: {
