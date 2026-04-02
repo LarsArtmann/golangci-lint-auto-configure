@@ -51,57 +51,24 @@ func (m *mockPresetConfigLoader) SaveConfig(config *types.Config, path string) e
 
 func TestParsePriorityParam(t *testing.T) {
 	tests := []struct {
-		name     string
 		input    string
 		expected types.LinterPriority
 	}{
-		{
-			name:     "critical priority",
-			input:    "critical",
-			expected: types.LinterPriorityCritical,
-		},
-		{
-			name:     "high priority",
-			input:    "high",
-			expected: types.LinterPriorityHigh,
-		},
-		{
-			name:     "medium priority",
-			input:    "medium",
-			expected: types.LinterPriorityMedium,
-		},
-		{
-			name:     "optional priority",
-			input:    "optional",
-			expected: types.LinterPriorityOptional,
-		},
-		{
-			name:     "unknown priority defaults to high",
-			input:    "unknown",
-			expected: types.LinterPriorityHigh,
-		},
-		{
-			name:     "empty string defaults to high",
-			input:    "",
-			expected: types.LinterPriorityHigh,
-		},
-		{
-			name:     "case insensitive - CRITICAL not matched",
-			input:    "CRITICAL",
-			expected: types.LinterPriorityHigh, // Not matched, defaults to high
-		},
-		{
-			name:     "case insensitive - MEDIUM not matched",
-			input:    "MEDIUM",
-			expected: types.LinterPriorityHigh, // Not matched, defaults to high
-		},
+		{"critical", types.LinterPriorityCritical},
+		{"high", types.LinterPriorityHigh},
+		{"medium", types.LinterPriorityMedium},
+		{"optional", types.LinterPriorityOptional},
+		{"unknown", types.LinterPriorityHigh},
+		{"", types.LinterPriorityHigh},
+		{"CRITICAL", types.LinterPriorityHigh},
+		{"MEDIUM", types.LinterPriorityHigh},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.input, func(t *testing.T) {
 			result := ParsePriorityParam(tt.input)
 			if result != tt.expected {
-				t.Errorf("parsePriorityParam(%q) = %v, want %v", tt.input, result, tt.expected)
+				t.Errorf("ParsePriorityParam(%q) = %v, want %v", tt.input, result, tt.expected)
 			}
 		})
 	}

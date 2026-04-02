@@ -22,6 +22,23 @@ type presetConfigLoader interface {
 	SaveConfig(config *types.Config, path string) error
 }
 
+const configureLong = `Automatically configures golangci-lint by enabling recommended linters.
+
+Use --priority to filter which linters to enable (default: optional):
+  - critical: Only enable critical linters (security, correctness)
+  - high: Enable critical and high-value linters
+  - medium: Enable all except optional linters
+  - optional: Enable all linters (default)
+
+Or use --preset for predefined linter sets:
+  - minimal: Essential linters only (fastest)
+  - standard: Recommended for most projects (default)
+  - strict: Maximum linting (CI/CD, strict quality)
+  - security: Security-focused only
+  - performance: Performance optimization only
+
+Or use --detect to automatically select a preset based on project type:`
+
 // runFmtCommand runs golangci-lint fmt to format Go source files.
 func runFmtCommand(
 	ctx context.Context,
@@ -72,46 +89,9 @@ func newConfigureCommand(
 	cmd := &cobra.Command{
 		Use:   "configure",
 		Short: "Auto-configure golangci-lint (default command)",
-		Long: `Automatically configures golangci-lint by enabling recommended linters.
-
-Use --priority to filter which linters to enable (default: optional):
-  - critical: Only enable critical linters (security, correctness)
-  - high: Enable critical and high-value linters
-  - medium: Enable all except optional linters
-  - optional: Enable all linters (default)
-
-Or use --preset for predefined linter sets:
-  - minimal: Essential linters only (fastest)
-  - standard: Recommended for most projects (default)
-  - strict: Maximum linting (CI/CD, strict quality)
-  - security: Security-focused only
-  - performance: Performance optimization only
-
-Or use --detect to automatically select a preset based on project type:`,
+		Long:  configureLong,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			// Handle --detect flag - auto-detect project type and select preset
-			if detect {
-				detector := detection.NewDetector(".")
-				projectType := detector.Detect()
-				selectedPreset := presetForProjectType(projectType)
-
-				logger.Infof("🔍 Detected project type: %s", projectType.String())
-				logger.Infof("📋 Selected preset: %s", selectedPreset)
-
-				// Use the detected preset
-				preset = selectedPreset
-			}
-
-			return runConfigure(
-				cmd.Context(),
-				logger,
-				analyzer,
-				configLoader,
-				priority,
-				preset,
-				dryRun,
-				configPath,
-			)
+			return runDetectOrConfigure(cmd, logger, analyzer, configLoader, preset, detect)
 		},
 	}
 
@@ -123,6 +103,63 @@ Or use --detect to automatically select a preset based on project type:`,
 		BoolVar(&detect, "detect", false, "Auto-detect project type and select appropriate preset")
 
 	return cmd
+}
+
+func runDetectOrConfigure(
+	cmd *cobra.Command,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configLoader *config.Loader,
+	preset string,
+	detect bool,
+) error {
+	selectedPreset := preset
+
+	if detect {
+		detector := detection.NewDetector(".")
+		projectType := detector.Detect()
+		selectedPreset = presetForProjectType(projectType)
+
+		logger.Infof("🔍 Detected project type: %s", projectType.String())
+		logger.Infof("📋 Selected preset: %s", selectedPreset)
+	}
+
+	return runConfigure(
+		cmd.Context(),
+		logger,
+		analyzer,
+		configLoader,
+		priority,
+		selectedPreset,
+		dryRun,
+		configPath,
+	)
+}
+
+func prepareConfigFile(
+	ctx context.Context,
+	configPath string,
+	configLoader *config.Loader,
+	logger *log.Logger,
+) (string, error) {
+	configFile := configPath
+	if configFile == "" {
+		configFile = configLoader.FindOrGetDefaultConfigPath(".")
+	}
+
+	inGitRepo := configLoader.IsGitRepo(ctx, ".")
+	if !inGitRepo {
+		logger.Warnf("⚠️  Not in a git repository - backup files won't be created")
+		logger.Warnf("   (Initialize with: git init)")
+	}
+
+	configLoader.HasMultipleConfigFiles(".")
+
+	if err := ensureConfigFile(ctx, configFile, inGitRepo, logger, configLoader); err != nil {
+		return "", err
+	}
+
+	return configFile, nil
 }
 
 // runConfigure executes the configure command logic.
@@ -139,44 +176,47 @@ func runConfigure(
 		logger.SetLevel(log.DebugLevel)
 	}
 
-	// Find config file if not specified, or use default path
-	configFile := configPath
-	if configFile == "" {
-		configFile = configLoader.FindOrGetDefaultConfigPath(".")
-	}
-
-	// Check git repository status FIRST - warn but don't block
-	inGitRepo := configLoader.IsGitRepo(ctx, ".")
-	if !inGitRepo {
-		logger.Warnf("⚠️  Not in a git repository - backup files won't be created")
-		logger.Warnf("   (Initialize with: git init)")
-	}
-
-	// Check for multiple config files
-	configLoader.HasMultipleConfigFiles(".")
-
-	// Ensure config file exists
-	if err := ensureConfigFile(ctx, configFile, inGitRepo, logger, configLoader); err != nil {
+	configFile, err := prepareConfigFile(ctx, configPath, configLoader, logger)
+	if err != nil {
 		return err
 	}
 
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
-	// Handle preset mode
 	if preset != "" {
-		err := applyPreset(ctx, logger, configLoader, configFile, preset, dryRun)
-		if err != nil {
-			return err
-		}
-
-		if !dryRun {
-			runFmtCommand(ctx, logger, analyzer, configFile)
-		}
-
-		return nil
+		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, preset, dryRun)
 	}
 
-	// Create fixer and apply fixes
+	return runFixerMode(ctx, logger, analyzer, configLoader, configFile, priorityParam, dryRun)
+}
+
+func handlePresetMode(
+	ctx context.Context,
+	logger *log.Logger,
+	configLoader *config.Loader,
+	analyzer *linter.Analyzer,
+	configFile, preset string,
+	dryRun bool,
+) error {
+	if err := applyPreset(ctx, logger, configLoader, configFile, preset, dryRun); err != nil {
+		return err
+	}
+
+	if !dryRun {
+		runFmtCommand(ctx, logger, analyzer, configFile)
+	}
+
+	return nil
+}
+
+func runFixerMode(
+	ctx context.Context,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configLoader *config.Loader,
+	configFile, priorityParam string,
+	dryRun bool,
+) error {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
 
 	linterPriority := ParsePriorityParam(priorityParam)
@@ -184,8 +224,8 @@ func runConfigure(
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, dryRun)
 	if err != nil {
 		return fmt.Errorf(
-			"failed to fix configuration (priorityParam=%s, preset=%s, dryRun=%t): %w",
-			priorityParam, preset, dryRun, err,
+			"failed to fix configuration (priority=%s, dryRun=%t): %w",
+			priorityParam, dryRun, err,
 		)
 	}
 
@@ -196,15 +236,21 @@ func runConfigure(
 		runFmtCommand(ctx, logger, analyzer, configFile)
 	}
 
-	if len(result.NextSteps) > 0 {
-		logger.Infof("Next steps:")
-
-		for _, step := range result.NextSteps {
-			logger.Infof("  → %s", step)
-		}
-	}
+	logNextSteps(logger, result.NextSteps)
 
 	return nil
+}
+
+func logNextSteps(logger *log.Logger, steps []string) {
+	if len(steps) == 0 {
+		return
+	}
+
+	logger.Infof("Next steps:")
+
+	for _, step := range steps {
+		logger.Infof("  → %s", step)
+	}
 }
 
 // ensureConfigFile creates a default config file if it doesn't exist.
@@ -226,18 +272,11 @@ func ensureConfigFile(
 
 		defaultConfig := configLoader.CreateDefaultConfig(ctx)
 
-		err := configLoader.SaveConfig(defaultConfig, configFile)
-		if err != nil {
-			return fmt.Errorf(
-				"failed to create default config (inGitRepo=%t): %w",
-				inGitRepo, err,
-			)
+		if err := configLoader.SaveConfig(defaultConfig, configFile); err != nil {
+			return fmt.Errorf("failed to create default config: %w", err)
 		}
 	} else if err != nil {
-		return fmt.Errorf(
-			"failed to check config file (inGitRepo=%t): %w",
-			inGitRepo, err,
-		)
+		return fmt.Errorf("failed to check config file: %w", err)
 	}
 
 	return nil
@@ -259,6 +298,56 @@ func ParsePriorityParam(priorityParam string) types.LinterPriority {
 	}
 }
 
+func loadPresetConfig(
+	logger *log.Logger,
+	configLoader presetConfigLoader,
+	configFile, preset string,
+	dryRun bool,
+) (*types.Config, []string, error) {
+	logger.Infof("Applying preset: %s", preset)
+
+	cfg, err := configLoader.LoadConfig(configFile)
+	if err != nil {
+		return nil, nil, fmt.Errorf(
+			"failed to load config (preset=%s, dryRun=%t): %w",
+			preset, dryRun, err,
+		)
+	}
+
+	linters, ok := constants.PresetLinters[preset]
+	if !ok {
+		return nil, nil, fmt.Errorf(
+			"%w: %s (valid: minimal, standard, strict, security, performance)",
+			apperrors.ErrUnknownPreset,
+			preset,
+		)
+	}
+
+	return cfg, convertLinterNames(linters), nil
+}
+
+func savePresetConfig(
+	logger *log.Logger,
+	configLoader presetConfigLoader,
+	cfg *types.Config,
+	configFile, preset string,
+	linterNames []string,
+) error {
+	cfg.Linters.Enable = linterNames
+	cfg.Linters.Disable = []string{}
+
+	if err := configLoader.SaveConfig(cfg, configFile); err != nil {
+		return fmt.Errorf(
+			"failed to save config (preset=%s, linterCount=%d): %w",
+			preset, len(linterNames), err,
+		)
+	}
+
+	logger.Infof("✅ Applied preset %s with %d linters", preset, len(linterNames))
+
+	return nil
+}
+
 // applyPreset applies a preset linter configuration.
 func applyPreset(
 	_ context.Context,
@@ -267,58 +356,34 @@ func applyPreset(
 	configFile, preset string,
 	dryRun bool,
 ) error {
-	logger.Infof("Applying preset: %s", preset)
-
-	// Load current config
-	cfg, err := configLoader.LoadConfig(configFile)
+	cfg, linterNames, err := loadPresetConfig(logger, configLoader, configFile, preset, dryRun)
 	if err != nil {
-		return fmt.Errorf(
-			"failed to load config (preset=%s, dryRun=%t): %w",
-			preset, dryRun, err,
-		)
-	}
-
-	// Get preset linters
-	linters, ok := constants.PresetLinters[preset]
-	if !ok {
-		return fmt.Errorf(
-			"%w: %s (valid: minimal, standard, strict, security, performance, preset=%s, dryRun=%t)",
-			apperrors.ErrUnknownPreset,
-			preset,
-			preset,
-			dryRun,
-		)
-	}
-
-	// Convert to strings
-	var linterNames []string
-	for _, l := range linters {
-		linterNames = append(linterNames, string(l))
+		return err
 	}
 
 	if dryRun {
-		logger.Infof("[DRY-RUN] Would apply preset %s with %d linters:", preset, len(linterNames))
-
-		for _, l := range linterNames {
-			logger.Infof("  - %s", l)
-		}
+		logDryRunPreset(logger, preset, linterNames)
 
 		return nil
 	}
 
-	// Update config
-	cfg.Linters.Enable = linterNames
-	cfg.Linters.Disable = []string{}
+	return savePresetConfig(logger, configLoader, cfg, configFile, preset, linterNames)
+}
 
-	// Save config
-	if err := configLoader.SaveConfig(cfg, configFile); err != nil {
-		return fmt.Errorf(
-			"failed to save config (preset=%s, dryRun=%t, linterCount=%d): %w",
-			preset, dryRun, len(linterNames), err,
-		)
+func convertLinterNames(linters []types.LinterName) []string {
+	names := make([]string, len(linters))
+
+	for i, l := range linters {
+		names[i] = string(l)
 	}
 
-	logger.Infof("✅ Applied preset %s with %d linters", preset, len(linterNames))
+	return names
+}
 
-	return nil
+func logDryRunPreset(logger *log.Logger, preset string, linterNames []string) {
+	logger.Infof("[DRY-RUN] Would apply preset %s with %d linters:", preset, len(linterNames))
+
+	for _, l := range linterNames {
+		logger.Infof("  - %s", l)
+	}
 }

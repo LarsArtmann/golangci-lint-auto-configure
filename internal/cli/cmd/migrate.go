@@ -18,6 +18,17 @@ type MigrateFlags struct {
 	OutputFormat   string
 }
 
+const migrateLong = `Migrates golangci-lint configuration from v1 to v2 schema.
+
+This command:
+1. Verifies you're in a git repository (for version control)
+2. Migrates the configuration to v2 schema
+3. Validates the migrated configuration
+4. Shows what changed
+
+Use --dry-run to preview changes without modifying files.
+Use --skip-validation if the v1 config has known issues.`
+
 // NewMigrateCommand creates the migrate command.
 func NewMigrateCommand(
 	logger *log.Logger,
@@ -27,111 +38,9 @@ func NewMigrateCommand(
 	cmd := &cobra.Command{
 		Use:   "migrate",
 		Short: "Migrate configuration from v1 to v2 schema",
-		Long: `Migrates golangci-lint configuration from v1 to v2 schema.
-
-This command:
-1. Verifies you're in a git repository (for version control)
-2. Migrates the configuration to v2 schema
-3. Validates the migrated configuration
-4. Shows what changed
-
-Use --dry-run to preview changes without modifying files.
-Use --skip-validation if the v1 config has known issues.`,
+		Long:  migrateLong,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			// Read flags dynamically to get parsed values
-			verbose, _ := cmd.Flags().GetBool("verbose")
-			if verbose {
-				logger.SetLevel(log.DebugLevel)
-			}
-
-			// Find config file if not specified
-			configFile, _ := cmd.Flags().GetString("config")
-			if configFile == "" {
-				var err error
-
-				configFile, err = configLoader.FindConfigFile(".")
-				if err != nil {
-					return fmt.Errorf(
-						"no config file found (configPath=%q, verbose=%t): %w",
-						flags.ConfigPath, verbose, err,
-					)
-				}
-			}
-
-			configLoader.HasMultipleConfigFiles(".")
-
-			// Read other flags
-			dryRun, _ := cmd.Flags().GetBool("dry-run")
-			skipValidation, _ := cmd.Flags().GetBool("skip-validation")
-
-			logger.Infof("Migrating configuration: %s", configFile)
-
-			// Load current config to check version
-			oldConfig, err := configLoader.LoadConfig(configFile)
-			if err != nil {
-				return fmt.Errorf(
-					"could not load config (configFile=%s, dryRun=%t, skipValidation=%t): %w",
-					configFile, dryRun, skipValidation, err,
-				)
-			}
-
-			// Check if already v2
-			if oldConfig.Version == "2" {
-				logger.Infof("Configuration is already version 2, no migration needed")
-
-				return nil
-			}
-
-			// Create migrator
-			migrator, err := migration.NewMigrator(configFile, verbose)
-			if err != nil {
-				return fmt.Errorf("failed to create migrator: %w", err)
-			}
-
-			migrator.SetDryRun(dryRun)
-
-			if skipValidation {
-				migrator.SetValidator(migration.MockValidator{})
-				logger.Infof("Skipping validation as requested")
-			}
-
-			if dryRun {
-				logger.Infof("[DRY-RUN] Would migrate configuration from v1 to v2")
-			}
-
-			// Run migration
-			success, fixesApplied, err := migrator.MigrateToV2()
-			if err != nil {
-				return fmt.Errorf(
-					"migration failed (configFile=%s, dryRun=%t, skipValidation=%t): %w",
-					configFile, dryRun, skipValidation, err,
-				)
-			}
-
-			if !success {
-				logger.Infof("No migration needed (already at v2.x)")
-
-				return nil
-			}
-
-			if dryRun {
-				logger.Infof("[DRY-RUN] Would apply %d fixes", fixesApplied)
-				logger.Infof("[DRY-RUN] Migration preview complete")
-
-				return nil
-			}
-
-			logger.Infof("Configuration migrated successfully (%d fixes applied)!", fixesApplied)
-
-			// Load new config to show changes
-			newConfig, err := configLoader.LoadConfig(configFile)
-			if err != nil {
-				logger.Warnf("Could not load migrated config: %v", err)
-			} else if oldConfig != nil {
-				ShowMigrationChanges(logger, oldConfig, newConfig)
-			}
-
-			return nil
+			return runMigrate(cmd, logger, configLoader, flags)
 		},
 	}
 
@@ -141,6 +50,142 @@ Use --skip-validation if the v1 config has known issues.`,
 		StringVar(&flags.OutputFormat, "format", "", "Output format (deprecated: format migration is no longer supported)")
 
 	return cmd
+}
+
+func runMigrate(
+	cmd *cobra.Command,
+	logger *log.Logger,
+	configLoader *config.Loader,
+	flags MigrateFlags,
+) error {
+	verbose, _ := cmd.Flags().GetBool("verbose")
+	if verbose {
+		logger.SetLevel(log.DebugLevel)
+	}
+
+	configFile, err := resolveMigrateConfig(cmd, configLoader, flags, verbose)
+	if err != nil {
+		return err
+	}
+
+	dryRun, _ := cmd.Flags().GetBool("dry-run")
+	skipValidation, _ := cmd.Flags().GetBool("skip-validation")
+
+	return executeMigration(logger, configLoader, configFile, dryRun, skipValidation, verbose)
+}
+
+func resolveMigrateConfig(
+	cmd *cobra.Command,
+	configLoader *config.Loader,
+	flags MigrateFlags,
+	verbose bool,
+) (string, error) {
+	configFile, _ := cmd.Flags().GetString("config")
+	if configFile == "" {
+		var err error
+
+		configFile, err = configLoader.FindConfigFile(".")
+		if err != nil {
+			return "", fmt.Errorf(
+				"no config file found (configPath=%q, verbose=%t): %w",
+				flags.ConfigPath, verbose, err,
+			)
+		}
+	}
+
+	configLoader.HasMultipleConfigFiles(".")
+
+	return configFile, nil
+}
+
+func executeMigration(
+	logger *log.Logger,
+	configLoader *config.Loader,
+	configFile string,
+	dryRun, skipValidation, verbose bool,
+) error {
+	logger.Infof("Migrating configuration: %s", configFile)
+
+	oldConfig, err := configLoader.LoadConfig(configFile)
+	if err != nil {
+		return fmt.Errorf("could not load config %s: %w", configFile, err)
+	}
+
+	if oldConfig.Version == "2" {
+		logger.Infof("Configuration is already version 2, no migration needed")
+
+		return nil
+	}
+
+	migrator, err := createMigrator(configFile, dryRun, skipValidation, verbose, logger)
+	if err != nil {
+		return err
+	}
+
+	success, fixesApplied, err := migrator.MigrateToV2()
+	if err != nil {
+		return fmt.Errorf("migration failed for %s: %w", configFile, err)
+	}
+
+	showMigrationResult(logger, configLoader, configFile, oldConfig, success, fixesApplied, dryRun)
+
+	return nil
+}
+
+func createMigrator(
+	configFile string,
+	dryRun, skipValidation, verbose bool,
+	logger *log.Logger,
+) (*migration.Migrator, error) {
+	migrator, err := migration.NewMigrator(configFile, verbose)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create migrator: %w", err)
+	}
+
+	migrator.SetDryRun(dryRun)
+
+	if skipValidation {
+		migrator.SetValidator(migration.MockValidator{})
+		logger.Infof("Skipping validation as requested")
+	}
+
+	if dryRun {
+		logger.Infof("[DRY-RUN] Would migrate configuration from v1 to v2")
+	}
+
+	return migrator, nil
+}
+
+func showMigrationResult(
+	logger *log.Logger,
+	configLoader *config.Loader,
+	configFile string,
+	oldConfig *config.Config,
+	success bool,
+	fixesApplied int,
+	dryRun bool,
+) {
+	if !success {
+		logger.Infof("No migration needed (already at v2.x)")
+
+		return
+	}
+
+	if dryRun {
+		logger.Infof("[DRY-RUN] Would apply %d fixes", fixesApplied)
+		logger.Infof("[DRY-RUN] Migration preview complete")
+
+		return
+	}
+
+	logger.Infof("Configuration migrated successfully (%d fixes applied)!", fixesApplied)
+
+	newConfig, err := configLoader.LoadConfig(configFile)
+	if err != nil {
+		logger.Warnf("Could not load migrated config: %v", err)
+	} else if oldConfig != nil {
+		ShowMigrationChanges(logger, oldConfig, newConfig)
+	}
 }
 
 // ShowMigrationChanges displays the differences between old and new config.
@@ -156,7 +201,6 @@ func ShowMigrationChanges(logger *log.Logger, oldCfg, newCfg *config.Config) {
 		logger.Infof("  Linters: %d -> %d", oldLinters, newLinters)
 	}
 
-	// Check for renamed fields (basic check)
 	if oldCfg.Run.Timeout != newCfg.Run.Timeout {
 		logger.Infof("  Timeout: %s -> %s", oldCfg.Run.Timeout, newCfg.Run.Timeout)
 	}

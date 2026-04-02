@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/ui"
 	"github.com/spf13/cobra"
 )
@@ -47,66 +49,82 @@ func newAnalyzeCommand(
 		Use:   "analyze",
 		Short: "Analyze golangci-lint configuration and show recommendations",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if verbose {
-				logger.SetLevel(log.DebugLevel)
-			}
-
-			// Find config file if not specified
-			configFile := configPath
-			if configFile == "" {
-				var err error
-
-				configFile, err = configLoader.FindConfigFile(".")
-				if err != nil {
-					return fmt.Errorf("failed to find config file (format=%s): %w", format, err)
-				}
-			}
-
-			configLoader.HasMultipleConfigFiles(".")
-
-			logger.Infof("Analyzing configuration: %s", configFile)
-
-			// Start spinner during analysis
-			spinnerDone := make(chan bool, 1)
-			go spinner("Analyzing configuration...", spinnerDone)
-
-			// Perform analysis
-			analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
-
-			// Stop spinner
-			spinnerDone <- true
-
-			fmt.Fprintf(os.Stdout, "\r\033[K") // Clear the line
-
-			if err != nil {
-				return fmt.Errorf("failed to analyze config (format=%s): %w", format, err)
-			}
-
-			// Output based on format
-			switch format {
-			case formatJSON:
-				data, jsonErr := json.MarshalIndent(analysis, "", "  ")
-				if jsonErr != nil {
-					return fmt.Errorf(
-						"failed to marshal analysis to JSON (format=%s): %w",
-						format,
-						jsonErr,
-					)
-				}
-
-				fmt.Fprintln(os.Stdout, string(data))
-			default:
-				// Default styled text output
-				fmt.Fprint(os.Stdout, ui.FormatConfigHeader(configFile))
-				fmt.Fprint(os.Stdout, ui.FormatRecommendations(analysis))
-				fmt.Fprint(os.Stdout, ui.FormatSummary(analysis))
-			}
-
-			return nil
+			return runAnalyze(cmd, logger, analyzer, configLoader, format)
 		},
 	}
 
 	cmd.Flags().StringVar(&format, "format", "text", "Output format (text, json)")
 
 	return cmd
+}
+
+func runAnalysisWithSpinner(
+	ctx context.Context,
+	analyzer *linter.Analyzer,
+	configFile string,
+) (*types.ConfigAnalysis, error) {
+	spinnerDone := make(chan bool, 1)
+	go spinner("Analyzing configuration...", spinnerDone)
+
+	analysis, err := analyzer.AnalyzeConfig(ctx, configFile)
+
+	spinnerDone <- true
+	fmt.Fprintf(os.Stdout, "\r\033[K")
+
+	return analysis, err
+}
+
+func runAnalyze(
+	cmd *cobra.Command,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configLoader *config.Loader,
+	format string,
+) error {
+	if verbose {
+		logger.SetLevel(log.DebugLevel)
+	}
+
+	configFile := configPath
+	if configFile == "" {
+		var err error
+
+		configFile, err = configLoader.FindConfigFile(".")
+		if err != nil {
+			return fmt.Errorf("failed to find config file (format=%s): %w", format, err)
+		}
+	}
+
+	configLoader.HasMultipleConfigFiles(".")
+
+	logger.Infof("Analyzing configuration: %s", configFile)
+
+	analysis, err := runAnalysisWithSpinner(cmd.Context(), analyzer, configFile)
+	if err != nil {
+		return fmt.Errorf("failed to analyze config (format=%s): %w", format, err)
+	}
+
+	return outputAnalysis(analysis, format, configFile)
+}
+
+func outputAnalysis(analysis *types.ConfigAnalysis, format string, configFile string) error {
+	switch format {
+	case formatJSON:
+		data, err := json.MarshalIndent(analysis, "", "  ")
+		if err != nil {
+			return fmt.Errorf(
+				"failed to marshal analysis to JSON (format=%s): %w",
+				format,
+				err,
+			)
+		}
+
+		fmt.Fprintln(os.Stdout, string(data))
+	default:
+		fmt.Fprint(os.Stdout, ui.FormatConfigHeader(configFile))
+		fmt.Fprint(os.Stdout, ui.FormatRecommendations(analysis))
+		fmt.Fprint(os.Stdout, ui.FormatSummary(analysis))
+	}
+
+	return nil
 }

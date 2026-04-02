@@ -4,12 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewCompletionCommand creates the completion command for shell autocompletion.
-func NewCompletionCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "completion [bash|zsh|fish|powershell]",
-		Short: "Generate shell completion script",
-		Long: `Generate shell completion script for golangci-lint-auto-configure.
+const completionLong = `Generate shell completion script for golangci-lint-auto-configure.
 
 To load completions:
 
@@ -36,21 +31,34 @@ PowerShell:
   # To load completions for every new session, run:
   PS> golangci-lint-auto-configure completion powershell > golangci-lint-auto-configure.ps1
   # and source this file from your PowerShell profile.
-`,
+`
+
+// NewCompletionCommand creates the completion command for shell autocompletion.
+func NewCompletionCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:                   "completion [bash|zsh|fish|powershell]",
+		Short:                 "Generate shell completion script",
+		Long:                  completionLong,
 		DisableFlagsInUseLine: true,
 		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 		Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 		Run: func(cmd *cobra.Command, args []string) {
-			switch args[0] {
-			case "bash":
-				_ = cmd.Root().GenBashCompletion(cmd.OutOrStdout())
-			case "zsh":
-				_ = cmd.Root().GenZshCompletion(cmd.OutOrStdout())
-			case "fish":
-				_ = cmd.Root().GenFishCompletion(cmd.OutOrStdout(), true)
-			case "powershell":
-				_ = cmd.Root().GenPowerShellCompletionWithDesc(cmd.OutOrStdout())
-			}
+			generateCompletion(cmd, args[0])
 		},
+	}
+}
+
+func generateCompletion(cmd *cobra.Command, shell string) {
+	out := cmd.OutOrStdout()
+
+	switch shell {
+	case "bash":
+		_ = cmd.Root().GenBashCompletion(out)
+	case "zsh":
+		_ = cmd.Root().GenZshCompletion(out)
+	case "fish":
+		_ = cmd.Root().GenFishCompletion(out, true)
+	case "powershell":
+		_ = cmd.Root().GenPowerShellCompletionWithDesc(out)
 	}
 }

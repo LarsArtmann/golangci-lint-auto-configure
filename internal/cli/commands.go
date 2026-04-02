@@ -62,10 +62,7 @@ actionable recommendations to improve your Go code quality.`,
 		Version: Version,
 	}
 
-	// Create analyzer
 	analyzer := linter.NewAnalyzer(logger)
-
-	// Configure root command
 	configLoader := config.NewLoader(logger)
 
 	migrateFlags := clicmd.MigrateFlags{
@@ -74,6 +71,19 @@ actionable recommendations to improve your Go code quality.`,
 		Verbose:    verbose,
 	}
 
+	addSubCommands(rootCmd, logger, analyzer, configLoader, migrateFlags)
+	registerGlobalFlags(rootCmd)
+
+	return rootCmd
+}
+
+func addSubCommands(
+	rootCmd *cobra.Command,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configLoader *config.Loader,
+	migrateFlags clicmd.MigrateFlags,
+) {
 	rootCmd.AddCommand(
 		newConfigureCommand(logger, analyzer, configLoader),
 		newAnalyzeCommand(logger, analyzer, configLoader),
@@ -83,8 +93,9 @@ actionable recommendations to improve your Go code quality.`,
 		clicmd.NewCompletionCommand(),
 		clicmd.NewInstallHookCommand(logger),
 	)
+}
 
-	// Global flags
+func registerGlobalFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().
 		StringVarP(&configPath, "config", "c", "", "Path to golangci-lint config file")
 	rootCmd.PersistentFlags().
@@ -97,8 +108,6 @@ actionable recommendations to improve your Go code quality.`,
 		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
 	rootCmd.PersistentFlags().
 		StringVar(&reportFormat, "format", "html", "Output format (html, json)")
-
-	return rootCmd
 }
 
 // Execute runs the CLI using fang for enhanced CLI features.
