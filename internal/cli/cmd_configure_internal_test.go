@@ -135,7 +135,6 @@ func TestApplyPreset_UnknownPreset(t *testing.T) {
 	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "nonexistent", false)
-
 	if err == nil {
 		t.Error("applyPreset() expected error for unknown preset, got nil")
 	}
@@ -148,7 +147,6 @@ func TestApplyPreset_LoadError(t *testing.T) {
 	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "minimal", false)
-
 	if err == nil {
 		t.Error("applyPreset() expected error when load fails, got nil")
 	}
@@ -161,7 +159,6 @@ func TestApplyPreset_SaveError(t *testing.T) {
 	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "minimal", false)
-
 	if err == nil {
 		t.Error("applyPreset() expected error when save fails, got nil")
 	}

@@ -39,6 +39,7 @@ func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ..
 
 func (a *Analyzer) formatCommandError(name string, output []byte, err error) error {
 	outputStr := strings.TrimSpace(string(output))
+
 	a.logger.Debugf("%s command failed: %v", name, err)
 	a.logger.Debugf("Output: %s", outputStr)
 

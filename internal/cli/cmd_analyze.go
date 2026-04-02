@@ -69,6 +69,7 @@ func runAnalysisWithSpinner(
 	analysis, err := analyzer.AnalyzeConfig(ctx, configFile)
 
 	spinnerDone <- true
+
 	fmt.Fprintf(os.Stdout, "\r\033[K")
 
 	return analysis, err

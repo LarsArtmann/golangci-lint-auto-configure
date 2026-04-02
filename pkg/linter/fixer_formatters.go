@@ -66,6 +66,7 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 		fm.logger.Debugf("[DRY-RUN] Would enable formatter: golines (formats code and fixes long lines)")
 	} else {
 		fm.logger.Debugf("Enabling formatter: golines (formats code and fixes long lines)")
+
 		formatterSet["golines"] = true
 	}
 
@@ -100,6 +101,7 @@ func (fm *FormatterManager) EnableSwaggoFormatter(
 		fm.logger.Debugf("[DRY-RUN] Would enable formatter: swaggo (detected swaggo usage in project)")
 	} else {
 		fm.logger.Debugf("Enabling formatter: swaggo (detected swaggo usage in project)")
+
 		formatterSet["swaggo"] = true
 	}
 

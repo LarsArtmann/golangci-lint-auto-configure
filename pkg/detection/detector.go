@@ -407,7 +407,6 @@ func (d *Detector) HasSwaggo() (bool, error) {
 
 		return nil
 	})
-
 	if walkErr != nil {
 		return false, walkErr
 	}
