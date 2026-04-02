@@ -251,15 +251,11 @@ type OutputConfig struct {
 	ShowStats  bool           `json:"show-stats,omitempty"  toml:"show-stats,omitempty"  yaml:"show-stats,omitempty"`
 }
 
-type LintersMixin struct {
-	Enable   []string       `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
-	Disable  []string       `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
-	Settings map[string]any `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
-}
-
 type LintersConfig struct {
-	LintersMixin `yaml:",inline"`
+	Enable     []string                `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
+	Disable    []string                `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
 	Default    string                  `json:"default,omitempty"  toml:"default,omitempty"    yaml:"default,omitempty"`
+	Settings   map[string]any          `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
 	Exclusions LintersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
 }
 
@@ -293,7 +289,9 @@ type IssuesConfig struct {
 }
 
 type FormattersConfig struct {
-	LintersMixin `yaml:",inline"`
+	Enable     []string                   `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
+	Disable    []string                   `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
+	Settings   map[string]any             `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
 	Exclusions FormattersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
 }
 

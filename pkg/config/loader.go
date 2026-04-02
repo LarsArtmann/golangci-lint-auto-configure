@@ -49,7 +49,6 @@ type (
 	RunConfig                  = types.RunConfig
 	OutputConfig               = types.OutputConfig
 	LintersConfig              = types.LintersConfig
-	LintersMixin               = types.LintersMixin
 	LintersExclusionsConfig    = types.LintersExclusionsConfig
 	ExclusionRuleConfig        = types.ExclusionRuleConfig
 	IssuesConfig               = types.IssuesConfig
@@ -312,7 +311,7 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 			Tests:          true,
 		},
 		Linters: LintersConfig{
-			LintersMixin: types.LintersMixin{Enable: allLinters},
+			Enable: allLinters,
 		},
 		Issues: IssuesConfig{
 			MaxIssuesPerLinter: DefaultMaxIssuesPerLinter,
