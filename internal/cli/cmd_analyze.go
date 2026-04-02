@@ -108,7 +108,7 @@ func runAnalyze(
 	return outputAnalysis(analysis, format, configFile)
 }
 
-func outputAnalysis(analysis *types.ConfigAnalysis, format string, configFile string) error {
+func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) error {
 	switch format {
 	case formatJSON:
 		data, err := json.MarshalIndent(analysis, "", "  ")
