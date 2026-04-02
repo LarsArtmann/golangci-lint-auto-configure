@@ -51,13 +51,9 @@ func (f *Fixer) FixConfigResult(
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
 	if err != nil {
-		return types.ErrMigration(apperrors.NewAnalysisError(
-			fmt.Sprintf("failed to load config (priority=%d, dryRun=%t)", priority, dryRun),
-			configPath, err,
-		))
+		return types.ErrMigration(analysisError("load config", priority, dryRun, configPath, err))
 	}
 
-	// Capture original enabled linters before pre-flight modifications
 	originalEnabled := f.configLoader.GetLintersEnabled(cfg)
 
 	hasInvalid, err := f.runPreFlightChecks(cfg, configPath, priority, dryRun)
@@ -66,7 +62,11 @@ func (f *Fixer) FixConfigResult(
 	}
 
 	if dryRun {
-		if result, shouldReturn := f.checkDryRunEarlyReturns(cfg, hasInvalid, hasDeprecatedLinters(originalEnabled)); shouldReturn {
+		if result, shouldReturn := f.checkDryRunEarlyReturns(
+			cfg,
+			hasInvalid,
+			hasDeprecatedLinters(originalEnabled),
+		); shouldReturn {
 			return result
 		}
 	}
@@ -75,10 +75,7 @@ func (f *Fixer) FixConfigResult(
 
 	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return types.ErrMigration(apperrors.NewAnalysisError(
-			fmt.Sprintf("failed to analyze config (priority=%d, dryRun=%t)", priority, dryRun),
-			configPath, err,
-		))
+		return types.ErrMigration(analysisError("analyze config", priority, dryRun, configPath, err))
 	}
 
 	return f.applyLintersFix(cfg, analysis, configPath, priority, dryRun, originalEnabled)
@@ -103,6 +100,13 @@ func (f *Fixer) checkDryRunEarlyReturns(
 	return types.OkMigration(nil), false
 }
 
+func analysisError(action string, priority types.LinterPriority, dryRun bool, configPath string, err error) error {
+	return apperrors.NewAnalysisError(
+		fmt.Sprintf("failed to %s (priority=%d, dryRun=%t)", action, priority, dryRun),
+		configPath, err,
+	)
+}
+
 // runPreFlightChecks runs all pre-flight fixes and returns whether invalid durations were found.
 func (f *Fixer) runPreFlightChecks(
 	cfg *types.Config,
@@ -110,33 +114,39 @@ func (f *Fixer) runPreFlightChecks(
 	priority types.LinterPriority,
 	dryRun bool,
 ) (bool, error) {
-	hasInvalid, err := f.preFixInvalidDurations(cfg, configPath, dryRun)
-	if err != nil {
-		return false, apperrors.NewAnalysisError(
-			fmt.Sprintf("failed to pre-fix invalid durations (priority=%d, dryRun=%t)", priority, dryRun),
-			configPath, err,
-		)
+	checks := []struct {
+		run func() (bool, error)
+		msg string
+	}{
+		{func() (bool, error) {
+			h, e := f.preFixInvalidDurations(cfg, configPath, dryRun)
+
+			return h, e
+		}, "invalid durations"},
+		{func() (bool, error) {
+			return false, f.preFixVersion(cfg, configPath, dryRun)
+		}, "version field"},
+		{func() (bool, error) {
+			return false, f.preFixDeprecatedLinters(cfg, configPath, dryRun)
+		}, "deprecated linters"},
+		{func() (bool, error) {
+			_, e := f.preFixTypecheck(cfg, configPath, dryRun)
+
+			return false, e
+		}, "typecheck"},
 	}
 
-	if err := f.preFixVersion(cfg, configPath, dryRun); err != nil {
-		return hasInvalid, apperrors.NewAnalysisError(
-			fmt.Sprintf("failed to pre-fix version field (priority=%d, dryRun=%t)", priority, dryRun),
-			configPath, err,
-		)
-	}
+	var hasInvalid bool
 
-	if err := f.preFixDeprecatedLinters(cfg, configPath, dryRun); err != nil {
-		return hasInvalid, apperrors.NewAnalysisError(
-			fmt.Sprintf("failed to pre-fix deprecated linters (priority=%d, dryRun=%t)", priority, dryRun),
-			configPath, err,
-		)
-	}
+	for _, check := range checks {
+		found, err := check.run()
+		if found {
+			hasInvalid = true
+		}
 
-	if _, err := f.preFixTypecheck(cfg, configPath, dryRun); err != nil {
-		return hasInvalid, apperrors.NewAnalysisError(
-			fmt.Sprintf("failed to pre-fix typecheck (priority=%d, dryRun=%t)", priority, dryRun),
-			configPath, err,
-		)
+		if err != nil {
+			return hasInvalid, analysisError("pre-fix "+check.msg, priority, dryRun, configPath, err)
+		}
 	}
 
 	return hasInvalid, nil
@@ -177,64 +187,82 @@ func (f *Fixer) applyLintersFix(
 	counts.enable = f.enableRecommendedLinters(linterSet, disabledLinters, analysis, priority, dryRun)
 
 	if dryRun {
-		f.logger.Infof("[DRY-RUN] Would apply %d fixes", counts.total())
-
-		return types.OkMigration(&types.MigrationResult{
-			FixesApplied: counts.total(),
-			Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", counts.total()),
-			NextSteps: []string{
-				"Run without --dry-run to apply these fixes",
-				"Then run 'golangci-lint run --fix' to auto-fix code issues",
-			},
-		})
+		return f.dryRunResult(counts)
 	}
 
 	if counts.total() == 0 {
-		return types.OkMigration(&types.MigrationResult{
-			FixesApplied: 0,
-			Message:      "No fixes to apply",
-			NextSteps: []string{
-				"Your configuration is already up to date",
-				"Run 'golangci-lint run' to check for code issues",
-			},
-		})
+		return noFixesResult()
 	}
 
+	return f.applyAndSave(cfg, linterSet, formatterSet, configPath, priority, dryRun, counts)
+}
+
+func (f *Fixer) dryRunResult(counts fixCounts) types.MigrationResultType {
+	f.logger.Infof("[DRY-RUN] Would apply %d fixes", counts.total())
+
+	return types.OkMigration(&types.MigrationResult{
+		FixesApplied: counts.total(),
+		Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", counts.total()),
+		NextSteps: []string{
+			"Run without --dry-run to apply these fixes",
+			"Then run 'golangci-lint run --fix' to auto-fix code issues",
+		},
+	})
+}
+
+func noFixesResult() types.MigrationResultType {
+	return types.OkMigration(&types.MigrationResult{
+		FixesApplied: 0,
+		Message:      "No fixes to apply",
+		NextSteps: []string{
+			"Your configuration is already up to date",
+			"Run 'golangci-lint run' to check for code issues",
+		},
+	})
+}
+
+func (f *Fixer) applyAndSave(
+	cfg *types.Config,
+	linterSet, formatterSet map[string]bool,
+	configPath string,
+	priority types.LinterPriority,
+	dryRun bool,
+	counts fixCounts,
+) types.MigrationResultType {
 	f.logger.Infof("Applying %d fixes...", counts.total())
 
 	f.updateConfigFromSets(cfg, linterSet, formatterSet)
-
-	if goVersion := config.GetLocalGoVersion(); goVersion != "" { //nolint:contextcheck // Creates its own context
-		if cfg.Run.Go != goVersion {
-			f.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, goVersion)
-			cfg.Run.Go = goVersion
-		}
-	}
+	f.updateGoVersion(cfg)
 
 	f.logger.Infof("Saving configuration...")
 
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
-		return types.ErrMigration(apperrors.NewAnalysisError(
-			fmt.Sprintf("failed to save config (priority=%d, dryRun=%t)", priority, dryRun),
-			configPath, err,
-		))
+		return types.ErrMigration(analysisError("save config", priority, dryRun, configPath, err))
 	}
 
 	return types.OkMigration(&types.MigrationResult{
 		FixesApplied: counts.total(),
 		Message: fmt.Sprintf(
 			"Successfully applied %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
-			counts.total(),
-			counts.enable,
-			counts.formatter,
-			counts.deprecation,
-			counts.redundant,
+			counts.total(), counts.enable, counts.formatter, counts.deprecation, counts.redundant,
 		),
 		NextSteps: []string{
 			"Run 'golangci-lint run --fix' to auto-fix code issues found by the newly enabled linters",
 			"Run 'golangci-lint run' to see remaining issues that require manual fixes",
 		},
 	})
+}
+
+func (f *Fixer) updateGoVersion(cfg *types.Config) {
+	goVersion := config.GetLocalGoVersion()
+	if goVersion == "" {
+		return
+	}
+
+	if cfg.Run.Go != goVersion {
+		f.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, goVersion)
+		cfg.Run.Go = goVersion
+	}
 }
 
 // replaceDeprecatedLinters replaces deprecated linters with their successors in the linter set.
@@ -251,27 +279,49 @@ func (f *Fixer) replaceDeprecatedLinters(
 		}
 
 		counts.deprecation++
+
 		delete(linterSet, linter)
 
 		if linterSet[string(replacement.Replacement)] {
-			if dryRun {
-				f.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)", linter, replacement.Replacement)
-			} else {
-				f.logger.Debugf("Removing deprecated %s (keeping existing %s)", linter, replacement.Replacement)
-			}
+			f.logDeprecatedKeep(linter, replacement.Replacement, dryRun)
 
 			continue
 		}
 
-		if dryRun {
-			f.logger.Infof("[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
-		} else {
-			f.logger.Infof("Replacing deprecated linter: %s -> %s (%s)", linter, replacement.Replacement, replacement.Reason)
+		f.logDeprecatedReplace(linter, replacement, dryRun)
+
+		if !dryRun {
 			linterSet[string(replacement.Replacement)] = true
 		}
 	}
 
 	return linterSet
+}
+
+func (f *Fixer) logDeprecatedKeep(linter string, replacement types.LinterName, dryRun bool) {
+	if dryRun {
+		f.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)", linter, replacement)
+	} else {
+		f.logger.Debugf("Removing deprecated %s (keeping existing %s)", linter, replacement)
+	}
+}
+
+func (f *Fixer) logDeprecatedReplace(linter string, replacement types.LinterReplacement, dryRun bool) {
+	if dryRun {
+		f.logger.Infof(
+			"[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)",
+			linter,
+			replacement.Replacement,
+			replacement.Reason,
+		)
+	} else {
+		f.logger.Infof(
+			"Replacing deprecated linter: %s -> %s (%s)",
+			linter,
+			replacement.Replacement,
+			replacement.Reason,
+		)
+	}
 }
 
 // enableGolinesFormatter enables the golines formatter if recommended at high priority.
@@ -298,6 +348,7 @@ func (f *Fixer) enableGolinesFormatter(
 		f.logger.Debugf("[DRY-RUN] Would enable formatter: golines (formats code and fixes long lines)")
 	} else {
 		f.logger.Debugf("Enabling formatter: golines (formats code and fixes long lines)")
+
 		formatterSet["golines"] = true
 	}
 
@@ -349,11 +400,7 @@ func (f *Fixer) enableRecommendedLinters(
 			continue
 		}
 
-		lintName := rec.Name.String()
-
-		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(lintName)]; isDeprecated {
-			lintName = string(replacement.Replacement)
-		}
+		lintName := resolveLinterName(rec.Name)
 
 		if linterSet[lintName] || contains(disabledLinters, lintName) {
 			continue
@@ -370,6 +417,14 @@ func (f *Fixer) enableRecommendedLinters(
 	}
 
 	return count
+}
+
+func resolveLinterName(name types.LinterName) string {
+	if replacement, isDeprecated := constants.DeprecatedLinters[name]; isDeprecated {
+		return string(replacement.Replacement)
+	}
+
+	return name.String()
 }
 
 // updateConfigFromSets applies the linter and formatter sets back to the config struct.

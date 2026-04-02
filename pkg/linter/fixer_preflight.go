@@ -126,28 +126,10 @@ func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dr
 	var deprecatedFound []string
 
 	linterSet := make(map[string]bool)
-
-	for _, linter := range enabledLinters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			deprecatedFound = append(deprecatedFound, linter)
-
-			continue
-		}
-
-		linterSet[linter] = true
-	}
+	deprecatedFound = filterDeprecatedFrom(enabledLinters, "", deprecatedFound, linterSet)
 
 	disabledSet := make(map[string]bool)
-
-	for _, linter := range disabledLinters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			deprecatedFound = append(deprecatedFound, linter+" (disabled)")
-
-			continue
-		}
-
-		disabledSet[linter] = true
-	}
+	deprecatedFound = filterDeprecatedFrom(disabledLinters, " (disabled)", deprecatedFound, disabledSet)
 
 	if len(deprecatedFound) == 0 {
 		return nil
@@ -161,29 +143,29 @@ func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dr
 
 	f.logger.Infof("Pre-fixing %d deprecated linters: %v", len(deprecatedFound), deprecatedFound)
 
-	fixedEnabled := make([]string, 0, len(linterSet))
-	for linter := range linterSet {
-		fixedEnabled = append(fixedEnabled, linter)
+	cfg.Linters.Enable = setToSortedSlice(linterSet)
+	cfg.Linters.Disable = setToSortedSlice(disabledSet)
+
+	return f.savePrefixedConfig(cfg, configPath, fmt.Sprintf("deprecatedFound=%v", deprecatedFound))
+}
+
+func filterDeprecatedFrom(
+	linters []string,
+	suffix string,
+	found []string,
+	result map[string]bool,
+) []string {
+	for _, linter := range linters {
+		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
+			found = append(found, linter+suffix)
+
+			continue
+		}
+
+		result[linter] = true
 	}
 
-	fixedDisabled := make([]string, 0, len(disabledSet))
-	for linter := range disabledSet {
-		fixedDisabled = append(fixedDisabled, linter)
-	}
-
-	cfg.Linters.Enable = fixedEnabled
-	cfg.Linters.Disable = fixedDisabled
-
-	err := f.configLoader.SaveConfig(cfg, configPath)
-	if err != nil {
-		return apperrors.NewConfigError(
-			fmt.Sprintf("failed to save pre-fixed config (dryRun=%t, deprecatedFound=%v)", dryRun, deprecatedFound),
-			configPath,
-			err,
-		)
-	}
-
-	return nil
+	return found
 }
 
 // preFixTypecheck removes typecheck from the config before analysis.
@@ -193,39 +175,13 @@ func (f *Fixer) preFixTypecheck(cfg *types.Config, configPath string, dryRun boo
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
 	disabledLinters := f.configLoader.GetLintersDisabled(cfg)
 
-	var typecheckFound bool
+	fixedEnabled, typecheckInEnabled := filterLinter(enabledLinters, "typecheck")
+	fixedDisabled, typecheckInDisabled := filterLinter(disabledLinters, "typecheck")
 
-	// Filter out typecheck from enabled linters
-	fixedEnabled := make([]string, 0, len(enabledLinters))
-	for _, linter := range enabledLinters {
-		if linter == "typecheck" {
-			typecheckFound = true
-
-			continue
-		}
-
-		fixedEnabled = append(fixedEnabled, linter)
-	}
-
-	// Filter out typecheck from disabled linters
-	fixedDisabled := make([]string, 0, len(disabledLinters))
-	for _, linter := range disabledLinters {
-		if linter == "typecheck" {
-			typecheckFound = true
-
-			continue
-		}
-
-		fixedDisabled = append(fixedDisabled, linter)
-	}
-
-	if !typecheckFound {
+	if !typecheckInEnabled && !typecheckInDisabled {
 		return false, nil
 	}
 
-	// Always modify the in-memory config so AnalyzeConfig works correctly
-	// Even in dry-run mode, we need to remove typecheck from the config
-	// that we pass to AnalyzeConfig
 	cfg.Linters.Enable = fixedEnabled
 	cfg.Linters.Disable = fixedDisabled
 
@@ -235,16 +191,24 @@ func (f *Fixer) preFixTypecheck(cfg *types.Config, configPath string, dryRun boo
 
 	f.logger.Infof("Removing 'typecheck' from linters list (not configurable in v2)")
 
-	err := f.configLoader.SaveConfig(cfg, configPath)
-	if err != nil {
-		return true, apperrors.NewConfigError(
-			fmt.Sprintf("failed to save pre-fixed config after removing typecheck (dryRun=%t)", dryRun),
-			configPath,
-			err,
-		)
+	return true, f.savePrefixedConfig(cfg, configPath, "after removing typecheck")
+}
+
+func filterLinter(linters []string, target string) ([]string, bool) {
+	result := make([]string, 0, len(linters))
+	found := false
+
+	for _, linter := range linters {
+		if linter == target {
+			found = true
+
+			continue
+		}
+
+		result = append(result, linter)
 	}
 
-	return true, nil
+	return result, found
 }
 
 // calculateDryRunResultWithDeprecated calculates the dry-run result when deprecated linters are present.
@@ -252,35 +216,9 @@ func (f *Fixer) preFixTypecheck(cfg *types.Config, configPath string, dryRun boo
 // so we just report what would be fixed regarding deprecated linters.
 func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.MigrationResultType {
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
-	deprecationFixes := 0
 
 	linterSet := make(map[string]bool)
-
-	for _, linter := range enabledLinters {
-		if replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			deprecationFixes++
-
-			delete(linterSet, linter)
-
-			if !linterSet[string(replacement.Replacement)] {
-				f.logger.Infof(
-					"[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)",
-					linter,
-					replacement.Replacement,
-					replacement.Reason,
-				)
-				linterSet[string(replacement.Replacement)] = true
-			} else {
-				f.logger.Infof(
-					"[DRY-RUN] Would remove deprecated %s (keeping existing %s)",
-					linter,
-					replacement.Replacement,
-				)
-			}
-		} else {
-			linterSet[linter] = true
-		}
-	}
+	deprecationFixes := f.applyDeprecatedReplacements(enabledLinters, linterSet)
 
 	f.logger.Infof("[DRY-RUN] Would apply %d fixes", deprecationFixes)
 
@@ -291,4 +229,43 @@ func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.Mig
 			deprecationFixes,
 		),
 	})
+}
+
+func (f *Fixer) applyDeprecatedReplacements(linters []string, linterSet map[string]bool) int {
+	deprecationFixes := 0
+
+	for _, linter := range linters {
+		replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
+		if !isDeprecated {
+			linterSet[linter] = true
+
+			continue
+		}
+
+		deprecationFixes++
+
+		if !linterSet[string(replacement.Replacement)] {
+			f.logger.Infof("[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)",
+				linter, replacement.Replacement, replacement.Reason)
+			linterSet[string(replacement.Replacement)] = true
+		} else {
+			f.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)",
+				linter, replacement.Replacement)
+		}
+	}
+
+	return deprecationFixes
+}
+
+func (f *Fixer) savePrefixedConfig(cfg *types.Config, configPath, context string) error {
+	err := f.configLoader.SaveConfig(cfg, configPath)
+	if err != nil {
+		return apperrors.NewConfigError(
+			"failed to save pre-fixed config "+context,
+			configPath,
+			err,
+		)
+	}
+
+	return nil
 }
