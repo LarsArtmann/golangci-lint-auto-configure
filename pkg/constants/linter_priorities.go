@@ -5,16 +5,17 @@ import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 // LinterPriorities maps linter names to their priority levels.
 var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	// Critical linters - should ALWAYS be enabled
-	"loggercheck": types.LinterPriorityCritical,
-	"gosec":       types.LinterPriorityCritical,
-	"errcheck":    types.LinterPriorityCritical,
-	"staticcheck": types.LinterPriorityCritical,
-	"govet":       types.LinterPriorityCritical,
-	"errchkjson":  types.LinterPriorityCritical,
-	"musttag":     types.LinterPriorityCritical,
-	"sloglint":    types.LinterPriorityCritical,
-	"nilerr":      types.LinterPriorityCritical,
-	"noctx":       types.LinterPriorityCritical,
+	"loggercheck":  types.LinterPriorityCritical,
+	"gosec":        types.LinterPriorityCritical,
+	"errcheck":     types.LinterPriorityCritical,
+	"staticcheck":  types.LinterPriorityCritical,
+	"govet":        types.LinterPriorityCritical,
+	"errchkjson":   types.LinterPriorityCritical,
+	"musttag":      types.LinterPriorityCritical,
+	"sloglint":     types.LinterPriorityCritical,
+	"nilerr":       types.LinterPriorityCritical,
+	"noctx":        types.LinterPriorityCritical,
+	"paralleltest": types.LinterPriorityCritical,
 
 	// High value linters - recommended for most projects
 	"wrapcheck":        types.LinterPriorityHigh,
@@ -48,7 +49,6 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"nestif":           types.LinterPriorityHigh,
 	"nilnil":           types.LinterPriorityHigh,
 	"nakedret":         types.LinterPriorityHigh,
-	"paralleltest":     types.LinterPriorityHigh,
 	"predeclared":      types.LinterPriorityHigh,
 	"reassign":         types.LinterPriorityHigh,
 	"rowserrcheck":     types.LinterPriorityHigh,

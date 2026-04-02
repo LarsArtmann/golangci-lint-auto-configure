@@ -233,6 +233,8 @@ func (f *Fixer) applyAndSave(
 
 	f.updateConfigFromSets(cfg, linterSet, formatterSet)
 	f.updateGoVersion(cfg)
+	f.updateRunnerSettings(cfg)
+	f.updateBuildTags(cfg)
 
 	f.logger.Infof("Saving configuration...")
 
@@ -262,6 +264,41 @@ func (f *Fixer) updateGoVersion(cfg *types.Config) {
 	if cfg.Run.Go != goVersion {
 		f.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, goVersion)
 		cfg.Run.Go = goVersion
+	}
+}
+
+func (f *Fixer) updateRunnerSettings(cfg *types.Config) {
+	if !cfg.Run.AllowParallelRunners {
+		f.logger.Infof("Enabling allow-parallel-runners: %v -> true", cfg.Run.AllowParallelRunners)
+		cfg.Run.AllowParallelRunners = true
+	}
+
+	if !cfg.Run.AllowSerialRunners {
+		f.logger.Infof("Enabling allow-serial-runners: %v -> true", cfg.Run.AllowSerialRunners)
+		cfg.Run.AllowSerialRunners = true
+	}
+}
+
+// goExperimentTags are build tags for GOEXPERIMENT features that affect user code.
+// See: https://go.dev/src/internal/goexperiment/flags.go
+var goExperimentTags = []string{
+	"goexperiment.jsonv2",               // Enables json/v2 package
+	"goexperiment.simd",                 // Enables simd package and intrinsics
+	"goexperiment.goroutineleakprofile", // Enables goroutine leak profiling
+}
+
+func (f *Fixer) updateBuildTags(cfg *types.Config) {
+	existingTags := make(map[string]bool)
+	for _, tag := range cfg.Run.BuildTags {
+		existingTags[tag] = true
+	}
+
+	for _, tag := range goExperimentTags {
+		if !existingTags[tag] {
+			f.logger.Infof("Adding build tag: %s", tag)
+			cfg.Run.BuildTags = append(cfg.Run.BuildTags, tag)
+			existingTags[tag] = true
+		}
 	}
 }
 

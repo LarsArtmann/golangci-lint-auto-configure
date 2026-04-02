@@ -5,16 +5,17 @@ import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 // LinterReasons provides human-readable reasons for each linter recommendation.
 var LinterReasons = map[types.LinterName]string{
 	// Critical linters
-	"loggercheck": "Checks key value pairs for common logger libraries",
-	"gosec":       "Inspects source code for security problems",
-	"errcheck":    "Checks for unchecked errors in Go code",
-	"staticcheck": "Advanced static analysis (finds bugs, performance issues)",
-	"govet":       "Go vet's suspicious construct checks",
-	"errchkjson":  "Checks types passed to json encoding functions",
-	"musttag":     "Enforces struct tags for JSON/XML/YAML marshaling",
-	"sloglint":    "Ensure consistent code style when using log/slog",
-	"nilerr":      "Find code that returns nil even if it checks that error is not nil",
-	"noctx":       "Check whether function uses a non-inherited context",
+	"loggercheck":  "Checks key value pairs for common logger libraries",
+	"gosec":        "Inspects source code for security problems",
+	"errcheck":     "Checks for unchecked errors in Go code",
+	"staticcheck":  "Advanced static analysis (finds bugs, performance issues)",
+	"govet":        "Go vet's suspicious construct checks",
+	"errchkjson":   "Checks types passed to json encoding functions",
+	"musttag":      "Enforces struct tags for JSON/XML/YAML marshaling",
+	"sloglint":     "Ensure consistent code style when using log/slog",
+	"nilerr":       "Find code that returns nil even if it checks that error is not nil",
+	"noctx":        "Check whether function uses a non-inherited context",
+	"paralleltest": "Detects missing usage of t.Parallel() method in Go tests",
 
 	// High value linters
 	"wrapcheck":        "Checks that errors returned from external packages are wrapped",
@@ -48,7 +49,6 @@ var LinterReasons = map[types.LinterName]string{
 	"nestif":           "Reports deeply nested if statements",
 	"nilnil":           "Checks that there is no simultaneous return of nil error and invalid value",
 	"nakedret":         "Checks that functions with naked returns are not too long",
-	"paralleltest":     "Detects missing usage of t.Parallel() method in Go tests",
 	"predeclared":      "Find code that shadows predeclared identifiers",
 	"reassign":         "Checks that package variables are not reassigned",
 	"rowserrcheck":     "Checks whether Rows.Err of rows is checked successfully",
