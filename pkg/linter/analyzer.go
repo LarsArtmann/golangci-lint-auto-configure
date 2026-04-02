@@ -71,58 +71,66 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 		return types.ErrAnalysis(err)
 	}
 
-	// Check version meets minimum requirement
 	if err := a.CheckVersion(ctx); err != nil {
 		return types.ErrAnalysis(err)
 	}
 
-	// Analyze linters
-	lintOutput, err := a.runLintersCommand(ctx, configPath)
+	linterOutput, err := a.parseLintersOutput(ctx, configPath)
 	if err != nil {
-		return types.ErrAnalysis(apperrors.NewAnalysisError("failed to run golangci-lint linters", "", err))
+		return types.ErrAnalysis(err)
 	}
 
-	var jsonLinterOutput golangciLintOutput
-	if err := json.Unmarshal(lintOutput, &jsonLinterOutput); err != nil {
-		return types.ErrAnalysis(
-			apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err),
-		)
-	}
-
-	// Analyze formatters
-	formatOutput, err := a.runFormattersCommand(ctx, configPath)
-	if err != nil {
-		// Formatters command may not exist in older versions, log but don't fail
-		a.logger.Debugf("Formatters analysis skipped: %v", err)
-
-		formatOutput = []byte(`{"Enabled": [], "Disabled": []}`) // Empty output
-	}
-
-	var jsonFormatOutput golangciLintFormattersOutput
-	if err := json.Unmarshal(formatOutput, &jsonFormatOutput); err != nil {
-		// Don't fail if formatters JSON parsing fails
-		a.logger.Debugf("Failed to parse formatters JSON, skipping: %v", err)
-
-		jsonFormatOutput = golangciLintFormattersOutput{
-			Enabled:  []types.FormatterInfo{},
-			Disabled: []types.FormatterInfo{},
-		}
-	}
+	formatterOutput := a.parseFormattersOutput(ctx, configPath)
 
 	analysis := &types.ConfigAnalysis{
 		ConfigPath:               configPath,
-		EnabledLinters:           jsonLinterOutput.Enabled,
-		DisabledLinters:          jsonLinterOutput.Disabled,
-		EnabledFormatters:        jsonFormatOutput.Enabled,
-		DisabledFormatters:       jsonFormatOutput.Disabled,
-		LinterRecommendations:    a.CategorizeLinters(jsonLinterOutput.Disabled, jsonFormatOutput.Enabled),
-		FormatterRecommendations: a.categorizeFormatters(jsonFormatOutput.Disabled),
+		EnabledLinters:           linterOutput.Enabled,
+		DisabledLinters:          linterOutput.Disabled,
+		EnabledFormatters:        formatterOutput.Enabled,
+		DisabledFormatters:       formatterOutput.Disabled,
+		LinterRecommendations:    a.CategorizeLinters(linterOutput.Disabled, formatterOutput.Enabled),
+		FormatterRecommendations: a.categorizeFormatters(formatterOutput.Disabled),
 	}
 
 	a.calculateDeprecatedLinters(analysis)
 	a.calculateRecommendationCounts(analysis)
 
 	return types.OkAnalysis(analysis)
+}
+
+func (a *Analyzer) parseLintersOutput(ctx context.Context, configPath string) (*golangciLintOutput, error) {
+	lintOutput, err := a.runLintersCommand(ctx, configPath)
+	if err != nil {
+		return nil, apperrors.NewAnalysisError("failed to run golangci-lint linters", "", err)
+	}
+
+	var output golangciLintOutput
+	if err := json.Unmarshal(lintOutput, &output); err != nil {
+		return nil, apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err)
+	}
+
+	return &output, nil
+}
+
+func (a *Analyzer) parseFormattersOutput(ctx context.Context, configPath string) *golangciLintFormattersOutput {
+	formatOutput, err := a.runFormattersCommand(ctx, configPath)
+	if err != nil {
+		a.logger.Debugf("Formatters analysis skipped: %v", err)
+
+		formatOutput = []byte(`{"Enabled": [], "Disabled": []}`)
+	}
+
+	var output golangciLintFormattersOutput
+	if err := json.Unmarshal(formatOutput, &output); err != nil {
+		a.logger.Debugf("Failed to parse formatters JSON, skipping: %v", err)
+
+		output = golangciLintFormattersOutput{
+			Enabled:  []types.FormatterInfo{},
+			Disabled: []types.FormatterInfo{},
+		}
+	}
+
+	return &output
 }
 
 // GetLintersByPriority returns recommendations filtered by priority.
@@ -145,78 +153,57 @@ func (a *Analyzer) GetLintersByPriority(
 func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string {
 	var builder strings.Builder
 
-	// Show deprecated linters first (most important to address)
-	if len(analysis.DeprecatedLinters) > 0 {
-		fmt.Fprintf(&builder, "⚠️  %d DEPRECATED linter(s) are enabled (should be migrated):\n",
-			len(analysis.DeprecatedLinters))
-
-		for _, linter := range analysis.DeprecatedLinters {
-			// Check if there's a replacement
-			if replacement, ok := constants.DeprecatedLinters[linter.Name]; ok {
-				fmt.Fprintf(&builder, "  - %s: Use %s instead (%s)\n",
-					linter.Name,
-					replacement.Replacement,
-					linter.Description)
-			} else {
-				fmt.Fprintf(&builder, "  - %s: %s (no replacement specified)\n", linter.Name, linter.Description)
-			}
-		}
-
-		builder.WriteString("\n")
-	}
+	a.formatDeprecatedSection(&builder, analysis)
 
 	critical := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityCritical)
 	highValue := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityHigh)
 	mediumValue := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityMedium)
 	optional := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityOptional)
 
-	if len(critical) > 0 {
-		fmt.Fprintf(&builder, "🚨 %d CRITICAL linter(s) are disabled (should ALWAYS be enabled):\n", len(critical))
-
-		for _, rec := range critical {
-			fmt.Fprintf(&builder, "  - %s: %s\n", rec.Name, rec.Reason)
-		}
-
-		builder.WriteString("\n")
-	}
-
-	if len(highValue) > 0 {
-		fmt.Fprintf(
-			&builder,
-			"⚠️  %d HIGH VALUE linter(s) are disabled (recommended for most projects):\n",
-			len(highValue),
-		)
-
-		for _, rec := range highValue {
-			fmt.Fprintf(&builder, "  - %s: %s\n", rec.Name, rec.Reason)
-		}
-
-		builder.WriteString("\n")
-	}
-
-	if len(mediumValue) > 0 {
-		fmt.Fprintf(
-			&builder,
-			"ℹ️  %d MEDIUM VALUE linter(s) are disabled (optional but recommended):\n",
-			len(mediumValue),
-		)
-
-		for _, rec := range mediumValue {
-			fmt.Fprintf(&builder, "  - %s: %s\n", rec.Name, rec.Reason)
-		}
-
-		builder.WriteString("\n")
-	}
-
-	if len(optional) > 0 {
-		fmt.Fprintf(&builder, "💡 %d OPTIONAL linter(s) are disabled (for niche use cases):\n", len(optional))
-
-		for _, rec := range optional {
-			fmt.Fprintf(&builder, "  - %s: %s\n", rec.Name, rec.Reason)
-		}
-	}
+	a.formatPrioritySection(&builder, critical, "🚨", "CRITICAL", "should ALWAYS be enabled")
+	a.formatPrioritySection(&builder, highValue, "⚠️ ", "HIGH VALUE", "recommended for most projects")
+	a.formatPrioritySection(&builder, mediumValue, "ℹ️ ", "MEDIUM VALUE", "optional but recommended")
+	a.formatPrioritySection(&builder, optional, "💡", "OPTIONAL", "for niche use cases")
 
 	return builder.String()
+}
+
+func (a *Analyzer) formatDeprecatedSection(builder *strings.Builder, analysis *types.ConfigAnalysis) {
+	if len(analysis.DeprecatedLinters) == 0 {
+		return
+	}
+
+	fmt.Fprintf(builder, "⚠️  %d DEPRECATED linter(s) are enabled (should be migrated):\n",
+		len(analysis.DeprecatedLinters))
+
+	for _, linter := range analysis.DeprecatedLinters {
+		if replacement, ok := constants.DeprecatedLinters[linter.Name]; ok {
+			fmt.Fprintf(builder, "  - %s: Use %s instead (%s)\n",
+				linter.Name, replacement.Replacement, linter.Description)
+		} else {
+			fmt.Fprintf(builder, "  - %s: %s (no replacement specified)\n", linter.Name, linter.Description)
+		}
+	}
+
+	builder.WriteString("\n")
+}
+
+func (a *Analyzer) formatPrioritySection(
+	builder *strings.Builder,
+	recommendations []types.LinterRecommendation,
+	icon, label, subtitle string,
+) {
+	if len(recommendations) == 0 {
+		return
+	}
+
+	fmt.Fprintf(builder, "%s %d %s linter(s) are disabled (%s):\n", icon, len(recommendations), label, subtitle)
+
+	for _, rec := range recommendations {
+		fmt.Fprintf(builder, "  - %s: %s\n", rec.Name, rec.Reason)
+	}
+
+	builder.WriteString("\n")
 }
 
 // GetSummary returns a brief summary of recommendations.

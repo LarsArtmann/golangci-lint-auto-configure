@@ -31,27 +31,28 @@ func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ..
 
 	output, err := utils.WithRetry(ctx, config, name, shouldRetry, executeOperation)
 	if err != nil {
-		outputStr := strings.TrimSpace(string(output))
-
-		a.logger.Debugf("%s command failed: %v", name, err)
-		a.logger.Debugf("Output: %s", outputStr)
-
-		if outputStr != "" {
-			return output, apperrors.NewAnalysisError(
-				fmt.Sprintf("golangci-lint %s command failed: %s", name, outputStr),
-				"",
-				err,
-			)
-		}
-
-		return output, apperrors.NewAnalysisError(
-			fmt.Sprintf("golangci-lint %s command failed", name),
-			"",
-			err,
-		)
+		return output, a.formatCommandError(name, output, err)
 	}
 
 	return output, nil
+}
+
+func (a *Analyzer) formatCommandError(name string, output []byte, err error) error {
+	outputStr := strings.TrimSpace(string(output))
+	a.logger.Debugf("%s command failed: %v", name, err)
+	a.logger.Debugf("Output: %s", outputStr)
+
+	if outputStr != "" {
+		return apperrors.NewAnalysisError(
+			fmt.Sprintf("golangci-lint %s command failed: %s", name, outputStr),
+			"", err,
+		)
+	}
+
+	return apperrors.NewAnalysisError(
+		fmt.Sprintf("golangci-lint %s command failed", name),
+		"", err,
+	)
 }
 
 // runLintersCommand runs `golangci-lint linters` and returns JSON output.

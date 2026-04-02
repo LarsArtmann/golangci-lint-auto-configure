@@ -11,7 +11,6 @@ func (a *Analyzer) CategorizeLinters(
 	disabledLinters []types.LinterInfo,
 	enabledFormatters []types.FormatterInfo,
 ) []types.LinterRecommendation {
-	// Build set of enabled formatter names for efficient lookup
 	enabledFormatterSet := make(map[string]bool)
 	for _, formatter := range enabledFormatters {
 		enabledFormatterSet[formatter.Name] = true
@@ -20,45 +19,54 @@ func (a *Analyzer) CategorizeLinters(
 	var recommendations []types.LinterRecommendation
 
 	for _, linter := range disabledLinters {
-		// Skip deprecated linters - they shouldn't be recommended
-		if linter.Deprecated {
-			a.logger.Debugf("Skipping deprecated linter in analysis: %s", linter.Name)
-
+		if a.shouldSkipLinter(linter, enabledFormatterSet) {
 			continue
 		}
 
-		// Skip explicitly disabled linters - they should never be recommended
-		if _, isDisabled := constants.DisabledLinters[linter.Name]; isDisabled {
-			a.logger.Debugf("Skipping explicitly disabled linter in analysis: %s", linter.Name)
-
-			continue
-		}
-
-		// Skip redundant linters when their formatter is enabled
-		if mapping, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
-			if enabledFormatterSet[string(mapping.Formatter)] {
-				a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, mapping.Reason)
-
-				continue
-			}
-		}
-
-		rec := types.LinterRecommendation{
-			Name:   linter.Name,
-			Reason: a.getLinterReason(string(linter.Name)),
-		}
-
-		// Get priority from constants, default to Optional if not found
-		if priority, ok := constants.LinterPriorities[rec.Name]; ok {
-			rec.Priority = priority
-		} else {
-			rec.Priority = types.LinterPriorityOptional
-		}
-
-		recommendations = append(recommendations, rec)
+		recommendations = append(recommendations, a.makeLinterRecommendation(linter))
 	}
 
 	return recommendations
+}
+
+func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet map[string]bool) bool {
+	if linter.Deprecated {
+		a.logger.Debugf("Skipping deprecated linter in analysis: %s", linter.Name)
+
+		return true
+	}
+
+	if _, isDisabled := constants.DisabledLinters[linter.Name]; isDisabled {
+		a.logger.Debugf("Skipping explicitly disabled linter in analysis: %s", linter.Name)
+
+		return true
+	}
+
+	if mapping, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
+		if formatterSet[string(mapping.Formatter)] {
+			a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, mapping.Reason)
+
+			return true
+		}
+	}
+
+	return false
+}
+
+func (a *Analyzer) makeLinterRecommendation(linter types.LinterInfo) types.LinterRecommendation {
+	name := types.LinterName(linter.Name)
+	rec := types.LinterRecommendation{
+		Name:   name,
+		Reason: a.getLinterReason(string(name)),
+	}
+
+	if priority, ok := constants.LinterPriorities[name]; ok {
+		rec.Priority = priority
+	} else {
+		rec.Priority = types.LinterPriorityOptional
+	}
+
+	return rec
 }
 
 // categorizeFormatters categorizes disabled formatters by priority.

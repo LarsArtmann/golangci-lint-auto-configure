@@ -65,14 +65,23 @@ func (f *Fixer) FixConfigResult(
 
 	if dryRun {
 		if result, shouldReturn := f.checkDryRunEarlyReturns(
-			cfg,
-			hasInvalid,
-			hasDeprecatedLinters(originalEnabled),
+			cfg, hasInvalid, hasDeprecatedLinters(originalEnabled),
 		); shouldReturn {
 			return result
 		}
 	}
 
+	return f.analyzeAndFix(ctx, cfg, configPath, priority, dryRun, originalEnabled)
+}
+
+func (f *Fixer) analyzeAndFix(
+	ctx context.Context,
+	cfg *types.Config,
+	configPath string,
+	priority types.LinterPriority,
+	dryRun bool,
+	originalEnabled []string,
+) types.MigrationResultType {
 	f.logger.Infof("Analyzing configuration...")
 
 	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
@@ -116,39 +125,21 @@ func (f *Fixer) runPreFlightChecks(
 	priority types.LinterPriority,
 	dryRun bool,
 ) (bool, error) {
-	checks := []struct {
-		run func() (bool, error)
-		msg string
-	}{
-		{func() (bool, error) {
-			h, e := f.preFixInvalidDurations(cfg, configPath, dryRun)
-
-			return h, e
-		}, "invalid durations"},
-		{func() (bool, error) {
-			return false, f.preFixVersion(cfg, configPath, dryRun)
-		}, "version field"},
-		{func() (bool, error) {
-			return false, f.preFixDeprecatedLinters(cfg, configPath, dryRun)
-		}, "deprecated linters"},
-		{func() (bool, error) {
-			_, e := f.preFixTypecheck(cfg, configPath, dryRun)
-
-			return false, e
-		}, "typecheck"},
+	hasInvalid, err := f.preFixInvalidDurations(cfg, configPath, dryRun)
+	if err != nil {
+		return hasInvalid, analysisError("pre-fix invalid durations", priority, dryRun, configPath, err)
 	}
 
-	var hasInvalid bool
+	if err := f.preFixVersion(cfg, configPath, dryRun); err != nil {
+		return hasInvalid, analysisError("pre-fix version field", priority, dryRun, configPath, err)
+	}
 
-	for _, check := range checks {
-		found, err := check.run()
-		if found {
-			hasInvalid = true
-		}
+	if err := f.preFixDeprecatedLinters(cfg, configPath, dryRun); err != nil {
+		return hasInvalid, analysisError("pre-fix deprecated linters", priority, dryRun, configPath, err)
+	}
 
-		if err != nil {
-			return hasInvalid, analysisError("pre-fix "+check.msg, priority, dryRun, configPath, err)
-		}
+	if _, err := f.preFixTypecheck(cfg, configPath, dryRun); err != nil {
+		return hasInvalid, analysisError("pre-fix typecheck", priority, dryRun, configPath, err)
 	}
 
 	return hasInvalid, nil
@@ -176,21 +167,9 @@ func (f *Fixer) applyLintersFix(
 	dryRun bool,
 	originalEnabled []string,
 ) types.MigrationResultType {
-	disabledLinters := f.configLoader.GetLintersDisabled(cfg)
 	linterSet := buildLinterSet(cfg.Linters.Enable)
-
-	counts := fixCounts{deprecation: 0, enable: 0, formatter: 0, redundant: 0}
-
-	linterSet = f.replaceDeprecatedLinters(linterSet, originalEnabled, dryRun, &counts)
-
 	formatterSet := buildLinterSet(cfg.Formatters.Enable)
-	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
-	counts.formatter += f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun)
-	counts.formatter += f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun)
-	counts.redundant += f.formatterManager.RemoveRedundantLinters(linterSet, formatterSet, dryRun)
-	counts.redundant += f.formatterManager.RemoveRedundantGofmt(formatterSet, dryRun)
-
-	counts.enable = f.enableRecommendedLinters(linterSet, disabledLinters, analysis, priority, dryRun)
+	counts := f.applyAllFixes(linterSet, formatterSet, cfg, analysis, configPath, priority, dryRun, originalEnabled)
 
 	if dryRun {
 		return f.dryRunResult(counts)
@@ -201,6 +180,27 @@ func (f *Fixer) applyLintersFix(
 	}
 
 	return f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, counts)
+}
+
+func (f *Fixer) applyAllFixes(
+	linterSet, formatterSet map[string]bool,
+	cfg *types.Config,
+	analysis *types.ConfigAnalysis,
+	configPath string,
+	priority types.LinterPriority,
+	dryRun bool,
+	originalEnabled []string,
+) fixCounts {
+	counts := fixCounts{}
+	linterSet = f.replaceDeprecatedLinters(linterSet, originalEnabled, dryRun, &counts)
+	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
+	counts.formatter += f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun)
+	counts.formatter += f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun)
+	counts.redundant += f.formatterManager.RemoveRedundantLinters(linterSet, formatterSet, dryRun)
+	counts.redundant += f.formatterManager.RemoveRedundantGofmt(formatterSet, dryRun)
+	counts.enable = f.enableRecommendedLinters(linterSet, f.configLoader.GetLintersDisabled(cfg), analysis, priority, dryRun)
+
+	return counts
 }
 
 func (f *Fixer) dryRunResult(counts fixCounts) types.MigrationResultType {
@@ -249,6 +249,10 @@ func (f *Fixer) applyAndSave(
 		return types.ErrMigration(analysisError("save config", priority, dryRun, configPath, err))
 	}
 
+	return successResult(counts)
+}
+
+func successResult(counts fixCounts) types.MigrationResultType {
 	return types.OkMigration(&types.MigrationResult{
 		FixesApplied: counts.total(),
 		Message: fmt.Sprintf(
