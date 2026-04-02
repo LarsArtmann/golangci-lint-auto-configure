@@ -305,6 +305,29 @@ func (f *Fixer) updateBuildTags(cfg *types.Config) {
 			existingTags[tag] = true
 		}
 	}
+
+	// Sort and deduplicate
+	cfg.Run.BuildTags = sortAndDeduplicate(cfg.Run.BuildTags)
+}
+
+func sortAndDeduplicate(tags []string) []string {
+	if len(tags) == 0 {
+		return tags
+	}
+
+	seen := make(map[string]bool)
+	unique := make([]string, 0, len(tags))
+
+	for _, tag := range tags {
+		if !seen[tag] {
+			seen[tag] = true
+			unique = append(unique, tag)
+		}
+	}
+
+	slices.Sort(unique)
+
+	return unique
 }
 
 // replaceDeprecatedLinters replaces deprecated linters with their successors in the linter set.
@@ -555,8 +578,36 @@ func (f *Fixer) updateConfigFromSets(
 	cfg.Linters.Disable = disabledLintersList
 
 	if len(formatterSet) > 0 {
-		cfg.Formatters.Enable = setToSortedSlice(formatterSet)
+		cfg.Formatters.Enable = formattersToOrderedSlice(formatterSet)
 	}
+}
+
+// formattersToOrderedSlice converts formatter set to ordered slice.
+// Order: gci → goimports → gofumpt → golines → swaggo → others (sorted)
+func formattersToOrderedSlice(set map[string]bool) []string {
+	// Define explicit order
+	order := []string{"gci", "goimports", "gofumpt", "golines", "swaggo"}
+
+	result := make([]string, 0, len(set))
+	remaining := make([]string, 0)
+
+	// First pass: add formatters in explicit order
+	for _, name := range order {
+		if set[name] {
+			result = append(result, name)
+		}
+	}
+
+	// Second pass: add any remaining formatters (sorted alphabetically)
+	for name := range set {
+		if !slices.Contains(order, name) {
+			remaining = append(remaining, name)
+		}
+	}
+
+	slices.Sort(remaining)
+
+	return append(result, remaining...)
 }
 
 func buildLinterSet(items []string) map[string]bool {
@@ -575,6 +626,8 @@ func setToSortedSlice(set map[string]bool) []string {
 	for item := range set {
 		result = append(result, item)
 	}
+
+	slices.Sort(result)
 
 	return result
 }
