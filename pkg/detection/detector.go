@@ -206,6 +206,72 @@ func (d *Detector) analyzeGoMod() (string, []string) {
 	return modulePath, imports
 }
 
+// analyzeGoModWithError extracts module path and imports from go.mod, returning errors.
+func (d *Detector) analyzeGoModWithError() (string, []string, error) {
+	goModPath := filepath.Join(d.rootDir, "go.mod")
+
+	file, err := os.Open(goModPath)
+	if err != nil {
+		return "", nil, err
+	}
+
+	defer closeFile(file)
+
+	scanner := bufio.NewScanner(file)
+	inRequire := false
+
+	var modulePath string
+
+	var imports []string
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		// Extract module path
+		if strings.HasPrefix(line, "module ") {
+			modulePath = strings.TrimSpace(strings.TrimPrefix(line, "module"))
+
+			continue
+		}
+
+		// Track require block
+		if line == "require (" {
+			inRequire = true
+
+			continue
+		}
+
+		if line == ")" {
+			inRequire = false
+
+			continue
+		}
+
+		// Extract imports
+		if inRequire || strings.HasPrefix(line, "require ") {
+			// Parse "require package version" or "package version" (in block)
+			fields := strings.Fields(line)
+			for i, field := range fields {
+				if field == "require" && i == 0 {
+					continue
+				}
+				// First non-require field that looks like a package path
+				if strings.Contains(field, "/") {
+					imports = append(imports, field)
+
+					break
+				}
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", nil, err
+	}
+
+	return modulePath, imports, nil
+}
+
 // hasMainPackage checks if there's a main package in the project.
 func (d *Detector) hasMainPackage() bool {
 	found := false
@@ -298,13 +364,17 @@ func (d *Detector) hasAPICodePatterns() bool {
 
 // HasSwaggo checks if the project uses swaggo for Swagger documentation.
 // It checks both go.mod imports and code annotations.
-func (d *Detector) HasSwaggo() bool {
+func (d *Detector) HasSwaggo() (bool, error) {
 	// First check go.mod for swaggo imports
-	_, imports := d.analyzeGoMod()
+	_, imports, err := d.analyzeGoModWithError()
+	if err != nil {
+		return false, err
+	}
+
 	for _, imp := range imports {
 		for _, swaggoImport := range SwaggoImports {
 			if strings.Contains(imp, swaggoImport) {
-				return true
+				return true, nil
 			}
 		}
 	}
@@ -312,7 +382,7 @@ func (d *Detector) HasSwaggo() bool {
 	// Then check code for swaggo annotations
 	found := false
 
-	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
+	walkErr := filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
 			return nil
 		}
@@ -338,5 +408,9 @@ func (d *Detector) HasSwaggo() bool {
 		return nil
 	})
 
-	return found
+	if walkErr != nil {
+		return false, walkErr
+	}
+
+	return found, nil
 }

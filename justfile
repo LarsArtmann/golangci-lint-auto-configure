@@ -18,16 +18,16 @@ help:
 
 build:
     @echo "Building CLI..."
-    @go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
+    @GOWORK=off GOTOOLCHAIN=local go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 
 test:
     @echo "Running tests..."
-    @ginkgo -r --cover
+    @GOWORK=off GOTOOLCHAIN=local ginkgo -r --cover
 
 # Show test coverage summary
 test-coverage:
     @echo "Test coverage summary:"
-    @go test ./... -coverprofile=coverage.out -covermode=atomic 2>&1 | grep coverage:
+    @GOWORK=off GOTOOLCHAIN=local go test ./... -coverprofile=coverage.out -covermode=atomic 2>&1 | grep coverage:
     @echo ""
     @echo "Total coverage:"
     @go tool cover -func=coverage.out | grep total | awk '{print "  " $$3 " of statements"}'
@@ -35,14 +35,14 @@ test-coverage:
 # Generate and open HTML coverage report
 coverage-html:
     @echo "Generating HTML coverage report..."
-    @go test ./... -coverprofile=coverage.out -covermode=atomic > /dev/null 2>&1
-    @go tool cover -html=coverage.out -o coverage.html
+    @GOWORK=off GOTOOLCHAIN=local go test ./... -coverprofile=coverage.out -covermode=atomic > /dev/null 2>&1
+    @GOWORK=off GOTOOLCHAIN=local go tool cover -html=coverage.out -o coverage.html
     @echo "HTML coverage report: coverage.html"
     @open coverage.html 2>/dev/null || echo "Open coverage.html in your browser"
 
 lint:
     @echo "Running linters..."
-    @golangci-lint run --config .golangci.yml
+    @GOWORK=off GOTOOLCHAIN=local golangci-lint run --config .golangci.yml
 
 run build *args:
     @echo "Running CLI..."
@@ -77,15 +77,16 @@ clean:
 
 install: build
     @echo "Installing CLI..."
-    @go install ./cmd/golangci-lint-auto-configure
+    @GOWORK=off GOTOOLCHAIN=local go install ./cmd/golangci-lint-auto-configure
 
 # Install locally with version ldflags
 install-local:
     #!/bin/bash
+    set -e
     echo "Installing locally with version..."
     VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
     GOPATH=$(go env GOPATH)
-    go build -ldflags "-X main.version=$VERSION" -o "$GOPATH/bin/golangci-lint-auto-configure" ./cmd/golangci-lint-auto-configure
+    GOWORK=off GOTOOLCHAIN=local go build -ldflags "-X main.version=$VERSION" -o "$GOPATH/bin/golangci-lint-auto-configure" ./cmd/golangci-lint-auto-configure
     echo "Installed golangci-lint-auto-configure v$VERSION to $GOPATH/bin/"
 
 fmt:
@@ -98,8 +99,8 @@ fmt-check:
 
 tidy:
     @echo "Tidying go.mod..."
-    @go mod tidy
+    @GOWORK=off GOTOOLCHAIN=local go mod tidy
 
 deps:
     @echo "Installing dependencies..."
-    @go mod download
+    @GOWORK=off GOTOOLCHAIN=local go mod download
