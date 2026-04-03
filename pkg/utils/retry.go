@@ -28,68 +28,51 @@ type ShouldRetry func(error, string) bool
 
 type Operation func() ([]byte, error)
 
-const retriesExceededFmt = "%s failed after %d retries: %w"
-
+//nolint:funlen,varnamelen // Retry logic with context cancellation and exponential backoff is inherently complex; extraction breaks error wrapping semantics.
 func WithRetry(
-	ctx context.Context, config Config, name string,
-	shouldRetry ShouldRetry, op Operation,
+	ctx context.Context,
+	config Config,
+	name string,
+	shouldRetry ShouldRetry,
+	executeOperation Operation,
 ) ([]byte, error) {
 	var lastErr error
+
 	backoff := config.InitialBackoff
 
-	for attempt := range config.MaxRetries + 1 {
-		output, err := op()
+	for attempt := 0; attempt <= config.MaxRetries; attempt++ {
+		output, err := executeOperation()
 		if err == nil {
 			return output, nil
 		}
 
 		lastErr = err
 
-		if result, done := handleFailedAttempt(ctx, failedAttemptParams{
-			name: name, maxRetries: config.MaxRetries,
-			attempt: attempt, backoff: backoff,
-			output: output, err: err, shouldRetry: shouldRetry, lastErr: lastErr,
-		}); done {
-			return result.val, result.err
+		if shouldRetry(err, string(output)) && attempt < config.MaxRetries {
+			select {
+			case <-time.After(backoff):
+			case <-ctx.Done():
+				return nil, fmt.Errorf(
+					"%s retry interrupted (lastErr=%w): %w",
+					name,
+					lastErr,
+					ctx.Err(),
+				)
+			}
+
+			backoff *= 2
+
+			continue
 		}
 
-		backoff *= 2
+		if attempt >= config.MaxRetries {
+			return output, fmt.Errorf("%s failed after %d retries: %w", name, config.MaxRetries, lastErr)
+		}
+
+		return output, err
 	}
 
-	return nil, fmt.Errorf(retriesExceededFmt, name, config.MaxRetries, lastErr)
-}
-
-type failedAttemptParams struct {
-	name        string
-	maxRetries  int
-	attempt     int
-	backoff     time.Duration
-	output      []byte
-	err         error
-	shouldRetry ShouldRetry
-	lastErr     error
-}
-
-type retryResult struct {
-	val []byte
-	err error
-}
-
-func handleFailedAttempt(ctx context.Context, p failedAttemptParams) (retryResult, bool) {
-	if !p.shouldRetry(p.err, string(p.output)) {
-		return retryResult{p.output, p.err}, true
-	}
-
-	if p.attempt >= p.maxRetries {
-		return retryResult{p.output, fmt.Errorf(retriesExceededFmt, p.name, p.maxRetries, p.lastErr)}, true
-	}
-
-	select {
-	case <-time.After(p.backoff):
-		return retryResult{}, false
-	case <-ctx.Done():
-		return retryResult{nil, fmt.Errorf("%s retry interrupted (lastErr=%w): %w", p.name, p.lastErr, ctx.Err())}, true
-	}
+	return nil, fmt.Errorf("%s failed after %d retries: %w", name, config.MaxRetries, lastErr)
 }
 
 func IsContextCanceled(err error) bool {
