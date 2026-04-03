@@ -79,9 +79,9 @@ func (d *Differ) compareRunSettings(old, newConfig types.RunConfig) []Change {
 	var changes []Change
 
 	changes = d.addChangeIfDifferent(changes, old.Timeout, newConfig.Timeout, "run.timeout",
-		"Timeout", func(o, n string) string { return fmt.Sprintf("Timeout changed from %s to %s", o, n) })
+		func(o, n string) string { return fmt.Sprintf("Timeout changed from %s to %s", o, n) })
 	changes = d.addChangeIfDifferent(changes, old.Go, newConfig.Go, "run.go",
-		"Go version", func(o, n string) string { return fmt.Sprintf("Go version changed from %s to %s", o, n) })
+		func(o, n string) string { return fmt.Sprintf("Go version changed from %s to %s", o, n) })
 	changes = d.addTestChangeIfDifferent(changes, old.Tests, newConfig.Tests)
 
 	return changes
@@ -90,7 +90,7 @@ func (d *Differ) compareRunSettings(old, newConfig types.RunConfig) []Change {
 func (d *Differ) addChangeIfDifferent(
 	changes []Change,
 	oldVal, newVal string,
-	path, label string,
+	path string,
 	formatFunc func(string, string) string,
 ) []Change {
 	if oldVal != newVal {
@@ -201,7 +201,8 @@ func (d *Differ) FormatChanges(changes []Change) string {
 	return formatChangeDetails(builder.String(), sortedChanges)
 }
 
-func countChangesByType(changes []Change) (added, removed, modified int) {
+func countChangesByType(changes []Change) (int, int, int) {
+	var added, removed, modified int
 	for _, change := range changes {
 		switch change.Type {
 		case ChangeTypeAdded:
@@ -264,7 +265,8 @@ func (d *Differ) GetSummary(changes []Change) string {
 	return strings.Join(parts, ", ")
 }
 
-func countChangeTypes(changes []Change) (added, removed, modified int) {
+func countChangeTypes(changes []Change) (int, int, int) {
+	var added, removed, modified int
 	for _, c := range changes {
 		switch c.Type {
 		case ChangeTypeAdded:
