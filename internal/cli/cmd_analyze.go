@@ -72,7 +72,11 @@ func runAnalysisWithSpinner(
 
 	fmt.Fprintf(os.Stdout, "\r\033[K")
 
-	return analysis, err
+	if err != nil {
+		return nil, fmt.Errorf("analyze config: %w", err)
+	}
+
+	return analysis, nil
 }
 
 func runAnalyze(

@@ -67,6 +67,8 @@ func filterRecommendations(
 			critical = append(critical, rec)
 		case types.LinterPriorityHigh:
 			high = append(high, rec)
+		case types.LinterPriorityMedium, types.LinterPriorityOptional:
+			// Skip lower priority recommendations
 		}
 	}
 

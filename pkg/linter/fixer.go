@@ -191,7 +191,12 @@ func (f *Fixer) applyAllFixes(
 	dryRun bool,
 	originalEnabled []string,
 ) fixCounts {
-	counts := fixCounts{}
+	counts := fixCounts{
+		deprecation: 0,
+		enable:      0,
+		formatter:   0,
+		redundant:   0,
+	}
 	linterSet = f.replaceDeprecatedLinters(linterSet, originalEnabled, dryRun, &counts)
 	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
 	counts.formatter += f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun)
