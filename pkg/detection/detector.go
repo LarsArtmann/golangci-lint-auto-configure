@@ -135,6 +135,7 @@ type goModInfo struct {
 
 func scanGoMod(scanner *bufio.Scanner) goModInfo {
 	var info goModInfo
+
 	inRequire := false
 
 	for scanner.Scan() {

@@ -20,6 +20,8 @@ func setupBenchmarkProject(b *testing.B) string {
 }
 
 func createBenchmarkGoMod(b *testing.B, tempDir string) {
+	b.Helper()
+
 	goMod := `module test
 
 go 1.21
@@ -37,6 +39,8 @@ require (
 }
 
 func createBenchmarkMainGo(b *testing.B, tempDir string) {
+	b.Helper()
+
 	mainGo := `package main
 
 import "github.com/gin-gonic/gin"

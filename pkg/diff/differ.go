@@ -203,6 +203,7 @@ func (d *Differ) FormatChanges(changes []Change) string {
 
 func countChangesByType(changes []Change) (int, int, int) {
 	var added, removed, modified int
+
 	for _, change := range changes {
 		switch change.Type {
 		case ChangeTypeAdded:
@@ -267,6 +268,7 @@ func (d *Differ) GetSummary(changes []Change) string {
 
 func countChangeTypes(changes []Change) (int, int, int) {
 	var added, removed, modified int
+
 	for _, c := range changes {
 		switch c.Type {
 		case ChangeTypeAdded:

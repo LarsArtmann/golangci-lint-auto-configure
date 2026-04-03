@@ -54,7 +54,8 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 	for _, rec := range analysis.FormatterRecommendations {
 		if rec.Name == "golines" && rec.Priority == types.FormatterPriorityHigh {
 			shouldEnable = true
-			break
+
+		break
 		}
 	}
 
@@ -90,6 +91,7 @@ func (fm *FormatterManager) EnableSwaggoFormatter(
 	hasSwaggo, err := detector.HasSwaggo()
 	if err != nil {
 		fm.logger.Debugf("Error detecting swaggo: %v", err)
+
 		return 0
 	}
 
@@ -155,7 +157,7 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 }
 
 // ToOrderedSlice converts formatter set to ordered slice.
-// Order: gci → goimports → gofumpt → golines → swaggo → others (sorted)
+// Order: gci → goimports → gofumpt → golines → swaggo → others (sorted).
 func (fm *FormatterManager) ToOrderedSlice(set map[string]bool) []string {
 	// Define explicit order
 	order := []string{"gci", "goimports", "gofumpt", "golines", "swaggo"}
