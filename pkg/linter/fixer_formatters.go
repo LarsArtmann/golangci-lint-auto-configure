@@ -55,7 +55,7 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 		if rec.Name == "golines" && rec.Priority == types.FormatterPriorityHigh {
 			shouldEnable = true
 
-		break
+			break
 		}
 	}
 

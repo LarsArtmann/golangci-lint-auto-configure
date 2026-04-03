@@ -51,8 +51,14 @@ var compareTests = []struct {
 	},
 	{
 		"multiple changes",
-		&types.Config{Version: "1", Run: types.RunConfig{Timeout: "5m"}, Linters: types.LintersConfig{Enable: []string{"errcheck"}}},
-		&types.Config{Version: "2", Run: types.RunConfig{Timeout: "10m"}, Linters: types.LintersConfig{Enable: []string{"gosec"}}},
+		&types.Config{
+			Version: "1", Run: types.RunConfig{Timeout: "5m"},
+			Linters: types.LintersConfig{Enable: []string{"errcheck"}},
+		},
+		&types.Config{
+			Version: "2", Run: types.RunConfig{Timeout: "10m"},
+			Linters: types.LintersConfig{Enable: []string{"gosec"}},
+		},
 		4,
 	},
 	{"no changes", baseV2, baseV2, 0},

@@ -343,7 +343,7 @@ func (d *Detector) hasSwaggoInCode() (bool, error) {
 		return d.checkFileForSwaggo(path, info, err, &found)
 	})
 	if walkErr != nil {
-	return false, fmt.Errorf("walk directory: %w", walkErr)
+		return false, fmt.Errorf("walk directory: %w", walkErr)
 	}
 
 	return found, nil

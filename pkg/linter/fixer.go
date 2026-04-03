@@ -198,7 +198,9 @@ func (f *Fixer) applyAllFixes(
 	counts.formatter += f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun)
 	counts.redundant += f.formatterManager.RemoveRedundantLinters(linterSet, formatterSet, dryRun)
 	counts.redundant += f.formatterManager.RemoveRedundantGofmt(formatterSet, dryRun)
-	counts.enable = f.enableRecommendedLinters(linterSet, f.configLoader.GetLintersDisabled(cfg), analysis, priority, dryRun)
+	counts.enable = f.enableRecommendedLinters(
+		linterSet, f.configLoader.GetLintersDisabled(cfg), analysis, priority, dryRun,
+	)
 
 	return counts
 }

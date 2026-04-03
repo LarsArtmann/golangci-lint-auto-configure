@@ -56,7 +56,9 @@ func printAnalysisResults(analysis *types.ConfigAnalysis) {
 		"recommendations", len(analysis.LinterRecommendations))
 }
 
-func filterRecommendations(analysis *types.ConfigAnalysis) ([]types.LinterRecommendation, []types.LinterRecommendation) {
+func filterRecommendations(
+	analysis *types.ConfigAnalysis,
+) ([]types.LinterRecommendation, []types.LinterRecommendation) {
 	var critical, high []types.LinterRecommendation
 
 	for _, rec := range analysis.LinterRecommendations {
