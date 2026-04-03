@@ -87,17 +87,35 @@ var formatTests = []struct {
 	{"no changes", []diffpkg.Change{}, []string{"No changes detected"}},
 	{
 		"added linter",
-		[]diffpkg.Change{{Type: diffpkg.ChangeTypeAdded, Path: "linters.enable.gosec", Description: "Enabled linter: gosec"}},
+		[]diffpkg.Change{
+			{
+				Type:        diffpkg.ChangeTypeAdded,
+				Path:        "linters.enable.gosec",
+				Description: "Enabled linter: gosec",
+			},
+		},
 		[]string{"1 added", "+ Enabled linter: gosec"},
 	},
 	{
 		"removed linter",
-		[]diffpkg.Change{{Type: diffpkg.ChangeTypeRemoved, Path: "linters.enable.errcheck", Description: "Disabled linter: errcheck"}},
+		[]diffpkg.Change{
+			{
+				Type:        diffpkg.ChangeTypeRemoved,
+				Path:        "linters.enable.errcheck",
+				Description: "Disabled linter: errcheck",
+			},
+		},
 		[]string{"1 removed", "- Disabled linter: errcheck"},
 	},
 	{
 		"modified timeout",
-		[]diffpkg.Change{{Type: diffpkg.ChangeTypeModified, Path: "run.timeout", Description: "Timeout changed from 5m to 10m"}},
+		[]diffpkg.Change{
+			{
+				Type:        diffpkg.ChangeTypeModified,
+				Path:        "run.timeout",
+				Description: "Timeout changed from 5m to 10m",
+			},
+		},
 		[]string{"1 modified", "~ Timeout changed from 5m to 10m"},
 	},
 }

@@ -99,20 +99,6 @@ func (fm *FormatterManager) EnableSwaggoFormatter(
 	return 1
 }
 
-func (fm *FormatterManager) projectUsesSwaggo(configPath string) bool {
-	rootDir := filepath.Dir(configPath)
-	detector := detection.NewDetector(rootDir)
-
-	hasSwaggo, err := detector.HasSwaggo()
-	if err != nil {
-		fm.logger.Debugf("Error detecting swaggo: %v", err)
-
-		return false
-	}
-
-	return hasSwaggo
-}
-
 // RemoveRedundantGofmt removes gofmt when gofumpt is enabled (gofumpt is a superset).
 func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet map[string]bool, dryRun bool) int {
 	if !formatterSet["gofumpt"] || !formatterSet["gofmt"] {
@@ -185,4 +171,18 @@ func (fm *FormatterManager) ToOrderedSlice(set map[string]bool) []string {
 	slices.Sort(remaining)
 
 	return append(result, remaining...)
+}
+
+func (fm *FormatterManager) projectUsesSwaggo(configPath string) bool {
+	rootDir := filepath.Dir(configPath)
+	detector := detection.NewDetector(rootDir)
+
+	hasSwaggo, err := detector.HasSwaggo()
+	if err != nil {
+		fm.logger.Debugf("Error detecting swaggo: %v", err)
+
+		return false
+	}
+
+	return hasSwaggo
 }

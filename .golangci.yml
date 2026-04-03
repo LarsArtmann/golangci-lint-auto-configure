@@ -264,6 +264,7 @@ linters:
       - path: pkg/detection/detector_test\.go
         linters:
           - paralleltest
+          - wsl_v5
       - path: pkg/diff/differ_test\.go
         linters:
           - paralleltest
