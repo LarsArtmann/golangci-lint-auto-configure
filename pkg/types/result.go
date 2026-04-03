@@ -25,6 +25,9 @@ type LinterNamesResult = mo.Result[[]string]
 // StringResult is a Result type for string operations.
 type StringResult = mo.Result[string]
 
+// ConfigPathResult is a Result type for ConfigPath operations.
+type ConfigPathResult = mo.Result[ConfigPath]
+
 // --- Helper Functions ---
 
 // OkConfig wraps a Config in an Ok result.
@@ -85,4 +88,14 @@ func OkString(value string) StringResult {
 // ErrString creates an Err result for string operations.
 func ErrString(err error) StringResult {
 	return mo.Err[string](err)
+}
+
+// OkConfigPath wraps a ConfigPath in an Ok result.
+func OkConfigPath(path ConfigPath) ConfigPathResult {
+	return mo.Ok(path)
+}
+
+// ErrConfigPath creates an Err result for ConfigPath operations.
+func ErrConfigPath(err error) ConfigPathResult {
+	return mo.Err[ConfigPath](err)
 }
