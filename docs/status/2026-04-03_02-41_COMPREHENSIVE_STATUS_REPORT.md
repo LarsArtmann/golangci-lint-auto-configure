@@ -14,6 +14,7 @@ The project is in **good operational state** with passing tests (94.6% coverage)
 ### Key Discovery: Workspace Issue Resolution
 
 **Root Cause:** A parent directory (`/Users/larsartmann/projects/go.work`) contains a Go workspace file that lists modules not including this project, causing golangci-lint to fail with:
+
 ```
 typechecking error: pattern ./...: directory prefix . does not contain modules listed in go.work
 ```
@@ -58,19 +59,19 @@ typechecking error: pattern ./...: directory prefix . does not contain modules l
 
 ### 1. Lint Violations Remaining (52 total)
 
-| Category | Count | Status | Priority |
-|----------|-------|--------|----------|
-| funlen | 24 | ⚠️ PARTIALLY DONE | High |
-| funcorder | 12 | 🔴 NOT STARTED | Medium |
-| noinlineerr | 4 | 🔴 NOT STARTED | Medium |
-| wrapcheck | 4 | 🔴 NOT STARTED | High |
-| nlreturn | 2 | 🔴 NOT STARTED | Low |
-| exhaustruct | 1 | 🔴 NOT STARTED | Low |
-| gochecknoglobals | 1 | 🔴 NOT STARTED | Medium |
-| goconst | 1 | ✅ DONE | - |
-| godot | 1 | 🔴 NOT STARTED | Low |
-| golines | 1 | 🔴 NOT STARTED | Low |
-| unconvert | 1 | ✅ DONE | - |
+| Category         | Count | Status            | Priority |
+| ---------------- | ----- | ----------------- | -------- |
+| funlen           | 24    | ⚠️ PARTIALLY DONE | High     |
+| funcorder        | 12    | 🔴 NOT STARTED    | Medium   |
+| noinlineerr      | 4     | 🔴 NOT STARTED    | Medium   |
+| wrapcheck        | 4     | 🔴 NOT STARTED    | High     |
+| nlreturn         | 2     | 🔴 NOT STARTED    | Low      |
+| exhaustruct      | 1     | 🔴 NOT STARTED    | Low      |
+| gochecknoglobals | 1     | 🔴 NOT STARTED    | Medium   |
+| goconst          | 1     | ✅ DONE           | -        |
+| godot            | 1     | 🔴 NOT STARTED    | Low      |
+| golines          | 1     | 🔴 NOT STARTED    | Low      |
+| unconvert        | 1     | ✅ DONE           | -        |
 
 ### 2. funlen Enforcement
 
@@ -228,11 +229,13 @@ The workspace issue that was previously "totally fucked up" has been **resolved*
 ### What is the recommended approach for fixing funcorder violations without breaking existing code organization patterns?
 
 **Context:**
+
 - `funcorder` requires unexported methods to come AFTER exported methods
 - This is a Go best practice for API readability
 - However, some files have logical groupings (e.g., public API methods first, then private helpers)
 
 **Specific Challenge:**
+
 - `pkg/detection/detector.go` has 8 unexported methods that need to be moved after `HasSwaggo()`
 - `pkg/linter/analyzer.go` has 4 unexported methods to move after `GetSummary()`
 
@@ -244,6 +247,7 @@ The workspace issue that was previously "totally fucked up" has been **resolved*
 4. **Refactor into smaller structs** - Best long-term but high effort
 
 **What I need:**
+
 - Guidance on preferred approach for this codebase
 - Whether existing patterns should be preserved or refactored
 - If there's a preference for certain file organization patterns
@@ -252,28 +256,28 @@ The workspace issue that was previously "totally fucked up" has been **resolved*
 
 ## FILES WITH LINT ISSUES
 
-| File | Issues | Main Problems |
-|------|--------|---------------|
-| pkg/detection/detector.go | 14 | funcorder (8), wrapcheck (3), noinlineerr (1), funlen (2) |
-| pkg/linter/analyzer.go | 4 | funcorder (4) |
-| pkg/linter/fixer.go | 3 | funlen, gochecknoglobals, exhaustruct |
-| internal/cli/cmd_report.go | 3 | noinlineerr (2), funlen |
-| internal/cli/cmd_validate.go | 3 | noinlineerr, funlen, nlreturn |
-| internal/cli/cmd/migrate.go | 2 | funlen, nlreturn |
-| pkg/config/loader.go | 2 | funlen |
-| examples/api-usage/main.go | 1 | funlen |
-| pkg/detection/detector_bench_test.go | 1 | funlen |
+| File                                 | Issues | Main Problems                                             |
+| ------------------------------------ | ------ | --------------------------------------------------------- |
+| pkg/detection/detector.go            | 14     | funcorder (8), wrapcheck (3), noinlineerr (1), funlen (2) |
+| pkg/linter/analyzer.go               | 4      | funcorder (4)                                             |
+| pkg/linter/fixer.go                  | 3      | funlen, gochecknoglobals, exhaustruct                     |
+| internal/cli/cmd_report.go           | 3      | noinlineerr (2), funlen                                   |
+| internal/cli/cmd_validate.go         | 3      | noinlineerr, funlen, nlreturn                             |
+| internal/cli/cmd/migrate.go          | 2      | funlen, nlreturn                                          |
+| pkg/config/loader.go                 | 2      | funlen                                                    |
+| examples/api-usage/main.go           | 1      | funlen                                                    |
+| pkg/detection/detector_bench_test.go | 1      | funlen                                                    |
 
 ---
 
 ## RECENT COMMITS (Uncommitted Changes)
 
-| File | Description |
-|------|-------------|
-| pkg/linter/categorizer.go | Improved type safety by removing unnecessary conversions |
-| pkg/constants/presets.go | Added ValidPresets constant for goconst compliance |
-| internal/cli/cmd_configure.go | Updated to use ValidPresets constant |
-| docs/status/2026-04-03_01-48_COMPREHENSIVE_STATUS_REPORT.md | Previous status report |
+| File                                                        | Description                                              |
+| ----------------------------------------------------------- | -------------------------------------------------------- |
+| pkg/linter/categorizer.go                                   | Improved type safety by removing unnecessary conversions |
+| pkg/constants/presets.go                                    | Added ValidPresets constant for goconst compliance       |
+| internal/cli/cmd_configure.go                               | Updated to use ValidPresets constant                     |
+| docs/status/2026-04-03_01-48_COMPREHENSIVE_STATUS_REPORT.md | Previous status report                                   |
 
 ---
 
