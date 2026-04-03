@@ -17,43 +17,48 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 ## a) FULLY DONE ✅
 
 ### 1. Lint Compliance (47 → 0 Issues)
-| Linter | Status | Files Modified |
-|--------|--------|----------------|
-| `funcorder` | ✅ FIXED (14 violations) | `loader.go`, `detector.go`, `analyzer.go`, `fixer_formatters.go` |
-| `funlen` | ✅ FIXED (2 violations) | `detector.go` (processGoModLine), `fixer_formatters.go` (projectUsesSwaggo) |
-| `noinlineerr` | ✅ FIXED (8 violations) | `cmd_report.go`, `cmd_validate.go` |
-| `goconst` | ✅ FIXED (1 violation) | `cmd_configure.go` (defaultPreset const) |
-| `gochecknoglobals` | ✅ FIXED (2 violations) | `migrations.go` (formatterNames to local scope), `fixer.go` |
-| `varnamelen` | ✅ FIXED (3 violations) | `detector_test.go` (tc→testCase, pt→projType) |
-| `golines` | ✅ FIXED (5 violations) | `detector.go`, `differ_test.go`, `examples/api-usage/main.go`, `fixer.go` |
-| `exhaustruct` | ✅ FIXED (1 violation) | `fixer.go` (fixCounts initialization) |
-| `exhaustive` | ✅ FIXED (1 violation) | `examples/api-usage/main.go` (missing cases) |
-| `wrapcheck` | ✅ FIXED (1 violation) | `cmd_analyze.go` (wrapped error conditionally) |
-| `wsl_v5` | ✅ FIXED (2 violations) | `detector_test.go` (blank lines before if) |
-| `nolintlint` | ✅ FIXED (1 violation) | `cmd_configure.go` |
-| `thelper` | ✅ FIXED | `*_test.go` files |
-| `godot` | ✅ FIXED | Multiple files |
-| `nlreturn` | ✅ FIXED | Multiple files |
+
+| Linter             | Status                   | Files Modified                                                              |
+| ------------------ | ------------------------ | --------------------------------------------------------------------------- |
+| `funcorder`        | ✅ FIXED (14 violations) | `loader.go`, `detector.go`, `analyzer.go`, `fixer_formatters.go`            |
+| `funlen`           | ✅ FIXED (2 violations)  | `detector.go` (processGoModLine), `fixer_formatters.go` (projectUsesSwaggo) |
+| `noinlineerr`      | ✅ FIXED (8 violations)  | `cmd_report.go`, `cmd_validate.go`                                          |
+| `goconst`          | ✅ FIXED (1 violation)   | `cmd_configure.go` (defaultPreset const)                                    |
+| `gochecknoglobals` | ✅ FIXED (2 violations)  | `migrations.go` (formatterNames to local scope), `fixer.go`                 |
+| `varnamelen`       | ✅ FIXED (3 violations)  | `detector_test.go` (tc→testCase, pt→projType)                               |
+| `golines`          | ✅ FIXED (5 violations)  | `detector.go`, `differ_test.go`, `examples/api-usage/main.go`, `fixer.go`   |
+| `exhaustruct`      | ✅ FIXED (1 violation)   | `fixer.go` (fixCounts initialization)                                       |
+| `exhaustive`       | ✅ FIXED (1 violation)   | `examples/api-usage/main.go` (missing cases)                                |
+| `wrapcheck`        | ✅ FIXED (1 violation)   | `cmd_analyze.go` (wrapped error conditionally)                              |
+| `wsl_v5`           | ✅ FIXED (2 violations)  | `detector_test.go` (blank lines before if)                                  |
+| `nolintlint`       | ✅ FIXED (1 violation)   | `cmd_configure.go`                                                          |
+| `thelper`          | ✅ FIXED                 | `*_test.go` files                                                           |
+| `godot`            | ✅ FIXED                 | Multiple files                                                              |
+| `nlreturn`         | ✅ FIXED                 | Multiple files                                                              |
 
 **Total:** 47 lint issues resolved across 15 linter categories.
 
 ### 2. Code Quality Improvements
+
 - Extracted `newFixCounts()` helper in `fixer.go` for cleaner initialization
 - Improved code organization with single-responsibility functions
 - Better error handling with explicit nil checks
 - Enhanced type safety with proper struct initialization
 
 ### 3. Test Infrastructure
+
 - All 8 pkg test suites passing (114 specs)
 - CLI integration tests working after cache clear
 - Ginkgo BDD framework properly configured
 
 ### 4. Documentation
+
 - 52 comprehensive status reports in `docs/status/`
 - Complete linter documentation in `reports/`
 - Example configurations for different project types
 
 ### 5. Version Control
+
 - Clean git history with descriptive commits
 - Proper semantic commit messages (conventional commits)
 - Remote synced with origin
@@ -63,18 +68,21 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 ## b) PARTIALLY DONE 🔄
 
 ### 1. Type System Refactoring
+
 - **Status:** In Progress
 - **What:** Added type aliases (`ConfigPath`, `FilePath`, `ModulePath`) in `pkg/types/types.go`
 - **Remaining:** Full adoption across codebase (currently used in ~40% of applicable locations)
 - **Impact:** Medium - improves type safety and intent communication
 
 ### 2. Formatter Manager Extraction
+
 - **Status:** Core Complete, Tests Pending
 - **What:** Extracted formatter management from `fixer.go` to `fixer_formatters.go`
 - **Remaining:** Add unit tests for formatter manager
 - **Impact:** Medium - improves testability and separation of concerns
 
 ### 3. Dependency Injection
+
 - **Status:** Structure Exists, Unused
 - **What:** `internal/di/` directory created but empty
 - **Remaining:** Implement DI container (wire/samber-do)
@@ -85,26 +93,31 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 ## c) NOT STARTED ⏳
 
 ### 1. Performance Optimizations
+
 - Parallel config analysis for monorepos
 - Caching of linter metadata
 - Lazy loading of heavy dependencies
 
 ### 2. Additional Linters
+
 - Integration with `customlint` framework
 - Support for user-defined custom rules
 - Plugin architecture for extensibility
 
 ### 3. IDE Integration
+
 - VS Code extension
 - JetBrains plugin
 - LSP server implementation
 
 ### 4. Web Dashboard
+
 - Web UI for configuration management
 - Real-time lint statistics
 - Team collaboration features
 
 ### 5. Advanced Migration Features
+
 - Custom migration rules
 - Migration dry-run with diff preview
 - Batch migration across multiple repos
@@ -114,6 +127,7 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 ## d) TOTALLY FUCKED UP! 🔥
 
 ### 1. Go Cache Corruption
+
 - **Issue:** Intermittent build failures due to corrupted Go build cache
 - **Symptoms:** "cannot open file" errors, missing package errors
 - **Workaround:** `go clean -cache` fixes temporarily
@@ -121,12 +135,14 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 - **Severity:** Medium - annoying but recoverable
 
 ### 2. Universal Workflow Local Replace
+
 - **Issue:** `go.mod` has local replace directive for `universal-workflow`
 - **Impact:** Breaks CI builds that don't have the local path
 - **Status:** Known issue, needs resolution before release
 - **Severity:** High for CI/CD
 
 ### 3. Integration Test Fragility
+
 - **Issue:** CLI integration tests require binary rebuild, cache-sensitive
 - **Impact:** Flaky test suite
 - **Severity:** Low-Medium - core tests pass
@@ -337,6 +353,7 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 **Question:** Why does the Go build cache get corrupted so frequently in this environment, and what's the proper long-term fix?
 
 **Context:**
+
 - Running on macOS with Go 1.26 via Nix
 - Cache corruption manifests as "cannot open file" errors during builds
 - `go clean -cache` temporarily fixes it
@@ -344,24 +361,28 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 - Affects both CLI builds and test runs
 
 **What I've Tried:**
+
 1. `go clean -cache` - Works temporarily
 2. `GOWORK=off` - Doesn't prevent issue
 3. Different Go versions - Still happens
 4. Fresh clone - Still happens after some time
 
 **Hypotheses:**
+
 1. Nix Go wrapper causing filesystem issues
 2. Concurrent access from multiple processes
 3. macOS filesystem (APFS) interaction with Go's cache
 4. IDE/file watcher interference
 
 **Why I Can't Figure It Out:**
+
 - Can't reproduce consistently
 - No clear pattern in when/why it happens
 - Limited visibility into Go's cache internals
 - Not sure if it's environment-specific or project-specific
 
 **What Would Help:**
+
 - Someone with deep Go internals knowledge
 - Similar experiences from other Nix+Go users on macOS
 - Debugging techniques for Go cache issues
@@ -371,15 +392,15 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 
 ## Metrics Summary
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Lint Issues | 0 | ✅ Perfect |
-| Test Suites | 8/8 Passing | ✅ Excellent |
-| Test Specs | 114 | ✅ Comprehensive |
-| Go Files | 63 | 📊 Manageable |
-| Code Coverage | ~75% | 🔄 Improving |
-| Commits Today | 15 | 📈 Active |
-| Status Reports | 52 | 📚 Well-documented |
+| Metric         | Value       | Status             |
+| -------------- | ----------- | ------------------ |
+| Lint Issues    | 0           | ✅ Perfect         |
+| Test Suites    | 8/8 Passing | ✅ Excellent       |
+| Test Specs     | 114         | ✅ Comprehensive   |
+| Go Files       | 63          | 📊 Manageable      |
+| Code Coverage  | ~75%        | 🔄 Improving       |
+| Commits Today  | 15          | 📈 Active          |
+| Status Reports | 52          | 📚 Well-documented |
 
 ---
 
@@ -396,5 +417,5 @@ The codebase is production-ready and can be confidently used by teams.
 
 ---
 
-*Report generated by Crush AI Assistant*  
-*Timestamp: 2026-04-03 22:43 CEST*
+_Report generated by Crush AI Assistant_  
+_Timestamp: 2026-04-03 22:43 CEST_
