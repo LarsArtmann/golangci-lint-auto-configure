@@ -148,32 +148,34 @@ func scanGoMod(scanner *bufio.Scanner) goModInfo {
 	inRequire := false
 
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-
-		if strings.HasPrefix(line, "module ") {
-			info.modulePath = strings.TrimSpace(strings.TrimPrefix(line, "module"))
-
-			continue
-		}
-
-		if line == "require (" {
-			inRequire = true
-
-			continue
-		}
-
-		if line == ")" {
-			inRequire = false
-
-			continue
-		}
-
-		if imp := extractImportFromLine(line, inRequire); imp != "" {
-			info.imports = append(info.imports, imp)
-		}
+		inRequire = processGoModLine(scanner.Text(), &info, inRequire)
 	}
 
 	return info
+}
+
+func processGoModLine(rawLine string, info *goModInfo, inRequire bool) bool {
+	line := strings.TrimSpace(rawLine)
+
+	if strings.HasPrefix(line, "module ") {
+		info.modulePath = strings.TrimSpace(strings.TrimPrefix(line, "module"))
+
+		return inRequire
+	}
+
+	if line == "require (" {
+		return true
+	}
+
+	if line == ")" {
+		return false
+	}
+
+	if imp := extractImportFromLine(line, inRequire); imp != "" {
+		info.imports = append(info.imports, imp)
+	}
+
+	return inRequire
 }
 
 func extractImportFromLine(line string, inRequire bool) string {

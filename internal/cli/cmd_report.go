@@ -93,7 +93,8 @@ func writeJSONReport(
 ) error {
 	gen := report.NewJSONGenerator(logger)
 
-	if err := gen.GenerateJSONReport(analysis, outputPath); err != nil {
+	err := gen.GenerateJSONReport(analysis, outputPath)
+	if err != nil {
 		return fmt.Errorf(
 			"failed to generate JSON report (configPath=%s, outputPath=%s): %w",
 			configFile,
@@ -113,7 +114,8 @@ func writeHTMLReport(
 ) error {
 	gen := report.NewGenerator(logger)
 
-	if err := gen.GenerateReport(ctx, analysis, outputPath); err != nil {
+	err := gen.GenerateReport(ctx, analysis, outputPath)
+	if err != nil {
 		return fmt.Errorf(
 			"failed to generate HTML report (configPath=%s, outputPath=%s): %w",
 			configFile,

@@ -56,7 +56,8 @@ func runValidate(
 
 	logger.Infof("Validating configuration: %s", configFile)
 
-	if err := validateBasicStructure(configLoader, configFile, logger); err != nil {
+	err = validateBasicStructure(configLoader, configFile, logger)
+	if err != nil {
 		return err
 	}
 

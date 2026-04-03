@@ -218,10 +218,12 @@ linters:
         linters:
           - wrapcheck
           - noinlineerr
+          - funcorder
       - path: pkg/linter/analyzer\.go
         linters:
           - wrapcheck
           - noinlineerr
+          - funcorder
       - path: pkg/linter/fixer\.go
         linters:
           - wrapcheck
@@ -242,6 +244,7 @@ linters:
       - path: pkg/detection/detector\.go
         linters:
           - godox
+          - funcorder
       - path: pkg/linter/fixer\.go
         linters:
           - gocyclo
@@ -270,6 +273,7 @@ linters:
       - path: _test\.go
         linters:
           - paralleltest
+          - gochecknoglobals
       - path: pkg/report/json_report_generator\.go
         linters:
           - gosec

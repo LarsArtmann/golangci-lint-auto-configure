@@ -192,13 +192,13 @@ func (m *Migrator) migrateFormatters(config *Config) bool {
 	return true
 }
 
-var formatterNames = map[string]bool{
-	"gofmt":     true,
-	"goimports": true,
-	"gofumpt":   true,
-}
-
 func (m *Migrator) extractFormatters(enabled []string) []string {
+	formatterNames := map[string]bool{
+		"gofmt":     true,
+		"goimports": true,
+		"gofumpt":   true,
+	}
+
 	var formatters []string
 
 	for _, linter := range enabled {
@@ -211,6 +211,12 @@ func (m *Migrator) extractFormatters(enabled []string) []string {
 }
 
 func (m *Migrator) filterOutFormatters(enabled []string) []string {
+	formatterNames := map[string]bool{
+		"gofmt":     true,
+		"goimports": true,
+		"gofumpt":   true,
+	}
+
 	var linters []string
 
 	for _, linter := range enabled {

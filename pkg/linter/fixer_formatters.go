@@ -84,18 +84,7 @@ func (fm *FormatterManager) EnableSwaggoFormatter(
 		return 0
 	}
 
-	// Detect if swaggo is used in the project
-	rootDir := filepath.Dir(configPath)
-	detector := detection.NewDetector(rootDir)
-
-	hasSwaggo, err := detector.HasSwaggo()
-	if err != nil {
-		fm.logger.Debugf("Error detecting swaggo: %v", err)
-
-		return 0
-	}
-
-	if !hasSwaggo {
+	if !fm.projectUsesSwaggo(configPath) {
 		return 0
 	}
 
@@ -108,6 +97,20 @@ func (fm *FormatterManager) EnableSwaggoFormatter(
 	}
 
 	return 1
+}
+
+func (fm *FormatterManager) projectUsesSwaggo(configPath string) bool {
+	rootDir := filepath.Dir(configPath)
+	detector := detection.NewDetector(rootDir)
+
+	hasSwaggo, err := detector.HasSwaggo()
+	if err != nil {
+		fm.logger.Debugf("Error detecting swaggo: %v", err)
+
+		return false
+	}
+
+	return hasSwaggo
 }
 
 // RemoveRedundantGofmt removes gofmt when gofumpt is enabled (gofumpt is a superset).

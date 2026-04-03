@@ -22,6 +22,8 @@ type presetConfigLoader interface {
 	SaveConfig(config *types.Config, path string) error
 }
 
+const defaultPreset = "standard"
+
 const configureLong = `Automatically configures golangci-lint by enabling recommended linters.
 
 Use --priority to filter which linters to enable (default: optional):
@@ -61,9 +63,9 @@ func runFmtCommand(
 func presetForProjectType(projectType detection.ProjectType) string {
 	switch projectType {
 	case detection.ProjectTypeUnknown:
-		return "standard"
+		return defaultPreset
 	case detection.ProjectTypeCLI:
-		return "standard"
+		return defaultPreset
 	case detection.ProjectTypeWeb, detection.ProjectTypeAPI:
 		return "strict"
 	case detection.ProjectTypeLibrary:
@@ -71,7 +73,7 @@ func presetForProjectType(projectType detection.ProjectType) string {
 	case detection.ProjectTypeMonorepo:
 		return "strict"
 	default:
-		return "standard"
+		return defaultPreset
 	}
 }
 

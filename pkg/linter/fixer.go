@@ -292,6 +292,8 @@ func (f *Fixer) updateRunnerSettings(cfg *types.Config) {
 
 // goExperimentTags are build tags for GOEXPERIMENT features that affect user code.
 // See: https://go.dev/src/internal/goexperiment/flags.go
+//
+//nolint:gochecknoglobals // Package-level list used in updateBuildTags for iteration
 var goExperimentTags = []string{
 	"goexperiment.jsonv2",               // Enables json/v2 package
 	"goexperiment.simd",                 // Enables simd package and intrinsics
