@@ -325,3 +325,331 @@ var _ = Describe("Validator", func() {
 		})
 	})
 })
+
+var _ = Describe("YAMLLoader", func() {
+	Describe("LoadConfig", func() {
+		It("should load valid YAML config", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := migration.LoadConfig(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg).NotTo(BeNil())
+			Expect(cfg.Version).To(Equal("2"))
+			Expect(cfg.Run.Timeout).To(Equal("5m"))
+		})
+
+		It("should return error for non-existent file", func() {
+			_, err := migration.LoadConfig("/non/existent/path.yml")
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failed to read config file"))
+		})
+
+		It("should return error for invalid YAML", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			Expect(os.WriteFile(configPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
+
+			_, err := migration.LoadConfig(configPath)
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Describe("SaveConfig", func() {
+		It("should save config to file", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			cfg := &migration.Config{
+				Version: "2",
+				Run: migration.Run{
+					Timeout: "5m",
+				},
+				Linters: migration.Linters{
+					Enable: []string{"errcheck"},
+				},
+			}
+
+			err := migration.SaveConfig(cfg, configPath)
+			Expect(err).NotTo(HaveOccurred())
+
+			// Verify the file was written
+			content, err := os.ReadFile(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("version: \"2\""))
+		})
+
+		It("should return error for invalid path", func() {
+			cfg := &migration.Config{
+				Version: "2",
+			}
+
+			err := migration.SaveConfig(cfg, "/invalid/path/.golangci.yml")
+			Expect(err).To(HaveOccurred())
+		})
+	})
+})
+
+var _ = Describe("ConfigTypes", func() {
+	Describe("UnmarshalYAML", func() {
+		It("should handle v1 issues structure", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "2"
+run:
+  timeout: 5m
+issues:
+  exclude-rules:
+    - linters:
+        - errcheck
+      text: "error checked"
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := migration.LoadConfig(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg).NotTo(BeNil())
+		})
+
+		It("should handle nested issues structure from v1", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "1"
+run:
+  issues:
+    exclude-use-default: true
+    exclude-rules:
+      - linters:
+          - errcheck
+        text: "error checked"
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := migration.LoadConfig(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg).NotTo(BeNil())
+		})
+	})
+})
+
+var _ = Describe("MigrationFunctions", func() {
+	Describe("migrateLintersSettings", func() {
+		It("should handle config with no linters settings", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := migration.LoadConfig(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg.LintersSettingsV1).To(BeNil())
+		})
+	})
+
+	Describe("migrateFormatters", func() {
+		It("should migrate formatters from linters.enable to formatters.enable", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "1"
+linters:
+  enable:
+    - gofmt
+    - goimports
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+			m.SetValidator(migration.MockValidator{})
+
+			success, fixes, err := m.MigrateToV2()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(success).To(BeTrue())
+			Expect(fixes).To(BeNumerically(">", 0))
+
+			// Verify formatters were moved - reload config and check
+			cfg, err := migration.LoadConfig(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg.Formatters.Enable).To(ContainElement("gofmt"))
+			Expect(cfg.Formatters.Enable).To(ContainElement("goimports"))
+			Expect(cfg.Linters.Enable).NotTo(ContainElement("gofmt"))
+			Expect(cfg.Linters.Enable).NotTo(ContainElement("goimports"))
+		})
+	})
+
+	Describe("migrateOutputProperties", func() {
+		It("should remove deprecated output properties", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "2"
+run:
+  timeout: 5m
+output:
+  format: json
+  print-issued-lines: true
+  print-linter-name: true
+  sort-results: true
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+			m.SetValidator(migration.MockValidator{})
+
+			success, fixes, err := m.MigrateToV2()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(success).To(BeTrue())
+			Expect(fixes).To(BeNumerically(">", 0))
+		})
+	})
+
+	Describe("migrateVersion", func() {
+		It("should handle empty version string", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: ""
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+			m.SetValidator(migration.MockValidator{})
+
+			success, fixes, err := m.MigrateToV2()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(success).To(BeTrue())
+			Expect(fixes).To(BeNumerically(">", 0))
+
+			// Verify version was set to "2"
+			cfg, err := migration.LoadConfig(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg.Version).To(Equal("2"))
+		})
+
+		It("should handle version with v prefix", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "v1"
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+			m.SetValidator(migration.MockValidator{})
+
+			success, fixes, err := m.MigrateToV2()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(success).To(BeTrue())
+			Expect(fixes).To(BeNumerically(">", 0))
+		})
+	})
+
+	Describe("migrateRunSettings", func() {
+		It("should set default timeout when missing", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "2"
+run: {}
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+			m.SetValidator(migration.MockValidator{})
+
+			success, fixes, err := m.MigrateToV2()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(success).To(BeTrue())
+			Expect(fixes).To(BeNumerically(">", 0))
+
+			// Verify timeout was set
+			cfg, err := migration.LoadConfig(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(cfg.Run.Timeout).To(Equal("5m"))
+		})
+	})
+
+	Describe("migrateIssuesExcludeDirs", func() {
+		It("should migrate exclude-dirs to exclusions.paths", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "2"
+run:
+  timeout: 5m
+exclude-dirs:
+  - vendor
+  - generated
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+			m.SetValidator(migration.MockValidator{})
+
+			success, fixes, err := m.MigrateToV2()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(success).To(BeTrue())
+			Expect(fixes).To(BeNumerically(">", 0))
+		})
+	})
+
+	Describe("migrateIssuesExcludeFiles", func() {
+		It("should migrate exclude-files to exclusions.paths", func() {
+			testDir := GinkgoT().TempDir()
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			configContent := `version: "2"
+run:
+  timeout: 5m
+exclude-files:
+  - "*.gen.go"
+  - "**/*_test.go"
+linters:
+  enable:
+    - errcheck
+`
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+			m.SetValidator(migration.MockValidator{})
+
+			success, fixes, err := m.MigrateToV2()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(success).To(BeTrue())
+			Expect(fixes).To(BeNumerically(">", 0))
+		})
+	})
+})
