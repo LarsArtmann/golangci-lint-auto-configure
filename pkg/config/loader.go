@@ -327,14 +327,6 @@ func (l *Loader) detectGoVersion(ctx context.Context) string {
 	return goVersion
 }
 
-// SaveConfig saves a golangci-lint configuration to the given path.
-func (l *Loader) SaveConfig(config *Config, path string) error {
-	result := l.SaveConfigResult(config, path)
-	_, err := result.Get()
-
-	return err
-}
-
 // Empty is a type alias for an empty struct, used for operations that don't return a value.
 type Empty = struct{}
 
@@ -351,6 +343,14 @@ func marshalConfig(config *Config, format ConfigFormat) ([]byte, error) {
 		// Default to YAML
 		return yaml.Marshal(config)
 	}
+}
+
+// SaveConfig saves a golangci-lint configuration to the given path.
+func (l *Loader) SaveConfig(config *Config, path string) error {
+	result := l.SaveConfigResult(config, path)
+	_, err := result.Get()
+
+	return err
 }
 
 // SaveConfigResult saves a config and returns a Result type for railway-oriented programming.
