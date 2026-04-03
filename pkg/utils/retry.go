@@ -28,7 +28,7 @@ type ShouldRetry func(error, string) bool
 
 type Operation func() ([]byte, error)
 
-//nolint:funlen,varnamelen // Retry logic with context cancellation and exponential backoff is inherently complex; extraction breaks error wrapping semantics.
+//nolint:funlen // Retry logic with context cancellation and exponential backoff is inherently complex; extraction breaks error wrapping semantics.
 func WithRetry(
 	ctx context.Context,
 	config Config,
