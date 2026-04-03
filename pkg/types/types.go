@@ -78,6 +78,27 @@ func (ln LinterName) String() string {
 	return string(ln)
 }
 
+// ConfigPath is a strongly-typed configuration file path.
+type ConfigPath string
+
+func (cp ConfigPath) String() string {
+	return string(cp)
+}
+
+// FilePath is a strongly-typed file path.
+type FilePath string
+
+func (fp FilePath) String() string {
+	return string(fp)
+}
+
+// ModulePath is a strongly-typed Go module path.
+type ModulePath string
+
+func (mp ModulePath) String() string {
+	return string(mp)
+}
+
 // LinterReplacement represents a replacement for a deprecated linter.
 type LinterReplacement struct {
 	Replacement LinterName `json:"replacement"`
