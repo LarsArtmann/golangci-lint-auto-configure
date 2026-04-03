@@ -2,6 +2,7 @@ package detection
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -76,6 +77,14 @@ func (d *Detector) Detect() ProjectType {
 	d.mu.Unlock()
 
 	return projectType
+}
+
+func (d *Detector) HasSwaggo() (bool, error) {
+	if d.hasSwaggoInGoMod() {
+		return true, nil
+	}
+
+	return d.hasSwaggoInCode()
 }
 
 func (d *Detector) detect() ProjectType {
@@ -206,7 +215,7 @@ func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 
 	file, err := os.Open(goModPath)
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("open go.mod: %w", err)
 	}
 
 	defer closeFile(file)
@@ -214,8 +223,9 @@ func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 	scanner := bufio.NewScanner(file)
 	info := scanGoMod(scanner)
 
-	if err := scanner.Err(); err != nil {
-		return "", nil, err
+	err = scanner.Err()
+	if err != nil {
+		return "", nil, fmt.Errorf("scan go.mod: %w", err)
 	}
 
 	return info.modulePath, info.imports, nil
@@ -307,14 +317,6 @@ func (d *Detector) hasAPICodePatterns() bool {
 	return found
 }
 
-func (d *Detector) HasSwaggo() (bool, error) {
-	if d.hasSwaggoInGoMod() {
-		return true, nil
-	}
-
-	return d.hasSwaggoInCode()
-}
-
 func (d *Detector) hasSwaggoInGoMod() bool {
 	_, imports, err := d.analyzeGoModWithError()
 	if err != nil {
@@ -339,7 +341,7 @@ func (d *Detector) hasSwaggoInCode() (bool, error) {
 		return d.checkFileForSwaggo(path, info, err, &found)
 	})
 	if walkErr != nil {
-		return false, walkErr
+	return false, fmt.Errorf("walk directory: %w", walkErr)
 	}
 
 	return found, nil

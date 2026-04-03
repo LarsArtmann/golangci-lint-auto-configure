@@ -98,41 +98,6 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 	return types.OkAnalysis(analysis)
 }
 
-func (a *Analyzer) parseLintersOutput(ctx context.Context, configPath string) (*golangciLintOutput, error) {
-	lintOutput, err := a.runLintersCommand(ctx, configPath)
-	if err != nil {
-		return nil, apperrors.NewAnalysisError("failed to run golangci-lint linters", "", err)
-	}
-
-	var output golangciLintOutput
-	if err := json.Unmarshal(lintOutput, &output); err != nil {
-		return nil, apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err)
-	}
-
-	return &output, nil
-}
-
-func (a *Analyzer) parseFormattersOutput(ctx context.Context, configPath string) *golangciLintFormattersOutput {
-	formatOutput, err := a.runFormattersCommand(ctx, configPath)
-	if err != nil {
-		a.logger.Debugf("Formatters analysis skipped: %v", err)
-
-		formatOutput = []byte(`{"Enabled": [], "Disabled": []}`)
-	}
-
-	var output golangciLintFormattersOutput
-	if err := json.Unmarshal(formatOutput, &output); err != nil {
-		a.logger.Debugf("Failed to parse formatters JSON, skipping: %v", err)
-
-		output = golangciLintFormattersOutput{
-			Enabled:  []types.FormatterInfo{},
-			Disabled: []types.FormatterInfo{},
-		}
-	}
-
-	return &output
-}
-
 // GetLintersByPriority returns recommendations filtered by priority.
 func (a *Analyzer) GetLintersByPriority(
 	recommendations []types.LinterRecommendation,
@@ -166,6 +131,75 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 	a.formatPrioritySection(&builder, optional, "💡", "OPTIONAL", "for niche use cases")
 
 	return builder.String()
+}
+
+// GetSummary returns a brief summary of recommendations.
+func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string {
+	var parts []string
+
+	if analysis.DeprecatedCount > 0 {
+		parts = append(parts, fmt.Sprintf("%d DEPRECATED", analysis.DeprecatedCount))
+	}
+
+	if analysis.CriticalCount > 0 {
+		parts = append(parts, fmt.Sprintf("%d CRITICAL", analysis.CriticalCount))
+	}
+
+	if analysis.HighValueCount > 0 {
+		parts = append(parts, fmt.Sprintf("%d HIGH", analysis.HighValueCount))
+	}
+
+	if analysis.MediumValueCount > 0 {
+		parts = append(parts, fmt.Sprintf("%d MEDIUM", analysis.MediumValueCount))
+	}
+
+	if analysis.OptionalCount > 0 {
+		parts = append(parts, fmt.Sprintf("%d OPTIONAL", analysis.OptionalCount))
+	}
+
+	if len(parts) == 0 {
+		return "All linters enabled - no recommendations"
+	}
+
+	return fmt.Sprintf("Found %d disabled linters: %s (see details above)",
+		len(analysis.LinterRecommendations),
+		strings.Join(parts, ", "),
+	)
+}
+
+func (a *Analyzer) parseLintersOutput(ctx context.Context, configPath string) (*golangciLintOutput, error) {
+	lintOutput, err := a.runLintersCommand(ctx, configPath)
+	if err != nil {
+		return nil, apperrors.NewAnalysisError("failed to run golangci-lint linters", "", err)
+	}
+
+	var output golangciLintOutput
+	if err := json.Unmarshal(lintOutput, &output); err != nil {
+		return nil, apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err)
+	}
+
+	return &output, nil
+}
+
+func (a *Analyzer) parseFormattersOutput(ctx context.Context, configPath string) *golangciLintFormattersOutput {
+	formatOutput, err := a.runFormattersCommand(ctx, configPath)
+	if err != nil {
+		a.logger.Debugf("Formatters analysis skipped: %v", err)
+
+		formatOutput = []byte(`{"Enabled": [], "Disabled": []}`)
+	}
+
+	var output golangciLintFormattersOutput
+	if err := json.Unmarshal(formatOutput, &output); err != nil {
+		a.logger.Debugf("Failed to parse formatters JSON, skipping: %v", err)
+
+		output = golangciLintFormattersOutput{
+			Enabled:  []types.FormatterInfo{},
+			Disabled: []types.FormatterInfo{},
+		}
+	}
+
+	return &output
 }
 
 func (a *Analyzer) formatDeprecatedSection(builder *strings.Builder, analysis *types.ConfigAnalysis) {
@@ -204,38 +238,4 @@ func (a *Analyzer) formatPrioritySection(
 	}
 
 	builder.WriteString("\n")
-}
-
-// GetSummary returns a brief summary of recommendations.
-func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string {
-	var parts []string
-
-	if analysis.DeprecatedCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d DEPRECATED", analysis.DeprecatedCount))
-	}
-
-	if analysis.CriticalCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d CRITICAL", analysis.CriticalCount))
-	}
-
-	if analysis.HighValueCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d HIGH", analysis.HighValueCount))
-	}
-
-	if analysis.MediumValueCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d MEDIUM", analysis.MediumValueCount))
-	}
-
-	if analysis.OptionalCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d OPTIONAL", analysis.OptionalCount))
-	}
-
-	if len(parts) == 0 {
-		return "All linters enabled - no recommendations"
-	}
-
-	return fmt.Sprintf("Found %d disabled linters: %s (see details above)",
-		len(analysis.LinterRecommendations),
-		strings.Join(parts, ", "),
-	)
 }
