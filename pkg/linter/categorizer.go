@@ -54,13 +54,12 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet map[st
 }
 
 func (a *Analyzer) makeLinterRecommendation(linter types.LinterInfo) types.LinterRecommendation {
-	name := types.LinterName(linter.Name)
 	rec := types.LinterRecommendation{
-		Name:   name,
-		Reason: a.getLinterReason(string(name)),
+		Name:   linter.Name,
+		Reason: a.getLinterReason(linter.Name),
 	}
 
-	if priority, ok := constants.LinterPriorities[name]; ok {
+	if priority, ok := constants.LinterPriorities[linter.Name]; ok {
 		rec.Priority = priority
 	} else {
 		rec.Priority = types.LinterPriorityOptional
@@ -103,8 +102,8 @@ func (a *Analyzer) getFormatterReason(name string) string {
 }
 
 // getLinterReason returns the human-readable reason for a linter recommendation.
-func (a *Analyzer) getLinterReason(name string) string {
-	if reason, ok := constants.LinterReasons[types.LinterName(name)]; ok {
+func (a *Analyzer) getLinterReason(name types.LinterName) string {
+	if reason, ok := constants.LinterReasons[name]; ok {
 		return reason
 	}
 

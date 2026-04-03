@@ -2,6 +2,9 @@ package constants
 
 import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 
+// ValidPresets lists all valid preset names.
+const ValidPresets = "minimal, standard, strict, security, performance"
+
 // PresetLinters defines linter sets for different configuration presets.
 var PresetLinters = map[string][]types.LinterName{
 	"minimal": {

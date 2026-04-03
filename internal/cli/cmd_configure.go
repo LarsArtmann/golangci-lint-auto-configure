@@ -317,9 +317,10 @@ func loadPresetConfig(
 	linters, ok := constants.PresetLinters[preset]
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"%w: %s (valid: minimal, standard, strict, security, performance)",
+			"%w: %s (valid: %s)",
 			apperrors.ErrUnknownPreset,
 			preset,
+			constants.ValidPresets,
 		)
 	}
 

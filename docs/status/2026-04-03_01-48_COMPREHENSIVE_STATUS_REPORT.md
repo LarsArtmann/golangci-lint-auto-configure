@@ -11,25 +11,26 @@
 
 The project is in **good operational state** with passing tests (94.6% coverage) but has **52 remaining lint issues** that need resolution. The main categories are:
 
-| Category | Count | Status |
-|----------|-------|--------|
-| funlen | 24 | 🔴 PARTIALLY DONE - Enforcement ongoing |
-| funcorder | 12 | 🔴 NOT STARTED |
-| noinlineerr | 4 | 🔴 NOT STARTED |
-| wrapcheck | 4 | 🔴 NOT STARTED |
-| nlreturn | 2 | 🔴 NOT STARTED |
-| exhaustruct | 1 | 🔴 NOT STARTED |
-| gochecknoglobals | 1 | 🔴 NOT STARTED |
-| goconst | 1 | 🔴 NOT STARTED |
-| godot | 1 | 🔴 NOT STARTED |
-| golines | 1 | 🔴 NOT STARTED |
-| unconvert | 1 | 🔴 NOT STARTED |
+| Category         | Count | Status                                  |
+| ---------------- | ----- | --------------------------------------- |
+| funlen           | 24    | 🔴 PARTIALLY DONE - Enforcement ongoing |
+| funcorder        | 12    | 🔴 NOT STARTED                          |
+| noinlineerr      | 4     | 🔴 NOT STARTED                          |
+| wrapcheck        | 4     | 🔴 NOT STARTED                          |
+| nlreturn         | 2     | 🔴 NOT STARTED                          |
+| exhaustruct      | 1     | 🔴 NOT STARTED                          |
+| gochecknoglobals | 1     | 🔴 NOT STARTED                          |
+| goconst          | 1     | 🔴 NOT STARTED                          |
+| godot            | 1     | 🔴 NOT STARTED                          |
+| golines          | 1     | 🔴 NOT STARTED                          |
+| unconvert        | 1     | 🔴 NOT STARTED                          |
 
 ---
 
 ## A) WORK STATUS: FULLY DONE ✅
 
 ### 1. wsl_v5 Enforcement
+
 - **Status:** ✅ COMPLETE
 - **Commit:** 3c4b6e8
 - **Changes:**
@@ -39,16 +40,19 @@ The project is in **good operational state** with passing tests (94.6% coverage)
   - Verified: `just lint` shows **0 wsl_v5 violations**
 
 ### 2. Test Suite
+
 - **Status:** ✅ PASSING
 - **Coverage:** 94.6% composite
 - **Suites:** 9 suites passed in 24.2s
 - **Notable:** Utils suite has 100% coverage
 
 ### 3. Core CLI Commands
+
 - **Status:** ✅ WORKING
 - `configure`, `analyze`, `validate`, `report`, `migrate`, `install-hook` all functional
 
 ### 4. Project Structure
+
 - **Status:** ✅ STABLE
 - Dependency injection patterns established
 - Interface-based design for testability
@@ -59,6 +63,7 @@ The project is in **good operational state** with passing tests (94.6% coverage)
 ## B) WORK STATUS: PARTIALLY DONE ⚠️
 
 ### 1. funlen Enforcement
+
 - **Status:** ⚠️ PARTIALLY DONE (24 violations remaining)
 - **Previous:** 45 violations (reduced by 21)
 - **Files affected:** 15 files
@@ -68,11 +73,13 @@ The project is in **good operational state** with passing tests (94.6% coverage)
   - `pkg/detection/detector.go`: 415 lines (exceeds by 19%)
 
 ### 2. golangci-lint Version Check
+
 - **Status:** ⚠️ PARTIALLY DONE
 - Version checking implemented but has some edge cases in text parsing
 - Minimum version v2.10.1 enforced
 
 ### 3. Deprecated Linter Replacement
+
 - **Status:** ⚠️ PARTIALLY DONE
 - `wsl` → `wsl_v5` working correctly
 - Other deprecated mappings exist but may need verification
@@ -82,6 +89,7 @@ The project is in **good operational state** with passing tests (94.6% coverage)
 ## C) WORK STATUS: NOT STARTED ❌
 
 ### 1. funcorder Linter Issues (12 violations)
+
 - **Description:** Unexported methods must be placed after exported methods
 - **Files affected:**
   - `pkg/detection/detector.go`: 7 violations
@@ -89,6 +97,7 @@ The project is in **good operational state** with passing tests (94.6% coverage)
   - `pkg/config/loader.go`: 1 violation
 
 ### 2. noinlineerr Linter Issues (4 violations)
+
 - **Description:** Avoid inline error handling
 - **Files affected:**
   - `internal/cli/cmd_report.go`: 2
@@ -96,12 +105,14 @@ The project is in **good operational state** with passing tests (94.6% coverage)
   - `pkg/detection/detector.go`: 1
 
 ### 3. wrapcheck Linter Issues (4 violations)
+
 - **Description:** Error wrapping issues for external packages
 - **Files affected:**
   - `internal/cli/cmd_analyze.go`: 1
   - `pkg/detection/detector.go`: 3
 
 ### 4. nlreturn Linter Issues (2 violations)
+
 - **Description:** Return statements need blank lines before them
 - **Files affected:**
   - `internal/cli/cmd/migrate.go`: 1
@@ -112,11 +123,13 @@ The project is in **good operational state** with passing tests (94.6% coverage)
 ## D) WORK STATUS: TOTALLY FUCKED UP 🔥
 
 ### 1. golangci-lint Workspace Issue
+
 - **Issue:** `typechecking error: pattern ./...: directory prefix . does not contain modules listed in go.work`
 - **Impact:** Pre-commit hooks fail, but `just lint` works via `.golangci.yml`
 - **Root cause:** Some other project has a `go.work` file affecting the toolchain
 
 ### 2. Large File Problem
+
 - **Issue:** `pkg/linter/fixer.go` at 501 lines (43% over 350 limit)
 - **Impact:** Code review difficulty, maintenance burden
 - **Recommendation:** Split into smaller focused files
@@ -186,6 +199,7 @@ The project is in **good operational state** with passing tests (94.6% coverage)
 ### Why does golangci-lint fail with workspace error in pre-commit hooks but work fine in justfile?
 
 **Details:**
+
 - `just lint` → Works perfectly, runs via `.golangci.yml` config
 - Pre-commit hook via BuildFlow → Fails with: `"typechecking error: pattern ./...: directory prefix . does not contain modules listed in go.work or their selected dependencies"`
 - The issue is **NOT** in this repo's code or `.golangci.yml`
@@ -193,11 +207,13 @@ The project is in **good operational state** with passing tests (94.6% coverage)
 - Could be related to Go 1.26 workspace feature interacting with older golangci-lint
 
 **What I've tried:**
+
 1. Running `just lint` directly - works
 2. Running `golangci-lint run --fix` directly - fails in pre-commit context
 3. The error suggests a workspace detection issue
 
 **What I need:**
+
 - Understanding of why golangci-lint behaves differently in pre-commit vs direct execution
 - Whether this is a golangci-lint version issue (v2.10.1+ required, v2.x installed)
 - If there's a way to disable workspace detection or fix the environment
@@ -206,42 +222,42 @@ The project is in **good operational state** with passing tests (94.6% coverage)
 
 ## FILES WITH LINT ISSUES
 
-| File | Issues | Main Problems |
-|------|--------|---------------|
-| pkg/detection/detector.go | 14 | funcorder, wrapcheck, noinlineerr |
-| pkg/linter/analyzer.go | 4 | funcorder |
-| pkg/linter/fixer.go | 4 | funlen, gochecknoglobals, exhaustruct |
-| internal/cli/cmd_report.go | 3 | noinlineerr, golines |
-| internal/cli/cmd_validate.go | 2 | noinlineerr, nlreturn |
-| pkg/linter/fixer_formatters.go | 2 | funlen |
-| internal/cli/cmd_configure.go | 2 | funlen, goconst |
-| pkg/config/loader.go | 2 | funcorder, funlen |
-| pkg/diff/differ.go | 2 | funlen, exhaustruct |
-| pkg/migration/config_types.go | 2 | funlen |
-| pkg/migration/migrations.go | 2 | funlen |
-| pkg/migration/rules.go | 2 | funlen |
-| pkg/report/json_report_generator.go | 2 | funlen |
-| pkg/ui/formatter.go | 2 | funlen |
-| pkg/utils/retry.go | 2 | funlen |
-| internal/cli/cmd/migrate.go | 1 | nlreturn |
-| pkg/linter/categorizer.go | 1 | unconvert |
-| pkg/detection/detector_test.go | 1 | funlen |
-| pkg/diff/differ_test.go | 1 | funlen |
-| pkg/linter/fixer_test.go | 1 | funlen |
-| internal/cli/cmd_analyze.go | 1 | wrapcheck |
-| examples/api-usage/main.go | 1 | funlen |
+| File                                | Issues | Main Problems                         |
+| ----------------------------------- | ------ | ------------------------------------- |
+| pkg/detection/detector.go           | 14     | funcorder, wrapcheck, noinlineerr     |
+| pkg/linter/analyzer.go              | 4      | funcorder                             |
+| pkg/linter/fixer.go                 | 4      | funlen, gochecknoglobals, exhaustruct |
+| internal/cli/cmd_report.go          | 3      | noinlineerr, golines                  |
+| internal/cli/cmd_validate.go        | 2      | noinlineerr, nlreturn                 |
+| pkg/linter/fixer_formatters.go      | 2      | funlen                                |
+| internal/cli/cmd_configure.go       | 2      | funlen, goconst                       |
+| pkg/config/loader.go                | 2      | funcorder, funlen                     |
+| pkg/diff/differ.go                  | 2      | funlen, exhaustruct                   |
+| pkg/migration/config_types.go       | 2      | funlen                                |
+| pkg/migration/migrations.go         | 2      | funlen                                |
+| pkg/migration/rules.go              | 2      | funlen                                |
+| pkg/report/json_report_generator.go | 2      | funlen                                |
+| pkg/ui/formatter.go                 | 2      | funlen                                |
+| pkg/utils/retry.go                  | 2      | funlen                                |
+| internal/cli/cmd/migrate.go         | 1      | nlreturn                              |
+| pkg/linter/categorizer.go           | 1      | unconvert                             |
+| pkg/detection/detector_test.go      | 1      | funlen                                |
+| pkg/diff/differ_test.go             | 1      | funlen                                |
+| pkg/linter/fixer_test.go            | 1      | funlen                                |
+| internal/cli/cmd_analyze.go         | 1      | wrapcheck                             |
+| examples/api-usage/main.go          | 1      | funlen                                |
 
 ---
 
 ## RECENT COMMITS
 
-| Commit | Description |
-|--------|-------------|
-| 70038c0 | chore: apply gofmt style fix to cmd_analyze.go |
-| 3c4b6e8 | fix(linter): enforce wsl_v5 as a real rule |
+| Commit  | Description                                        |
+| ------- | -------------------------------------------------- |
+| 70038c0 | chore: apply gofmt style fix to cmd_analyze.go     |
+| 3c4b6e8 | fix(linter): enforce wsl_v5 as a real rule         |
 | 14e3761 | refactor(cli): decompose all CLI commands (funlen) |
 | 9b9fc68 | refactor(linter): decompose all functions (funlen) |
-| 0f3d480 | docs(status): funlen enforcement status |
+| 0f3d480 | docs(status): funlen enforcement status            |
 
 ---
 
