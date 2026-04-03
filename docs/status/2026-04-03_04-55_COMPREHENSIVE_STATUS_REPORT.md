@@ -6,12 +6,12 @@
 
 ## a) FULLY DONE ✅
 
-| # | Task | Commit | Impact |
-|---|------|--------|--------|
-| 1 | Reverted `pkg/utils/retry.go` to original form with `//nolint:funlen,varnamelen` | `8cab1b0` | Fixed broken tests + removed 5 violations |
-| 2 | Wrote comprehensive status report | `ecd1af9` | Documentation |
-| 3 | Formatting cleanup from pre-commit hooks | `2d131a8` | Code quality |
-| 4 | WIP funlen extraction across 16 files (committed in failing state, then fixed by revert) | `6fa3f80` | Large refactor (reverted problematic parts) |
+| #   | Task                                                                                     | Commit    | Impact                                      |
+| --- | ---------------------------------------------------------------------------------------- | --------- | ------------------------------------------- |
+| 1   | Reverted `pkg/utils/retry.go` to original form with `//nolint:funlen,varnamelen`         | `8cab1b0` | Fixed broken tests + removed 5 violations   |
+| 2   | Wrote comprehensive status report                                                        | `ecd1af9` | Documentation                               |
+| 3   | Formatting cleanup from pre-commit hooks                                                 | `2d131a8` | Code quality                                |
+| 4   | WIP funlen extraction across 16 files (committed in failing state, then fixed by revert) | `6fa3f80` | Large refactor (reverted problematic parts) |
 
 **Tests**: 8/9 suites pass consistently. The CLI integration test (`internal/cli`) has a flaky failure on the `--help` test — it builds a binary and sometimes fails on environment/timing. This is a **pre-existing issue**, not caused by our changes.
 
@@ -22,6 +22,7 @@
 ### `pkg/diff/differ.go` — UNCOMMITTED changes in working tree
 
 **Changes made** (compiles clean, tests pass for `pkg/diff` suite):
+
 - Removed unused `label` parameter from `addChangeIfDifferent` (was `path, label string` → `path string`)
 - Removed named returns from `countChangesByType` → `(int, int, int)` with explicit `var` declarations
 - Removed named returns from `countChangeTypes` → `(int, int, int)` with explicit `var` declarations
@@ -30,6 +31,7 @@
 **Status**: NOT YET COMMITTED. Ready to commit.
 
 **Remaining in this file** (from latest lint run):
+
 - `pkg/diff/differ.go:206:2` — wsl_v5: missing whitespace above `for` loop in `countChangesByType`
 - `pkg/diff/differ.go:270:2` — wsl_v5: missing whitespace above `for` loop in `countChangeTypes`
 
@@ -54,10 +56,10 @@ pkg/detection/detector_bench_test.go:22:6 thelper             (missing b.Helper(
 pkg/detection/detector_bench_test.go:39:6 thelper             (missing b.Helper())
 pkg/detection/detector.go:113            funcorder             (multiple — 8 total)
 pkg/detection/detector.go:138            wsl_v5                (missing whitespace)
-pkg/detection/detector.go:188,203,208    funcorder             
+pkg/detection/detector.go:188,203,208    funcorder
 pkg/detection/detector.go:208,217,341    wrapcheck ×3          (unwrapped os/bufio/filepath errors)
 pkg/detection/detector.go:216            noinlineerr           (inline if err)
-pkg/detection/detector.go:223,253,265,277 funcorder             
+pkg/detection/detector.go:223,253,265,277 funcorder
 pkg/detection/detector_test.go:28,33,45  gochecknoglobals      (detectTests at package level)
 pkg/detection/detector_test.go:58,63,71  noinlineerr ×5        (inline if err assignments)
 pkg/detection/detector_test.go:81,120    varnamelen ×2         (tc, pt too short)
@@ -79,28 +81,29 @@ pkg/utils/retry.go:31                   nolintlint            (unused varnamelen
 
 ### Breakdown by violation type (count):
 
-| Linter | Count | Difficulty | Description |
-|--------|-------|------------|-------------|
-| funcorder | 14 | Medium — Move unexported methods after exported ones | Reorder within files |
-| noinlineerr | 9 | Easy — Split `if err := ...; err != nil` into 2 lines | Mechanical |
-| gochecknoglobals | 7 | Easy-Medium — Move test vars into Describe blocks or add nolint | Structural |
-| wrapcheck | 4 | Easy — Wrap errors with `fmt.Errorf("context: %w", err)` | Mechanical |
-| wsl_v5 | 3 | Easy — Add blank lines | Trivial |
-| varnamelen | 3 | Easy — Rename `tc`→`testCase`, `pt`→`projectType` | Mechanical |
-| golines | 3 | Easy — Run `golines --max-len=120 --write` | Formatting |
-| nolintlint | 2 | Trivial — Remove unused linter names from nolint directives | 1-line fix |
-| thelper | 2 | Trivial — Add `b.Helper()` as first line | 1-line fix |
-| exhaustive | 1 | Easy — Add missing switch cases or default | Small |
-| exhaustruct | 1 | Easy — Add missing fields or add nolint | Small |
-| goconst | 1 | Easy — Extract string constant | Small |
-| godot | 1 | Trivial — Add period to comment | 1-char fix |
-| nlreturn | 2 | Easy — Add blank line before break/return | Trivial |
+| Linter           | Count | Difficulty                                                      | Description          |
+| ---------------- | ----- | --------------------------------------------------------------- | -------------------- |
+| funcorder        | 14    | Medium — Move unexported methods after exported ones            | Reorder within files |
+| noinlineerr      | 9     | Easy — Split `if err := ...; err != nil` into 2 lines           | Mechanical           |
+| gochecknoglobals | 7     | Easy-Medium — Move test vars into Describe blocks or add nolint | Structural           |
+| wrapcheck        | 4     | Easy — Wrap errors with `fmt.Errorf("context: %w", err)`        | Mechanical           |
+| wsl_v5           | 3     | Easy — Add blank lines                                          | Trivial              |
+| varnamelen       | 3     | Easy — Rename `tc`→`testCase`, `pt`→`projectType`               | Mechanical           |
+| golines          | 3     | Easy — Run `golines --max-len=120 --write`                      | Formatting           |
+| nolintlint       | 2     | Trivial — Remove unused linter names from nolint directives     | 1-line fix           |
+| thelper          | 2     | Trivial — Add `b.Helper()` as first line                        | 1-line fix           |
+| exhaustive       | 1     | Easy — Add missing switch cases or default                      | Small                |
+| exhaustruct      | 1     | Easy — Add missing fields or add nolint                         | Small                |
+| goconst          | 1     | Easy — Extract string constant                                  | Small                |
+| godot            | 1     | Trivial — Add period to comment                                 | 1-char fix           |
+| nlreturn         | 2     | Easy — Add blank line before break/return                       | Trivial              |
 
 ---
 
 ## d) TOTALLY FUCKED UP 💥
 
 ### 1. Previous Session: Aggressive funlen extraction (commit `6fa3f80`)
+
 - Modified 21 files (+1246/-845 lines) without testing between changes
 - Broke `pkg/utils/retry.go` tests (retry logic with 3 error-wrapping paths broke when extracted)
 - Introduced cascading violations: funcorder, gochecknoglobals, golines, thelper, nonamedreturns
@@ -109,6 +112,7 @@ pkg/utils/retry.go:31                   nolintlint            (unused varnamelen
 - **Resolution**: Reverted retry.go. Other extractions were mostly fine.
 
 ### 2. Pre-existing flaky CLI test
+
 - `internal/cli/commands_test.go:44` — "should show help when --help is used"
 - Builds a binary with `go build`, runs it, asserts on output
 - Fails intermittently (~50% of runs) with exit status 1
@@ -132,6 +136,7 @@ pkg/utils/retry.go:31                   nolintlint            (unused varnamelen
 ## f) Top 25 Things to Get Done Next
 
 ### Priority 1: Trivial 1-line fixes (do all at once, commit)
+
 1. Fix `pkg/migration/config_types.go:28` — Remove `gocognit` from nolint directive
 2. Fix `pkg/utils/retry.go:31` — Remove `varnamelen` from nolint directive
 3. Fix `pkg/detection/detector_bench_test.go:22` — Add `b.Helper()` to `createBenchmarkGoMod`
@@ -139,6 +144,7 @@ pkg/utils/retry.go:31                   nolintlint            (unused varnamelen
 5. Fix `pkg/linter/fixer_formatters.go:158` — Add period to comment: `slice.`
 
 ### Priority 2: Easy mechanical fixes (do all at once, commit)
+
 6. Fix `pkg/diff/differ.go:206` — Add blank line before `for` in `countChangesByType`
 7. Fix `pkg/diff/differ.go:270` — Add blank line before `for` in `countChangeTypes`
 8. Fix `pkg/linter/fixer_formatters.go:57` — Add blank line before `break` (nlreturn)
@@ -152,6 +158,7 @@ pkg/utils/retry.go:31                   nolintlint            (unused varnamelen
 16. Fix `internal/cli/cmd_validate.go:59` — Split inline err to separate assignment
 
 ### Priority 3: Medium structural changes (one file at a time, commit each)
+
 17. Fix `pkg/migration/migrations.go:195` — Move `formatterNames` inside `extractFormatters` function
 18. Fix `pkg/linter/fixer.go:194` — Add missing fields to `fixCounts{}` or add nolint
 19. Fix `pkg/linter/fixer.go:201` — Fix golines formatting
@@ -159,10 +166,12 @@ pkg/utils/retry.go:31                   nolintlint            (unused varnamelen
 21. Fix `pkg/detection/detector.go` — funcorder (8) + wsl_v5 (1) + wrapcheck (3) + noinlineerr (1)
 
 ### Priority 4: Large reorderings (one file at a time, commit each)
+
 22. Fix `pkg/config/loader.go:302` — Reorder methods (2 funcorder violations)
 23. Fix `pkg/linter/analyzer.go` — Reorder methods (4 funcorder violations)
 
 ### Priority 5: Test file restructuring (be careful, test after each)
+
 24. Fix `pkg/detection/detector_test.go` — gochecknoglobals + noinlineerr + varnamelen + golines
 25. Fix `pkg/diff/differ_test.go` — gochecknoglobals + golines
 
@@ -189,10 +198,10 @@ pkg/utils/retry.go:31                   nolintlint            (unused varnamelen
 
 ## Timeline This Session
 
-| Time | Action | Result |
-|------|--------|--------|
-| ~03:30 | Wrote status report | Documented state |
-| ~03:40 | Reverted retry.go | Fixed tests, removed 5 violations |
-| ~03:50 | Started differ.go fixes | Compiles, tests pass |
-| ~04:10 | Session interrupted | 53 violations remain |
-| ~04:55 | Wrote this report | — |
+| Time   | Action                  | Result                            |
+| ------ | ----------------------- | --------------------------------- |
+| ~03:30 | Wrote status report     | Documented state                  |
+| ~03:40 | Reverted retry.go       | Fixed tests, removed 5 violations |
+| ~03:50 | Started differ.go fixes | Compiles, tests pass              |
+| ~04:10 | Session interrupted     | 53 violations remain              |
+| ~04:55 | Wrote this report       | —                                 |
