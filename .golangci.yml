@@ -1,339 +1,347 @@
 version: "2"
 run:
-  timeout: 10m
-  go: ""
-  build-tags: []
-  allow-parallel-runners: false
-  allow-serial-runners: true
-  tests: true
+    timeout: 10m
+    go: 1.26.1
+    build-tags:
+        - goexperiment.goroutineleakprofile
+        - goexperiment.jsonv2
+        - goexperiment.simd
+    allow-parallel-runners: true
+    allow-serial-runners: true
+    tests: true
 output:
-  formats: {}
+    formats: {}
 linters:
-  enable:
-    - testpackage
-    - musttag
-    - goheader
-    - gocheckcompilerdirectives
-    - arangolint
-    - perfsprint
-    - containedctx
-    - sloglint
-    - nilnesserr
-    - whitespace
-    - promlinter
-    - varnamelen
-    - godoclint
-    - copyloopvar
-    - testableexamples
-    - nilerr
-    - noctx
-    - unqueryvet
-    - gocyclo
-    - makezero
-    - cyclop
-    - ineffassign
-    - inamedparam
-    - asasalint
-    - usestdlibvars
-    - exhaustive
-    - paralleltest
-    - gomodguard
-    - gocritic
-    - thelper
-    - bodyclose
-    - predeclared
-    - funlen
-    - grouper
-    - maintidx
-    - tagliatelle
-    - unused
-    - wastedassign
-    - staticcheck
-    - importas
-    - protogetter
-    - misspell
-    - tagalign
-    - unparam
-    - recvcheck
-    - noinlineerr
-    - gocognit
-    - forcetypeassert
-    - tparallel
-    - bidichk
-    - iotamixing
-    - errname
-    - asciicheck
-    - nlreturn
-    - ireturn
-    - mirror
-    - canonicalheader
-    - mnd
-    - gochecknoglobals
-    - nakedret
-    - godox
-    - nosprintfhostport
-    - loggercheck
-    - nestif
-    - goprintffuncname
-    - exptostd
-    - decorder
-    - modernize
-    - errchkjson
-    - dogsled
-    - errorlint
-    - reassign
-    - prealloc
-    - zerologlint
-    - depguard
-    - err113
-    - dupl
-    - gochecksumtype
-    - wsl_v5
-    - revive
-    - nonamedreturns
-    - durationcheck
-    - wrapcheck
-    - contextcheck
-    - gomoddirectives
-    - intrange
-    - ginkgolinter
-    - embeddedstructfieldcheck
-    - spancheck
-    - sqlclosecheck
-    - usetesting
-    - nilnil
-    - funcorder
-    - unconvert
-    - interfacebloat
-    - exhaustruct
-    - dupword
-    - errcheck
-    - iface
-    - gosmopolitan
-    - govet
-    - forbidigo
-    - fatcontext
-    - gochecknoinits
-    - rowserrcheck
-    - testifylint
-    - gosec
-    - godot
-    - goconst
-    - nolintlint
-  settings:
-    cyclop:
-      max-complexity: 15
-    depguard:
-      rules:
-        Main:
-          allow:
-            - $gostd
-            - github.com/charmbracelet
-            - charm.land/log/v2
-            - charm.land/lipgloss/v2
-            - github.com/larsartmann/golangci-lint-auto-configure
-            - github.com/spf13/cobra
-            - github.com/spf13/afero
-            - github.com/stretchr/testify
-            - gopkg.in/yaml.v3
-            - go.yaml.in/yaml/v3
-            - golang.org/x/mod/semver
-            - github.com/samber/mo
-            - github.com/a-h/templ
-            - github.com/go-playground/validator/v10
-            - github.com/pelletier/go-toml/v2
-            - github.com/onsi/ginkgo/v2
-            - github.com/onsi/gomega
-          files:
-            - "!**/*_test.go"
-    exhaustruct:
-      exclude:
-        - .*\.Test.*
-        - .*Test.*
-        - charm.land/log.Options
-        - github.com/larsartmann/golangci-lint-auto-configure/pkg/types.*
-        - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
-    funlen:
-      lines: 30
-      statements: 20
-    gocognit:
-      min-complexity: 25
-    gocyclo:
-      min-complexity: 20
-    tagliatelle:
-      case:
+    enable:
+        - arangolint
+        - asasalint
+        - asciicheck
+        - bidichk
+        - bodyclose
+        - canonicalheader
+        - containedctx
+        - contextcheck
+        - copyloopvar
+        - cyclop
+        - decorder
+        - depguard
+        - dogsled
+        - dupl
+        - dupword
+        - durationcheck
+        - embeddedstructfieldcheck
+        - err113
+        - errcheck
+        - errchkjson
+        - errname
+        - errorlint
+        - exhaustive
+        - exhaustruct
+        - exptostd
+        - fatcontext
+        - forbidigo
+        - forcetypeassert
+        - funlen
+        - ginkgolinter
+        - gocheckcompilerdirectives
+        - gochecknoglobals
+        - gochecknoinits
+        - gochecksumtype
+        - gocognit
+        - goconst
+        - gocritic
+        - gocyclo
+        - godoclint
+        - godot
+        - godox
+        - goheader
+        - gomoddirectives
+        - gomodguard
+        - goprintffuncname
+        - gosec
+        - gosmopolitan
+        - govet
+        - grouper
+        - iface
+        - importas
+        - inamedparam
+        - ineffassign
+        - interfacebloat
+        - intrange
+        - iotamixing
+        - ireturn
+        - loggercheck
+        - maintidx
+        - makezero
+        - mirror
+        - misspell
+        - mnd
+        - modernize
+        - musttag
+        - nakedret
+        - nestif
+        - nilerr
+        - nilnesserr
+        - nilnil
+        - nlreturn
+        - noctx
+        - noinlineerr
+        - nolintlint
+        - nonamedreturns
+        - nosprintfhostport
+        - paralleltest
+        - perfsprint
+        - prealloc
+        - predeclared
+        - promlinter
+        - protogetter
+        - reassign
+        - recvcheck
+        - revive
+        - rowserrcheck
+        - sloglint
+        - spancheck
+        - sqlclosecheck
+        - staticcheck
+        - tagalign
+        - tagliatelle
+        - testableexamples
+        - testifylint
+        - testpackage
+        - thelper
+        - tparallel
+        - unconvert
+        - unparam
+        - unqueryvet
+        - unused
+        - usestdlibvars
+        - usetesting
+        - varnamelen
+        - wastedassign
+        - whitespace
+        - wrapcheck
+        - wsl_v5
+        - zerologlint
+    disable:
+        - funcorder
+    settings:
+        cyclop:
+            max-complexity: 15
+        depguard:
+            rules:
+                Main:
+                    allow:
+                        - $gostd
+                        - github.com/charmbracelet
+                        - charm.land/log/v2
+                        - charm.land/lipgloss/v2
+                        - github.com/larsartmann/golangci-lint-auto-configure
+                        - github.com/spf13/cobra
+                        - github.com/spf13/afero
+                        - github.com/stretchr/testify
+                        - gopkg.in/yaml.v3
+                        - go.yaml.in/yaml/v3
+                        - golang.org/x/mod/semver
+                        - github.com/samber/mo
+                        - github.com/a-h/templ
+                        - github.com/go-playground/validator/v10
+                        - github.com/pelletier/go-toml/v2
+                        - github.com/onsi/ginkgo/v2
+                        - github.com/onsi/gomega
+                    files:
+                        - '!**/*_test.go'
+        exhaustruct:
+            exclude:
+                - .*\.Test.*
+                - .*Test.*
+                - charm.land/log.Options
+                - github.com/larsartmann/golangci-lint-auto-configure/pkg/types.*
+                - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
+        funlen:
+            lines: 30
+            statements: 20
+        gocognit:
+            min-complexity: 25
+        gocyclo:
+            min-complexity: 20
+        tagliatelle:
+            case:
+                rules:
+                    json: snake
+                    yaml: kebab
+    exclusions:
+        generated: lax
+        presets:
+            - comments
+            - common-false-positives
+            - legacy
+            - std-error-handling
         rules:
-          json: snake
-          yaml: kebab
-  exclusions:
-    generated: lax
-    presets:
-      - comments
-      - common-false-positives
-      - legacy
-      - std-error-handling
-    rules:
-      - path: _test\.go
-        linters:
-          - exhaustruct
-          - err113
-          - wrapcheck
-      - path: internal/cli|examples/|cmd/|pkg/config/
-        linters:
-          - depguard
-      - path: _test\.go
-        linters:
-          - gosec
-      - path: pkg/types/types\.go
-        linters:
-          - tagliatelle
-      - path: pkg/errors/errors\.go
-        linters:
-          - funcorder
-      - path: internal/cli/|examples/|pkg/client/client\.go
-        linters:
-          - exhaustruct
-      - path: pkg/constants/
-        linters:
-          - gochecknoglobals
-      - path: pkg/types/validation\.go
-        linters:
-          - gochecknoglobals
-      - path: pkg/detection/patterns\.go
-        linters:
-          - gochecknoglobals
-      - path: go\.mod
-        linters:
-          - gomoddirectives
-      - path: pkg/diff/differ\.go
-        linters:
-          - funcorder
-      - path: pkg/linter/fixer\.go
-        linters:
-          - gocognit
-      - path: pkg/types/types\.go
-        linters:
-          - tagalign
-      - path: pkg/config/loader\.go
-        linters:
-          - wrapcheck
-          - noinlineerr
-          - funcorder
-      - path: pkg/linter/analyzer\.go
-        linters:
-          - wrapcheck
-          - noinlineerr
-          - funcorder
-      - path: pkg/linter/fixer\.go
-        linters:
-          - wrapcheck
-          - noinlineerr
-      - path: pkg/linter/version_checker\.go
-        linters:
-          - tagliatelle
-          - wrapcheck
-      - path: pkg/report/json_report_generator\.go
-        linters:
-          - tagliatelle
-      - path: internal/cli/cmd/
-        linters:
-          - gocognit
-      - path: internal/cli/cmd_migrate\.go
-        linters:
-          - gocognit
-      - path: pkg/detection/detector\.go
-        linters:
-          - godox
-          - funcorder
-      - path: pkg/linter/fixer\.go
-        linters:
-          - gocyclo
-          - nestif
-      - path: pkg/linter/fixer\.go|internal/cli/cmd_configure\.go|pkg/linter/analyzer\.go|internal/cli/cmd/installhook\.go
-        linters:
-          - noinlineerr
-      - path: pkg/constants/linter_reasons\.go
-        linters:
-          - gosec
-      - path: pkg/linter/command_runner\.go|pkg/linter/version_checker\.go
-        linters:
-          - gosec
-      - path: internal/cli/cmd/installhook\.go
-        linters:
-          - gosec
-      - path: pkg/detection/detector_test\.go
-        linters:
-          - paralleltest
-          - wsl_v5
-      - path: pkg/diff/differ_test\.go
-        linters:
-          - paralleltest
-      - path: pkg/linter/fixer_test\.go
-        linters:
-          - unparam
-      - path: _test\.go
-        linters:
-          - paralleltest
-          - gochecknoglobals
-      - path: pkg/report/json_report_generator\.go
-        linters:
-          - gosec
-      - path: internal/cli/commands\.go
-        linters:
-          - gochecknoglobals
-      - path: pkg/config/loader\.go
-        linters:
-          - godox
-      - path: pkg/linter/fixer\.go
-        linters:
-          - godox
-      - path: pkg/types/types\.go
-        linters:
-          - godox
-      - path: internal/cli/commands_test\.go
-        linters:
-          - goconst
-      - path: pkg/linter/version_checker\.go
-        linters:
-          - noinlineerr
-      - path: _test\.go
-        linters:
-          - revive
-      - path: pkg/types/validation\.go
-        linters:
-          - revive
-      - path: pkg/types/
-        linters:
-          - revive
-        text: "var-naming: avoid meaningless package names"
-      - path: pkg/utils/
-        linters:
-          - revive
-        text: "var-naming: avoid meaningless package names"
-      - path: pkg/errors/errors_test\.go
-        linters:
-          - dupl
-      - path: pkg/migration/migrator\.go
-        linters:
-          - wrapcheck
-      - path: pkg/linter/fixer\.go
-        linters:
-          - cyclop
-      - path: internal/cli/cmd/installhook\.go|pkg/report/json_report_generator\.go
-        linters:
-          - mnd
-      - path: pkg/linter/fixer\.go
-        linters:
-          - maintidx
-      - path: pkg/report/json_report_generator\.go
-        linters:
-          - noinlineerr
+            - path: _test\.go
+              linters:
+                - exhaustruct
+                - err113
+                - wrapcheck
+            - path: internal/cli|examples/|cmd/|pkg/config/
+              linters:
+                - depguard
+            - path: _test\.go
+              linters:
+                - gosec
+            - path: pkg/types/types\.go
+              linters:
+                - tagliatelle
+            - path: pkg/errors/errors\.go
+              linters:
+                - funcorder
+            - path: internal/cli/|examples/|pkg/client/client\.go
+              linters:
+                - exhaustruct
+            - path: pkg/constants/
+              linters:
+                - gochecknoglobals
+            - path: pkg/types/validation\.go
+              linters:
+                - gochecknoglobals
+            - path: pkg/detection/patterns\.go
+              linters:
+                - gochecknoglobals
+            - path: go\.mod
+              linters:
+                - gomoddirectives
+            - path: pkg/diff/differ\.go
+              linters:
+                - funcorder
+            - path: pkg/linter/fixer\.go
+              linters:
+                - gocognit
+            - path: pkg/types/types\.go
+              linters:
+                - tagalign
+            - path: pkg/config/loader\.go
+              linters:
+                - wrapcheck
+                - noinlineerr
+                - funcorder
+            - path: pkg/linter/analyzer\.go
+              linters:
+                - wrapcheck
+                - noinlineerr
+                - funcorder
+            - path: pkg/linter/fixer\.go
+              linters:
+                - wrapcheck
+                - noinlineerr
+            - path: pkg/linter/version_checker\.go
+              linters:
+                - tagliatelle
+                - wrapcheck
+            - path: pkg/report/json_report_generator\.go
+              linters:
+                - tagliatelle
+            - path: internal/cli/cmd/
+              linters:
+                - gocognit
+            - path: internal/cli/cmd_migrate\.go
+              linters:
+                - gocognit
+            - path: pkg/detection/detector\.go
+              linters:
+                - godox
+                - funcorder
+            - path: pkg/linter/fixer\.go
+              linters:
+                - gocyclo
+                - nestif
+            - path: pkg/linter/fixer\.go|internal/cli/cmd_configure\.go|pkg/linter/analyzer\.go|internal/cli/cmd/installhook\.go
+              linters:
+                - noinlineerr
+            - path: pkg/constants/linter_reasons\.go
+              linters:
+                - gosec
+            - path: pkg/linter/command_runner\.go|pkg/linter/version_checker\.go
+              linters:
+                - gosec
+            - path: internal/cli/cmd/installhook\.go
+              linters:
+                - gosec
+            - path: pkg/detection/detector_test\.go
+              linters:
+                - paralleltest
+                - wsl_v5
+            - path: pkg/diff/differ_test\.go
+              linters:
+                - paralleltest
+            - path: pkg/linter/fixer_test\.go
+              linters:
+                - unparam
+            - path: _test\.go
+              linters:
+                - paralleltest
+                - gochecknoglobals
+            - path: pkg/report/json_report_generator\.go
+              linters:
+                - gosec
+            - path: internal/cli/commands\.go
+              linters:
+                - gochecknoglobals
+            - path: pkg/config/loader\.go
+              linters:
+                - godox
+            - path: pkg/linter/fixer\.go
+              linters:
+                - godox
+            - path: pkg/types/types\.go
+              linters:
+                - godox
+            - path: internal/cli/commands_test\.go
+              linters:
+                - goconst
+            - path: pkg/linter/version_checker\.go
+              linters:
+                - noinlineerr
+            - path: _test\.go
+              linters:
+                - revive
+            - path: pkg/types/validation\.go
+              linters:
+                - revive
+            - path: pkg/types/
+              text: 'var-naming: avoid meaningless package names'
+              linters:
+                - revive
+            - path: pkg/utils/
+              text: 'var-naming: avoid meaningless package names'
+              linters:
+                - revive
+            - path: pkg/errors/errors_test\.go
+              linters:
+                - dupl
+            - path: pkg/migration/migrator\.go
+              linters:
+                - wrapcheck
+            - path: pkg/linter/fixer\.go
+              linters:
+                - cyclop
+            - path: internal/cli/cmd/installhook\.go|pkg/report/json_report_generator\.go
+              linters:
+                - mnd
+            - path: pkg/linter/fixer\.go
+              linters:
+                - maintidx
+            - path: pkg/report/json_report_generator\.go
+              linters:
+                - noinlineerr
 formatters:
-  enable:
-    - golines
-  settings:
-    golines:
-      max-len: 120
+    enable:
+        - gci
+        - goimports
+        - gofumpt
+        - golines
+        - swaggo
+    settings:
+        golines:
+            max-len: 120
 issues:
-  max-issues-per-linter: 100
-  max-same-issues: 15
+    max-issues-per-linter: 100
+    max-same-issues: 15

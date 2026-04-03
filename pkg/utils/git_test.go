@@ -8,11 +8,10 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestUtils(t *testing.T) {
