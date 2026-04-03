@@ -42,7 +42,8 @@ func setupCLI(dir string) error {
 }
 
 func setupLibrary(dir string) error {
-	if err := writeGoMod(dir); err != nil {
+	err := writeGoMod(dir)
+	if err != nil {
 		return err
 	}
 
@@ -55,12 +56,14 @@ func setupWeb(dir string) error {
 }
 
 func setupMonorepo(dir string) error {
-	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module test\n\ngo 1.21\n"), 0o644); err != nil {
+	err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module test\n\ngo 1.21\n"), 0o644)
+	if err != nil {
 		return err
 	}
 
 	sub := filepath.Join(dir, "subproject")
-	if err := os.MkdirAll(sub, 0o755); err != nil {
+	err = os.MkdirAll(sub, 0o755)
+	if err != nil {
 		return err
 	}
 
@@ -68,7 +71,8 @@ func setupMonorepo(dir string) error {
 }
 
 func setupProjectWithMain(dir, require, mainContent string) error {
-	if err := writeGoMod(dir, require); err != nil {
+	err := writeGoMod(dir, require)
+	if err != nil {
 		return err
 	}
 
@@ -78,17 +82,18 @@ func setupProjectWithMain(dir, require, mainContent string) error {
 func TestDetector_Detect(t *testing.T) {
 	t.Parallel()
 
-	for _, tc := range detectTests {
-		t.Run(tc.name, func(t *testing.T) {
+	for _, testCase := range detectTests {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
 			dir := t.TempDir()
-			if err := tc.setup(dir); err != nil {
+			err := testCase.setup(dir)
+			if err != nil {
 				t.Fatalf("Setup failed: %v", err)
 			}
 
-			if got := detectionpkg.NewDetector(dir).Detect(); got != tc.want {
-				t.Errorf("Detect() = %v, want %v", got, tc.want)
+			if got := detectionpkg.NewDetector(dir).Detect(); got != testCase.want {
+				t.Errorf("Detect() = %v, want %v", got, testCase.want)
 			}
 		})
 	}
@@ -117,14 +122,14 @@ func TestProjectType_String(t *testing.T) {
 }
 
 func TestGetRecommendedLinters(t *testing.T) {
-	for _, pt := range allProjectTypes() {
-		t.Run(pt.String(), func(t *testing.T) {
-			linters := detectionpkg.GetRecommendedLinters(pt)
+	for _, projType := range allProjectTypes() {
+		t.Run(projType.String(), func(t *testing.T) {
+			linters := detectionpkg.GetRecommendedLinters(projType)
 			if len(linters) == 0 {
-				t.Errorf("GetRecommendedLinters(%v) returned empty", pt)
+				t.Errorf("GetRecommendedLinters(%v) returned empty", projType)
 			}
 
-			checkEssentialLinters(t, pt, linters)
+			checkEssentialLinters(t, projType, linters)
 		})
 	}
 }
@@ -140,7 +145,7 @@ func allProjectTypes() []detectionpkg.ProjectType {
 	}
 }
 
-func checkEssentialLinters(t *testing.T, pt detectionpkg.ProjectType, linters []string) {
+func checkEssentialLinters(t *testing.T, projType detectionpkg.ProjectType, linters []string) {
 	t.Helper()
 
 	hasGosec := false
@@ -157,10 +162,10 @@ func checkEssentialLinters(t *testing.T, pt detectionpkg.ProjectType, linters []
 	}
 
 	if !hasGosec {
-		t.Errorf("GetRecommendedLinters(%v) missing gosec", pt)
+		t.Errorf("GetRecommendedLinters(%v) missing gosec", projType)
 	}
 
 	if !hasErrcheck {
-		t.Errorf("GetRecommendedLinters(%v) missing errcheck", pt)
+		t.Errorf("GetRecommendedLinters(%v) missing errcheck", projType)
 	}
 }
