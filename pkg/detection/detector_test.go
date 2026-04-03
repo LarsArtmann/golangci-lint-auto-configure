@@ -63,7 +63,6 @@ func setupMonorepo(dir string) error {
 
 	sub := filepath.Join(dir, "subproject")
 	err = os.MkdirAll(sub, 0o755)
-
 	if err != nil {
 		return err
 	}
@@ -89,7 +88,6 @@ func TestDetector_Detect(t *testing.T) {
 
 			dir := t.TempDir()
 			err := testCase.setup(dir)
-
 			if err != nil {
 				t.Fatalf("Setup failed: %v", err)
 			}
