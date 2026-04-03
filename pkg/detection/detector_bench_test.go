@@ -13,7 +13,13 @@ func setupBenchmarkProject(b *testing.B) string {
 
 	tempDir := b.TempDir()
 
-	// Create go.mod
+	createBenchmarkGoMod(b, tempDir)
+	createBenchmarkMainGo(b, tempDir)
+
+	return tempDir
+}
+
+func createBenchmarkGoMod(b *testing.B, tempDir string) {
 	goMod := `module test
 
 go 1.21
@@ -28,8 +34,9 @@ require (
 	if err != nil {
 		b.Fatalf("Failed to write go.mod: %v", err)
 	}
+}
 
-	// Create main.go
+func createBenchmarkMainGo(b *testing.B, tempDir string) {
 	mainGo := `package main
 
 import "github.com/gin-gonic/gin"
@@ -40,12 +47,10 @@ func main() {
 }
 `
 
-	err = os.WriteFile(filepath.Join(tempDir, "main.go"), []byte(mainGo), 0o644)
+	err := os.WriteFile(filepath.Join(tempDir, "main.go"), []byte(mainGo), 0o644)
 	if err != nil {
 		b.Fatalf("Failed to write main.go: %v", err)
 	}
-
-	return tempDir
 }
 
 func BenchmarkDetector_Detect(b *testing.B) {

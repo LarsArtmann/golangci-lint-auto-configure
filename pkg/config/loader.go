@@ -278,27 +278,8 @@ const GoVersionTimeout = 5 * time.Second
 
 // CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled.
 func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
-	// Fetch all available linters dynamically
-	allLinters, err := l.GetAllLinterNames(ctx)
-	if err != nil {
-		l.logger.Warnf("Failed to fetch all linters, using critical set: %v", err)
-		// Fallback to critical linters if fetch fails
-		allLinters = []string{
-			"gosec",
-			"errcheck",
-			"staticcheck",
-			"govet",
-			"ineffassign",
-		}
-	} else {
-		l.logger.Infof("Enabled %d linters in default configuration", len(allLinters))
-	}
-
-	// Detect local Go version
-	goVersion := GetLocalGoVersion(ctx)
-	if goVersion != "" {
-		l.logger.Infof("Detected local Go version: %s", goVersion)
-	}
+	allLinters := l.fetchLintersWithFallback(ctx)
+	goVersion := l.detectGoVersion(ctx)
 
 	return &Config{
 		Version: "2",
@@ -316,6 +297,34 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 			MaxSameIssues:      DefaultMaxSameIssues,
 		},
 	}
+}
+
+func (l *Loader) fetchLintersWithFallback(ctx context.Context) []string {
+	allLinters, err := l.GetAllLinterNames(ctx)
+	if err != nil {
+		l.logger.Warnf("Failed to fetch all linters, using critical set: %v", err)
+
+		return []string{
+			"gosec",
+			"errcheck",
+			"staticcheck",
+			"govet",
+			"ineffassign",
+		}
+	}
+
+	l.logger.Infof("Enabled %d linters in default configuration", len(allLinters))
+
+	return allLinters
+}
+
+func (l *Loader) detectGoVersion(ctx context.Context) string {
+	goVersion := GetLocalGoVersion(ctx)
+	if goVersion != "" {
+		l.logger.Infof("Detected local Go version: %s", goVersion)
+	}
+
+	return goVersion
 }
 
 // SaveConfig saves a golangci-lint configuration to the given path.

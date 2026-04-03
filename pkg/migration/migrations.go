@@ -129,22 +129,32 @@ func (m *Migrator) migrateIssuesExcludeFiles(config *Config) bool {
 // migrateIssuesFlags migrates deprecated boolean flags.
 func (m *Migrator) migrateIssuesFlags(config *Config) int {
 	if m.dryRun {
-		count := 0
-		if config.ExcludeUseDefault != nil {
-			count++
-		}
-
-		if config.ExcludeRulesUseDefault != nil {
-			count++
-		}
-
-		if config.ExcludeDirUseDefault != nil {
-			count++
-		}
-
-		return count
+		return m.countIssuesFlags(config)
 	}
 
+	fixes := m.clearIssuesFlags(config)
+
+	return fixes
+}
+
+func (m *Migrator) countIssuesFlags(config *Config) int {
+	count := 0
+	if config.ExcludeUseDefault != nil {
+		count++
+	}
+
+	if config.ExcludeRulesUseDefault != nil {
+		count++
+	}
+
+	if config.ExcludeDirUseDefault != nil {
+		count++
+	}
+
+	return count
+}
+
+func (m *Migrator) clearIssuesFlags(config *Config) int {
 	fixes := 0
 
 	if config.ExcludeUseDefault != nil {
@@ -167,25 +177,7 @@ func (m *Migrator) migrateIssuesFlags(config *Config) int {
 
 // migrateFormatters migrates formatters from linters.enable to formatters.enable.
 func (m *Migrator) migrateFormatters(config *Config) bool {
-	formatterNames := map[string]bool{
-		"gofmt":     true,
-		"goimports": true,
-		"gofumpt":   true,
-	}
-
-	var (
-		lintersToKeep      []string
-		formattersToEnable []string
-	)
-
-	for _, linter := range config.Linters.Enable {
-		if formatterNames[linter] {
-			formattersToEnable = append(formattersToEnable, linter)
-		} else {
-			lintersToKeep = append(lintersToKeep, linter)
-		}
-	}
-
+	formattersToEnable := m.extractFormatters(config.Linters.Enable)
 	if len(formattersToEnable) == 0 {
 		return false
 	}
@@ -194,10 +186,40 @@ func (m *Migrator) migrateFormatters(config *Config) bool {
 		return true
 	}
 
-	config.Linters.Enable = lintersToKeep
+	config.Linters.Enable = m.filterOutFormatters(config.Linters.Enable)
 	config.Formatters.Enable = append(config.Formatters.Enable, formattersToEnable...)
 
 	return true
+}
+
+var formatterNames = map[string]bool{
+	"gofmt":     true,
+	"goimports": true,
+	"gofumpt":   true,
+}
+
+func (m *Migrator) extractFormatters(enabled []string) []string {
+	var formatters []string
+
+	for _, linter := range enabled {
+		if formatterNames[linter] {
+			formatters = append(formatters, linter)
+		}
+	}
+
+	return formatters
+}
+
+func (m *Migrator) filterOutFormatters(enabled []string) []string {
+	var linters []string
+
+	for _, linter := range enabled {
+		if !formatterNames[linter] {
+			linters = append(linters, linter)
+		}
+	}
+
+	return linters
 }
 
 // migrateFormatterSettingsFromLinters moves formatter settings from linters.settings to formatters.settings.
@@ -224,26 +246,34 @@ func migrateFormatterSettingsFromLinters(config *Config) int {
 // migrateOutputProperties migrates deprecated output.* properties.
 func (m *Migrator) migrateOutputProperties(config *Config) int {
 	if m.dryRun {
-		count := 0
-		if config.Output.PrintIssuedLines {
-			count++
-		}
-
-		if config.Output.PrintLinterName {
-			count++
-		}
-
-		if config.Output.SortResults {
-			count++
-		}
-
-		if config.Output.Format != "" {
-			count++
-		}
-
-		return count
+		return m.countOutputProperties(config)
 	}
 
+	return m.clearOutputProperties(config)
+}
+
+func (m *Migrator) countOutputProperties(config *Config) int {
+	count := 0
+	if config.Output.PrintIssuedLines {
+		count++
+	}
+
+	if config.Output.PrintLinterName {
+		count++
+	}
+
+	if config.Output.SortResults {
+		count++
+	}
+
+	if config.Output.Format != "" {
+		count++
+	}
+
+	return count
+}
+
+func (m *Migrator) clearOutputProperties(config *Config) int {
 	fixes := 0
 
 	if config.Output.PrintIssuedLines {

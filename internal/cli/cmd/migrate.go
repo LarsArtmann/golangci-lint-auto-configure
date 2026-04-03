@@ -104,19 +104,46 @@ func executeMigration(
 	configFile string,
 	dryRun, skipValidation, verbose bool,
 ) error {
-	logger.Infof("Migrating configuration: %s", configFile)
-
-	oldConfig, err := configLoader.LoadConfig(configFile)
+	oldConfig, err := loadConfigForMigration(logger, configLoader, configFile)
 	if err != nil {
-		return fmt.Errorf("could not load config %s: %w", configFile, err)
+		return err
 	}
 
-	if oldConfig.Version == "2" {
+	if isAlreadyV2(oldConfig) {
 		logger.Infof("Configuration is already version 2, no migration needed")
 
 		return nil
 	}
 
+	return runMigrator(logger, configLoader, configFile, dryRun, skipValidation, verbose, oldConfig)
+}
+
+func loadConfigForMigration(
+	logger *log.Logger,
+	configLoader *config.Loader,
+	configFile string,
+) (*config.Config, error) {
+	logger.Infof("Migrating configuration: %s", configFile)
+
+	oldConfig, err := configLoader.LoadConfig(configFile)
+	if err != nil {
+		return nil, fmt.Errorf("could not load config %s: %w", configFile, err)
+	}
+
+	return oldConfig, nil
+}
+
+func isAlreadyV2(cfg *config.Config) bool {
+	return cfg.Version == "2"
+}
+
+func runMigrator(
+	logger *log.Logger,
+	configLoader *config.Loader,
+	configFile string,
+	dryRun, skipValidation, verbose bool,
+	oldConfig *config.Config,
+) error {
 	migrator, err := createMigrator(configFile, dryRun, skipValidation, verbose, logger)
 	if err != nil {
 		return err

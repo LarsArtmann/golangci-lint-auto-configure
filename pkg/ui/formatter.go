@@ -23,42 +23,61 @@ func FormatRecommendations(analysis *types.ConfigAnalysis) string {
 		return SuccessMsg("All recommended linters are already enabled")
 	}
 
-	var output strings.Builder
-
 	priorityNames := []string{"Critical", "High Priority", "Medium Priority", "Optional"}
 
-	// Group by priority
+	return buildRecommendationsOutput(analysis, priorityNames)
+}
+
+func buildRecommendationsOutput(analysis *types.ConfigAnalysis, priorityNames []string) string {
+	var output strings.Builder
+
 	for priorityLevel := range priorityCount {
-		var group []types.LinterRecommendation
-
-		for _, rec := range analysis.LinterRecommendations {
-			if int(rec.Priority) == priorityLevel {
-				group = append(group, rec)
-			}
-		}
-
+		group := filterByPriority(analysis.LinterRecommendations, priorityLevel)
 		if len(group) == 0 {
 			continue
 		}
 
 		output.WriteString("\n" + SectionHeader(priorityNames[priorityLevel]) + "\n\n")
-
-		for _, rec := range group {
-			enabled := slices.ContainsFunc(analysis.EnabledLinters, func(l types.LinterInfo) bool {
-				return l.Name.String() == rec.Name.String()
-			})
-
-			status := WarningMsg("○")
-			if enabled {
-				status = SuccessMsg("✓")
-			}
-
-			fmt.Fprintf(&output, "  %s %s %s\n", status, PriorityBadge(int(rec.Priority)), Code(rec.Name.String()))
-			fmt.Fprintf(&output, "    %s\n\n", rec.Reason)
-		}
+		writePriorityGroup(&output, group, analysis)
 	}
 
 	return output.String()
+}
+
+func filterByPriority(recs []types.LinterRecommendation, priority int) []types.LinterRecommendation {
+	var group []types.LinterRecommendation
+
+	for _, rec := range recs {
+		if int(rec.Priority) == priority {
+			group = append(group, rec)
+		}
+	}
+
+	return group
+}
+
+func writePriorityGroup(output *strings.Builder, group []types.LinterRecommendation, analysis *types.ConfigAnalysis) {
+	for _, rec := range group {
+		enabled := isLinterEnabled(rec.Name, analysis)
+		status := getStatusSymbol(enabled)
+
+		fmt.Fprintf(output, "  %s %s %s\n", status, PriorityBadge(int(rec.Priority)), Code(rec.Name.String()))
+		fmt.Fprintf(output, "    %s\n\n", rec.Reason)
+	}
+}
+
+func isLinterEnabled(recName types.LinterName, analysis *types.ConfigAnalysis) bool {
+	return slices.ContainsFunc(analysis.EnabledLinters, func(l types.LinterInfo) bool {
+		return l.Name.String() == recName.String()
+	})
+}
+
+func getStatusSymbol(enabled bool) string {
+	if enabled {
+		return SuccessMsg("✓")
+	}
+
+	return WarningMsg("○")
 }
 
 // FormatSummary formats a summary for terminal output.

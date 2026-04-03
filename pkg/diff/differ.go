@@ -78,33 +78,42 @@ func (d *Differ) Compare(old, newConfig *types.Config) []Change {
 func (d *Differ) compareRunSettings(old, newConfig types.RunConfig) []Change {
 	var changes []Change
 
-	if old.Timeout != newConfig.Timeout {
+	changes = d.addChangeIfDifferent(changes, old.Timeout, newConfig.Timeout, "run.timeout",
+		"Timeout", func(o, n string) string { return fmt.Sprintf("Timeout changed from %s to %s", o, n) })
+	changes = d.addChangeIfDifferent(changes, old.Go, newConfig.Go, "run.go",
+		"Go version", func(o, n string) string { return fmt.Sprintf("Go version changed from %s to %s", o, n) })
+	changes = d.addTestChangeIfDifferent(changes, old.Tests, newConfig.Tests)
+
+	return changes
+}
+
+func (d *Differ) addChangeIfDifferent(
+	changes []Change,
+	oldVal, newVal string,
+	path, label string,
+	formatFunc func(string, string) string,
+) []Change {
+	if oldVal != newVal {
 		changes = append(changes, Change{
 			Type:        ChangeTypeModified,
-			Path:        "run.timeout",
-			OldValue:    old.Timeout,
-			NewValue:    newConfig.Timeout,
-			Description: fmt.Sprintf("Timeout changed from %s to %s", old.Timeout, newConfig.Timeout),
+			Path:        path,
+			OldValue:    oldVal,
+			NewValue:    newVal,
+			Description: formatFunc(oldVal, newVal),
 		})
 	}
 
-	if old.Go != newConfig.Go {
-		changes = append(changes, Change{
-			Type:        ChangeTypeModified,
-			Path:        "run.go",
-			OldValue:    old.Go,
-			NewValue:    newConfig.Go,
-			Description: fmt.Sprintf("Go version changed from %s to %s", old.Go, newConfig.Go),
-		})
-	}
+	return changes
+}
 
-	if old.Tests != newConfig.Tests {
+func (d *Differ) addTestChangeIfDifferent(changes []Change, oldTests, newTests bool) []Change {
+	if oldTests != newTests {
 		changes = append(changes, Change{
 			Type:        ChangeTypeModified,
 			Path:        "run.tests",
-			OldValue:    strconv.FormatBool(old.Tests),
-			NewValue:    strconv.FormatBool(newConfig.Tests),
-			Description: fmt.Sprintf("Tests changed from %v to %v", old.Tests, newConfig.Tests),
+			OldValue:    strconv.FormatBool(oldTests),
+			NewValue:    strconv.FormatBool(newTests),
+			Description: fmt.Sprintf("Tests changed from %v to %v", oldTests, newTests),
 		})
 	}
 
@@ -112,19 +121,30 @@ func (d *Differ) compareRunSettings(old, newConfig types.RunConfig) []Change {
 }
 
 func (d *Differ) compareEnabled(oldEnable, newEnable []string, pathPrefix, entityName string) []Change {
+	oldEnabled := makeStringSet(oldEnable)
+	newEnabled := makeStringSet(newEnable)
+
+	changes := d.findAddedItems(oldEnabled, newEnabled, pathPrefix, entityName)
+	changes = d.findRemovedItems(oldEnabled, newEnabled, pathPrefix, entityName, changes)
+
+	return changes
+}
+
+func makeStringSet(items []string) map[string]bool {
+	set := make(map[string]bool)
+	for _, item := range items {
+		set[item] = true
+	}
+
+	return set
+}
+
+func (d *Differ) findAddedItems(
+	oldEnabled, newEnabled map[string]bool,
+	pathPrefix, entityName string,
+) []Change {
 	var changes []Change
 
-	oldEnabled := make(map[string]bool)
-	for _, item := range oldEnable {
-		oldEnabled[item] = true
-	}
-
-	newEnabled := make(map[string]bool)
-	for _, item := range newEnable {
-		newEnabled[item] = true
-	}
-
-	// Find added items
 	for item := range newEnabled {
 		if !oldEnabled[item] {
 			changes = append(changes, Change{
@@ -137,7 +157,14 @@ func (d *Differ) compareEnabled(oldEnable, newEnable []string, pathPrefix, entit
 		}
 	}
 
-	// Find removed items
+	return changes
+}
+
+func (d *Differ) findRemovedItems(
+	oldEnabled, newEnabled map[string]bool,
+	pathPrefix, entityName string,
+	changes []Change,
+) []Change {
 	for item := range oldEnabled {
 		if !newEnabled[item] {
 			changes = append(changes, Change{
@@ -167,13 +194,14 @@ func (d *Differ) FormatChanges(changes []Change) string {
 		return "No changes detected"
 	}
 
-	var builder strings.Builder
+	added, removed, modified := countChangesByType(changes)
+	builder := formatChangeHeader(added, removed, modified)
+	sortedChanges := sortChangesByPath(changes)
 
-	added := 0
-	removed := 0
-	modified := 0
+	return formatChangeDetails(builder.String(), sortedChanges)
+}
 
-	// Group by type
+func countChangesByType(changes []Change) (added, removed, modified int) {
 	for _, change := range changes {
 		switch change.Type {
 		case ChangeTypeAdded:
@@ -185,14 +213,32 @@ func (d *Differ) FormatChanges(changes []Change) string {
 		}
 	}
 
+	return added, removed, modified
+}
+
+func formatChangeHeader(added, removed, modified int) *strings.Builder {
+	var builder strings.Builder
+
 	fmt.Fprintf(&builder, "Changes: %d added, %d removed, %d modified\n\n", added, removed, modified)
 
-	// Sort changes by path
-	sort.Slice(changes, func(i, j int) bool {
-		return changes[i].Path < changes[j].Path
+	return &builder
+}
+
+func sortChangesByPath(changes []Change) []Change {
+	sorted := make([]Change, len(changes))
+	copy(sorted, changes)
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].Path < sorted[j].Path
 	})
 
-	for _, change := range changes {
+	return sorted
+}
+
+func formatChangeDetails(builderStr string, sortedChanges []Change) string {
+	var builder strings.Builder
+	builder.WriteString(builderStr)
+
+	for _, change := range sortedChanges {
 		switch change.Type {
 		case ChangeTypeAdded:
 			fmt.Fprintf(&builder, "+ %s\n", change.Description)
@@ -212,10 +258,13 @@ func (d *Differ) GetSummary(changes []Change) string {
 		return "No changes"
 	}
 
-	added := 0
-	removed := 0
-	modified := 0
+	added, removed, modified := countChangeTypes(changes)
+	parts := buildSummaryParts(added, removed, modified)
 
+	return strings.Join(parts, ", ")
+}
+
+func countChangeTypes(changes []Change) (added, removed, modified int) {
 	for _, c := range changes {
 		switch c.Type {
 		case ChangeTypeAdded:
@@ -227,6 +276,10 @@ func (d *Differ) GetSummary(changes []Change) string {
 		}
 	}
 
+	return added, removed, modified
+}
+
+func buildSummaryParts(added, removed, modified int) []string {
 	parts := []string{}
 	if added > 0 {
 		parts = append(parts, fmt.Sprintf("%d added", added))
@@ -240,5 +293,5 @@ func (d *Differ) GetSummary(changes []Change) string {
 		parts = append(parts, fmt.Sprintf("%d modified", modified))
 	}
 
-	return strings.Join(parts, ", ")
+	return parts
 }

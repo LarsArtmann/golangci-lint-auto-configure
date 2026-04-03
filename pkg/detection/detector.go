@@ -9,13 +9,7 @@ import (
 	"sync"
 )
 
-// ProjectType represents the type of Go project.
 type ProjectType int
-
-// closeFile closes a file and ignores the error (for use in defer).
-func closeFile(c io.Closer) {
-	_ = c.Close()
-}
 
 const (
 	ProjectTypeUnknown ProjectType = iota
@@ -26,8 +20,9 @@ const (
 	ProjectTypeMonorepo
 )
 
-// String returns the string representation of ProjectType.
-//
+func closeFile(c io.Closer) {
+	_ = c.Close()
+}
 
 func (p ProjectType) String() string {
 	switch p {
@@ -48,7 +43,6 @@ func (p ProjectType) String() string {
 	return "Unknown"
 }
 
-// Detector analyzes project structure to determine project type.
 type Detector struct {
 	rootDir string
 	cache   ProjectType
@@ -56,7 +50,6 @@ type Detector struct {
 	mu      sync.Mutex
 }
 
-// NewDetector creates a new project type detector.
 func NewDetector(rootDir string) *Detector {
 	return &Detector{
 		rootDir: rootDir,
@@ -66,7 +59,6 @@ func NewDetector(rootDir string) *Detector {
 	}
 }
 
-// Detect analyzes the project and returns the detected type.
 func (d *Detector) Detect() ProjectType {
 	d.mu.Lock()
 	if d.cached {
@@ -76,7 +68,6 @@ func (d *Detector) Detect() ProjectType {
 	}
 	d.mu.Unlock()
 
-	// Perform detection
 	projectType := d.detect()
 
 	d.mu.Lock()
@@ -87,45 +78,38 @@ func (d *Detector) Detect() ProjectType {
 	return projectType
 }
 
-// detect performs the actual detection logic without caching.
 func (d *Detector) detect() ProjectType {
-	// Check for monorepo first (multiple go.mod files)
 	if d.isMonorepo() {
 		return ProjectTypeMonorepo
 	}
 
-	// Analyze go.mod
 	modulePath, imports := d.analyzeGoMod()
-
-	// Check for main package
 	hasMain := d.hasMainPackage()
+	hasHTTP := d.hasHTTPFramework(imports)
+	hasCLI := d.hasCLIFramework(imports)
 
-	// Check for HTTP frameworks
-	hasHTTPFramework := d.hasHTTPFramework(imports)
+	return classifyProject(modulePath, hasMain, hasHTTP, hasCLI, d.hasAPICodePatterns())
+}
 
-	// Check for CLI frameworks
-	hasCLIFramework := d.hasCLIFramework(imports)
-
-	// Decision logic
+func classifyProject(modulePath string, hasMain, hasHTTP, hasCLI, hasAPI bool) ProjectType {
 	switch {
-	case hasHTTPFramework && !hasMain:
+	case hasHTTP && !hasMain:
 		return ProjectTypeLibrary
-	case hasHTTPFramework && hasMain:
+	case hasHTTP && hasMain:
 		return ProjectTypeWeb
-	case hasCLIFramework && hasMain:
+	case hasCLI && hasMain:
 		return ProjectTypeCLI
-	case hasMain && d.hasAPICodePatterns():
+	case hasMain && hasAPI:
 		return ProjectTypeAPI
 	case hasMain:
 		return ProjectTypeCLI
-	case modulePath != "" && !hasMain:
+	case modulePath != "":
 		return ProjectTypeLibrary
 	default:
 		return ProjectTypeUnknown
 	}
 }
 
-// isMonorepo checks if there are multiple go.mod files.
 func (d *Detector) isMonorepo() bool {
 	count := 0
 
@@ -144,35 +128,24 @@ func (d *Detector) isMonorepo() bool {
 	return count > 1
 }
 
-// analyzeGoMod extracts module path and imports from go.mod.
-func (d *Detector) analyzeGoMod() (string, []string) {
-	goModPath := filepath.Join(d.rootDir, "go.mod")
+type goModInfo struct {
+	modulePath string
+	imports    []string
+}
 
-	file, err := os.Open(goModPath)
-	if err != nil {
-		return "", nil
-	}
-
-	defer closeFile(file)
-
-	scanner := bufio.NewScanner(file)
+func scanGoMod(scanner *bufio.Scanner) goModInfo {
+	var info goModInfo
 	inRequire := false
-
-	var modulePath string
-
-	var imports []string
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
-		// Extract module path
 		if strings.HasPrefix(line, "module ") {
-			modulePath = strings.TrimSpace(strings.TrimPrefix(line, "module"))
+			info.modulePath = strings.TrimSpace(strings.TrimPrefix(line, "module"))
 
 			continue
 		}
 
-		// Track require block
 		if line == "require (" {
 			inRequire = true
 
@@ -185,28 +158,48 @@ func (d *Detector) analyzeGoMod() (string, []string) {
 			continue
 		}
 
-		// Extract imports
-		if inRequire || strings.HasPrefix(line, "require ") {
-			// Parse "require package version" or "package version" (in block)
-			fields := strings.Fields(line)
-			for i, field := range fields {
-				if field == "require" && i == 0 {
-					continue
-				}
-				// First non-require field that looks like a package path
-				if strings.Contains(field, "/") {
-					imports = append(imports, field)
-
-					break
-				}
-			}
+		if imp := extractImportFromLine(line, inRequire); imp != "" {
+			info.imports = append(info.imports, imp)
 		}
 	}
 
-	return modulePath, imports
+	return info
 }
 
-// analyzeGoModWithError extracts module path and imports from go.mod, returning errors.
+func extractImportFromLine(line string, inRequire bool) string {
+	if !inRequire && !strings.HasPrefix(line, "require ") {
+		return ""
+	}
+
+	fields := strings.Fields(line)
+	for i, field := range fields {
+		if field == "require" && i == 0 {
+			continue
+		}
+
+		if strings.Contains(field, "/") {
+			return field
+		}
+	}
+
+	return ""
+}
+
+func (d *Detector) analyzeGoMod() (string, []string) {
+	goModPath := filepath.Join(d.rootDir, "go.mod")
+
+	file, err := os.Open(goModPath)
+	if err != nil {
+		return "", nil
+	}
+
+	defer closeFile(file)
+
+	info := scanGoMod(bufio.NewScanner(file))
+
+	return info.modulePath, info.imports
+}
+
 func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 	goModPath := filepath.Join(d.rootDir, "go.mod")
 
@@ -218,61 +211,15 @@ func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 	defer closeFile(file)
 
 	scanner := bufio.NewScanner(file)
-	inRequire := false
-
-	var modulePath string
-
-	var imports []string
-
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-
-		// Extract module path
-		if strings.HasPrefix(line, "module ") {
-			modulePath = strings.TrimSpace(strings.TrimPrefix(line, "module"))
-
-			continue
-		}
-
-		// Track require block
-		if line == "require (" {
-			inRequire = true
-
-			continue
-		}
-
-		if line == ")" {
-			inRequire = false
-
-			continue
-		}
-
-		// Extract imports
-		if inRequire || strings.HasPrefix(line, "require ") {
-			// Parse "require package version" or "package version" (in block)
-			fields := strings.Fields(line)
-			for i, field := range fields {
-				if field == "require" && i == 0 {
-					continue
-				}
-				// First non-require field that looks like a package path
-				if strings.Contains(field, "/") {
-					imports = append(imports, field)
-
-					break
-				}
-			}
-		}
-	}
+	info := scanGoMod(scanner)
 
 	if err := scanner.Err(); err != nil {
 		return "", nil, err
 	}
 
-	return modulePath, imports, nil
+	return info.modulePath, info.imports, nil
 }
 
-// hasMainPackage checks if there's a main package in the project.
 func (d *Detector) hasMainPackage() bool {
 	found := false
 
@@ -303,7 +250,6 @@ func (d *Detector) hasMainPackage() bool {
 	return found
 }
 
-// hasHTTPFramework checks if common HTTP frameworks are imported.
 func (d *Detector) hasHTTPFramework(imports []string) bool {
 	for _, imp := range imports {
 		for _, framework := range HTTPFrameworks {
@@ -316,7 +262,6 @@ func (d *Detector) hasHTTPFramework(imports []string) bool {
 	return false
 }
 
-// hasCLIFramework checks if common CLI frameworks are imported.
 func (d *Detector) hasCLIFramework(imports []string) bool {
 	for _, imp := range imports {
 		for _, framework := range CLIFrameworks {
@@ -329,7 +274,6 @@ func (d *Detector) hasCLIFramework(imports []string) bool {
 	return false
 }
 
-// hasAPICodePatterns checks for common API patterns in code.
 func (d *Detector) hasAPICodePatterns() bool {
 	found := false
 
@@ -362,54 +306,78 @@ func (d *Detector) hasAPICodePatterns() bool {
 	return found
 }
 
-// HasSwaggo checks if the project uses swaggo for Swagger documentation.
-// It checks both go.mod imports and code annotations.
 func (d *Detector) HasSwaggo() (bool, error) {
-	// First check go.mod for swaggo imports
+	if d.hasSwaggoInGoMod() {
+		return true, nil
+	}
+
+	return d.hasSwaggoInCode()
+}
+
+func (d *Detector) hasSwaggoInGoMod() bool {
 	_, imports, err := d.analyzeGoModWithError()
 	if err != nil {
-		return false, err
+		return false
 	}
 
 	for _, imp := range imports {
 		for _, swaggoImport := range SwaggoImports {
 			if strings.Contains(imp, swaggoImport) {
-				return true, nil
+				return true
 			}
 		}
 	}
 
-	// Then check code for swaggo annotations
+	return false
+}
+
+func (d *Detector) hasSwaggoInCode() (bool, error) {
 	found := false
 
 	walkErr := filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
-			return nil
-		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			return nil
-		}
-		defer closeFile(file)
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			line := scanner.Text()
-			for _, pattern := range SwaggoPatterns {
-				if strings.Contains(line, pattern) {
-					found = true
-
-					return filepath.SkipAll
-				}
-			}
-		}
-
-		return nil
+		return d.checkFileForSwaggo(path, info, err, &found)
 	})
 	if walkErr != nil {
 		return false, walkErr
 	}
 
 	return found, nil
+}
+
+func (d *Detector) checkFileForSwaggo(path string, info os.FileInfo, err error, found *bool) error {
+	if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
+		return nil
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return nil
+	}
+	defer closeFile(file)
+
+	return d.scanFileForSwaggo(file, found)
+}
+
+func (d *Detector) scanFileForSwaggo(file *os.File, found *bool) error {
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if d.containsSwaggoPattern(line) {
+			*found = true
+
+			return filepath.SkipAll
+		}
+	}
+
+	return nil
+}
+
+func (d *Detector) containsSwaggoPattern(line string) bool {
+	for _, pattern := range SwaggoPatterns {
+		if strings.Contains(line, pattern) {
+			return true
+		}
+	}
+
+	return false
 }

@@ -34,51 +34,7 @@ func (c *Config) UnmarshalYAML(unmarshal func(any) error) error {
 		return err
 	}
 
-	issues, hasIssues := temp["issues"]
-	if hasIssues {
-		issuesMap, ok := issues.(map[string]any)
-		if ok {
-			if _, hasExcludeRules := issuesMap["exclude-rules"]; hasExcludeRules {
-				if excludeRules, exists := issuesMap["exclude-rules"]; exists {
-					temp["exclude-rules"] = excludeRules
-
-					delete(issuesMap, "exclude-rules")
-				}
-
-				if excludeFiles, exists := issuesMap["exclude-files"]; exists {
-					temp["exclude-files"] = excludeFiles
-
-					delete(issuesMap, "exclude-files")
-				}
-
-				if excludeDirs, exists := issuesMap["exclude-dirs"]; exists {
-					temp["exclude-dirs"] = excludeDirs
-
-					delete(issuesMap, "exclude-dirs")
-				}
-
-				if excludeUseDefault, exists := issuesMap["exclude-use-default"]; exists {
-					temp["exclude-use-default"] = excludeUseDefault
-
-					delete(issuesMap, "exclude-use-default")
-				}
-
-				if excludeRulesUseDefault, exists := issuesMap["exclude-rules-use-default"]; exists {
-					temp["exclude-rules-use-default"] = excludeRulesUseDefault
-
-					delete(issuesMap, "exclude-rules-use-default")
-				}
-
-				if excludeDirUseDefault, exists := issuesMap["exclude-dir-use-default"]; exists {
-					temp["exclude-dir-use-default"] = excludeDirUseDefault
-
-					delete(issuesMap, "exclude-dir-use-default")
-				}
-
-				temp["issues"] = issuesMap
-			}
-		}
-	}
+	temp = migrateIssuesToTopLevel(temp)
 
 	data, err := yaml.Marshal(temp)
 	if err != nil {
@@ -86,6 +42,46 @@ func (c *Config) UnmarshalYAML(unmarshal func(any) error) error {
 	}
 
 	return yaml.Unmarshal(data, (*configWrapper)(c))
+}
+
+func migrateIssuesToTopLevel(temp map[string]any) map[string]any {
+	issues, hasIssues := temp["issues"]
+	if !hasIssues {
+		return temp
+	}
+
+	issuesMap, ok := issues.(map[string]any)
+	if !ok {
+		return temp
+	}
+
+	temp = moveIssuesFieldsToTemp(temp, issuesMap)
+	temp["issues"] = issuesMap
+
+	return temp
+}
+
+func moveIssuesFieldsToTemp(temp, issuesMap map[string]any) map[string]any {
+	fieldMappings := []struct {
+		key     string
+		tempKey string
+	}{
+		{"exclude-rules", "exclude-rules"},
+		{"exclude-files", "exclude-files"},
+		{"exclude-dirs", "exclude-dirs"},
+		{"exclude-use-default", "exclude-use-default"},
+		{"exclude-rules-use-default", "exclude-rules-use-default"},
+		{"exclude-dir-use-default", "exclude-dir-use-default"},
+	}
+
+	for _, mapping := range fieldMappings {
+		if val, exists := issuesMap[mapping.key]; exists {
+			temp[mapping.tempKey] = val
+			delete(issuesMap, mapping.key)
+		}
+	}
+
+	return temp
 }
 
 type configWrapper Config

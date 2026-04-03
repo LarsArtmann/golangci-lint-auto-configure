@@ -12,20 +12,30 @@ import (
 )
 
 func main() {
-	logger := log.NewWithOptions(os.Stdout, log.Options{
+	logger := setupLogger()
+	slog.SetDefault(slog.New(logger))
+
+	clientObj := client.New(client.Options{Verbose: true})
+
+	analysis := analyzeConfig(clientObj)
+
+	printAnalysisResults(analysis)
+
+	critical, high := filterRecommendations(analysis)
+	logCriticalLinters(critical)
+	logHighPriorityLinters(high)
+
+	showSummary(clientObj, analysis)
+}
+
+func setupLogger() *log.Logger {
+	return log.NewWithOptions(os.Stdout, log.Options{
 		ReportTimestamp: true,
 		Level:           log.InfoLevel,
 	})
-	slog.SetDefault(slog.New(logger))
+}
 
-	slog.Info("golangci-lint-auto-configure API Usage Example")
-
-	// Create client with verbose logging
-	clientObj := client.New(client.Options{
-		Verbose: true,
-	})
-
-	// Analyze configuration
+func analyzeConfig(clientObj *client.Client) *types.ConfigAnalysis {
 	configPath := ".golangci.yml"
 
 	analysis, err := clientObj.AnalyzeConfig(context.Background(), configPath)
@@ -34,19 +44,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Print results
-	slog.Info("Analysis complete", "path", configPath,
+	return analysis
+}
+
+func printAnalysisResults(analysis *types.ConfigAnalysis) {
+	slog.Info("Analysis complete", "path", analysis.ConfigPath,
 		"enabled_linters", len(analysis.EnabledLinters),
 		"disabled_linters", len(analysis.DisabledLinters),
 		"enabled_formatters", len(analysis.EnabledFormatters),
 		"disabled_formatters", len(analysis.DisabledFormatters),
 		"recommendations", len(analysis.LinterRecommendations))
+}
 
-	// Show critical recommendations
-	var (
-		critical []types.LinterRecommendation
-		high     []types.LinterRecommendation
-	)
+func filterRecommendations(analysis *types.ConfigAnalysis) ([]types.LinterRecommendation, []types.LinterRecommendation) {
+	var critical, high []types.LinterRecommendation
 
 	for _, rec := range analysis.LinterRecommendations {
 		switch rec.Priority {
@@ -54,23 +65,28 @@ func main() {
 			critical = append(critical, rec)
 		case types.LinterPriorityHigh:
 			high = append(high, rec)
-		case types.LinterPriorityMedium, types.LinterPriorityOptional:
-			// Medium and optional linters not shown in this example
 		}
 	}
 
+	return critical, high
+}
+
+func logCriticalLinters(critical []types.LinterRecommendation) {
 	if len(critical) > 0 {
 		for _, rec := range critical {
 			slog.Warn("Critical linter (should ALWAYS be enabled)", "name", rec.Name)
 		}
 	}
+}
 
+func logHighPriorityLinters(high []types.LinterRecommendation) {
 	if len(high) > 0 {
 		for _, rec := range high {
 			slog.Info("High priority linter", "name", rec.Name, "reason", rec.Reason)
 		}
 	}
+}
 
-	// Show summary
-	slog.Info("Summary", "message", clientObj.GetSummary(analysis))
+func showSummary(client *client.Client, analysis *types.ConfigAnalysis) {
+	slog.Info("Summary", "message", client.GetSummary(analysis))
 }

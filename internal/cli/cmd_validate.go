@@ -76,31 +76,39 @@ func validateBasicStructure(
 ) error {
 	cfg, err := configLoader.LoadConfig(configFile)
 	if err != nil {
-		logger.Errorf("❌ Failed to load configuration")
-
-		return fmt.Errorf("failed to load config: %w", err)
+		return logAndFailLoad(logger, err)
 	}
 
 	logger.Infof("✓ Basic structure valid")
 
 	validationErrors := configLoader.ValidateConfig(cfg)
 	if len(validationErrors) > 0 {
-		logger.Errorf("❌ Internal validation failed:")
-
-		for _, e := range validationErrors {
-			logger.Errorf("  - %v", e)
-		}
-
-		return fmt.Errorf(
-			"%w: %d validation errors",
-			apperrors.ErrConfigValidationFailed,
-			len(validationErrors),
-		)
+		return logAndFailValidation(logger, validationErrors)
 	}
 
 	logger.Infof("✓ Internal validation passed")
 
 	return nil
+}
+
+func logAndFailLoad(logger *log.Logger, err error) error {
+	logger.Errorf("❌ Failed to load configuration")
+
+	return fmt.Errorf("failed to load config: %w", err)
+}
+
+func logAndFailValidation(logger *log.Logger, validationErrors []error) error {
+	logger.Errorf("❌ Internal validation failed:")
+
+	for _, e := range validationErrors {
+		logger.Errorf("  - %v", e)
+	}
+
+	return fmt.Errorf(
+		"%w: %d validation errors",
+		apperrors.ErrConfigValidationFailed,
+		len(validationErrors),
+	)
 }
 
 func runSchemaValidation(cmd *cobra.Command, configFile string, logger *log.Logger) error {

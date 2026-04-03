@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// Config holds retry configuration parameters.
 type Config struct {
 	MaxRetries     int
 	InitialBackoff time.Duration
@@ -18,7 +17,6 @@ const (
 	DefaultInitialBackoff = 500 // milliseconds
 )
 
-// DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() Config {
 	return Config{
 		MaxRetries:     DefaultMaxRetries,
@@ -26,64 +24,74 @@ func DefaultConfig() Config {
 	}
 }
 
-// ShouldRetry is a function that determines if an error should trigger a retry.
 type ShouldRetry func(error, string) bool
 
-// Operation is the function to execute with retry logic.
 type Operation func() ([]byte, error)
 
-// WithRetry executes the given operation with retry logic.
-// It retries on errors where shouldRetry returns true, up to MaxRetries times
-// with exponential backoff.
+const retriesExceededFmt = "%s failed after %d retries: %w"
+
 func WithRetry(
-	ctx context.Context,
-	config Config,
-	name string,
-	shouldRetry ShouldRetry,
-	executeOperation Operation,
+	ctx context.Context, config Config, name string,
+	shouldRetry ShouldRetry, op Operation,
 ) ([]byte, error) {
 	var lastErr error
-
 	backoff := config.InitialBackoff
 
-	for attempt := 0; attempt <= config.MaxRetries; attempt++ {
-		output, err := executeOperation()
+	for attempt := range config.MaxRetries + 1 {
+		output, err := op()
 		if err == nil {
 			return output, nil
 		}
 
 		lastErr = err
 
-		// Check if this error should trigger a retry
-		if shouldRetry(err, string(output)) && attempt < config.MaxRetries {
-			select {
-			case <-time.After(backoff):
-			case <-ctx.Done():
-				return nil, fmt.Errorf(
-					"%s retry interrupted (lastErr=%w): %w",
-					name,
-					lastErr,
-					ctx.Err(),
-				)
-			}
-
-			backoff *= 2 // Exponential backoff
-
-			continue
+		if result, done := handleFailedAttempt(ctx, failedAttemptParams{
+			name: name, maxRetries: config.MaxRetries,
+			attempt: attempt, backoff: backoff,
+			output: output, err: err, shouldRetry: shouldRetry, lastErr: lastErr,
+		}); done {
+			return result.val, result.err
 		}
 
-		// Either not a retryable error or out of retries
-		if attempt >= config.MaxRetries {
-			return output, fmt.Errorf("%s failed after %d retries: %w", name, config.MaxRetries, lastErr)
-		}
-
-		return output, err
+		backoff *= 2
 	}
 
-	return nil, fmt.Errorf("%s failed after %d retries: %w", name, config.MaxRetries, lastErr)
+	return nil, fmt.Errorf(retriesExceededFmt, name, config.MaxRetries, lastErr)
 }
 
-// IsContextCanceled returns true if the error is context cancellation.
+type failedAttemptParams struct {
+	name        string
+	maxRetries  int
+	attempt     int
+	backoff     time.Duration
+	output      []byte
+	err         error
+	shouldRetry ShouldRetry
+	lastErr     error
+}
+
+type retryResult struct {
+	val []byte
+	err error
+}
+
+func handleFailedAttempt(ctx context.Context, p failedAttemptParams) (retryResult, bool) {
+	if !p.shouldRetry(p.err, string(p.output)) {
+		return retryResult{p.output, p.err}, true
+	}
+
+	if p.attempt >= p.maxRetries {
+		return retryResult{p.output, fmt.Errorf(retriesExceededFmt, p.name, p.maxRetries, p.lastErr)}, true
+	}
+
+	select {
+	case <-time.After(p.backoff):
+		return retryResult{}, false
+	case <-ctx.Done():
+		return retryResult{nil, fmt.Errorf("%s retry interrupted (lastErr=%w): %w", p.name, p.lastErr, ctx.Err())}, true
+	}
+}
+
 func IsContextCanceled(err error) bool {
 	if err == nil {
 		return false

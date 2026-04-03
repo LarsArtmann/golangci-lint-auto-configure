@@ -42,18 +42,27 @@ type JSONSummary struct {
 func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outputPath string) error {
 	g.logger.Infof("Generating JSON report: %s", outputPath)
 
-	// Prepare JSON report structure
-	enabledLinterNames := make([]string, len(analysis.EnabledLinters))
-	for i, linter := range analysis.EnabledLinters {
-		enabledLinterNames[i] = string(linter.Name)
+	jsonReport := g.buildJSONReport(analysis)
+
+	jsonData, err := json.MarshalIndent(jsonReport, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal JSON report (outputPath=%s): %w", outputPath, err)
 	}
 
-	disabledLinterNames := make([]string, len(analysis.DisabledLinters))
-	for i, linter := range analysis.DisabledLinters {
-		disabledLinterNames[i] = string(linter.Name)
+	if writeErr := os.WriteFile(outputPath, jsonData, 0o644); writeErr != nil {
+		return fmt.Errorf("failed to write JSON report (outputPath=%s): %w", outputPath, writeErr)
 	}
 
-	jsonReport := JSONReport{
+	g.logger.Infof("JSON report generated successfully: %s", outputPath)
+
+	return nil
+}
+
+func (g *JSONGenerator) buildJSONReport(analysis *types.ConfigAnalysis) JSONReport {
+	enabledLinterNames := extractLinterNames(analysis.EnabledLinters)
+	disabledLinterNames := extractLinterNames(analysis.DisabledLinters)
+
+	return JSONReport{
 		ConfigPath: analysis.ConfigPath,
 		Summary: JSONSummary{
 			TotalLinters:         len(analysis.EnabledLinters) + len(analysis.DisabledLinters),
@@ -65,19 +74,13 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 		EnabledLinters:  enabledLinterNames,
 		DisabledLinters: disabledLinterNames,
 	}
+}
 
-	// Marshal to JSON with indentation
-	jsonData, err := json.MarshalIndent(jsonReport, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to marshal JSON report (outputPath=%s): %w", outputPath, err)
+func extractLinterNames(linters []types.LinterInfo) []string {
+	names := make([]string, len(linters))
+	for i, linter := range linters {
+		names[i] = string(linter.Name)
 	}
 
-	// Write to file
-	if err := os.WriteFile(outputPath, jsonData, 0o644); err != nil {
-		return fmt.Errorf("failed to write JSON report (outputPath=%s): %w", outputPath, err)
-	}
-
-	g.logger.Infof("JSON report generated successfully: %s", outputPath)
-
-	return nil
+	return names
 }
