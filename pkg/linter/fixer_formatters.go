@@ -21,12 +21,12 @@ func NewFormatterManager(logger *log.Logger) *FormatterManager {
 }
 
 // EnableCoreFormatters enables the core formatters: gci, gofumpt, goimports.
-func (fm *FormatterManager) EnableCoreFormatters(formatterSet map[string]bool, dryRun bool) int {
+func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[string], dryRun bool) int {
 	coreFormatters := []string{"gci", "gofumpt", "goimports"}
 	count := 0
 
 	for _, formatter := range coreFormatters {
-		if formatterSet[formatter] {
+		if formatterSet.Contains(formatter) {
 			continue
 		}
 
@@ -36,7 +36,7 @@ func (fm *FormatterManager) EnableCoreFormatters(formatterSet map[string]bool, d
 			fm.logger.Debugf("[DRY-RUN] Would enable formatter: %s", formatter)
 		} else {
 			fm.logger.Debugf("Enabling formatter: %s", formatter)
-			formatterSet[formatter] = true
+			formatterSet.Add(formatter)
 		}
 	}
 
@@ -45,7 +45,7 @@ func (fm *FormatterManager) EnableCoreFormatters(formatterSet map[string]bool, d
 
 // EnableGolinesFormatter enables the golines formatter if recommended at high priority.
 func (fm *FormatterManager) EnableGolinesFormatter(
-	formatterSet map[string]bool,
+	formatterSet types.Set[string],
 	analysis *types.ConfigAnalysis,
 	dryRun bool,
 ) int {
@@ -59,7 +59,7 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 		}
 	}
 
-	if !shouldEnable || formatterSet["golines"] {
+	if !shouldEnable || formatterSet.Contains("golines") {
 		return 0
 	}
 
@@ -68,7 +68,7 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 	} else {
 		fm.logger.Debugf("Enabling formatter: golines (formats code and fixes long lines)")
 
-		formatterSet["golines"] = true
+		formatterSet.Add("golines")
 	}
 
 	return 1
@@ -76,11 +76,11 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 
 // EnableSwaggoFormatter enables the swaggo formatter if swaggo is detected in the project.
 func (fm *FormatterManager) EnableSwaggoFormatter(
-	formatterSet map[string]bool,
+	formatterSet types.Set[string],
 	configPath string,
 	dryRun bool,
 ) int {
-	if formatterSet["swaggo"] {
+	if formatterSet.Contains("swaggo") {
 		return 0
 	}
 
@@ -93,15 +93,15 @@ func (fm *FormatterManager) EnableSwaggoFormatter(
 	} else {
 		fm.logger.Debugf("Enabling formatter: swaggo (detected swaggo usage in project)")
 
-		formatterSet["swaggo"] = true
+		formatterSet.Add("swaggo")
 	}
 
 	return 1
 }
 
 // RemoveRedundantGofmt removes gofmt when gofumpt is enabled (gofumpt is a superset).
-func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet map[string]bool, dryRun bool) int {
-	if !formatterSet["gofumpt"] || !formatterSet["gofmt"] {
+func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet types.Set[string], dryRun bool) int {
+	if !formatterSet.Contains("gofumpt") || !formatterSet.Contains("gofmt") {
 		return 0
 	}
 
@@ -109,7 +109,7 @@ func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet map[string]bool, d
 		fm.logger.Debugf("[DRY-RUN] Would remove redundant formatter: gofmt (gofumpt is enabled and is a superset)")
 	} else {
 		fm.logger.Debugf("Removing redundant formatter: gofmt (gofumpt is enabled and is a superset)")
-		delete(formatterSet, "gofmt")
+		formatterSet.Delete("gofmt")
 	}
 
 	return 1
@@ -117,18 +117,18 @@ func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet map[string]bool, d
 
 // RemoveRedundantLinters removes linters that are superseded by enabled formatters.
 func (fm *FormatterManager) RemoveRedundantLinters(
-	linterSet map[string]bool,
-	formatterSet map[string]bool,
+	linterSet types.Set[string],
+	formatterSet types.Set[string],
 	dryRun bool,
 ) int {
 	count := 0
 
 	for linterName, mapping := range constants.RedundantLinters {
-		if !linterSet[string(linterName)] {
+		if !linterSet.Contains(string(linterName)) {
 			continue
 		}
 
-		if !formatterSet[string(mapping.Formatter)] {
+		if !formatterSet.Contains(string(mapping.Formatter)) {
 			continue
 		}
 
@@ -138,7 +138,7 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 			fm.logger.Debugf("[DRY-RUN] Would remove redundant linter: %s (%s)", linterName, mapping.Reason)
 		} else {
 			fm.logger.Debugf("Removing redundant linter: %s (%s)", linterName, mapping.Reason)
-			delete(linterSet, string(linterName))
+			linterSet.Delete(string(linterName))
 		}
 	}
 
@@ -147,21 +147,18 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 
 // ToOrderedSlice converts formatter set to ordered slice.
 // Order: gci → goimports → gofumpt → golines → swaggo → others (sorted).
-func (fm *FormatterManager) ToOrderedSlice(set map[string]bool) []string {
-	// Define explicit order
+func (fm *FormatterManager) ToOrderedSlice(set types.Set[string]) []string {
 	order := []string{"gci", "goimports", "gofumpt", "golines", "swaggo"}
 
-	result := make([]string, 0, len(set))
+	result := make([]string, 0, set.Len())
 	remaining := make([]string, 0)
 
-	// First pass: add formatters in explicit order
 	for _, name := range order {
-		if set[name] {
+		if set.Contains(name) {
 			result = append(result, name)
 		}
 	}
 
-	// Second pass: add any remaining formatters (sorted alphabetically)
 	for name := range set {
 		if !slices.Contains(order, name) {
 			remaining = append(remaining, name)

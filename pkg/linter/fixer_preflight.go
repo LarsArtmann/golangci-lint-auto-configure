@@ -125,10 +125,10 @@ func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dr
 
 	var deprecatedFound []string
 
-	linterSet := make(map[string]bool)
+	linterSet := types.NewSet[string]()
 	deprecatedFound = filterDeprecatedFrom(enabledLinters, "", deprecatedFound, linterSet)
 
-	disabledSet := make(map[string]bool)
+	disabledSet := types.NewSet[string]()
 	deprecatedFound = filterDeprecatedFrom(disabledLinters, " (disabled)", deprecatedFound, disabledSet)
 
 	if len(deprecatedFound) == 0 {
@@ -153,7 +153,7 @@ func filterDeprecatedFrom(
 	linters []string,
 	suffix string,
 	found []string,
-	result map[string]bool,
+	result types.Set[string],
 ) []string {
 	for _, linter := range linters {
 		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
@@ -162,7 +162,7 @@ func filterDeprecatedFrom(
 			continue
 		}
 
-		result[linter] = true
+		result.Add(linter)
 	}
 
 	return found
@@ -217,7 +217,7 @@ func filterLinter(linters []string, target string) ([]string, bool) {
 func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.MigrationResultType {
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
 
-	linterSet := make(map[string]bool)
+	linterSet := types.NewSet[string]()
 	deprecationFixes := f.applyDeprecatedReplacements(enabledLinters, linterSet)
 
 	f.logger.Infof("[DRY-RUN] Would apply %d fixes", deprecationFixes)
@@ -231,23 +231,23 @@ func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.Mig
 	})
 }
 
-func (f *Fixer) applyDeprecatedReplacements(linters []string, linterSet map[string]bool) int {
+func (f *Fixer) applyDeprecatedReplacements(linters []string, linterSet types.Set[string]) int {
 	deprecationFixes := 0
 
 	for _, linter := range linters {
 		replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
 		if !isDeprecated {
-			linterSet[linter] = true
+			linterSet.Add(linter)
 
 			continue
 		}
 
 		deprecationFixes++
 
-		if !linterSet[string(replacement.Replacement)] {
+		if !linterSet.Contains(string(replacement.Replacement)) {
 			f.logger.Infof("[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)",
 				linter, replacement.Replacement, replacement.Reason)
-			linterSet[string(replacement.Replacement)] = true
+			linterSet.Add(string(replacement.Replacement))
 		} else {
 			f.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)",
 				linter, replacement.Replacement)

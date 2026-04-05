@@ -192,7 +192,7 @@ func (f *Fixer) applyLintersFix(
 }
 
 func (f *Fixer) applyAllFixes(
-	linterSet, formatterSet map[string]bool,
+	linterSet, formatterSet types.Set[string],
 	cfg *types.Config,
 	analysis *types.ConfigAnalysis,
 	configPath string,
@@ -241,7 +241,7 @@ func noFixesResult() types.MigrationResultType {
 func (f *Fixer) applyAndSave(
 	ctx context.Context,
 	cfg *types.Config,
-	linterSet, formatterSet map[string]bool,
+	linterSet, formatterSet types.Set[string],
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,
@@ -302,16 +302,13 @@ func (f *Fixer) updateRunnerSettings(cfg *types.Config) {
 }
 
 func (f *Fixer) updateBuildTags(cfg *types.Config) {
-	existingTags := make(map[string]bool)
-	for _, tag := range cfg.Run.BuildTags {
-		existingTags[tag] = true
-	}
+	existingTags := types.NewSet(cfg.Run.BuildTags...)
 
 	for _, tag := range constants.GoExperimentTags() {
-		if !existingTags[tag] {
+		if !existingTags.Contains(tag) {
 			f.logger.Infof("Adding build tag: %s", tag)
 			cfg.Run.BuildTags = append(cfg.Run.BuildTags, tag)
-			existingTags[tag] = true
+			existingTags.Add(tag)
 		}
 	}
 
@@ -330,11 +327,11 @@ func sortAndDeduplicate(tags []string) []string {
 
 // replaceDeprecatedLinters replaces deprecated linters with their successors in the linter set.
 func (f *Fixer) replaceDeprecatedLinters(
-	linterSet map[string]bool,
+	linterSet types.Set[string],
 	enabledLinters []string,
 	dryRun bool,
 	counts *fixCounts,
-) map[string]bool {
+) types.Set[string] {
 	for _, linter := range enabledLinters {
 		replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
 		if !isDeprecated {
@@ -343,9 +340,9 @@ func (f *Fixer) replaceDeprecatedLinters(
 
 		counts.deprecation++
 
-		delete(linterSet, linter)
+		linterSet.Delete(linter)
 
-		if linterSet[string(replacement.Replacement)] {
+		if linterSet.Contains(string(replacement.Replacement)) {
 			f.logDeprecatedKeep(linter, replacement.Replacement, dryRun)
 
 			continue
@@ -354,7 +351,7 @@ func (f *Fixer) replaceDeprecatedLinters(
 		f.logDeprecatedReplace(linter, replacement, dryRun)
 
 		if !dryRun {
-			linterSet[string(replacement.Replacement)] = true
+			linterSet.Add(string(replacement.Replacement))
 		}
 	}
 
@@ -389,13 +386,15 @@ func (f *Fixer) logDeprecatedReplace(linter string, replacement types.LinterRepl
 
 // enableRecommendedLinters enables recommended linters that aren't already enabled or explicitly disabled.
 func (f *Fixer) enableRecommendedLinters(
-	linterSet map[string]bool,
+	linterSet types.Set[string],
 	disabledLinters []string,
 	analysis *types.ConfigAnalysis,
 	priority types.LinterPriority,
 	dryRun bool,
 ) int {
 	count := 0
+
+	disabledSet := types.NewSet(disabledLinters...)
 
 	for _, rec := range analysis.LinterRecommendations {
 		if rec.Priority > priority {
@@ -404,7 +403,7 @@ func (f *Fixer) enableRecommendedLinters(
 
 		lintName := resolveLinterName(rec.Name)
 
-		if linterSet[lintName] || contains(disabledLinters, lintName) {
+		if linterSet.Contains(lintName) || disabledSet.Contains(lintName) {
 			continue
 		}
 
@@ -414,7 +413,7 @@ func (f *Fixer) enableRecommendedLinters(
 			f.logger.Debugf("[DRY-RUN] Would enable: %s (%s)", lintName, rec.Reason)
 		} else {
 			f.logger.Debugf("Enabling: %s (%s)", lintName, rec.Reason)
-			linterSet[lintName] = true
+			linterSet.Add(lintName)
 		}
 	}
 
@@ -432,10 +431,10 @@ func resolveLinterName(name types.LinterName) string {
 // updateConfigFromSets applies the linter and formatter sets back to the config struct.
 func (f *Fixer) updateConfigFromSets(
 	cfg *types.Config,
-	linterSet map[string]bool,
-	formatterSet map[string]bool,
+	linterSet types.Set[string],
+	formatterSet types.Set[string],
 ) {
-	enabledLinters := setToSortedSlice(linterSet)
+	enabledLinters := types.ToSortedSlice(linterSet)
 
 	disabledLintersList := make([]string, 0)
 	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter string) bool {
@@ -451,31 +450,17 @@ func (f *Fixer) updateConfigFromSets(
 	cfg.Linters.Enable = enabledLinters
 	cfg.Linters.Disable = disabledLintersList
 
-	if len(formatterSet) > 0 {
+	if formatterSet.Len() > 0 {
 		cfg.Formatters.Enable = f.formatterManager.ToOrderedSlice(formatterSet)
 	}
 }
 
-func buildLinterSet(items []string) map[string]bool {
-	set := make(map[string]bool, len(items))
-
-	for _, item := range items {
-		set[item] = true
-	}
-
-	return set
+func buildLinterSet(items []string) types.Set[string] {
+	return types.NewSet(items...)
 }
 
-func setToSortedSlice(set map[string]bool) []string {
-	result := make([]string, 0, len(set))
-
-	for item := range set {
-		result = append(result, item)
-	}
-
-	slices.Sort(result)
-
-	return result
+func setToSortedSlice(set types.Set[string]) []string {
+	return types.ToSortedSlice(set)
 }
 
 func hasDeprecatedLinters(enabledLinters []string) bool {
@@ -486,8 +471,4 @@ func hasDeprecatedLinters(enabledLinters []string) bool {
 	}
 
 	return false
-}
-
-func contains(slice []string, item string) bool {
-	return slices.Contains(slice, item)
 }

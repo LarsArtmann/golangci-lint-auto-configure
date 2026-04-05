@@ -11,9 +11,9 @@ func (a *Analyzer) CategorizeLinters(
 	disabledLinters []types.LinterInfo,
 	enabledFormatters []types.FormatterInfo,
 ) []types.LinterRecommendation {
-	enabledFormatterSet := make(map[string]bool)
+	enabledFormatterSet := types.NewSet[string]()
 	for _, formatter := range enabledFormatters {
-		enabledFormatterSet[formatter.Name] = true
+		enabledFormatterSet.Add(formatter.Name)
 	}
 
 	var recommendations []types.LinterRecommendation
@@ -29,7 +29,7 @@ func (a *Analyzer) CategorizeLinters(
 	return recommendations
 }
 
-func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet map[string]bool) bool {
+func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.Set[string]) bool {
 	if linter.Deprecated {
 		a.logger.Debugf("Skipping deprecated linter in analysis: %s", linter.Name)
 
@@ -43,7 +43,7 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet map[st
 	}
 
 	if mapping, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
-		if formatterSet[string(mapping.Formatter)] {
+		if formatterSet.Contains(string(mapping.Formatter)) {
 			a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, mapping.Reason)
 
 			return true
