@@ -9,9 +9,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-// DefaultTimeout is the default timeout value used when the config has an invalid duration.
-const DefaultTimeout = "5m"
-
 // preFixVersion ensures the config has the correct version field for golangci-lint v2.
 // This is necessary because golangci-lint linters command will fail if the config
 // has an incompatible version.
@@ -60,15 +57,15 @@ func (f *Fixer) preFixInvalidDurations(
 		return false, nil
 	}
 
-	f.logger.Infof("%s, would set to %q", reason, DefaultTimeout)
+	f.logger.Infof("%s, would set to %q", reason, constants.DefaultTimeout)
 
 	if dryRun {
-		f.logger.Infof("[DRY-RUN] Would set run.timeout to %q", DefaultTimeout)
+		f.logger.Infof("[DRY-RUN] Would set run.timeout to %q", constants.DefaultTimeout)
 
 		return true, nil
 	}
 
-	cfg.Run.Timeout = DefaultTimeout
+	cfg.Run.Timeout = constants.DefaultTimeout
 
 	err := f.configLoader.SaveConfig(cfg, configPath)
 	if err != nil {
@@ -101,7 +98,7 @@ func needsDurationFix(timeout string) (bool, string) {
 // Since the config has invalid durations, we can't run golangci-lint linters for analysis,
 // so we just report what would be fixed regarding durations.
 func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) types.MigrationResultType {
-	f.logger.Infof("[DRY-RUN] Would fix invalid run.timeout: %q -> %q", cfg.Run.Timeout, DefaultTimeout)
+	f.logger.Infof("[DRY-RUN] Would fix invalid run.timeout: %q -> %q", cfg.Run.Timeout, constants.DefaultTimeout)
 
 	return types.OkMigration(&types.MigrationResult{
 		FixesApplied: 1,

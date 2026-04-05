@@ -7,10 +7,9 @@ import (
 	"fmt"
 	"maps"
 
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
-
-const defaultRunTimeout = "5m"
 
 // migrateLintersSettings migrates linters-settings to linters.settings.
 func (m *Migrator) migrateLintersSettings(config *Config) bool {
@@ -335,7 +334,7 @@ func migrateVersion(version *string, rules *MigrationRules) bool {
 // migrateRunSettings ensures run.timeout has a valid value.
 func migrateRunSettings(run *Run) bool {
 	if run.Timeout == "" {
-		run.Timeout = defaultRunTimeout
+		run.Timeout = constants.DefaultTimeout
 
 		return true
 	}
