@@ -6,6 +6,8 @@ package migration
 import (
 	"fmt"
 	"maps"
+
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 const defaultRunTimeout = "5m"
@@ -193,16 +195,12 @@ func (m *Migrator) migrateFormatters(config *Config) bool {
 }
 
 func (m *Migrator) extractFormatters(enabled []string) []string {
-	formatterNames := map[string]bool{
-		"gofmt":     true,
-		"goimports": true,
-		"gofumpt":   true,
-	}
+	formatterNames := types.NewSet("gofmt", "goimports", "gofumpt")
 
 	var formatters []string
 
 	for _, linter := range enabled {
-		if formatterNames[linter] {
+		if formatterNames.Contains(linter) {
 			formatters = append(formatters, linter)
 		}
 	}
@@ -211,16 +209,12 @@ func (m *Migrator) extractFormatters(enabled []string) []string {
 }
 
 func (m *Migrator) filterOutFormatters(enabled []string) []string {
-	formatterNames := map[string]bool{
-		"gofmt":     true,
-		"goimports": true,
-		"gofumpt":   true,
-	}
+	formatterNames := types.NewSet("gofmt", "goimports", "gofumpt")
 
 	var linters []string
 
 	for _, linter := range enabled {
-		if !formatterNames[linter] {
+		if !formatterNames.Contains(linter) {
 			linters = append(linters, linter)
 		}
 	}
