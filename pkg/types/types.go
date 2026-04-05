@@ -52,6 +52,13 @@ func (p FormatterPriority) String() string {
 	}
 }
 
+// GoExperiment represents a Go runtime experiment that exposes new standard library packages.
+type GoExperiment struct {
+	Tag         string `json:"tag"`
+	Package     string `json:"package"`
+	Description string `json:"description"`
+}
+
 // LinterInfo contains information about a golangci-lint linter.
 type LinterInfo struct {
 	Name        LinterName `json:"name"`

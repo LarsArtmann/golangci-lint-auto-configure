@@ -301,23 +301,13 @@ func (f *Fixer) updateRunnerSettings(cfg *types.Config) {
 	}
 }
 
-// goExperimentTags are build tags for GOEXPERIMENT features that affect user code.
-// See: https://go.dev/src/internal/goexperiment/flags.go
-//
-//nolint:gochecknoglobals // Package-level list used in updateBuildTags for iteration
-var goExperimentTags = []string{
-	"goexperiment.jsonv2",               // Enables json/v2 package
-	"goexperiment.simd",                 // Enables simd package and intrinsics
-	"goexperiment.goroutineleakprofile", // Enables goroutine leak profiling
-}
-
 func (f *Fixer) updateBuildTags(cfg *types.Config) {
 	existingTags := make(map[string]bool)
 	for _, tag := range cfg.Run.BuildTags {
 		existingTags[tag] = true
 	}
 
-	for _, tag := range goExperimentTags {
+	for _, tag := range constants.GoExperimentTags() {
 		if !existingTags[tag] {
 			f.logger.Infof("Adding build tag: %s", tag)
 			cfg.Run.BuildTags = append(cfg.Run.BuildTags, tag)
@@ -325,28 +315,17 @@ func (f *Fixer) updateBuildTags(cfg *types.Config) {
 		}
 	}
 
-	// Sort and deduplicate
 	cfg.Run.BuildTags = sortAndDeduplicate(cfg.Run.BuildTags)
 }
 
 func sortAndDeduplicate(tags []string) []string {
-	if len(tags) == 0 {
+	if len(tags) <= 1 {
 		return tags
 	}
 
-	seen := make(map[string]bool)
-	unique := make([]string, 0, len(tags))
+	slices.Sort(tags)
 
-	for _, tag := range tags {
-		if !seen[tag] {
-			seen[tag] = true
-			unique = append(unique, tag)
-		}
-	}
-
-	slices.Sort(unique)
-
-	return unique
+	return slices.Compact(tags)
 }
 
 // replaceDeprecatedLinters replaces deprecated linters with their successors in the linter set.

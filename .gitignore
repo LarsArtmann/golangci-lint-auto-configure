@@ -42,3 +42,9 @@ node_modules/
 *_templ.go
 # Build artifacts
 /golangcli-linter-auto-configure
+# Build artifacts
+/golangci-lint-auto-configure
+# Test coverage
+/coverage
+# Sensitive files
+*.db

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
@@ -103,6 +104,19 @@ linters:
   enable:
     - gosec
 `
+}
+
+func countSubstring(s, substr string) int {
+	return strings.Count(s, substr)
+}
+
+func indexOr(s, substr string, fallback int) int {
+	idx := strings.Index(s, substr)
+	if idx == -1 {
+		return fallback
+	}
+
+	return idx
 }
 
 var _ = Describe("Fixer", func() {
@@ -290,6 +304,79 @@ linters:
     - typecheck
 `
 			testDeprecatedLinterDryRun(fixer, testConfig, configContent)
+		})
+	})
+
+	Context("Build Tags", func() {
+		It("should add all GOEXPERIMENT build tags", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(content).To(ContainSubstring("goexperiment.arenas"))
+			Expect(content).To(ContainSubstring("goexperiment.goroutineleakprofile"))
+			Expect(content).To(ContainSubstring("goexperiment.jsonv2"))
+			Expect(content).To(ContainSubstring("goexperiment.runtimesecret"))
+			Expect(content).To(ContainSubstring("goexperiment.simd"))
+		})
+
+		It("should preserve existing build tags", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+  build-tags:
+    - custom_tag
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(content).To(ContainSubstring("custom_tag"))
+			Expect(content).To(ContainSubstring("goexperiment.jsonv2"))
+		})
+
+		It("should not duplicate already-present experiment tags", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+  build-tags:
+    - goexperiment.jsonv2
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			jsonv2Count := countSubstring(content, "goexperiment.jsonv2")
+			Expect(jsonv2Count).To(Equal(1))
+		})
+
+		It("should sort build tags", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+  build-tags:
+    - zebra_tag
+    - alpha_tag
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			zebraIdx := indexOr(content, "zebra_tag", len(content))
+			alphaIdx := indexOr(content, "alpha_tag", 0)
+			Expect(alphaIdx).To(BeNumerically("<", zebraIdx))
 		})
 	})
 })
