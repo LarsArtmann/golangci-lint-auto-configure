@@ -260,27 +260,10 @@ func (d *Differ) GetSummary(changes []Change) string {
 		return "No changes"
 	}
 
-	added, removed, modified := countChangeTypes(changes)
+	added, removed, modified := countChangesByType(changes)
 	parts := buildSummaryParts(added, removed, modified)
 
 	return strings.Join(parts, ", ")
-}
-
-func countChangeTypes(changes []Change) (int, int, int) {
-	var added, removed, modified int
-
-	for _, c := range changes {
-		switch c.Type {
-		case ChangeTypeAdded:
-			added++
-		case ChangeTypeRemoved:
-			removed++
-		case ChangeTypeModified:
-			modified++
-		}
-	}
-
-	return added, removed, modified
 }
 
 func buildSummaryParts(added, removed, modified int) []string {
