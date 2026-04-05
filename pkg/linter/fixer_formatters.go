@@ -22,7 +22,7 @@ func NewFormatterManager(logger *log.Logger) *FormatterManager {
 
 // EnableCoreFormatters enables the core formatters: gci, gofumpt, goimports.
 func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[string], dryRun bool) int {
-	coreFormatters := []string{"gci", "gofumpt", "goimports"}
+	coreFormatters := constants.CoreFormatters
 	count := 0
 
 	for _, formatter := range coreFormatters {
@@ -148,7 +148,7 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 // ToOrderedSlice converts formatter set to ordered slice.
 // Order: gci → goimports → gofumpt → golines → swaggo → others (sorted).
 func (fm *FormatterManager) ToOrderedSlice(set types.Set[string]) []string {
-	order := []string{"gci", "goimports", "gofumpt", "golines", "swaggo"}
+	order := constants.FormatterOrder
 
 	result := make([]string, 0, set.Len())
 	remaining := make([]string, 0)

@@ -19,6 +19,12 @@ var FormattersManagedByBuildFlow = []types.FormatterName{
 	"gofumpt",
 }
 
+// CoreFormatters are the formatters enabled by default for all projects.
+var CoreFormatters = []string{"gci", "gofumpt", "goimports"}
+
+// FormatterOrder defines the canonical ordering of formatters in config output.
+var FormatterOrder = []string{"gci", "goimports", "gofumpt", "golines", "swaggo"}
+
 // RedundantFormatters are formatters that are superseded by other formatters.
 var RedundantFormatters = map[types.FormatterName]string{
 	"gofmt": "redundant when gofumpt is enabled",
