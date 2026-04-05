@@ -121,8 +121,8 @@ func (d *Differ) addTestChangeIfDifferent(changes []Change, oldTests, newTests b
 }
 
 func (d *Differ) compareEnabled(oldEnable, newEnable []string, pathPrefix, entityName string) []Change {
-	oldEnabled := makeStringSet(oldEnable)
-	newEnabled := makeStringSet(newEnable)
+	oldEnabled := types.NewSet(oldEnable...)
+	newEnabled := types.NewSet(newEnable...)
 
 	changes := d.findAddedItems(oldEnabled, newEnabled, pathPrefix, entityName)
 	changes = d.findRemovedItems(oldEnabled, newEnabled, pathPrefix, entityName, changes)
@@ -130,23 +130,14 @@ func (d *Differ) compareEnabled(oldEnable, newEnable []string, pathPrefix, entit
 	return changes
 }
 
-func makeStringSet(items []string) map[string]bool {
-	set := make(map[string]bool)
-	for _, item := range items {
-		set[item] = true
-	}
-
-	return set
-}
-
 func (d *Differ) findAddedItems(
-	oldEnabled, newEnabled map[string]bool,
+	oldEnabled, newEnabled types.Set[string],
 	pathPrefix, entityName string,
 ) []Change {
 	var changes []Change
 
 	for item := range newEnabled {
-		if !oldEnabled[item] {
+		if !oldEnabled.Contains(item) {
 			changes = append(changes, Change{
 				Type:        ChangeTypeAdded,
 				Path:        fmt.Sprintf("%s.enable.%s", pathPrefix, item),
@@ -161,12 +152,12 @@ func (d *Differ) findAddedItems(
 }
 
 func (d *Differ) findRemovedItems(
-	oldEnabled, newEnabled map[string]bool,
+	oldEnabled, newEnabled types.Set[string],
 	pathPrefix, entityName string,
 	changes []Change,
 ) []Change {
 	for item := range oldEnabled {
-		if !newEnabled[item] {
+		if !newEnabled.Contains(item) {
 			changes = append(changes, Change{
 				Type:        ChangeTypeRemoved,
 				Path:        fmt.Sprintf("%s.enable.%s", pathPrefix, item),
