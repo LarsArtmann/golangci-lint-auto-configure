@@ -18,18 +18,24 @@ import (
 var Version = "dev"
 
 var (
-	configPath    string
-	dryRun        bool
-	verbose       bool
-	generateHTML  bool
-	outputReport  string
-	priority      string
-	reportFormat  string
-	noAutoMerge   bool
+	configPath   string
+	dryRun       bool
+	verbose      bool
+	generateHTML bool
+	outputReport string
+	priority     string
+	reportFormat string
+	noAutoMerge  bool
 )
 
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
-func resolveConfigPath(ctx context.Context, configLoader *config.Loader, logger *log.Logger, specifiedPath string, isDryRun bool) (string, error) {
+func resolveConfigPath(
+	ctx context.Context,
+	configLoader *config.Loader,
+	logger *log.Logger,
+	specifiedPath string,
+	isDryRun bool,
+) (string, error) {
 	configFile := specifiedPath
 	if configFile == "" {
 		var err error
@@ -56,6 +62,7 @@ func resolveConfigPath(ctx context.Context, configLoader *config.Loader, logger 
 		}
 
 		logger.Infof("✅ Merged configs (primary: %s)", mergeResult.PrimaryConfig)
+
 		if mergeResult.ChangesApplied > 0 {
 			logger.Infof("   Applied %d configuration changes", mergeResult.ChangesApplied)
 		}
@@ -75,6 +82,7 @@ func resolveConfigPath(ctx context.Context, configLoader *config.Loader, logger 
 		}
 
 		logger.Infof("💾 Saved merged config to: %s", mergeResult.PrimaryConfig)
+
 		if len(mergeResult.RemovedConfigs) > 0 {
 			logger.Infof("🗑️  Removed secondary configs: %v", mergeResult.RemovedConfigs)
 		}

@@ -206,10 +206,18 @@ linters:
 
 		It("should merge issues settings", func() {
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644)).To(Succeed())
+			Expect(
+				os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644),
+			).To(Succeed())
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
-			Expect(os.WriteFile(yamlPath, []byte("version: \"2\"\nissues:\n  max-issues-per-linter: 100\n  max-same-issues: 5\n"), 0o644)).To(Succeed())
+			Expect(
+				os.WriteFile(
+					yamlPath,
+					[]byte("version: \"2\"\nissues:\n  max-issues-per-linter: 100\n  max-same-issues: 5\n"),
+					0o644,
+				),
+			).To(Succeed())
 
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
@@ -224,9 +232,13 @@ linters:
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 
-			Expect(os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644)).To(Succeed())
+			Expect(
+				os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644),
+			).To(Succeed())
 
-			Expect(os.WriteFile(yamlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - errcheck\n"), 0o644)).To(Succeed())
+			Expect(
+				os.WriteFile(yamlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - errcheck\n"), 0o644),
+			).To(Succeed())
 
 			cfg, result, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 			Expect(err).NotTo(HaveOccurred())
@@ -249,9 +261,13 @@ linters:
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 
-			Expect(os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644)).To(Succeed())
+			Expect(
+				os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644),
+			).To(Succeed())
 
-			Expect(os.WriteFile(yamlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - errcheck\n"), 0o644)).To(Succeed())
+			Expect(
+				os.WriteFile(yamlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - errcheck\n"), 0o644),
+			).To(Succeed())
 
 			cfg, result, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 			Expect(err).NotTo(HaveOccurred())

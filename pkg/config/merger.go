@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
@@ -34,14 +35,14 @@ func NewConfigMergerWithFS(logger *log.Logger, fs afero.Fs) *ConfigMerger {
 
 // MergeResult represents the result of a merge operation.
 type MergeResult struct {
-	PrimaryConfig   string   `json:"primary_config"`
-	MergedConfigs   []string `json:"merged_configs"`
-	RemovedConfigs  []string `json:"removed_configs,omitempty"`
-	ChangesApplied  int      `json:"changes_applied"`
-	MergedLinters   []string `json:"merged_linters,omitempty"`
+	PrimaryConfig    string   `json:"primary_config"`
+	MergedConfigs    []string `json:"merged_configs"`
+	RemovedConfigs   []string `json:"removed_configs,omitempty"`
+	ChangesApplied   int      `json:"changes_applied"`
+	MergedLinters    []string `json:"merged_linters,omitempty"`
 	MergedFormatters []string `json:"merged_formatters,omitempty"`
-	Success         bool     `json:"success"`
-	Error           error    `json:"-"`
+	Success          bool     `json:"success"`
+	Error            error    `json:"-"`
 }
 
 // IsSuccess returns true if the merge was successful.
@@ -54,11 +55,12 @@ func (m *MergeResult) IsSuccess() bool {
 // Returns the merged config and a result describing what was merged.
 func (cm *ConfigMerger) MergeConfigs(configPaths []string) (*Config, *MergeResult, error) {
 	if len(configPaths) == 0 {
-		return nil, nil, fmt.Errorf("no config files to merge")
+		return nil, nil, errors.New("no config files to merge")
 	}
 
 	if len(configPaths) == 1 {
 		loader := NewLoaderWithFS(cm.logger, cm.fs)
+
 		config, err := loader.LoadConfig(configPaths[0])
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to load primary config: %w", err)
@@ -79,6 +81,7 @@ func (cm *ConfigMerger) MergeConfigs(configPaths []string) (*Config, *MergeResul
 
 	// Load primary config
 	loader := NewLoaderWithFS(cm.logger, cm.fs)
+
 	primaryConfig, err := loader.LoadConfig(primaryPath)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to load primary config %s: %w", primaryPath, err)
@@ -96,6 +99,7 @@ func (cm *ConfigMerger) MergeConfigs(configPaths []string) (*Config, *MergeResul
 		secondaryConfig, err := loader.LoadConfig(secondaryPath)
 		if err != nil {
 			cm.logger.Warnf("Failed to load secondary config %s: %v", secondaryPath, err)
+
 			continue
 		}
 
@@ -112,10 +116,10 @@ func (cm *ConfigMerger) MergeConfigs(configPaths []string) (*Config, *MergeResul
 // Lower index = higher priority.
 func (cm *ConfigMerger) sortByPriority(paths []string) []string {
 	priorityMap := map[string]int{
-		".golangci.yml":   0,
-		".golangci.yaml":  1,
-		".golangci.toml":  2,
-		".golangci.json":  3,
+		".golangci.yml":  0,
+		".golangci.yaml": 1,
+		".golangci.toml": 2,
+		".golangci.json": 3,
 	}
 
 	sorted := make([]string, len(paths))
@@ -124,6 +128,7 @@ func (cm *ConfigMerger) sortByPriority(paths []string) []string {
 	sort.Slice(sorted, func(i, j int) bool {
 		iPriority := priorityMap[getFilename(sorted[i])]
 		jPriority := priorityMap[getFilename(sorted[j])]
+
 		return iPriority < jPriority
 	})
 
@@ -136,6 +141,7 @@ func getFilename(path string) string {
 			return path[i+1:]
 		}
 	}
+
 	return path
 }
 
@@ -171,38 +177,47 @@ func (cm *ConfigMerger) mergeRunConfig(primary, secondary *RunConfig) int {
 		primary.Timeout = secondary.Timeout
 		changes++
 	}
+
 	if primary.Go == "" && secondary.Go != "" {
 		primary.Go = secondary.Go
 		changes++
 	}
+
 	if len(primary.BuildTags) == 0 && len(secondary.BuildTags) > 0 {
 		primary.BuildTags = secondary.BuildTags
 		changes++
 	}
+
 	if primary.ModulesDownloadMode == "" && secondary.ModulesDownloadMode != "" {
 		primary.ModulesDownloadMode = secondary.ModulesDownloadMode
 		changes++
 	}
+
 	if !primary.AllowParallelRunners && secondary.AllowParallelRunners {
 		primary.AllowParallelRunners = secondary.AllowParallelRunners
 		changes++
 	}
+
 	if !primary.AllowSerialRunners && secondary.AllowSerialRunners {
 		primary.AllowSerialRunners = secondary.AllowSerialRunners
 		changes++
 	}
+
 	if primary.IssuesExitCode == 0 && secondary.IssuesExitCode != 0 {
 		primary.IssuesExitCode = secondary.IssuesExitCode
 		changes++
 	}
+
 	if !primary.Tests && secondary.Tests {
 		primary.Tests = secondary.Tests
 		changes++
 	}
+
 	if primary.Concurrency == 0 && secondary.Concurrency != 0 {
 		primary.Concurrency = secondary.Concurrency
 		changes++
 	}
+
 	if primary.RelativePathMode == "" && secondary.RelativePathMode != "" {
 		primary.RelativePathMode = secondary.RelativePathMode
 		changes++
@@ -288,10 +303,12 @@ func (cm *ConfigMerger) mergeLintersExclusions(primary, secondary *LintersExclus
 		primary.Generated = secondary.Generated
 		changes++
 	}
+
 	if !primary.WarnUnused && secondary.WarnUnused {
 		primary.WarnUnused = secondary.WarnUnused
 		changes++
 	}
+
 	if len(primary.Presets) == 0 && len(secondary.Presets) > 0 {
 		primary.Presets = secondary.Presets
 		changes++
@@ -308,6 +325,7 @@ func (cm *ConfigMerger) mergeLintersExclusions(primary, secondary *LintersExclus
 			}
 		}
 	}
+
 	if len(primary.Rules) == 0 && len(secondary.Rules) > 0 {
 		primary.Rules = secondary.Rules
 		changes++
@@ -315,6 +333,7 @@ func (cm *ConfigMerger) mergeLintersExclusions(primary, secondary *LintersExclus
 		primary.Rules = append(primary.Rules, secondary.Rules...)
 		changes += len(secondary.Rules)
 	}
+
 	if len(primary.Paths) == 0 && len(secondary.Paths) > 0 {
 		primary.Paths = secondary.Paths
 		changes++
@@ -322,6 +341,7 @@ func (cm *ConfigMerger) mergeLintersExclusions(primary, secondary *LintersExclus
 		primary.Paths = append(primary.Paths, secondary.Paths...)
 		changes += len(secondary.Paths)
 	}
+
 	if len(primary.PathsExcept) == 0 && len(secondary.PathsExcept) > 0 {
 		primary.PathsExcept = secondary.PathsExcept
 		changes++
@@ -402,10 +422,12 @@ func (cm *ConfigMerger) mergeFormattersExclusions(primary, secondary *Formatters
 		primary.Generated = secondary.Generated
 		changes++
 	}
+
 	if !primary.WarnUnused && secondary.WarnUnused {
 		primary.WarnUnused = secondary.WarnUnused
 		changes++
 	}
+
 	if len(primary.Paths) == 0 && len(secondary.Paths) > 0 {
 		primary.Paths = secondary.Paths
 		changes++
@@ -437,14 +459,17 @@ func (cm *ConfigMerger) mergeOutputConfig(primary, secondary *OutputConfig) int 
 		primary.PathPrefix = secondary.PathPrefix
 		changes++
 	}
+
 	if primary.PathMode == "" && secondary.PathMode != "" {
 		primary.PathMode = secondary.PathMode
 		changes++
 	}
+
 	if len(primary.SortOrder) == 0 && len(secondary.SortOrder) > 0 {
 		primary.SortOrder = secondary.SortOrder
 		changes++
 	}
+
 	if !primary.ShowStats && secondary.ShowStats {
 		primary.ShowStats = secondary.ShowStats
 		changes++
@@ -462,34 +487,42 @@ func (cm *ConfigMerger) mergeIssuesConfig(primary, secondary *IssuesConfig) int 
 		primary.MaxIssuesPerLinter = secondary.MaxIssuesPerLinter
 		changes++
 	}
+
 	if primary.MaxSameIssues == 0 && secondary.MaxSameIssues != 0 {
 		primary.MaxSameIssues = secondary.MaxSameIssues
 		changes++
 	}
+
 	if primary.NewFromRev == "" && secondary.NewFromRev != "" {
 		primary.NewFromRev = secondary.NewFromRev
 		changes++
 	}
+
 	if primary.NewFromPatch == "" && secondary.NewFromPatch != "" {
 		primary.NewFromPatch = secondary.NewFromPatch
 		changes++
 	}
+
 	if primary.NewFromMergeBase == "" && secondary.NewFromMergeBase != "" {
 		primary.NewFromMergeBase = secondary.NewFromMergeBase
 		changes++
 	}
+
 	if !primary.New && secondary.New {
 		primary.New = secondary.New
 		changes++
 	}
+
 	if !primary.WholeFiles && secondary.WholeFiles {
 		primary.WholeFiles = secondary.WholeFiles
 		changes++
 	}
+
 	if !primary.Fix && secondary.Fix {
 		primary.Fix = secondary.Fix
 		changes++
 	}
+
 	if !primary.UniqByLine && secondary.UniqByLine {
 		// Only set if secondary is true (default is usually true)
 		primary.UniqByLine = secondary.UniqByLine
@@ -504,7 +537,8 @@ func (cm *ConfigMerger) SaveMergedConfig(config *Config, result *MergeResult, re
 	loader := NewLoaderWithFS(cm.logger, cm.fs)
 
 	// Save merged config to primary file
-	if err := loader.SaveConfig(config, result.PrimaryConfig); err != nil {
+	err := loader.SaveConfig(config, result.PrimaryConfig)
+	if err != nil {
 		return fmt.Errorf("failed to save merged config: %w", err)
 	}
 
@@ -513,10 +547,13 @@ func (cm *ConfigMerger) SaveMergedConfig(config *Config, result *MergeResult, re
 	// Optionally remove secondary configs
 	if removeSecondary {
 		for _, path := range result.MergedConfigs {
-			if err := cm.fs.Remove(path); err != nil {
+			err := cm.fs.Remove(path)
+			if err != nil {
 				cm.logger.Warnf("Failed to remove secondary config %s: %v", path, err)
+
 				continue
 			}
+
 			result.RemovedConfigs = append(result.RemovedConfigs, path)
 			cm.logger.Infof("Removed secondary config: %s", path)
 		}
