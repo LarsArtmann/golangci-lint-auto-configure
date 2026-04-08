@@ -568,8 +568,24 @@ func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 }
 
 // SaveMergedConfig saves the merged config and optionally removes secondary configs.
+// Creates backups of all modified configs before making changes.
 func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSecondary bool) error {
 	loader := NewLoaderWithFS(cm.logger, cm.fs)
+
+	// Initialize backup tracking
+	result.BackedUpConfigs = make(map[string]string)
+
+	// Create backups of all configs before modifying
+	allConfigs := append([]string{result.PrimaryConfig}, result.MergedConfigs...)
+	for _, path := range allConfigs {
+		backupPath, err := cm.createBackup(path)
+		if err != nil {
+			cm.logger.Warnf("Failed to create backup for %s: %v", path, err)
+			continue
+		}
+		result.BackedUpConfigs[path] = backupPath
+		cm.logger.Debugf("Created backup: %s -> %s", path, backupPath)
+	}
 
 	// Save merged config to primary file
 	err := loader.SaveConfig(config, result.PrimaryConfig)
@@ -595,6 +611,22 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 	}
 
 	return nil
+}
+
+// createBackup creates a backup of the given config file.
+func (cm *Merger) createBackup(path string) (string, error) {
+	data, err := afero.ReadFile(cm.fs, path)
+	if err != nil {
+		return "", fmt.Errorf("failed to read config for backup: %w", err)
+	}
+
+	backupPath := path + ".merge-backup"
+	err = afero.WriteFile(cm.fs, backupPath, data, 0o600)
+	if err != nil {
+		return "", fmt.Errorf("failed to write backup: %w", err)
+	}
+
+	return backupPath, nil
 }
 
 // GetUniqueStrings returns a sorted slice of unique strings.
