@@ -26,20 +26,20 @@ var _ = Describe("GoExperiments", func() {
 
 	It("should have unique tags", func() {
 		tags := constants.GoExperimentTags()
-		unique := make(map[string]bool)
+		unique := types.NewSet[string]()
 
 		for _, tag := range tags {
-			Expect(unique).NotTo(HaveKey(tag), "duplicate tag: %s", tag)
-			unique[tag] = true
+			Expect(unique.Contains(tag)).To(BeFalse(), "duplicate tag: %s", tag)
+			unique.Add(tag)
 		}
 	})
 
 	It("should have unique packages", func() {
-		pkgs := make(map[string]bool)
+		pkgs := types.NewSet[string]()
 
 		for _, exp := range constants.GoExperiments {
-			Expect(pkgs).NotTo(HaveKey(exp.Package), "duplicate package: %s", exp.Package)
-			pkgs[exp.Package] = true
+			Expect(pkgs.Contains(exp.Package)).To(BeFalse(), "duplicate package: %s", exp.Package)
+			pkgs.Add(exp.Package)
 		}
 	})
 
@@ -67,11 +67,7 @@ var _ = Describe("GoExperimentTags", func() {
 		tags := constants.GoExperimentTags()
 		Expect(tags).To(HaveLen(len(constants.GoExperiments)))
 
-		tagSet := make(map[string]bool)
-
-		for _, tag := range tags {
-			tagSet[tag] = true
-		}
+		tagSet := types.NewSet(tags...)
 
 		for _, exp := range constants.GoExperiments {
 			Expect(tagSet).To(HaveKey(exp.Tag))
