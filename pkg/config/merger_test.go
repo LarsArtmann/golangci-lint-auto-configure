@@ -10,16 +10,25 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ConfigMerger", func() {
+const testConfigYML = `
+version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+
+var _ = Describe("Merger", func() {
 	var (
-		merger  *config.ConfigMerger
+		merger  *config.Merger
 		loader  *config.Loader
 		testDir string
 	)
 
 	BeforeEach(func() {
 		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
-		merger = config.NewConfigMerger(logger)
+		merger = config.NewMerger(logger)
 		loader = config.NewLoader(logger)
 		testDir = GinkgoT().TempDir()
 	})
@@ -56,14 +65,7 @@ linters:
 		It("should merge linters from secondary config", func() {
 			// Primary config (.golangci.yml has higher priority)
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
-			primaryContent := `
-version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
+			primaryContent := testConfigYML
 			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
 
 			// Secondary config (.golangci.yaml)
@@ -90,12 +92,7 @@ linters:
 
 		It("should merge run settings from secondary config when primary is empty", func() {
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
-			primaryContent := `
-version: "2"
-linters:
-  enable:
-    - gosec
-`
+			primaryContent := testConfigYML
 			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
@@ -118,14 +115,7 @@ run:
 
 		It("should keep primary values when both configs have settings", func() {
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
-			primaryContent := `
-version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
+			primaryContent := testConfigYML
 			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")

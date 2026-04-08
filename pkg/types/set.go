@@ -10,13 +10,13 @@ type Set[T comparable] map[T]struct{}
 
 // NewSet creates a Set from a slice of items.
 func NewSet[T comparable](items ...T) Set[T] {
-	s := make(Set[T], len(items))
+	setItems := make(Set[T], len(items))
 
 	for _, item := range items {
-		s[item] = struct{}{}
+		setItems[item] = struct{}{}
 	}
 
-	return s
+	return setItems
 }
 
 // Add inserts an item into the set.

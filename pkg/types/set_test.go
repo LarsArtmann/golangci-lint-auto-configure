@@ -36,14 +36,14 @@ var _ = Describe("Set", func() {
 	})
 
 	It("should add and delete items", func() {
-		s := types.NewSet[string]()
-		s.Add("x")
+		set := types.NewSet[string]()
+		set.Add("x")
 
-		Expect(s.Contains("x")).To(BeTrue())
+		Expect(set.Contains("x")).To(BeTrue())
 
-		s.Delete("x")
+		set.Delete("x")
 
-		Expect(s.Contains("x")).To(BeFalse())
+		Expect(set.Contains("x")).To(BeFalse())
 	})
 
 	It("should convert to unsorted slice", func() {

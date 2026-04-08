@@ -11,23 +11,26 @@ import (
 	"github.com/spf13/afero"
 )
 
-// ConfigMerger handles merging multiple golangci-lint configuration files.
-type ConfigMerger struct {
+// ErrNoConfigFiles is returned when no config files are provided to merge.
+var ErrNoConfigFiles = errors.New("no config files to merge")
+
+// Merger handles merging multiple golangci-lint configuration files.
+type Merger struct {
 	logger *log.Logger
 	fs     afero.Fs
 }
 
-// NewConfigMerger creates a new configuration merger.
-func NewConfigMerger(logger *log.Logger) *ConfigMerger {
-	return &ConfigMerger{
+// NewMerger creates a new configuration merger.
+func NewMerger(logger *log.Logger) *Merger {
+	return &Merger{
 		logger: logger,
 		fs:     afero.NewOsFs(),
 	}
 }
 
-// NewConfigMergerWithFS creates a new configuration merger with a custom filesystem.
-func NewConfigMergerWithFS(logger *log.Logger, fs afero.Fs) *ConfigMerger {
-	return &ConfigMerger{
+// NewMergerWithFS creates a new configuration merger with a custom filesystem.
+func NewMergerWithFS(logger *log.Logger, fs afero.Fs) *Merger {
+	return &Merger{
 		logger: logger,
 		fs:     fs,
 	}
@@ -53,9 +56,9 @@ func (m *MergeResult) IsSuccess() bool {
 // MergeConfigs loads and merges multiple config files.
 // The first config in the list has the highest priority (per golangci-lint search order).
 // Returns the merged config and a result describing what was merged.
-func (cm *ConfigMerger) MergeConfigs(configPaths []string) (*Config, *MergeResult, error) {
+func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, error) {
 	if len(configPaths) == 0 {
-		return nil, nil, errors.New("no config files to merge")
+		return nil, nil, ErrNoConfigFiles
 	}
 
 	if len(configPaths) == 1 {
@@ -67,8 +70,14 @@ func (cm *ConfigMerger) MergeConfigs(configPaths []string) (*Config, *MergeResul
 		}
 
 		return config, &MergeResult{
-			PrimaryConfig: configPaths[0],
-			Success:       true,
+			PrimaryConfig:    configPaths[0],
+			MergedConfigs:    []string{},
+			RemovedConfigs:   []string{},
+			ChangesApplied:   0,
+			MergedLinters:    []string{},
+			MergedFormatters: []string{},
+			Success:          true,
+			Error:            nil,
 		}, nil
 	}
 
@@ -88,10 +97,14 @@ func (cm *ConfigMerger) MergeConfigs(configPaths []string) (*Config, *MergeResul
 	}
 
 	result := &MergeResult{
-		PrimaryConfig:  primaryPath,
-		MergedConfigs:  secondaryPaths,
-		ChangesApplied: 0,
-		Success:        true,
+		PrimaryConfig:    primaryPath,
+		MergedConfigs:    secondaryPaths,
+		RemovedConfigs:   []string{},
+		ChangesApplied:   0,
+		MergedLinters:    []string{},
+		MergedFormatters: []string{},
+		Success:          true,
+		Error:            nil,
 	}
 
 	// Merge secondary configs into primary
@@ -114,13 +127,29 @@ func (cm *ConfigMerger) MergeConfigs(configPaths []string) (*Config, *MergeResul
 
 // sortByPriority sorts config paths by golangci-lint search order priority.
 // Lower index = higher priority.
-func (cm *ConfigMerger) sortByPriority(paths []string) []string {
-	priorityMap := map[string]int{
-		".golangci.yml":  0,
-		".golangci.yaml": 1,
-		".golangci.toml": 2,
-		".golangci.json": 3,
+const (
+	// ConfigPriorityYML is the priority for .golangci.yml files.
+	ConfigPriorityYML = iota
+	// ConfigPriorityYAML is the priority for .golangci.yaml files.
+	ConfigPriorityYAML
+	// ConfigPriorityTOML is the priority for .golangci.toml files.
+	ConfigPriorityTOML
+	// ConfigPriorityJSON is the priority for .golangci.json files.
+	ConfigPriorityJSON
+)
+
+// configPriorityMap returns the priority for a config filename.
+func configPriorityMap() map[string]int {
+	return map[string]int{
+		".golangci.yml":  ConfigPriorityYML,
+		".golangci.yaml": ConfigPriorityYAML,
+		".golangci.toml": ConfigPriorityTOML,
+		".golangci.json": ConfigPriorityJSON,
 	}
+}
+
+func (cm *Merger) sortByPriority(paths []string) []string {
+	priorityMap := configPriorityMap()
 
 	sorted := make([]string, len(paths))
 	copy(sorted, paths)
@@ -148,7 +177,7 @@ func getFilename(path string) string {
 // mergeConfigInto merges secondary config into primary.
 // Primary values take precedence; secondary fills in gaps.
 // Returns the number of changes applied.
-func (cm *ConfigMerger) mergeConfigInto(primary, secondary *Config) int {
+func (cm *Merger) mergeConfigInto(primary, secondary *Config) int {
 	changes := 0
 
 	// Merge Run settings
@@ -169,7 +198,7 @@ func (cm *ConfigMerger) mergeConfigInto(primary, secondary *Config) int {
 	return changes
 }
 
-func (cm *ConfigMerger) mergeRunConfig(primary, secondary *RunConfig) int {
+func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
 	changes := 0
 
 	// Only merge if primary has zero values and secondary has values
@@ -226,7 +255,7 @@ func (cm *ConfigMerger) mergeRunConfig(primary, secondary *RunConfig) int {
 	return changes
 }
 
-func (cm *ConfigMerger) mergeLintersConfig(primary, secondary *LintersConfig) int {
+func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 	changes := 0
 
 	// Merge enabled linters (union, but primary takes precedence for conflicts)
@@ -296,7 +325,7 @@ func (cm *ConfigMerger) mergeLintersConfig(primary, secondary *LintersConfig) in
 	return changes
 }
 
-func (cm *ConfigMerger) mergeLintersExclusions(primary, secondary *LintersExclusionsConfig) int {
+func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsConfig) int {
 	changes := 0
 
 	if primary.Generated == "" && secondary.Generated != "" {
@@ -353,7 +382,7 @@ func (cm *ConfigMerger) mergeLintersExclusions(primary, secondary *LintersExclus
 	return changes
 }
 
-func (cm *ConfigMerger) mergeFormattersConfig(primary, secondary *FormattersConfig) int {
+func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) int {
 	changes := 0
 
 	// Merge enabled formatters
@@ -415,7 +444,7 @@ func (cm *ConfigMerger) mergeFormattersConfig(primary, secondary *FormattersConf
 	return changes
 }
 
-func (cm *ConfigMerger) mergeFormattersExclusions(primary, secondary *FormattersExclusionsConfig) int {
+func (cm *Merger) mergeFormattersExclusions(primary, secondary *FormattersExclusionsConfig) int {
 	changes := 0
 
 	if primary.Generated == "" && secondary.Generated != "" {
@@ -439,7 +468,7 @@ func (cm *ConfigMerger) mergeFormattersExclusions(primary, secondary *Formatters
 	return changes
 }
 
-func (cm *ConfigMerger) mergeOutputConfig(primary, secondary *OutputConfig) int {
+func (cm *Merger) mergeOutputConfig(primary, secondary *OutputConfig) int {
 	changes := 0
 
 	// Merge formats
@@ -478,7 +507,7 @@ func (cm *ConfigMerger) mergeOutputConfig(primary, secondary *OutputConfig) int 
 	return changes
 }
 
-func (cm *ConfigMerger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
+func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 	changes := 0
 
 	// Note: 0 is a valid value (disable), so we check if primary hasn't been explicitly set
@@ -533,7 +562,7 @@ func (cm *ConfigMerger) mergeIssuesConfig(primary, secondary *IssuesConfig) int 
 }
 
 // SaveMergedConfig saves the merged config and optionally removes secondary configs.
-func (cm *ConfigMerger) SaveMergedConfig(config *Config, result *MergeResult, removeSecondary bool) error {
+func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSecondary bool) error {
 	loader := NewLoaderWithFS(cm.logger, cm.fs)
 
 	// Save merged config to primary file
