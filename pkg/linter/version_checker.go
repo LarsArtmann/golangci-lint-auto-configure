@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"strings"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -91,9 +90,7 @@ func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...strin
 	config := utils.DefaultConfig()
 
 	executeOperation := func() ([]byte, error) {
-		cmd := exec.CommandContext(ctx, a.golangciLintPath, args...)
-
-		return cmd.CombinedOutput()
+		return a.executeCommand(ctx, args...).CombinedOutput()
 	}
 
 	shouldRetry := func(_ error, output string) bool {

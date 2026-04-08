@@ -19,40 +19,31 @@ func initValidator() *validator.Validate {
 	return Validator
 }
 
-// ValidateConfig validates a Config struct using go-playground/validator.
-func ValidateConfig(cfg *Config) error {
+// ValidateStruct validates any struct using go-playground/validator.
+func ValidateStruct[T any](cfg *T, name string) error {
 	v := initValidator()
 
 	err := v.Struct(cfg)
 	if err != nil {
-		return fmt.Errorf("config validation failed: %w", err)
+		return fmt.Errorf("%s validation failed: %w", name, err)
 	}
 
 	return nil
+}
+
+// ValidateConfig validates a Config struct using go-playground/validator.
+func ValidateConfig(cfg *Config) error {
+	return ValidateStruct(cfg, "config")
 }
 
 // ValidateRunConfig validates a RunConfig struct.
 func ValidateRunConfig(cfg *RunConfig) error {
-	v := initValidator()
-
-	err := v.Struct(cfg)
-	if err != nil {
-		return fmt.Errorf("run config validation failed: %w", err)
-	}
-
-	return nil
+	return ValidateStruct(cfg, "run config")
 }
 
 // ValidateLintersConfig validates a LintersConfig struct.
 func ValidateLintersConfig(cfg *LintersConfig) error {
-	v := initValidator()
-
-	err := v.Struct(cfg)
-	if err != nil {
-		return fmt.Errorf("linters config validation failed: %w", err)
-	}
-
-	return nil
+	return ValidateStruct(cfg, "linters config")
 }
 
 // ValidationErrors converts validator.ValidationErrors to a slice of ValidationError.

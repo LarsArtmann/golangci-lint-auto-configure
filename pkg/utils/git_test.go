@@ -20,30 +20,27 @@ func TestUtils(t *testing.T) {
 }
 
 var _ = Describe("Git Utils", func() {
-	Context("IsGitRepo", func() {
-		It("should return true when in a git repository", func() {
+	DescribeTable("IsGitRepo",
+		func(path string, expected bool) {
 			ctx := context.Background()
-			Expect(utils.IsGitRepo(ctx, ".")).To(BeTrue())
-		})
+			Expect(utils.IsGitRepo(ctx, path)).To(Equal(expected))
+		},
+		Entry("should return true when in a git repository", ".", true),
+		Entry("should return false for non-existent directory", "/non/existent/path", false),
+	)
 
-		It("should return false for non-existent directory", func() {
+	DescribeTable("CheckGitRepo",
+		func(path string, expectSuccess bool) {
 			ctx := context.Background()
-			Expect(utils.IsGitRepo(ctx, "/non/existent/path")).To(BeFalse())
-		})
-	})
-
-	Context("CheckGitRepo", func() {
-		It("should return nil when in a git repository", func() {
-			ctx := context.Background()
-			Expect(utils.CheckGitRepo(ctx, ".")).To(Succeed())
-		})
-
-		It("should return error for non-existent directory", func() {
-			ctx := context.Background()
-			err := utils.CheckGitRepo(ctx, "/non/existent/path")
-			Expect(err).To(MatchError(apperrors.ErrNotGitRepository))
-		})
-	})
+			if expectSuccess {
+				Expect(utils.CheckGitRepo(ctx, path)).To(Succeed())
+			} else {
+				Expect(utils.CheckGitRepo(ctx, path)).To(MatchError(apperrors.ErrNotGitRepository))
+			}
+		},
+		Entry("should return nil when in a git repository", ".", true),
+		Entry("should return error for non-existent directory", "/non/existent/path", false),
+	)
 
 	Context("CheckGitRepoWithTimeout", func() {
 		It("should return nil when in a git repository", func() {

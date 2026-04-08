@@ -1,9 +1,6 @@
 package linter_test
 
 import (
-	"os"
-
-	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -13,13 +10,8 @@ import (
 var _ = Describe("CategorizeLinters", func() {
 	var analyzer *linter.Analyzer
 
-	// createTestLogger creates a standard test logger for use in tests
-	createTestLogger := func() *log.Logger {
-		return log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
-	}
-
 	BeforeEach(func() {
-		analyzer = linter.NewAnalyzer(createTestLogger())
+		analyzer = linter.NewAnalyzer(linter.NewTestLogger())
 	})
 
 	Context("Redundant Linter Detection", func() {

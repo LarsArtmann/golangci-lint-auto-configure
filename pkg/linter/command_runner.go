@@ -15,14 +15,17 @@ func isParallelRunningError(output string) bool {
 	return strings.Contains(output, "parallel golangci-lint is running")
 }
 
+// executeCommand creates an exec.Cmd with the given arguments.
+func (a *Analyzer) executeCommand(ctx context.Context, args ...string) *exec.Cmd {
+	return exec.CommandContext(ctx, a.golangciLintPath, args...)
+}
+
 // runCommandWithRetry runs a command and retries if a parallel golangci-lint is running.
 func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ...string) ([]byte, error) {
 	config := utils.DefaultConfig()
 
 	executeOperation := func() ([]byte, error) {
-		cmd := exec.CommandContext(ctx, a.golangciLintPath, args...)
-
-		return cmd.CombinedOutput()
+		return a.executeCommand(ctx, args...).CombinedOutput()
 	}
 
 	shouldRetry := func(_ error, output string) bool {

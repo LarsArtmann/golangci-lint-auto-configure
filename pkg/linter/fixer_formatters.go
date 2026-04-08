@@ -63,12 +63,15 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 		return 0
 	}
 
-	if dryRun {
-		fm.logger.Debugf("[DRY-RUN] Would enable formatter: golines (formats code and fixes long lines)")
-	} else {
-		fm.logger.Debugf("Enabling formatter: golines (formats code and fixes long lines)")
+	return fm.addFormatter(formatterSet, "golines", "formats code and fixes long lines", dryRun)
+}
 
-		formatterSet.Add("golines")
+func (fm *FormatterManager) addFormatter(set types.Set[string], name, reason string, dryRun bool) int {
+	if dryRun {
+		fm.logger.Debugf("[DRY-RUN] Would enable formatter: %s (%s)", name, reason)
+	} else {
+		fm.logger.Debugf("Enabling formatter: %s (%s)", name, reason)
+		set.Add(name)
 	}
 
 	return 1
@@ -88,15 +91,7 @@ func (fm *FormatterManager) EnableSwaggoFormatter(
 		return 0
 	}
 
-	if dryRun {
-		fm.logger.Debugf("[DRY-RUN] Would enable formatter: swaggo (detected swaggo usage in project)")
-	} else {
-		fm.logger.Debugf("Enabling formatter: swaggo (detected swaggo usage in project)")
-
-		formatterSet.Add("swaggo")
-	}
-
-	return 1
+	return fm.addFormatter(formatterSet, "swaggo", "detected swaggo usage in project", dryRun)
 }
 
 // RemoveRedundantGofmt removes gofmt when gofumpt is enabled (gofumpt is a superset).

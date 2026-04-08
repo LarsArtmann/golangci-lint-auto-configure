@@ -2,7 +2,6 @@ package linter_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"charm.land/log/v2"
@@ -27,13 +26,8 @@ var _ = Describe("Analyzer", func() {
 		{Name: "misspell", Priority: types.LinterPriorityMedium},
 	}
 
-	// createTestLogger creates a standard test logger for use in tests
-	createTestLogger := func() *log.Logger {
-		return log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
-	}
-
 	BeforeEach(func() {
-		analyzer = linter.NewAnalyzer(createTestLogger())
+		analyzer = linter.NewAnalyzer(linter.NewTestLogger())
 	})
 
 	Context("Priority Filtering", func() {

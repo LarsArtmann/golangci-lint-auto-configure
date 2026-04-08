@@ -33,35 +33,41 @@ var compareTests = []struct {
 }{
 	{
 		"version change",
-		&types.Config{Version: "1", Linters: types.LintersConfig{Enable: []string{"errcheck"}}},
+		newTestConfigV1("errcheck"),
 		baseV2,
 		1,
 	},
 	{
 		"linter added",
 		baseV2,
-		&types.Config{Version: "2", Linters: types.LintersConfig{Enable: []string{"errcheck", "gosec"}}},
+		newTestConfig("2", "", []string{"errcheck", "gosec"}),
 		1,
 	},
 	{
 		"linter removed",
-		&types.Config{Version: "2", Linters: types.LintersConfig{Enable: []string{"errcheck", "gosec"}}},
+		newTestConfig("2", "", []string{"errcheck", "gosec"}),
 		baseV2,
 		1,
 	},
 	{
 		"multiple changes",
-		&types.Config{
-			Version: "1", Run: types.RunConfig{Timeout: "5m"},
-			Linters: types.LintersConfig{Enable: []string{"errcheck"}},
-		},
-		&types.Config{
-			Version: "2", Run: types.RunConfig{Timeout: "10m"},
-			Linters: types.LintersConfig{Enable: []string{"gosec"}},
-		},
+		newTestConfig("1", "5m", []string{"errcheck"}),
+		newTestConfig("2", "10m", []string{"gosec"}),
 		4,
 	},
 	{"no changes", baseV2, baseV2, 0},
+}
+
+func newTestConfig(version, timeout string, linters []string) *types.Config {
+	return &types.Config{
+		Version: version,
+		Run:     types.RunConfig{Timeout: timeout},
+		Linters: types.LintersConfig{Enable: linters},
+	}
+}
+
+func newTestConfigV1(linters string) *types.Config {
+	return newTestConfig("1", "", []string{linters})
 }
 
 func TestDiffer_FormatChanges(t *testing.T) {

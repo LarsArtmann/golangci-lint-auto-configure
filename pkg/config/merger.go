@@ -36,6 +36,86 @@ func NewMergerWithFS(logger *log.Logger, fs afero.Fs) *Merger {
 	}
 }
 
+// mergeSettingsMaps merges secondary settings into primary, returning number of changes.
+func (cm *Merger) mergeSettingsMaps(primary, secondary map[string]any) int {
+	changes := 0
+
+	if len(primary) == 0 && len(secondary) > 0 {
+		for k, v := range secondary {
+			primary[k] = v
+		}
+		changes = len(secondary)
+	} else if len(secondary) > 0 {
+		for key, value := range secondary {
+			if _, exists := primary[key]; !exists {
+				primary[key] = value
+				changes++
+			}
+		}
+	}
+
+	return changes
+}
+
+// mergeStringSlices merges secondary slice into primary slice, returning number of changes.
+func (cm *Merger) mergeStringSlices(primary, secondary []string) int {
+	if len(primary) == 0 && len(secondary) > 0 {
+		return len(secondary)
+	}
+
+	if len(secondary) == 0 {
+		return 0
+	}
+
+	primarySet := make(map[string]struct{}, len(primary))
+	for _, p := range primary {
+		primarySet[p] = struct{}{}
+	}
+
+	changes := 0
+	for _, p := range secondary {
+		if _, exists := primarySet[p]; !exists {
+			primary = append(primary, p)
+			changes++
+		}
+	}
+
+	return changes
+}
+
+// mergeUniqueStringSlices merges secondary slice into primary slice with uniqueness check,
+// sorting the result. Returns number of changes.
+func (cm *Merger) mergeUniqueStringSlices(primary, secondary []string) int {
+	if len(primary) == 0 && len(secondary) > 0 {
+		result := make([]string, len(secondary))
+		copy(result, secondary)
+		sort.Strings(result)
+
+		return len(secondary)
+	}
+
+	if len(secondary) == 0 {
+		return 0
+	}
+
+	primarySet := make(map[string]struct{}, len(primary))
+	for _, p := range primary {
+		primarySet[p] = struct{}{}
+	}
+
+	changes := 0
+	for _, p := range secondary {
+		if _, exists := primarySet[p]; !exists {
+			primary = append(primary, p)
+			changes++
+		}
+	}
+
+	sort.Strings(primary)
+
+	return changes
+}
+
 // MergeResult represents the result of a merge operation.
 type MergeResult struct {
 	PrimaryConfig    string            `json:"primary_config"`
@@ -310,17 +390,7 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 	}
 
 	// Merge settings (deep merge for linter-specific settings)
-	if len(primary.Settings) == 0 && len(secondary.Settings) > 0 {
-		primary.Settings = secondary.Settings
-		changes++
-	} else if len(secondary.Settings) > 0 {
-		for key, value := range secondary.Settings {
-			if _, exists := primary.Settings[key]; !exists {
-				primary.Settings[key] = value
-				changes++
-			}
-		}
-	}
+	changes += cm.mergeSettingsMaps(primary.Settings, secondary.Settings)
 
 	// Merge exclusions (complex structure)
 	changes += cm.mergeLintersExclusions(&primary.Exclusions, &secondary.Exclusions)
@@ -371,8 +441,7 @@ func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsCo
 		primary.Paths = secondary.Paths
 		changes++
 	} else if len(secondary.Paths) > 0 {
-		primary.Paths = append(primary.Paths, secondary.Paths...)
-		changes += len(secondary.Paths)
+		changes += cm.mergeStringSlices(primary.Paths, secondary.Paths)
 	}
 
 	if len(primary.PathsExcept) == 0 && len(secondary.PathsExcept) > 0 {
@@ -431,17 +500,7 @@ func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) in
 	}
 
 	// Merge settings
-	if len(primary.Settings) == 0 && len(secondary.Settings) > 0 {
-		primary.Settings = secondary.Settings
-		changes++
-	} else if len(secondary.Settings) > 0 {
-		for key, value := range secondary.Settings {
-			if _, exists := primary.Settings[key]; !exists {
-				primary.Settings[key] = value
-				changes++
-			}
-		}
-	}
+	changes += cm.mergeSettingsMaps(primary.Settings, secondary.Settings)
 
 	// Merge exclusions
 	changes += cm.mergeFormattersExclusions(&primary.Exclusions, &secondary.Exclusions)
@@ -466,8 +525,7 @@ func (cm *Merger) mergeFormattersExclusions(primary, secondary *FormattersExclus
 		primary.Paths = secondary.Paths
 		changes++
 	} else if len(secondary.Paths) > 0 {
-		primary.Paths = append(primary.Paths, secondary.Paths...)
-		changes += len(secondary.Paths)
+		changes += cm.mergeStringSlices(primary.Paths, secondary.Paths)
 	}
 
 	return changes
