@@ -438,7 +438,7 @@ func (f *Fixer) updateConfigFromSets(
 
 	disabledLintersList := make([]string, 0)
 	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter string) bool {
-		if _, isDisabled := constants.DisabledLinters[types.LinterName(linter)]; isDisabled {
+		if constants.DisabledLinters.Contains(types.LinterName(linter)) {
 			disabledLintersList = append(disabledLintersList, linter)
 
 			return true

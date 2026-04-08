@@ -44,9 +44,7 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 
 // DisabledLinters is a set of linters that should never be recommended or enabled.
 // These linters are explicitly excluded from configuration by the tool.
-var DisabledLinters = map[types.LinterName]struct{}{
-	"funcorder": {},
-}
+var DisabledLinters = types.NewSet[types.LinterName]("funcorder")
 
 // RedundantLinters maps linter names that are superseded by formatters.
 var RedundantLinters = map[types.LinterName]types.LinterToFormatter{
