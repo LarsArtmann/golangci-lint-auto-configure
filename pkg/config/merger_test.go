@@ -92,7 +92,12 @@ linters:
 
 		It("should merge run settings from secondary config when primary is empty", func() {
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
-			primaryContent := testConfigYML
+			primaryContent := `
+version: "2"
+linters:
+  enable:
+    - gosec
+`
 			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")

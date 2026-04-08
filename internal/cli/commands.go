@@ -69,12 +69,22 @@ func resolveWithAutoMerge(
 	merger := config.NewMerger(logger)
 	logger.Infof("🔄 Auto-merging %d config files...", len(allConfigs))
 
+	return performAutoMerge(merger, logger, allConfigs, isDryRun, configFile)
+}
+
+func performAutoMerge(
+	merger *config.Merger,
+	logger *log.Logger,
+	allConfigs []string,
+	isDryRun bool,
+	fallbackConfig string,
+) (string, error) {
 	mergedConfig, mergeResult, err := merger.MergeConfigs(allConfigs)
 	if err != nil {
 		logger.Warnf("⚠️  Failed to merge configs: %v", err)
 		logger.Warnf("   Continuing with primary config: %s", allConfigs[0])
 
-		return allConfigs[0], nil
+		return fallbackConfig, nil
 	}
 
 	logger.Infof("✅ Merged configs (primary: %s)", mergeResult.PrimaryConfig)

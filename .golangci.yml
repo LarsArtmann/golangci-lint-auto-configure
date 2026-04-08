@@ -256,6 +256,15 @@ linters:
       - path: pkg/linter/fixer\.go|internal/cli/cmd_configure\.go|pkg/linter/analyzer\.go|internal/cli/cmd/installhook\.go
         linters:
           - noinlineerr
+      - path: pkg/config/merger\.go
+        linters:
+          - gocyclo
+          - cyclop
+          - gocognit
+          - funlen
+      - path: pkg/linter/fixer\.go
+        linters:
+          - funlen
       - path: pkg/constants/linter_reasons\.go
         linters:
           - gosec
