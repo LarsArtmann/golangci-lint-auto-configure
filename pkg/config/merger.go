@@ -113,39 +113,6 @@ func (cm *Merger) mergePaths(primary *[]string, secondary []string) int {
 	return changes
 }
 
-// mergeUniqueStringSlices merges secondary slice into primary slice with uniqueness check,
-// sorting the result. Returns number of changes.
-func (cm *Merger) mergeUniqueStringSlices(primary, secondary []string) int {
-	if len(primary) == 0 && len(secondary) > 0 {
-		result := make([]string, len(secondary))
-		copy(result, secondary)
-		sort.Strings(result)
-
-		return len(secondary)
-	}
-
-	if len(secondary) == 0 {
-		return 0
-	}
-
-	primarySet := make(map[string]struct{}, len(primary))
-	for _, p := range primary {
-		primarySet[p] = struct{}{}
-	}
-
-	changes := 0
-	for _, p := range secondary {
-		if _, exists := primarySet[p]; !exists {
-			primary = append(primary, p)
-			changes++
-		}
-	}
-
-	sort.Strings(primary)
-
-	return changes
-}
-
 // MergeResult represents the result of a merge operation.
 type MergeResult struct {
 	PrimaryConfig    string            `json:"primary_config"`
@@ -671,9 +638,11 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 		backupPath, err := cm.createBackup(path)
 		if err != nil {
 			cm.logger.Warnf("Failed to create backup for %s: %v", path, err)
+
 			continue
 		}
 		result.BackedUpConfigs[path] = backupPath
+
 		cm.logger.Debugf("Created backup: %s -> %s", path, backupPath)
 	}
 
