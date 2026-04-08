@@ -119,6 +119,13 @@ func saveMergedConfigAndReturn(
 
 	logger.Infof("💾 Saved merged config to: %s", mergeResult.PrimaryConfig)
 
+	if len(mergeResult.BackedUpConfigs) > 0 {
+		logger.Infof("💾 Backups created:")
+		for original, backup := range mergeResult.BackedUpConfigs {
+			logger.Infof("   %s -> %s", original, backup)
+		}
+	}
+
 	if len(mergeResult.RemovedConfigs) > 0 {
 		logger.Infof("🗑️  Removed secondary configs: %v", mergeResult.RemovedConfigs)
 	}
