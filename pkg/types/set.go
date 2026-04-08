@@ -10,13 +10,13 @@ type Set[T comparable] map[T]struct{}
 
 // NewSet creates a Set from a slice of items.
 func NewSet[T comparable](items ...T) Set[T] {
-	setItems := make(Set[T], len(items))
+	result := make(Set[T], len(items))
 
 	for _, item := range items {
-		setItems[item] = struct{}{}
+		result[item] = struct{}{}
 	}
 
-	return setItems
+	return result
 }
 
 // Add inserts an item into the set.
@@ -39,6 +39,37 @@ func (s Set[T]) Delete(item T) {
 // Len returns the number of items in the set.
 func (s Set[T]) Len() int {
 	return len(s)
+}
+
+// IsEmpty returns true if the set has no items.
+func (s Set[T]) IsEmpty() bool {
+	return len(s) == 0
+}
+
+// Clone returns a shallow copy of the set.
+func (s Set[T]) Clone() Set[T] {
+	result := make(Set[T], len(s))
+
+	for item := range s {
+		result[item] = struct{}{}
+	}
+
+	return result
+}
+
+// Union returns a new set containing all items from both sets.
+func (s Set[T]) Union(other Set[T]) Set[T] {
+	result := make(Set[T], len(s)+len(other))
+
+	for item := range s {
+		result[item] = struct{}{}
+	}
+
+	for item := range other {
+		result[item] = struct{}{}
+	}
+
+	return result
 }
 
 // ToSlice returns the set items as an unsorted slice.

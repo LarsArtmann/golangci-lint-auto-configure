@@ -67,4 +67,35 @@ var _ = Describe("Set", func() {
 
 		Expect(slice).To(Equal([]int{1, 2, 3}))
 	})
+
+	It("should report IsEmpty correctly", func() {
+		empty := types.NewSet[string]()
+		Expect(empty.IsEmpty()).To(BeTrue())
+
+		nonEmpty := types.NewSet("a")
+		Expect(nonEmpty.IsEmpty()).To(BeFalse())
+	})
+
+	It("should clone a set", func() {
+		original := types.NewSet("a", "b")
+		cloned := original.Clone()
+
+		Expect(cloned.Len()).To(Equal(2))
+		Expect(cloned.Contains("a")).To(BeTrue())
+		Expect(cloned.Contains("b")).To(BeTrue())
+
+		cloned.Delete("a")
+		Expect(original.Contains("a")).To(BeTrue())
+	})
+
+	It("should union two sets", func() {
+		set1 := types.NewSet("a", "b")
+		set2 := types.NewSet("b", "c")
+		merged := set1.Union(set2)
+
+		Expect(merged.Len()).To(Equal(3))
+		Expect(merged.Contains("a")).To(BeTrue())
+		Expect(merged.Contains("b")).To(BeTrue())
+		Expect(merged.Contains("c")).To(BeTrue())
+	})
 })
