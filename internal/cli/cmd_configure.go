@@ -144,9 +144,9 @@ func prepareConfigFile(
 	configLoader *config.Loader,
 	logger *log.Logger,
 ) (string, error) {
-	configFile := configPath
-	if configFile == "" {
-		configFile = configLoader.FindOrGetDefaultConfigPath(".")
+	configFile, err := resolveConfigPath(ctx, configLoader, logger, configPath, dryRun)
+	if err != nil {
+		return "", err
 	}
 
 	inGitRepo := configLoader.IsGitRepo(ctx, ".")
@@ -154,8 +154,6 @@ func prepareConfigFile(
 		logger.Warnf("⚠️  Not in a git repository - backup files won't be created")
 		logger.Warnf("   (Initialize with: git init)")
 	}
-
-	configLoader.HasMultipleConfigFiles(".")
 
 	if err := ensureConfigFile(ctx, configFile, inGitRepo, logger, configLoader); err != nil {
 		return "", err

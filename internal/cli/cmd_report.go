@@ -37,7 +37,7 @@ func runReport(
 ) error {
 	setLogLevel(logger)
 
-	configFile, err := resolveConfigPath(configLoader, configPath)
+	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
 	if err != nil {
 		return fmt.Errorf("failed to find config file (configPath=%s): %w", configPath, err)
 	}

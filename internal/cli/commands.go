@@ -18,17 +18,18 @@ import (
 var Version = "dev"
 
 var (
-	configPath   string
-	dryRun       bool
-	verbose      bool
-	generateHTML bool
-	outputReport string
-	priority     string
-	reportFormat string
+	configPath    string
+	dryRun        bool
+	verbose       bool
+	generateHTML  bool
+	outputReport  string
+	priority      string
+	reportFormat  string
+	noAutoMerge   bool
 )
 
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
-func resolveConfigPath(configLoader *config.Loader, specifiedPath string) (string, error) {
+func resolveConfigPath(ctx context.Context, configLoader *config.Loader, logger *log.Logger, specifiedPath string, isDryRun bool) (string, error) {
 	configFile := specifiedPath
 	if configFile == "" {
 		var err error
@@ -39,7 +40,50 @@ func resolveConfigPath(configLoader *config.Loader, specifiedPath string) (strin
 		}
 	}
 
-	configLoader.HasMultipleConfigFiles(".")
+	// Check for multiple config files and auto-merge if found (unless disabled)
+	allConfigs := configLoader.FindAllConfigFiles(".")
+	if len(allConfigs) > 1 && !noAutoMerge {
+		merger := config.NewConfigMerger(logger)
+
+		logger.Infof("🔄 Auto-merging %d config files...", len(allConfigs))
+
+		mergedConfig, mergeResult, err := merger.MergeConfigs(allConfigs)
+		if err != nil {
+			logger.Warnf("⚠️  Failed to merge configs: %v", err)
+			logger.Warnf("   Continuing with primary config: %s", allConfigs[0])
+
+			return allConfigs[0], nil
+		}
+
+		logger.Infof("✅ Merged configs (primary: %s)", mergeResult.PrimaryConfig)
+		if mergeResult.ChangesApplied > 0 {
+			logger.Infof("   Applied %d configuration changes", mergeResult.ChangesApplied)
+		}
+
+		if isDryRun {
+			logger.Infof("🔍 Dry-run mode: would save merged config to %s", mergeResult.PrimaryConfig)
+			logger.Infof("   Secondary configs would be removed: %v", mergeResult.MergedConfigs)
+
+			return mergeResult.PrimaryConfig, nil
+		}
+
+		// Save merged config and remove secondary configs
+		if err := merger.SaveMergedConfig(mergedConfig, mergeResult, true); err != nil {
+			logger.Warnf("⚠️  Failed to save merged config: %v", err)
+
+			return allConfigs[0], nil
+		}
+
+		logger.Infof("💾 Saved merged config to: %s", mergeResult.PrimaryConfig)
+		if len(mergeResult.RemovedConfigs) > 0 {
+			logger.Infof("🗑️  Removed secondary configs: %v", mergeResult.RemovedConfigs)
+		}
+
+		return mergeResult.PrimaryConfig, nil
+	} else if len(allConfigs) > 1 && noAutoMerge {
+		logger.Warnf("⚠️  Multiple config files detected but auto-merge is disabled")
+		logger.Warnf("   Using primary config: %s", allConfigs[0])
+	}
 
 	return configFile, nil
 }
@@ -108,6 +152,8 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
 	rootCmd.PersistentFlags().
 		StringVar(&reportFormat, "format", "html", "Output format (html, json)")
+	rootCmd.PersistentFlags().
+		BoolVar(&noAutoMerge, "no-auto-merge", false, "Disable automatic merging of multiple config files")
 }
 
 // Execute runs the CLI using fang for enhanced CLI features.

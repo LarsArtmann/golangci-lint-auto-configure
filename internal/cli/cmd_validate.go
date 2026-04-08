@@ -49,7 +49,7 @@ func runValidate(
 		logger.SetLevel(log.DebugLevel)
 	}
 
-	configFile, err := resolveConfigPath(configLoader, configPath)
+	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
 	if err != nil {
 		return err
 	}
