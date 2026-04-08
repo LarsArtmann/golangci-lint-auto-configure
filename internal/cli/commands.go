@@ -173,12 +173,14 @@ func addSubCommands(
 	configLoader *config.Loader,
 	migrateFlags clicmd.MigrateFlags,
 ) {
+	builder := NewCommandBuilder(logger, analyzer, configLoader)
+
 	rootCmd.AddCommand(
-		newConfigureCommand(logger, analyzer, configLoader),
-		newAnalyzeCommand(logger, analyzer, configLoader),
+		newConfigureCommand(builder),
+		newAnalyzeCommand(builder),
 		clicmd.NewMigrateCommand(logger, configLoader, migrateFlags),
 		newValidateCommand(logger, configLoader),
-		newReportCommand(logger, analyzer, configLoader),
+		newReportCommand(builder),
 		clicmd.NewCompletionCommand(),
 		clicmd.NewInstallHookCommand(logger),
 	)

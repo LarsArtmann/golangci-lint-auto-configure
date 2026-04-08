@@ -12,21 +12,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newReportCommand creates the report command.
-func newReportCommand(
-	logger *log.Logger,
-	analyzer *linter.Analyzer,
-	configLoader *config.Loader,
-) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "report",
-		Short: "Generate HTML report of configuration",
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			return runReport(cmd, logger, analyzer, configLoader)
+func newReportCommand(b *CommandBuilder) *cobra.Command {
+	return b.Build(
+		"report",
+		"Generate HTML report of configuration",
+		func(cmd *cobra.Command, _ []string) error {
+			return runReport(cmd, b.Logger(), b.Analyzer(), b.ConfigLoader())
 		},
-	}
-
-	return cmd
+	)
 }
 
 func runReport(

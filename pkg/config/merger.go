@@ -41,9 +41,8 @@ func (cm *Merger) mergeSettingsMaps(primary, secondary map[string]any) int {
 	changes := 0
 
 	if len(primary) == 0 && len(secondary) > 0 {
-		for k, v := range secondary {
-			primary[k] = v
-		}
+		maps.Copy(primary, secondary)
+
 		changes = len(secondary)
 	} else if len(secondary) > 0 {
 		for key, value := range secondary {
@@ -73,6 +72,7 @@ func (cm *Merger) mergeStringSlices(primary, secondary []string) int {
 	}
 
 	changes := 0
+
 	for _, p := range secondary {
 		if _, exists := primarySet[p]; !exists {
 			primary = append(primary, p)
@@ -88,6 +88,7 @@ func (cm *Merger) mergeStringSlices(primary, secondary []string) int {
 func (cm *Merger) mergePaths(primary *[]string, secondary []string) int {
 	if len(*primary) == 0 && len(secondary) > 0 {
 		*primary = secondary
+
 		return len(secondary)
 	}
 
@@ -101,6 +102,7 @@ func (cm *Merger) mergePaths(primary *[]string, secondary []string) int {
 	}
 
 	changes := 0
+
 	for _, p := range secondary {
 		if _, exists := primarySet[p]; !exists {
 			*primary = append(*primary, p)
@@ -182,6 +184,7 @@ func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, err
 			PrimaryConfig:    configPaths[0],
 			MergedConfigs:    []string{},
 			RemovedConfigs:   []string{},
+			BackedUpConfigs:  nil,
 			ChangesApplied:   0,
 			MergedLinters:    []string{},
 			MergedFormatters: []string{},
@@ -209,6 +212,7 @@ func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, err
 		PrimaryConfig:    primaryPath,
 		MergedConfigs:    secondaryPaths,
 		RemovedConfigs:   []string{},
+		BackedUpConfigs:  nil,
 		ChangesApplied:   0,
 		MergedLinters:    []string{},
 		MergedFormatters: []string{},

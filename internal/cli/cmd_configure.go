@@ -77,25 +77,27 @@ func presetForProjectType(projectType detection.ProjectType) string {
 	}
 }
 
-// newConfigureCommand creates the configure command.
-func newConfigureCommand(
-	logger *log.Logger,
-	analyzer *linter.Analyzer,
-	configLoader *config.Loader,
-) *cobra.Command {
+func newConfigureCommand(b *CommandBuilder) *cobra.Command {
 	var (
 		preset string
 		detect bool
 	)
 
-	cmd := &cobra.Command{
-		Use:   "configure",
-		Short: "Auto-configure golangci-lint (default command)",
-		Long:  configureLong,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			return runDetectOrConfigure(cmd, logger, analyzer, configLoader, preset, detect)
+	cmd := b.Build(
+		"configure",
+		"Auto-configure golangci-lint (default command)",
+		func(cmd *cobra.Command, _ []string) error {
+			return runDetectOrConfigure(
+				cmd,
+				b.Logger(),
+				b.Analyzer(),
+				b.ConfigLoader(),
+				preset,
+				detect,
+			)
 		},
-	}
+		WithLong(configureLong),
+	)
 
 	cmd.Flags().
 		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")

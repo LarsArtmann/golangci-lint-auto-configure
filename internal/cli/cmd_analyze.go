@@ -37,21 +37,16 @@ func spinner(message string, done chan bool) {
 	}
 }
 
-// newAnalyzeCommand creates the analyze command.
-func newAnalyzeCommand(
-	logger *log.Logger,
-	analyzer *linter.Analyzer,
-	configLoader *config.Loader,
-) *cobra.Command {
+func newAnalyzeCommand(b *CommandBuilder) *cobra.Command {
 	var format string
 
-	cmd := &cobra.Command{
-		Use:   "analyze",
-		Short: "Analyze golangci-lint configuration and show recommendations",
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			return runAnalyze(cmd, logger, analyzer, configLoader, format)
+	cmd := b.Build(
+		"analyze",
+		"Analyze golangci-lint configuration and show recommendations",
+		func(cmd *cobra.Command, _ []string) error {
+			return runAnalyze(cmd, b.Logger(), b.Analyzer(), b.ConfigLoader(), format)
 		},
-	}
+	)
 
 	cmd.Flags().StringVar(&format, "format", "text", "Output format (text, json)")
 
