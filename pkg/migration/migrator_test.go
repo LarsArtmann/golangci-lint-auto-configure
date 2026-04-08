@@ -76,6 +76,20 @@ func testMigrationWithConfig(testDir string, configContent string) (string, *mig
 	return configPath, m, fixes
 }
 
+// testSimpleMigration creates a test dir, writes config and runs migration.
+func testSimpleMigration(configContent string) string {
+	testDir := GinkgoT().TempDir()
+	configPath := filepath.Join(testDir, ".golangci.yml")
+	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+	_, success, fixes, err := runMigration(configPath)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(success).To(BeTrue())
+	Expect(fixes).To(BeNumerically(">", 0))
+
+	return configPath
+}
+
 var _ = Describe("Migrator", func() {
 	var testDir string
 
@@ -151,29 +165,23 @@ linters:
 			})
 		})
 
-		Context("with v1 config", func() {
-			It("should migrate version to v2", func() {
-				configContent := `version: "1"
+		DescribeTable("Migrations with v1 config",
+			func(configContent, expectedContent string) {
+				testMigrationWithExpectedContent(testDir, configContent, expectedContent)
+			},
+			Entry("should migrate version to v2", `version: "1"
 linters:
   enable:
     - errcheck
-`
-				testMigrationWithExpectedContent(testDir, configContent, `version: "2"`)
-			})
-		})
-
-		Context("with formatters in linters.enable", func() {
-			It("should migrate formatters to formatters.enable", func() {
-				configContent := `version: "1"
+`, `version: "2"`),
+			Entry("should migrate formatters to formatters.enable", `version: "1"
 linters:
   enable:
     - gofmt
     - goimports
     - errcheck
-`
-				testMigrationWithExpectedContent(testDir, configContent, "formatters:")
-			})
-		})
+`, "formatters:"),
+		)
 
 		Context("with deprecated linters-settings", func() {
 			It("should move linters-settings to linters.settings", func() {
@@ -588,7 +596,6 @@ linters:
 
 	Describe("migrateIssuesExcludeDirs", func() {
 		It("should migrate exclude-dirs to exclusions.paths", func() {
-			testDir := GinkgoT().TempDir()
 			configContent := `version: "2"
 run:
   timeout: 5m
@@ -599,13 +606,12 @@ linters:
   enable:
     - errcheck
 `
-			testMigrationWithConfig(testDir, configContent)
+			testSimpleMigration(configContent)
 		})
 	})
 
 	Describe("migrateIssuesExcludeFiles", func() {
 		It("should migrate exclude-files to exclusions.paths", func() {
-			testDir := GinkgoT().TempDir()
 			configContent := `version: "2"
 run:
   timeout: 5m
@@ -616,7 +622,7 @@ linters:
   enable:
     - errcheck
 `
-			testMigrationWithConfig(testDir, configContent)
+			testSimpleMigration(configContent)
 		})
 	})
 })

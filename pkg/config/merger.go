@@ -83,6 +83,34 @@ func (cm *Merger) mergeStringSlices(primary, secondary []string) int {
 	return changes
 }
 
+// mergePaths merges secondary paths into primary paths, updating primary if empty.
+// Returns the number of changes made.
+func (cm *Merger) mergePaths(primary *[]string, secondary []string) int {
+	if len(*primary) == 0 && len(secondary) > 0 {
+		*primary = secondary
+		return len(secondary)
+	}
+
+	if len(secondary) == 0 {
+		return 0
+	}
+
+	primarySet := make(map[string]struct{}, len(*primary))
+	for _, p := range *primary {
+		primarySet[p] = struct{}{}
+	}
+
+	changes := 0
+	for _, p := range secondary {
+		if _, exists := primarySet[p]; !exists {
+			*primary = append(*primary, p)
+			changes++
+		}
+	}
+
+	return changes
+}
+
 // mergeUniqueStringSlices merges secondary slice into primary slice with uniqueness check,
 // sorting the result. Returns number of changes.
 func (cm *Merger) mergeUniqueStringSlices(primary, secondary []string) int {
@@ -525,7 +553,7 @@ func (cm *Merger) mergeFormattersExclusions(primary, secondary *FormattersExclus
 		primary.Paths = secondary.Paths
 		changes++
 	} else if len(secondary.Paths) > 0 {
-		changes += cm.mergeStringSlices(primary.Paths, secondary.Paths)
+		changes += cm.mergePaths(&primary.Paths, secondary.Paths)
 	}
 
 	return changes
