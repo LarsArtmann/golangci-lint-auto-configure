@@ -3,18 +3,20 @@
 
 package migration
 
-import "slices"
+import (
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+)
 
 // MigrationRules contains all the rules and mappings needed for configuration migration.
 //
 //nolint:revive // Stuttering name is acceptable here for clarity
 type MigrationRules struct {
-	ValidVersions                 map[string]bool
+	ValidVersions                 types.Set[string]
 	RemovedLinterSettings         map[string][]string
 	ModernizeDisableMappings      map[string]string
 	SloglintKeyNamingCaseMappings map[string]string
 	GocriticSettingsToRemove      []string
-	LintersWithoutSettings        []string
+	LintersWithoutSettings        types.Set[string]
 }
 
 // DefaultRules returns a MigrationRules populated with the default golangci-lint v2 rules.
@@ -29,17 +31,8 @@ func DefaultRules() *MigrationRules {
 	}
 }
 
-func validVersions() map[string]bool {
-	return map[string]bool{
-		"2":      true,
-		"2.8":    true,
-		"2.8.0":  true,
-		"2.9":    true,
-		"2.9.0":  true,
-		"2.10":   true,
-		"2.10.0": true,
-		"2.10.1": true,
-	}
+func validVersions() types.Set[string] {
+	return types.NewSet("2", "2.8", "2.8.0", "2.9", "2.9.0", "2.10", "2.10.0", "2.10.1")
 }
 
 func removedLinterSettings() map[string][]string {
@@ -68,8 +61,8 @@ func gocriticSettingsToRemove() []string {
 	}
 }
 
-func lintersWithoutSettings() []string {
-	return []string{
+func lintersWithoutSettings() types.Set[string] {
+	return types.NewSet(
 		"containedctx",
 		"contextcheck",
 		"gochecknoglobals",
@@ -81,7 +74,7 @@ func lintersWithoutSettings() []string {
 		"testableexamples",
 		"wastedassign",
 		"zerologlint",
-	}
+	)
 }
 
 func modernizeDisableMappings() map[string]string {
@@ -126,7 +119,7 @@ func sloglintKeyNamingCaseMappings() map[string]string {
 
 // IsValidVersion returns true if the given version string is valid for v2.
 func (r *MigrationRules) IsValidVersion(version string) bool {
-	return r.ValidVersions[version]
+	return r.ValidVersions.Contains(version)
 }
 
 // GetDeprecatedProperties returns the deprecated properties for a given linter.
@@ -136,7 +129,7 @@ func (r *MigrationRules) GetDeprecatedProperties(linterName string) []string {
 
 // IsLinterWithoutSettings returns true if the linter doesn't support settings.
 func (r *MigrationRules) IsLinterWithoutSettings(linterName string) bool {
-	return slices.Contains(r.LintersWithoutSettings, linterName)
+	return r.LintersWithoutSettings.Contains(linterName)
 }
 
 // MapModernizeDisable maps old modernize disable values to new valid values.

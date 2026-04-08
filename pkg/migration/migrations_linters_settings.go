@@ -51,7 +51,7 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 	}
 
 	// 2. Remove settings for linters that no longer support them
-	for _, linterName := range rules.LintersWithoutSettings {
+	for linterName := range rules.LintersWithoutSettings {
 		if _, exists := settings[linterName]; exists {
 			delete(settings, linterName)
 
