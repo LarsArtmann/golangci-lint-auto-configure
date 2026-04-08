@@ -176,8 +176,8 @@ func (f *Fixer) applyLintersFix(
 	dryRun bool,
 	originalEnabled []string,
 ) types.MigrationResultType {
-	linterSet := buildLinterSet(cfg.Linters.Enable)
-	formatterSet := buildLinterSet(cfg.Formatters.Enable)
+	linterSet := types.NewSet(cfg.Linters.Enable...)
+	formatterSet := types.NewSet(cfg.Formatters.Enable...)
 	counts := f.applyAllFixes(linterSet, formatterSet, cfg, analysis, configPath, priority, dryRun, originalEnabled)
 
 	if dryRun {
@@ -453,14 +453,6 @@ func (f *Fixer) updateConfigFromSets(
 	if formatterSet.Len() > 0 {
 		cfg.Formatters.Enable = f.formatterManager.ToOrderedSlice(formatterSet)
 	}
-}
-
-func buildLinterSet(items []string) types.Set[string] {
-	return types.NewSet(items...)
-}
-
-func setToSortedSlice(set types.Set[string]) []string {
-	return types.ToSortedSlice(set)
 }
 
 func hasDeprecatedLinters(enabledLinters []string) bool {

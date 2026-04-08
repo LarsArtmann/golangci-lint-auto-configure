@@ -140,8 +140,8 @@ func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dr
 
 	f.logger.Infof("Pre-fixing %d deprecated linters: %v", len(deprecatedFound), deprecatedFound)
 
-	cfg.Linters.Enable = setToSortedSlice(linterSet)
-	cfg.Linters.Disable = setToSortedSlice(disabledSet)
+	cfg.Linters.Enable = types.ToSortedSlice(linterSet)
+	cfg.Linters.Disable = types.ToSortedSlice(disabledSet)
 
 	return f.savePrefixedConfig(cfg, configPath, fmt.Sprintf("deprecatedFound=%v", deprecatedFound))
 }
