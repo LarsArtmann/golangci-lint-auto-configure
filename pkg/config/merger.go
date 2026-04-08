@@ -4,12 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"os"
 	"slices"
 	"sort"
 
 	"charm.land/log/v2"
 	"github.com/spf13/afero"
 )
+
+// Backup file permission (read/write for owner only)
+const backupFilePermission = os.FileMode(0o600)
 
 // ErrNoConfigFiles is returned when no config files are provided to merge.
 var ErrNoConfigFiles = errors.New("no config files to merge")
@@ -680,7 +684,7 @@ func (cm *Merger) createBackup(path string) (string, error) {
 	}
 
 	backupPath := path + ".merge-backup"
-	err = afero.WriteFile(cm.fs, backupPath, data, 0o600)
+	err = afero.WriteFile(cm.fs, backupPath, data, backupFilePermission)
 	if err != nil {
 		return "", fmt.Errorf("failed to write backup: %w", err)
 	}

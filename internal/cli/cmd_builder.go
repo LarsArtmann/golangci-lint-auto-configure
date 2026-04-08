@@ -55,11 +55,10 @@ func WithLong(long string) func(*cobra.Command) {
 }
 
 // WithStringFlag adds a string flag to the command.
-func (b *CommandBuilder) WithStringFlag(name, short, value, usage string) func(*cobra.Command) {
+func (b *CommandBuilder) WithStringFlag(name, _, value, usage string) func(*cobra.Command) {
 	return func(cmd *cobra.Command) {
 		cmd.Flags().
 			StringVar(new(string), name, value, usage)
-		//nolint:staticcheck // intentional: short not used
 	}
 }
 

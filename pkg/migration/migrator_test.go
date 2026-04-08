@@ -61,7 +61,7 @@ func runMigration(configPath string) (*migration.Migrator, bool, int, error) {
 }
 
 // testMigrationWithConfig creates a config file and runs migration.
-func testMigrationWithConfig(testDir string, configContent string) (string, *migration.Migrator, int) {
+func testMigrationWithConfig(testDir, configContent string) (string, *migration.Migrator, int) {
 	configPath := filepath.Join(testDir, ".golangci.yml")
 	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
