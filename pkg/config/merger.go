@@ -198,6 +198,8 @@ func (cm *Merger) mergeConfigInto(primary, secondary *Config) int {
 	return changes
 }
 
+// mergeRunConfig merges run configurations. Uses multiple conditionals for config fields.
+//nolint:cyclop,gocognit // Complex but clear merge logic for 10+ config fields
 func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
 	changes := 0
 
@@ -255,6 +257,8 @@ func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
 	return changes
 }
 
+// mergeLintersConfig merges linter configurations.
+//nolint:cyclop,gocognit // Complex but clear merge logic for linter settings
 func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 	changes := 0
 
@@ -325,6 +329,8 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 	return changes
 }
 
+// mergeLintersExclusions merges linter exclusion configurations.
+//nolint:cyclop,gocognit // Complex but clear merge logic for exclusion settings
 func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsConfig) int {
 	changes := 0
 
@@ -382,6 +388,8 @@ func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsCo
 	return changes
 }
 
+// mergeFormattersConfig merges formatter configurations.
+//nolint:cyclop,gocognit // Complex but clear merge logic for formatter settings
 func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) int {
 	changes := 0
 
@@ -507,6 +515,8 @@ func (cm *Merger) mergeOutputConfig(primary, secondary *OutputConfig) int {
 	return changes
 }
 
+// mergeIssuesConfig merges issues configurations.
+//nolint:cyclop,gocognit // Complex but clear merge logic for issue settings
 func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 	changes := 0
 
