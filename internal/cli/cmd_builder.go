@@ -54,14 +54,6 @@ func WithLong(long string) func(*cobra.Command) {
 	}
 }
 
-// WithStringFlag adds a string flag to the command.
-func (b *CommandBuilder) WithStringFlag(name, _, value, usage string) func(*cobra.Command) {
-	return func(cmd *cobra.Command) {
-		cmd.Flags().
-			StringVar(new(string), name, value, usage)
-	}
-}
-
 // Logger returns the builder's logger.
 func (b *CommandBuilder) Logger() *log.Logger {
 	return b.logger
