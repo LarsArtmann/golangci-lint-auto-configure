@@ -38,12 +38,7 @@ func resolveConfigPath(
 ) (string, error) {
 	configFile := specifiedPath
 	if configFile == "" {
-		var err error
-
-		configFile, err = configLoader.FindConfigFile(".")
-		if err != nil {
-			return "", fmt.Errorf("failed to find config file: %w", err)
-		}
+		configFile = configLoader.FindOrGetDefaultConfigPath(".")
 	}
 
 	return resolveWithAutoMerge(configLoader, logger, configFile, isDryRun)
@@ -184,7 +179,7 @@ func addSubCommands(
 		newConfigureCommand(builder),
 		newAnalyzeCommand(builder),
 		clicmd.NewMigrateCommand(logger, configLoader, migrateFlags),
-		newValidateCommand(logger, configLoader),
+		newValidateCommand(builder),
 		newReportCommand(builder),
 		clicmd.NewCompletionCommand(),
 		clicmd.NewInstallHookCommand(logger),

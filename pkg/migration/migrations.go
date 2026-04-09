@@ -178,7 +178,7 @@ func (m *Migrator) clearIssuesFlags(config *Config) int {
 
 // migrateFormatters migrates formatters from linters.enable to formatters.enable.
 func (m *Migrator) migrateFormatters(config *Config) bool {
-	formattersToEnable := m.extractFormatters(config.Linters.Enable)
+	formattersToEnable, remainingLinters := m.partitionFormatters(config.Linters.Enable)
 	if len(formattersToEnable) == 0 {
 		return false
 	}
@@ -187,38 +187,26 @@ func (m *Migrator) migrateFormatters(config *Config) bool {
 		return true
 	}
 
-	config.Linters.Enable = m.filterOutFormatters(config.Linters.Enable)
+	config.Linters.Enable = remainingLinters
 	config.Formatters.Enable = append(config.Formatters.Enable, formattersToEnable...)
 
 	return true
 }
 
-func (m *Migrator) extractFormatters(enabled []string) []string {
+func (m *Migrator) partitionFormatters(enabled []string) ([]string, []string) {
 	formatterNames := types.NewSet("gofmt", "goimports", "gofumpt")
 
-	var formatters []string
+	var formatters, linters []string
 
-	for _, linter := range enabled {
-		if formatterNames.Contains(linter) {
-			formatters = append(formatters, linter)
+	for _, name := range enabled {
+		if formatterNames.Contains(name) {
+			formatters = append(formatters, name)
+		} else {
+			linters = append(linters, name)
 		}
 	}
 
-	return formatters
-}
-
-func (m *Migrator) filterOutFormatters(enabled []string) []string {
-	formatterNames := types.NewSet("gofmt", "goimports", "gofumpt")
-
-	var linters []string
-
-	for _, linter := range enabled {
-		if !formatterNames.Contains(linter) {
-			linters = append(linters, linter)
-		}
-	}
-
-	return linters
+	return formatters, linters
 }
 
 // migrateFormatterSettingsFromLinters moves formatter settings from linters.settings to formatters.settings.

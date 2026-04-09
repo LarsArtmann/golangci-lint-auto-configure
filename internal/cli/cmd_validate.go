@@ -11,27 +11,22 @@ import (
 )
 
 // newValidateCommand creates the validate command.
-func newValidateCommand(
-	logger *log.Logger,
-	configLoader *config.Loader,
-) *cobra.Command {
+func newValidateCommand(b *CommandBuilder) *cobra.Command {
 	var skipGolangciLint bool
 
-	cmd := &cobra.Command{
-		Use:   "validate",
-		Short: "Validate golangci-lint configuration",
-		Long: `Validates the golangci-lint configuration file.
+	cmd := b.Build("validate", "Validate golangci-lint configuration",
+		func(cmd *cobra.Command, _ []string) error {
+			return runValidate(cmd, b.Logger(), b.ConfigLoader(), skipGolangciLint)
+		},
+		WithLong(`Validates the golangci-lint configuration file.
 
 This command performs two levels of validation:
 1. Basic YAML parsing and structure validation
 2. Schema validation using golangci-lint config verify
 
 Use --skip-golangci-lint to skip the schema validation (faster).
-Use --verbose to see detailed validation output.`,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			return runValidate(cmd, logger, configLoader, skipGolangciLint)
-		},
-	}
+Use --verbose to see detailed validation output.`),
+	)
 
 	cmd.Flags().
 		BoolVar(&skipGolangciLint, "skip-golangci-lint", false, "Skip golangci-lint schema validation")

@@ -31,16 +31,22 @@ func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[string],
 		}
 
 		count++
+		fm.logFormatterChange(formatter, "enabling", dryRun)
 
-		if dryRun {
-			fm.logger.Debugf("[DRY-RUN] Would enable formatter: %s", formatter)
-		} else {
-			fm.logger.Debugf("Enabling formatter: %s", formatter)
+		if !dryRun {
 			formatterSet.Add(formatter)
 		}
 	}
 
 	return count
+}
+
+func (fm *FormatterManager) logFormatterChange(name, action string, dryRun bool) {
+	if dryRun {
+		fm.logger.Debugf("[DRY-RUN] Would %s formatter: %s", action, name)
+	} else {
+		fm.logger.Debugf("%s formatter: %s", action, name)
+	}
 }
 
 // EnableGolinesFormatter enables the golines formatter if recommended at high priority.
@@ -67,14 +73,21 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 }
 
 func (fm *FormatterManager) addFormatter(set types.Set[string], name, reason string, dryRun bool) int {
-	if dryRun {
-		fm.logger.Debugf("[DRY-RUN] Would enable formatter: %s (%s)", name, reason)
-	} else {
-		fm.logger.Debugf("Enabling formatter: %s (%s)", name, reason)
+	fm.logFormatterChangeWithReason(name, "enabling", reason, dryRun)
+
+	if !dryRun {
 		set.Add(name)
 	}
 
 	return 1
+}
+
+func (fm *FormatterManager) logFormatterChangeWithReason(name, action, reason string, dryRun bool) {
+	if dryRun {
+		fm.logger.Debugf("[DRY-RUN] Would %s formatter: %s (%s)", action, name, reason)
+	} else {
+		fm.logger.Debugf("%s formatter: %s (%s)", action, name, reason)
+	}
 }
 
 // EnableSwaggoFormatter enables the swaggo formatter if swaggo is detected in the project.
@@ -100,10 +113,9 @@ func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet types.Set[string],
 		return 0
 	}
 
-	if dryRun {
-		fm.logger.Debugf("[DRY-RUN] Would remove redundant formatter: gofmt (gofumpt is enabled and is a superset)")
-	} else {
-		fm.logger.Debugf("Removing redundant formatter: gofmt (gofumpt is enabled and is a superset)")
+	fm.logFormatterChange("gofmt", "removing redundant", dryRun)
+
+	if !dryRun {
 		formatterSet.Delete("gofmt")
 	}
 
@@ -128,16 +140,22 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 		}
 
 		count++
+		fm.logLinterChange(string(linterName), "removing redundant", mapping.Reason, dryRun)
 
-		if dryRun {
-			fm.logger.Debugf("[DRY-RUN] Would remove redundant linter: %s (%s)", linterName, mapping.Reason)
-		} else {
-			fm.logger.Debugf("Removing redundant linter: %s (%s)", linterName, mapping.Reason)
+		if !dryRun {
 			linterSet.Delete(string(linterName))
 		}
 	}
 
 	return count
+}
+
+func (fm *FormatterManager) logLinterChange(name, action, reason string, dryRun bool) {
+	if dryRun {
+		fm.logger.Debugf("[DRY-RUN] Would %s linter: %s (%s)", action, name, reason)
+	} else {
+		fm.logger.Debugf("%s linter: %s (%s)", action, name, reason)
+	}
 }
 
 // ToOrderedSlice converts formatter set to ordered slice.

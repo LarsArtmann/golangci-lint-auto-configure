@@ -72,6 +72,47 @@ func (s Set[T]) Union(other Set[T]) Set[T] {
 	return result
 }
 
+// Difference returns a new set containing items in s that are not in other.
+func (s Set[T]) Difference(other Set[T]) Set[T] {
+	result := make(Set[T])
+
+	for item := range s {
+		if !other.Contains(item) {
+			result[item] = struct{}{}
+		}
+	}
+
+	return result
+}
+
+// Intersect returns a new set containing items present in both sets.
+func (s Set[T]) Intersect(other Set[T]) Set[T] {
+	result := make(Set[T])
+
+	for item := range s {
+		if other.Contains(item) {
+			result[item] = struct{}{}
+		}
+	}
+
+	return result
+}
+
+// Equal returns true if both sets contain exactly the same items.
+func (s Set[T]) Equal(other Set[T]) bool {
+	if len(s) != len(other) {
+		return false
+	}
+
+	for item := range s {
+		if !other.Contains(item) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // ToSlice returns the set items as an unsorted slice.
 func (s Set[T]) ToSlice() []T {
 	result := make([]T, 0, len(s))

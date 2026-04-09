@@ -239,6 +239,26 @@ func (m *Migrator) getCheckmark() string {
 	return "✓"
 }
 
+// logFixApplied logs a verbose message when a fix is applied and returns 1 for counting.
+func (m *Migrator) logFixApplied(message string) int {
+	if m.verbose {
+		//nolint:forbidigo // CLI output
+		fmt.Printf("%s %s\n", m.getCheckmark(), message)
+	}
+
+	return 1
+}
+
+// logFixesApplied logs a verbose message with a count when fixes are applied and returns the count.
+func (m *Migrator) logFixesApplied(message string, count int) int {
+	if m.verbose && count > 0 {
+		//nolint:forbidigo // CLI output
+		fmt.Printf("%s %s\n", m.getCheckmark(), message)
+	}
+
+	return count
+}
+
 // checkGitRepository verifies we're inside a git repository.
 func (m *Migrator) checkGitRepository() error {
 	return utils.CheckGitRepoWithTimeout(".")

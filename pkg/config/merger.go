@@ -683,13 +683,3 @@ func (cm *Merger) createBackup(path string) (string, error) {
 
 	return backupPath, nil
 }
-
-// GetUniqueStrings returns a sorted slice of unique strings.
-// Deprecated: Use types.ToSortedSlice(types.NewSet(input...)) directly instead.
-func GetUniqueStrings(input []string) []string {
-	if len(input) == 0 {
-		return nil
-	}
-
-	return types.ToSortedSlice(types.NewSet(input...))
-}
