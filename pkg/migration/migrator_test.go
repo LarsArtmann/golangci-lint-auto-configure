@@ -6,6 +6,7 @@ package migration_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/migration"
@@ -55,8 +56,10 @@ func runMigration(configPath string) (*migration.Migrator, bool, int, error) {
 	if err != nil {
 		return nil, false, 0, err
 	}
+
 	m.SetValidator(migration.MockValidator{})
 	success, fixes, err := m.MigrateToV2()
+
 	return m, success, fixes, err
 }
 
@@ -92,15 +95,17 @@ func testSimpleMigration(configContent string) string {
 
 // v2ConfigWithExcludeDirs returns a v2 config with exclude-dirs.
 func v2ConfigWithExcludeDirs(dirs ...string) string {
-	dirsYaml := ""
+	var builder strings.Builder
+
 	for _, dir := range dirs {
-		dirsYaml += "  - " + dir + "\n"
+		builder.WriteString("  - " + dir + "\n")
 	}
+
 	return `version: "2"
 run:
   timeout: 5m
 exclude-dirs:
-` + dirsYaml + `linters:
+` + builder.String() + `linters:
   enable:
     - errcheck
 `
@@ -108,15 +113,17 @@ exclude-dirs:
 
 // v2ConfigWithExcludeFiles returns a v2 config with exclude-files.
 func v2ConfigWithExcludeFiles(files ...string) string {
-	filesYaml := ""
+	var builder strings.Builder
+
 	for _, file := range files {
-		filesYaml += `  - "` + file + `"\n`
+		builder.WriteString(`  - "` + file + `"\n`)
 	}
+
 	return `version: "2"
 run:
   timeout: 5m
 exclude-files:
-` + filesYaml + `
+` + builder.String() + `
 linters:
   enable:
     - errcheck
