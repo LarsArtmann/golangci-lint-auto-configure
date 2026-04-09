@@ -44,7 +44,13 @@ func newAnalyzeCommand(builder *CommandBuilder) *cobra.Command {
 		"analyze",
 		"Analyze golangci-lint configuration and show recommendations",
 		func(cmd *cobra.Command, _ []string) error {
-			return runAnalyze(cmd, builder.Logger(), builder.Analyzer(), builder.ConfigLoader(), format)
+			return runAnalyze(
+				cmd,
+				builder.Logger(),
+				builder.Analyzer(),
+				builder.ConfigLoader(),
+				format,
+			)
 		},
 	)
 
