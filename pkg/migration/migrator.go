@@ -83,106 +83,59 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 
 	// Fix 0: Migrate version to v2 format
 	if migrateVersion(&cfg.Version, m.rules) {
-		fixesApplied++
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Migrated version to v2 format\n", m.getCheckmark())
-		}
+		fixesApplied += m.logFixApplied("Migrated version to v2 format")
 	}
 
 	// Fix 0b: Ensure run.timeout has a value
 	if migrateRunSettings(&cfg.Run) {
-		fixesApplied++
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Set default run.timeout\n", m.getCheckmark())
-		}
+		fixesApplied += m.logFixApplied("Set default run.timeout")
 	}
 
 	// Fix 1: Move top-level linters-settings to nested linters.settings
 	if m.migrateLintersSettings(cfg) {
-		fixesApplied++
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Migrated 'linters-settings' to nested 'linters.settings'\n", m.getCheckmark())
-		}
+		fixesApplied += m.logFixApplied("Migrated 'linters-settings' to nested 'linters.settings'")
 	}
 
 	// Fix 2: Migrate issues.* properties (rules, dirs, files)
 	issuesFixes := m.migrateIssuesProperties(cfg)
-	if issuesFixes > 0 {
-		fixesApplied += issuesFixes
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Migrated %d 'issues.*' properties to new structure\n", m.getCheckmark(), issuesFixes)
-		}
-	}
+	fixesApplied += m.logFixesApplied(
+		fmt.Sprintf("Migrated %d 'issues.*' properties to new structure", issuesFixes),
+		issuesFixes,
+	)
 
 	// Fix 3: Migrate formatters from linters.enable to formatters.enable
 	if m.migrateFormatters(cfg) {
-		fixesApplied++
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Migrated formatters from 'linters.enable' to 'formatters.enable'\n", m.getCheckmark())
-		}
+		fixesApplied += m.logFixApplied("Migrated formatters from 'linters.enable' to 'formatters.enable'")
 	}
 
 	// Fix 4: Move formatter settings from linters.settings to formatters.settings
 	formatterSettingsMoved := migrateFormatterSettingsFromLinters(cfg)
-	if formatterSettingsMoved > 0 {
-		fixesApplied += formatterSettingsMoved
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf(
-				"%s Moved %d formatter settings to 'formatters.settings'\n",
-				m.getCheckmark(),
-				formatterSettingsMoved,
-			)
-		}
-	}
+	fixesApplied += m.logFixesApplied(
+		fmt.Sprintf("Moved %d formatter settings to 'formatters.settings'", formatterSettingsMoved),
+		formatterSettingsMoved,
+	)
 
 	// Fix 5: Migrate linter-specific settings
 	if cfg.Linters.Settings != nil {
 		linterSettingsFixes := migrateLinterSettings(cfg.Linters.Settings, m.rules)
-		if linterSettingsFixes > 0 {
-			fixesApplied += linterSettingsFixes
-
-			if m.verbose {
-				//nolint:forbidigo // CLI output
-				fmt.Printf("%s Migrated %d linter-specific settings\n", m.getCheckmark(), linterSettingsFixes)
-			}
-		}
+		fixesApplied += m.logFixesApplied(
+			fmt.Sprintf("Migrated %d linter-specific settings", linterSettingsFixes),
+			linterSettingsFixes,
+		)
 	}
 
 	// Fix 6: Migrate formatters.settings
 	if cfg.Formatters.Settings != nil {
 		formatterSettingsFixes := migrateFormattersSettings(cfg.Formatters.Settings)
-		if formatterSettingsFixes > 0 {
-			fixesApplied += formatterSettingsFixes
-
-			if m.verbose {
-				//nolint:forbidigo // CLI output
-				fmt.Printf("%s Migrated %d formatter-specific settings\n", m.getCheckmark(), formatterSettingsFixes)
-			}
-		}
+		fixesApplied += m.logFixesApplied(
+			fmt.Sprintf("Migrated %d formatter-specific settings", formatterSettingsFixes),
+			formatterSettingsFixes,
+		)
 	}
 
 	// Fix 7: Migrate output.* deprecated properties
 	outputFixes := m.migrateOutputProperties(cfg)
-	if outputFixes > 0 {
-		fixesApplied += outputFixes
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Removed %d deprecated output properties\n", m.getCheckmark(), outputFixes)
-		}
-	}
+	fixesApplied += m.logFixesApplied(fmt.Sprintf("Removed %d deprecated output properties", outputFixes), outputFixes)
 
 	if fixesApplied == 0 {
 		if m.verbose {

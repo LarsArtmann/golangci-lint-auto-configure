@@ -4,7 +4,6 @@
 package migration
 
 import (
-	"fmt"
 	"maps"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -36,30 +35,15 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 	fixes := 0
 
 	if m.migrateIssuesExcludeRules(config) {
-		fixes++
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Migrated 'issues.exclude-rules' to 'linters.exclusions.rules'\n", m.getCheckmark())
-		}
+		fixes += m.logFixApplied("Migrated 'issues.exclude-rules' to 'linters.exclusions.rules'")
 	}
 
 	if m.migrateIssuesExcludeDirs(config) {
-		fixes++
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Migrated 'issues.exclude-dirs' to exclusions.paths\n", m.getCheckmark())
-		}
+		fixes += m.logFixApplied("Migrated 'issues.exclude-dirs' to exclusions.paths")
 	}
 
 	if m.migrateIssuesExcludeFiles(config) {
-		fixes++
-
-		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Printf("%s Migrated 'issues.exclude-files' to exclusions.paths\n", m.getCheckmark())
-		}
+		fixes += m.logFixApplied("Migrated 'issues.exclude-files' to exclusions.paths")
 	}
 
 	flagFixes := m.migrateIssuesFlags(config)

@@ -108,7 +108,14 @@ linters:
 
 // testTimeoutFixResult is a helper for testing timeout fixes with consistent parameters.
 func testTimeoutFixResult(fixer *linter.Fixer, configPath, inputTimeout, expectedTimeout string, dryRun bool) {
-	testFixResult(fixer, configPath, timeoutTestConfig(inputTimeout), types.LinterPriorityCritical, dryRun, "timeout: "+expectedTimeout)
+	testFixResult(
+		fixer,
+		configPath,
+		timeoutTestConfig(inputTimeout),
+		types.LinterPriorityCritical,
+		dryRun,
+		"timeout: "+expectedTimeout,
+	)
 }
 
 // minimalTestConfig returns a minimal test config with optional linters.
