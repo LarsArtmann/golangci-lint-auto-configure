@@ -185,7 +185,6 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 
 		result.BackedUpConfigs[path] = backupPath
 
-
 		cm.logger.Debugf("Created backup: %s -> %s", path, backupPath)
 	}
 
