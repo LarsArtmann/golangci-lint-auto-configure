@@ -7,17 +7,37 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// disabledLinterEntry represents a linter entry for test setup
+// disabledLinterEntry represents a linter entry for test setup.
 type disabledLinterEntry struct {
 	name       string
 	deprecated bool
 }
+
+// shared linter sets for common test scenarios.
+var (
+	linterSetLllMisspell = []disabledLinterEntry{
+		{name: "lll", deprecated: false},
+		{name: "misspell", deprecated: false},
+	}
+	linterSetLllOnly = []disabledLinterEntry{
+		{name: "lll", deprecated: false},
+	}
+	linterSetLllDeadcode = []disabledLinterEntry{
+		{name: "lll", deprecated: false},
+		{name: "deadcode", deprecated: true},
+	}
+	linterSetLllFuncorder = []disabledLinterEntry{
+		{name: "lll", deprecated: false},
+		{name: "funcorder", deprecated: false},
+	}
+)
 
 func extractLinterNames(recommendations []types.LinterRecommendation) []string {
 	names := make([]string, len(recommendations))
 	for i, rec := range recommendations {
 		names[i] = rec.Name.String()
 	}
+
 	return names
 }
 
@@ -26,6 +46,7 @@ func disabledLintersWith(entries ...disabledLinterEntry) []types.LinterInfo {
 	for i, e := range entries {
 		result[i] = types.LinterInfo{Name: types.LinterName(e.name), Deprecated: e.deprecated}
 	}
+
 	return result
 }
 
@@ -38,10 +59,7 @@ var _ = Describe("CategorizeLinters", func() {
 
 	Context("Redundant Linter Detection", func() {
 		It("should NOT recommend lll when golines formatter is enabled", func() {
-			disabledLinters := disabledLintersWith(
-				disabledLinterEntry{name: "lll", deprecated: false},
-				disabledLinterEntry{name: "misspell", deprecated: false},
-			)
+			disabledLinters := disabledLintersWith(linterSetLllMisspell...)
 
 			enabledFormatters := []types.FormatterInfo{
 				{Name: "golines", AutoFix: true},
@@ -54,10 +72,7 @@ var _ = Describe("CategorizeLinters", func() {
 		})
 
 		It("should recommend lll when golines formatter is NOT enabled", func() {
-			disabledLinters := disabledLintersWith(
-				disabledLinterEntry{name: "lll", deprecated: false},
-				disabledLinterEntry{name: "misspell", deprecated: false},
-			)
+			disabledLinters := disabledLintersWith(linterSetLllMisspell...)
 
 			enabledFormatters := []types.FormatterInfo{}
 
@@ -68,9 +83,7 @@ var _ = Describe("CategorizeLinters", func() {
 		})
 
 		It("should recommend lll when only other formatters are enabled", func() {
-			disabledLinters := disabledLintersWith(
-				disabledLinterEntry{name: "lll", deprecated: false},
-			)
+			disabledLinters := disabledLintersWith(linterSetLllOnly...)
 
 			enabledFormatters := []types.FormatterInfo{
 				{Name: "gofmt", AutoFix: true},
@@ -84,10 +97,7 @@ var _ = Describe("CategorizeLinters", func() {
 
 	Context("Deprecated Linter Handling", func() {
 		It("should skip deprecated linters", func() {
-			disabledLinters := disabledLintersWith(
-				disabledLinterEntry{name: "lll", deprecated: false},
-				disabledLinterEntry{name: "deadcode", deprecated: true},
-			)
+			disabledLinters := disabledLintersWith(linterSetLllDeadcode...)
 
 			enabledFormatters := []types.FormatterInfo{}
 
@@ -100,10 +110,7 @@ var _ = Describe("CategorizeLinters", func() {
 
 	Context("Disabled Linter Handling", func() {
 		It("should skip explicitly disabled linters", func() {
-			disabledLinters := disabledLintersWith(
-				disabledLinterEntry{name: "lll", deprecated: false},
-				disabledLinterEntry{name: "funcorder", deprecated: false},
-			)
+			disabledLinters := disabledLintersWith(linterSetLllFuncorder...)
 
 			enabledFormatters := []types.FormatterInfo{}
 
