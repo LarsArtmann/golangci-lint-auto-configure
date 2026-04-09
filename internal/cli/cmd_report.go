@@ -12,12 +12,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newReportCommand(b *CommandBuilder) *cobra.Command {
-	return b.Build(
+func newReportCommand(builder *CommandBuilder) *cobra.Command {
+	return builder.Build(
 		"report",
 		"Generate HTML report of configuration",
 		func(cmd *cobra.Command, _ []string) error {
-			return runReport(cmd, b.Logger(), b.Analyzer(), b.ConfigLoader())
+			return runReport(cmd, builder.Logger(), builder.Analyzer(), builder.ConfigLoader())
 		},
 	)
 }

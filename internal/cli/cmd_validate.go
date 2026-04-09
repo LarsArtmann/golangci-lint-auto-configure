@@ -11,12 +11,12 @@ import (
 )
 
 // newValidateCommand creates the validate command.
-func newValidateCommand(b *CommandBuilder) *cobra.Command {
+func newValidateCommand(builder *CommandBuilder) *cobra.Command {
 	var skipGolangciLint bool
 
-	cmd := b.Build("validate", "Validate golangci-lint configuration",
+	cmd := builder.Build("validate", "Validate golangci-lint configuration",
 		func(cmd *cobra.Command, _ []string) error {
-			return runValidate(cmd, b.Logger(), b.ConfigLoader(), skipGolangciLint)
+			return runValidate(cmd, builder.Logger(), builder.ConfigLoader(), skipGolangciLint)
 		},
 		WithLong(`Validates the golangci-lint configuration file.
 

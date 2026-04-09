@@ -77,21 +77,21 @@ func presetForProjectType(projectType detection.ProjectType) string {
 	}
 }
 
-func newConfigureCommand(b *CommandBuilder) *cobra.Command {
+func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 	var (
 		preset string
 		detect bool
 	)
 
-	cmd := b.Build(
+	cmd := builder.Build(
 		"configure",
 		"Auto-configure golangci-lint (default command)",
 		func(cmd *cobra.Command, _ []string) error {
 			return runDetectOrConfigure(
 				cmd,
-				b.Logger(),
-				b.Analyzer(),
-				b.ConfigLoader(),
+				builder.Logger(),
+				builder.Analyzer(),
+				builder.ConfigLoader(),
 				preset,
 				detect,
 			)

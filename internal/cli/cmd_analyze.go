@@ -37,14 +37,14 @@ func spinner(message string, done chan bool) {
 	}
 }
 
-func newAnalyzeCommand(b *CommandBuilder) *cobra.Command {
+func newAnalyzeCommand(builder *CommandBuilder) *cobra.Command {
 	var format string
 
-	cmd := b.Build(
+	cmd := builder.Build(
 		"analyze",
 		"Analyze golangci-lint configuration and show recommendations",
 		func(cmd *cobra.Command, _ []string) error {
-			return runAnalyze(cmd, b.Logger(), b.Analyzer(), b.ConfigLoader(), format)
+			return runAnalyze(cmd, builder.Logger(), builder.Analyzer(), builder.ConfigLoader(), format)
 		},
 	)
 
