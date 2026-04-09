@@ -100,10 +100,17 @@ func (s Set[T]) Intersect(other Set[T]) Set[T] {
 
 // Equal returns true if both sets contain exactly the same items.
 func (s Set[T]) Equal(other Set[T]) bool {
-	if len(s) != len(other) {
-		return false
-	}
+	return len(s) == len(other) && s.containsAll(other)
+}
 
+// IsSubset returns true if all items in s are contained in other.
+// Returns true for empty sets.
+func (s Set[T]) IsSubset(other Set[T]) bool {
+	return len(s) <= len(other) && s.containsAll(other)
+}
+
+// containsAll returns true if all items in s are contained in other.
+func (s Set[T]) containsAll(other Set[T]) bool {
 	for item := range s {
 		if !other.Contains(item) {
 			return false
@@ -111,6 +118,22 @@ func (s Set[T]) Equal(other Set[T]) bool {
 	}
 
 	return true
+}
+
+// IsSuperset returns true if all items in other are contained in s.
+// Returns true if other is empty.
+func (s Set[T]) IsSuperset(other Set[T]) bool {
+	return other.IsSubset(s)
+}
+
+// IsProperSubset returns true if s is a subset of other and not equal.
+func (s Set[T]) IsProperSubset(other Set[T]) bool {
+	return s.IsSubset(other) && !s.Equal(other)
+}
+
+// IsProperSuperset returns true if s is a superset of other and not equal.
+func (s Set[T]) IsProperSuperset(other Set[T]) bool {
+	return s.IsSuperset(other) && !s.Equal(other)
 }
 
 // ToSlice returns the set items as an unsorted slice.

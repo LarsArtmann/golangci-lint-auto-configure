@@ -98,4 +98,104 @@ var _ = Describe("Set", func() {
 		Expect(merged.Contains("b")).To(BeTrue())
 		Expect(merged.Contains("c")).To(BeTrue())
 	})
+
+	Context("Set Operations", func() {
+		It("should compute difference", func() {
+			set1 := types.NewSet("a", "b", "c")
+			set2 := types.NewSet("b", "c")
+			diff := set1.Difference(set2)
+
+			Expect(diff.Len()).To(Equal(1))
+			Expect(diff.Contains("a")).To(BeTrue())
+			Expect(diff.Contains("b")).To(BeFalse())
+		})
+
+		It("should compute intersection", func() {
+			set1 := types.NewSet("a", "b", "c")
+			set2 := types.NewSet("b", "c", "d")
+			intersection := set1.Intersect(set2)
+
+			Expect(intersection.Len()).To(Equal(2))
+			Expect(intersection.Contains("b")).To(BeTrue())
+			Expect(intersection.Contains("c")).To(BeTrue())
+			Expect(intersection.Contains("a")).To(BeFalse())
+		})
+
+		It("should compare equality", func() {
+			set1 := types.NewSet("a", "b", "c")
+			set2 := types.NewSet("a", "b", "c")
+			set3 := types.NewSet("a", "b")
+
+			Expect(set1.Equal(set2)).To(BeTrue())
+			Expect(set1.Equal(set3)).To(BeFalse())
+		})
+
+		It("should check subset", func() {
+			empty := types.NewSet[string]()
+			small := types.NewSet("a")
+			medium := types.NewSet("a", "b")
+			large := types.NewSet("a", "b", "c")
+
+			Expect(empty.IsSubset(large)).To(BeTrue())
+			Expect(small.IsSubset(medium)).To(BeTrue())
+			Expect(medium.IsSubset(medium)).To(BeTrue())
+			Expect(large.IsSubset(small)).To(BeFalse())
+		})
+
+		It("should check superset", func() {
+			empty := types.NewSet[string]()
+			small := types.NewSet("a")
+			medium := types.NewSet("a", "b")
+			large := types.NewSet("a", "b", "c")
+
+			Expect(large.IsSuperset(empty)).To(BeTrue())
+			Expect(large.IsSuperset(small)).To(BeTrue())
+			Expect(medium.IsSuperset(medium)).To(BeTrue())
+			Expect(small.IsSuperset(large)).To(BeFalse())
+		})
+
+		It("should check proper subset", func() {
+			small := types.NewSet("a")
+			medium := types.NewSet("a", "b")
+
+			Expect(small.IsProperSubset(medium)).To(BeTrue())
+			Expect(medium.IsProperSubset(medium)).To(BeFalse())
+			Expect(medium.IsProperSubset(small)).To(BeFalse())
+		})
+
+		It("should check proper superset", func() {
+			small := types.NewSet("a")
+			medium := types.NewSet("a", "b")
+
+			Expect(medium.IsProperSuperset(small)).To(BeTrue())
+			Expect(medium.IsProperSuperset(medium)).To(BeFalse())
+			Expect(small.IsProperSuperset(medium)).To(BeFalse())
+		})
+	})
+
+	Context("Edge Cases", func() {
+		It("should handle difference with empty set", func() {
+			set1 := types.NewSet("a", "b")
+			empty := types.NewSet[string]()
+
+			Expect(set1.Difference(empty)).To(Equal(set1))
+			Expect(empty.Difference(set1)).To(BeEmpty())
+		})
+
+		It("should handle intersection with empty set", func() {
+			set1 := types.NewSet("a", "b")
+			empty := types.NewSet[string]()
+
+			Expect(set1.Intersect(empty)).To(BeEmpty())
+			Expect(empty.Intersect(set1)).To(BeEmpty())
+		})
+
+		It("should handle union with empty set", func() {
+			set1 := types.NewSet("a", "b")
+			empty := types.NewSet[string]()
+			union := set1.Union(empty)
+
+			Expect(union).To(Equal(set1))
+		})
+	})
 })
