@@ -116,7 +116,8 @@ func v2ConfigWithExcludeFiles(files ...string) string {
 run:
   timeout: 5m
 exclude-files:
-` + filesYaml + `linters:
+` + filesYaml + `
+linters:
   enable:
     - errcheck
 `

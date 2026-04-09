@@ -49,6 +49,7 @@
 ### Dependencies Analysis
 
 **Current Libraries:**
+
 - Cobra (CLI) - Standard, well-maintained
 - Charmbracelet Log (logging) - Modern, structured
 - Ginkgo/Gomega (testing) - BDD style, comprehensive
@@ -58,6 +59,7 @@
 - samber/mo (functional programming) - Underutilized
 
 **Potential Additions:**
+
 - lo (lodash for Go) - functional utilities
 - errgroup - parallel error handling
 - golang.org/x/sync/singleflight - deduplication
@@ -68,29 +70,32 @@
 
 ### Priority Matrix: Work vs Impact
 
-| Task | Work | Impact | Priority | Category |
-|------|------|--------|----------|----------|
-| Complete CommandBuilder pattern | Medium | High | 1 | Architecture |
-| Add Set[T].IsSubset/IsSuperset | Low | Medium | 2 | Types |
-| Extract merger subcomponents | High | High | 3 | Refactoring |
-| Use errgroup for parallel ops | Medium | Medium | 4 | Concurrency |
-| Migrate to mo.Option types | Medium | Low | 5 | Types |
-| Add comprehensive Set tests | Low | Medium | 6 | Testing |
-| Document architecture decisions | Low | High | 7 | Documentation |
-| Fix pre-existing test failure | Medium | High | 8 | Bug Fix |
+| Task                            | Work   | Impact | Priority | Category      |
+| ------------------------------- | ------ | ------ | -------- | ------------- |
+| Complete CommandBuilder pattern | Medium | High   | 1        | Architecture  |
+| Add Set[T].IsSubset/IsSuperset  | Low    | Medium | 2        | Types         |
+| Extract merger subcomponents    | High   | High   | 3        | Refactoring   |
+| Use errgroup for parallel ops   | Medium | Medium | 4        | Concurrency   |
+| Migrate to mo.Option types      | Medium | Low    | 5        | Types         |
+| Add comprehensive Set tests     | Low    | Medium | 6        | Testing       |
+| Document architecture decisions | Low    | High   | 7        | Documentation |
+| Fix pre-existing test failure   | Medium | High   | 8        | Bug Fix       |
 
 ---
 
 ## Phase 1: Quick Wins (Low Work, High/Medium Impact)
 
 ### Task 1.1: Complete CommandBuilder Pattern ⭐
+
 **Work:** Medium | **Impact:** High | **Priority:** 1
 
 **Current State:**
+
 - ✅ analyze, configure, report, validate use CommandBuilder
 - ❌ migrate, completion, install-hook use traditional pattern
 
 **Action:**
+
 1. Migrate `newMigrateCommand` to CommandBuilder
 2. Migrate `newCompletionCommand` to CommandBuilder
 3. Migrate `newInstallHookCommand` to CommandBuilder
@@ -101,9 +106,11 @@
 ---
 
 ### Task 1.2: Add Set[T] Utility Methods
+
 **Work:** Low | **Impact:** Medium | **Priority:** 2
 
 **Proposed Additions:**
+
 ```go
 // IsSubset returns true if all items in s are in other
 func (s Set[T]) IsSubset(other Set[T]) bool
@@ -119,17 +126,20 @@ func (s Set[T]) IsProperSuperset(other Set[T]) bool
 ```
 
 **Use Cases:**
+
 - Comparing enabled linters between configs
 - Checking if one exclusion set covers another
 
 ---
 
 ### Task 1.3: Add Comprehensive Set Tests
+
 **Work:** Low | **Impact:** Medium | **Priority:** 6
 
 **Current Coverage:** Union, Difference, Intersect, Equal, basic operations
 
 **Missing:**
+
 - Edge cases (empty sets, nil handling)
 - Property-based tests
 - Benchmarks for large sets
@@ -139,11 +149,13 @@ func (s Set[T]) IsProperSuperset(other Set[T]) bool
 ## Phase 2: Structural Improvements
 
 ### Task 2.1: Refactor Merger.go ⭐⭐
+
 **Work:** High | **Impact:** High | **Priority:** 3
 
 **Current:** 685 lines (95.7% over limit)
 
 **Proposed Extraction:**
+
 ```
 pkg/config/
   merger.go              # Core orchestration (~200 lines)
@@ -155,6 +167,7 @@ pkg/config/
 ```
 
 **Benefits:**
+
 - Each file under 100 lines
 - Easier to test individual merge strategies
 - Clear separation of concerns
@@ -162,14 +175,17 @@ pkg/config/
 ---
 
 ### Task 2.2: Use errgroup for Parallel Operations
+
 **Work:** Medium | **Impact:** Medium | **Priority:** 4
 
 **Candidates for Parallelization:**
+
 1. Loading multiple config files in MergeConfigs
 2. Backup creation operations
 3. Validation checks
 
 **Example:**
+
 ```go
 import "golang.org/x/sync/errgroup"
 
@@ -190,11 +206,13 @@ if err := g.Wait(); err != nil {
 ## Phase 3: Type System Enhancements
 
 ### Task 3.1: Leverage samber/mo Package
+
 **Work:** Medium | **Impact:** Low-Medium | **Priority:** 5
 
 **Current Usage:** Minimal
 
 **Opportunities:**
+
 ```go
 // Replace pointer returns with Option types
 func FindConfig(dir string) mo.Option[string]
@@ -205,6 +223,7 @@ func LoadConfig(path string) mo.Result[*Config]
 ```
 
 **Benefits:**
+
 - Explicit null handling
 - Composable error handling
 - Railway-oriented programming
@@ -212,9 +231,11 @@ func LoadConfig(path string) mo.Result[*Config]
 ---
 
 ### Task 3.2: Add Stringer Implementations
+
 **Work:** Low | **Impact:** Low | **Priority:** - (Nice to have)
 
 **Types missing String() or better formatting:**
+
 - MergeResult
 - MigrationResult
 - ValidationResult
@@ -224,11 +245,13 @@ func LoadConfig(path string) mo.Result[*Config]
 ## Phase 4: Bug Fixes & Quality
 
 ### Task 4.1: Fix Pre-existing Test Failure ⭐
+
 **Work:** Medium | **Impact:** High | **Priority:** 8
 
 **Failure:** `migrateIssuesExcludeFiles` - YAML parsing error
 
 **Investigation Needed:**
+
 1. Check test fixture YAML format
 2. Verify v2ConfigWithExcludeFiles helper generates valid YAML
 3. Fix indentation or quoting issues
@@ -238,9 +261,11 @@ func LoadConfig(path string) mo.Result[*Config]
 ## Phase 5: Documentation
 
 ### Task 5.1: Document Architecture Decisions ⭐
+
 **Work:** Low | **Impact:** High | **Priority:** 7
 
 **Create ADRs (Architecture Decision Records):**
+
 1. ADR-001: Use of Generic Set[T] type
 2. ADR-002: CommandBuilder pattern for CLI
 3. ADR-003: Interface-based design for testability
@@ -252,12 +277,12 @@ func LoadConfig(path string) mo.Result[*Config]
 
 ### Libraries to Consider
 
-| Library | Use Case | Current Status |
-|---------|----------|----------------|
-| samber/lo | Functional utilities | Not used, could replace some loops |
-| golang.org/x/sync/errgroup | Parallel operations | Not used, good for config loading |
-| golang.org/x/sync/singleflight | Deduplication | Not used, good for repeated analysis |
-| github.com/hashicorp/go-multierror | Error aggregation | Could improve error handling |
+| Library                            | Use Case             | Current Status                       |
+| ---------------------------------- | -------------------- | ------------------------------------ |
+| samber/lo                          | Functional utilities | Not used, could replace some loops   |
+| golang.org/x/sync/errgroup         | Parallel operations  | Not used, good for config loading    |
+| golang.org/x/sync/singleflight     | Deduplication        | Not used, good for repeated analysis |
+| github.com/hashicorp/go-multierror | Error aggregation    | Could improve error handling         |
 
 ---
 
@@ -286,6 +311,7 @@ Week 4 (Documentation):
 ## Verification Checklist
 
 After each task:
+
 - [ ] All tests pass (`just test`)
 - [ ] Build succeeds (`go build ./...`)
 - [ ] Lint passes (`just lint`)
