@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"maps"
 	"os"
 	"sort"
 
@@ -38,75 +37,6 @@ func NewMergerWithFS(logger *log.Logger, fs afero.Fs) *Merger {
 		logger: logger,
 		fs:     fs,
 	}
-}
-
-// mergeSettingsMaps merges secondary settings into primary, returning number of changes.
-func (cm *Merger) mergeSettingsMaps(primary, secondary map[string]any) int {
-	changes := 0
-
-	if len(primary) == 0 && len(secondary) > 0 {
-		maps.Copy(primary, secondary)
-
-		changes = len(secondary)
-	} else if len(secondary) > 0 {
-		for key, value := range secondary {
-			if _, exists := primary[key]; !exists {
-				primary[key] = value
-				changes++
-			}
-		}
-	}
-
-	return changes
-}
-
-// mergeStringSlices merges secondary slice into primary slice, returning number of changes.
-func (cm *Merger) mergeStringSlices(primary, secondary []string) int {
-	if len(primary) == 0 && len(secondary) > 0 {
-		return len(secondary)
-	}
-
-	if len(secondary) == 0 {
-		return 0
-	}
-
-	primarySet := types.NewSet(primary...)
-	changes := 0
-
-	for _, p := range secondary {
-		if !primarySet.Contains(p) {
-			primary = append(primary, p)
-			changes++
-		}
-	}
-
-	return changes
-}
-
-// mergePaths merges secondary paths into primary paths, updating primary if empty.
-// Returns the number of changes made.
-func (cm *Merger) mergePaths(primary *[]string, secondary []string) int {
-	if len(*primary) == 0 && len(secondary) > 0 {
-		*primary = secondary
-
-		return len(secondary)
-	}
-
-	if len(secondary) == 0 {
-		return 0
-	}
-
-	primarySet := types.NewSet(*primary...)
-	changes := 0
-
-	for _, p := range secondary {
-		if !primarySet.Contains(p) {
-			*primary = append(*primary, p)
-			changes++
-		}
-	}
-
-	return changes
 }
 
 // MergeResult represents the result of a merge operation.
@@ -157,7 +87,7 @@ func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, err
 	}
 
 	// Sort configs by priority (golangci-lint search order)
-	sortedPaths := cm.sortByPriority(configPaths)
+	sortedPaths := sortByPriority(configPaths)
 	primaryPath := sortedPaths[0]
 	secondaryPaths := sortedPaths[1:]
 
@@ -201,8 +131,7 @@ func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, err
 	return primaryConfig, result, nil
 }
 
-// sortByPriority sorts config paths by golangci-lint search order priority.
-// Lower index = higher priority.
+// Config priority constants for sortByPriority.
 const (
 	// ConfigPriorityYML is the priority for .golangci.yml files.
 	ConfigPriorityYML = iota
@@ -213,42 +142,6 @@ const (
 	// ConfigPriorityJSON is the priority for .golangci.json files.
 	ConfigPriorityJSON
 )
-
-// configPriorityMap returns the priority for a config filename.
-func configPriorityMap() map[string]int {
-	return map[string]int{
-		".golangci.yml":  ConfigPriorityYML,
-		".golangci.yaml": ConfigPriorityYAML,
-		".golangci.toml": ConfigPriorityTOML,
-		".golangci.json": ConfigPriorityJSON,
-	}
-}
-
-func (cm *Merger) sortByPriority(paths []string) []string {
-	priorityMap := configPriorityMap()
-
-	sorted := make([]string, len(paths))
-	copy(sorted, paths)
-
-	sort.Slice(sorted, func(i, j int) bool {
-		iPriority := priorityMap[getFilename(sorted[i])]
-		jPriority := priorityMap[getFilename(sorted[j])]
-
-		return iPriority < jPriority
-	})
-
-	return sorted
-}
-
-func getFilename(path string) string {
-	for i := len(path) - 1; i >= 0; i-- {
-		if path[i] == '/' || path[i] == '\\' {
-			return path[i+1:]
-		}
-	}
-
-	return path
-}
 
 // mergeConfigInto merges secondary config into primary.
 // Primary values take precedence; secondary fills in gaps.
@@ -379,7 +272,7 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 	}
 
 	// Merge settings (deep merge for linter-specific settings)
-	changes += cm.mergeSettingsMaps(primary.Settings, secondary.Settings)
+	changes += mergeSettingsMaps(primary.Settings, secondary.Settings)
 
 	// Merge exclusions (complex structure)
 	changes += cm.mergeLintersExclusions(&primary.Exclusions, &secondary.Exclusions)
@@ -448,7 +341,7 @@ func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsCo
 		primary.Paths = secondary.Paths
 		changes++
 	} else if len(secondary.Paths) > 0 {
-		changes += cm.mergeStringSlices(primary.Paths, secondary.Paths)
+		changes += mergeStringSlices(primary.Paths, secondary.Paths)
 	}
 
 	if len(primary.PathsExcept) == 0 && len(secondary.PathsExcept) > 0 {
@@ -501,7 +394,7 @@ func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) in
 	}
 
 	// Merge settings
-	changes += cm.mergeSettingsMaps(primary.Settings, secondary.Settings)
+	changes += mergeSettingsMaps(primary.Settings, secondary.Settings)
 
 	// Merge exclusions
 	changes += cm.mergeFormattersExclusions(&primary.Exclusions, &secondary.Exclusions)
@@ -522,7 +415,7 @@ func (cm *Merger) mergeFormattersExclusions(primary, secondary *FormattersExclus
 		primary.Paths = secondary.Paths
 		changes++
 	} else if len(secondary.Paths) > 0 {
-		changes += cm.mergePaths(&primary.Paths, secondary.Paths)
+		changes += mergePaths(&primary.Paths, secondary.Paths)
 	}
 
 	return changes
@@ -633,7 +526,7 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 	// Create backups of all configs before modifying
 	allConfigs := append([]string{result.PrimaryConfig}, result.MergedConfigs...)
 	for _, path := range allConfigs {
-		backupPath, err := cm.createBackup(path)
+		backupPath, err := createBackup(cm.fs, path)
 		if err != nil {
 			cm.logger.Warnf("Failed to create backup for %s: %v", path, err)
 
@@ -641,6 +534,7 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 		}
 
 		result.BackedUpConfigs[path] = backupPath
+
 
 		cm.logger.Debugf("Created backup: %s -> %s", path, backupPath)
 	}
@@ -669,21 +563,4 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 	}
 
 	return nil
-}
-
-// createBackup creates a backup of the given config file.
-func (cm *Merger) createBackup(path string) (string, error) {
-	data, err := afero.ReadFile(cm.fs, path)
-	if err != nil {
-		return "", fmt.Errorf("failed to read config for backup: %w", err)
-	}
-
-	backupPath := path + ".merge-backup"
-
-	err = afero.WriteFile(cm.fs, backupPath, data, backupFilePermission)
-	if err != nil {
-		return "", fmt.Errorf("failed to write backup: %w", err)
-	}
-
-	return backupPath, nil
 }
