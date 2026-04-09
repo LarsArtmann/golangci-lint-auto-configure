@@ -26,7 +26,7 @@ func analysisError(
 func dryRunResult(counts fixCounts) types.MigrationResultType {
 	return types.OkMigration(&types.MigrationResult{
 		FixesApplied: counts.total(),
-		Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", counts.total()),
+		Message:      fmt.Sprintf("[DRY-RUN] Would apply %d fixes", counts.total()),
 		NextSteps: []string{
 			"Run without --dry-run to apply these fixes",
 			"Then run 'golangci-lint run --fix' to auto-fix code issues",
