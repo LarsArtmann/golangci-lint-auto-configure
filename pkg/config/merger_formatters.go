@@ -55,7 +55,7 @@ func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) in
 
 // mergeFormattersExclusions merges formatter exclusion configurations.
 func (cm *Merger) mergeFormattersExclusions(primary, secondary *FormattersExclusionsConfig) int {
-	changes := MergeCommonExclusionFields(
+	changes := mergeCommonExclusionFields(
 		primary, secondary,
 		func(c *FormattersExclusionsConfig) string { return c.Generated },
 		func(c *FormattersExclusionsConfig, v string) { c.Generated = v },

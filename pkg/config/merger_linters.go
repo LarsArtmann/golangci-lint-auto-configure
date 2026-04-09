@@ -61,8 +61,8 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 	return changes
 }
 
-// MergeCommonExclusionFields merges fields common to both linter and formatter exclusions.
-func MergeCommonExclusionFields[T any](
+// mergeCommonExclusionFields merges fields common to both linter and formatter exclusions.
+func mergeCommonExclusionFields[T any](
 	primary, secondary *T,
 	getGenerated func(*T) string,
 	setGenerated func(*T, string),
@@ -88,7 +88,7 @@ func MergeCommonExclusionFields[T any](
 
 // mergeLintersExclusions merges linter exclusion configurations.
 func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsConfig) int {
-	changes := MergeCommonExclusionFields(
+	changes := mergeCommonExclusionFields(
 		primary, secondary,
 		func(c *LintersExclusionsConfig) string { return c.Generated },
 		func(c *LintersExclusionsConfig, v string) { c.Generated = v },
