@@ -1,334 +1,566 @@
-# Comprehensive Analysis & Execution Plan
+# Comprehensive Execution Plan: Code Quality & Architecture Improvements
 
 **Date:** 2026-04-09  
-**Status:** In Progress  
-**Current Commit:** a0b9e24
+**Status:** Ready for Execution  
+**Priority:** High Impact, Incremental Delivery
 
 ---
 
-## Part 1: What Was Forgotten / Could Be Improved
+## Phase 1: What I Forgot / Could Improve
 
-### From Previous Session
+### Critical Issues Discovered
 
-1. **Commit Granularity**: Changes were bundled together rather than being committed individually as each pattern was migrated. This makes reviewing harder.
+1. **Go Build Cache Corruption**
+   - Build cache has missing files, preventing compilation
+   - Need to clear and rebuild cache
+   - Impact: BLOCKING - cannot run tests
 
-2. **Status File Updates**: Did not create a new status report file documenting the completed work (now addressed in this document).
+2. **LSP False Positives**
+   - categorizer_test.go shows errors at lines 36, 110
+   - These are likely golangci-lint-ls artifacts, not real errors
+   - Need to verify actual compilation status
 
-3. **CommandBuilder Decision**: The CommandBuilder pattern was applied inconsistently:
-   - ✅ analyze, configure, report, validate now use CommandBuilder
-   - ❌ migrate, completion, install-hook still use traditional approaches
-   - **Decision:** Complete the pattern for all commands (medium effort, removes dependency threading)
+3. **File Size Violations** (9 files over 350 lines)
+   - merger.go: 689 lines (+339, 96.9% over) - CRITICAL
+   - migrator_test.go: 648 lines (+298, 85.1% over) - HIGH
+   - fixer.go: 466 lines (+116, 33.1% over) - MEDIUM
+   - loader.go: 422 lines (+72, 20.6% over) - LOW
 
-4. **Pre-existing Test Failure**: `migrateIssuesExcludeFiles` test has been failing since before my changes - needs investigation/fixing.
-
-5. **File Size Warnings**: Multiple files exceed the 350 line limit:
-   - pkg/config/merger.go: 685 lines (+335, 95.7% over) - CRITICAL
-   - pkg/migration/migrator_test.go: 640 lines (+290, 82.9% over) - CRITICAL
-   - pkg/linter/fixer.go: 466 lines (+116, 33.1% over) - Warning
-
----
-
-## Part 2: Current State Analysis
-
-### Architecture Strengths
-
-1. **Strong Type System**: Extensive use of strongly-typed wrappers (LinterName, ConfigPath, Version, etc.)
-2. **Interface-Based Design**: Good separation of concerns with ConfigLoader, LinterAnalyzer, LinterFixer interfaces
-3. **Generic Set[T] Implementation**: Clean, reusable set operations with Union, Difference, Intersect, Equal
-4. **CommandBuilder Pattern**: Emerging pattern for CLI command construction (partially applied)
-5. **Functional Options Pattern**: Used in CommandBuilder.Build() with variadic options
-
-### Architecture Weaknesses
-
-1. **Inconsistent Patterns**: CommandBuilder partially applied creates cognitive load
-2. **Large Files**: Several files exceed maintainability thresholds (350 lines)
-3. **Missing Set Operations**: Some Set[T] methods could be more useful (IsSubset, IsSuperset)
-4. **Limited Error Wrapping**: Some errors lack context for debugging
-5. **Unused Interface Components**: ConfigLoader combines many interfaces, some unused
-
-### Dependencies Analysis
-
-**Current Libraries:**
-
-- Cobra (CLI) - Standard, well-maintained
-- Charmbracelet Log (logging) - Modern, structured
-- Ginkgo/Gomega (testing) - BDD style, comprehensive
-- Afero (filesystem abstraction) - Good for testing
-- Templ (HTML generation) - Type-safe templates
-- Validator (validation) - Industry standard
-- samber/mo (functional programming) - Underutilized
-
-**Potential Additions:**
-
-- lo (lodash for Go) - functional utilities
-- errgroup - parallel error handling
-- golang.org/x/sync/singleflight - deduplication
+4. **Missing Architecture Documentation**
+   - No ADRs for key decisions
+   - Future maintainers lack context
+   - Technical debt accumulating
 
 ---
 
-## Part 3: Multi-Step Execution Plan
+## Phase 2: Multi-Step Execution Plan
 
-### Priority Matrix: Work vs Impact
+### Step 1: Fix Build Environment (BLOCKING) ⚡
 
-| Task                            | Work   | Impact | Priority | Category      |
-| ------------------------------- | ------ | ------ | -------- | ------------- |
-| Complete CommandBuilder pattern | Medium | High   | 1        | Architecture  |
-| Add Set[T].IsSubset/IsSuperset  | Low    | Medium | 2        | Types         |
-| Extract merger subcomponents    | High   | High   | 3        | Refactoring   |
-| Use errgroup for parallel ops   | Medium | Medium | 4        | Concurrency   |
-| Migrate to mo.Option types      | Medium | Low    | 5        | Types         |
-| Add comprehensive Set tests     | Low    | Medium | 6        | Testing       |
-| Document architecture decisions | Low    | High   | 7        | Documentation |
-| Fix pre-existing test failure   | Medium | High   | 8        | Bug Fix       |
+**Work:** Low | **Impact:** CRITICAL
+
+- [ ] Clear Go build cache
+- [ ] Verify all packages compile
+- [ ] Run full test suite
+- [ ] Fix any actual compilation errors
+
+**Verification:** `go build ./... && ginkgo -r ./...`
 
 ---
 
-## Phase 1: Quick Wins (Low Work, High/Medium Impact)
+### Step 2: Create ADR-001 - Set[T] Type Decision 📝
 
-### Task 1.1: Complete CommandBuilder Pattern ⭐
+**Work:** Low | **Impact:** HIGH
 
-**Work:** Medium | **Impact:** High | **Priority:** 1
+Document:
 
-**Current State:**
+- Why generic Set[T] was introduced
+- Comparison with map[T]struct{}
+- Performance considerations
+- Migration strategy from old sets
 
-- ✅ analyze, configure, report, validate use CommandBuilder
-- ❌ migrate, completion, install-hook use traditional pattern
-
-**Action:**
-
-1. Migrate `newMigrateCommand` to CommandBuilder
-2. Migrate `newCompletionCommand` to CommandBuilder
-3. Migrate `newInstallHookCommand` to CommandBuilder
-4. Update tests as needed
-
-**Rationale:** Consistency reduces cognitive load. The pattern removes dependency threading through parameters.
+**Template:** Use ADR template from architecture standards
 
 ---
 
-### Task 1.2: Add Set[T] Utility Methods
+### Step 3: Create ADR-002 - CommandBuilder Pattern 📝
 
-**Work:** Low | **Impact:** Medium | **Priority:** 2
+**Work:** Low | **Impact:** HIGH
 
-**Proposed Additions:**
+Document:
+
+- Problem: CLI commands had scattered dependency management
+- Solution: CommandBuilder with common dependencies
+- Benefits: Testability, consistency, reduced boilerplate
+- Tradeoffs: Slight increase in abstraction
+
+---
+
+### Step 4: Create ADR-003 - Interface-Based Design 📝
+
+**Work:** Low | **Impact:** HIGH
+
+Document:
+
+- ConfigLoader interface
+- LinterAnalyzer interface
+- LinterFixer interface
+- Benefits for testing and mocking
+
+---
+
+### Step 5: Refactor merger.go - Extract Helper Functions 🔧
+
+**Work:** Medium | **Impact:** HIGH
+
+**Strategy:** Extract internal helpers first, then config sections
+
+Files to create:
+
+- `merger_helpers.go`: mergeSettingsMaps, mergeStringSlices, mergePaths
+- Keep merger.go for public API and orchestration
+
+**Benefits:**
+
+- Reduces merger.go by ~100 lines
+- Separates concerns
+- Easier to test helpers independently
+
+---
+
+### Step 6: Refactor merger.go - Extract Config Section Mergers 🔧
+
+**Work:** High | **Impact:** HIGH
+
+**Strategy:** Create merger sections by config type
+
+Files to create:
+
+- `merger_run.go`: Run config merging (timeout, tests, etc.)
+- `merger_linters.go`: Linters enable/disable/Settings
+- `merger_formatters.go`: Formatters configuration
+- `merger_issues.go`: Issues configuration
+- `merger_output.go`: Output configuration
+- `merger_exclusions.go`: Exclusions configuration
+
+**Pattern:**
 
 ```go
-// IsSubset returns true if all items in s are in other
-func (s Set[T]) IsSubset(other Set[T]) bool
+// merger_run.go
+package config
 
-// IsSuperset returns true if all items in other are in s
-func (s Set[T]) IsSuperset(other Set[T]) bool
-
-// IsProperSubset returns true if s is a subset and not equal
-func (s Set[T]) IsProperSubset(other Set[T]) bool
-
-// IsProperSuperset returns true if s is a superset and not equal
-func (s Set[T]) IsProperSuperset(other Set[T]) bool
+func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
+    // Implementation
+}
 ```
 
-**Use Cases:**
-
-- Comparing enabled linters between configs
-- Checking if one exclusion set covers another
+**Verification:** All existing tests pass without modification
 
 ---
 
-### Task 1.3: Add Comprehensive Set Tests
+### Step 7: Leverage samber/mo for Better Type Safety 🔄
 
-**Work:** Low | **Impact:** Medium | **Priority:** 6
+**Work:** Medium | **Impact:** MEDIUM
 
-**Current Coverage:** Union, Difference, Intersect, Equal, basic operations
+**Current Pattern (pointer returns):**
 
-**Missing:**
-
-- Edge cases (empty sets, nil handling)
-- Property-based tests
-- Benchmarks for large sets
-
----
-
-## Phase 2: Structural Improvements
-
-### Task 2.1: Refactor Merger.go ⭐⭐
-
-**Work:** High | **Impact:** High | **Priority:** 3
-
-**Current:** 685 lines (95.7% over limit)
-
-**Proposed Extraction:**
-
+```go
+func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, error)
 ```
-pkg/config/
-  merger.go              # Core orchestration (~200 lines)
-  merger_run.go          # RunConfig merging (~80 lines)
-  merger_linters.go      # LintersConfig merging (~100 lines)
-  merger_formatters.go   # FormattersConfig merging (~80 lines)
-  merger_issues.go       # IssuesConfig merging (~80 lines)
-  merger_output.go       # OutputConfig merging (~60 lines)
+
+**Improved Pattern (Option types):**
+
+```go
+func (cm *Merger) MergeConfigs(configPaths []string) (mo.Option[Config], mo.Option[MergeResult], error)
 ```
 
 **Benefits:**
 
-- Each file under 100 lines
-- Easier to test individual merge strategies
-- Clear separation of concerns
+- Explicit nil handling
+- Functional operations (Map, FlatMap)
+- Better composition
+
+**Start with:** New functions, migrate existing gradually
 
 ---
 
-### Task 2.2: Use errgroup for Parallel Operations
+### Step 8: Use errgroup for Parallel Config Loading ⚡
 
-**Work:** Medium | **Impact:** Medium | **Priority:** 4
+**Work:** Medium | **Impact:** MEDIUM
 
-**Candidates for Parallelization:**
-
-1. Loading multiple config files in MergeConfigs
-2. Backup creation operations
-3. Validation checks
-
-**Example:**
+**Current:** Sequential loading in MergeConfigs
+**Improved:** Parallel loading with errgroup
 
 ```go
 import "golang.org/x/sync/errgroup"
 
-g, ctx := errgroup.WithContext(ctx)
-for _, path := range configPaths {
-    path := path // capture loop var
-    g.Go(func() error {
-        return validateConfig(ctx, path)
-    })
+func (cm *Merger) loadConfigsParallel(paths []string) ([]Config, error) {
+    var g errgroup.Group
+    configs := make([]Config, len(paths))
+
+    for i, path := range paths {
+        g.Go(func() error {
+            config, err := cm.loadConfig(path)
+            if err != nil {
+                return err
+            }
+            configs[i] = config
+            return nil
+        })
+    }
+
+    return configs, g.Wait()
 }
-if err := g.Wait(); err != nil {
-    return err
-}
-```
-
----
-
-## Phase 3: Type System Enhancements
-
-### Task 3.1: Leverage samber/mo Package
-
-**Work:** Medium | **Impact:** Low-Medium | **Priority:** 5
-
-**Current Usage:** Minimal
-
-**Opportunities:**
-
-```go
-// Replace pointer returns with Option types
-func FindConfig(dir string) mo.Option[string]
-func GetLinterVersion() mo.Option[Version]
-
-// Use Result type for fallible operations
-func LoadConfig(path string) mo.Result[*Config]
 ```
 
 **Benefits:**
 
-- Explicit null handling
-- Composable error handling
-- Railway-oriented programming
+- Faster merging with multiple configs
+- Clean error handling
+- Bounded concurrency
 
 ---
 
-### Task 3.2: Add Stringer Implementations
+### Step 9: Add Set[T] Benchmarks 📊
 
-**Work:** Low | **Impact:** Low | **Priority:** - (Nice to have)
+**Work:** Low | **Impact:** LOW
 
-**Types missing String() or better formatting:**
+Create `pkg/types/set_bench_test.go`:
 
-- MergeResult
-- MigrationResult
-- ValidationResult
+- Benchmark Add/Contains for small sets (10 items)
+- Benchmark Add/Contains for medium sets (100 items)
+- Benchmark Add/Contains for large sets (10000 items)
+- Benchmark Intersect/Difference/Union
 
----
+**Benefits:**
 
-## Phase 4: Bug Fixes & Quality
-
-### Task 4.1: Fix Pre-existing Test Failure ⭐
-
-**Work:** Medium | **Impact:** High | **Priority:** 8
-
-**Failure:** `migrateIssuesExcludeFiles` - YAML parsing error
-
-**Investigation Needed:**
-
-1. Check test fixture YAML format
-2. Verify v2ConfigWithExcludeFiles helper generates valid YAML
-3. Fix indentation or quoting issues
+- Performance regression detection
+- Optimization guidance
+- Documentation of performance characteristics
 
 ---
 
-## Phase 5: Documentation
+### Step 10: Consolidate Duplicate Validation Logic 🔧
 
-### Task 5.1: Document Architecture Decisions ⭐
+**Work:** Medium | **Impact:** MEDIUM
 
-**Work:** Low | **Impact:** High | **Priority:** 7
+**Current:** Validation scattered across packages
+**Target:** Centralized validation in `pkg/types/validation.go`
 
-**Create ADRs (Architecture Decision Records):**
+Extract:
 
-1. ADR-001: Use of Generic Set[T] type
-2. ADR-002: CommandBuilder pattern for CLI
-3. ADR-003: Interface-based design for testability
-4. ADR-004: BDD testing with Ginkgo/Gomega
+- Config validation
+- Linter name validation
+- Path validation
 
----
+**Benefits:**
 
-## Phase 6: Established Libraries Integration
-
-### Libraries to Consider
-
-| Library                            | Use Case             | Current Status                       |
-| ---------------------------------- | -------------------- | ------------------------------------ |
-| samber/lo                          | Functional utilities | Not used, could replace some loops   |
-| golang.org/x/sync/errgroup         | Parallel operations  | Not used, good for config loading    |
-| golang.org/x/sync/singleflight     | Deduplication        | Not used, good for repeated analysis |
-| github.com/hashicorp/go-multierror | Error aggregation    | Could improve error handling         |
+- Single source of truth
+- Reusable validation
+- Consistent error messages
 
 ---
 
-## Execution Order Recommendation
+### Step 11: Refactor migrator_test.go - Extract Helpers 🔧
+
+**Work:** Medium | **Impact:** MEDIUM
+
+**Current:** 648 lines with many helper functions
+**Target:** Extract to `pkg/migration/testhelpers.go`
+
+Helpers to extract:
+
+- `v2ConfigWithExcludeFiles`
+- `v2ConfigWithExcludeDirs`
+- `runMigration`
+- `testMigrationWithConfig`
+- `testSimpleMigration`
+
+**Benefits:**
+
+- Reduces test file size
+- Reusable test fixtures
+- Clearer test intent
+
+---
+
+### Step 12: Optimize Pre-Commit Hook Performance ⚡
+
+**Work:** Medium | **Impact:** MEDIUM
+
+**Current Issues:**
+
+- Library policy scanner: ~2.2s
+- AST analyzer: failing with unknown command
+- gitleaks: scanning all commits
+
+**Improvements:**
+
+- Cache library policy results
+- Fix AST analyzer command
+- Skip slow scans on doc-only changes
+
+---
+
+### Step 13: Create ADR-004 - BDD Testing Approach 📝
+
+**Work:** Low | **Impact:** MEDIUM
+
+Document:
+
+- Why Ginkgo/Gomega over standard testing
+- Describe/Context/It pattern
+- Table-driven tests with Ginkgo
+- When to use standard testing
+
+---
+
+### Step 14: Add Property-Based Tests 🧪
+
+**Work:** High | **Impact:** LOW
+
+Consider adding `testing/quick` or `pgregory/rapid` for:
+
+- Set operation properties (commutativity, associativity)
+- Config parsing round-trips
+- Migration idempotency
+
+**Benefits:**
+
+- Find edge cases
+- Document invariants
+- Regression prevention
+
+---
+
+### Step 15: Extract detector.go Subcomponents 🔧
+
+**Work:** Medium | **Impact:** LOW
+
+**Current:** 372 lines handling multiple detection strategies
+**Target:** Split by detection type
+
+Files:
+
+- `detector_framework.go`: Web framework detection
+- `detector_project.go`: Project type detection
+- `detector_patterns.go`: Pattern matching
+
+---
+
+## Phase 3: Execution Priority Matrix
+
+| Step | Task                      | Work   | Impact   | Priority |
+| ---- | ------------------------- | ------ | -------- | -------- |
+| 1    | Fix build environment     | Low    | CRITICAL | P0       |
+| 2    | ADR-001: Set[T]           | Low    | HIGH     | P1       |
+| 3    | ADR-002: CommandBuilder   | Low    | HIGH     | P1       |
+| 4    | ADR-003: Interfaces       | Low    | HIGH     | P1       |
+| 5    | Extract merger helpers    | Medium | HIGH     | P1       |
+| 6    | Extract merger sections   | High   | HIGH     | P1       |
+| 7    | samber/mo integration     | Medium | MEDIUM   | P2       |
+| 8    | errgroup parallel loading | Medium | MEDIUM   | P2       |
+| 9    | Set benchmarks            | Low    | LOW      | P3       |
+| 10   | Validation consolidation  | Medium | MEDIUM   | P2       |
+| 11   | migrator_test helpers     | Medium | MEDIUM   | P2       |
+| 12   | Pre-commit optimization   | Medium | MEDIUM   | P2       |
+| 13   | ADR-004: BDD Testing      | Low    | MEDIUM   | P2       |
+| 14   | Property-based tests      | High   | LOW      | P3       |
+| 15   | detector subcomponents    | Medium | LOW      | P3       |
+
+---
+
+## Phase 4: Reflection on Existing Code
+
+### What We Already Have ✅
+
+1. **Set[T] Type** (`pkg/types/set.go`)
+   - Comprehensive methods: Add, Remove, Contains, Union, Intersect, Difference
+   - Set operations: IsSubset, IsSuperset, IsProperSubset, IsProperSuperset
+   - Generic, type-safe
+   - **Use for:** Any collection operations, deduplication
+
+2. **CommandBuilder** (`internal/cli/cmd_builder.go`)
+   - Dependency injection pattern
+   - Common dependencies: logger, analyzer, configLoader
+   - **Use for:** New CLI commands
+
+3. **samber/mo** (in go.mod)
+   - Option[T] for nullable values
+   - Result[T] for fallible operations
+   - **Use for:** Better error handling, functional composition
+
+4. **errgroup** (in go.mod via golang.org/x/sync)
+   - Parallel error handling
+   - **Use for:** Parallel config loading
+
+5. **Interface Design** (`pkg/types/types.go`)
+   - ConfigLoader, LinterAnalyzer, LinterFixer
+   - **Use for:** Test mocking, dependency injection
+
+### What We Should Add 📦
+
+1. **singleflight** (golang.org/x/sync/singleflight)
+   - Deduplicate concurrent calls
+   - **Use for:** Config loading cache
+
+2. **lo** (samber/lo)
+   - Functional utilities: Map, Filter, Reduce
+   - **Consider for:** Collection operations (but we have Set[T])
+
+---
+
+## Phase 5: Type Model Improvements
+
+### Current Architecture
+
+```go
+// Returns pointers, can be nil
+func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, error)
+
+// Returns slices, empty if none
+func (cm *Merger) mergeStringSlices(primary, secondary []string) int
+```
+
+### Improved Architecture
+
+```go
+// Returns Option types, explicit about emptiness
+func (cm *Merger) MergeConfigs(configPaths []string) (mo.Option[Config], mo.Option[MergeResult], error)
+
+// Returns Result type for fallible operations
+func (cm *Merger) LoadConfig(path string) mo.Result[Config]
+
+// Set[T] for collections
+type LinterSet = types.Set[types.LinterName]
+```
+
+### Benefits
+
+1. **Type Safety:** nil handling is explicit
+2. **Composition:** Map/FlatMap chain operations
+3. **Clarity:** Return types document behavior
+4. **Testing:** Easier to assert on Option/Result states
+
+---
+
+## Phase 6: How to Use Established Libraries
+
+### samber/mo Integration Strategy
+
+**Step 1: New Functions**
+
+```go
+func LoadConfigSafe(path string) mo.Result[Config] {
+    config, err := LoadConfig(path)
+    if err != nil {
+        return mo.Err[Config](err)
+    }
+    return mo.Ok(config)
+}
+```
+
+**Step 2: Gradual Migration**
+
+- Keep old functions for backward compatibility
+- Add new functions with mo types
+- Deprecate old functions over time
+
+**Step 3: Full Migration**
+
+- Remove pointer returns
+- Use Option for optional values
+- Use Result for fallible operations
+
+### errgroup Integration Strategy
+
+**Step 1: Identify Parallelizable Operations**
+
+- Config loading in MergeConfigs
+- Validation checks
+- File operations
+
+**Step 2: Create Parallel Versions**
+
+```go
+func (cm *Merger) MergeConfigsParallel(configPaths []string) (*Config, *MergeResult, error)
+```
+
+**Step 3: Benchmark and Compare**
+
+- Measure sequential vs parallel
+- Only use parallel when beneficial
+
+---
+
+## Execution Checklist
+
+### Before Starting
+
+- [ ] Clear Go build cache
+- [ ] Verify all tests pass
+- [ ] Commit current state
+
+### During Execution
+
+- [ ] Run tests after each change
+- [ ] Commit each self-contained change
+- [ ] Update documentation
+
+### After Completion
+
+- [ ] Run full test suite
+- [ ] Update status report
+- [ ] Push to remote
+- [ ] Review changes
+
+---
+
+## Top Question: How to Split merger.go Without Breaking Changes?
+
+### Challenge
+
+merger.go has:
+
+- Public API: Merger struct, MergeConfigs, MergeResult
+- Private helpers: mergeSettingsMaps, mergeStringSlices, mergePaths
+- Config section mergers: mergeRunConfig, mergeLintersConfig, etc.
+
+### Proposed Solution
+
+**Step 1: Extract Private Helpers**
 
 ```
-Week 1 (Immediate):
-├── Task 1.1: Complete CommandBuilder
-├── Task 1.2: Add Set[T] methods
-└── Task 4.1: Fix test failure
+pkg/config/
+├── merger.go (public API, reduced by ~60 lines)
+└── merger_helpers.go (private helpers, ~60 lines)
+```
 
-Week 2 (Structural):
-├── Task 2.1: Refactor merger.go
-└── Task 1.3: Add Set tests
+**Step 2: Extract Config Section Interfaces**
 
-Week 3 (Enhancement):
-├── Task 2.2: Use errgroup
-└── Task 3.1: Leverage mo package
+```
+pkg/config/
+├── merger.go (orchestration)
+├── merger_run.go (RunConfig merging)
+├── merger_linters.go (LintersConfig merging)
+└── ...
+```
 
-Week 4 (Documentation):
-└── Task 5.1: Document architecture
+**Step 3: Maintain Backward Compatibility**
+
+- Keep Merger struct in merger.go
+- Keep MergeConfigs in merger.go
+- Use internal functions from other files
+
+### Verification
+
+After refactoring:
+
+```bash
+go build ./...
+ginkgo -r ./pkg/config/...
+# All tests should pass without modification
 ```
 
 ---
 
-## Verification Checklist
+## Summary
 
-After each task:
+This execution plan provides:
 
-- [ ] All tests pass (`just test`)
-- [ ] Build succeeds (`go build ./...`)
-- [ ] Lint passes (`just lint`)
-- [ ] No new file size violations
-- [ ] Commit with descriptive message
-- [ ] Update this document
+1. **Immediate fixes** (build cache, ADRs)
+2. **High-impact refactoring** (merger.go split)
+3. **Type system improvements** (samber/mo integration)
+4. **Performance optimizations** (errgroup, benchmarks)
+5. **Documentation** (ADRs, property tests)
+
+**Recommended Start:** Steps 1-6 (build fix + ADRs + merger refactoring)
+
+**Estimated Time:** 2-3 focused sessions
+**Impact:** Significant code quality and maintainability improvements
 
 ---
 
-## Questions for User
-
-1. **CommandBuilder Priority:** Should I prioritize completing CommandBuilder for all commands, or is the current partial state acceptable?
-
-2. **Merger Refactoring:** The merger.go file is 685 lines (95% over limit). Should I prioritize splitting it into smaller files?
-
-3. **Library Adoption:** Would you prefer to adopt samber/lo for functional utilities, or keep the codebase dependency-light?
-
-4. **Test Failure:** The `migrateIssuesExcludeFiles` test has been failing. Should I prioritize fixing this pre-existing issue?
-
-5. **Scope:** Should I proceed with implementing all phases, or focus on a specific subset?
+_Plan generated by Crush AI Assistant_
+_Date: 2026-04-09_
+_Assisted-by: Kimi K2.5 via Crush <crush@charm.land>_
