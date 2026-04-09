@@ -15,9 +15,10 @@ func makeStrings(n int) []string {
 // makeStringsOffset generates a slice of n strings starting from offset.
 func makeStringsOffset(offset, n int) []string {
 	result := make([]string, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		result[i] = fmt.Sprintf("element_%d", offset+i)
 	}
+
 	return result
 }
 
@@ -28,6 +29,7 @@ func BenchmarkAdd(b *testing.B) {
 	for _, size := range sizes {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
 			s := NewSet(makeStrings(size)...)
+
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
@@ -45,6 +47,7 @@ func BenchmarkContains(b *testing.B) {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
 			s := NewSet(makeStrings(size)...)
 			element := fmt.Sprintf("element_%d", size/2) // Middle element
+
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
@@ -62,6 +65,7 @@ func BenchmarkUnion(b *testing.B) {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
 			s1 := NewSet(makeStrings(size)...)
 			s2 := NewSet(makeStringsOffset(size, size)...)
+
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
@@ -79,6 +83,7 @@ func BenchmarkIntersect(b *testing.B) {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
 			s1 := NewSet(makeStrings(size)...)
 			s2 := NewSet(makeStringsOffset(size/2, size)...)
+
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
@@ -96,6 +101,7 @@ func BenchmarkDifference(b *testing.B) {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
 			s1 := NewSet(makeStrings(size)...)
 			s2 := NewSet(makeStringsOffset(size/2, size)...)
+
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
@@ -113,6 +119,7 @@ func BenchmarkIsSubset(b *testing.B) {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
 			s1 := NewSet(makeStrings(size / 2)...)
 			s2 := NewSet(makeStrings(size)...)
+
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {

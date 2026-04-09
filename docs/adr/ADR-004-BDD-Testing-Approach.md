@@ -110,16 +110,16 @@ Describe("Component")
 
 ## Gomega Matchers Cheatsheet
 
-| Matcher | Purpose | Example |
-|---------|---------|---------|
-| `Equal()` | Exact equality | `Expect(x).To(Equal(42))` |
-| `BeNil()` | Nil check | `Expect(err).To(BeNil())` |
-| `BeTrue()/BeFalse()` | Boolean | `Expect(ok).To(BeTrue())` |
-| `HaveLen()` | Length check | `Expect(slice).To(HaveLen(3))` |
-| `ContainElement()` | Contains | `Expect(list).To(ContainElement("a"))` |
-| `MatchError()` | Error message | `Expect(err).To(MatchError("not found"))` |
-| `Succeed()` | No error | `Expect(fn()).To(Succeed())` |
-| `And()/Or()` | Composition | `Expect(x).To(And(BeTrue(), HaveLen(2)))` |
+| Matcher              | Purpose        | Example                                   |
+| -------------------- | -------------- | ----------------------------------------- |
+| `Equal()`            | Exact equality | `Expect(x).To(Equal(42))`                 |
+| `BeNil()`            | Nil check      | `Expect(err).To(BeNil())`                 |
+| `BeTrue()/BeFalse()` | Boolean        | `Expect(ok).To(BeTrue())`                 |
+| `HaveLen()`          | Length check   | `Expect(slice).To(HaveLen(3))`            |
+| `ContainElement()`   | Contains       | `Expect(list).To(ContainElement("a"))`    |
+| `MatchError()`       | Error message  | `Expect(err).To(MatchError("not found"))` |
+| `Succeed()`          | No error       | `Expect(fn()).To(Succeed())`              |
+| `And()/Or()`         | Composition    | `Expect(x).To(And(BeTrue(), HaveLen(2)))` |
 
 ---
 
@@ -189,11 +189,11 @@ Use standard Go testing when:
 
 ## Alternatives Considered
 
-| Alternative | Pros | Cons | Verdict |
-|-------------|------|------|---------|
-| Standard Go testing | No deps, familiar | Verbose, poor documentation | Rejected for most tests |
-| Testify | Good assertions | Still imperative style | Rejected |
-| **Ginkgo/Gomega** | BDD style, readable | DSL to learn, dot imports | **Accepted** |
+| Alternative         | Pros                | Cons                        | Verdict                 |
+| ------------------- | ------------------- | --------------------------- | ----------------------- |
+| Standard Go testing | No deps, familiar   | Verbose, poor documentation | Rejected for most tests |
+| Testify             | Good assertions     | Still imperative style      | Rejected                |
+| **Ginkgo/Gomega**   | BDD style, readable | DSL to learn, dot imports   | **Accepted**            |
 
 ---
 

@@ -190,11 +190,11 @@ type ConfigLoader interface {
 
 ## Alternatives Considered
 
-| Alternative | Pros | Cons | Verdict |
-|-------------|------|------|---------|
-| No interfaces, concrete types | Simple, direct | Un-testable, tightly coupled | Rejected |
-| Mocking frameworks | Powerful mocks | External dependency, complexity | Rejected |
-| **Explicit interfaces** | Clear contracts, no deps | More code to maintain | **Accepted** |
+| Alternative                   | Pros                     | Cons                            | Verdict      |
+| ----------------------------- | ------------------------ | ------------------------------- | ------------ |
+| No interfaces, concrete types | Simple, direct           | Un-testable, tightly coupled    | Rejected     |
+| Mocking frameworks            | Powerful mocks           | External dependency, complexity | Rejected     |
+| **Explicit interfaces**       | Clear contracts, no deps | More code to maintain           | **Accepted** |
 
 ---
 

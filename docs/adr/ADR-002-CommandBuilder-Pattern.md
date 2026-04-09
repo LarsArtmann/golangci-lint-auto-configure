@@ -146,12 +146,12 @@ func newConfigureCommand(b *CommandBuilder) *cobra.Command {
 
 ## Alternatives Considered
 
-| Alternative | Pros | Cons | Verdict |
-|-------------|------|------|---------|
-| Dependency Injection Container | Full DI, automatic wiring | Overkill for CLI, adds complexity | Rejected |
-| Global Variables | Simple, no passing | Testing nightmare, hidden dependencies | Rejected |
-| Manual Passing | Explicit, clear | Verbose, repetitive | Rejected |
-| **CommandBuilder Pattern** | Balanced, testable, DRY | Slight abstraction cost | **Accepted** |
+| Alternative                    | Pros                      | Cons                                   | Verdict      |
+| ------------------------------ | ------------------------- | -------------------------------------- | ------------ |
+| Dependency Injection Container | Full DI, automatic wiring | Overkill for CLI, adds complexity      | Rejected     |
+| Global Variables               | Simple, no passing        | Testing nightmare, hidden dependencies | Rejected     |
+| Manual Passing                 | Explicit, clear           | Verbose, repetitive                    | Rejected     |
+| **CommandBuilder Pattern**     | Balanced, testable, DRY   | Slight abstraction cost                | **Accepted** |
 
 ---
 

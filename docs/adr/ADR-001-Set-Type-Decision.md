@@ -116,12 +116,12 @@ common := projectALinters.Intersect(projectBLinters)
 
 ## Alternatives Considered
 
-| Alternative | Pros | Cons | Verdict |
-|-------------|------|------|---------|
-| Keep using slices | Simple, familiar | O(n) contains, verbose | Rejected |
-| `map[T]struct{}` | Standard Go, fast | Verbose, no operations | Rejected |
+| Alternative                        | Pros                  | Cons                              | Verdict  |
+| ---------------------------------- | --------------------- | --------------------------------- | -------- |
+| Keep using slices                  | Simple, familiar      | O(n) contains, verbose            | Rejected |
+| `map[T]struct{}`                   | Standard Go, fast     | Verbose, no operations            | Rejected |
 | **github.com/deckarep/golang-set** | Mature, battle-tested | External dependency, less control | Rejected |
-| **samber/mo.Set** | Functional style | Overkill for our needs | Rejected |
+| **samber/mo.Set**                  | Functional style      | Overkill for our needs            | Rejected |
 
 ---
 
