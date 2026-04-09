@@ -18,6 +18,7 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	"golang.org/x/sync/errgroup"
 )
 
 // Analyzer analyzes golangci-lint configurations and provides recommendations.
@@ -75,12 +76,22 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 		return types.ErrAnalysis(err)
 	}
 
-	linterOutput, err := a.parseLintersOutput(ctx, configPath)
-	if err != nil {
-		return types.ErrAnalysis(err)
-	}
+	// Run linters and formatters parsing in parallel using errgroup
+	g, ctx := errgroup.WithContext(ctx)
+
+	var linterOutput *golangciLintOutput
+	var linterErr error
+
+	g.Go(func() error {
+		linterOutput, linterErr = a.parseLintersOutput(ctx, configPath)
+		return linterErr
+	})
 
 	formatterOutput := a.parseFormattersOutput(ctx, configPath)
+
+	if err := g.Wait(); err != nil {
+		return types.ErrAnalysis(err)
+	}
 
 	analysis := &types.ConfigAnalysis{
 		ConfigPath:               configPath,
