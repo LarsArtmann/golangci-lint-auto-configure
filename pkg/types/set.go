@@ -148,8 +148,12 @@ func (s Set[T]) ToSlice() []T {
 }
 
 // ToSortedSlice returns the set items as a sorted slice.
-// The constraint cmp.Ordered ensures elements are sortable.
+// Returns nil for empty sets. The constraint cmp.Ordered ensures elements are sortable.
 func ToSortedSlice[T cmp.Ordered](s Set[T]) []T {
+	if len(s) == 0 {
+		return nil
+	}
+
 	result := s.ToSlice()
 	slices.Sort(result)
 
