@@ -2,13 +2,11 @@ package linter
 
 import (
 	"context"
-	"fmt"
 	"slices"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
-	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -111,12 +109,7 @@ func (f *Fixer) checkDryRunEarlyReturns(
 	return types.OkMigration(nil), false
 }
 
-func analysisError(action string, priority types.LinterPriority, dryRun bool, configPath string, err error) error {
-	return apperrors.NewAnalysisError(
-		fmt.Sprintf("failed to %s (priority=%d, dryRun=%t)", action, priority, dryRun),
-		configPath, err,
-	)
-}
+// analysisError is re-exported from fixer_results.go for backward compatibility.
 
 // runPreFlightChecks runs all pre-flight fixes and returns whether invalid durations were found.
 func (f *Fixer) runPreFlightChecks(
@@ -214,29 +207,12 @@ func (f *Fixer) applyAllFixes(
 	return counts
 }
 
+// dryRunResult is re-exported from fixer_results.go.
 func (f *Fixer) dryRunResult(counts fixCounts) types.MigrationResultType {
-	f.logger.Infof("[DRY-RUN] Would apply %d fixes", counts.total())
-
-	return types.OkMigration(&types.MigrationResult{
-		FixesApplied: counts.total(),
-		Message:      fmt.Sprintf("Would apply %d fixes (dry-run mode)", counts.total()),
-		NextSteps: []string{
-			"Run without --dry-run to apply these fixes",
-			"Then run 'golangci-lint run --fix' to auto-fix code issues",
-		},
-	})
+	return dryRunResult(counts)
 }
 
-func noFixesResult() types.MigrationResultType {
-	return types.OkMigration(&types.MigrationResult{
-		FixesApplied: 0,
-		Message:      "No fixes to apply",
-		NextSteps: []string{
-			"Your configuration is already up to date",
-			"Run 'golangci-lint run' to check for code issues",
-		},
-	})
-}
+
 
 func (f *Fixer) applyAndSave(
 	ctx context.Context,
@@ -263,19 +239,7 @@ func (f *Fixer) applyAndSave(
 	return successResult(counts)
 }
 
-func successResult(counts fixCounts) types.MigrationResultType {
-	return types.OkMigration(&types.MigrationResult{
-		FixesApplied: counts.total(),
-		Message: fmt.Sprintf(
-			"Successfully applied %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",
-			counts.total(), counts.enable, counts.formatter, counts.deprecation, counts.redundant,
-		),
-		NextSteps: []string{
-			"Run 'golangci-lint run --fix' to auto-fix code issues found by the newly enabled linters",
-			"Run 'golangci-lint run' to see remaining issues that require manual fixes",
-		},
-	})
-}
+
 
 func (f *Fixer) updateGoVersion(ctx context.Context, cfg *types.Config) {
 	goVersion := config.GetLocalGoVersion(ctx)
