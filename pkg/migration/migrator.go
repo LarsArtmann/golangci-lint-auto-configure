@@ -65,7 +65,7 @@ func (m *Migrator) SetNoEmojis(noEmojis bool) {
 // MigrateToV2 migrates configuration to golangci-lint v2.x schema.
 // Returns: (success bool, fixesApplied int, error error).
 //
-//nolint:gocognit,gocyclo,cyclop,funlen // Migration logic is inherently complex with multiple steps
+//nolint:cyclop,funlen // Migration logic is inherently complex with multiple steps
 func (m *Migrator) MigrateToV2() (bool, int, error) {
 	cfg, err := LoadConfig(m.configPath)
 	if err != nil {

@@ -28,12 +28,12 @@ func BenchmarkAdd(b *testing.B) {
 
 	for _, size := range sizes {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
-			s := NewSet(makeStrings(size)...)
+			set := NewSet(makeStrings(size)...)
 
 			b.ResetTimer()
 
-			for i := 0; i < b.N; i++ {
-				s.Add("new-element")
+			for range b.N {
+				set.Add("new-element")
 			}
 		})
 	}
@@ -45,13 +45,13 @@ func BenchmarkContains(b *testing.B) {
 
 	for _, size := range sizes {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
-			s := NewSet(makeStrings(size)...)
+			set := NewSet(makeStrings(size)...)
 			element := fmt.Sprintf("element_%d", size/2) // Middle element
 
 			b.ResetTimer()
 
-			for i := 0; i < b.N; i++ {
-				s.Contains(element)
+			for range b.N {
+				set.Contains(element)
 			}
 		})
 	}
@@ -63,13 +63,13 @@ func BenchmarkUnion(b *testing.B) {
 
 	for _, size := range sizes {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
-			s1 := NewSet(makeStrings(size)...)
-			s2 := NewSet(makeStringsOffset(size, size)...)
+			primary := NewSet(makeStrings(size)...)
+			secondary := NewSet(makeStringsOffset(size, size)...)
 
 			b.ResetTimer()
 
-			for i := 0; i < b.N; i++ {
-				s1.Union(s2)
+			for range b.N {
+				primary.Union(secondary)
 			}
 		})
 	}
@@ -81,13 +81,13 @@ func BenchmarkIntersect(b *testing.B) {
 
 	for _, size := range sizes {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
-			s1 := NewSet(makeStrings(size)...)
-			s2 := NewSet(makeStringsOffset(size/2, size)...)
+			primary := NewSet(makeStrings(size)...)
+			secondary := NewSet(makeStringsOffset(size/2, size)...)
 
 			b.ResetTimer()
 
-			for i := 0; i < b.N; i++ {
-				s1.Intersect(s2)
+			for range b.N {
+				primary.Intersect(secondary)
 			}
 		})
 	}
@@ -99,13 +99,13 @@ func BenchmarkDifference(b *testing.B) {
 
 	for _, size := range sizes {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
-			s1 := NewSet(makeStrings(size)...)
-			s2 := NewSet(makeStringsOffset(size/2, size)...)
+			primary := NewSet(makeStrings(size)...)
+			secondary := NewSet(makeStringsOffset(size/2, size)...)
 
 			b.ResetTimer()
 
-			for i := 0; i < b.N; i++ {
-				s1.Difference(s2)
+			for range b.N {
+				primary.Difference(secondary)
 			}
 		})
 	}
@@ -117,13 +117,13 @@ func BenchmarkIsSubset(b *testing.B) {
 
 	for _, size := range sizes {
 		b.Run(fmt.Sprintf("size_%d", size), func(b *testing.B) {
-			s1 := NewSet(makeStrings(size / 2)...)
-			s2 := NewSet(makeStrings(size)...)
+			subset := NewSet(makeStrings(size / 2)...)
+			superset := NewSet(makeStrings(size)...)
 
 			b.ResetTimer()
 
-			for i := 0; i < b.N; i++ {
-				s1.IsSubset(s2)
+			for range b.N {
+				subset.IsSubset(superset)
 			}
 		})
 	}
