@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"fmt"
 	"path/filepath"
 	"slices"
 
@@ -31,6 +32,7 @@ func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[string],
 		}
 
 		count++
+
 		fm.logFormatterChange(formatter, "enabling", dryRun)
 
 		if !dryRun {
@@ -42,11 +44,7 @@ func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[string],
 }
 
 func (fm *FormatterManager) logFormatterChange(name, action string, dryRun bool) {
-	if dryRun {
-		fm.logger.Debugf("[DRY-RUN] Would %s formatter: %s", action, name)
-	} else {
-		fm.logger.Debugf("%s formatter: %s", action, name)
-	}
+	fm.logChange(name, "formatter", action, "", dryRun)
 }
 
 // EnableGolinesFormatter enables the golines formatter if recommended at high priority.
@@ -73,7 +71,7 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 }
 
 func (fm *FormatterManager) addFormatter(set types.Set[string], name, reason string, dryRun bool) int {
-	fm.logFormatterChangeWithReason(name, "enabling", reason, dryRun)
+	fm.logChange(name, "formatter", "enabling", reason, dryRun)
 
 	if !dryRun {
 		set.Add(name)
@@ -82,11 +80,15 @@ func (fm *FormatterManager) addFormatter(set types.Set[string], name, reason str
 	return 1
 }
 
-func (fm *FormatterManager) logFormatterChangeWithReason(name, action, reason string, dryRun bool) {
+func (fm *FormatterManager) logChange(name, entityType, action, reason string, dryRun bool) {
+	if reason != "" {
+		reason = fmt.Sprintf(" (%s)", reason)
+	}
+
 	if dryRun {
-		fm.logger.Debugf("[DRY-RUN] Would %s formatter: %s (%s)", action, name, reason)
+		fm.logger.Debugf("[DRY-RUN] Would %s %s: %s%s", action, entityType, name, reason)
 	} else {
-		fm.logger.Debugf("%s formatter: %s (%s)", action, name, reason)
+		fm.logger.Debugf("%s %s: %s%s", action, entityType, name, reason)
 	}
 }
 
@@ -140,6 +142,7 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 		}
 
 		count++
+
 		fm.logLinterChange(string(linterName), "removing redundant", mapping.Reason, dryRun)
 
 		if !dryRun {
@@ -151,11 +154,7 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 }
 
 func (fm *FormatterManager) logLinterChange(name, action, reason string, dryRun bool) {
-	if dryRun {
-		fm.logger.Debugf("[DRY-RUN] Would %s linter: %s (%s)", action, name, reason)
-	} else {
-		fm.logger.Debugf("%s linter: %s (%s)", action, name, reason)
-	}
+	fm.logChange(name, "linter", action, reason, dryRun)
 }
 
 // ToOrderedSlice converts formatter set to ordered slice.
