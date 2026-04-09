@@ -116,7 +116,7 @@ func v2ConfigWithExcludeFiles(files ...string) string {
 	var builder strings.Builder
 
 	for _, file := range files {
-		builder.WriteString(`  - "` + file + `"\n`)
+		builder.WriteString("  - \"" + file + "\"\n")
 	}
 
 	return `version: "2"
