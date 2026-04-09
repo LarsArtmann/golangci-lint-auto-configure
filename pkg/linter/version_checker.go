@@ -8,7 +8,6 @@ import (
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"golang.org/x/mod/semver"
 )
 
@@ -87,17 +86,7 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 
 // runVersionCommandWithRetry runs a version command with retry for parallel running errors.
 func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...string) ([]byte, error) {
-	config := utils.DefaultConfig()
-
-	executeOperation := func() ([]byte, error) {
-		return a.executeCommand(ctx, args...).CombinedOutput()
-	}
-
-	shouldRetry := func(_ error, output string) bool {
-		return isParallelRunningError(strings.TrimSpace(output))
-	}
-
-	output, err := utils.WithRetry(ctx, config, "version check", shouldRetry, executeOperation)
+	output, err := a.runWithRetry(ctx, "version check", a.commandOperation(ctx, args...))
 	if err != nil {
 		return output, apperrors.NewAnalysisError(
 			"version check command failed",

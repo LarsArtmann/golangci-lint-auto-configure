@@ -48,32 +48,25 @@ func InfoMsg(msg string) string {
 		Render("ℹ " + msg)
 }
 
-// PriorityBadge returns a styled priority badge.
-func PriorityBadge(priority int) string {
-	var style lipgloss.Style
-
+func priorityBackgroundColor(priority int) string {
 	switch priority {
 	case priorityCritical:
-		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(colorHeading)).
-			Background(lipgloss.Color(colorCritical)).
-			Padding(0, 1)
+		return colorCritical
 	case priorityHigh:
-		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(colorHeading)).
-			Background(lipgloss.Color(colorHigh)).
-			Padding(0, 1)
+		return colorHigh
 	case priorityMedium:
-		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#212529")).
-			Background(lipgloss.Color(colorMedium)).
-			Padding(0, 1)
+		return colorMedium
 	default:
-		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(colorHeading)).
-			Background(lipgloss.Color(colorOptional)).
-			Padding(0, 1)
+		return colorOptional
 	}
+}
+
+// PriorityBadge returns a styled priority badge.
+func PriorityBadge(priority int) string {
+	style := lipgloss.NewStyle().
+		Foreground(lipgloss.Color(colorHeading)).
+		Background(lipgloss.Color(priorityBackgroundColor(priority))).
+		Padding(0, 1)
 
 	name := priorityName(priority)
 

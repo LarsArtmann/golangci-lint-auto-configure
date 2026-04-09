@@ -6,6 +6,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -308,20 +309,20 @@ formatters:
 	})
 })
 
-var _ = Describe("GetUniqueStrings", func() {
+var _ = Describe("ToSortedSlice", func() {
 	It("should return unique sorted strings", func() {
 		input := []string{"b", "a", "b", "c", "a"}
-		result := config.GetUniqueStrings(input)
+		result := types.ToSortedSlice(types.NewSet(input...))
 		Expect(result).To(Equal([]string{"a", "b", "c"}))
 	})
 
 	It("should return nil for empty input", func() {
-		result := config.GetUniqueStrings([]string{})
+		result := types.ToSortedSlice(types.NewSet[string]())
 		Expect(result).To(BeNil())
 	})
 
 	It("should handle single element", func() {
-		result := config.GetUniqueStrings([]string{"a"})
+		result := types.ToSortedSlice(types.NewSet("a"))
 		Expect(result).To(Equal([]string{"a"}))
 	})
 })

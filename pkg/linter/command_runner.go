@@ -20,21 +20,38 @@ func (a *Analyzer) executeCommand(ctx context.Context, args ...string) *exec.Cmd
 	return exec.CommandContext(ctx, a.golangciLintPath, args...)
 }
 
-// runCommandWithRetry runs a command and retries if a parallel golangci-lint is running.
-func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ...string) ([]byte, error) {
-	config := utils.DefaultConfig()
-
-	executeOperation := func() ([]byte, error) {
+// commandOperation returns an operation function that executes a command and returns combined output.
+func (a *Analyzer) commandOperation(ctx context.Context, args ...string) func() ([]byte, error) {
+	return func() ([]byte, error) {
 		return a.executeCommand(ctx, args...).CombinedOutput()
 	}
+}
+
+// runCommandWithRetry runs a command and retries if a parallel golangci-lint is running.
+func (a *Analyzer) runCommandWithRetry(ctx context.Context, name string, args ...string) ([]byte, error) {
+	output, err := a.runWithRetry(ctx, name, a.commandOperation(ctx, args...))
+	if err != nil {
+		return output, a.formatCommandError(name, output, err)
+	}
+
+	return output, nil
+}
+
+// runWithRetry is a generic helper that runs an operation with retry logic for parallel running errors.
+func (a *Analyzer) runWithRetry(
+	ctx context.Context,
+	name string,
+	operation func() ([]byte, error),
+) ([]byte, error) {
+	config := utils.DefaultConfig()
 
 	shouldRetry := func(_ error, output string) bool {
 		return isParallelRunningError(strings.TrimSpace(output))
 	}
 
-	output, err := utils.WithRetry(ctx, config, name, shouldRetry, executeOperation)
+	output, err := utils.WithRetry(ctx, config, name, shouldRetry, operation)
 	if err != nil {
-		return output, a.formatCommandError(name, output, err)
+		return output, err
 	}
 
 	return output, nil

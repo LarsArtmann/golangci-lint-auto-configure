@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"maps"
 	"os"
-	"slices"
 	"sort"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/spf13/afero"
 )
 
@@ -70,15 +70,11 @@ func (cm *Merger) mergeStringSlices(primary, secondary []string) int {
 		return 0
 	}
 
-	primarySet := make(map[string]struct{}, len(primary))
-	for _, p := range primary {
-		primarySet[p] = struct{}{}
-	}
-
+	primarySet := types.NewSet(primary...)
 	changes := 0
 
 	for _, p := range secondary {
-		if _, exists := primarySet[p]; !exists {
+		if !primarySet.Contains(p) {
 			primary = append(primary, p)
 			changes++
 		}
@@ -100,15 +96,11 @@ func (cm *Merger) mergePaths(primary *[]string, secondary []string) int {
 		return 0
 	}
 
-	primarySet := make(map[string]struct{}, len(*primary))
-	for _, p := range *primary {
-		primarySet[p] = struct{}{}
-	}
-
+	primarySet := types.NewSet(*primary...)
 	changes := 0
 
 	for _, p := range secondary {
-		if _, exists := primarySet[p]; !exists {
+		if !primarySet.Contains(p) {
 			*primary = append(*primary, p)
 			changes++
 		}
@@ -350,13 +342,10 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 		changes++
 	} else if len(secondary.Enable) > 0 {
 		// Add linters from secondary that aren't in primary
-		primarySet := make(map[string]struct{}, len(primary.Enable))
-		for _, l := range primary.Enable {
-			primarySet[l] = struct{}{}
-		}
+		primarySet := types.NewSet(primary.Enable...)
 
 		for _, l := range secondary.Enable {
-			if _, exists := primarySet[l]; !exists {
+			if !primarySet.Contains(l) {
 				primary.Enable = append(primary.Enable, l)
 				changes++
 			}
@@ -371,13 +360,10 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 		primary.Disable = secondary.Disable
 		changes++
 	} else if len(secondary.Disable) > 0 {
-		primarySet := make(map[string]struct{}, len(primary.Disable))
-		for _, l := range primary.Disable {
-			primarySet[l] = struct{}{}
-		}
+		primarySet := types.NewSet(primary.Disable...)
 
 		for _, l := range secondary.Disable {
-			if _, exists := primarySet[l]; !exists {
+			if !primarySet.Contains(l) {
 				primary.Disable = append(primary.Disable, l)
 				changes++
 			}
@@ -401,31 +387,47 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 	return changes
 }
 
-// mergeLintersExclusions merges linter exclusion configurations.
-func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsConfig) int {
+// mergeCommonExclusionFields merges fields common to both linter and formatter exclusions.
+func mergeCommonExclusionFields[T any](
+	primary, secondary *T,
+	getGenerated func(*T) string,
+	setGenerated func(*T, string),
+	getWarnUnused func(*T) bool,
+	setWarnUnused func(*T, bool),
+) int {
 	changes := 0
 
-	if primary.Generated == "" && secondary.Generated != "" {
-		primary.Generated = secondary.Generated
+	if getGenerated(primary) == "" && getGenerated(secondary) != "" {
+		setGenerated(primary, getGenerated(secondary))
 		changes++
 	}
 
-	if !primary.WarnUnused && secondary.WarnUnused {
-		primary.WarnUnused = secondary.WarnUnused
+	if !getWarnUnused(primary) && getWarnUnused(secondary) {
+		setWarnUnused(primary, getWarnUnused(secondary))
 		changes++
 	}
+
+	return changes
+}
+
+// mergeLintersExclusions merges linter exclusion configurations.
+func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsConfig) int {
+	changes := mergeCommonExclusionFields(
+		primary, secondary,
+		func(c *LintersExclusionsConfig) string { return c.Generated },
+		func(c *LintersExclusionsConfig, v string) { c.Generated = v },
+		func(c *LintersExclusionsConfig) bool { return c.WarnUnused },
+		func(c *LintersExclusionsConfig, v bool) { c.WarnUnused = v },
+	)
 
 	if len(primary.Presets) == 0 && len(secondary.Presets) > 0 {
 		primary.Presets = secondary.Presets
 		changes++
 	} else if len(secondary.Presets) > 0 {
-		primarySet := make(map[string]struct{}, len(primary.Presets))
-		for _, p := range primary.Presets {
-			primarySet[p] = struct{}{}
-		}
+		primarySet := types.NewSet(primary.Presets...)
 
 		for _, p := range secondary.Presets {
-			if _, exists := primarySet[p]; !exists {
+			if !primarySet.Contains(p) {
 				primary.Presets = append(primary.Presets, p)
 				changes++
 			}
@@ -467,13 +469,10 @@ func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) in
 		primary.Enable = secondary.Enable
 		changes++
 	} else if len(secondary.Enable) > 0 {
-		primarySet := make(map[string]struct{}, len(primary.Enable))
-		for _, f := range primary.Enable {
-			primarySet[f] = struct{}{}
-		}
+		primarySet := types.NewSet(primary.Enable...)
 
 		for _, f := range secondary.Enable {
-			if _, exists := primarySet[f]; !exists {
+			if !primarySet.Contains(f) {
 				primary.Enable = append(primary.Enable, f)
 				changes++
 			}
@@ -487,13 +486,10 @@ func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) in
 		primary.Disable = secondary.Disable
 		changes++
 	} else if len(secondary.Disable) > 0 {
-		primarySet := make(map[string]struct{}, len(primary.Disable))
-		for _, f := range primary.Disable {
-			primarySet[f] = struct{}{}
-		}
+		primarySet := types.NewSet(primary.Disable...)
 
 		for _, f := range secondary.Disable {
-			if _, exists := primarySet[f]; !exists {
+			if !primarySet.Contains(f) {
 				primary.Disable = append(primary.Disable, f)
 				changes++
 			}
@@ -512,17 +508,13 @@ func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) in
 }
 
 func (cm *Merger) mergeFormattersExclusions(primary, secondary *FormattersExclusionsConfig) int {
-	changes := 0
-
-	if primary.Generated == "" && secondary.Generated != "" {
-		primary.Generated = secondary.Generated
-		changes++
-	}
-
-	if !primary.WarnUnused && secondary.WarnUnused {
-		primary.WarnUnused = secondary.WarnUnused
-		changes++
-	}
+	changes := mergeCommonExclusionFields(
+		primary, secondary,
+		func(c *FormattersExclusionsConfig) string { return c.Generated },
+		func(c *FormattersExclusionsConfig, v string) { c.Generated = v },
+		func(c *FormattersExclusionsConfig) bool { return c.WarnUnused },
+		func(c *FormattersExclusionsConfig, v bool) { c.WarnUnused = v },
+	)
 
 	if len(primary.Paths) == 0 && len(secondary.Paths) > 0 {
 		primary.Paths = secondary.Paths
@@ -693,18 +685,11 @@ func (cm *Merger) createBackup(path string) (string, error) {
 }
 
 // GetUniqueStrings returns a sorted slice of unique strings.
+// Deprecated: Use types.ToSortedSlice(types.NewSet(input...)) directly instead.
 func GetUniqueStrings(input []string) []string {
 	if len(input) == 0 {
 		return nil
 	}
 
-	uniqueMap := make(map[string]struct{}, len(input))
-	for _, s := range input {
-		uniqueMap[s] = struct{}{}
-	}
-
-	result := slices.Collect(maps.Keys(uniqueMap))
-	sort.Strings(result)
-
-	return result
+	return types.ToSortedSlice(types.NewSet(input...))
 }

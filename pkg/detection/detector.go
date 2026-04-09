@@ -25,6 +25,24 @@ func closeFile(c io.Closer) {
 	_ = c.Close()
 }
 
+// walkGoFiles walks all .go files in the directory and calls processFile for each.
+// Returns early if processFile returns filepath.SkipAll.
+func (d *Detector) walkGoFiles(processFile func(*os.File) error) error {
+	return filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return nil
+		}
+		defer closeFile(file)
+
+		return processFile(file)
+	})
+}
+
 func (p ProjectType) String() string {
 	switch p {
 	case ProjectTypeUnknown:
@@ -236,17 +254,7 @@ func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 func (d *Detector) hasMainPackage() bool {
 	found := false
 
-	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
-			return nil
-		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			return nil
-		}
-		defer closeFile(file)
-
+	_ = d.walkGoFiles(func(file *os.File) error {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := strings.TrimSpace(scanner.Text())
@@ -290,17 +298,7 @@ func (d *Detector) hasCLIFramework(imports []string) bool {
 func (d *Detector) hasAPICodePatterns() bool {
 	found := false
 
-	_ = filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
-			return nil
-		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			return nil
-		}
-		defer closeFile(file)
-
+	_ = d.walkGoFiles(func(file *os.File) error {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -339,28 +337,14 @@ func (d *Detector) hasSwaggoInGoMod() bool {
 func (d *Detector) hasSwaggoInCode() (bool, error) {
 	found := false
 
-	walkErr := filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
-		return d.checkFileForSwaggo(path, info, err, &found)
+	walkErr := d.walkGoFiles(func(file *os.File) error {
+		return d.scanFileForSwaggo(file, &found)
 	})
 	if walkErr != nil {
 		return false, fmt.Errorf("walk directory: %w", walkErr)
 	}
 
 	return found, nil
-}
-
-func (d *Detector) checkFileForSwaggo(path string, info os.FileInfo, err error, found *bool) error {
-	if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
-		return nil
-	}
-
-	file, err := os.Open(path)
-	if err != nil {
-		return nil
-	}
-	defer closeFile(file)
-
-	return d.scanFileForSwaggo(file, found)
 }
 
 func (d *Detector) scanFileForSwaggo(file *os.File, found *bool) error {

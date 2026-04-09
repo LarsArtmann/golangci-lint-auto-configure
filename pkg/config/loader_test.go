@@ -17,6 +17,14 @@ func TestConfig(t *testing.T) {
 	RunSpecs(t, "Config Suite")
 }
 
+func writeTestConfigFile(dir, filename string) {
+	Expect(os.WriteFile(filepath.Join(dir, filename), []byte("version: 1"), 0o644)).To(Succeed())
+}
+
+func removeTestConfigFile(dir, filename string) {
+	Expect(os.Remove(filepath.Join(dir, filename))).To(Succeed())
+}
+
 var _ = Describe("Loader", func() {
 	var (
 		loader     *config.Loader
@@ -232,8 +240,8 @@ timeout = "5m"
 
 	Context("FindAllConfigFiles", func() {
 		It("should find all config files", func() {
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0o644)).To(Succeed())
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yaml"), []byte("version: 1"), 0o644)).To(Succeed())
+			writeTestConfigFile(testDir, ".golangci.yml")
+			writeTestConfigFile(testDir, ".golangci.yaml")
 
 			found := loader.FindAllConfigFiles(testDir)
 
@@ -241,8 +249,8 @@ timeout = "5m"
 			Expect(found).To(ContainElement(filepath.Join(testDir, ".golangci.yml")))
 			Expect(found).To(ContainElement(filepath.Join(testDir, ".golangci.yaml")))
 
-			Expect(os.Remove(filepath.Join(testDir, ".golangci.yml"))).To(Succeed())
-			Expect(os.Remove(filepath.Join(testDir, ".golangci.yaml"))).To(Succeed())
+			removeTestConfigFile(testDir, ".golangci.yml")
+			removeTestConfigFile(testDir, ".golangci.yaml")
 		})
 
 		It("should return empty when no config files exist", func() {
@@ -253,25 +261,25 @@ timeout = "5m"
 
 	Context("HasMultipleConfigFiles", func() {
 		It("should return false when only one config exists", func() {
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0o644)).To(Succeed())
+			writeTestConfigFile(testDir, ".golangci.yml")
 
 			result := loader.HasMultipleConfigFiles(testDir)
 
 			Expect(result).To(BeFalse())
 
-			Expect(os.Remove(filepath.Join(testDir, ".golangci.yml"))).To(Succeed())
+			removeTestConfigFile(testDir, ".golangci.yml")
 		})
 
 		It("should return true and log warning when multiple configs exist", func() {
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yml"), []byte("version: 1"), 0o644)).To(Succeed())
-			Expect(os.WriteFile(filepath.Join(testDir, ".golangci.yaml"), []byte("version: 1"), 0o644)).To(Succeed())
+			writeTestConfigFile(testDir, ".golangci.yml")
+			writeTestConfigFile(testDir, ".golangci.yaml")
 
 			result := loader.HasMultipleConfigFiles(testDir)
 
 			Expect(result).To(BeTrue())
 
-			Expect(os.Remove(filepath.Join(testDir, ".golangci.yml"))).To(Succeed())
-			Expect(os.Remove(filepath.Join(testDir, ".golangci.yaml"))).To(Succeed())
+			removeTestConfigFile(testDir, ".golangci.yml")
+			removeTestConfigFile(testDir, ".golangci.yaml")
 		})
 	})
 

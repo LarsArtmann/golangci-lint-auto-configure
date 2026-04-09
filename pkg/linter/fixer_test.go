@@ -106,6 +106,28 @@ linters:
 `
 }
 
+// testTimeoutFixResult is a helper for testing timeout fixes with consistent parameters.
+func testTimeoutFixResult(fixer *linter.Fixer, configPath, inputTimeout, expectedTimeout string, dryRun bool) {
+	testFixResult(fixer, configPath, timeoutTestConfig(inputTimeout), types.LinterPriorityCritical, dryRun, "timeout: "+expectedTimeout)
+}
+
+// minimalTestConfig returns a minimal test config with optional linters.
+func minimalTestConfig(linters ...string) string {
+	if len(linters) == 0 {
+		return `version: "2"
+linters:
+  enable:
+    - gosec
+`
+	}
+	return fmt.Sprintf(`version: "2"
+linters:
+  enable:
+    - gosec
+    - %s
+`, strings.Join(linters, "\n    - "))
+}
+
 func countSubstring(s, substr string) int {
 	return strings.Count(s, substr)
 }
@@ -151,24 +173,13 @@ linters:
 		})
 
 		It("should keep existing version 2", func() {
-			configContent := `version: "2"
-linters:
-  enable:
-    - gosec
-`
-			testFixSuccess(fixer, testConfig, configContent, types.LinterPriorityCritical, true)
+			testFixSuccess(fixer, testConfig, minimalTestConfig(), types.LinterPriorityCritical, true)
 		})
 	})
 
 	Context("Configuration Modification", func() {
 		It("should run in dry-run mode without modifying file", func() {
-			configContent := `version: "2"
-linters:
-  enable:
-    - gosec
-    - errcheck
-`
-			testFixSuccess(fixer, testConfig, configContent, types.LinterPriorityCritical, true)
+			testFixSuccess(fixer, testConfig, minimalTestConfig("errcheck"), types.LinterPriorityCritical, true)
 		})
 
 		It("should handle missing config file gracefully", func() {
@@ -227,40 +238,19 @@ linters:
 
 	Context("Invalid Duration Fields", func() {
 		It("should fix empty timeout field", func() {
-			testFixResult(
-				fixer,
-				testConfig,
-				timeoutTestConfig(`""`),
-				types.LinterPriorityCritical,
-				false,
-				`timeout: 5m`,
-			)
+			testTimeoutFixResult(fixer, testConfig, `""`, `5m`, false)
 		})
 
 		It("should fix invalid timeout format", func() {
-			testFixResult(
-				fixer,
-				testConfig,
-				timeoutTestConfig(`invalid`),
-				types.LinterPriorityCritical,
-				false,
-				`timeout: 5m`,
-			)
+			testTimeoutFixResult(fixer, testConfig, `invalid`, `5m`, false)
 		})
 
 		It("should keep valid timeout unchanged", func() {
-			testFixResult(
-				fixer,
-				testConfig,
-				timeoutTestConfig(`10m`),
-				types.LinterPriorityCritical,
-				true,
-				`timeout: 10m`,
-			)
+			testTimeoutFixResult(fixer, testConfig, `10m`, `10m`, true)
 		})
 
 		It("should NOT fix invalid timeout in dry-run mode (file unchanged)", func() {
-			testFixResult(fixer, testConfig, timeoutTestConfig(`""`), types.LinterPriorityCritical, true, `timeout: ""`)
+			testTimeoutFixResult(fixer, testConfig, `""`, `"`, true)
 		})
 	})
 

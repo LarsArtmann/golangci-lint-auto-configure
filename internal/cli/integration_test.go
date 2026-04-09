@@ -48,6 +48,15 @@ linters:
 	Expect(output).ToNot(BeEmpty())
 }
 
+// testStandardCommandContext creates a Ginkgo Context and It block for testing a CLI command.
+func testStandardCommandContext(tempDir, command string) {
+	Context(command+" command", func() {
+		It("should "+command+" config", func() {
+			testStandardConfigCommand(tempDir, command)
+		})
+	})
+}
+
 // TestIntegration runs integration tests for the CLI.
 func TestIntegration(t *testing.T) {
 	// Skip if binary doesn't exist
@@ -187,15 +196,6 @@ linters:
 		})
 	})
 
-	Context("Analyze command", func() {
-		It("should analyze existing config", func() {
-			testStandardConfigCommand(tempDir, "analyze")
-		})
-	})
-
-	Context("Validate command", func() {
-		It("should validate config file", func() {
-			testStandardConfigCommand(tempDir, "validate")
-		})
-	})
+	testStandardCommandContext(tempDir, "analyze")
+	testStandardCommandContext(tempDir, "validate")
 })

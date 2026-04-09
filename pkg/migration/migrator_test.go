@@ -90,6 +90,38 @@ func testSimpleMigration(configContent string) string {
 	return configPath
 }
 
+// v2ConfigWithExcludeDirs returns a v2 config with exclude-dirs.
+func v2ConfigWithExcludeDirs(dirs ...string) string {
+	dirsYaml := ""
+	for _, dir := range dirs {
+		dirsYaml += "  - " + dir + "\n"
+	}
+	return `version: "2"
+run:
+  timeout: 5m
+exclude-dirs:
+` + dirsYaml + `linters:
+  enable:
+    - errcheck
+`
+}
+
+// v2ConfigWithExcludeFiles returns a v2 config with exclude-files.
+func v2ConfigWithExcludeFiles(files ...string) string {
+	filesYaml := ""
+	for _, file := range files {
+		filesYaml += `  - "` + file + `"\n`
+	}
+	return `version: "2"
+run:
+  timeout: 5m
+exclude-files:
+` + filesYaml + `linters:
+  enable:
+    - errcheck
+`
+}
+
 var _ = Describe("Migrator", func() {
 	var testDir string
 
@@ -596,33 +628,13 @@ linters:
 
 	Describe("migrateIssuesExcludeDirs", func() {
 		It("should migrate exclude-dirs to exclusions.paths", func() {
-			configContent := `version: "2"
-run:
-  timeout: 5m
-exclude-dirs:
-  - vendor
-  - generated
-linters:
-  enable:
-    - errcheck
-`
-			testSimpleMigration(configContent)
+			testSimpleMigration(v2ConfigWithExcludeDirs("vendor", "generated"))
 		})
 	})
 
 	Describe("migrateIssuesExcludeFiles", func() {
 		It("should migrate exclude-files to exclusions.paths", func() {
-			configContent := `version: "2"
-run:
-  timeout: 5m
-exclude-files:
-  - "*.gen.go"
-  - "**/*_test.go"
-linters:
-  enable:
-    - errcheck
-`
-			testSimpleMigration(configContent)
+			testSimpleMigration(v2ConfigWithExcludeFiles("*.gen.go", "**/*_test.go"))
 		})
 	})
 })

@@ -19,6 +19,22 @@ func assertFormatFixResult(t *testing.T, result *types.MigrationResult, expected
 	}
 }
 
+// newMigrationResult creates a MigrationResult with fixes applied.
+func newMigrationResult(fixes int, msg string) *types.MigrationResult {
+	return &types.MigrationResult{
+		FixesApplied: fixes,
+		Message:      msg,
+	}
+}
+
+// newMigrationErrorResult creates a MigrationResult with an error.
+func newMigrationErrorResult(errMsg string) *types.MigrationResult {
+	return &types.MigrationResult{
+		Error:   errors.New(errMsg),
+		Message: errMsg,
+	}
+}
+
 func TestFormatRecommendations_AllEnabled(t *testing.T) {
 	analysis := &types.ConfigAnalysis{
 		LinterRecommendations: []types.LinterRecommendation{},
@@ -121,26 +137,17 @@ func TestFormatDryRunWarning(t *testing.T) {
 }
 
 func TestFormatFixResult_Success(t *testing.T) {
-	result := &types.MigrationResult{
-		FixesApplied: 5,
-		Message:      "Applied 5 fixes",
-	}
+	result := newMigrationResult(5, "Applied 5 fixes")
 	assertFormatFixResult(t, result, "5 fixes")
 }
 
 func TestFormatFixResult_NoFixes(t *testing.T) {
-	result := &types.MigrationResult{
-		FixesApplied: 0,
-		Message:      "No fixes needed",
-	}
+	result := newMigrationResult(0, "No fixes needed")
 	assertFormatFixResult(t, result, "No fixes needed")
 }
 
 func TestFormatFixResult_Failure(t *testing.T) {
-	result := &types.MigrationResult{
-		Error:   errors.New("something went wrong"),
-		Message: "Something went wrong",
-	}
+	result := newMigrationErrorResult("something went wrong")
 
 	output := uipkg.FormatFixResult(result)
 

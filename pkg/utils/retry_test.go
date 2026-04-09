@@ -10,6 +10,14 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// failingOperation returns an operation that increments callCount and returns an error.
+func failingOperation(callCount *int, errMsg string) func() ([]byte, error) {
+	return func() ([]byte, error) {
+		*callCount++
+		return nil, errors.New(errMsg)
+	}
+}
+
 var _ = Describe("WithRetry", func() {
 	var (
 		ctx    context.Context
@@ -68,17 +76,12 @@ var _ = Describe("WithRetry", func() {
 
 		It("should fail after max retries", func() {
 			callCount := 0
-			//nolint:varnamelen // operation is clear in test context
-			op := func() ([]byte, error) {
-				callCount++
-
-				return nil, errors.New("persistent error")
-			}
 
 			shouldRetry := func(err error, _ string) bool {
 				return err != nil
 			}
 
+			op := failingOperation(&callCount, "persistent error")
 			_, err := utils.WithRetry(ctx, config, "test", shouldRetry, op)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("failed after 2 retries"))
@@ -112,15 +115,10 @@ var _ = Describe("WithRetry", func() {
 	Context("Non-retryable errors", func() {
 		It("should not retry on non-retryable errors", func() {
 			callCount := 0
-			//nolint:varnamelen // operation is clear in test context
-			op := func() ([]byte, error) {
-				callCount++
-
-				return nil, errors.New("fatal error")
-			}
 
 			shouldRetry := func(_ error, _ string) bool { return false }
 
+			op := failingOperation(&callCount, "fatal error")
 			_, err := utils.WithRetry(ctx, config, "test", shouldRetry, op)
 			Expect(err).To(HaveOccurred())
 			Expect(callCount).To(Equal(1))

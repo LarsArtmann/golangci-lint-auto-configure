@@ -133,13 +133,18 @@ func saveMergedConfigAndReturn(
 	return mergeResult.PrimaryConfig, nil
 }
 
-// NewRootCommand creates the root CLI command.
-func NewRootCommand() *cobra.Command {
-	logger := log.NewWithOptions(os.Stdout, log.Options{
+// newLogger creates a standard logger for CLI output.
+func newLogger() *log.Logger {
+	return log.NewWithOptions(os.Stdout, log.Options{
 		ReportCaller: false,
 		TimeFormat:   "15:04:05",
 		Level:        log.InfoLevel,
 	})
+}
+
+// NewRootCommand creates the root CLI command.
+func NewRootCommand() *cobra.Command {
+	logger := newLogger()
 	slog.SetDefault(slog.New(logger))
 
 	rootCmd := &cobra.Command{
@@ -218,11 +223,7 @@ func Execute(ctx context.Context) error {
 
 // Main is the entry point.
 func Main() {
-	logger := log.NewWithOptions(os.Stdout, log.Options{
-		ReportCaller: false,
-		TimeFormat:   "15:04:05",
-		Level:        log.InfoLevel,
-	})
+	logger := newLogger()
 	slog.SetDefault(slog.New(logger))
 
 	err := Execute(context.Background())
