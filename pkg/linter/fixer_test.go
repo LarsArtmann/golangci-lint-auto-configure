@@ -127,6 +127,7 @@ linters:
     - gosec
 `
 	}
+
 	return fmt.Sprintf(`version: "2"
 linters:
   enable:

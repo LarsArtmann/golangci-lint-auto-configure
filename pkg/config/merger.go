@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-// Backup file permission (read/write for owner only)
+// Backup file permission (read/write for owner only).
 const backupFilePermission = os.FileMode(0o600)
 
 // ErrNoConfigFiles is returned when no config files are provided to merge.
@@ -399,11 +399,13 @@ func mergeCommonExclusionFields[T any](
 
 	if getGenerated(primary) == "" && getGenerated(secondary) != "" {
 		setGenerated(primary, getGenerated(secondary))
+
 		changes++
 	}
 
 	if !getWarnUnused(primary) && getWarnUnused(secondary) {
 		setWarnUnused(primary, getWarnUnused(secondary))
+
 		changes++
 	}
 
@@ -637,6 +639,7 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 
 			continue
 		}
+
 		result.BackedUpConfigs[path] = backupPath
 
 		cm.logger.Debugf("Created backup: %s -> %s", path, backupPath)
@@ -676,6 +679,7 @@ func (cm *Merger) createBackup(path string) (string, error) {
 	}
 
 	backupPath := path + ".merge-backup"
+
 	err = afero.WriteFile(cm.fs, backupPath, data, backupFilePermission)
 	if err != nil {
 		return "", fmt.Errorf("failed to write backup: %w", err)

@@ -14,6 +14,7 @@ import (
 func failingOperation(callCount *int, errMsg string) func() ([]byte, error) {
 	return func() ([]byte, error) {
 		*callCount++
+
 		return nil, errors.New(errMsg)
 	}
 }

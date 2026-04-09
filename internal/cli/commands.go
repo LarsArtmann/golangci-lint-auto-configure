@@ -116,6 +116,7 @@ func saveMergedConfigAndReturn(
 
 	if len(mergeResult.BackedUpConfigs) > 0 {
 		logger.Infof("💾 Backups created:")
+
 		for original, backup := range mergeResult.BackedUpConfigs {
 			logger.Infof("   %s -> %s", original, backup)
 		}
