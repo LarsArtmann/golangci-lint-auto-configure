@@ -51,7 +51,7 @@ func (a *Analyzer) runWithRetry(
 
 	output, err := utils.WithRetry(ctx, config, name, shouldRetry, operation)
 	if err != nil {
-		return output, err
+		return output, fmt.Errorf("running %s with retry: %w", name, err)
 	}
 
 	return output, nil

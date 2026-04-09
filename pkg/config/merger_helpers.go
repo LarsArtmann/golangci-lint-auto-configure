@@ -117,15 +117,15 @@ func configPriorityMap() map[string]int {
 }
 
 // createBackup creates a backup of the given config file.
-func createBackup(fs afero.Fs, path string) (string, error) {
-	data, err := afero.ReadFile(fs, path)
+func createBackup(fileSystem afero.Fs, path string) (string, error) {
+	data, err := afero.ReadFile(fileSystem, path)
 	if err != nil {
 		return "", fmt.Errorf("failed to read config for backup: %w", err)
 	}
 
 	backupPath := path + ".merge-backup"
 
-	err = afero.WriteFile(fs, backupPath, data, backupFilePermission)
+	err = afero.WriteFile(fileSystem, backupPath, data, backupFilePermission)
 	if err != nil {
 		return "", fmt.Errorf("failed to write backup: %w", err)
 	}

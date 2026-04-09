@@ -77,19 +77,22 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 	}
 
 	// Run linters and formatters parsing in parallel using errgroup
-	g, ctx := errgroup.WithContext(ctx)
+	errGroup, ctx := errgroup.WithContext(ctx)
 
-	var linterOutput *golangciLintOutput
-	var linterErr error
+	var (
+		linterOutput *golangciLintOutput
+		linterErr    error
+	)
 
-	g.Go(func() error {
+	errGroup.Go(func() error {
 		linterOutput, linterErr = a.parseLintersOutput(ctx, configPath)
+
 		return linterErr
 	})
 
 	formatterOutput := a.parseFormattersOutput(ctx, configPath)
 
-	if err := g.Wait(); err != nil {
+	if err := errGroup.Wait(); err != nil {
 		return types.ErrAnalysis(err)
 	}
 

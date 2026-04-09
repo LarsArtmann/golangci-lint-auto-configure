@@ -50,47 +50,42 @@ func testSloglintMapping(input, expected string, shouldExist bool) {
 	}
 }
 
-// runMigration creates a migrator and runs the migration, returning the migrator and result.
-func runMigration(configPath string) (*migration.Migrator, bool, int, error) {
-	m, err := migration.NewMigrator(configPath, false)
+// runMigration creates a migrator and runs the migration, returning the result.
+func runMigration(configPath string) (bool, int, error) {
+	migrator, err := migration.NewMigrator(configPath, false)
 	if err != nil {
-		return nil, false, 0, err
+		return false, 0, err
 	}
 
-	m.SetValidator(migration.MockValidator{})
-	success, fixes, err := m.MigrateToV2()
+	migrator.SetValidator(migration.MockValidator{})
+	success, fixes, err := migrator.MigrateToV2()
 
-	return m, success, fixes, err
+	return success, fixes, err
 }
 
 // testMigrationWithConfig creates a config file and runs migration.
-func testMigrationWithConfig(testDir, configContent string) (string, *migration.Migrator, int) {
+func testMigrationWithConfig(testDir, configContent string) string {
 	configPath := filepath.Join(testDir, ".golangci.yml")
 	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
-	_, success, fixes, err := runMigration(configPath)
-	Expect(err).NotTo(HaveOccurred())
-	Expect(success).To(BeTrue())
-	Expect(fixes).To(BeNumerically(">", 0))
-
-	m, err := migration.NewMigrator(configPath, false)
-	Expect(err).NotTo(HaveOccurred())
-
-	return configPath, m, fixes
-}
-
-// testSimpleMigration creates a test dir, writes config and runs migration.
-func testSimpleMigration(configContent string) string {
-	testDir := GinkgoT().TempDir()
-	configPath := filepath.Join(testDir, ".golangci.yml")
-	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-	_, success, fixes, err := runMigration(configPath)
+	success, fixes, err := runMigration(configPath)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(success).To(BeTrue())
 	Expect(fixes).To(BeNumerically(">", 0))
 
 	return configPath
+}
+
+// testSimpleMigration creates a test dir, writes config and runs migration.
+func testSimpleMigration(configContent string) {
+	testDir := GinkgoT().TempDir()
+	configPath := filepath.Join(testDir, ".golangci.yml")
+	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+	success, fixes, err := runMigration(configPath)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(success).To(BeTrue())
+	Expect(fixes).To(BeNumerically(">", 0))
 }
 
 // v2ConfigWithExcludeDirs returns a v2 config with exclude-dirs.
@@ -584,8 +579,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath, _, _ := testMigrationWithConfig(testDir, configContent)
-			_ = configPath
+			testMigrationWithConfig(testDir, configContent)
 		})
 	})
 
@@ -597,7 +591,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath, _, _ := testMigrationWithConfig(testDir, configContent)
+			configPath := testMigrationWithConfig(testDir, configContent)
 
 			// Verify version was set to "2"
 			cfg, err := migration.LoadConfig(configPath)
@@ -625,7 +619,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath, _, _ := testMigrationWithConfig(testDir, configContent)
+			configPath := testMigrationWithConfig(testDir, configContent)
 
 			// Verify timeout was set
 			cfg, err := migration.LoadConfig(configPath)

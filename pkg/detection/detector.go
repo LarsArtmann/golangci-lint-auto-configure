@@ -28,7 +28,7 @@ func closeFile(c io.Closer) {
 // walkGoFiles walks all .go files in the directory and calls processFile for each.
 // Returns early if processFile returns filepath.SkipAll.
 func (d *Detector) walkGoFiles(processFile func(*os.File) error) error {
-	return filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
+	walkErr := filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
 			return nil
 		}
@@ -41,6 +41,11 @@ func (d *Detector) walkGoFiles(processFile func(*os.File) error) error {
 
 		return processFile(file)
 	})
+	if walkErr != nil {
+		return fmt.Errorf("walking directory %s: %w", d.rootDir, walkErr)
+	}
+
+	return nil
 }
 
 func (p ProjectType) String() string {
