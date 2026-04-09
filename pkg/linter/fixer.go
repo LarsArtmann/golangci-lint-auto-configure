@@ -2,11 +2,8 @@ package linter
 
 import (
 	"context"
-	"slices"
 
 	"charm.land/log/v2"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -194,7 +191,8 @@ func (f *Fixer) applyAllFixes(
 	originalEnabled []string,
 ) fixCounts {
 	counts := newFixCounts()
-	linterSet = f.replaceDeprecatedLinters(linterSet, originalEnabled, dryRun, &counts)
+	handler := newDeprecatedLinterHandler(f.logger)
+	linterSet = handler.replaceLinters(linterSet, originalEnabled, dryRun, &counts)
 	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
 	counts.formatter += f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun)
 	counts.formatter += f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun)
@@ -225,10 +223,11 @@ func (f *Fixer) applyAndSave(
 ) types.MigrationResultType {
 	f.logger.Infof("Applying %d fixes...", counts.total())
 
-	f.updateConfigFromSets(cfg, linterSet, formatterSet)
-	f.updateGoVersion(ctx, cfg)
-	f.updateRunnerSettings(cfg)
-	f.updateBuildTags(cfg)
+	updater := newConfigUpdater(f.logger)
+	updater.updateGoVersion(ctx, cfg)
+	updater.updateRunnerSettings(cfg)
+	updater.updateBuildTags(cfg)
+	updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
 
 	f.logger.Infof("Saving configuration...")
 
@@ -241,112 +240,9 @@ func (f *Fixer) applyAndSave(
 
 
 
-func (f *Fixer) updateGoVersion(ctx context.Context, cfg *types.Config) {
-	goVersion := config.GetLocalGoVersion(ctx)
-	if goVersion == "" {
-		return
-	}
 
-	if cfg.Run.Go != goVersion {
-		f.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, goVersion)
-		cfg.Run.Go = goVersion
-	}
-}
 
-func (f *Fixer) updateRunnerSettings(cfg *types.Config) {
-	if !cfg.Run.AllowParallelRunners {
-		f.logger.Infof("Enabling allow-parallel-runners: %v -> true", cfg.Run.AllowParallelRunners)
-		cfg.Run.AllowParallelRunners = true
-	}
 
-	if !cfg.Run.AllowSerialRunners {
-		f.logger.Infof("Enabling allow-serial-runners: %v -> true", cfg.Run.AllowSerialRunners)
-		cfg.Run.AllowSerialRunners = true
-	}
-}
-
-func (f *Fixer) updateBuildTags(cfg *types.Config) {
-	existingTags := types.NewSet(cfg.Run.BuildTags...)
-
-	for _, tag := range constants.GoExperimentTags() {
-		if !existingTags.Contains(tag) {
-			f.logger.Infof("Adding build tag: %s", tag)
-			cfg.Run.BuildTags = append(cfg.Run.BuildTags, tag)
-			existingTags.Add(tag)
-		}
-	}
-
-	cfg.Run.BuildTags = sortAndDeduplicate(cfg.Run.BuildTags)
-}
-
-func sortAndDeduplicate(tags []string) []string {
-	if len(tags) <= 1 {
-		return tags
-	}
-
-	slices.Sort(tags)
-
-	return slices.Compact(tags)
-}
-
-// replaceDeprecatedLinters replaces deprecated linters with their successors in the linter set.
-func (f *Fixer) replaceDeprecatedLinters(
-	linterSet types.Set[string],
-	enabledLinters []string,
-	dryRun bool,
-	counts *fixCounts,
-) types.Set[string] {
-	for _, linter := range enabledLinters {
-		replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
-		if !isDeprecated {
-			continue
-		}
-
-		counts.deprecation++
-
-		linterSet.Delete(linter)
-
-		if linterSet.Contains(string(replacement.Replacement)) {
-			f.logDeprecatedKeep(linter, replacement.Replacement, dryRun)
-
-			continue
-		}
-
-		f.logDeprecatedReplace(linter, replacement, dryRun)
-
-		if !dryRun {
-			linterSet.Add(string(replacement.Replacement))
-		}
-	}
-
-	return linterSet
-}
-
-func (f *Fixer) logDeprecatedKeep(linter string, replacement types.LinterName, dryRun bool) {
-	if dryRun {
-		f.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)", linter, replacement)
-	} else {
-		f.logger.Debugf("Removing deprecated %s (keeping existing %s)", linter, replacement)
-	}
-}
-
-func (f *Fixer) logDeprecatedReplace(linter string, replacement types.LinterReplacement, dryRun bool) {
-	if dryRun {
-		f.logger.Infof(
-			"[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)",
-			linter,
-			replacement.Replacement,
-			replacement.Reason,
-		)
-	} else {
-		f.logger.Infof(
-			"Replacing deprecated linter: %s -> %s (%s)",
-			linter,
-			replacement.Replacement,
-			replacement.Reason,
-		)
-	}
-}
 
 // enableRecommendedLinters enables recommended linters that aren't already enabled or explicitly disabled.
 func (f *Fixer) enableRecommendedLinters(
@@ -384,47 +280,4 @@ func (f *Fixer) enableRecommendedLinters(
 	return count
 }
 
-func resolveLinterName(name types.LinterName) string {
-	if replacement, isDeprecated := constants.DeprecatedLinters[name]; isDeprecated {
-		return string(replacement.Replacement)
-	}
 
-	return name.String()
-}
-
-// updateConfigFromSets applies the linter and formatter sets back to the config struct.
-func (f *Fixer) updateConfigFromSets(
-	cfg *types.Config,
-	linterSet types.Set[string],
-	formatterSet types.Set[string],
-) {
-	enabledLinters := types.ToSortedSlice(linterSet)
-
-	disabledLintersList := make([]string, 0)
-	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter string) bool {
-		if constants.DisabledLinters.Contains(types.LinterName(linter)) {
-			disabledLintersList = append(disabledLintersList, linter)
-
-			return true
-		}
-
-		return false
-	})
-
-	cfg.Linters.Enable = enabledLinters
-	cfg.Linters.Disable = disabledLintersList
-
-	if formatterSet.Len() > 0 {
-		cfg.Formatters.Enable = f.formatterManager.ToOrderedSlice(formatterSet)
-	}
-}
-
-func hasDeprecatedLinters(enabledLinters []string) bool {
-	for _, linter := range enabledLinters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
-			return true
-		}
-	}
-
-	return false
-}
