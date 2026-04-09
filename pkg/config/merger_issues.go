@@ -4,8 +4,17 @@ package config
 func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 	changes := 0
 
-	// Note: 0 is a valid value (disable), so we check if primary hasn't been explicitly set
-	// We use a heuristic: if both MaxIssuesPerLinter and MaxSameIssues are 0, assume unset
+	changes += mergeIssuesNumericFields(primary, secondary)
+	changes += mergeIssuesStringFields(primary, secondary)
+	changes += mergeIssuesBoolFields(primary, secondary)
+
+	return changes
+}
+
+// Note: 0 is a valid value (disable), so we check if primary hasn't been explicitly set.
+func mergeIssuesNumericFields(primary, secondary *IssuesConfig) int {
+	changes := 0
+
 	if primary.MaxIssuesPerLinter == 0 && secondary.MaxIssuesPerLinter != 0 {
 		primary.MaxIssuesPerLinter = secondary.MaxIssuesPerLinter
 		changes++
@@ -15,6 +24,12 @@ func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 		primary.MaxSameIssues = secondary.MaxSameIssues
 		changes++
 	}
+
+	return changes
+}
+
+func mergeIssuesStringFields(primary, secondary *IssuesConfig) int {
+	changes := 0
 
 	if primary.NewFromRev == "" && secondary.NewFromRev != "" {
 		primary.NewFromRev = secondary.NewFromRev
@@ -30,6 +45,12 @@ func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 		primary.NewFromMergeBase = secondary.NewFromMergeBase
 		changes++
 	}
+
+	return changes
+}
+
+func mergeIssuesBoolFields(primary, secondary *IssuesConfig) int {
+	changes := 0
 
 	if !primary.New && secondary.New {
 		primary.New = secondary.New
@@ -47,7 +68,6 @@ func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 	}
 
 	if !primary.UniqByLine && secondary.UniqByLine {
-		// Only set if secondary is true (default is usually true)
 		primary.UniqByLine = secondary.UniqByLine
 		changes++
 	}

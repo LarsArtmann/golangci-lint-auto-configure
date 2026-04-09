@@ -76,7 +76,19 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 		return types.ErrAnalysis(err)
 	}
 
-	// Run linters and formatters parsing in parallel using errgroup
+	linterOutput, formatterOutput, err := a.parseConfigOutputs(ctx, configPath)
+	if err != nil {
+		return types.ErrAnalysis(err)
+	}
+
+	return types.OkAnalysis(a.buildAnalysis(configPath, linterOutput, formatterOutput))
+}
+
+// parseConfigOutputs runs linter and formatter parsing in parallel using errgroup.
+func (a *Analyzer) parseConfigOutputs(
+	ctx context.Context,
+	configPath string,
+) (*golangciLintOutput, *golangciLintFormattersOutput, error) {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	var (
@@ -93,9 +105,18 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 	formatterOutput := a.parseFormattersOutput(ctx, configPath)
 
 	if err := errGroup.Wait(); err != nil {
-		return types.ErrAnalysis(err)
+		return nil, nil, err
 	}
 
+	return linterOutput, formatterOutput, nil
+}
+
+// buildAnalysis constructs the ConfigAnalysis from parsed outputs.
+func (a *Analyzer) buildAnalysis(
+	configPath string,
+	linterOutput *golangciLintOutput,
+	formatterOutput *golangciLintFormattersOutput,
+) *types.ConfigAnalysis {
 	analysis := &types.ConfigAnalysis{
 		ConfigPath:               configPath,
 		EnabledLinters:           linterOutput.Enabled,
@@ -109,7 +130,7 @@ func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) t
 	a.calculateDeprecatedLinters(analysis)
 	a.calculateRecommendationCounts(analysis)
 
-	return types.OkAnalysis(analysis)
+	return analysis
 }
 
 // GetLintersByPriority returns recommendations filtered by priority.

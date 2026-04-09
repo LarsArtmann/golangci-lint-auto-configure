@@ -4,7 +4,16 @@ package config
 func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
 	changes := 0
 
-	// Only merge if primary has zero values and secondary has values
+	changes += mergeRunStringFields(primary, secondary)
+	changes += mergeRunBoolFields(primary, secondary)
+	changes += mergeRunNumericFields(primary, secondary)
+
+	return changes
+}
+
+func mergeRunStringFields(primary, secondary *RunConfig) int {
+	changes := 0
+
 	if primary.Timeout == "" && secondary.Timeout != "" {
 		primary.Timeout = secondary.Timeout
 		changes++
@@ -25,6 +34,17 @@ func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
 		changes++
 	}
 
+	if primary.RelativePathMode == "" && secondary.RelativePathMode != "" {
+		primary.RelativePathMode = secondary.RelativePathMode
+		changes++
+	}
+
+	return changes
+}
+
+func mergeRunBoolFields(primary, secondary *RunConfig) int {
+	changes := 0
+
 	if !primary.AllowParallelRunners && secondary.AllowParallelRunners {
 		primary.AllowParallelRunners = secondary.AllowParallelRunners
 		changes++
@@ -35,23 +55,24 @@ func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
 		changes++
 	}
 
-	if primary.IssuesExitCode == 0 && secondary.IssuesExitCode != 0 {
-		primary.IssuesExitCode = secondary.IssuesExitCode
-		changes++
-	}
-
 	if !primary.Tests && secondary.Tests {
 		primary.Tests = secondary.Tests
 		changes++
 	}
 
-	if primary.Concurrency == 0 && secondary.Concurrency != 0 {
-		primary.Concurrency = secondary.Concurrency
+	return changes
+}
+
+func mergeRunNumericFields(primary, secondary *RunConfig) int {
+	changes := 0
+
+	if primary.IssuesExitCode == 0 && secondary.IssuesExitCode != 0 {
+		primary.IssuesExitCode = secondary.IssuesExitCode
 		changes++
 	}
 
-	if primary.RelativePathMode == "" && secondary.RelativePathMode != "" {
-		primary.RelativePathMode = secondary.RelativePathMode
+	if primary.Concurrency == 0 && secondary.Concurrency != 0 {
+		primary.Concurrency = secondary.Concurrency
 		changes++
 	}
 

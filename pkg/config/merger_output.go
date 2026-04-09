@@ -1,21 +1,12 @@
 package config
 
+import "maps"
+
 // mergeOutputConfig merges output configurations.
 func (cm *Merger) mergeOutputConfig(primary, secondary *OutputConfig) int {
 	changes := 0
 
-	// Merge formats
-	if len(primary.Formats) == 0 && len(secondary.Formats) > 0 {
-		primary.Formats = secondary.Formats
-		changes++
-	} else if len(secondary.Formats) > 0 {
-		for key, value := range secondary.Formats {
-			if _, exists := primary.Formats[key]; !exists {
-				primary.Formats[key] = value
-				changes++
-			}
-		}
-	}
+	changes += mergeFormatMap(primary.Formats, secondary.Formats)
 
 	if primary.PathPrefix == "" && secondary.PathPrefix != "" {
 		primary.PathPrefix = secondary.PathPrefix
@@ -35,6 +26,26 @@ func (cm *Merger) mergeOutputConfig(primary, secondary *OutputConfig) int {
 	if !primary.ShowStats && secondary.ShowStats {
 		primary.ShowStats = secondary.ShowStats
 		changes++
+	}
+
+	return changes
+}
+
+// mergeFormatMap merges secondary format map into primary.
+func mergeFormatMap(primary, secondary map[string]any) int {
+	if len(primary) == 0 && len(secondary) > 0 {
+		maps.Copy(primary, secondary)
+
+		return 1
+	}
+
+	changes := 0
+
+	for key, value := range secondary {
+		if _, exists := primary[key]; !exists {
+			primary[key] = value
+			changes++
+		}
 	}
 
 	return changes

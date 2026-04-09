@@ -29,27 +29,56 @@ func mergeSettingsMaps(primary, secondary map[string]any) int {
 	return changes
 }
 
-// mergeStringSlices merges secondary slice into primary slice, returning number of changes.
-func mergeStringSlices(primary, secondary []string) int {
+// mergeSortedStringSlice merges secondary into primary string slice with deduplication and sorting.
+// Returns the number of changes made.
+func mergeSortedStringSlice(primary, secondary []string) ([]string, int) {
 	if len(primary) == 0 && len(secondary) > 0 {
-		return len(secondary)
+		return secondary, 1
 	}
 
 	if len(secondary) == 0 {
-		return 0
+		return primary, 0
 	}
 
 	primarySet := types.NewSet(primary...)
 	changes := 0
 
-	for _, p := range secondary {
-		if !primarySet.Contains(p) {
-			primary = append(primary, p)
+	for _, item := range secondary {
+		if !primarySet.Contains(item) {
+			primary = append(primary, item)
 			changes++
 		}
 	}
 
-	return changes
+	if changes > 0 {
+		sort.Strings(primary)
+	}
+
+	return primary, changes
+}
+
+// mergeStringSetSlice merges secondary into primary string slice with deduplication (no sorting).
+// Returns the number of changes made.
+func mergeStringSetSlice(primary, secondary []string) (int, []string) {
+	if len(primary) == 0 && len(secondary) > 0 {
+		return len(secondary), secondary
+	}
+
+	if len(secondary) == 0 {
+		return 0, primary
+	}
+
+	primarySet := types.NewSet(primary...)
+	changes := 0
+
+	for _, item := range secondary {
+		if !primarySet.Contains(item) {
+			primary = append(primary, item)
+			changes++
+		}
+	}
+
+	return changes, primary
 }
 
 // mergePaths merges secondary paths into primary paths, updating primary if empty.
