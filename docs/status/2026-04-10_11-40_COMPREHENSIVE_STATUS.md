@@ -11,41 +11,41 @@
 
 ### a) FULLY DONE
 
-| Task | Status | Notes |
-|------|--------|-------|
-| Codebase research — golangci-lint-auto-configure | ✅ DONE | Read all critical files: fixer.go, loader.go, merger.go, cmd_configure.go, cmd_builder.go, commands.go, fixer_preflight.go, fixer_config.go, fixer_formatters.go, merger_*.go, linter_priorities.go, types.go |
-| YAML parsing investigation | ✅ DONE | Tested yaml library (go.yaml.in/yaml/v3 v3.0.4) — correctly handles go-localfirst config, no duplicate key on marshal/unmarshal cycle |
-| Config struct analysis | ✅ DONE | types.Config, LintersConfig, FormattersConfig, OutputConfig — all struct tags verified correct |
-| Priority default investigation | ✅ DONE | Found the conflicting defaults |
-| git history analysis (go-localfirst) | ✅ DONE | Found root cause of original duplicate linters key |
-| Build environment diagnosis | ✅ DONE | Identified broken Nix Go conflict |
+| Task                                             | Status  | Notes                                                                                                                                                                                                          |
+| ------------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Codebase research — golangci-lint-auto-configure | ✅ DONE | Read all critical files: fixer.go, loader.go, merger.go, cmd*configure.go, cmd_builder.go, commands.go, fixer_preflight.go, fixer_config.go, fixer_formatters.go, merger*\*.go, linter_priorities.go, types.go |
+| YAML parsing investigation                       | ✅ DONE | Tested yaml library (go.yaml.in/yaml/v3 v3.0.4) — correctly handles go-localfirst config, no duplicate key on marshal/unmarshal cycle                                                                          |
+| Config struct analysis                           | ✅ DONE | types.Config, LintersConfig, FormattersConfig, OutputConfig — all struct tags verified correct                                                                                                                 |
+| Priority default investigation                   | ✅ DONE | Found the conflicting defaults                                                                                                                                                                                 |
+| git history analysis (go-localfirst)             | ✅ DONE | Found root cause of original duplicate linters key                                                                                                                                                             |
+| Build environment diagnosis                      | ✅ DONE | Identified broken Nix Go conflict                                                                                                                                                                              |
 
 ### b) PARTIALLY DONE
 
-| Task | Status | Blocker |
-|------|--------|---------|
-| YAML duplicate key bug — ROOT CAUSE | 🔄 PARTIAL | Likely in multiple SaveConfig calls within pre-flight fix chain, but NOT yet confirmed |
-| Fix implementation — priority default | ⏸️ WAITING | Root cause found, fix ready to implement |
+| Task                                    | Status     | Blocker                                                                                |
+| --------------------------------------- | ---------- | -------------------------------------------------------------------------------------- |
+| YAML duplicate key bug — ROOT CAUSE     | 🔄 PARTIAL | Likely in multiple SaveConfig calls within pre-flight fix chain, but NOT yet confirmed |
+| Fix implementation — priority default   | ⏸️ WAITING | Root cause found, fix ready to implement                                               |
 | Fix implementation — YAML duplicate key | ⏸️ WAITING | Root cause hypothesis: pre-flight multi-save pattern corrupts struct before final save |
 
 ### c) NOT STARTED
 
-| Task | Status |
-|------|--------|
-| Fix: Change global `--priority` default from `"high"` to `"optional"` |
+| Task                                                                                                                                                                         | Status |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| Fix: Change global `--priority` default from `"high"` to `"optional"`                                                                                                        |
 | Fix: Change configure command default `--priority` from `"high"` to `"optional"` (already correct in flag, but default in `ParsePriorityParam` still maps unknown to `High`) |
-| Fix: Prevent YAML duplicate key corruption — restructure pre-flight saves |
-| Fix: Broken Nix Go build environment |
-| Test all fixes |
-| Commit fixes |
+| Fix: Prevent YAML duplicate key corruption — restructure pre-flight saves                                                                                                    |
+| Fix: Broken Nix Go build environment                                                                                                                                         |
+| Test all fixes                                                                                                                                                               |
+| Commit fixes                                                                                                                                                                 |
 
 ### d) TOTALLY FUCKED UP
 
-| Issue | Severity | Detail |
-|-------|----------|--------|
-| Global `--priority` default is `"high"` but configure subcommand says "default: optional" | 🔴 CRITICAL | User ran tool with NO flags, got `high` instead of `optional`, enabling only critical+high priority linters |
-| Build broken in golangci-lint-auto-configure | 🔴 CRITICAL | `/nix/store/...go-1.26.0` paths being used instead of actual Go installation, making `go test ./...` fail with "package encoding is not in std" errors |
-| golangci-lint-auto-configure --fix corrupts go-localfirst golangci.yml | 🔴 CRITICAL | Tool produces duplicate `linters:` key in saved config |
+| Issue                                                                                     | Severity    | Detail                                                                                                                                                 |
+| ----------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Global `--priority` default is `"high"` but configure subcommand says "default: optional" | 🔴 CRITICAL | User ran tool with NO flags, got `high` instead of `optional`, enabling only critical+high priority linters                                            |
+| Build broken in golangci-lint-auto-configure                                              | 🔴 CRITICAL | `/nix/store/...go-1.26.0` paths being used instead of actual Go installation, making `go test ./...` fail with "package encoding is not in std" errors |
+| golangci-lint-auto-configure --fix corrupts go-localfirst golangci.yml                    | 🔴 CRITICAL | Tool produces duplicate `linters:` key in saved config                                                                                                 |
 
 ---
 
@@ -70,6 +70,7 @@ The global `--priority` default is `"high"` but the configure subcommand's own `
 **Impact:** Running `golangci-lint-auto-configure configure` (no flags) uses `priority="high"`, enabling only ~30 critical+high linters instead of ALL ~109 linters.
 
 **Additionally:** In `cmd_configure.go:288-300`:
+
 ```go
 func ParsePriorityParam(priorityParam string) types.LinterPriority {
     switch priorityParam {
@@ -78,6 +79,7 @@ func ParsePriorityParam(priorityParam string) types.LinterPriority {
     }
 }
 ```
+
 If the default value is somehow `""` (empty string), it falls back to `LinterPriorityHigh`.
 
 ### Bug #2: YAML Duplicate Key Corruption
@@ -86,6 +88,7 @@ If the default value is somehow `""` (empty string), it falls back to `LinterPri
 
 **Historical context (go-localfirst):**
 The original `go-localfirst/.golangci.yml` (pre-commit `8bf0088^`) had a genuine duplicate `linters:` key:
+
 - Line 15: First `linters:` with `enable:` list
 - Line 136: Second `linters:` with only `settings:`
 
@@ -110,6 +113,7 @@ func (f *Fixer) runPreFlightChecks(...) {
 ```
 
 Each `preFixXXX` function modifies the Config struct and saves it. The issue may be:
+
 1. Multiple writes to the same file in quick succession, with file system buffering issues
 2. The Config struct getting corrupted between saves
 3. OR: The yaml library (`go.yaml.in/yaml/v3`) producing slightly different output on each marshal, and when golangci-lint fmt processes it, the format changes in a way that causes a duplicate key
@@ -117,6 +121,7 @@ Each `preFixXXX` function modifies the Config struct and saves it. The issue may
 **More likely hypothesis:** The `golangci-lint fmt` command that the tool runs AFTER saving the config is producing a DIFFERENT YAML structure. The tool calls `RunFmtCommand` which runs `golangci-lint fmt --config=<path>`. This golangci-lint command might be using a DIFFERENT yaml library that produces a different format, and when the next read/write cycle happens, the structure is corrupted.
 
 **The smoking gun:** The `go-localfirst/.golangci.yml` was originally broken (had real duplicate key). Commit `8bf0088` fixed it. But now running `golangci-lint-auto-configure configure` produces the same error — suggesting the tool is either:
+
 1. Reading a DIFFERENT config file than expected
 2. Running on the go-localfirst project's OWN broken `.golangci.yml` instead of its own project config
 
@@ -145,6 +150,7 @@ Actually, I tested this already and it works. Let me reconsider.
 But the user's current command output shows today's date (2026-04-10) and the go-localfirst file is already fixed (post-8bf0088). So why does the error persist?
 
 Possibilities:
+
 1. The tool writes a config that the NEXT tool invocation reads, and the write is wrong
 2. There's a bug in how the tool handles `output.formats: {}` — specifically, when unmarshaling `formats: {}` into `map[string]any`, the yaml library might create a nested structure
 3. The tool has a second code path that generates a brand new config with a duplicate key
@@ -156,6 +162,7 @@ What if the yaml has `output: {}`? Then the `Formats` field would be nil. But th
 Hmm. Let me try another angle. What if the `golangci-lint-auto-configure` tool generates a NEW config with `output: {}` (empty output section) and the yaml library marshals this as `output:\n  formats: {}` (because Formats field is not omitempty)? That would create an extra key.
 
 Actually, I think the issue might be in the `FormattersConfig` struct:
+
 ```go
 type FormattersConfig struct {
     Enable     []string          `yaml:"enable,omitempty"`
@@ -168,6 +175,7 @@ type FormattersConfig struct {
 This struct has NO top-level yaml tag. Wait, let me recheck the actual struct:
 
 Looking at the actual code in `pkg/types/types.go`:
+
 ```go
 type FormattersConfig struct {
     Enable     []string                   `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
@@ -202,6 +210,7 @@ StringVar(&priority, "priority", "optional", "Minimum priority level to enable..
 The configure subcommand's `--priority` flag default (line 103) already says `"optional"` which is correct. But the comment in the long help text says `default: optional` which is also correct. So the configure subcommand flag default is fine.
 
 **Also update the help text** in `configureLong` (line 29-34):
+
 ```
 - optional: Enable all linters (default)  // Already says "default"
 ```
@@ -209,9 +218,11 @@ The configure subcommand's `--priority` flag default (line 103) already says `"o
 The problem is the GLOBAL default in `commands.go` which wins over the subcommand flag.
 
 **Additional consideration:** The configure subcommand ALSO binds to the SAME `priority` variable:
+
 ```go
 cmd.Flags().StringVar(&priority, "priority", "optional", "...")
 ```
+
 Since both global and local flags bind to the same variable, and the global is registered first, the global default "high" is set first, then the local flag with "optional" would... actually this is wrong. Cobra handles this correctly — local flags override global flags. But the issue is that the local flag default is only used when the flag is explicitly specified on the command line. If the flag is NOT specified, the global default takes effect.
 
 Wait, let me re-read cobra's behavior. In cobra, persistent flags (global) are set first, then command-specific flags override them. But the DEFAULT values work differently — each flag's default is independently set. So if both global and local flags bind to the same variable, the LAST one to register wins for the default value.
@@ -221,6 +232,7 @@ Actually, this is the key insight: both `StringVar` calls bind to the SAME `prio
 So why is the user getting `priority=high`? Let me look at the flag registration order more carefully.
 
 Looking at `commands.go`:
+
 ```go
 func NewRootCommand() *cobra.Command {
     // ...
@@ -241,6 +253,7 @@ func addSubCommands(...) {
 Wait — the subcommands are added BEFORE global flags are registered! So the configure command is created and its local flags are registered first. Then `registerGlobalFlags` is called and registers the global `--priority` flag. But both bind to the same `priority` variable.
 
 In cobra, the order of execution is:
+
 1. `addSubCommands` runs → `newConfigureCommand` is called → local `--priority` flag is registered with default `"optional"`
 2. `registerGlobalFlags` runs → global `--priority` flag is registered with default `"high"`
 
@@ -249,6 +262,7 @@ Since both flags bind to the same variable `priority`, and they execute in order
 **Therefore:** The bug is confirmed — the global `--priority` default of `"high"` overrides the subcommand's `"optional"` default because the global flag is registered AFTER the subcommand flags, and both bind to the same variable.
 
 **Fix:** Either:
+
 1. Change global `--priority` default to `"optional"` (simplest)
 2. Change the order so global flags are registered before subcommands
 3. Remove the conflicting global and local priority flags, keep only one
@@ -279,6 +293,7 @@ The cleanest fix would be to refactor the pre-flight functions to NOT save indiv
 ## BUILD ENVIRONMENT BUG: Nix Go Conflict
 
 **Issue:** Go build fails with:
+
 ```
 /nix/store/5ajixjk279m40yf6x96xxlnvw1wg6hq3-go-1.26.0/share/go/src/encoding: package encoding is not in std
 ```
@@ -368,6 +383,7 @@ The cleanest fix would be to refactor the pre-flight functions to NOT save indiv
 **Why does `golangci-lint-auto-configure configure` produce a duplicate `linters:` key when `golangci-lint fmt` processes the saved config?**
 
 I have tested the yaml library (go.yaml.in/yaml/v3) and confirmed it correctly:
+
 - Unmarshals the go-localfirst `.golangci.yml` (no duplicate keys in original)
 - Marshals it back to valid YAML (only ONE `linters:` key at line 15)
 - Re-unmarshals without errors

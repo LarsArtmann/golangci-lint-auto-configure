@@ -112,7 +112,7 @@ func mergePaths(primary *[]string, secondary []string) int {
 }
 
 // countDuplicates returns the number of items in secondary that already exist in primary.
-func countDuplicates(primary []string, secondary []string) int {
+func countDuplicates(primary, secondary []string) int {
 	primarySet := types.NewSet(primary...)
 	duplicates := 0
 
