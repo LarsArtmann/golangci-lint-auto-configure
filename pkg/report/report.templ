@@ -12,6 +12,24 @@ type ReportData struct {
 	Analysis *types.ConfigAnalysis
 }
 
+// LinterPrioritySection renders a section for a specific linter priority level.
+templ LinterPrioritySection(analysis *types.ConfigAnalysis, title string, count int, priority types.LinterPriority, emoji string, class string, badge string) {
+	<div class="section">
+		<h2>{ emoji } { title } <span class="count">{ fmt.Sprintf("%d", count) }</span></h2>
+		<div class="linter-grid">
+			for _, rec := range analysis.LinterRecommendations {
+				if rec.Priority == priority {
+					<div class={ "linter-card", class }>
+						<span class="badge">{ badge }</span>
+						<h4>{ rec.Name.String() }</h4>
+						<p>{ constants.LinterReasons[rec.Name] }</p>
+					</div>
+				}
+			}
+		</div>
+	</div>
+}
+
 templ Report(data ReportData) {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -153,62 +171,10 @@ templ Report(data ReportData) {
 					</div>
 				</div>
 				if len(data.Analysis.LinterRecommendations) > 0 {
-					<div class="section">
-						<h2>🚨 Critical Linters <span class="count">{ getCriticalCount(data.Analysis) }</span></h2>
-						<div class="linter-grid">
-							for _, rec := range data.Analysis.LinterRecommendations {
-								if rec.Priority == 0 {
-									<div class="linter-card critical">
-										<span class="badge">CRITICAL</span>
-										<h4>{ rec.Name.String() }</h4>
-										<p>{ constants.LinterReasons[rec.Name] }</p>
-									</div>
-								}
-							}
-						</div>
-					</div>
-					<div class="section">
-						<h2>⚠️ High Priority Linters <span class="count">{ getHighCount(data.Analysis) }</span></h2>
-						<div class="linter-grid">
-							for _, rec := range data.Analysis.LinterRecommendations {
-								if rec.Priority == 1 {
-									<div class="linter-card high">
-										<span class="badge">HIGH</span>
-										<h4>{ rec.Name.String() }</h4>
-										<p>{ constants.LinterReasons[rec.Name] }</p>
-									</div>
-								}
-							}
-						</div>
-					</div>
-					<div class="section">
-						<h2>ℹ️ Medium Priority Linters <span class="count">{ getMediumCount(data.Analysis) }</span></h2>
-						<div class="linter-grid">
-							for _, rec := range data.Analysis.LinterRecommendations {
-								if rec.Priority == 2 {
-									<div class="linter-card medium">
-										<span class="badge">MEDIUM</span>
-										<h4>{ rec.Name.String() }</h4>
-										<p>{ constants.LinterReasons[rec.Name] }</p>
-									</div>
-								}
-							}
-						</div>
-					</div>
-					<div class="section">
-						<h2>💡 Optional Linters <span class="count">{ getOptionalCount(data.Analysis) }</span></h2>
-						<div class="linter-grid">
-							for _, rec := range data.Analysis.LinterRecommendations {
-								if rec.Priority == 3 {
-									<div class="linter-card optional">
-										<span class="badge">OPTIONAL</span>
-										<h4>{ rec.Name.String() }</h4>
-										<p>{ constants.LinterReasons[rec.Name] }</p>
-									</div>
-								}
-							}
-						</div>
-					</div>
+					@LinterPrioritySection(data.Analysis, "Critical Linters", getCriticalCount(data.Analysis), types.LinterPriorityCritical, "🚨", "critical", "CRITICAL")
+					@LinterPrioritySection(data.Analysis, "High Priority Linters", getHighCount(data.Analysis), types.LinterPriorityHigh, "⚠️", "high", "HIGH")
+					@LinterPrioritySection(data.Analysis, "Medium Priority Linters", getMediumCount(data.Analysis), types.LinterPriorityMedium, "ℹ️", "medium", "MEDIUM")
+					@LinterPrioritySection(data.Analysis, "Optional Linters", getOptionalCount(data.Analysis), types.LinterPriorityOptional, "💡", "optional", "OPTIONAL")
 				} else {
 					<div class="success-message">
 						<h2>✅ Perfect Configuration</h2>

@@ -9,14 +9,21 @@ import (
 	uipkg "github.com/larsartmann/golangci-lint-auto-configure/pkg/ui"
 )
 
+// assertContains verifies that result contains the expected substring.
+func assertContains(t *testing.T, result, expected string) {
+	t.Helper()
+
+	if !strings.Contains(result, expected) {
+		t.Errorf("expected %q in result, got: %s", expected, result)
+	}
+}
+
 // assertFormatFixResult tests FormatFixResult with the given MigrationResult and expected substring.
 func assertFormatFixResult(t *testing.T, result *types.MigrationResult, expected string) {
 	t.Helper()
 
 	output := uipkg.FormatFixResult(result)
-	if !strings.Contains(output, expected) {
-		t.Errorf("expected '%s' in result, got: %s", expected, output)
-	}
+	assertContains(t, output, expected)
 }
 
 // newMigrationResult creates a MigrationResult with fixes applied.
@@ -42,9 +49,7 @@ func TestFormatRecommendations_AllEnabled(t *testing.T) {
 
 	result := uipkg.FormatRecommendations(analysis)
 
-	if !strings.Contains(result, "All recommended linters are already enabled") {
-		t.Errorf("expected 'All recommended linters are already enabled' in result, got: %s", result)
-	}
+	assertContains(t, result, "All recommended linters are already enabled")
 }
 
 func TestFormatRecommendations_WithCriticalLinter(t *testing.T) {
@@ -61,17 +66,9 @@ func TestFormatRecommendations_WithCriticalLinter(t *testing.T) {
 
 	result := uipkg.FormatRecommendations(analysis)
 
-	if !strings.Contains(result, "Critical") {
-		t.Errorf("expected 'Critical' section header in result, got: %s", result)
-	}
-
-	if !strings.Contains(result, "gosec") {
-		t.Errorf("expected 'gosec' linter name in result, got: %s", result)
-	}
-
-	if !strings.Contains(result, "Security linter") {
-		t.Errorf("expected linter reason in result, got: %s", result)
-	}
+	assertContains(t, result, "Critical")
+	assertContains(t, result, "gosec")
+	assertContains(t, result, "Security linter")
 }
 
 func TestFormatRecommendations_WithEnabledLinter(t *testing.T) {
@@ -90,9 +87,7 @@ func TestFormatRecommendations_WithEnabledLinter(t *testing.T) {
 
 	result := uipkg.FormatRecommendations(analysis)
 
-	if !strings.Contains(result, "✓") {
-		t.Errorf("expected '✓' for enabled linter in result, got: %s", result)
-	}
+	assertContains(t, result, "✓")
 }
 
 func TestFormatSummary(t *testing.T) {
@@ -107,33 +102,21 @@ func TestFormatSummary(t *testing.T) {
 
 	result := uipkg.FormatSummary(analysis)
 
-	if !strings.Contains(result, "Summary") {
-		t.Errorf("expected 'Summary' section header in result, got: %s", result)
-	}
-
-	if !strings.Contains(result, "Critical") {
-		t.Errorf("expected 'Critical' label in result, got: %s", result)
-	}
+	assertContains(t, result, "Summary")
+	assertContains(t, result, "Critical")
 }
 
 func TestFormatConfigHeader(t *testing.T) {
 	result := uipkg.FormatConfigHeader("/path/to/config.yml")
 
-	if !strings.Contains(result, "golangci-lint Configuration") {
-		t.Errorf("expected 'golangci-lint Configuration' in result, got: %s", result)
-	}
-
-	if !strings.Contains(result, "/path/to/config.yml") {
-		t.Errorf("expected config path in result, got: %s", result)
-	}
+	assertContains(t, result, "golangci-lint Configuration")
+	assertContains(t, result, "/path/to/config.yml")
 }
 
 func TestFormatDryRunWarning(t *testing.T) {
 	result := uipkg.FormatDryRunWarning()
 
-	if !strings.Contains(result, "DRY-RUN MODE") {
-		t.Errorf("expected 'DRY-RUN MODE' in result, got: %s", result)
-	}
+	assertContains(t, result, "DRY-RUN MODE")
 }
 
 func TestFormatFixResult_Success(t *testing.T) {
@@ -150,10 +133,7 @@ func TestFormatFixResult_Failure(t *testing.T) {
 	result := newMigrationErrorResult("something went wrong")
 
 	output := uipkg.FormatFixResult(result)
-
-	if !strings.Contains(output, "Fix failed") {
-		t.Errorf("expected 'Fix failed' in result, got: %s", output)
-	}
+	assertContains(t, output, "Fix failed")
 }
 
 func TestPriorityBadge(t *testing.T) {
@@ -179,55 +159,37 @@ func TestPriorityBadge(t *testing.T) {
 func TestSuccessMsg(t *testing.T) {
 	result := uipkg.SuccessMsg("test message")
 
-	if !strings.Contains(result, "✓") {
-		t.Errorf("expected '✓' in result, got: %s", result)
-	}
-
-	if !strings.Contains(result, "test message") {
-		t.Errorf("expected 'test message' in result, got: %s", result)
-	}
+	assertContains(t, result, "✓")
+	assertContains(t, result, "test message")
 }
 
 func TestErrorMsg(t *testing.T) {
 	result := uipkg.ErrorMsg("error message")
 
-	if !strings.Contains(result, "✗") {
-		t.Errorf("expected '✗' in result, got: %s", result)
-	}
+	assertContains(t, result, "✗")
 }
 
 func TestWarningMsg(t *testing.T) {
 	result := uipkg.WarningMsg("warning message")
 
-	if !strings.Contains(result, "⚠") {
-		t.Errorf("expected '⚠' in result, got: %s", result)
-	}
+	assertContains(t, result, "⚠")
 }
 
 func TestInfoMsg(t *testing.T) {
 	result := uipkg.InfoMsg("info message")
 
-	if !strings.Contains(result, "ℹ") {
-		t.Errorf("expected 'ℹ' in result, got: %s", result)
-	}
+	assertContains(t, result, "ℹ")
 }
 
 func TestCode(t *testing.T) {
 	result := uipkg.Code("my-code")
 
-	if !strings.Contains(result, "my-code") {
-		t.Errorf("expected 'my-code' in result, got: %s", result)
-	}
+	assertContains(t, result, "my-code")
 }
 
 func TestSectionHeader(t *testing.T) {
 	result := uipkg.SectionHeader("My Section")
 
-	if !strings.Contains(result, "My Section") {
-		t.Errorf("expected 'My Section' in result, got: %s", result)
-	}
-
-	if !strings.Contains(result, "━━") {
-		t.Errorf("expected '━━' separator in result, got: %s", result)
-	}
+	assertContains(t, result, "My Section")
+	assertContains(t, result, "━━")
 }

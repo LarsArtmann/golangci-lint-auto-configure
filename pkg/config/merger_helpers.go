@@ -52,15 +52,7 @@ func mergeSortedStringSlice(primary, secondary []string) ([]string, int) {
 		return primary, 0
 	}
 
-	primarySet := types.NewSet(primary...)
-	changes := 0
-
-	for _, item := range secondary {
-		if !primarySet.Contains(item) {
-			primary = append(primary, item)
-			changes++
-		}
-	}
+	primary, changes := mergeUniqueItems(primary, secondary)
 
 	if changes > 0 {
 		sort.Strings(primary)
@@ -80,6 +72,14 @@ func mergeStringSetSlice(primary, secondary []string) (int, []string) {
 		return 0, primary
 	}
 
+	_, changes := mergeUniqueItems(primary, secondary)
+
+	return changes, primary
+}
+
+// mergeUniqueItems adds items from secondary to primary that don't already exist.
+// Returns the updated slice and the number of changes made.
+func mergeUniqueItems(primary, secondary []string) ([]string, int) {
 	primarySet := types.NewSet(primary...)
 	changes := 0
 
@@ -90,7 +90,7 @@ func mergeStringSetSlice(primary, secondary []string) (int, []string) {
 		}
 	}
 
-	return changes, primary
+	return primary, changes
 }
 
 // mergePaths merges secondary paths into primary paths, updating primary if empty.
@@ -106,17 +106,23 @@ func mergePaths(primary *[]string, secondary []string) int {
 		return 0
 	}
 
-	primarySet := types.NewSet(*primary...)
-	changes := 0
+	*primary, _ = mergeUniqueItems(*primary, secondary)
 
-	for _, p := range secondary {
-		if !primarySet.Contains(p) {
-			*primary = append(*primary, p)
-			changes++
+	return len(secondary) - countDuplicates(*primary, secondary)
+}
+
+// countDuplicates returns the number of items in secondary that already exist in primary.
+func countDuplicates(primary []string, secondary []string) int {
+	primarySet := types.NewSet(primary...)
+	duplicates := 0
+
+	for _, item := range secondary {
+		if primarySet.Contains(item) {
+			duplicates++
 		}
 	}
 
-	return changes
+	return duplicates
 }
 
 // sortByPriority sorts config paths by golangci-lint search order priority.
