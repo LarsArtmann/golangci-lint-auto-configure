@@ -42,20 +42,20 @@ This proposal outlines a phased migration of **golangci-lint-auto-configure** to
 
 Every tool required to build, test, and lint this project, as extracted from the Justfile, scripts, and CI config:
 
-| Tool | Version / Source | Used By | How Installed Today |
-|---|---|---|---|
-| **Go** | 1.26 (go.mod: `go 1.26.0`) | Build, test, lint, install | Manual / `actions/setup-go@v5` |
-| **golangci-lint** | v2.10.1+ (min enforced in code) | `just lint`, CI, pre-commit | Manual / `golangci-lint-action@v9` |
-| **ginkgo** | v2.28.1 (indirect via go.mod) | `just test` (`ginkgo -r --cover`) | `go install` / comes with ginkgo dep |
-| **templ** | v0.3.1001 (go.mod) | `templ generate` (report templates) | Manual `go install` |
-| **just** | Any | All `just` commands | Manual (`brew install just`, etc.) |
-| **git** | Any | Version ldflags, pre-commit hooks | System package |
-| **jq** | Any | `scripts/verify_linter_count.sh` | Manual |
-| **bc** | Any | `scripts/verify_linter_count.sh` | System package |
-| **pre-commit** | Any | `.pre-commit-config.yaml` | `pip install pre-commit` |
-| **gofmt/gofumpt** | Via Go / golangci-lint | `just fmt`, `just fmt-check` | Bundled with Go |
-| **golines** | Via golangci-lint formatters | `.golangci.yml` formatters | Bundled via golangci-lint |
-| **gci** | Via golangci-lint formatters | `.golangci.yml` formatters | Bundled via golangci-lint |
+| Tool              | Version / Source                | Used By                             | How Installed Today                  |
+| ----------------- | ------------------------------- | ----------------------------------- | ------------------------------------ |
+| **Go**            | 1.26 (go.mod: `go 1.26.0`)      | Build, test, lint, install          | Manual / `actions/setup-go@v5`       |
+| **golangci-lint** | v2.10.1+ (min enforced in code) | `just lint`, CI, pre-commit         | Manual / `golangci-lint-action@v9`   |
+| **ginkgo**        | v2.28.1 (indirect via go.mod)   | `just test` (`ginkgo -r --cover`)   | `go install` / comes with ginkgo dep |
+| **templ**         | v0.3.1001 (go.mod)              | `templ generate` (report templates) | Manual `go install`                  |
+| **just**          | Any                             | All `just` commands                 | Manual (`brew install just`, etc.)   |
+| **git**           | Any                             | Version ldflags, pre-commit hooks   | System package                       |
+| **jq**            | Any                             | `scripts/verify_linter_count.sh`    | Manual                               |
+| **bc**            | Any                             | `scripts/verify_linter_count.sh`    | System package                       |
+| **pre-commit**    | Any                             | `.pre-commit-config.yaml`           | `pip install pre-commit`             |
+| **gofmt/gofumpt** | Via Go / golangci-lint          | `just fmt`, `just fmt-check`        | Bundled with Go                      |
+| **golines**       | Via golangci-lint formatters    | `.golangci.yml` formatters          | Bundled via golangci-lint            |
+| **gci**           | Via golangci-lint formatters    | `.golangci.yml` formatters          | Bundled via golangci-lint            |
 
 ### 2.2 Current Build Commands (from Justfile)
 
@@ -80,11 +80,11 @@ deps:           GOWORK=off GOTOOLCHAIN=local go mod download
 
 ### 2.3 Shell Scripts
 
-| Script | Dependencies | Purpose |
-|---|---|---|
-| `scripts/pre-commit-hook.sh` | `golangci-lint-auto-configure`, bash | Pre-commit analysis hook |
-| `scripts/validate_linter_doc.sh` | bash, coreutils | Validates linter doc files meet quality standards |
-| `scripts/verify_linter_count.sh` | bash, `golangci-lint`, `jq`, `bc`, coreutils | Verifies linter doc count matches golangci-lint |
+| Script                           | Dependencies                                 | Purpose                                           |
+| -------------------------------- | -------------------------------------------- | ------------------------------------------------- |
+| `scripts/pre-commit-hook.sh`     | `golangci-lint-auto-configure`, bash         | Pre-commit analysis hook                          |
+| `scripts/validate_linter_doc.sh` | bash, coreutils                              | Validates linter doc files meet quality standards |
+| `scripts/verify_linter_count.sh` | bash, `golangci-lint`, `jq`, `bc`, coreutils | Verifies linter doc count matches golangci-lint   |
 
 **Note:** `validate_linter_doc.sh` and `verify_linter_count.sh` contain hardcoded paths (`/Users/larsartmann/...`). These should be parameterized regardless of the Nix migration.
 
@@ -111,14 +111,14 @@ deps:           GOWORK=off GOTOOLCHAIN=local go mod download
 
 ### 3.1 Problems Solved
 
-| Problem | Current State | With Nix Flakes |
-|---|---|---|
-| Tool version drift | "Install Go 1.26, golangci-lint v2, ginkgo, templ, just..." | `nix develop` — everything pinned in `flake.lock` |
-| CI reproducibility | `golangci-lint-action@v9` with `version: latest` | `nix flake check` — exact same binaries every run |
-| Onboarding friction | README lists manual install steps | Clone → `nix develop` → ready |
-| "Works on my machine" | Different Go versions, missing tools | Identical environments across all machines |
-| Cross-platform consistency | macOS vs Linux tool differences | Nix normalizes both |
-| Build artifact reproducibility | `go build` depends on local Go version | `nix build` produces bit-for-bit identical outputs |
+| Problem                        | Current State                                               | With Nix Flakes                                    |
+| ------------------------------ | ----------------------------------------------------------- | -------------------------------------------------- |
+| Tool version drift             | "Install Go 1.26, golangci-lint v2, ginkgo, templ, just..." | `nix develop` — everything pinned in `flake.lock`  |
+| CI reproducibility             | `golangci-lint-action@v9` with `version: latest`            | `nix flake check` — exact same binaries every run  |
+| Onboarding friction            | README lists manual install steps                           | Clone → `nix develop` → ready                      |
+| "Works on my machine"          | Different Go versions, missing tools                        | Identical environments across all machines         |
+| Cross-platform consistency     | macOS vs Linux tool differences                             | Nix normalizes both                                |
+| Build artifact reproducibility | `go build` depends on local Go version                      | `nix build` produces bit-for-bit identical outputs |
 
 ### 3.2 What Nix Flakes Will NOT Replace
 
@@ -130,13 +130,13 @@ deps:           GOWORK=off GOTOOLCHAIN=local go mod download
 
 ### 3.3 Trade-offs
 
-| Pro | Con |
-|---|---|
-| Full reproducibility | Nix learning curve for contributors |
-| Instant onboarding | `flake.lock` adds a file to maintain |
-| Hermetic CI/CD | Longer initial `nix develop` (subsequent: cached) |
-| Multi-platform builds | Nix must be installed on all dev machines |
-| Version pinning for all tools | `vendorHash` must be updated on `go.mod` changes |
+| Pro                           | Con                                               |
+| ----------------------------- | ------------------------------------------------- |
+| Full reproducibility          | Nix learning curve for contributors               |
+| Instant onboarding            | `flake.lock` adds a file to maintain              |
+| Hermetic CI/CD                | Longer initial `nix develop` (subsequent: cached) |
+| Multi-platform builds         | Nix must be installed on all dev machines         |
+| Version pinning for all tools | `vendorHash` must be updated on `go.mod` changes  |
 
 ---
 
@@ -303,14 +303,14 @@ Per `flake-utils.lib.eachDefaultSystem`:
 
 **Tasks:**
 
-| # | Task | Est. Effort |
-|---|---|---|
-| 1.1 | Create `flake.nix` with `buildGoModule`, `devShells.default` | 2h |
-| 1.2 | Run `nix build` to generate initial `vendorHash` | 15min |
-| 1.3 | Commit `flake.nix` + `flake.lock` | 5min |
-| 1.4 | Update `.gitignore` to include `result` symlink | 5min |
-| 1.5 | Verify `nix develop` provides all tools (go, ginkgo, golangci-lint, just, templ) | 30min |
-| 1.6 | Verify `just build && just test && just lint` all work inside `nix develop` | 30min |
+| #   | Task                                                                             | Est. Effort |
+| --- | -------------------------------------------------------------------------------- | ----------- |
+| 1.1 | Create `flake.nix` with `buildGoModule`, `devShells.default`                     | 2h          |
+| 1.2 | Run `nix build` to generate initial `vendorHash`                                 | 15min       |
+| 1.3 | Commit `flake.nix` + `flake.lock`                                                | 5min        |
+| 1.4 | Update `.gitignore` to include `result` symlink                                  | 5min        |
+| 1.5 | Verify `nix develop` provides all tools (go, ginkgo, golangci-lint, just, templ) | 30min       |
+| 1.6 | Verify `just build && just test && just lint` all work inside `nix develop`      | 30min       |
 
 **Deliverables:**
 
@@ -324,13 +324,13 @@ Per `flake-utils.lib.eachDefaultSystem`:
 
 **Tasks:**
 
-| # | Task | Est. Effort |
-|---|---|---|
-| 2.1 | Add `nix develop` verification step to CI | 1h |
-| 2.2 | Add `nix flake check` job to CI | 1h |
-| 2.3 | Cache `/nix/store` in GitHub Actions using `cachix` or `nix-community/cache-nix-action` | 2h |
-| 2.4 | Keep existing CI jobs as fallback (dual-mode) | 30min |
-| 2.5 | Optionally add Cachix binary cache for PR builds | 1h |
+| #   | Task                                                                                    | Est. Effort |
+| --- | --------------------------------------------------------------------------------------- | ----------- |
+| 2.1 | Add `nix develop` verification step to CI                                               | 1h          |
+| 2.2 | Add `nix flake check` job to CI                                                         | 1h          |
+| 2.3 | Cache `/nix/store` in GitHub Actions using `cachix` or `nix-community/cache-nix-action` | 2h          |
+| 2.4 | Keep existing CI jobs as fallback (dual-mode)                                           | 30min       |
+| 2.5 | Optionally add Cachix binary cache for PR builds                                        | 1h          |
 
 **Deliverables:**
 
@@ -343,14 +343,14 @@ Per `flake-utils.lib.eachDefaultSystem`:
 
 **Tasks:**
 
-| # | Task | Est. Effort |
-|---|---|---|
-| 3.1 | Create `nix/packages/docker.nix` for Nix-built Docker image | 2h |
-| 3.2 | Add `overlays.default` for other flakes to consume | 30min |
-| 3.3 | Integrate `direnv` support (`.envrc` with `use flake`) | 30min |
-| 3.4 | Cross-compilation targets (`nix build .#packages.aarch64-linux.default`) | 1h |
-| 3.5 | Parameterize hardcoded paths in shell scripts | 1h |
-| 3.6 | Add `nix run . -- analyze` as alias | 15min |
+| #   | Task                                                                     | Est. Effort |
+| --- | ------------------------------------------------------------------------ | ----------- |
+| 3.1 | Create `nix/packages/docker.nix` for Nix-built Docker image              | 2h          |
+| 3.2 | Add `overlays.default` for other flakes to consume                       | 30min       |
+| 3.3 | Integrate `direnv` support (`.envrc` with `use flake`)                   | 30min       |
+| 3.4 | Cross-compilation targets (`nix build .#packages.aarch64-linux.default`) | 1h          |
+| 3.5 | Parameterize hardcoded paths in shell scripts                            | 1h          |
+| 3.6 | Add `nix run . -- analyze` as alias                                      | 15min       |
 
 **Deliverables:**
 
@@ -364,13 +364,13 @@ Per `flake-utils.lib.eachDefaultSystem`:
 
 **Tasks:**
 
-| # | Task | Est. Effort |
-|---|---|---|
-| 4.1 | Remove `GOWORK=off GOTOOLCHAIN=local` from Justfile (Nix handles this) | 15min |
-| 4.2 | Update AGENTS.md with Nix commands | 30min |
-| 4.3 | Update README.md with Nix onboarding instructions | 30min |
-| 4.4 | Remove or deprecate Dockerfile if Nix Docker build is sufficient | 1h |
-| 4.5 | Add `nix fmt` integration using `nixpkgs-fmt` or `alejandra` | 30min |
+| #   | Task                                                                   | Est. Effort |
+| --- | ---------------------------------------------------------------------- | ----------- |
+| 4.1 | Remove `GOWORK=off GOTOOLCHAIN=local` from Justfile (Nix handles this) | 15min       |
+| 4.2 | Update AGENTS.md with Nix commands                                     | 30min       |
+| 4.3 | Update README.md with Nix onboarding instructions                      | 30min       |
+| 4.4 | Remove or deprecate Dockerfile if Nix Docker build is sufficient       | 1h          |
+| 4.5 | Add `nix fmt` integration using `nixpkgs-fmt` or `alejandra`           | 30min       |
 
 ---
 
@@ -378,35 +378,35 @@ Per `flake-utils.lib.eachDefaultSystem`:
 
 ### 6.1 Files to Create
 
-| File | Purpose |
-|---|---|
-| `flake.nix` | Main flake: inputs, outputs, packages, devShells, checks |
-| `flake.lock` | Auto-generated: pins nixpkgs and all flake inputs |
-| `nix/packages/default.nix` | (Optional) Extracted package definition for readability |
+| File                       | Purpose                                                  |
+| -------------------------- | -------------------------------------------------------- |
+| `flake.nix`                | Main flake: inputs, outputs, packages, devShells, checks |
+| `flake.lock`               | Auto-generated: pins nixpkgs and all flake inputs        |
+| `nix/packages/default.nix` | (Optional) Extracted package definition for readability  |
 
 ### 6.2 Files to Modify
 
-| File | Change | Phase |
-|---|---|---|
-| `.gitignore` | Add `result` (Nix build symlink) | 1 |
-| `.github/workflows/ci.yml` | Add Nix-based CI job | 2 |
-| `justfile` | Remove `GOWORK=off GOTOOLCHAIN=local` (Nix makes it redundant) | 4 |
-| `AGENTS.md` | Add Nix commands section | 4 |
-| `README.md` | Add Nix onboarding section | 4 |
-| `scripts/validate_linter_doc.sh` | Parameterize hardcoded path | 3 |
-| `scripts/verify_linter_count.sh` | Parameterize hardcoded path | 3 |
+| File                             | Change                                                         | Phase |
+| -------------------------------- | -------------------------------------------------------------- | ----- |
+| `.gitignore`                     | Add `result` (Nix build symlink)                               | 1     |
+| `.github/workflows/ci.yml`       | Add Nix-based CI job                                           | 2     |
+| `justfile`                       | Remove `GOWORK=off GOTOOLCHAIN=local` (Nix makes it redundant) | 4     |
+| `AGENTS.md`                      | Add Nix commands section                                       | 4     |
+| `README.md`                      | Add Nix onboarding section                                     | 4     |
+| `scripts/validate_linter_doc.sh` | Parameterize hardcoded path                                    | 3     |
+| `scripts/verify_linter_count.sh` | Parameterize hardcoded path                                    | 3     |
 
 ### 6.3 Files Unchanged
 
-| File | Reason |
-|---|---|
-| `go.mod` / `go.sum` | Still source of truth for Go dependencies |
-| `.golangci.yml` | Linter configuration unchanged |
-| `.pre-commit-config.yaml` | Still works, tools now from Nix |
-| `.pre-commit-hooks.yaml` | Published hooks unchanged |
-| `Dockerfile` | Kept as fallback, optionally replaced in Phase 3 |
-| All `.go` files | No code changes needed |
-| All `_test.go` files | No test changes needed |
+| File                      | Reason                                           |
+| ------------------------- | ------------------------------------------------ |
+| `go.mod` / `go.sum`       | Still source of truth for Go dependencies        |
+| `.golangci.yml`           | Linter configuration unchanged                   |
+| `.pre-commit-config.yaml` | Still works, tools now from Nix                  |
+| `.pre-commit-hooks.yaml`  | Published hooks unchanged                        |
+| `Dockerfile`              | Kept as fallback, optionally replaced in Phase 3 |
+| All `.go` files           | No code changes needed                           |
+| All `_test.go` files      | No test changes needed                           |
 
 ---
 
@@ -495,19 +495,19 @@ nix-check:
 
 ### 8.2 Caching Strategy
 
-| Layer | Tool | Purpose |
-|---|---|---|
-| Nix store | `magic-nix-cache-action` or `cachix` | Cache `/nix/store` between CI runs |
-| Go modules | Handled by `buildGoModule` | `vendorHash` ensures reproducibility |
-| Build artifacts | Nix derivation cache | Incremental builds within Nix |
+| Layer           | Tool                                 | Purpose                              |
+| --------------- | ------------------------------------ | ------------------------------------ |
+| Nix store       | `magic-nix-cache-action` or `cachix` | Cache `/nix/store` between CI runs   |
+| Go modules      | Handled by `buildGoModule`           | `vendorHash` ensures reproducibility |
+| Build artifacts | Nix derivation cache                 | Incremental builds within Nix        |
 
 ### 8.3 Migration Timeline
 
-| Milestone | Trigger |
-|---|---|
-| Phase 2 complete | Nix CI runs alongside existing CI (both must pass) |
-| Confidence threshold | After 2 weeks of dual-mode passing |
-| Existing CI removal | Optional — keep as fallback indefinitely |
+| Milestone            | Trigger                                            |
+| -------------------- | -------------------------------------------------- |
+| Phase 2 complete     | Nix CI runs alongside existing CI (both must pass) |
+| Confidence threshold | After 2 weeks of dual-mode passing                 |
+| Existing CI removal  | Optional — keep as fallback indefinitely           |
 
 ---
 
@@ -515,17 +515,18 @@ nix-check:
 
 ### 9.1 Technical Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| `vendorHash` mismatch after `go.mod` changes | High (every dep update) | Low (5min fix) | Document the workflow: `go mod tidy` → `nix build` → copy hash |
-| Nix not available on contributor machines | Medium | Medium | Keep Justfile working without Nix (fallback mode) |
-| `buildGoModule` doesn't handle `local replace` in go.mod | Medium | Medium | The project has `replace github.com/LarsArtmann/universal-workflow => /Users/...` — must be removed or handled via `overrideMods` |
-| Long initial `nix develop` time | Low | Low | Subsequent runs are cached; `cachix` for CI |
-| Nixpkgs Go version lags behind | Low | Medium | Use `go_1_26` explicitly; can override with `fetchurl` if needed |
+| Risk                                                     | Likelihood              | Impact         | Mitigation                                                                                                                        |
+| -------------------------------------------------------- | ----------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `vendorHash` mismatch after `go.mod` changes             | High (every dep update) | Low (5min fix) | Document the workflow: `go mod tidy` → `nix build` → copy hash                                                                    |
+| Nix not available on contributor machines                | Medium                  | Medium         | Keep Justfile working without Nix (fallback mode)                                                                                 |
+| `buildGoModule` doesn't handle `local replace` in go.mod | Medium                  | Medium         | The project has `replace github.com/LarsArtmann/universal-workflow => /Users/...` — must be removed or handled via `overrideMods` |
+| Long initial `nix develop` time                          | Low                     | Low            | Subsequent runs are cached; `cachix` for CI                                                                                       |
+| Nixpkgs Go version lags behind                           | Low                     | Medium         | Use `go_1_26` explicitly; can override with `fetchurl` if needed                                                                  |
 
 ### 9.2 The `local replace` Problem
 
 **Current `go.mod` contains:**
+
 ```
 replace github.com/LarsArtmann/universal-workflow => /Users/larsartmann/projects/universal-workflow
 ```
@@ -554,11 +555,11 @@ Then vendor it into the Go module cache during build.
 
 ### 9.3 Organizational Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| Contributor resistance to Nix | Medium | Low | Nix is opt-in — `just` commands still work |
-| Maintenance burden of `flake.lock` | Low | Low | `nix flake update` is a single command |
-| CI binary cache costs | Low | Low | GitHub Actions cache is free; Cachix free tier is generous |
+| Risk                               | Likelihood | Impact | Mitigation                                                 |
+| ---------------------------------- | ---------- | ------ | ---------------------------------------------------------- |
+| Contributor resistance to Nix      | Medium     | Low    | Nix is opt-in — `just` commands still work                 |
+| Maintenance burden of `flake.lock` | Low        | Low    | `nix flake update` is a single command                     |
+| CI binary cache costs              | Low        | Low    | GitHub Actions cache is free; Cachix free tier is generous |
 
 ---
 
@@ -566,24 +567,24 @@ Then vendor it into the Go module cache during build.
 
 ### `buildGoModule` vs `buildGoApplication` (gomod2nix)
 
-| Criterion | `buildGoModule` | `buildGoApplication` (gomod2nix) |
-|---|---|---|
-| Simplicity | **High** — single `vendorHash` | Low — requires `gomod2nix.toml` generation |
-| Reproducibility | High | Higher (explicit per-module hashes) |
-| Maintenance | Low — update `vendorHash` on dep changes | Medium — regenerate `gomod2nix.toml` |
-| Ecosystem adoption | **Standard** — used by Grafana, Headscale, etc. | Niche — used by smaller projects |
-| `go.mod` changes | Update one hash | Regenerate full TOML file |
+| Criterion          | `buildGoModule`                                 | `buildGoApplication` (gomod2nix)           |
+| ------------------ | ----------------------------------------------- | ------------------------------------------ |
+| Simplicity         | **High** — single `vendorHash`                  | Low — requires `gomod2nix.toml` generation |
+| Reproducibility    | High                                            | Higher (explicit per-module hashes)        |
+| Maintenance        | Low — update `vendorHash` on dep changes        | Medium — regenerate `gomod2nix.toml`       |
+| Ecosystem adoption | **Standard** — used by Grafana, Headscale, etc. | Niche — used by smaller projects           |
+| `go.mod` changes   | Update one hash                                 | Regenerate full TOML file                  |
 
 **Recommendation:** `buildGoModule` — simpler, widely adopted, lower maintenance burden.
 
 ### `flake-utils` vs `flake-parts` vs raw `nixpkgs.lib.genAttrs`
 
-| Criterion | `flake-utils` | `flake-parts` | Raw `genAttrs` |
-|---|---|---|---|
-| Simplicity | **High** — drop-in | Medium — module system | Medium — more boilerplate |
-| Extensibility | Low | **High** — module composition | Medium |
-| Community usage | Very high | Growing | Low |
-| Dependency | Extra input | Extra input | None |
+| Criterion       | `flake-utils`      | `flake-parts`                 | Raw `genAttrs`            |
+| --------------- | ------------------ | ----------------------------- | ------------------------- |
+| Simplicity      | **High** — drop-in | Medium — module system        | Medium — more boilerplate |
+| Extensibility   | Low                | **High** — module composition | Medium                    |
+| Community usage | Very high          | Growing                       | Low                       |
+| Dependency      | Extra input        | Extra input                   | None                      |
 
 **Recommendation:** `flake-utils` for Phase 1. Consider `flake-parts` if the project grows complex flake outputs.
 
@@ -663,6 +664,7 @@ All tools (Go, ginkgo, golangci-lint, just, templ) are provided automatically.
 ## Quick Start without Nix
 
 Install manually:
+
 - Go 1.26+
 - golangci-lint v2.10+
 - ginkgo (`go install github.com/onsi/ginkgo/v2/ginkgo@latest`)
@@ -690,6 +692,7 @@ nix build
 ```
 
 Example error output:
+
 ```
 error: hash mismatch in fixed-output derivation '/nix/store/...':
          specified: sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
