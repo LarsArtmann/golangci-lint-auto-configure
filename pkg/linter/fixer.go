@@ -48,7 +48,7 @@ func (f *Fixer) FixConfigResult(
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
 	if err != nil {
-		return types.ErrMigration(analysisError("load config", priority, dryRun, configPath, err))
+		return migrationError("load config", priority, dryRun, configPath, err)
 	}
 
 	originalEnabled := f.configLoader.GetLintersEnabled(cfg)
@@ -81,7 +81,7 @@ func (f *Fixer) analyzeAndFix(
 
 	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return types.ErrMigration(analysisError("analyze config", priority, dryRun, configPath, err))
+		return migrationError("analyze config", priority, dryRun, configPath, err)
 	}
 
 	return f.applyLintersFix(ctx, cfg, analysis, configPath, priority, dryRun, originalEnabled)
@@ -210,8 +210,6 @@ func (f *Fixer) dryRunResult(counts fixCounts) types.MigrationResultType {
 	return dryRunResult(counts)
 }
 
-
-
 func (f *Fixer) applyAndSave(
 	ctx context.Context,
 	cfg *types.Config,
@@ -232,17 +230,11 @@ func (f *Fixer) applyAndSave(
 	f.logger.Infof("Saving configuration...")
 
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
-		return types.ErrMigration(analysisError("save config", priority, dryRun, configPath, err))
+		return migrationError("save config", priority, dryRun, configPath, err)
 	}
 
 	return successResult(counts)
 }
-
-
-
-
-
-
 
 // enableRecommendedLinters enables recommended linters that aren't already enabled or explicitly disabled.
 func (f *Fixer) enableRecommendedLinters(
@@ -279,5 +271,3 @@ func (f *Fixer) enableRecommendedLinters(
 
 	return count
 }
-
-

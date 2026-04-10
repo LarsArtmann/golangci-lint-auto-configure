@@ -39,14 +39,9 @@ func mergeFormatMap(primary, secondary map[string]any) int {
 		return 1
 	}
 
-	changes := 0
-
-	for key, value := range secondary {
-		if _, exists := primary[key]; !exists {
-			primary[key] = value
-			changes++
-		}
+	if len(secondary) == 0 {
+		return 0
 	}
 
-	return changes
+	return mergeMap(primary, secondary)
 }

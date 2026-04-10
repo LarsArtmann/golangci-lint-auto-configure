@@ -22,6 +22,17 @@ func analysisError(
 	)
 }
 
+// migrationError creates a standardized migration error result.
+func migrationError(
+	operation string,
+	priority types.LinterPriority,
+	dryRun bool,
+	configPath string,
+	err error,
+) types.MigrationResultType {
+	return types.ErrMigration(analysisError(operation, priority, dryRun, configPath, err))
+}
+
 // dryRunResult creates a result for dry-run mode with the number of fixes that would be applied.
 func dryRunResult(counts fixCounts) types.MigrationResultType {
 	return types.OkMigration(&types.MigrationResult{

@@ -192,21 +192,25 @@ func (m *Migrator) getCheckmark() string {
 	return "✓"
 }
 
-// logFixApplied logs a verbose message when a fix is applied and returns 1 for counting.
-func (m *Migrator) logFixApplied(message string) int {
+// logVerbose prints a verbose message with checkmark if verbose mode is enabled.
+func (m *Migrator) logVerbose(message string) {
 	if m.verbose {
 		//nolint:forbidigo // CLI output
 		fmt.Printf("%s %s\n", m.getCheckmark(), message)
 	}
+}
+
+// logFixApplied logs a verbose message when a fix is applied and returns 1 for counting.
+func (m *Migrator) logFixApplied(message string) int {
+	m.logVerbose(message)
 
 	return 1
 }
 
 // logFixesApplied logs a verbose message with a count when fixes are applied and returns the count.
 func (m *Migrator) logFixesApplied(message string, count int) int {
-	if m.verbose && count > 0 {
-		//nolint:forbidigo // CLI output
-		fmt.Printf("%s %s\n", m.getCheckmark(), message)
+	if count > 0 {
+		m.logVerbose(message)
 	}
 
 	return count

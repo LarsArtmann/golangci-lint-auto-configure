@@ -11,18 +11,30 @@ import (
 
 // mergeSettingsMaps merges secondary settings into primary, returning number of changes.
 func mergeSettingsMaps(primary, secondary map[string]any) int {
-	changes := 0
-
 	if len(primary) == 0 && len(secondary) > 0 {
 		maps.Copy(primary, secondary)
 
-		changes = len(secondary)
-	} else if len(secondary) > 0 {
-		for key, value := range secondary {
-			if _, exists := primary[key]; !exists {
-				primary[key] = value
-				changes++
-			}
+		changes := len(secondary)
+
+		return changes
+	}
+
+	if len(secondary) == 0 {
+		return 0
+	}
+
+	return mergeMap(primary, secondary)
+}
+
+// mergeMap merges secondary map into primary, adding missing keys.
+// Returns the number of new keys added.
+func mergeMap[T any](primary, secondary map[string]T) int {
+	changes := 0
+
+	for key, value := range secondary {
+		if _, exists := primary[key]; !exists {
+			primary[key] = value
+			changes++
 		}
 	}
 
