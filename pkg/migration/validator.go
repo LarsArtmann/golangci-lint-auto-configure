@@ -41,8 +41,7 @@ func (v DefaultValidator) ValidateConfig(migrator *Migrator) error {
 	}
 
 	if migrator.verbose {
-		//nolint:forbidigo // CLI output
-		fmt.Println("Configuration is valid")
+		cliPrintln("Configuration is valid")
 	}
 
 	return nil

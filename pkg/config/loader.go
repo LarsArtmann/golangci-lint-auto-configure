@@ -359,16 +359,21 @@ func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] 
 
 	data, err := marshalConfig(config, format)
 	if err != nil {
-		return mo.Err[Empty](apperrors.NewConfigError("failed to marshal config", path, err))
+		return l.saveError("marshal config", path, err)
 	}
 
 	if err := afero.WriteFile(l.fs, path, data, defaultFilePermissions); err != nil {
-		return mo.Err[Empty](apperrors.NewConfigError("failed to write config file", path, err))
+		return l.saveError("write config file", path, err)
 	}
 
 	l.logger.Infof("Saved config to %s (format: %s)", path, format)
 
 	return mo.Ok(Empty{})
+}
+
+// saveError creates a config error result for save operations.
+func (l *Loader) saveError(operation, path string, err error) mo.Result[Empty] {
+	return mo.Err[Empty](apperrors.NewConfigError("failed to "+operation, path, err))
 }
 
 // IsGitRepo checks if we're inside a git repository.

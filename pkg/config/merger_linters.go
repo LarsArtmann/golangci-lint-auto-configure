@@ -111,16 +111,7 @@ func (cm *Merger) mergeLintersExclusionRules(primary, secondary *LintersExclusio
 }
 
 func (cm *Merger) mergeLintersExclusionPaths(primary, secondary *LintersExclusionsConfig) int {
-	changes := 0
-
-	if len(primary.Paths) == 0 && len(secondary.Paths) > 0 {
-		primary.Paths = secondary.Paths
-		changes++
-	} else if len(secondary.Paths) > 0 {
-		fieldChanges, updated := mergeStringSetSlice(primary.Paths, secondary.Paths)
-		primary.Paths = updated
-		changes += fieldChanges
-	}
+	changes := mergePaths(&primary.Paths, secondary.Paths)
 
 	if len(primary.PathsExcept) == 0 && len(secondary.PathsExcept) > 0 {
 		primary.PathsExcept = secondary.PathsExcept

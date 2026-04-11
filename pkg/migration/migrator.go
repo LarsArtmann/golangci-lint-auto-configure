@@ -16,6 +16,18 @@ var (
 	ErrMockValidationFailed = errors.New("mock validation failed")
 )
 
+// cliPrintf prints to stdout, bypassing forbidigo linter for CLI output.
+func cliPrintf(format string, args ...any) {
+	//nolint:forbidigo // CLI output
+	fmt.Printf(format, args...)
+}
+
+// cliPrintln prints a line to stdout, bypassing forbidigo linter for CLI output.
+func cliPrintln(args ...any) {
+	//nolint:forbidigo // CLI output
+	fmt.Println(args...)
+}
+
 // Migrator handles golangci-lint configuration migrations.
 type Migrator struct {
 	verbose    bool
@@ -139,8 +151,7 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 
 	if fixesApplied == 0 {
 		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Println("No migration needed (already at v2.x)")
+			cliPrintln("No migration needed (already at v2.x)")
 		}
 
 		return false, 0, nil
@@ -148,8 +159,7 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 
 	if m.dryRun {
 		if m.verbose {
-			//nolint:forbidigo // CLI output
-			fmt.Println("[DRY-RUN] Config would be migrated (skipping save)")
+			cliPrintln("[DRY-RUN] Config would be migrated (skipping save)")
 		}
 
 		return true, fixesApplied, nil
@@ -169,8 +179,7 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 	}
 
 	if m.verbose {
-		//nolint:forbidigo // CLI output
-		fmt.Printf("\n%s Configuration migrated successfully (%d fixes applied)\n", m.getCheckmark(), fixesApplied)
+		cliPrintf("\n%s Configuration migrated successfully (%d fixes applied)\n", m.getCheckmark(), fixesApplied)
 	}
 
 	return true, fixesApplied, nil
@@ -195,8 +204,7 @@ func (m *Migrator) getCheckmark() string {
 // logVerbose prints a verbose message with checkmark if verbose mode is enabled.
 func (m *Migrator) logVerbose(message string) {
 	if m.verbose {
-		//nolint:forbidigo // CLI output
-		fmt.Printf("%s %s\n", m.getCheckmark(), message)
+		cliPrintf("%s %s\n", m.getCheckmark(), message)
 	}
 }
 

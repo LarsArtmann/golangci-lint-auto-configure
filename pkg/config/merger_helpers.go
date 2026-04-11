@@ -61,22 +61,6 @@ func mergeSortedStringSlice(primary, secondary []string) ([]string, int) {
 	return primary, changes
 }
 
-// mergeStringSetSlice merges secondary into primary string slice with deduplication (no sorting).
-// Returns the number of changes made.
-func mergeStringSetSlice(primary, secondary []string) (int, []string) {
-	if len(primary) == 0 && len(secondary) > 0 {
-		return len(secondary), secondary
-	}
-
-	if len(secondary) == 0 {
-		return 0, primary
-	}
-
-	_, changes := mergeUniqueItems(primary, secondary)
-
-	return changes, primary
-}
-
 // mergeUniqueItems adds items from secondary to primary that don't already exist.
 // Returns the updated slice and the number of changes made.
 func mergeUniqueItems(primary, secondary []string) ([]string, int) {

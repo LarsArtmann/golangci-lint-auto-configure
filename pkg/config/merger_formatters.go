@@ -29,12 +29,7 @@ func (cm *Merger) mergeFormattersExclusions(primary, secondary *FormattersExclus
 		func(c *FormattersExclusionsConfig, v bool) { c.WarnUnused = v },
 	)
 
-	if len(primary.Paths) == 0 && len(secondary.Paths) > 0 {
-		primary.Paths = secondary.Paths
-		changes++
-	} else if len(secondary.Paths) > 0 {
-		changes += mergePaths(&primary.Paths, secondary.Paths)
-	}
+	changes += mergePaths(&primary.Paths, secondary.Paths)
 
 	return changes
 }

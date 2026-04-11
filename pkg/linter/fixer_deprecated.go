@@ -58,21 +58,18 @@ func (h *deprecatedLinterHandler) logKeep(linter string, replacement types.Linte
 }
 
 func (h *deprecatedLinterHandler) logReplace(linter string, replacement types.LinterReplacement, dryRun bool) {
+	prefix := ""
 	if dryRun {
-		h.logger.Infof(
-			"[DRY-RUN] Would replace deprecated linter: %s -> %s (%s)",
-			linter,
-			replacement.Replacement,
-			replacement.Reason,
-		)
-	} else {
-		h.logger.Infof(
-			"Replacing deprecated linter: %s -> %s (%s)",
-			linter,
-			replacement.Replacement,
-			replacement.Reason,
-		)
+		prefix = "[DRY-RUN] Would "
 	}
+
+	h.logger.Infof(
+		"%sreplace deprecated linter: %s -> %s (%s)",
+		prefix,
+		linter,
+		replacement.Replacement,
+		replacement.Reason,
+	)
 }
 
 // hasDeprecatedLinters checks if any of the enabled linters are deprecated.
