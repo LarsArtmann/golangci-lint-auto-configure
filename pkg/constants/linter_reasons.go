@@ -111,7 +111,7 @@ var LinterReasons = map[types.LinterName]string{
 	"gocheckcompilerdirectives": "Checks that go compiler directive comments are valid",
 	"goprintffuncname":          "Checks that printf-like functions are named with f at the end",
 	"iface":                     "Detect incorrect use of interfaces, helping avoid interface pollution",
-	"imports":                   "Enforces consistent import aliases (requires alias configuration)",
+	"importas":                  "Enforces consistent import aliases (requires alias configuration)",
 	"inamedparam":               "Reports interfaces with unnamed method parameters",
 	"iotamixing":                "Checks if iotas are used in const blocks with other non-iota declarations",
 	"modernize":                 "Suggests simplifications using modern Go language and library features",
@@ -124,5 +124,4 @@ var LinterReasons = map[types.LinterName]string{
 	"arangolint":               "Opinionated best practices for arangodb client",
 	"zerologlint":              "Detects wrong usage of zerolog that forgets to dispatch with Send or Msg",
 	"embeddedstructfieldcheck": "Embedded types should be at top of field list with empty line separation",
-	"imports":                  "Checks that import aliases follow expected patterns",
 }

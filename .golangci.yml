@@ -342,6 +342,9 @@ linters:
       - path: pkg/report/json_report_generator\.go
         linters:
           - noinlineerr
+      - path: pkg/constants/linter_priorities\.go|pkg/constants/linter_reasons\.go
+        linters:
+          - misspell
 formatters:
   enable:
     - gci
