@@ -58,10 +58,10 @@ func TestParsePriorityParam(t *testing.T) {
 		{"high", types.LinterPriorityHigh},
 		{"medium", types.LinterPriorityMedium},
 		{"optional", types.LinterPriorityOptional},
-		{"unknown", types.LinterPriorityHigh},
-		{"", types.LinterPriorityHigh},
-		{"CRITICAL", types.LinterPriorityHigh},
-		{"MEDIUM", types.LinterPriorityHigh},
+		{"unknown", types.LinterPriorityOptional},
+		{"", types.LinterPriorityOptional},
+		{"CRITICAL", types.LinterPriorityOptional},
+		{"MEDIUM", types.LinterPriorityOptional},
 	}
 
 	for _, tt := range tests {

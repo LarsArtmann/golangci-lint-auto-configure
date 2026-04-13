@@ -296,7 +296,7 @@ func ParsePriorityParam(priorityParam string) types.LinterPriority {
 	case "optional":
 		return types.LinterPriorityOptional
 	default:
-		return types.LinterPriorityHigh
+		return types.LinterPriorityOptional
 	}
 }
 

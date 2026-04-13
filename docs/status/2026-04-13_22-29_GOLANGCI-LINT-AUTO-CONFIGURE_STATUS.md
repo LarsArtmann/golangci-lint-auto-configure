@@ -11,38 +11,38 @@
 
 ### a) FULLY DONE
 
-| Task | Status | Notes |
-|------|--------|-------|
+| Task                    | Status  | Notes                                                                                |
+| ----------------------- | ------- | ------------------------------------------------------------------------------------ |
 | Status report committed | ✅ DONE | `86d39ea docs(status): add comprehensive analysis of priority default and YAML bugs` |
-| Bug analysis complete | ✅ DONE | Two bugs identified with root causes |
-| Working tree clean | ✅ DONE | No uncommitted changes |
-| Commit ahead of origin | ✅ DONE | 1 commit ready to push |
+| Bug analysis complete   | ✅ DONE | Two bugs identified with root causes                                                 |
+| Working tree clean      | ✅ DONE | No uncommitted changes                                                               |
+| Commit ahead of origin  | ✅ DONE | 1 commit ready to push                                                               |
 
 ### b) PARTIALLY DONE
 
-| Task | Status | Blocker |
-|------|--------|---------|
-| Bug #1 fix (priority default) | 🔄 READY | 1-line change identified, awaiting instruction |
-| Bug #2 fix (YAML duplicate key) | 🔄 READY | Refactor identified, awaiting instruction |
+| Task                            | Status   | Blocker                                        |
+| ------------------------------- | -------- | ---------------------------------------------- |
+| Bug #1 fix (priority default)   | 🔄 READY | 1-line change identified, awaiting instruction |
+| Bug #2 fix (YAML duplicate key) | 🔄 READY | Refactor identified, awaiting instruction      |
 
 ### c) NOT STARTED
 
-| Task | Status |
-|------|--------|
-| Push commits to origin/master | — |
-| Implement priority default fix | — |
-| Implement single-save refactor | — |
-| Fix Nix Go build environment | — |
-| Test fixes on go-localfirst | — |
+| Task                           | Status |
+| ------------------------------ | ------ |
+| Push commits to origin/master  | —      |
+| Implement priority default fix | —      |
+| Implement single-save refactor | —      |
+| Fix Nix Go build environment   | —      |
+| Test fixes on go-localfirst    | —      |
 
 ### d) TOTALLY FUCKED UP
 
-| Issue | Severity | Detail |
-|-------|----------|--------|
-| Priority default is "high" | 🔴 CRITICAL | Should be "optional" — 1-line fix ready |
-| YAML duplicate key bug | 🔴 CRITICAL | Suspected from multi-save pattern — refactor ready |
-| Build broken (Nix Go) | 🔴 CRITICAL | Environment conflict — fix ready |
-| Unpushed commits | 🟡 MODERATE | 1 commit ahead of origin/master |
+| Issue                      | Severity    | Detail                                             |
+| -------------------------- | ----------- | -------------------------------------------------- |
+| Priority default is "high" | 🔴 CRITICAL | Should be "optional" — 1-line fix ready            |
+| YAML duplicate key bug     | 🔴 CRITICAL | Suspected from multi-save pattern — refactor ready |
+| Build broken (Nix Go)      | 🔴 CRITICAL | Environment conflict — fix ready                   |
+| Unpushed commits           | 🟡 MODERATE | 1 commit ahead of origin/master                    |
 
 ### e) WHAT WE SHOULD IMPROVE
 
@@ -85,10 +85,12 @@
 **Should I fix the bugs NOW or wait for explicit confirmation?**
 
 The bugs are identified and fixes are straightforward:
+
 - Bug #1: 1-line change ( `"high"` → `"optional"` in commands.go:200 )
 - Bug #2: Refactor pre-flight saves to single-save pattern
 
 However, the user explicitly said "WAIT FOR INSTRUCTIONS" in their message. I should:
+
 - A) Fix the bugs immediately (they're critical, user was angry)
 - B) Wait for explicit "fix it" instruction (respect the wait command)
 - C) Ask for clarification (but that violates "WAIT FOR INSTRUCTIONS")
@@ -126,20 +128,20 @@ StringVar(&priority, "priority", "optional", "Minimum priority level...")
 
 ## REPOSITORY STATE
 
-| Metric | Value |
-|--------|-------|
-| Branch | master |
-| Commits ahead of origin | 1 |
-| Uncommitted changes | 0 |
-| Untracked files | 0 |
-| Last commit | `86d39ea docs(status): add comprehensive analysis of priority default and YAML bugs` |
+| Metric                  | Value                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| Branch                  | master                                                                               |
+| Commits ahead of origin | 1                                                                                    |
+| Uncommitted changes     | 0                                                                                    |
+| Untracked files         | 0                                                                                    |
+| Last commit             | `86d39ea docs(status): add comprehensive analysis of priority default and YAML bugs` |
 
 ## READY TO FIX
 
-| Bug | File | Line | Change |
-|-----|------|------|--------|
-| Priority default | commands.go | 200 | `"high"` → `"optional"` |
-| Multi-save | fixer_preflight.go | 112-135 | Refactor to single-save |
+| Bug              | File               | Line    | Change                  |
+| ---------------- | ------------------ | ------- | ----------------------- |
+| Priority default | commands.go        | 200     | `"high"` → `"optional"` |
+| Multi-save       | fixer_preflight.go | 112-135 | Refactor to single-save |
 
 ---
 
