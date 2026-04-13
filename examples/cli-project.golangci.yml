@@ -50,22 +50,23 @@ linters:
     - containedctx
     - depguard
 
-linters-settings:
-  gocyclo:
-    min-complexity: 20
-  funlen:
-    lines: 60 # Stricter for CLI
-    statements: 40
-  gocognit:
-    min-complexity: 25
-  depguard:
-    rules:
-      main:
-        deny:
-          - pkg: "fmt"
-            desc: "Use log instead of fmt for CLI output"
-          - pkg: "log"
-            desc: "Use charmbracelet/log for styled output"
+linters:
+  settings:
+    gocyclo:
+      min-complexity: 20
+    funlen:
+      lines: 60 # Stricter for CLI
+      statements: 40
+    gocognit:
+      min-complexity: 25
+    depguard:
+      rules:
+        Main:
+          deny:
+            - pkg: "fmt"
+              desc: "Use log instead of fmt for CLI output"
+            - pkg: "log"
+              desc: "Use charmbracelet/log for styled output"
 
 issues:
   max-issues-per-linter: 100

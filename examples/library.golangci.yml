@@ -53,17 +53,18 @@ linters:
     - inamedparam
     - nonamedreturns
 
-linters-settings:
-  gocyclo:
-    min-complexity: 15 # Stricter for libraries
-  funlen:
-    lines: 50 # Stricter for libraries
-    statements: 35
-  gocognit:
-    min-complexity: 20
-  varnamelen:
-    min-name-len: 2
-    max-name-len: 40
+linters:
+  settings:
+    gocyclo:
+      min-complexity: 15 # Stricter for libraries
+    funlen:
+      lines: 50 # Stricter for libraries
+      statements: 35
+    gocognit:
+      min-complexity: 20
+    varnamelen:
+      min-name-length: 2
+      max-name-length: 40
 
 issues:
   max-issues-per-linter: 50 # Stricter for libraries

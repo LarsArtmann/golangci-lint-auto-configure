@@ -51,24 +51,24 @@ linters:
     - contextcheck
     - bodyclose
 
-linters-settings:
-  gocyclo:
-    min-complexity: 20
-  funlen:
-    lines: 80
-    statements: 50
-  gocognit:
-    min-complexity: 25
-  revive:
+linters:
+  settings:
+    gocyclo:
+      min-complexity: 20
+    funlen:
+      lines: 80
+      statements: 50
+    gocognit:
+      min-complexity: 25
+    revive:
+      rules:
+        - name: default
+          disabled: false
+        - name: package-comments
+          disabled: true
+  exclusions:
     rules:
-      - default: true
-      - package-comments: false
-
-issues:
-  max-issues-per-linter: 100
-  max-same-issues: 15
-  exclude-rules:
-    # Allow context.Background() in tests
-    - path: _test\.go
-      text: "noctx"
-      source: "noctx"
+      # Allow context.Background() in tests
+      - path: _test\.go
+        linters:
+          - noctx
