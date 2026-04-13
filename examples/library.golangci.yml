@@ -53,7 +53,6 @@ linters:
     - inamedparam
     - nonamedreturns
 
-linters:
   settings:
     gocyclo:
       min-complexity: 15 # Stricter for libraries

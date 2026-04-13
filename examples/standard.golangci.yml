@@ -23,7 +23,7 @@ linters:
     - loggercheck
     - musttag
 
-    # High value linters
+    # High value quality linters
     - wrapcheck
     - errorlint
     - prealloc
@@ -41,7 +41,6 @@ linters:
     - nolintlint
     - forcetypeassert
 
-linters:
   settings:
     gocyclo:
       min-complexity: 20

@@ -124,4 +124,5 @@ var LinterReasons = map[types.LinterName]string{
 	"arangolint":               "Opinionated best practices for arangodb client",
 	"zerologlint":              "Detects wrong usage of zerolog that forgets to dispatch with Send or Msg",
 	"embeddedstructfieldcheck": "Embedded types should be at top of field list with empty line separation",
+	"imports":                  "Checks that import aliases follow expected patterns",
 }

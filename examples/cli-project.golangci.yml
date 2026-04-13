@@ -50,7 +50,6 @@ linters:
     - containedctx
     - depguard
 
-linters:
   settings:
     gocyclo:
       min-complexity: 20
