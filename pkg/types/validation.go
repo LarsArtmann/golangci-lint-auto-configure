@@ -3,20 +3,24 @@ package types
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/go-playground/validator/v10"
 )
 
-// Validator is the global validator instance (lazy-initialized).
-var Validator *validator.Validate
+// validatorOnce ensures the global validator is initialized exactly once.
+var (
+	validatorOnce     sync.Once
+	validatorInstance *validator.Validate
+)
 
 // initValidator initializes the global validator instance.
 func initValidator() *validator.Validate {
-	if Validator == nil {
-		Validator = validator.New()
-	}
+	validatorOnce.Do(func() {
+		validatorInstance = validator.New()
+	})
 
-	return Validator
+	return validatorInstance
 }
 
 // ValidateStruct validates any struct using go-playground/validator.
