@@ -13,6 +13,7 @@ import (
 
 	"charm.land/log/v2"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/pelletier/go-toml/v2"
@@ -112,11 +113,6 @@ func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
 		return toml.Unmarshal(data, config)
 	case ConfigFormatJSON:
 		return json.Unmarshal(data, config)
-	case ConfigFormatYAML:
-		decoder := yaml.NewDecoder(bytes.NewReader(data))
-		decoder.KnownFields(false)
-
-		return decoder.Decode(config)
 	default:
 		decoder := yaml.NewDecoder(bytes.NewReader(data))
 		decoder.KnownFields(false)
@@ -171,16 +167,9 @@ func (l *Loader) FindConfigFile(startDir string) (string, error) {
 
 // FindAllConfigFiles returns all golangci-lint config files found in the directory.
 func (l *Loader) FindAllConfigFiles(startDir string) []string {
-	defaultNames := []string{
-		".golangci.yml",
-		".golangci.yaml",
-		".golangci.toml",
-		".golangci.json",
-	}
-
 	var found []string
 
-	for _, name := range defaultNames {
+	for _, name := range constants.DefaultConfigFileNames {
 		path := filepath.Join(startDir, name)
 		if _, err := l.fs.Stat(path); err == nil {
 			found = append(found, path)
@@ -211,14 +200,7 @@ func (l *Loader) HasMultipleConfigFiles(startDir string) bool {
 
 // FindConfigFileResult searches for a config file and returns a Result type.
 func (l *Loader) FindConfigFileResult(startDir string) types.StringResult {
-	defaultNames := []string{
-		".golangci.yml",
-		".golangci.yaml",
-		".golangci.toml",
-		".golangci.json",
-	}
-
-	for _, name := range defaultNames {
+	for _, name := range constants.DefaultConfigFileNames {
 		path := filepath.Join(startDir, name)
 		if _, err := l.fs.Stat(path); err == nil {
 			l.logger.Debugf("Found config file: %s", path)
