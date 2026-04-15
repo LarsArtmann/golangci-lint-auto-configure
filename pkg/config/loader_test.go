@@ -303,6 +303,150 @@ timeout = "5m"
 		})
 	})
 
+	Context("RoundtripFidelity", func() {
+		It("should preserve top-level linters-settings (v1) via auto-migration", func() {
+			configContent := `version: "1"
+linters:
+  enable:
+    - gosec
+    - depguard
+linters-settings:
+  depguard:
+    rules:
+      main:
+        allow:
+          - $gostd
+          - github.com/myproject
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := loader.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(cfg.LintersSettingsV1).To(BeNil(), "v1 linters-settings should be migrated, not kept")
+			Expect(cfg.Linters.Settings).To(HaveKey("depguard"))
+
+			depguardCfg, ok := cfg.Linters.Settings["depguard"].(map[string]any)
+			Expect(ok).To(BeTrue())
+			Expect(depguardCfg).To(HaveKey("rules"))
+
+			err = loader.SaveConfig(cfg, testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			reloaded, err := loader.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(reloaded.Linters.Settings).To(HaveKey("depguard"))
+		})
+
+		It("should preserve nested linters.settings (v2) through load-save-load", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - depguard
+  settings:
+    depguard:
+      rules:
+        main:
+          allow:
+            - $gostd
+            - github.com/myproject
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := loader.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(cfg.Linters.Settings).To(HaveKey("depguard"))
+
+			err = loader.SaveConfig(cfg, testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			reloaded, err := loader.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(reloaded.Linters.Settings).To(HaveKey("depguard"))
+
+			depguardCfg, ok := reloaded.Linters.Settings["depguard"].(map[string]any)
+			Expect(ok).To(BeTrue())
+			Expect(depguardCfg).To(HaveKey("rules"))
+		})
+
+		It("should not add linters-settings when config has none", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - errcheck
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := loader.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			err = loader.SaveConfig(cfg, testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).NotTo(ContainSubstring("linters-settings"))
+		})
+
+		It("should preserve full realistic config with multiple linter settings", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+  go: "1.26"
+linters:
+  enable:
+    - gosec
+    - errcheck
+    - depguard
+    - gomodguard
+  settings:
+    depguard:
+      rules:
+        main:
+          allow:
+            - $gostd
+            - github.com/myproject
+    gomodguard:
+      blocked:
+        - modules:
+            - github.com/pkg/errors:
+                recommendations:
+                  - fmt
+                  - errors
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10
+output:
+  formats:
+    text:
+      path: stdout
+      colors: true
+`
+			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+
+			cfg, err := loader.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(cfg.Linters.Settings).To(HaveKey("depguard"))
+			Expect(cfg.Linters.Settings).To(HaveKey("gomodguard"))
+			Expect(cfg.Run.Timeout).To(Equal("5m"))
+			Expect(cfg.Output.Formats).To(HaveKey("text"))
+
+			err = loader.SaveConfig(cfg, testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			reloaded, err := loader.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(reloaded.Linters.Settings).To(HaveKey("depguard"))
+			Expect(reloaded.Linters.Settings).To(HaveKey("gomodguard"))
+			Expect(reloaded.Run.Timeout).To(Equal("5m"))
+		})
+	})
+
 	Context("GetLintersEnabled", func() {
 		It("should return enabled linters", func() {
 			cfg := &config.Config{
