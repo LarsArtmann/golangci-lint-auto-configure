@@ -1,9 +1,11 @@
 package config
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -111,11 +113,31 @@ func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
 	case ConfigFormatJSON:
 		return json.Unmarshal(data, config)
 	case ConfigFormatYAML:
-		return yaml.Unmarshal(data, config)
+		decoder := yaml.NewDecoder(bytes.NewReader(data))
+		decoder.KnownFields(false)
+
+		return decoder.Decode(config)
 	default:
-		// Default to YAML
-		return yaml.Unmarshal(data, config)
+		decoder := yaml.NewDecoder(bytes.NewReader(data))
+		decoder.KnownFields(false)
+
+		return decoder.Decode(config)
 	}
+}
+
+func migrateLintersSettingsV1(config *Config, logger *log.Logger) {
+	if len(config.LintersSettingsV1) == 0 {
+		return
+	}
+
+	logger.Warnf("Migrating top-level linters-settings (v1) to linters.settings (v2)")
+
+	if config.Linters.Settings == nil {
+		config.Linters.Settings = make(map[string]any)
+	}
+
+	maps.Copy(config.Linters.Settings, config.LintersSettingsV1)
+	config.LintersSettingsV1 = nil
 }
 
 // LoadConfigResult loads a config and returns a Result type for railway-oriented programming.
@@ -132,6 +154,8 @@ func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 	if err := unmarshalConfig(data, format, &config); err != nil {
 		return types.ErrConfig(apperrors.NewConfigError("failed to parse config file", path, err))
 	}
+
+	migrateLintersSettingsV1(&config, l.logger)
 
 	l.logger.Debugf("Loaded config from %s (format: %s)", path, format)
 
