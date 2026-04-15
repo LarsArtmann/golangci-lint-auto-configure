@@ -289,12 +289,13 @@ type ConfigLoader interface {
 
 // Config represents a golangci-lint configuration file.
 type Config struct {
-	Version    string           `json:"version"    toml:"version"              validate:"required,oneof=2" yaml:"version"`
-	Run        RunConfig        `json:"run"        toml:"run"                  validate:"required"         yaml:"run"`
-	Output     OutputConfig     `json:"output"     toml:"output"                                           yaml:"output"`
-	Linters    LintersConfig    `json:"linters"    toml:"linters"                                          yaml:"linters"`
-	Formatters FormattersConfig `json:"formatters" toml:"formatters,omitempty"                             yaml:"formatters,omitempty"`
-	Issues     IssuesConfig     `json:"issues"     toml:"issues"                                           yaml:"issues"`
+	Version           string           `json:"version"            toml:"version"                          validate:"required,oneof=2" yaml:"version"`
+	Run               RunConfig        `json:"run"                toml:"run"                              validate:"required"         yaml:"run"`
+	Output            OutputConfig     `json:"output"             toml:"output"                                                       yaml:"output"`
+	Linters           LintersConfig    `json:"linters"            toml:"linters"                                                      yaml:"linters"`
+	Formatters        FormattersConfig `json:"formatters"         toml:"formatters,omitempty"                                          yaml:"formatters,omitempty"`
+	Issues            IssuesConfig     `json:"issues"             toml:"issues"                                                       yaml:"issues"`
+	LintersSettingsV1 map[string]any   `json:"-"                  toml:"-"                                                            yaml:"linters-settings,omitempty"`
 }
 
 type RunConfig struct {
