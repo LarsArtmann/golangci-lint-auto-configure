@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"maps"
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -10,15 +9,8 @@ import (
 )
 
 // mergeSettingsMaps merges secondary settings into primary, returning number of changes.
+// Caller must ensure primary is non-nil when secondary has entries.
 func mergeSettingsMaps(primary, secondary map[string]any) int {
-	if len(primary) == 0 && len(secondary) > 0 {
-		maps.Copy(primary, secondary)
-
-		changes := len(secondary)
-
-		return changes
-	}
-
 	if len(secondary) == 0 {
 		return 0
 	}

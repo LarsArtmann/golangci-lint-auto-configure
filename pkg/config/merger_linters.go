@@ -21,6 +21,10 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 		changes++
 	}
 
+	if primary.Settings == nil && len(secondary.Settings) > 0 {
+		primary.Settings = make(map[string]any)
+	}
+
 	changes += mergeSettingsMaps(primary.Settings, secondary.Settings)
 
 	changes += cm.mergeLintersExclusions(&primary.Exclusions, &secondary.Exclusions)
