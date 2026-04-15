@@ -29,3 +29,16 @@ var FormatterOrder = []string{"gci", "goimports", "gofumpt", "golines", "swaggo"
 var RedundantFormatters = map[types.FormatterName]string{
 	"gofmt": "redundant when gofumpt is enabled",
 }
+
+// DefaultLinterSettings provides safe default settings for linters that require
+// configuration to work correctly when auto-enabled. Without these defaults,
+// some linters break builds (e.g. depguard denies everything by default).
+var DefaultLinterSettings = map[string]any{
+	"depguard": map[string]any{
+		"rules": map[string]any{
+			"main": map[string]any{
+				"allow": []string{"$gostd", "$module"},
+			},
+		},
+	},
+}
