@@ -11,7 +11,7 @@ func (a *Analyzer) CategorizeLinters(
 	disabledLinters []types.LinterInfo,
 	enabledFormatters []types.FormatterInfo,
 ) []types.LinterRecommendation {
-	enabledFormatterSet := types.NewSet[string]()
+	enabledFormatterSet := types.NewSet[types.FormatterName]()
 	for _, formatter := range enabledFormatters {
 		enabledFormatterSet.Add(formatter.Name)
 	}
@@ -29,7 +29,7 @@ func (a *Analyzer) CategorizeLinters(
 	return recommendations
 }
 
-func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.Set[string]) bool {
+func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.Set[types.FormatterName]) bool {
 	if linter.Deprecated {
 		a.logger.Debugf("Skipping deprecated linter in analysis: %s", linter.Name)
 
@@ -43,7 +43,7 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 	}
 
 	if mapping, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
-		if formatterSet.Contains(string(mapping.Formatter)) {
+		if formatterSet.Contains(mapping.Formatter) {
 			a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, mapping.Reason)
 
 			return true
@@ -73,10 +73,10 @@ func (a *Analyzer) categorizeFormatters(disabledFormatters []types.FormatterInfo
 	recommendations := make([]types.FormatterRecommendation, 0, len(disabledFormatters))
 
 	for _, formatter := range disabledFormatters {
-		name := types.FormatterName(formatter.Name)
+		name := formatter.Name
 		rec := types.FormatterRecommendation{
 			Name:   name,
-			Reason: a.getFormatterReason(formatter.Name),
+			Reason: a.getFormatterReason(name),
 		}
 
 		// Get priority from constants, default to Low if not found
@@ -93,8 +93,8 @@ func (a *Analyzer) categorizeFormatters(disabledFormatters []types.FormatterInfo
 }
 
 // getFormatterReason returns the human-readable reason for a formatter recommendation.
-func (a *Analyzer) getFormatterReason(name string) string {
-	if reason, ok := constants.FormatterReasons[types.FormatterName(name)]; ok {
+func (a *Analyzer) getFormatterReason(name types.FormatterName) string {
+	if reason, ok := constants.FormatterReasons[name]; ok {
 		return reason
 	}
 

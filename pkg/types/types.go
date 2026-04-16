@@ -166,9 +166,9 @@ func (fn FormatterName) String() string {
 
 // FormatterInfo contains information about a golangci-lint formatter.
 type FormatterInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	AutoFix     bool   `json:"autoFix,omitempty"`
+	Name        FormatterName `json:"name"`
+	Description string         `json:"description"`
+	AutoFix     bool           `json:"autoFix,omitempty"`
 }
 
 // FormatterRecommendation represents a formatter with its priority and reason.
