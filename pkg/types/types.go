@@ -167,8 +167,8 @@ func (fn FormatterName) String() string {
 // FormatterInfo contains information about a golangci-lint formatter.
 type FormatterInfo struct {
 	Name        FormatterName `json:"name"`
-	Description string         `json:"description"`
-	AutoFix     bool           `json:"autoFix,omitempty"`
+	Description string        `json:"description"`
+	AutoFix     bool          `json:"autoFix,omitempty"`
 }
 
 // FormatterRecommendation represents a formatter with its priority and reason.
@@ -289,13 +289,13 @@ type ConfigLoader interface {
 
 // Config represents a golangci-lint configuration file.
 type Config struct {
-	Version           string           `json:"version"            toml:"version"                          validate:"required,oneof=2" yaml:"version"`
-	Run               RunConfig        `json:"run"                toml:"run"                              validate:"required"         yaml:"run"`
-	Output            OutputConfig     `json:"output"             toml:"output"                                                       yaml:"output"`
-	Linters           LintersConfig    `json:"linters"            toml:"linters"                                                      yaml:"linters"`
-	Formatters        FormattersConfig `json:"formatters"         toml:"formatters,omitempty"                                          yaml:"formatters,omitempty"`
-	Issues            IssuesConfig     `json:"issues"             toml:"issues"                                                       yaml:"issues"`
-	LintersSettingsV1 map[string]any   `json:"-"                  toml:"-"                                                            yaml:"linters-settings,omitempty"`
+	Version           string           `json:"version"    toml:"version"              validate:"required,oneof=2" yaml:"version"`
+	Run               RunConfig        `json:"run"        toml:"run"                  validate:"required"         yaml:"run"`
+	Output            OutputConfig     `json:"output"     toml:"output"                                           yaml:"output"`
+	Linters           LintersConfig    `json:"linters"    toml:"linters"                                          yaml:"linters"`
+	Formatters        FormattersConfig `json:"formatters" toml:"formatters,omitempty"                             yaml:"formatters,omitempty"`
+	Issues            IssuesConfig     `json:"issues"     toml:"issues"                                           yaml:"issues"`
+	LintersSettingsV1 map[string]any   `json:"-"          toml:"-"                                                yaml:"linters-settings,omitempty"`
 }
 
 type RunConfig struct {

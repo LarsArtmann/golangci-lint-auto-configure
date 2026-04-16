@@ -28,6 +28,7 @@ func mergeSettingsMaps(primary, secondary map[string]any) int {
 		}
 
 		primMap, primOK := primaryValue.(map[string]any)
+
 		secMap, secOK := secondaryValue.(map[string]any)
 		if primOK && secOK {
 			changes += mergeSettingsMaps(primMap, secMap)

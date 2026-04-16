@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"charm.land/log/v2"
-	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/pelletier/go-toml/v2"
