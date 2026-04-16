@@ -184,9 +184,9 @@ func (f *Fixer) preFixTypecheck(cfg *types.Config, configPath string, dryRun boo
 
 	if dryRun {
 		f.logger.Infof("[DRY-RUN] Would remove 'typecheck' from linters list (not configurable in v2)")
+	} else {
+		f.logger.Infof("Removing 'typecheck' from linters list (not configurable in v2)")
 	}
-
-	f.logger.Infof("Removing 'typecheck' from linters list (not configurable in v2)")
 
 	return true, f.savePrefixedConfig(cfg, configPath, "after removing typecheck")
 }

@@ -68,15 +68,15 @@ func ValidationErrors(err error) []ValidationError {
 		}
 	}
 
-	errors := make([]ValidationError, 0, len(validationErrors))
+	validationErrs := make([]ValidationError, 0, len(validationErrors))
 	for _, e := range validationErrors {
-		errors = append(errors, ValidationError{
+		validationErrs = append(validationErrs, ValidationError{
 			Field:   e.Field(),
 			Message: e.Tag(),
 		})
 	}
 
-	return errors
+	return validationErrs
 }
 
 // IsValidationError checks if an error is a validation error.

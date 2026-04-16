@@ -102,7 +102,13 @@ func (a *Analyzer) parseConfigOutputs(
 		return linterErr
 	})
 
-	formatterOutput := a.parseFormattersOutput(ctx, configPath)
+	var formatterOutput *golangciLintFormattersOutput
+
+	errGroup.Go(func() error {
+		formatterOutput = a.parseFormattersOutput(ctx, configPath)
+
+		return nil
+	})
 
 	if err := errGroup.Wait(); err != nil {
 		return nil, nil, err

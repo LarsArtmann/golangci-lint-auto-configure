@@ -61,7 +61,7 @@ func (cu *configUpdater) updateBuildTags(cfg *types.Config) {
 	cfg.Run.BuildTags = sortAndDeduplicate(cfg.Run.BuildTags)
 }
 
-// sortAndDeduplicatesorts and deduplicates a slice of strings.
+// sortAndDeduplicate sorts and deduplicates a slice of strings.
 func sortAndDeduplicate(tags []string) []string {
 	if len(tags) <= 1 {
 		return tags

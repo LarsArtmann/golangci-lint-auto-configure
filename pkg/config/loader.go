@@ -235,6 +235,9 @@ type LinterList struct {
 
 // GetAllLinterNames fetches all available linter names from golangci-lint.
 func (l *Loader) GetAllLinterNames(ctx context.Context) ([]string, error) {
+	ctx, cancel := context.WithTimeout(ctx, LintersTimeout)
+	defer cancel()
+
 	cmd := exec.CommandContext(ctx, "golangci-lint", "linters", "--json")
 
 	output, err := cmd.CombinedOutput()
@@ -281,6 +284,9 @@ func GetLocalGoVersion(ctx context.Context) string {
 
 // GoVersionTimeout is the timeout for getting the local Go version.
 const GoVersionTimeout = 5 * time.Second
+
+// LintersTimeout is the timeout for fetching available linter names from golangci-lint.
+const LintersTimeout = 30 * time.Second
 
 // CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled.
 func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {

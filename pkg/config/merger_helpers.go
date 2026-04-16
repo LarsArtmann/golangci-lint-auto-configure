@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -104,14 +105,12 @@ func countDuplicates(primary, secondary []string) int {
 // sortByPriority sorts config paths by golangci-lint search order priority.
 // Lower index = higher priority.
 func sortByPriority(paths []string) []string {
-	priorityMap := configPriorityMap()
-
 	sorted := make([]string, len(paths))
 	copy(sorted, paths)
 
 	sort.Slice(sorted, func(i, j int) bool {
-		iPriority := priorityMap[getFilename(sorted[i])]
-		jPriority := priorityMap[getFilename(sorted[j])]
+		iPriority := configFilePriority[filepath.Base(sorted[i])]
+		jPriority := configFilePriority[filepath.Base(sorted[j])]
 
 		return iPriority < jPriority
 	})
@@ -119,24 +118,12 @@ func sortByPriority(paths []string) []string {
 	return sorted
 }
 
-func getFilename(path string) string {
-	for i := len(path) - 1; i >= 0; i-- {
-		if path[i] == '/' || path[i] == '\\' {
-			return path[i+1:]
-		}
-	}
-
-	return path
-}
-
-// configPriorityMap returns the priority for a config filename.
-func configPriorityMap() map[string]int {
-	return map[string]int{
-		".golangci.yml":  ConfigPriorityYML,
-		".golangci.yaml": ConfigPriorityYAML,
-		".golangci.toml": ConfigPriorityTOML,
-		".golangci.json": ConfigPriorityJSON,
-	}
+// configFilePriority defines the priority for each config filename.
+var configFilePriority = map[string]int{
+	".golangci.yml":  ConfigPriorityYML,
+	".golangci.yaml": ConfigPriorityYAML,
+	".golangci.toml": ConfigPriorityTOML,
+	".golangci.json": ConfigPriorityJSON,
 }
 
 // createBackup creates a backup of the given config file.
