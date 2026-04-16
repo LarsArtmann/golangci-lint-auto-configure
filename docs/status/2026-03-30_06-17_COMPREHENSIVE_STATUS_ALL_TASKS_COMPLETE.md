@@ -144,7 +144,7 @@ Potential future work (not yet scoped):
 - Web UI for configuration management
 - Plugin system for custom linters
 - Real-time linting integration
-- VS Code extension
+- ~~VS Code extension~~ (REMOVED - not VS Code)
 - AI-powered linter recommendations
 
 ---
@@ -286,7 +286,7 @@ Potential future work (not yet scoped):
 ### Nice to Have
 
 16. Add web UI for configuration management
-17. Create VS Code extension
+17. ~~Create VS Code extension~~ (REMOVED - not VS Code)
 18. Add plugin system for custom linters
 19. Implement real-time linting integration
 20. Add AI-powered linter recommendations

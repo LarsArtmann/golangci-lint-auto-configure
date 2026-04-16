@@ -106,7 +106,7 @@ After an intensive lint-fixing session spanning multiple days, the project has a
 
 ### 3. IDE Integration
 
-- VS Code extension
+- ~~VS Code extension~~ (REMOVED - not VS Code)
 - JetBrains plugin
 - LSP server implementation
 
