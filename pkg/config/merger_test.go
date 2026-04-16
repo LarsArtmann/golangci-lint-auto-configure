@@ -307,6 +307,46 @@ formatters:
 			Expect(cfg.Formatters.Enable).To(ContainElements("gofmt", "goimports"))
 		})
 	})
+
+	Context("deep merge of nested linter settings", func() {
+		It("should recursively merge nested map settings", func() {
+			ymlPath := filepath.Join(testDir, ".golangci.yml")
+			primaryContent := `
+version: "2"
+linters:
+  settings:
+    funlen:
+      lines: 80
+      statements: 50
+`
+			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
+
+			yamlPath := filepath.Join(testDir, ".golangci.yaml")
+			secondaryContent := `
+version: "2"
+linters:
+  settings:
+    funlen:
+      statements: 40
+    gocyclo:
+      min-complexity: 15
+`
+			Expect(os.WriteFile(yamlPath, []byte(secondaryContent), 0o644)).To(Succeed())
+
+			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
+
+			Expect(err).NotTo(HaveOccurred())
+
+			settings, ok := cfg.Linters.Settings["funlen"].(map[string]any)
+			Expect(ok).To(BeTrue())
+			Expect(settings["lines"]).To(Equal(80))
+			Expect(settings["statements"]).To(Equal(50))
+
+			gocycloSettings, ok := cfg.Linters.Settings["gocyclo"].(map[string]any)
+			Expect(ok).To(BeTrue())
+			Expect(gocycloSettings["min-complexity"]).To(Equal(15))
+		})
+	})
 })
 
 var _ = Describe("ToSortedSlice", func() {

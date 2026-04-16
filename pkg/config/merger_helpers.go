@@ -9,14 +9,34 @@ import (
 	"github.com/spf13/afero"
 )
 
-// mergeSettingsMaps merges secondary settings into primary, returning number of changes.
+// mergeSettingsMaps deep-merges secondary settings into primary, returning number of changes.
 // Caller must ensure primary is non-nil when secondary has entries.
 func mergeSettingsMaps(primary, secondary map[string]any) int {
 	if len(secondary) == 0 {
 		return 0
 	}
 
-	return mergeMap(primary, secondary)
+	changes := 0
+
+	for key, secondaryValue := range secondary {
+		primaryValue, exists := primary[key]
+		if !exists {
+			primary[key] = secondaryValue
+			changes++
+
+			continue
+		}
+
+		primMap, primOK := primaryValue.(map[string]any)
+		secMap, secOK := secondaryValue.(map[string]any)
+		if primOK && secOK {
+			changes += mergeSettingsMaps(primMap, secMap)
+
+			continue
+		}
+	}
+
+	return changes
 }
 
 // mergeMap merges secondary map into primary, adding missing keys.
