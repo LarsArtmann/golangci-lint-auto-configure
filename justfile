@@ -81,7 +81,7 @@ install: build
 
 # Install locally with version ldflags
 install-local:
-    #!/bin/bash
+    #!/usr/bin/env bash
     set -e
     echo "Installing locally with version..."
     VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
