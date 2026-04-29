@@ -199,7 +199,7 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().
 		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
 	rootCmd.PersistentFlags().
-		StringVar(&reportFormat, "format", "html", "Output format (html, json)")
+		StringVar(&reportFormat, "format", "html", "Output format (html, json, sarif, finding)")
 	rootCmd.PersistentFlags().
 		BoolVar(&noAutoMerge, "no-auto-merge", false, "Disable automatic merging of multiple config files")
 }

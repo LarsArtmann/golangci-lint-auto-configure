@@ -1,12 +1,15 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"os/exec"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	finding "github.com/larsartmann/go-finding"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +28,8 @@ This command performs two levels of validation:
 2. Schema validation using golangci-lint config verify
 
 Use --skip-golangci-lint to skip the schema validation (faster).
-Use --verbose to see detailed validation output.`),
+Use --verbose to see detailed validation output.
+Use --format sarif to output results as SARIF.`),
 	)
 
 	cmd.Flags().
@@ -51,38 +55,33 @@ func runValidate(
 
 	logger.Infof("Validating configuration: %s", configFile)
 
-	err = validateBasicStructure(configLoader, configFile, logger)
-	if err != nil {
-		return err
-	}
+	cfg, loadErr := configLoader.LoadConfig(configFile)
+	if loadErr != nil {
+		if reportFormat == formatSARIF {
+			return outputValidationSARIF(nil, configFile, []error{loadErr})
+		}
 
-	if !skipGolangciLint {
-		return runSchemaValidation(cmd, configFile, logger)
-	}
-
-	logger.Infof("✅ Configuration is valid")
-
-	return nil
-}
-
-func validateBasicStructure(
-	configLoader *config.Loader,
-	configFile string,
-	logger *log.Logger,
-) error {
-	cfg, err := configLoader.LoadConfig(configFile)
-	if err != nil {
-		return logAndFailLoad(logger, err)
+		return logAndFailLoad(logger, loadErr)
 	}
 
 	logger.Infof("✓ Basic structure valid")
 
 	validationErrors := configLoader.ValidateConfig(cfg)
 	if len(validationErrors) > 0 {
+		if reportFormat == formatSARIF {
+			return outputValidationSARIF(cfg, configFile, validationErrors)
+		}
+
 		return logAndFailValidation(logger, validationErrors)
 	}
 
 	logger.Infof("✓ Internal validation passed")
+
+	if !skipGolangciLint {
+		return runSchemaValidation(cmd, configFile, logger)
+	}
+
+	logger.Infof("✅ Configuration is valid")
 
 	return nil
 }
@@ -133,6 +132,44 @@ func runSchemaValidation(cmd *cobra.Command, configFile string, logger *log.Logg
 
 	logger.Infof("✓ Schema validation passed")
 	logger.Infof("✅ Configuration is valid")
+
+	return nil
+}
+
+func outputValidationSARIF(_ *types.Config, configFile string, errors []error) error {
+	report := finding.NewReport(finding.ToolInfo{
+		Name:    "golangci-lint-auto-configure",
+		Version: Version,
+	})
+
+	for _, err := range errors {
+		pos := finding.Position{File: configFile}
+		f := finding.NewFinding(
+			"validation-error",
+			"golangci-lint-auto-configure",
+			err.Error(),
+			finding.SeverityError,
+			pos,
+		)
+
+		report.AddFinding(f)
+	}
+
+	report.ComputeSummary()
+
+	sarif, sarifErr := report.ToSARIF()
+	if sarifErr != nil {
+		return fmt.Errorf("failed to generate SARIF: %w", sarifErr)
+	}
+
+	var raw json.RawMessage = sarif
+
+	pretty, prettyErr := json.MarshalIndent(raw, "", "  ")
+	if prettyErr != nil {
+		return fmt.Errorf("failed to format SARIF: %w", prettyErr)
+	}
+
+	fmt.Println(string(pretty))
 
 	return nil
 }

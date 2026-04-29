@@ -3,8 +3,10 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"charm.land/log/v2"
+	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/report"
@@ -42,11 +44,16 @@ func runReport(
 
 	outputPath := determineOutputPath(outputReport, reportFormat)
 
-	if reportFormat == "json" {
+	switch reportFormat {
+	case "json":
 		return writeJSONReport(logger, analysis, outputPath, configFile)
+	case formatSARIF:
+		return writeSARIFReport(analysis, outputPath, configFile)
+	case formatFinding:
+		return writeFindingJSONReport(analysis, outputPath, configFile)
+	default:
+		return writeHTMLReport(cmd.Context(), logger, analysis, outputPath, configFile)
 	}
-
-	return writeHTMLReport(cmd.Context(), logger, analysis, outputPath, configFile)
 }
 
 func setLogLevel(logger *log.Logger) {
@@ -72,8 +79,15 @@ func analyzeConfig(
 }
 
 func determineOutputPath(outputPath, format string) string {
-	if outputPath == "report.html" && format == "json" {
-		return "report.json"
+	if outputPath == "report.html" {
+		switch format {
+		case "json":
+			return "report.json"
+		case formatSARIF:
+			return "report.sarif.json"
+		case formatFinding:
+			return "report.finding.json"
+		}
 	}
 
 	return outputPath
@@ -93,6 +107,59 @@ func writeJSONReport(
 			configFile,
 			outputPath,
 			err,
+		)
+	}
+
+	return nil
+}
+
+func writeSARIFReport(
+	analysis *types.ConfigAnalysis,
+	outputPath, configFile string,
+) error {
+	sarif, err := appfinding.AnalysisToSARIF(analysis, Version)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to generate SARIF report (configPath=%s, outputPath=%s): %w",
+			configFile,
+			outputPath,
+			err,
+		)
+	}
+
+	if writeErr := os.WriteFile(outputPath, sarif, 0o644); writeErr != nil {
+		return fmt.Errorf(
+			"failed to write SARIF report (configPath=%s, outputPath=%s): %w",
+			configFile,
+			outputPath,
+			writeErr,
+		)
+	}
+
+	return nil
+}
+
+func writeFindingJSONReport(
+	analysis *types.ConfigAnalysis,
+	outputPath, configFile string,
+) error {
+	r := appfinding.AnalysisToReport(analysis, Version)
+
+	data, err := r.PrettyJSON()
+	if err != nil {
+		return fmt.Errorf(
+			"failed to generate finding JSON report (configPath=%s): %w",
+			configFile,
+			err,
+		)
+	}
+
+	if writeErr := os.WriteFile(outputPath, []byte(data), 0o644); writeErr != nil {
+		return fmt.Errorf(
+			"failed to write finding JSON report (configPath=%s, outputPath=%s): %w",
+			configFile,
+			outputPath,
+			writeErr,
 		)
 	}
 

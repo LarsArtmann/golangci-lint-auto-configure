@@ -9,6 +9,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/ui"
@@ -16,6 +17,8 @@ import (
 )
 
 const formatJSON = "json"
+const formatSARIF = "sarif"
+const formatFinding = "finding"
 
 const (
 	spinnerFrames      = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
@@ -54,7 +57,7 @@ func newAnalyzeCommand(builder *CommandBuilder) *cobra.Command {
 		},
 	)
 
-	cmd.Flags().StringVar(&format, "format", "text", "Output format (text, json)")
+	cmd.Flags().StringVar(&format, "format", "text", "Output format (text, json, sarif, finding)")
 
 	return cmd
 }
@@ -126,11 +129,39 @@ func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) e
 		}
 
 		fmt.Fprintln(os.Stdout, string(data))
+	case formatSARIF:
+		return outputSARIF(analysis)
+	case formatFinding:
+		return outputFindingJSON(analysis)
 	default:
 		fmt.Fprint(os.Stdout, ui.FormatConfigHeader(configFile))
 		fmt.Fprint(os.Stdout, ui.FormatRecommendations(analysis))
 		fmt.Fprint(os.Stdout, ui.FormatSummary(analysis))
 	}
+
+	return nil
+}
+
+func outputSARIF(analysis *types.ConfigAnalysis) error {
+	sarif, err := appfinding.AnalysisToSARIF(analysis, Version)
+	if err != nil {
+		return fmt.Errorf("failed to generate SARIF: %w", err)
+	}
+
+	fmt.Fprintln(os.Stdout, string(sarif))
+
+	return nil
+}
+
+func outputFindingJSON(analysis *types.ConfigAnalysis) error {
+	r := appfinding.AnalysisToReport(analysis, Version)
+
+	data, err := r.PrettyJSON()
+	if err != nil {
+		return fmt.Errorf("failed to generate finding JSON: %w", err)
+	}
+
+	fmt.Fprintln(os.Stdout, data)
 
 	return nil
 }

@@ -387,5 +387,95 @@ linters:
 			_, err = os.Stat(reportPath)
 			Expect(err).NotTo(HaveOccurred())
 		})
+
+		It("should generate SARIF report", func() {
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			reportPath := filepath.Join(testDir, "report.sarif.json")
+			cmd := exec.Command(
+				binaryPath,
+				"report",
+				"--config",
+				configPath,
+				"--output",
+				reportPath,
+				"--format",
+				"sarif",
+			)
+			_, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+
+			data, err := os.ReadFile(reportPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(data)).To(ContainSubstring(`"$schema"`))
+			Expect(string(data)).To(ContainSubstring(`"golangci-lint-auto-configure"`))
+		})
+
+		It("should generate finding report", func() {
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			configPath := filepath.Join(testDir, ".golangci.yml")
+			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+			reportPath := filepath.Join(testDir, "report.finding.json")
+			cmd := exec.Command(
+				binaryPath,
+				"report",
+				"--config",
+				configPath,
+				"--output",
+				reportPath,
+				"--format",
+				"finding",
+			)
+			_, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+
+			data, err := os.ReadFile(reportPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(data)).To(ContainSubstring(`"golangci-lint-auto-configure"`))
+			Expect(string(data)).To(ContainSubstring(`"findings"`))
+			Expect(string(data)).To(ContainSubstring(`"summary"`))
+		})
+	})
+
+	Context("analyze command with go-finding formats", func() {
+		It("should output SARIF from analyze", func() {
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			output, err := runCommandWithConfig(binaryPath, configContent, []string{"analyze", "--format", "sarif"})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(output).To(ContainSubstring(`"$schema"`))
+			Expect(output).To(ContainSubstring(`"golangci-lint-auto-configure"`))
+		})
+
+		It("should output finding JSON from analyze", func() {
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			output, err := runCommandWithConfig(binaryPath, configContent, []string{"analyze", "--format", "finding"})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(output).To(ContainSubstring(`"golangci-lint-auto-configure"`))
+			Expect(output).To(ContainSubstring(`"findings"`))
+			Expect(output).To(ContainSubstring(`"summary"`))
+		})
 	})
 })

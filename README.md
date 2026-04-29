@@ -63,6 +63,36 @@ INFO Analyzing configuration: .golangci.yml
 Summary: Found 16 disabled linters
 ```
 
+### SARIF Output (GitHub Code Scanning)
+
+Generate [SARIF](https://sarifweb.azurewebsites.net/) output for GitHub Code Scanning, Azure DevOps, or any SARIF-compatible tool:
+
+```bash
+# Analyze and output SARIF
+golangci-lint-auto-configure analyze --format sarif
+
+# Generate SARIF report file
+golangci-lint-auto-configure report --format sarif --output results.sarif
+
+# Validate and output SARIF
+golangci-lint-auto-configure validate --format sarif
+
+# Unified finding JSON (go-finding format)
+golangci-lint-auto-configure analyze --format finding
+```
+
+**GitHub Actions integration:**
+
+```yaml
+- name: Run analysis
+  run: golangci-lint-auto-configure analyze --format sarif > results.sarif
+
+- name: Upload to GitHub Code Scanning
+  uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif
+```
+
 ### Auto-Configure Your Project
 
 Automatically enable recommended linters:
@@ -168,7 +198,7 @@ jobs:
 | `configure` | Auto-configure golangci-lint (default command) |
 | `analyze`   | Analyze configuration and show recommendations |
 | `validate`  | Validate existing configuration                |
-| `report`    | Generate JSON/HTML report                      |
+| `report`    | Generate JSON/HTML/SARIF report               |
 | `migrate`   | Migrate config to v2.8+ schema                 |
 
 ## Flags
@@ -179,7 +209,7 @@ jobs:
 | `-d, --dry-run` | Show what would be done without making changes            |
 | `--priority`    | Minimum priority level (critical, high, medium, optional) |
 | `-v, --verbose` | Enable verbose output                                     |
-| `--format`      | Output format for report (html, json)                     |
+| `--format`      | Output format (text, json, html, sarif, finding)          |
 | `--output`      | Output path for report file                               |
 
 ## Project-Specific Examples
@@ -263,4 +293,5 @@ MIT License - see LICENSE file for details
 ## Related Projects
 
 - [golangci-lint](https://github.com/golangci/golangci-lint) - The Go linters aggregator
+- [go-finding](https://github.com/LarsArtmann/go-finding) - Unified finding model and SARIF output for static analysis tools
 - [universal-workflow](https://github.com/LarsArtmann/universal-workflow) - Workflow orchestration

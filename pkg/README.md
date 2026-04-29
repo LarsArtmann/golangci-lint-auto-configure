@@ -117,6 +117,26 @@ priority := constants.LinterPriorities["gosec"]
 formatter := constants.FormatterInfo["gofumpt"]
 ```
 
+### finding - go-finding Integration
+
+Convert analysis results to the unified [go-finding](https://github.com/larsartmann/go-finding) data model.
+
+```go
+import appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
+
+// Convert analysis to go-finding Report
+report := appfinding.AnalysisToReport(analysis, "1.0.0")
+
+// Export as SARIF for CI/CD integration
+sarif, _ := report.ToSARIF()
+
+// Parse golangci-lint JSON output
+findings, _ := appfinding.ParseGolangciLintJSON(jsonData)
+
+// Filter by category
+security := finding.Filter(findings, finding.ByCategory(finding.CategorySecurity))
+```
+
 ## Complete Example
 
 ```go
@@ -170,6 +190,9 @@ func main() {
 - [x] Formatter analysis and recommendations (v2.8+)
 - [x] Configuration loading and validation
 - [x] HTML and JSON report generation
+- [x] SARIF 2.1.0 report output (via go-finding)
+- [x] go-finding unified data model integration
+- [x] golangci-lint JSON output parsing to Findings
 - [x] High-level client API with context support
 - [x] Strong typing with LinterName and FormatterName
 - [x] Priority-based recommendations (Critical/High/Medium/Optional)

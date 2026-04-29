@@ -1,0 +1,50 @@
+package finding
+
+import (
+	finding "github.com/larsartmann/go-finding"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+)
+
+// FindingsToLSP converts Findings to LSP Diagnostics.
+func FindingsToLSP(findings []finding.Finding) []finding.LSPDiagnostic {
+	diagnostics := make([]finding.LSPDiagnostic, 0, len(findings))
+
+	for idx := range findings {
+		diagnostics = append(diagnostics, findings[idx].ToLSP())
+	}
+
+	return diagnostics
+}
+
+// FilterByPriority filters findings by linter priority using the priority mapping.
+func FilterByPriority(findings []finding.Finding, priority types.LinterPriority) []finding.Finding {
+	severity := PriorityToSeverity(priority)
+
+	return finding.Filter(findings, finding.BySeverityAtLeast(severity))
+}
+
+// MergeReports merges multiple finding Reports with deduplication.
+func MergeReports(reports []*finding.Report) *finding.Report {
+	return finding.Merge(reports, finding.WithDeduplication(true))
+}
+
+// AnalysisFindingsByFile groups analysis findings by file path.
+func AnalysisFindingsByFile(analysis *types.ConfigAnalysis, version string) map[string][]finding.Finding {
+	report := AnalysisToReport(analysis, version)
+
+	return finding.GroupByFile(report.Findings)
+}
+
+// AnalysisFindingsByCategory groups analysis findings by category.
+func AnalysisFindingsByCategory(analysis *types.ConfigAnalysis, version string) map[finding.Category][]finding.Finding {
+	report := AnalysisToReport(analysis, version)
+
+	return finding.GroupByCategory(report.Findings)
+}
+
+// AutoFixableFindings returns only findings with FixStrategyDirect.
+func AutoFixableFindings(analysis *types.ConfigAnalysis, version string) []finding.Finding {
+	report := AnalysisToReport(analysis, version)
+
+	return report.ByFixStrategy(finding.FixStrategyDirect)
+}

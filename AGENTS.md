@@ -12,7 +12,8 @@ This guide provides essential information for agents working on the golangci-lin
 - Auto-fixing configuration issues
 - Automatically replacing deprecated linters with their successors
 - Migrating v1 configs to v2 format (merged from golangci-config-migrator)
-- Generating HTML/JSON reports
+- Generating HTML/JSON/SARIF reports
+- Converting results to go-finding unified model for pipeline and cross-tool integration
 
 ## Essential Commands
 
@@ -113,6 +114,12 @@ golangci-lint-auto-configure/
 │   │   └── commands_test.go        # Command tests
 │   └── di/                        # Dependency injection (currently empty)
 ├── examples/                       # Example configurations for different project types
+├── pkg/finding/                   # go-finding integration (converters, parsers, detectors)
+│   ├── converter.go               # Convert LinterRecommendations/ValidationErrors to finding.Finding
+│   ├── golangci_lint.go           # Parse golangci-lint JSON output to Findings
+│   ├── detector.go                # ConfigAnalysisDetector for pipeline integration
+│   ├── diff_converter.go          # Convert diff.Change to Finding
+│   └── helpers.go                 # LSP, filter, merge, groupBy helpers
 ├── docs/                          # Documentation and status reports
 ├── reports/                       # Generated linter documentation
 ├── scripts/                       # Utility scripts
@@ -732,6 +739,92 @@ run, err := wf.Execute(ctx)
 3. Verify config file exists: `ls .golangci.yml`
 4. Check version info: `./bin/golangci-lint-auto-configure --help`
 
+## go-finding Integration
+
+The project uses [go-finding](https://github.com/larsartmann/go-finding) as a unified data model for static analysis results.
+
+### Key Files
+
+| File | Purpose |
+|------|----------|
+| `pkg/finding/converter.go` | Convert domain types (LinterRecommendation, ValidationError) to `finding.Finding` |
+| `pkg/finding/golangci_lint.go` | Parse `golangci-lint run --out-format=json` output to Findings |
+| `pkg/finding/detector.go` | `ConfigAnalysisDetector` implementing `pipeline.Detector` for pipeline integration |
+| `pkg/finding/diff_converter.go` | Convert `diff.Change` and `MigrationResult` to Findings |
+| `pkg/finding/helpers.go` | LSP, filter, merge, groupBy helper utilities |
+| `pkg/ui/finding_formatter.go` | Terminal text formatting for go-finding objects |
+
+### Output Formats
+
+- **`analyze --format sarif`**: SARIF 2.1.0 output (CI/CD integration)
+- **`analyze --format finding`**: go-finding Report JSON (structured, with summary)
+- **`report --format sarif`**: SARIF report file (`report.sarif.json`)
+- **`report --format finding`**: go-finding Report file (`report.finding.json`)
+- **`validate --format sarif`**: Validation errors as SARIF
+
+### Priority-to-Severity Mapping
+
+| LinterPriority | finding.Severity |
+|----------------|-----------------|
+| Critical | `critical` |
+| High | `error` |
+| Medium | `warning` |
+| Optional | `info` |
+
+### Linter-to-Category Mapping
+
+Linters are mapped to go-finding categories: security, correctness, performance, complexity, duplication, error-handling, style, testing, type-safety, structure, configuration.
+
+### go.mod Note
+
+`go-finding` uses a local replace directive:
+```
+replace github.com/larsartmann/go-finding => ../go-finding
+```
+
+## go-finding Integration
+
+The project uses [go-finding](https://github.com/larsartmann/go-finding) as a unified data model for static analysis results.
+
+### Key Files
+
+| File | Purpose |
+|------|----------|
+| `pkg/finding/converter.go` | Convert domain types (LinterRecommendation, ValidationError) to `finding.Finding` |
+| `pkg/finding/golangci_lint.go` | Parse `golangci-lint run --out-format=json` output to Findings |
+| `pkg/finding/detector.go` | `ConfigAnalysisDetector` implementing `pipeline.Detector` for pipeline integration |
+| `pkg/finding/diff_converter.go` | Convert `diff.Change` and `MigrationResult` to Findings |
+| `pkg/finding/helpers.go` | LSP, filter, merge, groupBy helper utilities |
+| `pkg/ui/finding_formatter.go` | Terminal text formatting for go-finding objects |
+
+### Output Formats
+
+- **`analyze --format sarif`**: SARIF 2.1.0 output (CI/CD integration)
+- **`analyze --format finding`**: go-finding Report JSON (structured, with summary)
+- **`report --format sarif`**: SARIF report file (`report.sarif.json`)
+- **`report --format finding`**: go-finding Report file (`report.finding.json`)
+- **`validate --format sarif`**: Validation errors as SARIF
+
+### Priority-to-Severity Mapping
+
+| LinterPriority | finding.Severity |
+|----------------|-----------------|
+| Critical | `critical` |
+| High | `error` |
+| Medium | `warning` |
+| Optional | `info` |
+
+### Linter-to-Category Mapping
+
+Linters are mapped to go-finding categories: security, correctness, performance, complexity, duplication, error-handling, style, testing, type-safety, structure, configuration.
+
+### go.mod Note
+
+`go-finding` uses a local replace directive:
+```
+replace github.com/larsartmann/go-finding => ../go-finding
+```
+
 ## External References
 
 - **golangci-lint**: https://github.com/golangci/golangci-lint
@@ -740,3 +833,4 @@ run, err := wf.Execute(ctx)
 - **Templ**: https://templ.guide/
 - **Cobra**: https://github.com/spf13/cobra
 - **Universal Workflow**: https://github.com/LarsArtmann/universal-workflow
+- **go-finding**: https://github.com/larsartmann/go-finding

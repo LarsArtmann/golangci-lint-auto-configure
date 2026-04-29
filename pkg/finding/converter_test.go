@@ -1,0 +1,318 @@
+package finding
+
+import (
+	"encoding/json"
+	"testing"
+
+	finding "github.com/larsartmann/go-finding"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+)
+
+func TestPriorityToSeverity(t *testing.T) {
+	tests := []struct {
+		input    types.LinterPriority
+		expected finding.Severity
+	}{
+		{types.LinterPriorityCritical, finding.SeverityCritical},
+		{types.LinterPriorityHigh, finding.SeverityError},
+		{types.LinterPriorityMedium, finding.SeverityWarning},
+		{types.LinterPriorityOptional, finding.SeverityInfo},
+		{types.LinterPriority(99), finding.SeverityInfo},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input.String(), func(t *testing.T) {
+			got := PriorityToSeverity(tt.input)
+			if got != tt.expected {
+				t.Errorf("PriorityToSeverity(%v) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestFormatterPriorityToSeverity(t *testing.T) {
+	tests := []struct {
+		input    types.FormatterPriority
+		expected finding.Severity
+	}{
+		{types.FormatterPriorityHigh, finding.SeverityError},
+		{types.FormatterPriorityMedium, finding.SeverityWarning},
+		{types.FormatterPriorityLow, finding.SeverityInfo},
+		{types.FormatterPriority(99), finding.SeverityInfo},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input.String(), func(t *testing.T) {
+			got := FormatterPriorityToSeverity(tt.input)
+			if got != tt.expected {
+				t.Errorf("FormatterPriorityToSeverity(%v) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestLinterCategory(t *testing.T) {
+	tests := []struct {
+		name     types.LinterName
+		expected finding.Category
+	}{
+		{"gosec", finding.CategorySecurity},
+		{"govet", finding.CategoryCorrectness},
+		{"errcheck", finding.CategoryCorrectness},
+		{"prealloc", finding.CategoryPerformance},
+		{"gocyclo", finding.CategoryComplexity},
+		{"dupl", finding.CategoryDuplication},
+		{"wrapcheck", finding.CategoryErrorHandling},
+		{"misspell", finding.CategoryStyle},
+		{"paralleltest", finding.CategoryTesting},
+		{"exhaustive", finding.CategoryTypeSafety},
+		{"sloglint", finding.CategoryStructure},
+		{"unknown-linter", finding.CategoryConfiguration},
+	}
+	for _, tt := range tests {
+		t.Run(string(tt.name), func(t *testing.T) {
+			got := linterCategory(tt.name)
+			if got != tt.expected {
+				t.Errorf("linterCategory(%s) = %v, want %v", tt.name, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestRecommendationsToFindings(t *testing.T) {
+	recommendations := []types.LinterRecommendation{
+		{Name: "gosec", Priority: types.LinterPriorityCritical, Reason: "Security scanner"},
+		{Name: "funlen", Priority: types.LinterPriorityHigh, Reason: "Long function detector"},
+		{Name: "gci", Priority: types.LinterPriorityMedium, Reason: "Import organizer"},
+	}
+
+	findings := RecommendationsToFindings(recommendations, ".golangci.yml")
+
+	if len(findings) != 3 {
+		t.Fatalf("expected 3 findings, got %d", len(findings))
+	}
+
+	assertFinding(t, findings[0], "missing-linter", "gosec", finding.SeverityCritical, finding.CategorySecurity, finding.FixStrategyDirect)
+	assertFinding(t, findings[1], "missing-linter", "funlen", finding.SeverityError, finding.CategoryComplexity, finding.FixStrategyDirect)
+	assertFinding(t, findings[2], "missing-linter", "gci", finding.SeverityWarning, finding.CategoryStyle, finding.FixStrategyDirect)
+
+	for _, f := range findings {
+		if f.Position.File != ".golangci.yml" {
+			t.Errorf("expected position file .golangci.yml, got %s", f.Position.File)
+		}
+
+		if f.Suggestion == "" {
+			t.Errorf("expected non-empty suggestion for %s", f.Tag)
+		}
+	}
+}
+
+func TestRecommendationsToFindingsEmpty(t *testing.T) {
+	findings := RecommendationsToFindings(nil, ".golangci.yml")
+	if len(findings) != 0 {
+		t.Errorf("expected 0 findings for nil input, got %d", len(findings))
+	}
+}
+
+func TestFormatterRecommendationsToFindings(t *testing.T) {
+	recommendations := []types.FormatterRecommendation{
+		{Name: "gofumpt", Priority: types.FormatterPriorityHigh, Reason: "Stricter formatting"},
+		{Name: "golines", Priority: types.FormatterPriorityHigh, Reason: "Long line fixer"},
+	}
+
+	findings := FormatterRecommendationsToFindings(recommendations, ".golangci.yml")
+
+	if len(findings) != 2 {
+		t.Fatalf("expected 2 findings, got %d", len(findings))
+	}
+
+	for _, f := range findings {
+		assertFinding(t, f, "missing-formatter", "", finding.SeverityError, finding.CategoryStyle, finding.FixStrategyDirect)
+	}
+
+	if findings[0].Tag != "gofumpt" {
+		t.Errorf("expected tag gofumpt, got %s", findings[0].Tag)
+	}
+}
+
+func TestDeprecatedLintersToFindings(t *testing.T) {
+	linters := []types.LinterInfo{
+		{Name: "wsl", Description: "Deprecated whitespace linter"},
+		{Name: "deadcode", Description: "Removed linter"},
+	}
+
+	findings := DeprecatedLintersToFindings(linters, ".golangci.yml")
+
+	if len(findings) != 2 {
+		t.Fatalf("expected 2 findings, got %d", len(findings))
+	}
+
+	assertFinding(t, findings[0], "deprecated-linter", "wsl", finding.SeverityWarning, finding.CategoryMigration, finding.FixStrategyDirect)
+
+	if findings[0].Suggestion == "" {
+		t.Error("expected non-empty suggestion for deprecated linter")
+	}
+
+	if findings[1].Suggestion == "" {
+		t.Error("expected non-empty suggestion for removed linter")
+	}
+}
+
+func TestValidationErrorsToFindings(t *testing.T) {
+	errors := []types.ValidationError{
+		{Field: "run.timeout", Message: "timeout is required", Line: 5},
+		{Field: "version", Message: "must be 2"},
+	}
+
+	findings := ValidationErrorsToFindings(errors, ".golangci.yml")
+
+	if len(findings) != 2 {
+		t.Fatalf("expected 2 findings, got %d", len(findings))
+	}
+
+	assertFinding(t, findings[0], "validation-error", "run.timeout", finding.SeverityError, finding.CategoryConfiguration, finding.FixStrategySuggest)
+
+	if findings[0].Position.Line != 5 {
+		t.Errorf("expected line 5, got %d", findings[0].Position.Line)
+	}
+
+	if findings[1].Position.Line != 0 {
+		t.Errorf("expected line 0 for no-line error, got %d", findings[1].Position.Line)
+	}
+}
+
+func TestAnalysisToReport(t *testing.T) {
+	analysis := &types.ConfigAnalysis{
+		ConfigPath: ".golangci.yml",
+		LinterRecommendations: []types.LinterRecommendation{
+			{Name: "gosec", Priority: types.LinterPriorityCritical, Reason: "Security"},
+		},
+		FormatterRecommendations: []types.FormatterRecommendation{
+			{Name: "gofumpt", Priority: types.FormatterPriorityHigh, Reason: "Formatting"},
+		},
+		DeprecatedLinters: []types.LinterInfo{
+			{Name: "wsl", Description: "Deprecated"},
+		},
+		CriticalCount:   1,
+		HighValueCount:  0,
+		MediumValueCount: 0,
+		OptionalCount:   0,
+		DeprecatedCount: 1,
+	}
+
+	report := AnalysisToReport(analysis, "v0.5.0")
+
+	if report.Tool.Name != toolName {
+		t.Errorf("expected tool name %s, got %s", toolName, report.Tool.Name)
+	}
+
+	if report.Tool.Version != "v0.5.0" {
+		t.Errorf("expected version v0.5.0, got %s", report.Tool.Version)
+	}
+
+	if len(report.Findings) != 3 {
+		t.Fatalf("expected 3 findings, got %d", len(report.Findings))
+	}
+
+	if report.Summary.Total != 3 {
+		t.Errorf("expected summary total 3, got %d", report.Summary.Total)
+	}
+
+	if report.Summary.BySeverity[finding.SeverityCritical] != 1 {
+		t.Errorf("expected 1 critical in summary, got %d", report.Summary.BySeverity[finding.SeverityCritical])
+	}
+
+	if report.Summary.ByCategory[finding.CategorySecurity] != 1 {
+		t.Errorf("expected 1 security in summary, got %d", report.Summary.ByCategory[finding.CategorySecurity])
+	}
+}
+
+func TestAnalysisToSARIF(t *testing.T) {
+	analysis := &types.ConfigAnalysis{
+		ConfigPath: ".golangci.yml",
+		LinterRecommendations: []types.LinterRecommendation{
+			{Name: "gosec", Priority: types.LinterPriorityCritical, Reason: "Security"},
+			{Name: "funlen", Priority: types.LinterPriorityHigh, Reason: "Long functions"},
+		},
+	}
+
+	sarifJSON, err := AnalysisToSARIF(analysis, "v0.5.0")
+	if err != nil {
+		t.Fatalf("AnalysisToSARIF failed: %v", err)
+	}
+
+	var sarif map[string]json.RawMessage
+	if err := json.Unmarshal(sarifJSON, &sarif); err != nil {
+		t.Fatalf("SARIF is not valid JSON: %v", err)
+	}
+
+	if _, ok := sarif["version"]; !ok {
+		t.Error("SARIF missing 'version' field")
+	}
+
+	if _, ok := sarif["$schema"]; !ok {
+		t.Error("SARIF missing '$schema' field")
+	}
+
+	if _, ok := sarif["runs"]; !ok {
+		t.Error("SARIF missing 'runs' field")
+	}
+}
+
+func TestAnalysisToReportEmpty(t *testing.T) {
+	analysis := &types.ConfigAnalysis{
+		ConfigPath: ".golangci.yml",
+	}
+
+	report := AnalysisToReport(analysis, "dev")
+
+	if report.Summary.Total != 0 {
+		t.Errorf("expected 0 findings for empty analysis, got %d", report.Summary.Total)
+	}
+
+	if len(report.Findings) != 0 {
+		t.Errorf("expected 0 findings, got %d", len(report.Findings))
+	}
+}
+
+func assertFinding(
+	t *testing.T,
+	f finding.Finding,
+	expectedRule string,
+	expectedTag string,
+	expectedSeverity finding.Severity,
+	expectedCategory finding.Category,
+	expectedFixStrategy finding.FixStrategy,
+) {
+	t.Helper()
+
+	if f.Rule != expectedRule {
+		t.Errorf("expected rule %q, got %q", expectedRule, f.Rule)
+	}
+
+	if expectedTag != "" && f.Tag != expectedTag {
+		t.Errorf("expected tag %q, got %q", expectedTag, f.Tag)
+	}
+
+	if f.Severity != expectedSeverity {
+		t.Errorf("expected severity %v, got %v", expectedSeverity, f.Severity)
+	}
+
+	if f.Category != expectedCategory {
+		t.Errorf("expected category %v, got %v", expectedCategory, f.Category)
+	}
+
+	if f.FixStrategy != expectedFixStrategy {
+		t.Errorf("expected fix strategy %v, got %v", expectedFixStrategy, f.FixStrategy)
+	}
+
+	if f.ToolName != toolName {
+		t.Errorf("expected tool name %q, got %q", toolName, f.ToolName)
+	}
+
+	if f.Message == "" {
+		t.Error("expected non-empty message")
+	}
+
+	if f.ID == "" {
+		t.Error("expected non-empty ID")
+	}
+}

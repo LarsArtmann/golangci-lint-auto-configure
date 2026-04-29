@@ -1,0 +1,107 @@
+package finding
+
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+
+	finding "github.com/larsartmann/go-finding"
+)
+
+// GolangciLintIssue represents a single issue from golangci-lint JSON output.
+type GolangciLintIssue struct {
+	FromLinter string `json:"FromLinter"`
+	Text       string `json:"Text"`
+	Pos        struct {
+		Filename string `json:"Filename"`
+		Line     int    `json:"Line"`
+		Column   int    `json:"Column"`
+	} `json:"Pos"`
+	Severity string `json:"Severity"`
+}
+
+// golangciLintOutput represents the top-level JSON structure from golangci-lint.
+type golangciLintOutput struct {
+	Issues []GolangciLintIssue `json:"Issues"`
+}
+
+// ParseGolangciLintJSON converts golangci-lint JSON output to Findings.
+func ParseGolangciLintJSON(data []byte) ([]finding.Finding, error) {
+	var output golangciLintOutput
+
+	if err := json.Unmarshal(data, &output); err != nil {
+		return nil, fmt.Errorf("parse golangci-lint JSON: %w", err)
+	}
+
+	findings := make([]finding.Finding, 0, len(output.Issues))
+
+	for _, issue := range output.Issues {
+		severity := golangciLintSeverityToFinding(issue.Severity)
+		category := linterNameToCategory(issue.FromLinter)
+		pos := finding.Position{
+			File:   issue.Pos.Filename,
+			Line:   issue.Pos.Line,
+			Column: issue.Pos.Column,
+		}
+
+		f := finding.NewFinding(
+			issue.FromLinter,
+			"golangci-lint",
+			issue.Text,
+			severity,
+			pos,
+		)
+
+		f.Category = category
+		f.Tag = issue.FromLinter
+
+		findings = append(findings, f)
+	}
+
+	return findings, nil
+}
+
+// golangciLintSeverityToFinding maps golangci-lint severity strings to finding.Severity.
+func golangciLintSeverityToFinding(severity string) finding.Severity {
+	switch strings.ToLower(severity) {
+	case "error", "critical":
+		return finding.SeverityError
+	case "warning", "warn":
+		return finding.SeverityWarning
+	case "info", "information":
+		return finding.SeverityInfo
+	default:
+		return finding.SeverityWarning
+	}
+}
+
+// linterNameToCategory maps golangci-lint linter names to finding categories.
+func linterNameToCategory(linterName string) finding.Category {
+	switch linterName {
+	case "gosec", "noctx", "errchkjson":
+		return finding.CategorySecurity
+	case "govet", "staticcheck", "errcheck", "nilerr", "ineffassign",
+		"unconvert", "bodyclose", "contextcheck":
+		return finding.CategoryCorrectness
+	case "prealloc", "perfsprint", "unparam":
+		return finding.CategoryPerformance
+	case "gocyclo", "cyclop", "gocognit", "maintidx", "funlen",
+		"nestif", "interfacebloat", "gocritic":
+		return finding.CategoryComplexity
+	case "dupl", "goconst":
+		return finding.CategoryDuplication
+	case "wrapcheck", "errorlint", "errname", "nilnil":
+		return finding.CategoryErrorHandling
+	case "misspell", "revive", "gofmt", "gci", "wsl_v5",
+		"dupword", "godot", "lll", "whitespace", "nlreturn":
+		return finding.CategoryStyle
+	case "paralleltest", "thelper", "testifylint", "ginkgolinter":
+		return finding.CategoryTesting
+	case "exhaustive", "exhaustruct", "forcetypeassert", "musttag":
+		return finding.CategoryTypeSafety
+	case "sloglint", "loggercheck":
+		return finding.CategoryStructure
+	default:
+		return finding.CategoryConfiguration
+	}
+}
