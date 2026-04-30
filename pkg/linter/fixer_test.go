@@ -305,6 +305,69 @@ linters:
 		})
 	})
 
+	Context("Default Linter Settings", func() {
+		It("should inject depguard defaults when depguard is enabled without settings", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - depguard
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("depguard:"))
+			Expect(content).To(ContainSubstring("$gostd"))
+			Expect(content).To(ContainSubstring("$module"))
+		})
+
+		It("should inject ireturn defaults when ireturn is enabled without settings", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - ireturn
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("ireturn:"))
+			Expect(content).To(ContainSubstring("generic"))
+		})
+
+		It("should not overwrite existing linter settings", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - ireturn
+  settings:
+    ireturn:
+      accept:
+        - error
+        - empty
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("ireturn:"))
+			Expect(content).NotTo(ContainSubstring("generic"))
+		})
+
+		It("should inject defaults for multiple linters simultaneously", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - depguard
+    - ireturn
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("depguard:"))
+			Expect(content).To(ContainSubstring("ireturn:"))
+			Expect(content).To(ContainSubstring("generic"))
+			Expect(content).To(ContainSubstring("$gostd"))
+		})
+	})
+
 	Context("Build Tags", func() {
 		It("should add all GOEXPERIMENT build tags", func() {
 			configContent := `version: "2"
