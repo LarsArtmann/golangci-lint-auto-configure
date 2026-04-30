@@ -198,8 +198,8 @@ jobs:
 | `configure`    | Auto-configure golangci-lint (default command) |
 | `analyze`      | Analyze configuration and show recommendations |
 | `validate`     | Validate existing configuration                |
-| `report`       | Generate JSON/HTML/SARIF report               |
-| `migrate`      | Migrate configuration from v1 to v2 schema    |
+| `report`       | Generate JSON/HTML/SARIF report                |
+| `migrate`      | Migrate configuration from v1 to v2 schema     |
 | `install-hook` | Install pre-commit hook for git                |
 | `completion`   | Generate shell completion script               |
 

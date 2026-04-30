@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"charm.land/log/v2"
-	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/report"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"

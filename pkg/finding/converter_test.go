@@ -90,9 +90,33 @@ func TestRecommendationsToFindings(t *testing.T) {
 		t.Fatalf("expected 3 findings, got %d", len(findings))
 	}
 
-	assertFinding(t, findings[0], "missing-linter", "gosec", finding.SeverityCritical, finding.CategorySecurity, finding.FixStrategyDirect)
-	assertFinding(t, findings[1], "missing-linter", "funlen", finding.SeverityError, finding.CategoryComplexity, finding.FixStrategyDirect)
-	assertFinding(t, findings[2], "missing-linter", "gci", finding.SeverityWarning, finding.CategoryStyle, finding.FixStrategyDirect)
+	assertFinding(
+		t,
+		findings[0],
+		"missing-linter",
+		"gosec",
+		finding.SeverityCritical,
+		finding.CategorySecurity,
+		finding.FixStrategyDirect,
+	)
+	assertFinding(
+		t,
+		findings[1],
+		"missing-linter",
+		"funlen",
+		finding.SeverityError,
+		finding.CategoryComplexity,
+		finding.FixStrategyDirect,
+	)
+	assertFinding(
+		t,
+		findings[2],
+		"missing-linter",
+		"gci",
+		finding.SeverityWarning,
+		finding.CategoryStyle,
+		finding.FixStrategyDirect,
+	)
 
 	for _, f := range findings {
 		if f.Position.File != ".golangci.yml" {
@@ -125,7 +149,15 @@ func TestFormatterRecommendationsToFindings(t *testing.T) {
 	}
 
 	for _, f := range findings {
-		assertFinding(t, f, "missing-formatter", "", finding.SeverityError, finding.CategoryStyle, finding.FixStrategyDirect)
+		assertFinding(
+			t,
+			f,
+			"missing-formatter",
+			"",
+			finding.SeverityError,
+			finding.CategoryStyle,
+			finding.FixStrategyDirect,
+		)
 	}
 
 	if findings[0].Tag != "gofumpt" {
@@ -145,7 +177,15 @@ func TestDeprecatedLintersToFindings(t *testing.T) {
 		t.Fatalf("expected 2 findings, got %d", len(findings))
 	}
 
-	assertFinding(t, findings[0], "deprecated-linter", "wsl", finding.SeverityWarning, finding.CategoryMigration, finding.FixStrategyDirect)
+	assertFinding(
+		t,
+		findings[0],
+		"deprecated-linter",
+		"wsl",
+		finding.SeverityWarning,
+		finding.CategoryMigration,
+		finding.FixStrategyDirect,
+	)
 
 	if findings[0].Suggestion == "" {
 		t.Error("expected non-empty suggestion for deprecated linter")
@@ -168,7 +208,15 @@ func TestValidationErrorsToFindings(t *testing.T) {
 		t.Fatalf("expected 2 findings, got %d", len(findings))
 	}
 
-	assertFinding(t, findings[0], "validation-error", "run.timeout", finding.SeverityError, finding.CategoryConfiguration, finding.FixStrategySuggest)
+	assertFinding(
+		t,
+		findings[0],
+		"validation-error",
+		"run.timeout",
+		finding.SeverityError,
+		finding.CategoryConfiguration,
+		finding.FixStrategySuggest,
+	)
 
 	if findings[0].Position.Line != 5 {
 		t.Errorf("expected line 5, got %d", findings[0].Position.Line)
@@ -191,11 +239,11 @@ func TestAnalysisToReport(t *testing.T) {
 		DeprecatedLinters: []types.LinterInfo{
 			{Name: "wsl", Description: "Deprecated"},
 		},
-		CriticalCount:   1,
-		HighValueCount:  0,
+		CriticalCount:    1,
+		HighValueCount:   0,
 		MediumValueCount: 0,
-		OptionalCount:   0,
-		DeprecatedCount: 1,
+		OptionalCount:    0,
+		DeprecatedCount:  1,
 	}
 
 	report := AnalysisToReport(analysis, "v0.5.0")

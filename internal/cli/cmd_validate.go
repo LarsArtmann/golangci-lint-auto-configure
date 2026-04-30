@@ -6,10 +6,10 @@ import (
 	"os/exec"
 
 	"charm.land/log/v2"
+	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-	finding "github.com/larsartmann/go-finding"
 	"github.com/spf13/cobra"
 )
 

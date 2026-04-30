@@ -9,6 +9,7 @@
 ## A) FULLY DONE
 
 ### Phase 1: Foundation — Converter + Tests
+
 - **pkg/finding/converter.go** (222 lines) — Converts all domain types to `finding.Finding`:
   - `LinterRecommendation` → Finding with priority/severity/category mapping
   - `FormatterRecommendation` → Finding with formatter-specific categories
@@ -26,23 +27,28 @@
   - Finding field assertion helper
 
 ### Phase 2: SARIF CLI Output
+
 - **internal/cli/cmd_analyze.go** — Added `formatSARIF` and `formatFinding` constants, `--format sarif` and `--format finding` flag support with `outputSARIF()` and `outputFindingJSON()`
 - **internal/cli/commands.go** — Global `--format` flag updated with `sarif, finding` options
 - **internal/cli/cmd_report.go** — Rewrote with `writeSARIFReport()` and `writeFindingJSONReport()`, SARIF/finding file extension logic in `determineOutputPath()`
 
 ### Phase 3: Extended Formats
+
 - **internal/cli/cmd_validate.go** — Added `--format sarif` support with `outputValidationSARIF()` function
 - Configure command SARIF skipped (analyze already provides it — low marginal value)
 
 ### Phase 4: golangci-lint JSON Parser
+
 - **pkg/finding/golangci_lint.go** (107 lines) — `ParseGolangciLintJSON()` converts golangci-lint `--out-format=json` output to `[]finding.Finding`
 - **pkg/finding/golangci_lint_test.go** (173 lines) — 5 test functions including round-trip through SARIF
 
 ### Phase 5: Pipeline Integration
+
 - **pkg/finding/detector.go** (62 lines) — `ConfigAnalysisDetector` implementing `pipeline.Detector` interface
 - Pipeline NOT wired into configure command (intentional — detector exists for future use, too invasive to wire now)
 
 ### Phase 6: Enrichment
+
 - **pkg/finding/diff_converter.go** (94 lines) — `ChangesToFindings()` and `MigrationResultToFindings()` converters
 - **pkg/finding/helpers.go** (50 lines) — Utility functions:
   - `FindingsToLSP()` — Convert findings to LSP diagnostic positions
@@ -55,11 +61,13 @@
   - `FormatFindingsSummary()` — Compact severity-count summary
 
 ### Phase 7: Documentation
+
 - **AGENTS.md** — Added go-finding integration section, updated CLI commands, dependencies, key files, output formats, priority/severity mapping, go.mod note
 - **pkg/README.md** — Added finding package section with code examples, updated feature support list
 - **README.md** — Added "SARIF Output (GitHub Code Scanning)" section with CLI examples and GitHub Actions integration, updated `--format` flag docs, updated `report` command description, added go-finding to Related Projects
 
 ### Build & Test Infrastructure
+
 - **go.mod** — Added `github.com/larsartmann/go-finding` dependency with local replace directive
 - All 12 testable packages pass (0 failures)
 - All new code has test coverage
@@ -69,23 +77,25 @@
 ## B) PARTIALLY DONE
 
 ### Pipeline Integration (Phase 5)
+
 - `ConfigAnalysisDetector` exists and compiles but is NOT wired into the configure command
 - The detect→fix→verify loop in the configure workflow does not use the pipeline
 - This was an intentional deferral — the detector is available for future integration
 
 ### LSP Diagnostics (54 warnings, 0 errors)
+
 Several categories of linter warnings exist in the new code:
 
-| Category | Files Affected | Count | Severity |
-|----------|---------------|-------|----------|
-| `funlen` (functions > 30 lines) | converter_test.go | 2 | Low |
-| `testpackage` (package naming) | converter_test.go | 1 | Low |
-| `gci` (import formatting) | converter_test.go | 1 | Low |
-| `varnamelen` (short variable names) | converter_test.go, finding_formatter.go | 3 | Low |
-| `nolineerr` (inline error handling) | converter_test.go | 1 | Low |
-| `golines` (line length) | converter_test.go | 1 | Low |
-| `depguard` (import restrictions) | finding_formatter.go | 1 | Medium |
-| `typecheck` (LSP false positive) | converter.go, cmd_analyze.go | 2 | N/A |
+| Category                            | Files Affected                          | Count | Severity |
+| ----------------------------------- | --------------------------------------- | ----- | -------- |
+| `funlen` (functions > 30 lines)     | converter_test.go                       | 2     | Low      |
+| `testpackage` (package naming)      | converter_test.go                       | 1     | Low      |
+| `gci` (import formatting)           | converter_test.go                       | 1     | Low      |
+| `varnamelen` (short variable names) | converter_test.go, finding_formatter.go | 3     | Low      |
+| `nolineerr` (inline error handling) | converter_test.go                       | 1     | Low      |
+| `golines` (line length)             | converter_test.go                       | 1     | Low      |
+| `depguard` (import restrictions)    | finding_formatter.go                    | 1     | Medium   |
+| `typecheck` (LSP false positive)    | converter.go, cmd_analyze.go            | 2     | N/A      |
 
 Note: The `typecheck` warnings at `cmd_analyze.go:143` and `converter.go:8` are **LSP false positives** — the build passes cleanly with `go build ./...`. These are artifacts of the LSP not resolving the local replace directive correctly.
 
@@ -195,31 +205,34 @@ This requires a product/architecture decision — I can argue for any option but
 ## Files Changed Summary
 
 ### New Files (1,012 lines total)
-| File | Lines | Purpose |
-|------|-------|---------|
-| pkg/finding/converter.go | 222 | Domain type → Finding converters |
-| pkg/finding/converter_test.go | 318 | 10 test functions |
-| pkg/finding/golangci_lint.go | 107 | golangci-lint JSON parser |
-| pkg/finding/golangci_lint_test.go | 173 | 5 test functions |
-| pkg/finding/detector.go | 62 | Pipeline detector (unused) |
-| pkg/finding/diff_converter.go | 94 | Diff/merge converters |
-| pkg/finding/helpers.go | 50 | Utility functions |
-| pkg/ui/finding_formatter.go | 86 | Terminal formatting |
+
+| File                              | Lines | Purpose                          |
+| --------------------------------- | ----- | -------------------------------- |
+| pkg/finding/converter.go          | 222   | Domain type → Finding converters |
+| pkg/finding/converter_test.go     | 318   | 10 test functions                |
+| pkg/finding/golangci_lint.go      | 107   | golangci-lint JSON parser        |
+| pkg/finding/golangci_lint_test.go | 173   | 5 test functions                 |
+| pkg/finding/detector.go           | 62    | Pipeline detector (unused)       |
+| pkg/finding/diff_converter.go     | 94    | Diff/merge converters            |
+| pkg/finding/helpers.go            | 50    | Utility functions                |
+| pkg/ui/finding_formatter.go       | 86    | Terminal formatting              |
 
 ### Modified Files (408 insertions, 32 deletions)
-| File | +/- | Change |
-|------|-----|--------|
-| go.mod | +3 | Added go-finding dependency + replace |
-| internal/cli/cmd_analyze.go | +31/-1 | SARIF and finding format output |
-| internal/cli/cmd_report.go | +74/-3 | SARIF/finding report generation |
-| internal/cli/cmd_validate.go | +63/-18 | SARIF validation output |
-| internal/cli/commands.go | +1/-1 | Updated --format flag help |
-| internal/cli/commands_test.go | +90 | SARIF and finding integration tests |
-| AGENTS.md | +94/-2 | go-finding integration docs |
-| README.md | +33/-2 | SARIF usage section |
-| pkg/README.md | +21/-2 | Finding package docs |
+
+| File                          | +/-     | Change                                |
+| ----------------------------- | ------- | ------------------------------------- |
+| go.mod                        | +3      | Added go-finding dependency + replace |
+| internal/cli/cmd_analyze.go   | +31/-1  | SARIF and finding format output       |
+| internal/cli/cmd_report.go    | +74/-3  | SARIF/finding report generation       |
+| internal/cli/cmd_validate.go  | +63/-18 | SARIF validation output               |
+| internal/cli/commands.go      | +1/-1   | Updated --format flag help            |
+| internal/cli/commands_test.go | +90     | SARIF and finding integration tests   |
+| AGENTS.md                     | +94/-2  | go-finding integration docs           |
+| README.md                     | +33/-2  | SARIF usage section                   |
+| pkg/README.md                 | +21/-2  | Finding package docs                  |
 
 ### Test Results
+
 ```
 ok  pkg/config        0.014s
 ok  pkg/constants      0.004s

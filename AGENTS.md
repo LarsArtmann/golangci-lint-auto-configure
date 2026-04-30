@@ -322,15 +322,15 @@ issues:
 
 All 7 subcommands are registered in `internal/cli/commands.go`:
 
-| Command        | File                                | Description                        |
-| -------------- | ----------------------------------- | ---------------------------------- |
-| `configure`    | `internal/cli/cmd_configure.go`     | Auto-configure golangci-lint       |
-| `analyze`      | `internal/cli/cmd_analyze.go`       | Analyze configuration              |
-| `validate`     | `internal/cli/cmd_validate.go`      | Validate configuration             |
-| `report`       | `internal/cli/cmd_report.go`        | Generate reports                   |
-| `migrate`      | `internal/cli/cmd/migrate.go`       | Migrate v1 to v2 config            |
-| `install-hook` | `internal/cli/cmd/installhook.go`   | Install pre-commit hook            |
-| `completion`   | `internal/cli/cmd/completion.go`    | Generate shell completion          |
+| Command        | File                              | Description                  |
+| -------------- | --------------------------------- | ---------------------------- |
+| `configure`    | `internal/cli/cmd_configure.go`   | Auto-configure golangci-lint |
+| `analyze`      | `internal/cli/cmd_analyze.go`     | Analyze configuration        |
+| `validate`     | `internal/cli/cmd_validate.go`    | Validate configuration       |
+| `report`       | `internal/cli/cmd_report.go`      | Generate reports             |
+| `migrate`      | `internal/cli/cmd/migrate.go`     | Migrate v1 to v2 config      |
+| `install-hook` | `internal/cli/cmd/installhook.go` | Install pre-commit hook      |
+| `completion`   | `internal/cli/cmd/completion.go`  | Generate shell completion    |
 
 ## Project Type Detection
 
@@ -781,14 +781,14 @@ The project uses [go-finding](https://github.com/larsartmann/go-finding) as a un
 
 ### Key Files
 
-| File | Purpose |
-|------|----------|
-| `pkg/finding/converter.go` | Convert domain types (LinterRecommendation, ValidationError) to `finding.Finding` |
-| `pkg/finding/golangci_lint.go` | Parse `golangci-lint run --out-format=json` output to Findings |
-| `pkg/finding/detector.go` | `ConfigAnalysisDetector` implementing `pipeline.Detector` for pipeline integration |
-| `pkg/finding/diff_converter.go` | Convert `diff.Change` and `MigrationResult` to Findings |
-| `pkg/finding/helpers.go` | LSP, filter, merge, groupBy helper utilities |
-| `pkg/ui/finding_formatter.go` | Terminal text formatting for go-finding objects |
+| File                            | Purpose                                                                            |
+| ------------------------------- | ---------------------------------------------------------------------------------- |
+| `pkg/finding/converter.go`      | Convert domain types (LinterRecommendation, ValidationError) to `finding.Finding`  |
+| `pkg/finding/golangci_lint.go`  | Parse `golangci-lint run --out-format=json` output to Findings                     |
+| `pkg/finding/detector.go`       | `ConfigAnalysisDetector` implementing `pipeline.Detector` for pipeline integration |
+| `pkg/finding/diff_converter.go` | Convert `diff.Change` and `MigrationResult` to Findings                            |
+| `pkg/finding/helpers.go`        | LSP, filter, merge, groupBy helper utilities                                       |
+| `pkg/ui/finding_formatter.go`   | Terminal text formatting for go-finding objects                                    |
 
 ### Output Formats
 
@@ -801,11 +801,11 @@ The project uses [go-finding](https://github.com/larsartmann/go-finding) as a un
 ### Priority-to-Severity Mapping
 
 | LinterPriority | finding.Severity |
-|----------------|-----------------|
-| Critical | `critical` |
-| High | `error` |
-| Medium | `warning` |
-| Optional | `info` |
+| -------------- | ---------------- |
+| Critical       | `critical`       |
+| High           | `error`          |
+| Medium         | `warning`        |
+| Optional       | `info`           |
 
 ### Linter-to-Category Mapping
 
@@ -814,6 +814,7 @@ Linters are mapped to go-finding categories: security, correctness, performance,
 ### go.mod Note
 
 `go-finding` uses a local replace directive:
+
 ```
 replace github.com/larsartmann/go-finding => ../go-finding
 ```

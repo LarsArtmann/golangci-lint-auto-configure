@@ -16,9 +16,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const formatJSON = "json"
-const formatSARIF = "sarif"
-const formatFinding = "finding"
+const (
+	formatJSON    = "json"
+	formatSARIF   = "sarif"
+	formatFinding = "finding"
+)
 
 const (
 	spinnerFrames      = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"

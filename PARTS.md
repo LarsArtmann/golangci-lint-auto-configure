@@ -5,18 +5,18 @@
 
 ## Executive Summary
 
-| Component        | Extraction Priority | Unique Value                        | Recommendation                       |
-| ---------------- | ------------------- | ----------------------------------- | ------------------------------------ |
-| `pkg/detection`  | **HIGH**            | No equivalent exists                | Extract as `go-project-detector`     |
-| `pkg/constants`  | **HIGH**            | Curated security-focused priorities | Extract as `golangci-lint-knowledge` |
-| `pkg/client`     | **MEDIUM**          | Already SDK-ready                   | Keep, document as public API         |
-| `pkg/config`     | **MEDIUM**          | Git-based version control           | Extract with detection               |
-| `pkg/types`      | **LOW**             | Domain types                        | Bundle with extracted libs           |
-| `pkg/diff`       | **LOW**             | Generic alternative exists          | Keep internal                        |
-| `pkg/report`     | **LOW**             | Specific to this tool               | Keep internal                        |
-| `pkg/finding`    | **LOW**             | go-finding integration layer        | Keep internal                        |
-| `pkg/migration`  | **LOW**             | v1→v2 migration logic               | Keep internal                        |
-| `pkg/ui`         | **LOW**             | Terminal output formatting          | Keep internal                        |
+| Component       | Extraction Priority | Unique Value                        | Recommendation                       |
+| --------------- | ------------------- | ----------------------------------- | ------------------------------------ |
+| `pkg/detection` | **HIGH**            | No equivalent exists                | Extract as `go-project-detector`     |
+| `pkg/constants` | **HIGH**            | Curated security-focused priorities | Extract as `golangci-lint-knowledge` |
+| `pkg/client`    | **MEDIUM**          | Already SDK-ready                   | Keep, document as public API         |
+| `pkg/config`    | **MEDIUM**          | Git-based version control           | Extract with detection               |
+| `pkg/types`     | **LOW**             | Domain types                        | Bundle with extracted libs           |
+| `pkg/diff`      | **LOW**             | Generic alternative exists          | Keep internal                        |
+| `pkg/report`    | **LOW**             | Specific to this tool               | Keep internal                        |
+| `pkg/finding`   | **LOW**             | go-finding integration layer        | Keep internal                        |
+| `pkg/migration` | **LOW**             | v1→v2 migration logic               | Keep internal                        |
+| `pkg/ui`        | **LOW**             | Terminal output formatting          | Keep internal                        |
 
 ---
 
@@ -535,15 +535,15 @@ github.com/larsartmann/golangci-lint-config
 
 These components should remain internal to golangci-lint-auto-configure:
 
-| Component       | Reason                                |
-| --------------- | ------------------------------------- |
-| `pkg/linter`    | Core logic, tightly coupled           |
-| `pkg/diff`      | Generic alternatives exist            |
-| `pkg/report`    | Tool-specific output                  |
-| `pkg/finding`   | Integration layer for go-finding      |
-| `pkg/migration` | One-time v1→v2 migration              |
-| `pkg/ui`        | CLI terminal output                   |
-| `internal/cli`  | CLI-specific, not reusable            |
+| Component       | Reason                           |
+| --------------- | -------------------------------- |
+| `pkg/linter`    | Core logic, tightly coupled      |
+| `pkg/diff`      | Generic alternatives exist       |
+| `pkg/report`    | Tool-specific output             |
+| `pkg/finding`   | Integration layer for go-finding |
+| `pkg/migration` | One-time v1→v2 migration         |
+| `pkg/ui`        | CLI terminal output              |
+| `internal/cli`  | CLI-specific, not reusable       |
 
 ---
 

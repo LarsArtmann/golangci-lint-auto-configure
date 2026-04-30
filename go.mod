@@ -1,6 +1,6 @@
 module github.com/larsartmann/golangci-lint-auto-configure
 
-go 1.26.0
+go 1.26.2
 
 require (
 	charm.land/lipgloss/v2 v2.0.3
@@ -23,9 +23,9 @@ require (
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20260416161146-9c68a866306c // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20260428153724-66037269d7be // indirect
 	github.com/charmbracelet/x/ansi v0.11.7 // indirect
-	github.com/charmbracelet/x/exp/charmtone v0.0.0-20260413165052-6921c759c913 // indirect
+	github.com/charmbracelet/x/exp/charmtone v0.0.0-20260430013151-79116d1f37bd // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect

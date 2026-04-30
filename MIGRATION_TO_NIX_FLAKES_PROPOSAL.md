@@ -515,13 +515,13 @@ nix-check:
 
 ### 9.1 Technical Risks
 
-| Risk                                                     | Likelihood              | Impact         | Mitigation                                                                                                                        |
-| -------------------------------------------------------- | ----------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `vendorHash` mismatch after `go.mod` changes             | High (every dep update) | Low (5min fix) | Document the workflow: `go mod tidy` → `nix build` → copy hash                                                                    |
-| Nix not available on contributor machines                | Medium                  | Medium         | Keep Justfile working without Nix (fallback mode)                                                                                 |
+| Risk                                                     | Likelihood              | Impact         | Mitigation                                                                                                                   |
+| -------------------------------------------------------- | ----------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `vendorHash` mismatch after `go.mod` changes             | High (every dep update) | Low (5min fix) | Document the workflow: `go mod tidy` → `nix build` → copy hash                                                               |
+| Nix not available on contributor machines                | Medium                  | Medium         | Keep Justfile working without Nix (fallback mode)                                                                            |
 | `buildGoModule` doesn't handle `local replace` in go.mod | Medium                  | Medium         | The project has `replace github.com/larsartmann/go-finding => ../go-finding` — must be removed or handled via `overrideMods` |
-| Long initial `nix develop` time                          | Low                     | Low            | Subsequent runs are cached; `cachix` for CI                                                                                       |
-| Nixpkgs Go version lags behind                           | Low                     | Medium         | Use `go_1_26` explicitly; can override with `fetchurl` if needed                                                                  |
+| Long initial `nix develop` time                          | Low                     | Low            | Subsequent runs are cached; `cachix` for CI                                                                                  |
+| Nixpkgs Go version lags behind                           | Low                     | Medium         | Use `go_1_26` explicitly; can override with `fetchurl` if needed                                                             |
 
 ### 9.2 The `local replace` Problem
 

@@ -40,9 +40,39 @@ func TestParseGolangciLintJSON(t *testing.T) {
 		t.Fatalf("expected 3 findings, got %d", len(findings))
 	}
 
-	assertLintFinding(t, findings[0], "gosec", "G101: Hardcoded credentials", "main.go", 42, 5, finding.SeverityWarning, finding.CategorySecurity)
-	assertLintFinding(t, findings[1], "errcheck", "Error return value is not checked", "handler.go", 10, 1, finding.SeverityError, finding.CategoryCorrectness)
-	assertLintFinding(t, findings[2], "funlen", "Function is too long (45 > 30)", "service.go", 100, 1, finding.SeverityWarning, finding.CategoryComplexity)
+	assertLintFinding(
+		t,
+		findings[0],
+		"gosec",
+		"G101: Hardcoded credentials",
+		"main.go",
+		42,
+		5,
+		finding.SeverityWarning,
+		finding.CategorySecurity,
+	)
+	assertLintFinding(
+		t,
+		findings[1],
+		"errcheck",
+		"Error return value is not checked",
+		"handler.go",
+		10,
+		1,
+		finding.SeverityError,
+		finding.CategoryCorrectness,
+	)
+	assertLintFinding(
+		t,
+		findings[2],
+		"funlen",
+		"Function is too long (45 > 30)",
+		"service.go",
+		100,
+		1,
+		finding.SeverityWarning,
+		finding.CategoryComplexity,
+	)
 }
 
 func TestParseGolangciLintJSONEmpty(t *testing.T) {
