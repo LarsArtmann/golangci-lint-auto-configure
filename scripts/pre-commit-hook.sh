@@ -9,7 +9,7 @@ echo "Running golangci-lint-auto-configure pre-commit hook..."
 # Check if golangci-lint-auto-configure is installed
 if ! command -v golangci-lint-auto-configure &> /dev/null; then
     echo "Error: golangci-lint-auto-configure is not installed"
-    echo "Install it from: https://github.com/LarsArtmann/golangcli-linter-auto-configure"
+    echo "Install it from: https://github.com/LarsArtmann/golangci-lint-auto-configure"
     exit 1
 fi
 

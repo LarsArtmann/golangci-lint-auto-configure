@@ -18,7 +18,7 @@ echo -e "${GREEN}✓${NC} Expected linters: $EXPECTED_COUNT"
 
 # Get actual count from reports directory
 echo "Counting documentation files..."
-ACTUAL_COUNT=$(ls -1 /Users/larsartmann/projects/golangcli-linter-auto-configure/reports/*.md 2>/dev/null | wc -l | tr -d ' ')
+ACTUAL_COUNT=$(ls -1 "$(cd "$(dirname "$0")/.." && pwd)/reports/"*.md 2>/dev/null | wc -l | tr -d ' ')
 echo -e "${GREEN}✓${NC} Documentation files: $ACTUAL_COUNT"
 
 # Calculate completion percentage

@@ -7,8 +7,8 @@ repos:
     hooks:
       - id: golangci-configure
         name: Auto-configure golangci-lint
-        description: Runs golangci-linter-auto-configure to ensure optimal linter settings
-        entry: golangci-linter-auto-configure configure --priority high --dry-run
+        description: Runs golangci-lint-auto-configure to ensure optimal linter settings
+        entry: golangci-lint-auto-configure configure --priority high --dry-run
         language: system
         pass_filenames: false
         always_run: true

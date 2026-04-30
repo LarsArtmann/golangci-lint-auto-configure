@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 LINTER_NAME=$1
-DOC_FILE="/Users/larsartmann/projects/golangcli-linter-auto-configure/reports/${LINTER_NAME}.md"
+DOC_FILE="$(cd "$(dirname "$0")/.." && pwd)/reports/${LINTER_NAME}.md"
 
 if [ -z "$LINTER_NAME" ]; then
     echo -e "${RED}✗ ERROR${NC}: Usage: $0 <linter_name>"

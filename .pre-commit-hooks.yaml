@@ -1,11 +1,11 @@
-# Pre-commit hooks for golangci-linter-auto-configure
+# Pre-commit hooks for golangci-lint-auto-configure
 # Install: Copy to .pre-commit-hooks.yaml in your project root
 # Usage: https://pre-commit.com/
 
 - id: golangci-linter-configure
   name: Auto-configure golangci-lint
-  description: Runs golangci-linter-auto-configure to ensure optimal linter settings
-  entry: golangci-linter-auto-configure configure --priority high
+  description: Runs golangci-lint-auto-configure to ensure optimal linter settings
+  entry: golangci-lint-auto-configure configure --priority high --dry-run
   language: system
   pass_filenames: false
   always_run: true
