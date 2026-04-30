@@ -97,54 +97,6 @@ func (cp ConfigPath) IsValid() bool {
 	return cp != ""
 }
 
-// FilePath is a strongly-typed file path.
-type FilePath string
-
-func (fp FilePath) String() string {
-	return string(fp)
-}
-
-// IsValid returns true if the file path is not empty.
-func (fp FilePath) IsValid() bool {
-	return fp != ""
-}
-
-// ModulePath is a strongly-typed Go module path.
-type ModulePath string
-
-func (mp ModulePath) String() string {
-	return string(mp)
-}
-
-// IsValid returns true if the module path is not empty.
-func (mp ModulePath) IsValid() bool {
-	return mp != ""
-}
-
-// URL is a strongly-typed URL to prevent typos and ensure proper validation.
-type URL string
-
-func (u URL) String() string {
-	return string(u)
-}
-
-// IsValid returns true if the URL is not empty.
-func (u URL) IsValid() bool {
-	return u != ""
-}
-
-// Version is a strongly-typed version string to prevent typos.
-type Version string
-
-func (v Version) String() string {
-	return string(v)
-}
-
-// IsValid returns true if the version is not empty.
-func (v Version) IsValid() bool {
-	return v != ""
-}
-
 // LinterReplacement represents a replacement for a deprecated linter.
 type LinterReplacement struct {
 	Replacement LinterName `json:"replacement"`
@@ -377,9 +329,4 @@ type LinterAnalyzer interface {
 	FormatRecommendations(analysis *ConfigAnalysis) string
 	GetSummary(analysis *ConfigAnalysis) string
 	GetLintersByPriority(recommendations []LinterRecommendation, priority LinterPriority) []LinterRecommendation
-}
-
-// LinterFixer defines the interface for fixing golangci-lint configurations.
-type LinterFixer interface {
-	FixConfig(ctx context.Context, configPath string, priority LinterPriority, dryRun bool) (*MigrationResult, error)
 }
