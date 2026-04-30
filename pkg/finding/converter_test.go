@@ -124,7 +124,7 @@ func TestRecommendationsToFindings(t *testing.T) {
 		}
 
 		if f.Suggestion == "" {
-			t.Errorf("expected non-empty suggestion for %s", f.Tag)
+			t.Errorf("expected non-empty suggestion for %v", f.Tags)
 		}
 	}
 }
@@ -159,9 +159,8 @@ func TestFormatterRecommendationsToFindings(t *testing.T) {
 			finding.FixStrategyDirect,
 		)
 	}
-
-	if findings[0].Tag != "gofumpt" {
-		t.Errorf("expected tag gofumpt, got %s", findings[0].Tag)
+	if len(findings[0].Tags) == 0 || string(findings[0].Tags[0]) != "gofumpt" {
+		t.Errorf("expected tag gofumpt, got %v", findings[0].Tags)
 	}
 }
 
@@ -336,8 +335,17 @@ func assertFinding(
 		t.Errorf("expected rule %q, got %q", expectedRule, f.Rule)
 	}
 
-	if expectedTag != "" && f.Tag != expectedTag {
-		t.Errorf("expected tag %q, got %q", expectedTag, f.Tag)
+	if expectedTag != "" {
+		found := false
+		for _, tag := range f.Tags {
+			if string(tag) == expectedTag {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("expected tag %q in %v", expectedTag, f.Tags)
+		}
 	}
 
 	if f.Severity != expectedSeverity {

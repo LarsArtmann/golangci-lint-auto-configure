@@ -69,7 +69,7 @@ func RecommendationsToFindings(
 			PriorityToSeverity(rec.Priority),
 			pos,
 		).
-			WithTag(string(rec.Name)).
+			WithTags(finding.Tag(string(rec.Name))).
 			WithCategory(LinterNameToCategory(rec.Name)).
 			WithFixStrategy(finding.FixStrategyDirect).
 			WithSuggestion(fmt.Sprintf("Enable %s in linters.enable section", rec.Name)))
@@ -96,7 +96,7 @@ func FormatterRecommendationsToFindings(
 			FormatterPriorityToSeverity(rec.Priority),
 			pos,
 		).
-			WithTag(string(rec.Name)).
+			WithTags(finding.Tag(string(rec.Name))).
 			WithCategory(finding.CategoryStyle).
 			WithFixStrategy(finding.FixStrategyDirect).
 			WithSuggestion(fmt.Sprintf("Enable %s in formatters.enable section", rec.Name)))
@@ -128,7 +128,7 @@ func DeprecatedLintersToFindings(
 			finding.SeverityWarning,
 			pos,
 		).
-			WithTag(string(linter.Name)).
+			WithTags(finding.Tag(string(linter.Name))).
 			WithCategory(finding.CategoryMigration).
 			WithFixStrategy(finding.FixStrategyDirect).
 			WithSuggestion(replacement))
@@ -155,7 +155,7 @@ func ValidationErrorsToFindings(
 			finding.SeverityError,
 			pos,
 		).
-			WithTag(verr.Field).
+			WithTags(finding.Tag(verr.Field)).
 			WithCategory(finding.CategoryConfiguration).
 			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(fmt.Sprintf("Fix field %s: %s", verr.Field, verr.Message)))
