@@ -166,6 +166,27 @@ func ValidationErrorsToFindings(
 	return result
 }
 
+// ErrorsToFindings converts generic errors to Findings.
+func ErrorsToFindings(errors []error, configPath string) []finding.Finding {
+	result := make([]finding.Finding, 0, len(errors))
+
+	for _, err := range errors {
+		pos := finding.Position{File: configPath}
+		f := buildFinding(finding.NewBuilder(
+			"validation-error",
+			toolName,
+			err.Error(),
+			finding.SeverityError,
+			pos,
+		).
+			WithCategory(finding.CategoryConfiguration))
+
+		result = append(result, f)
+	}
+
+	return result
+}
+
 // AnalysisToReport converts a full ConfigAnalysis to a finding.Report.
 func AnalysisToReport(analysis *types.ConfigAnalysis, version string) *finding.Report {
 	report := finding.NewReport(finding.ToolInfo{

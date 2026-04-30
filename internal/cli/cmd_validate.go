@@ -7,6 +7,7 @@ import (
 
 	"charm.land/log/v2"
 	finding "github.com/larsartmann/go-finding"
+	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -142,22 +143,7 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 		Version: Version,
 	})
 
-	for _, err := range errors {
-		pos := finding.Position{File: configFile}
-		f, buildErr := finding.NewBuilder(
-			"validation-error",
-			"golangci-lint-auto-configure",
-			err.Error(),
-			finding.SeverityError,
-			pos,
-		).Build()
-		if buildErr != nil {
-			return fmt.Errorf("failed to build validation finding: %w", buildErr)
-		}
-
-		report.AddFinding(f)
-	}
-
+	report.AddFindings(appfinding.ErrorsToFindings(errors, configFile))
 	report.ComputeSummary()
 
 	sarif, sarifErr := report.ToSARIF()
