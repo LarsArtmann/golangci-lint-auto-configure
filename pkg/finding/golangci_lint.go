@@ -44,16 +44,15 @@ func ParseGolangciLintJSON(data []byte) ([]finding.Finding, error) {
 			Column: issue.Pos.Column,
 		}
 
-		f := finding.NewFinding(
+		f := buildFinding(finding.NewBuilder(
 			issue.FromLinter,
 			"golangci-lint",
 			issue.Text,
 			severity,
 			pos,
-		)
-
-		f.Category = category
-		f.Tag = issue.FromLinter
+		).
+			WithCategory(category).
+			WithTags(finding.Tag(issue.FromLinter)))
 
 		findings = append(findings, f)
 	}

@@ -144,13 +144,16 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 
 	for _, err := range errors {
 		pos := finding.Position{File: configFile}
-		f := finding.NewFinding(
+		f, buildErr := finding.NewBuilder(
 			"validation-error",
 			"golangci-lint-auto-configure",
 			err.Error(),
 			finding.SeverityError,
 			pos,
-		)
+		).Build()
+		if buildErr != nil {
+			return fmt.Errorf("failed to build validation finding: %w", buildErr)
+		}
 
 		report.AddFinding(f)
 	}

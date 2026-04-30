@@ -16,16 +16,15 @@ func ChangesToFindings(changes []diff.Change, configPath string) []finding.Findi
 		rule := changeRule(change.Type)
 
 		pos := finding.Position{File: configPath}
-		f := finding.NewFinding(
+		f := buildFinding(finding.NewBuilder(
 			rule,
-			"golangci-lint-auto-configure",
+			toolName,
 			change.Description,
 			severity,
 			pos,
-		)
-
-		f.Category = finding.CategoryConfiguration
-		f.Suggestion = change.Description
+		).
+			WithCategory(finding.CategoryConfiguration).
+			WithSuggestion(change.Description))
 
 		if change.OldValue != "" {
 			f.BeforeCode = change.OldValue
@@ -79,16 +78,15 @@ func MigrationResultToFindings(
 	}
 
 	pos := finding.Position{File: configPath}
-	f := finding.NewFinding(
+	f := buildFinding(finding.NewBuilder(
 		"config-fix",
-		"golangci-lint-auto-configure",
+		toolName,
 		fmt.Sprintf("%s: %d fixes applied", message, fixesApplied),
 		finding.SeverityInfo,
 		pos,
-	)
-
-	f.Category = finding.CategoryConfiguration
-	f.FixStrategy = finding.FixStrategyDirect
+	).
+		WithCategory(finding.CategoryConfiguration).
+		WithFixStrategy(finding.FixStrategyDirect))
 
 	return []finding.Finding{f}
 }
