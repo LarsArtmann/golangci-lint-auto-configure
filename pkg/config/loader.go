@@ -113,11 +113,13 @@ func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
 		return toml.Unmarshal(data, config)
 	case ConfigFormatJSON:
 		return json.Unmarshal(data, config)
-	default:
+	case ConfigFormatYAML:
 		decoder := yaml.NewDecoder(bytes.NewReader(data))
 		decoder.KnownFields(false)
 
 		return decoder.Decode(config)
+	default:
+		return fmt.Errorf("unsupported config format: %s", format)
 	}
 }
 
