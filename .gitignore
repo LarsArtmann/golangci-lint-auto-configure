@@ -41,12 +41,17 @@ node_modules/
 # Add pattern for Templ generated files
 *_templ.go
 # Build artifacts
-/golangcli-linter-auto-configure
 # Build artifacts
 /golangci-lint-auto-configure
 # Test coverage
 /coverage
+coverage.html
+
+# Nix
+result
+result-*
+
 # Sensitive files
 *.db
-Copy/paste detection report
+# Copy/paste detection report
 /report/jscpd-report.json

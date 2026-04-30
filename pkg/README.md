@@ -5,7 +5,7 @@ This directory contains the public API for `golangci-lint-auto-configure`, desig
 ## Quick Start
 
 ```go
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/client"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/client"
 
 // Simple one-line analysis
 summary, err := client.SimpleAnalyze(client.Options{
@@ -24,7 +24,7 @@ fmt.Println(summary)
 The `client` package provides a simplified, production-ready API that abstracts away internal complexity.
 
 ```go
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/client"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/client"
 
 c := client.New(client.Options{
     Verbose: true,
@@ -45,7 +45,7 @@ fmt.Printf("Found %d disabled formatters\n", len(analysis.DisabledFormatters))
 Load, save, and validate golangci-lint configuration files.
 
 ```go
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/config"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 
 loader := config.NewLoader(logger)
 
@@ -66,7 +66,7 @@ err = loader.SaveConfig(cfg, ".golangci.yml.new")
 Analyze configurations and generate recommendations.
 
 ```go
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/linter"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 
 analyzer := linter.NewAnalyzer(logger)
 
@@ -83,7 +83,7 @@ fmt.Println(analyzer.FormatRecommendations(analysis))
 Core types used throughout the API.
 
 ```go
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 
 // LinterName provides type safety
 var linterName types.LinterName = "gosec"
@@ -97,7 +97,7 @@ var formatterName types.FormatterName = "gofumpt"
 Generate HTML and JSON reports from analysis results.
 
 ```go
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/report"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/report"
 
 generator := report.NewGenerator(logger)
 err := generator.GenerateReport(analysis, "report.html")
@@ -108,7 +108,7 @@ err := generator.GenerateReport(analysis, "report.html")
 Constants for linter and formatter metadata.
 
 ```go
-import "github.com/larsartmann/golangcli-linter-auto-configure/pkg/constants"
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 
 // Access linter priorities
 priority := constants.LinterPriorities["gosec"]
@@ -147,8 +147,8 @@ import (
     "log"
 
     "github.com/charmbracelet/log"
-    "github.com/larsartmann/golangcli-linter-auto-configure/pkg/client"
-    "github.com/larsartmann/golangcli-linter-auto-configure/pkg/types"
+    "github.com/larsartmann/golangci-lint-auto-configure/pkg/client"
+    "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 func main() {
@@ -207,7 +207,7 @@ func main() {
 ## Version Compatibility
 
 - **golangci-lint**: v2.10.1 or higher required
-- **Go**: 1.21 or higher required
+- **Go**: 1.26 or higher required
 - **Breaking Changes**: Public API is stable, but internal packages may change
 
 ## Error Handling
