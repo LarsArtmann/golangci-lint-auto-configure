@@ -77,31 +77,5 @@ func golangciLintSeverityToFinding(severity string) finding.Severity {
 
 // linterNameToCategory maps golangci-lint linter names to finding categories.
 func linterNameToCategory(linterName string) finding.Category {
-	switch linterName {
-	case "gosec", "noctx", "errchkjson":
-		return finding.CategorySecurity
-	case "govet", "staticcheck", "errcheck", "nilerr", "ineffassign",
-		"unconvert", "bodyclose", "contextcheck":
-		return finding.CategoryCorrectness
-	case "prealloc", "perfsprint", "unparam":
-		return finding.CategoryPerformance
-	case "gocyclo", "cyclop", "gocognit", "maintidx", "funlen",
-		"nestif", "interfacebloat", "gocritic":
-		return finding.CategoryComplexity
-	case "dupl", "goconst":
-		return finding.CategoryDuplication
-	case "wrapcheck", "errorlint", "errname", "nilnil":
-		return finding.CategoryErrorHandling
-	case "misspell", "revive", "gofmt", "gci", "wsl_v5",
-		"dupword", "godot", "lll", "whitespace", "nlreturn":
-		return finding.CategoryStyle
-	case "paralleltest", "thelper", "testifylint", "ginkgolinter":
-		return finding.CategoryTesting
-	case "exhaustive", "exhaustruct", "forcetypeassert", "musttag":
-		return finding.CategoryTypeSafety
-	case "sloglint", "loggercheck":
-		return finding.CategoryStructure
-	default:
-		return finding.CategoryConfiguration
-	}
+	return LinterToCategory(linterName)
 }

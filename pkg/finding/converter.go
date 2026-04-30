@@ -53,39 +53,6 @@ func FormatterPriorityToSeverity(p types.FormatterPriority) finding.Severity {
 	}
 }
 
-// linterCategory maps linter names to finding categories based on their domain.
-func linterCategory(name types.LinterName) finding.Category {
-	switch name {
-	case "gosec", "noctx", "errchkjson":
-		return finding.CategorySecurity
-	case "govet", "staticcheck", "errcheck", "nilerr", "ineffassign",
-		"unconvert", "bodyclose", "contextcheck", "durationcheck":
-		return finding.CategoryCorrectness
-	case "prealloc", "perfsprint", "unparam":
-		return finding.CategoryPerformance
-	case "gocyclo", "cyclop", "gocognit", "maintidx", "funlen",
-		"nestif", "interfacebloat", "gocritic":
-		return finding.CategoryComplexity
-	case "dupl", "goconst":
-		return finding.CategoryDuplication
-	case "wrapcheck", "errorlint", "errname", "nilnil":
-		return finding.CategoryErrorHandling
-	case "misspell", "revive", "gofmt", "gci", "wsl_v5",
-		"dupword", "godot", "lll", "whitespace", "nlreturn":
-		return finding.CategoryStyle
-	case "paralleltest", "thelper", "testifylint", "ginkgolinter",
-		"tparallel", "testpackage", "testableexamples":
-		return finding.CategoryTesting
-	case "exhaustive", "exhaustruct", "forcetypeassert", "musttag",
-		"gochecksumtype", "copyloopvar", "intrange":
-		return finding.CategoryTypeSafety
-	case "sloglint", "loggercheck":
-		return finding.CategoryStructure
-	default:
-		return finding.CategoryConfiguration
-	}
-}
-
 // RecommendationsToFindings converts LinterRecommendations to Findings.
 func RecommendationsToFindings(
 	recommendations []types.LinterRecommendation,
@@ -103,7 +70,7 @@ func RecommendationsToFindings(
 			pos,
 		).
 			WithTag(string(rec.Name)).
-			WithCategory(linterCategory(rec.Name)).
+			WithCategory(LinterNameToCategory(rec.Name)).
 			WithFixStrategy(finding.FixStrategyDirect).
 			WithSuggestion(fmt.Sprintf("Enable %s in linters.enable section", rec.Name)))
 

@@ -69,9 +69,9 @@ func TestLinterCategory(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(string(tt.name), func(t *testing.T) {
-			got := linterCategory(tt.name)
+			got := LinterNameToCategory(tt.name)
 			if got != tt.expected {
-				t.Errorf("linterCategory(%s) = %v, want %v", tt.name, got, tt.expected)
+				t.Errorf("LinterNameToCategory(%s) = %v, want %v", tt.name, got, tt.expected)
 			}
 		})
 	}
