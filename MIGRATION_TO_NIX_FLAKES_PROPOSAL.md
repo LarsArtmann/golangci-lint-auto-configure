@@ -519,7 +519,7 @@ nix-check:
 | -------------------------------------------------------- | ----------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `vendorHash` mismatch after `go.mod` changes             | High (every dep update) | Low (5min fix) | Document the workflow: `go mod tidy` → `nix build` → copy hash                                                                    |
 | Nix not available on contributor machines                | Medium                  | Medium         | Keep Justfile working without Nix (fallback mode)                                                                                 |
-| `buildGoModule` doesn't handle `local replace` in go.mod | Medium                  | Medium         | The project has `replace github.com/LarsArtmann/universal-workflow => /Users/...` — must be removed or handled via `overrideMods` |
+| `buildGoModule` doesn't handle `local replace` in go.mod | Medium                  | Medium         | The project has `replace github.com/larsartmann/go-finding => ../go-finding` — must be removed or handled via `overrideMods` |
 | Long initial `nix develop` time                          | Low                     | Low            | Subsequent runs are cached; `cachix` for CI                                                                                       |
 | Nixpkgs Go version lags behind                           | Low                     | Medium         | Use `go_1_26` explicitly; can override with `fetchurl` if needed                                                                  |
 
@@ -528,15 +528,15 @@ nix-check:
 **Current `go.mod` contains:**
 
 ```
-replace github.com/LarsArtmann/universal-workflow => /Users/larsartmann/projects/universal-workflow
+replace github.com/larsartmann/go-finding => ../go-finding
 ```
 
-This will **break** `nix build` because Nix builds in a sandbox without access to local paths.
+This will **break** `nix build` because Nix builds in a sandbox without access to local paths. Note: the older `universal-workflow` local replace has been removed, but `go-finding` remains.
 
 **Solutions (in order of preference):**
 
-1. **Remove the local replace** — if `universal-workflow` is published or can be referenced by commit hash
-2. **Add `universal-workflow` as a flake input** — reference the repo directly
+1. **Remove the local replace** — if `go-finding` is published or can be referenced by commit hash
+2. **Add `go-finding` as a flake input** — reference the repo directly
 3. **Use `overrideMods`** in `buildGoModule` to inject the local dependency
 4. **Keep separate `go.work` for local dev** — Nix uses `GOWORK=off` (already in Justfile)
 
@@ -544,8 +544,8 @@ This will **break** `nix build` because Nix builds in a sandbox without access t
 
 ```nix
 inputs = {
-  universal-workflow = {
-    url = "github:LarsArtmann/universal-workflow";
+  go-finding = {
+    url = "github:LarsArtmann/go-finding";
     flake = false;
   };
 };

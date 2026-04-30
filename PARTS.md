@@ -1,20 +1,22 @@
 # PARTS.md - Component Analysis for Reusable Libraries/SDKs
 
 > Analysis of golangci-lint-auto-configure components that could be extracted as standalone reusable libraries.
-> **Last Updated:** March 1, 2026 (12:42)
+> **Last Updated:** April 30, 2026
 
 ## Executive Summary
 
-| Component       | Extraction Priority | Unique Value                        | Recommendation                       |
-| --------------- | ------------------- | ----------------------------------- | ------------------------------------ |
-| `pkg/detection` | **HIGH**            | No equivalent exists                | Extract as `go-project-detector`     |
-| `pkg/constants` | **HIGH**            | Curated security-focused priorities | Extract as `golangci-lint-knowledge` |
-| `pkg/client`    | **MEDIUM**          | Already SDK-ready                   | Keep, document as public API         |
-| `pkg/config`    | **MEDIUM**          | Git-based version control           | Extract with detection               |
-| `pkg/types`     | **LOW**             | Domain types                        | Bundle with extracted libs           |
-| `pkg/diff`      | **LOW**             | Generic alternative exists          | Keep internal                        |
-| `pkg/report`    | **LOW**             | Specific to this tool               | Keep internal                        |
-| `pkg/workflow`  | **LOW**             | External dependency wrapper         | Keep internal                        |
+| Component        | Extraction Priority | Unique Value                        | Recommendation                       |
+| ---------------- | ------------------- | ----------------------------------- | ------------------------------------ |
+| `pkg/detection`  | **HIGH**            | No equivalent exists                | Extract as `go-project-detector`     |
+| `pkg/constants`  | **HIGH**            | Curated security-focused priorities | Extract as `golangci-lint-knowledge` |
+| `pkg/client`     | **MEDIUM**          | Already SDK-ready                   | Keep, document as public API         |
+| `pkg/config`     | **MEDIUM**          | Git-based version control           | Extract with detection               |
+| `pkg/types`      | **LOW**             | Domain types                        | Bundle with extracted libs           |
+| `pkg/diff`       | **LOW**             | Generic alternative exists          | Keep internal                        |
+| `pkg/report`     | **LOW**             | Specific to this tool               | Keep internal                        |
+| `pkg/finding`    | **LOW**             | go-finding integration layer        | Keep internal                        |
+| `pkg/migration`  | **LOW**             | v1→v2 migration logic               | Keep internal                        |
+| `pkg/ui`         | **LOW**             | Terminal output formatting          | Keep internal                        |
 
 ---
 
@@ -22,7 +24,7 @@
 
 ### 1. `pkg/detection` - Project Type Detector
 
-**Location:** `pkg/detection/detector.go` (268 lines), `pkg/detection/patterns.go`
+**Location:** `pkg/detection/detector.go` (377 lines), `pkg/detection/patterns.go` (92 lines)
 
 **Capabilities:**
 
@@ -30,6 +32,7 @@
 - Analyzes `go.mod` for module path and dependencies
 - Detects HTTP frameworks: gin, echo, fiber, chi, stdlib, fasthttp, httprouter
 - Detects CLI frameworks: cobra, urfave/cli, bubbletea, kingpin, flag
+- Detects API patterns: swaggo annotations, API code patterns
 - Checks for `main` package presence
 - Monorepo detection via multiple `go.mod` files
 
@@ -37,8 +40,9 @@
 
 ```go
 type Detector struct { ... }
-func NewDetector(rootDir string) *Detector  // Simplified - no logger required
+func NewDetector(rootDir string) *Detector
 func (d *Detector) Detect() ProjectType
+func (d *Detector) HasSwaggo() (bool, error)
 ```
 
 **Key Improvement:** API simplified to not require logger injection - pure detection logic.
@@ -67,22 +71,27 @@ github.com/larsartmann/go-project-detector
 
 **Location:** Split into multiple files for maintainability:
 
-- `pkg/constants/linter_priorities.go` (126 lines)
-- `pkg/constants/linter_reasons.go` (128 lines)
-- `pkg/constants/formatter_data.go` (56 lines)
-- `pkg/constants/presets.go` (38 lines)
-- `pkg/constants/rules.go` (16 lines)
-- `pkg/constants/config.go` (22 lines)
+- `pkg/constants/linter_priorities.go` (127 lines)
+- `pkg/constants/linter_reasons.go` (127 lines)
+- `pkg/constants/formatter_data.go` (60 lines)
+- `pkg/constants/presets.go` (41 lines)
+- `pkg/constants/rules.go` (55 lines)
+- `pkg/constants/config.go` (44 lines)
+- `pkg/constants/version.go` (7 lines)
+- `pkg/constants/experiments.go` (50 lines)
+- `pkg/constants/experiments_test.go` (90 lines)
 
-**Total:** ~386 lines of curated knowledge data
+**Total:** ~601 lines of curated knowledge data
 
 **Contents:**
 
-- `LinterPriorities`: Map of 100+ linters to priority levels (Critical/High/Medium/Optional)
+- `LinterPriorities`: Map of 119 linters to priority levels (Critical/High/Medium/Optional)
 - `LinterReasons`: Human-readable explanations for each linter
 - `FormatterInfo` / `FormatterPriorities` / `FormatterReasons`: Formatter metadata
 - `PresetLinters`: Pre-defined configurations (minimal, standard, strict, security, performance)
 - `RedundantLinters`: Known redundant combinations
+- `MinGolangCILintVersion`: Minimum required golangci-lint version (`v2.10.1`)
+- `Experiments`: Feature flags for experimental linter settings
 
 **Sample Data:**
 
@@ -93,7 +102,7 @@ LinterPriorities = map[types.LinterName]types.LinterPriority{
     "staticcheck": LinterPriorityCritical,  // Correctness
     "wrapcheck":   LinterPriorityHigh,      // Quality
     "errorlint":   LinterPriorityHigh,      // Quality
-    // ... 100+ more
+    // ... 119 total entries
 }
 ```
 
@@ -128,26 +137,36 @@ github.com/larsartmann/golangci-lint-knowledge
 
 ### 3. `pkg/config` - Config Management
 
-**Location:** `pkg/config/loader.go` (239 lines)
+**Location:** `pkg/config/loader.go` (439 lines)
 
 **Capabilities:**
 
-- Load/save YAML configs (`gopkg.in/yaml.v3`)
+- Load/save YAML/TOML/JSON configs (`go.yaml.in/yaml.v3`, `pelletier/go-toml/v2`)
 - Config file discovery (`.golangci.yml`, `.golangci.yaml`, `.golangci.toml`, `.golangci.json`)
 - Git repository verification (requires running in git repo)
 - Config validation via `golangci-lint linters --json`
 - Default config creation
+- Result types for functional error handling (`mo.Result`)
 
 **Current API:**
 
 ```go
 type Loader struct { ... }
 func NewLoader(logger *log.Logger) *Loader
+func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader
 func (l *Loader) LoadConfig(path string) (*Config, error)
-func (l *Loader) SaveConfig(cfg *Config, path string) error
-func (l *Loader) ValidateConfig(cfg *Config) []error
-func (l *Loader) FindConfigFile(projectPath string) (string, error)
-func (l *Loader) EnsureGitRepo(startDir string) error
+func (l *Loader) LoadConfigResult(path string) types.ConfigResult
+func (l *Loader) FindConfigFile(startDir string) (string, error)
+func (l *Loader) FindAllConfigFiles(startDir string) []string
+func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string
+func (l *Loader) SaveConfig(config *Config, path string) error
+func (l *Loader) ValidateConfig(config *Config) []error
+func (l *Loader) EnsureGitRepo(ctx context.Context, startDir string) error
+func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool
+func (l *Loader) GetAllLinterNames(ctx context.Context) ([]string, error)
+func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config
+func (l *Loader) GetLintersEnabled(config *Config) []string
+func (l *Loader) GetLintersDisabled(config *Config) []string
 ```
 
 **Alternatives:**
@@ -174,20 +193,21 @@ github.com/larsartmann/golangci-lint-config
 
 ### 4. `pkg/client` - High-Level SDK
 
-**Location:** `pkg/client/client.go` (142 lines)
+**Location:** `pkg/client/client.go` (232 lines)
 
 **Already SDK-Ready:**
 
 - Clean public API with context support
 - Options pattern for configuration
-- Convenience functions (`SimpleAnalyze`)
-- Example documentation in godoc
+- Convenience functions (`SimpleAnalyze`, `SimpleFix`)
+- Fix functionality with `FixConfig` and `FixOptions`
 
 **Current API:**
 
 ```go
 type Client struct { ... }
 type Options struct { ... }
+type FixOptions struct { ... }
 
 func New(opts Options) *Client
 func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error)
@@ -195,10 +215,12 @@ func (c *Client) LoadConfig(configPath string) (*config.Config, error)
 func (c *Client) ValidateConfig(cfg *config.Config) []error
 func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string
 func (c *Client) SaveConfig(cfg *config.Config, path string) error
+func (c *Client) FixConfig(ctx context.Context, configPath string, opts FixOptions) (*types.MigrationResult, error)
+func SimpleFix(ctx context.Context, opts Options, configPath string, dryRun bool) (*types.MigrationResult, error)
 func SimpleAnalyze(ctx context.Context, opts Options, configPath string) (string, error)
 ```
 
-**Recent Improvement:** All methods now accept `context.Context` for cancellation support.
+**All methods accept `context.Context` for cancellation support.**
 
 **Recommendation:**
 
@@ -210,7 +232,7 @@ func SimpleAnalyze(ctx context.Context, opts Options, configPath string) (string
 
 ### 5. `pkg/types` - Domain Types
 
-**Location:** `pkg/types/types.go` (267 lines), `pkg/types/result.go`
+**Location:** `pkg/types/types.go` (385 lines), `pkg/types/result.go` (101 lines)
 
 **Contents:**
 
@@ -218,8 +240,9 @@ func SimpleAnalyze(ctx context.Context, opts Options, configPath string) (string
 - `LinterName` / `FormatterName` (strong typing)
 - `LinterInfo`, `FormatterInfo` structs
 - `Config`, `LintersConfig`, `RunConfig`, `IssuesConfig` structs
-- `ConfigAnalysis`, `FixResult` result types
+- `ConfigAnalysis`, `FixResult`, `MigrationResult` result types
 - Interfaces: `ConfigLoader`, `LinterAnalyzer`, `LinterFixer`
+- Result types for functional error handling
 
 **Recommendation:**
 Bundle with extracted libraries. Not valuable standalone.
@@ -228,7 +251,7 @@ Bundle with extracted libraries. Not valuable standalone.
 
 ### 6. `pkg/diff` - Config Differ
 
-**Location:** `pkg/diff/differ.go` (244 lines)
+**Location:** `pkg/diff/differ.go` (275 lines)
 
 **Capabilities:**
 
@@ -254,14 +277,16 @@ Keep internal. Not enough unique value for extraction.
 
 **Location:** Split into multiple files for maintainability:
 
-- `pkg/linter/analyzer.go` (245 lines) - Main analysis logic
-- `pkg/linter/fixer.go` (295 lines) - Configuration fixing
-- `pkg/linter/categorizer.go` (104 lines) - Linter categorization
-- `pkg/linter/validator.go` (92 lines) - Configuration validation
-- `pkg/linter/version_checker.go` (143 lines) - golangci-lint version checking
-- `pkg/linter/command_runner.go` (37 lines) - Command execution
-
-**All files now comply with <250 line limit per HOW_TO_GOLANG.md**
+- `pkg/linter/analyzer.go` (282 lines) - Main analysis logic
+- `pkg/linter/fixer.go` (268 lines) - Configuration fixing
+- `pkg/linter/fixer_preflight.go` (268 lines) - Pre-flight checks before fixing
+- `pkg/linter/categorizer.go` (137 lines) - Linter categorization
+- `pkg/linter/fixer_formatters.go` (197 lines) - Formatter-specific fixing
+- `pkg/linter/fixer_config.go` (124 lines) - Config construction for fixing
+- `pkg/linter/command_runner.go` (97 lines) - Command execution
+- `pkg/linter/version_checker.go` (136 lines) - golangci-lint version checking
+- `pkg/linter/fixer_deprecated.go` (93 lines) - Deprecated linter replacement
+- `pkg/linter/fixer_results.go` (73 lines) - Fix result types
 
 **Capabilities:**
 
@@ -270,6 +295,8 @@ Keep internal. Not enough unique value for extraction.
 - Formatter analysis via `golangci-lint formatters --json`
 - Recommendation categorization by priority
 - Automatic deprecated linter replacement
+- Pre-flight validation before config changes
+- Formatter-aware config fixing
 
 **Coupling:**
 
@@ -284,7 +311,7 @@ Keep as core logic. Too coupled to this tool's purpose.
 
 ### 8. `pkg/report` - Report Generation
 
-**Location:** `pkg/report/generator.go` (47 lines), `pkg/report/report.templ`
+**Location:** `pkg/report/generator.go` (48 lines), `pkg/report/json_report_generator.go` (86 lines), `pkg/report/report_templ.go` (453 lines)
 
 **Capabilities:**
 
@@ -297,24 +324,65 @@ Keep internal. Specific to this tool's output format.
 
 ---
 
-### 9. `pkg/workflow` - Workflow Orchestration
+### 9. `pkg/finding` - go-finding Integration
 
-**Location:** `pkg/workflow/workflow.go` (196 lines)
+**Location:**
+
+- `pkg/finding/converter.go` (222 lines) - Convert domain types to `finding.Finding`
+- `pkg/finding/golangci_lint.go` (107 lines) - Parse golangci-lint JSON output to Findings
+- `pkg/finding/detector.go` (62 lines) - `ConfigAnalysisDetector` for pipeline integration
+- `pkg/finding/diff_converter.go` (94 lines) - Convert `diff.Change` to Finding
+- `pkg/finding/helpers.go` (50 lines) - LSP, filter, merge, groupBy helpers
 
 **Capabilities:**
 
-- Multi-step workflow orchestration
-- Uses external `github.com/LarsArtmann/universal-workflow`
-- Activities: AnalysisActivity, ValidationActivity, ReportActivity
+- Convert `LinterRecommendation` and `ValidationError` to `finding.Finding`
+- Parse `golangci-lint run --out-format=json` output into Findings
+- SARIF 2.1.0 output generation (via go-finding)
+- Priority-to-severity mapping (Critical→critical, High→error, Medium→warning, Optional→info)
+- Pipeline integration via `ConfigAnalysisDetector`
 
 **Recommendation:**
-Keep internal. Wrapper around external dependency.
+Keep internal. Integration layer between this tool and go-finding.
 
 ---
 
-### 10. `pkg/errors` - Custom Error Types
+### 10. `pkg/migration` - v1 to v2 Config Migration
 
-**Location:** `pkg/errors/errors.go` (116 lines)
+**Location:** `pkg/migration/migrator.go`, `pkg/migration/migrations.go`, `pkg/migration/migrations_linters_settings.go`, `pkg/migration/config_types.go`, `pkg/migration/rules.go`, `pkg/migration/validator.go`, `pkg/migration/yaml_loader.go`, `pkg/migration/testdata/`
+
+**Capabilities:**
+
+- Migrate golangci-lint v1 configs to v2 format
+- Linter-specific setting migrations
+- Config validation during migration
+- YAML loading and saving
+
+**Recommendation:**
+Keep internal. Specific to v1→v2 migration which is a one-time operation.
+
+---
+
+### 11. `pkg/ui` - Terminal Output Formatting
+
+**Location:** `pkg/ui/formatter.go` (126 lines), `pkg/ui/styled_output.go` (104 lines), `pkg/ui/finding_formatter.go` (86 lines)
+
+**Capabilities:**
+
+- Terminal text formatting for analysis results
+- Styled output with color and layout (using lipgloss v2)
+- Finding formatter for go-finding objects
+
+**Recommendation:**
+Keep internal. UI layer specific to this CLI tool.
+
+---
+
+### 12. `pkg/errors` - Custom Error Types
+
+**Location:** `pkg/errors/errors.go` (167 lines)
+
+**Package name:** `apperrors`
 
 **Types:**
 
@@ -385,7 +453,8 @@ github.com/larsartmann/golangci-lint-knowledge
 
 **Scope:**
 
-- `pkg/constants/linter_data.go` (all data)
+- `pkg/constants/linter_priorities.go`, `linter_reasons.go`
+- `pkg/constants/formatter_data.go`, `presets.go`, `rules.go`, `config.go`, `version.go`
 
 **API:**
 
@@ -444,7 +513,10 @@ github.com/larsartmann/golangci-lint-config
 
 **Dependencies:**
 
-- `gopkg.in/yaml.v3`
+- `go.yaml.in/yaml/v3`
+- `pelletier/go-toml/v2`
+- `spf13/afero`
+- `samber/mo`
 
 ---
 
@@ -463,55 +535,15 @@ github.com/larsartmann/golangci-lint-config
 
 These components should remain internal to golangci-lint-auto-configure:
 
-| Component      | Reason                      |
-| -------------- | --------------------------- |
-| `pkg/linter`   | Core logic, tightly coupled |
-| `pkg/diff`     | Generic alternatives exist  |
-| `pkg/report`   | Tool-specific output        |
-| `pkg/workflow` | External dependency wrapper |
-| `internal/cli` | CLI-specific, not reusable  |
-
----
-
-## Library Policy Compliance
-
-Per `HOW_TO_GOLANG.md`:
-
-| Requirement                     | Status | Notes                                     |
-| ------------------------------- | ------ | ----------------------------------------- |
-| Files <250 lines                | ✅     | All files now compliant after refactoring |
-| Functions <30 lines             | ✅     | Mostly compliant                          |
-| No `any` types                  | ✅     | Strong typing used                        |
-| DI with samber/do/v2            | ❌     | Manual DI currently                       |
-| Logging with slog+charmbracelet | ✅     | Using charmbracelet/log                   |
-| Error wrapping                  | ✅     | Using `%w`                                |
-| Custom error types              | ✅     | `pkg/errors/errors.go`                    |
-| Context propagation             | ✅     | All public methods accept context         |
-
----
-
-## Action Items
-
-1. **Create `go-project-detector` repository**
-   - Extract `pkg/detection`
-   - Refactor to remove internal dependencies
-   - Add comprehensive tests
-   - Document API
-
-2. **Create `golangci-lint-knowledge` repository**
-   - Extract `pkg/constants/linter_*.go`, `formatter_data.go`, `presets.go`
-   - Add versioning strategy
-   - Create update automation
-   - Document data sources
-
-3. **Enhance `pkg/client` documentation**
-   - Add more examples
-   - Create integration examples
-   - Document common patterns
-
-4. **Consider bundling**
-   - Option: Create meta-package importing all extracted libraries
-   - `github.com/larsartmann/golangci-lint-sdk`
+| Component       | Reason                                |
+| --------------- | ------------------------------------- |
+| `pkg/linter`    | Core logic, tightly coupled           |
+| `pkg/diff`      | Generic alternatives exist            |
+| `pkg/report`    | Tool-specific output                  |
+| `pkg/finding`   | Integration layer for go-finding      |
+| `pkg/migration` | One-time v1→v2 migration              |
+| `pkg/ui`        | CLI terminal output                   |
+| `internal/cli`  | CLI-specific, not reusable            |
 
 ---
 

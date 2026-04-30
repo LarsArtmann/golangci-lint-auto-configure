@@ -27,7 +27,7 @@ go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto
 
 ## Requirements
 
-- **Go**: 1.25+
+- **Go**: 1.26+
 - **golangci-lint**: v2.10.1+ (tool checks version automatically)
 - **Git**: Must run inside a git repository (for version control)
 
@@ -182,7 +182,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.26"
       - name: Install golangci-lint-auto-configure
         run: go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
       - name: Auto-configure
@@ -193,13 +193,15 @@ jobs:
 
 ## Commands
 
-| Command     | Description                                    |
-| ----------- | ---------------------------------------------- |
-| `configure` | Auto-configure golangci-lint (default command) |
-| `analyze`   | Analyze configuration and show recommendations |
-| `validate`  | Validate existing configuration                |
-| `report`    | Generate JSON/HTML/SARIF report               |
-| `migrate`   | Migrate config to v2.8+ schema                 |
+| Command        | Description                                    |
+| -------------- | ---------------------------------------------- |
+| `configure`    | Auto-configure golangci-lint (default command) |
+| `analyze`      | Analyze configuration and show recommendations |
+| `validate`     | Validate existing configuration                |
+| `report`       | Generate JSON/HTML/SARIF report               |
+| `migrate`      | Migrate configuration from v1 to v2 schema    |
+| `install-hook` | Install pre-commit hook for git                |
+| `completion`   | Generate shell completion script               |
 
 ## Flags
 
@@ -209,7 +211,7 @@ jobs:
 | `-d, --dry-run` | Show what would be done without making changes            |
 | `--priority`    | Minimum priority level (critical, high, medium, optional) |
 | `-v, --verbose` | Enable verbose output                                     |
-| `--format`      | Output format (text, json, html, sarif, finding)          |
+| `--format`      | Output format (html, json, sarif, finding)                |
 | `--output`      | Output path for report file                               |
 
 ## Project-Specific Examples

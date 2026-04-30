@@ -49,19 +49,19 @@ just tidy           # Tidy go.mod
 
 ### Core Dependencies
 
-- **Go**: 1.25+ (CI tests on 1.25 and 1.26)
+- **Go**: 1.26+ (CI tests on 1.25 and 1.26, go.mod requires 1.26.0)
 - **Cobra**: CLI command framework
 - **Charmbracelet Log**: Structured logging
 - **Charmbracelet Fang**: Enhanced CLI features
 - **Ginkgo v2 + Gomega**: BDD testing framework (NOT standard Go testing)
 - **Templ**: HTML template system for reports
-- **YAML v3**: Configuration parsing
-- **Universal Workflow**: Workflow orchestration (local replace)
+- **YAML v3**: Configuration parsing (`go.yaml.in/yaml/v3`)
+- **go-finding**: Unified finding model (local replace)
 
 ### External Tools Required
 
 - **golangci-lint**: v2.10.1+ (auto-detected, minimum version enforced)
-- **Go**: 1.25+ required for compilation
+- **Go**: 1.26+ required for compilation
 
 ## Code Organization
 
@@ -77,14 +77,29 @@ golangci-lint-auto-configure/
 │   │   ├── types.go                  # Main types: LinterPriority, Config, LinterInfo, etc.
 │   │   └── result.go                # Result types
 │   ├── constants/
-│   │   └── linter_data.go           # Linter priorities, reasons, presets, replacements
+│   │   ├── linter_priorities.go  # Linter priorities (119 entries)
+│   │   ├── linter_reasons.go     # Human-readable explanations
+│   │   ├── formatter_data.go     # Formatter priorities and reasons
+│   │   ├── presets.go            # Pre-defined linter configurations
+│   │   ├── rules.go              # Redundant/deprecated linter rules
+│   │   ├── config.go             # Constants and config defaults
+│   │   ├── version.go            # Min golangci-lint version
+│   │   └── experiments.go        # Feature flags
 │   ├── config/
 │   │   ├── loader.go                # Load, save, validate golangci-lint configs
 │   │   └── loader_test.go           # Config loading tests
 │   ├── linter/
 │   │   ├── analyzer.go              # Analyze configs, get recommendations
-│   │   ├── fixer.go                # Apply fixes to configs
-│   │   └── analyzer_test.go        # Analyzer tests
+│   │   ├── fixer.go                 # Apply fixes to configs
+│   │   ├── fixer_preflight.go       # Pre-flight checks before fixing
+│   │   ├── fixer_formatters.go      # Formatter-specific fixing
+│   │   ├── fixer_config.go          # Config construction for fixing
+│   │   ├── fixer_deprecated.go      # Deprecated linter replacement
+│   │   ├── fixer_results.go         # Fix result types
+│   │   ├── categorizer.go           # Linter categorization
+│   │   ├── version_checker.go       # golangci-lint version checking
+│   │   ├── command_runner.go        # Command execution
+│   │   └── *_test.go                # Tests
 │   ├── detection/
 │   │   ├── detector.go             # Detect project type (CLI, web, library, etc.)
 │   │   └── detector_test.go        # Detector tests
@@ -94,9 +109,8 @@ golangci-lint-auto-configure/
 │   ├── report/
 │   │   ├── generator.go            # HTML report generation (templ-based)
 │   │   ├── json_report_generator.go # JSON report generation
-│   │   └── report.templ           # HTML template (generates Go code)
-│   ├── workflow/
-│   │   └── workflow.go            # Workflow orchestration (uses universal-workflow)
+│   │   ├── report.templ            # HTML template (generates Go code)
+│   │   └── report_templ.go         # Generated Go code from templ
 │   ├── migration/                   # v1 to v2 config migration (merged from golangci-config-migrator)
 │   │   ├── migrator.go             # Main migrator struct and logic
 │   │   ├── migrations.go           # Migration helpers
@@ -106,21 +120,39 @@ golangci-lint-auto-configure/
 │   │   ├── validator.go            # Config validation
 │   │   ├── yaml_loader.go          # Load/Save YAML configs
 │   │   └── testdata/               # Test fixtures for migration
-│   └── errors/
-│       └── errors.go              # Custom error types (ConfigError, AnalysisError)
+│   ├── errors/
+│   │   └── errors.go              # Custom error types (package: apperrors)
 ├── internal/
 │   ├── cli/
-│   │   ├── commands.go             # All CLI command definitions
-│   │   └── commands_test.go        # Command tests
-│   └── di/                        # Dependency injection (currently empty)
-├── examples/                       # Example configurations for different project types
-├── pkg/finding/                   # go-finding integration (converters, parsers, detectors)
+│   │   ├── commands.go             # Root command + subcommand wiring
+│   │   ├── cmd_configure.go        # Configure command
+│   │   ├── cmd_analyze.go          # Analyze command
+│   │   ├── cmd_validate.go         # Validate command
+│   │   ├── cmd_report.go           # Report command
+│   │   ├── cmd_builder.go          # CommandBuilder type
+│   │   ├── cmd/                    # Separate package for some commands
+│   │   │   ├── migrate.go          # Migrate command
+│   │   │   ├── installhook.go      # Install-hook command
+│   │   │   └── completion.go       # Completion command
+│   │   ├── commands_test.go        # Command tests
+│   │   └── integration_test.go     # Integration tests
+├── pkg/finding/                   # go-finding integration
 │   ├── converter.go               # Convert LinterRecommendations/ValidationErrors to finding.Finding
 │   ├── golangci_lint.go           # Parse golangci-lint JSON output to Findings
 │   ├── detector.go                # ConfigAnalysisDetector for pipeline integration
 │   ├── diff_converter.go          # Convert diff.Change to Finding
 │   └── helpers.go                 # LSP, filter, merge, groupBy helpers
+├── pkg/ui/
+│   ├── formatter.go               # Terminal output formatting
+│   ├── styled_output.go           # Styled output with lipgloss v2
+│   └── finding_formatter.go       # Terminal formatting for go-finding objects
 ├── docs/                          # Documentation and status reports
+├── examples/                      # Example configurations for different project types
+│   ├── minimal.golangci.yml
+│   ├── standard.golangci.yml
+│   ├── web-project.golangci.yml
+│   ├── cli-project.golangci.yml
+│   └── library.golangci.yml
 ├── reports/                       # Generated linter documentation
 ├── scripts/                       # Utility scripts
 └── justfile                       # Build/test/lint commands (PRIMARY INTERFACE)
@@ -151,16 +183,20 @@ All major components implement interfaces defined in `pkg/types/types.go`:
 
 **4. Data-Driven Configuration**
 
-- `pkg/constants/linter_data.go` contains all linter metadata:
-  - Priority levels
-  - Human-readable reasons
-  - Preset configurations
-  - Deprecated linter replacements
+- `pkg/constants/` (multiple files) contains all linter metadata:
+  - `linter_priorities.go`: Priority levels (119 linters)
+  - `linter_reasons.go`: Human-readable reasons
+  - `formatter_data.go`: Formatter priorities and reasons
+  - `presets.go`: Pre-defined configurations
+  - `rules.go`: Deprecated/redundant linter rules (`DeprecatedLinters`)
+  - `version.go`: Minimum golangci-lint version
+  - `experiments.go`: Feature flags
 
-**5. Workflow Orchestration**
+**5. go-finding Integration**
 
-- `pkg/workflow/workflow.go` uses `universal-workflow` for complex operations
-- Supports multi-step operations: analyze → validate → report
+- `pkg/finding/` provides unified data model for static analysis results
+- SARIF 2.1.0 output for CI/CD integration
+- Priority-to-severity mapping (Critical→critical, High→error, etc.)
 
 ## Testing Approach
 
@@ -241,7 +277,7 @@ const (
 
 ### Adding New Linters
 
-Update `pkg/constants/linter_data.go`:
+Update `pkg/constants/linter_priorities.go` and `linter_reasons.go`:
 
 1. Add to `LinterPriorities` map
 2. Add to `LinterReasons` map (human-readable explanation)
@@ -282,6 +318,20 @@ issues:
 - Git provides full history, branching, and rollback capabilities
 - Use `git restore` or `git checkout` to revert config changes if needed
 
+## CLI Commands
+
+All 7 subcommands are registered in `internal/cli/commands.go`:
+
+| Command        | File                                | Description                        |
+| -------------- | ----------------------------------- | ---------------------------------- |
+| `configure`    | `internal/cli/cmd_configure.go`     | Auto-configure golangci-lint       |
+| `analyze`      | `internal/cli/cmd_analyze.go`       | Analyze configuration              |
+| `validate`     | `internal/cli/cmd_validate.go`      | Validate configuration             |
+| `report`       | `internal/cli/cmd_report.go`        | Generate reports                   |
+| `migrate`      | `internal/cli/cmd/migrate.go`       | Migrate v1 to v2 config            |
+| `install-hook` | `internal/cli/cmd/installhook.go`   | Install pre-commit hook            |
+| `completion`   | `internal/cli/cmd/completion.go`    | Generate shell completion          |
+
 ## Project Type Detection
 
 ### Supported Types
@@ -292,7 +342,7 @@ const (
     ProjectTypeCLI      // Command-line tools
     ProjectTypeLibrary  // Reusable packages, SDKs
     ProjectTypeWeb     // HTTP servers, REST APIs
-    ProjectTypeAPI      # API services
+    ProjectTypeAPI      // API services
     ProjectTypeMonorepo // Multiple go.mod files
 )
 ```
@@ -379,7 +429,7 @@ type ReportData struct {
 
 ### Minimum Version: v2.10.1
 
-Version checking in `pkg/linter/analyzer.go`:
+Version checking in `pkg/linter/version_checker.go`:
 
 1. Try `golangci-lint version --json` first (more reliable)
 2. Fallback to text parsing if JSON not supported
@@ -391,9 +441,9 @@ Version checking in `pkg/linter/analyzer.go`:
 Automatic replacement of deprecated linters:
 
 - `wsl` → `wsl_v5` (deprecated since golangci-lint v2.2.0)
-- Mappings in `pkg/constants/linter_data.go`:
+- Mappings in `pkg/constants/rules.go`:
   ```go
-  LinterReplacements = map[types.LinterName]LinterReplacement{
+  DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
       "wsl": {Replacement: "wsl_v5", Reason: "original wsl is deprecated since v2.2.0"},
   }
   ```
@@ -494,16 +544,16 @@ Built-in hooks:
 - Run `templ generate` (not in justfile, manual when needed)
 - Generated file: `pkg/report/report_templ.go`
 
-### 4. Dependency Injection Directory is Empty
+### 4. Dependency Injection Directory Does Not Exist
 
-- `internal/di/` exists but is unused
+- `internal/di/` referenced in older docs but does not exist
 - Dependency injection is manual in CLI commands
 - No DI framework like samber/do or wire
 
 ### 5. Linter Priority Data is in Constants
 
-- All linter priorities in `pkg/constants/linter_data.go`
-- Modify that file to change linter behavior
+- Linter priorities split across `pkg/constants/linter_priorities.go` and `linter_reasons.go`
+- Modify those files to change linter behavior
 - Not dynamically computed from golangci-lint
 
 ### 6. Version String Injected at Build Time
@@ -512,24 +562,18 @@ Built-in hooks:
 - Justfile `install-local` does: `go build -ldflags "-X main.version=$VERSION"`
 - Default value is "dev" if not set
 
-### 7. Universal Workflow is Local Replace
+### 7. go-finding is Local Replace
 
-- `go.mod` has: `replace github.com/LarsArtmann/universal-workflow => /Users/larsartmann/projects/universal-workflow`
-- Path is user-specific, needs adjustment for different developers
+- `go.mod` has: `replace github.com/larsartmann/go-finding => ../go-finding`
+- Path is relative, points to sibling directory
 - CI may not work with this local replace
 
-### 8. Deprecated Cobra Usage
+### 8. Cobra Deprecation
 
-- `cobra.ExactValidArgs()` is deprecated (detected in commands.go:692)
-- Should use `MatchAll(ExactArgs(n), OnlyValidArgs)` instead
+- Previously used deprecated `cobra.ExactValidArgs()` — has been fixed
+- Check current codebase if similar deprecation warnings appear
 
-### 9. Test Error in detector_test.go:98
-
-- Error: "no new variables on left side of :="
-- Warning currently present in project diagnostics
-- Needs fixing before considering codebase clean
-
-### 10. Config File Auto-Creation
+### 9. Config File Auto-Creation
 
 - `configure` command creates default config if missing
 - Uses `.golangci.yml` as default path
@@ -539,26 +583,26 @@ Built-in hooks:
 
 ### Adding a New CLI Command
 
-1. Define command function in `internal/cli/commands.go`
-2. Wire up dependencies in `NewRootCommand()`
+1. Define command function in `internal/cli/cmd_*.go` (for configure/analyze/validate/report) or `internal/cli/cmd/*.go` (for migrate/install-hook/completion)
+2. Wire up dependencies in `addSubCommands()` in `internal/cli/commands.go`
 3. Add flags as needed
-4. Write BDD tests in `internal/cli/commands_test.go`
+4. Write BDD tests in `internal/cli/commands_test.go` or `internal/cli/integration_test.go`
 5. Run `just test` to verify
 
 ### Modifying Linter Priorities
 
-1. Edit `pkg/constants/linter_data.go`
+1. Edit `pkg/constants/linter_priorities.go`
 2. Update `LinterPriorities` map
-3. Update `LinterReasons` map
-4. Consider updating presets
+3. Edit `pkg/constants/linter_reasons.go` to update `LinterReasons` map
+4. Consider updating presets in `pkg/constants/presets.go`
 5. Run tests: `just test`
 
 ### Adding New Linter Data
 
-1. Add linter to `pkg/constants/linter_data.go`
+1. Add linter to `pkg/constants/linter_priorities.go` (`LinterPriorities` map)
 2. Set priority (Critical/High/Medium/Optional)
-3. Write reason for recommendation
-4. Consider if deprecated (add to `LinterReplacements`)
+3. Add reason to `pkg/constants/linter_reasons.go` (`LinterReasons` map)
+4. Consider if deprecated (add to `DeprecatedLinters` in `pkg/constants/rules.go`)
 5. Regenerate reports if needed
 
 ### Updating HTML Report
@@ -659,7 +703,7 @@ just test && just lint
 - **onsi/ginkgo/v2**: BDD testing framework (Describe, Context, It, BeforeEach)
 - **onsi/gomega**: BDD assertions (Expect().To(Equal(), HaveLen(), BeNil()))
 - **a-h/templ**: HTML templating (generates Go code from .templ files)
-- **gopkg.in/yaml.v3**: YAML parsing (Unmarshal, Marshal)
+- **go.yaml.in/yaml/v3**: YAML parsing (Unmarshal, Marshal)
 - **golang.org/x/mod/semver**: Semantic versioning (Compare, IsValid)
 - **samber/mo**: Functional programming utilities (monads, option types)
 
@@ -682,43 +726,35 @@ configFile = configLoader.FindOrGetDefaultConfigPath(".")
 
 ```go
 analyzer := linter.NewAnalyzer(logger)
-err := analyzer.FindBinary()
+err := analyzer.FindBinary(ctx)
 if err != nil {
     return err
 }
-err = analyzer.CheckVersion()
+err = analyzer.CheckVersion(ctx)
 if err != nil {
     return err
 }
-analysis, err := analyzer.AnalyzeConfig(configFile)
+analysis, err := analyzer.AnalyzeConfig(ctx, configFile)
 ```
 
 ### Fixer Usage Pattern
 
 ```go
 fixer := linter.NewFixer(logger, analyzer)
-result, err := fixer.FixConfig(configFile, priority, dryRun)
+result, err := fixer.FixConfig(ctx, configPath, priority, dryRun)
 if err != nil {
     return err
 }
 logger.Infof("Result: %s", result.Message)
 ```
 
-### Workflow Usage Pattern
-
-```go
-workflowBuilder := workflow.NewBuilder(logger, analyzer)
-wf, err := workflowBuilder.BuildAutoConfigureWorkflow(configPath, dryRun, false, outputPath)
-run, err := wf.Execute(ctx)
-```
-
 ## Troubleshooting
 
 ### Build Failures
 
-1. Check Go version: `go version` (must be 1.25+)
+1. Check Go version: `go version` (must be 1.26+)
 2. Run `just tidy` to update dependencies
-3. Check for local replace in go.mod (may need adjustment)
+3. Check for local replace in go.mod (`go-finding => ../go-finding` may need adjustment)
 
 ### Test Failures
 
@@ -728,7 +764,7 @@ run, err := wf.Execute(ctx)
 
 ### Linter Failures
 
-1. Check golangci-lint version: `golangci-lint version` (must be 2.8.0+)
+1. Check golangci-lint version: `golangci-lint version` (must be v2.10.1+)
 2. Run `just fmt-check` before `just lint`
 3. Check for deprecated APIs (e.g., cobra.ExactValidArgs)
 
@@ -782,49 +818,6 @@ Linters are mapped to go-finding categories: security, correctness, performance,
 replace github.com/larsartmann/go-finding => ../go-finding
 ```
 
-## go-finding Integration
-
-The project uses [go-finding](https://github.com/larsartmann/go-finding) as a unified data model for static analysis results.
-
-### Key Files
-
-| File | Purpose |
-|------|----------|
-| `pkg/finding/converter.go` | Convert domain types (LinterRecommendation, ValidationError) to `finding.Finding` |
-| `pkg/finding/golangci_lint.go` | Parse `golangci-lint run --out-format=json` output to Findings |
-| `pkg/finding/detector.go` | `ConfigAnalysisDetector` implementing `pipeline.Detector` for pipeline integration |
-| `pkg/finding/diff_converter.go` | Convert `diff.Change` and `MigrationResult` to Findings |
-| `pkg/finding/helpers.go` | LSP, filter, merge, groupBy helper utilities |
-| `pkg/ui/finding_formatter.go` | Terminal text formatting for go-finding objects |
-
-### Output Formats
-
-- **`analyze --format sarif`**: SARIF 2.1.0 output (CI/CD integration)
-- **`analyze --format finding`**: go-finding Report JSON (structured, with summary)
-- **`report --format sarif`**: SARIF report file (`report.sarif.json`)
-- **`report --format finding`**: go-finding Report file (`report.finding.json`)
-- **`validate --format sarif`**: Validation errors as SARIF
-
-### Priority-to-Severity Mapping
-
-| LinterPriority | finding.Severity |
-|----------------|-----------------|
-| Critical | `critical` |
-| High | `error` |
-| Medium | `warning` |
-| Optional | `info` |
-
-### Linter-to-Category Mapping
-
-Linters are mapped to go-finding categories: security, correctness, performance, complexity, duplication, error-handling, style, testing, type-safety, structure, configuration.
-
-### go.mod Note
-
-`go-finding` uses a local replace directive:
-```
-replace github.com/larsartmann/go-finding => ../go-finding
-```
-
 ## External References
 
 - **golangci-lint**: https://github.com/golangci/golangci-lint
@@ -832,5 +825,4 @@ replace github.com/larsartmann/go-finding => ../go-finding
 - **Gomega**: https://onsi.github.io/gomega/
 - **Templ**: https://templ.guide/
 - **Cobra**: https://github.com/spf13/cobra
-- **Universal Workflow**: https://github.com/LarsArtmann/universal-workflow
 - **go-finding**: https://github.com/larsartmann/go-finding
