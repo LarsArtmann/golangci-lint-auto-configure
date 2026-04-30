@@ -16,7 +16,7 @@ func ChangesToFindings(changes []diff.Change, configPath string) []finding.Findi
 		rule := changeRule(change.Type)
 
 		pos := finding.Position{File: configPath}
-		f := buildFinding(finding.NewBuilder(
+		builder := finding.NewBuilder(
 			rule,
 			toolName,
 			change.Description,
@@ -24,17 +24,17 @@ func ChangesToFindings(changes []diff.Change, configPath string) []finding.Findi
 			pos,
 		).
 			WithCategory(finding.CategoryConfiguration).
-			WithSuggestion(change.Description))
+			WithSuggestion(change.Description)
 
 		if change.OldValue != "" {
-			f.BeforeCode = change.OldValue
+			builder = builder.WithBeforeCode(change.OldValue)
 		}
 
 		if change.NewValue != "" {
-			f.AfterCode = change.NewValue
+			builder = builder.WithAfterCode(change.NewValue)
 		}
 
-		result = append(result, f)
+		result = append(result, buildFinding(builder))
 	}
 
 	return result
