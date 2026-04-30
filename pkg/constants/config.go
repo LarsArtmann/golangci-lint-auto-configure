@@ -42,6 +42,6 @@ var DefaultLinterSettings = map[string]any{
 		},
 	},
 	"ireturn": map[string]any{
-		"accept": []string{"error", "empty", "anon", "stdlib", "generic"},
+		"allow": []string{"error", "empty", "anon", "stdlib", "generic"},
 	},
 }

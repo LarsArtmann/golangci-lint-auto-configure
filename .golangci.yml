@@ -135,6 +135,7 @@ linters:
             - github.com/charmbracelet
             - charm.land/log/v2
             - charm.land/lipgloss/v2
+            - github.com/larsartmann/go-finding
             - github.com/larsartmann/golangci-lint-auto-configure
             - github.com/spf13/cobra
             - github.com/spf13/afero
@@ -165,6 +166,13 @@ linters:
       min-complexity: 25
     gocyclo:
       min-complexity: 20
+    ireturn:
+      allow:
+        - error
+        - empty
+        - anon
+        - stdlib
+        - generic
     tagliatelle:
       case:
         rules:
