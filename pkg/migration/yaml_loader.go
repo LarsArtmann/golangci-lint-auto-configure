@@ -17,7 +17,7 @@ const permUserRead = 0o644 // rw-r--r--
 func LoadConfig(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+		return nil, fmt.Errorf("failed to read config file %s: %w", path, err)
 	}
 
 	var config Config
@@ -27,7 +27,7 @@ func LoadConfig(path string) (*Config, error) {
 
 	err = decoder.Decode(&config)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse YAML: %w", err)
+		return nil, fmt.Errorf("failed to parse YAML %s: %w", path, err)
 	}
 
 	return &config, nil
@@ -43,12 +43,12 @@ func SaveConfig(config *Config, path string) error {
 
 	err := encoder.Encode(config)
 	if err != nil {
-		return fmt.Errorf("failed to encode YAML: %w", err)
+		return fmt.Errorf("failed to encode YAML %s: %w", path, err)
 	}
 
 	err = os.WriteFile(path, buf.Bytes(), permUserRead)
 	if err != nil {
-		return fmt.Errorf("failed to write config file: %w", err)
+		return fmt.Errorf("failed to write config file %s: %w", path, err)
 	}
 
 	return nil

@@ -191,7 +191,7 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 	// Save merged config to primary file
 	err := loader.SaveConfig(config, result.PrimaryConfig)
 	if err != nil {
-		return fmt.Errorf("failed to save merged config: %w", err)
+		return fmt.Errorf("failed to save merged config to %s: %w", result.PrimaryConfig, err)
 	}
 
 	cm.logger.Infof("Saved merged config to %s", result.PrimaryConfig)

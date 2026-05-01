@@ -151,14 +151,14 @@ var configFilePriority = map[string]int{
 func createBackup(fileSystem afero.Fs, path string) (string, error) {
 	data, err := afero.ReadFile(fileSystem, path)
 	if err != nil {
-		return "", fmt.Errorf("failed to read config for backup: %w", err)
+		return "", fmt.Errorf("failed to read config %s for backup: %w", path, err)
 	}
 
 	backupPath := path + ".merge-backup"
 
 	err = afero.WriteFile(fileSystem, backupPath, data, backupFilePermission)
 	if err != nil {
-		return "", fmt.Errorf("failed to write backup: %w", err)
+		return "", fmt.Errorf("failed to write backup %s: %w", backupPath, err)
 	}
 
 	return backupPath, nil
