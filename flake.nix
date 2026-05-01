@@ -33,7 +33,7 @@
 
           src = ./.;
 
-          vendorHash = "sha256-uWgp9syzgG6jDk5njdliy/HMFhmQjJu/02Vvx0CiTZE=";
+          vendorHash = "sha256-4ooMHZbq+FnNCRoQcgofmqA1eQ8ELngMUq1Z4fnsSYI=";
 
           subPackages = ["cmd/golangci-lint-auto-configure"];
 
@@ -48,7 +48,7 @@
           postPatch = ''
             cp -r ${goFindingSrc} go-finding-vendor
             chmod -R u+w go-finding-vendor
-            sed -i 's|=> ../go-finding|=> ./go-finding-vendor|' go.mod
+            echo 'replace github.com/larsartmann/go-finding => ./go-finding-vendor' >> go.mod
           '';
 
           meta = with pkgs.lib; {
@@ -90,7 +90,7 @@
             echo "  golangci-lint:  $(golangci-lint version --short 2>/dev/null || echo 'N/A')"
             echo "  ginkgo:         $(ginkgo version 2>/dev/null || echo 'N/A')"
             echo "  templ:          $(templ version 2>/dev/null || echo 'N/A')"
-            echo "  just:           $(just --version 2>/dev/null || echo 'N/A')"
+            echo "  just:           $(just --bin-version)" 
           '';
         };
 

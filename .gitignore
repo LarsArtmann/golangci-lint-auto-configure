@@ -48,8 +48,11 @@ coverage.html
 # Nix
 result
 result-*
+.direnv/
 
 # Sensitive files
 *.db
 # Copy/paste detection report
 /report/jscpd-report.json
+# Add pattern for Templ generated files
+*_templ.go

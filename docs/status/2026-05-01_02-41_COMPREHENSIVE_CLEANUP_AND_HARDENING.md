@@ -19,36 +19,37 @@ Session resolved **all 49 lint issues** (60 → 0), removed the `samber/mo` exte
 
 Every single golangci-lint issue across the entire codebase has been resolved:
 
-| Linter | Issues Fixed | How |
-|--------|-------------|-----|
-| varnamelen | 8 | Renamed `f` → `found`/`finding` in converter, diff_converter, golangci_lint, finding_formatter |
-| exhaustruct | 3 | Fixed `fixCounts` struct, added YAML case, added exclusion for `finding.Position` |
-| err113 | 2 | Sentinel errors in loader.go, result.go |
-| revive | 3 | Unused params in diff_converter, detector |
-| prealloc | 2 | Pre-allocate slices in detector.go |
-| forbidigo | 1 | Replaced `fmt.Println` with structured output |
-| gosec (G306) | 2 | File permissions 0o644 → 0o600 with named constant |
-| gosec (G122) | 1 | Exclusion rule for filepath.WalkDir |
-| wrapcheck | 3 | Wrapped external calls in converter, detector |
-| noinlineerr | 4 | Split inline `if err := ...; err != nil` patterns |
-| funlen | 4 | Extracted `validateLoadedConfig`, `issueToFinding` helpers |
-| mnd | 3 | Named constants: `filePermOwnerOnly`, `initialFindingsCapacity` |
-| wsl_v5 | 4 | Blank line fixes + auto-fix |
-| gci | 1 | Auto-fixed import ordering |
-| nlreturn | 1 | Auto-fixed return spacing |
-| nolintlint | 1 | Auto-fixed nolint directives |
-| perfsprint | 2 | `fmt.Errorf` → `errors.New` where no formatting |
-| tagliatelle | 1 | Exclusion for JSON parsing structs |
-| gochecknoglobals | 2 | Exclusion rules |
-| testpackage | 1 | Exclusion rule |
-| categorizer switch | 1 | Map-based `linterCategories` lookup |
-| ireturn `accept` bug | 1 | Fixed `accept` → `allow` key for golangci-lint v2 |
+| Linter               | Issues Fixed | How                                                                                            |
+| -------------------- | ------------ | ---------------------------------------------------------------------------------------------- |
+| varnamelen           | 8            | Renamed `f` → `found`/`finding` in converter, diff_converter, golangci_lint, finding_formatter |
+| exhaustruct          | 3            | Fixed `fixCounts` struct, added YAML case, added exclusion for `finding.Position`              |
+| err113               | 2            | Sentinel errors in loader.go, result.go                                                        |
+| revive               | 3            | Unused params in diff_converter, detector                                                      |
+| prealloc             | 2            | Pre-allocate slices in detector.go                                                             |
+| forbidigo            | 1            | Replaced `fmt.Println` with structured output                                                  |
+| gosec (G306)         | 2            | File permissions 0o644 → 0o600 with named constant                                             |
+| gosec (G122)         | 1            | Exclusion rule for filepath.WalkDir                                                            |
+| wrapcheck            | 3            | Wrapped external calls in converter, detector                                                  |
+| noinlineerr          | 4            | Split inline `if err := ...; err != nil` patterns                                              |
+| funlen               | 4            | Extracted `validateLoadedConfig`, `issueToFinding` helpers                                     |
+| mnd                  | 3            | Named constants: `filePermOwnerOnly`, `initialFindingsCapacity`                                |
+| wsl_v5               | 4            | Blank line fixes + auto-fix                                                                    |
+| gci                  | 1            | Auto-fixed import ordering                                                                     |
+| nlreturn             | 1            | Auto-fixed return spacing                                                                      |
+| nolintlint           | 1            | Auto-fixed nolint directives                                                                   |
+| perfsprint           | 2            | `fmt.Errorf` → `errors.New` where no formatting                                                |
+| tagliatelle          | 1            | Exclusion for JSON parsing structs                                                             |
+| gochecknoglobals     | 2            | Exclusion rules                                                                                |
+| testpackage          | 1            | Exclusion rule                                                                                 |
+| categorizer switch   | 1            | Map-based `linterCategories` lookup                                                            |
+| ireturn `accept` bug | 1            | Fixed `accept` → `allow` key for golangci-lint v2                                              |
 
 ### Dependency Removal: samber/mo
 
 **Before:** `samber/mo` provided `Result[T]`, `Ok[T]()`, `Err[T]()` — a 3KB dependency for ~30 lines of code.
 
 **After:** Custom `types.Result[T]` in `pkg/types/result.go` (85 lines) with:
+
 - `Ok[T](value)`, `Err[T](err)` constructors
 - `.Get()`, `.IsOk()`, `.IsError()`, `.MustGet()`, `.Unwrap()` methods
 - Full domain-specific aliases preserved: `ConfigResult`, `AnalysisResult`, `MigrationResultType`, `StringResult`
@@ -63,6 +64,7 @@ Every single golangci-lint issue across the entire codebase has been resolved:
 ### New Linter Defaults
 
 Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defaults:
+
 - `gocritic`: Disables noisy checks (dupImport, ifElseChain, octalLiteral, whyNoLint)
 - `exhaustruct`: Excludes `os/exec.Cmd` (impossible to fully populate)
 
@@ -74,14 +76,14 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 
 ### Code Extracts (Better Architecture)
 
-| Extract | File | Purpose |
-|---------|------|---------|
-| `issueToFinding()` | `golangci_lint.go` | ParseGolangciLintJSON funlen fix |
-| `validateLoadedConfig()` | `cmd_validate.go` | runValidate funlen fix |
-| `filePermOwnerOnly` | `cmd_report.go` | Named constant for 0o600 |
-| `initialFindingsCapacity` | `detector.go` | Named constant for 3 |
-| `ErrorsToFindings()` | `converter.go` | Reusable error-to-finding conversion |
-| `linterCategories` map | `categories.go` | Data-driven category lookup |
+| Extract                   | File               | Purpose                              |
+| ------------------------- | ------------------ | ------------------------------------ |
+| `issueToFinding()`        | `golangci_lint.go` | ParseGolangciLintJSON funlen fix     |
+| `validateLoadedConfig()`  | `cmd_validate.go`  | runValidate funlen fix               |
+| `filePermOwnerOnly`       | `cmd_report.go`    | Named constant for 0o600             |
+| `initialFindingsCapacity` | `detector.go`      | Named constant for 3                 |
+| `ErrorsToFindings()`      | `converter.go`     | Reusable error-to-finding conversion |
+| `linterCategories` map    | `categories.go`    | Data-driven category lookup          |
 
 ---
 
@@ -105,6 +107,7 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 ## C) NOT STARTED ❌
 
 ### High Priority
+
 1. **Fix CLI integration tests on NixOS** — mock binary execution or use Nix-compatible builds
 2. **Add SARIF output integration tests** — verify SARIF end-to-end output is valid
 3. **Increase coverage to 80%** — targeted unit tests for fixer_preflight, report, CLI commands
@@ -112,6 +115,7 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 5. **Pipeline integration tests** — test `ConfigAnalysisDetector` end-to-end with real configs
 
 ### Medium Priority
+
 6. **Flake.nix migration** — `justfile` still primary; flake.nix proposal exists but not implemented
 7. **Pre-commit hook tests** — `install-hook` command untested
 8. **Version injection in tests** — `main.version` is "dev" in tests; inject via ldflags
@@ -119,6 +123,7 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 10. **Comprehensive example configs** — examples/ has 5 configs but no Kubernetes/monorepo examples
 
 ### Lower Priority
+
 11. **Structured logging audit** — ensure all `fmt.Errorf` paths also log when appropriate
 12. **Config validation edge cases** — empty config files, malformed YAML, very large configs
 13. **Performance benchmarks** — no benchmarks exist for hot paths (ParseGolangciLintJSON, etc.)
@@ -132,6 +137,7 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 ### Session Incident: Bad `replace_all` on converter.go
 
 **What happened:** A `replace_all` operation replacing `\t\tf` with `\t\tfound` catastrophically mangled the file:
+
 - `f :=` → `found :=` ✅ (intended)
 - `fmt.Sprintf` → `foundmt.Sprintf` ❌
 - `finding.NewBuilder` → `foundinding.NewBuilder` ❌
@@ -148,26 +154,31 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 ## E) WHAT WE SHOULD IMPROVE
 
 ### 1. Test Infrastructure
+
 - **Mock binary execution** for CLI integration tests instead of running real binary
 - **Test fixtures** for complex configs (v1→v2 migration edge cases)
 - **Benchmark suite** for hot paths
 
 ### 2. Type Safety
+
 - `DefaultLinterSettings` values are `map[string]any` — could be typed structs per-linter
 - `LintConfig.Settings` in types is `map[string]any` — same issue
 - Consider code generation from golangci-lint schema for config types
 
 ### 3. Architecture
+
 - `internal/di/` referenced in docs but doesn't exist — either create it or remove references
 - `ConfigLoader` interface is large — could split into `ConfigReader` + `ConfigWriter`
 - `fixCounts` struct in fixer.go has exhaustruct issues — should use functional options pattern
 
 ### 4. Documentation
+
 - AGENTS.md is comprehensive but 780+ lines — consider splitting into focused guides
 - No API documentation for library usage (only CLI usage documented)
 - No CONTRIBUTING.md or development setup guide
 
 ### 5. CI/CD
+
 - GitHub Actions CI doesn't handle `go-finding` local replace — will fail in CI
 - No release automation (tag → binary → GitHub Release)
 - No code coverage enforcement (minimum threshold)
@@ -178,53 +189,53 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 
 ### Tier 1: Ship-Blockers (Must Fix Before Release)
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 1 | Fix CLI integration tests on NixOS | Tests pass | Medium |
-| 2 | Remove `go-finding` local replace for CI | CI passes | Medium |
-| 3 | Add minimum coverage threshold (75%) to CI | Quality gate | Small |
-| 4 | Fix `internal/di/` docs reference (create or remove) | Accuracy | Small |
-| 5 | Add `CONTRIBUTING.md` | Onboarding | Small |
+| #   | Task                                                 | Impact       | Effort |
+| --- | ---------------------------------------------------- | ------------ | ------ |
+| 1   | Fix CLI integration tests on NixOS                   | Tests pass   | Medium |
+| 2   | Remove `go-finding` local replace for CI             | CI passes    | Medium |
+| 3   | Add minimum coverage threshold (75%) to CI           | Quality gate | Small  |
+| 4   | Fix `internal/di/` docs reference (create or remove) | Accuracy     | Small  |
+| 5   | Add `CONTRIBUTING.md`                                | Onboarding   | Small  |
 
 ### Tier 2: Quality & Safety
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 6 | Type-safe `DefaultLinterSettings` values (struct per linter) | Type safety | Medium |
-| 7 | Type-safe `LintConfig.Settings` map | Type safety | Large |
-| 8 | Mock binary execution for CLI tests | Reliability | Medium |
-| 9 | Add `ParseGolangciLintJSON` benchmarks | Performance | Small |
-| 10 | Add `ErrorsToFindings` edge case tests (nil error, empty message) | Robustness | Small |
+| #   | Task                                                              | Impact      | Effort |
+| --- | ----------------------------------------------------------------- | ----------- | ------ |
+| 6   | Type-safe `DefaultLinterSettings` values (struct per linter)      | Type safety | Medium |
+| 7   | Type-safe `LintConfig.Settings` map                               | Type safety | Large  |
+| 8   | Mock binary execution for CLI tests                               | Reliability | Medium |
+| 9   | Add `ParseGolangciLintJSON` benchmarks                            | Performance | Small  |
+| 10  | Add `ErrorsToFindings` edge case tests (nil error, empty message) | Robustness  | Small  |
 
 ### Tier 3: Features & Polish
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 11 | Kubernetes/monorepo example configs | UX | Small |
-| 12 | Auto-refresh linter documentation (`reports/`) | Freshness | Medium |
-| 13 | SARIF output integration test | Correctness | Small |
-| 14 | Release automation (GoReleaser or Nix) | DX | Medium |
-| 15 | Migrate justfile → flake.nix | Consistency | Large |
+| #   | Task                                           | Impact      | Effort |
+| --- | ---------------------------------------------- | ----------- | ------ |
+| 11  | Kubernetes/monorepo example configs            | UX          | Small  |
+| 12  | Auto-refresh linter documentation (`reports/`) | Freshness   | Medium |
+| 13  | SARIF output integration test                  | Correctness | Small  |
+| 14  | Release automation (GoReleaser or Nix)         | DX          | Medium |
+| 15  | Migrate justfile → flake.nix                   | Consistency | Large  |
 
 ### Tier 4: Architecture Improvements
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 16 | Split `ConfigLoader` into `ConfigReader` + `ConfigWriter` | Cohesion | Medium |
-| 17 | Functional options for `fixCounts` | Correctness | Small |
-| 18 | Code-generate config types from golangci-lint schema | Maintainability | Large |
-| 19 | Add depguard rules for internal packages | Safety | Small |
-| 20 | Consolidate `apperrors` vs raw `fmt.Errorf` | Consistency | Medium |
+| #   | Task                                                      | Impact          | Effort |
+| --- | --------------------------------------------------------- | --------------- | ------ |
+| 16  | Split `ConfigLoader` into `ConfigReader` + `ConfigWriter` | Cohesion        | Medium |
+| 17  | Functional options for `fixCounts`                        | Correctness     | Small  |
+| 18  | Code-generate config types from golangci-lint schema      | Maintainability | Large  |
+| 19  | Add depguard rules for internal packages                  | Safety          | Small  |
+| 20  | Consolidate `apperrors` vs raw `fmt.Errorf`               | Consistency     | Medium |
 
 ### Tier 5: Nice-to-Have
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 21 | Structured logging audit | Observability | Medium |
-| 22 | Config validation edge cases (empty, malformed, huge) | Robustness | Medium |
-| 23 | Split AGENTS.md into focused guides | Navigation | Small |
-| 24 | Version injection in test builds | Accuracy | Small |
-| 25 | `install-hook` command tests | Coverage | Small |
+| #   | Task                                                  | Impact        | Effort |
+| --- | ----------------------------------------------------- | ------------- | ------ |
+| 21  | Structured logging audit                              | Observability | Medium |
+| 22  | Config validation edge cases (empty, malformed, huge) | Robustness    | Medium |
+| 23  | Split AGENTS.md into focused guides                   | Navigation    | Small  |
+| 24  | Version injection in test builds                      | Accuracy      | Small  |
+| 25  | `install-hook` command tests                          | Coverage      | Small  |
 
 ---
 
@@ -233,11 +244,13 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 **How should we handle the `go-finding` local replace directive for CI/CD?**
 
 Current state: `go.mod` has `replace github.com/larsartmann/go-finding => ../go-finding` pointing to a sibling directory. This means:
+
 - ✅ Local development works perfectly
 - ❌ GitHub Actions CI **will fail** because `../go-finding` doesn't exist in the CI runner
 - ❌ Anyone cloning only this repo gets a broken build
 
 Options I see:
+
 1. **Publish `go-finding` to a Go module proxy** (e.g., tag a v0.1.0 release) — removes replace entirely
 2. **Use Go workspace (`go.work`)** — keeps local replace but adds workspace awareness
 3. **Vendor `go-finding` into this repo** — full control but duplicated code
@@ -249,22 +262,22 @@ I cannot decide this because it's a **project owner decision** about how these t
 
 ## Metrics Snapshot
 
-| Metric | Value |
-|--------|-------|
-| **Lint issues** | **0** (was 60) |
-| **Test suites** | 11 pkg + 1 CLI integration |
-| **Passing specs** | 313 (pkg), 4 (CLI) |
-| **Failing specs** | 0 (pkg), 19 (CLI/NixOS) |
-| **Coverage** | 70.0% composite |
-| **Production Go lines** | 9,959 |
-| **Test Go lines** | 4,387 |
-| **Total Go lines** | 15,228 |
-| **Direct dependencies** | 12 (was 13, removed samber/mo) |
-| **Local replace directives** | 1 (go-finding) |
-| **Commits this session** | 8 |
-| **Files changed this session** | 28 |
-| **Lines added** | ~450 |
-| **Lines removed** | ~280 |
+| Metric                         | Value                          |
+| ------------------------------ | ------------------------------ |
+| **Lint issues**                | **0** (was 60)                 |
+| **Test suites**                | 11 pkg + 1 CLI integration     |
+| **Passing specs**              | 313 (pkg), 4 (CLI)             |
+| **Failing specs**              | 0 (pkg), 19 (CLI/NixOS)        |
+| **Coverage**                   | 70.0% composite                |
+| **Production Go lines**        | 9,959                          |
+| **Test Go lines**              | 4,387                          |
+| **Total Go lines**             | 15,228                         |
+| **Direct dependencies**        | 12 (was 13, removed samber/mo) |
+| **Local replace directives**   | 1 (go-finding)                 |
+| **Commits this session**       | 8                              |
+| **Files changed this session** | 28                             |
+| **Lines added**                | ~450                           |
+| **Lines removed**              | ~280                           |
 
 ---
 

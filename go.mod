@@ -8,7 +8,7 @@ require (
 	github.com/a-h/templ v0.3.1001
 	github.com/charmbracelet/fang v1.0.0
 	github.com/go-playground/validator/v10 v10.30.2
-	github.com/larsartmann/go-finding v0.0.0-00010101000000-000000000000
+	github.com/larsartmann/go-finding v0.2.1
 	github.com/onsi/ginkgo/v2 v2.28.1
 	github.com/onsi/gomega v1.39.1
 	github.com/pelletier/go-toml/v2 v2.3.0
@@ -62,5 +62,3 @@ require (
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
-
-replace github.com/larsartmann/go-finding => ../go-finding
