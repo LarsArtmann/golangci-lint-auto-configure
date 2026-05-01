@@ -98,7 +98,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: latest
+          version: v2.1
           args: --config=.golangci.yml --timeout=5m
           working-directory: .
           skip-cache: false
@@ -128,6 +128,8 @@ jobs:
 
       - name: Build with Nix
         run: nix build
+        # Note: requires SSH deploy key for go-finding private repo
+        # Configure in Settings > Secrets > SSH_DEPLOY_KEY
 
       - name: Verify binary
         run: ./result/bin/golangci-lint-auto-configure --version
@@ -144,7 +146,7 @@ jobs:
           echo "## 🎯 Go CI/CD Workflow Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Tests on Go 1.25, 1.26" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Tests on Go 1.26" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Race condition detection enabled" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Coverage report uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
