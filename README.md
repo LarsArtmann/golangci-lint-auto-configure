@@ -15,6 +15,23 @@ This tool automatically configures golangci-lint for Go projects by:
 
 ## Installation
 
+### Quick Start with Nix (Recommended)
+
+1. [Install Nix](https://nixos.org/download.html)
+2. Enable Flakes: `mkdir -p ~/.config/nix && echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf`
+3. Clone this repo
+4. Run `nix develop` — you're ready to go
+
+All tools (Go 1.26, ginkgo, golangci-lint, just, templ) are provided automatically.
+
+```bash
+nix build                            # Build the CLI binary
+./result/bin/golangci-lint-auto-configure --version
+nix run . -- analyze                 # Run directly
+```
+
+### Install without Nix
+
 ```bash
 # Install the latest version
 go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
@@ -27,9 +44,18 @@ go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto
 
 ## Requirements
 
+### With Nix (Recommended)
+
+- **Nix** with Flakes enabled — all other tools are provided automatically
+
+### Without Nix
+
 - **Go**: 1.26+
 - **golangci-lint**: v2.10.1+ (tool checks version automatically)
 - **Git**: Must run inside a git repository (for version control)
+- **ginkgo**: For running tests (`go install github.com/onsi/ginkgo/v2/ginkgo@latest`)
+- **just**: For running recipes (`brew install just` or `go install github.com/casey/just@latest`)
+- **templ**: For report template generation (`go install github.com/a-h/templ/cmd/templ@latest`)
 
 ## Usage
 
