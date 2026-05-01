@@ -49,9 +49,6 @@ coverage.html
 result
 result-*
 
-# Generated templ files
-*_templ.go
-
 # Sensitive files
 *.db
 # Copy/paste detection report
