@@ -26,19 +26,9 @@
           pname = "golangci-lint-auto-configure";
           inherit version;
 
-          src = builtins.path {
-            path = ./.;
-            name = "source";
-            filter = path: type:
-              let
-                baseName = baseNameOf path;
-              in
-              !(
-                builtins.match "^(result|result-.*|bin|coverage|coverage\\.html|\\.idea|\\.vscode|node_modules)$" baseName != null
-              );
-          };
+          src = ./.;
 
-          vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+          vendorHash = pkgs.lib.fakeHash;
 
           subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -50,22 +40,14 @@
 
           env.CGO_ENABLED = 0;
 
-          GOWORK = "off";
-
-          modRoot = ".";
+          proxyVendor = true;
 
           postPatch = ''
-            # Remove the local replace directive
+            # Remove the local replace directive so go mod can resolve normally
             sed -i '/^replace github.com\/larsartmann\/go-finding/d' go.mod
-            # Rewrite the go-finding requirement to use a pseudo-version
-            sed -i 's/github.com\/larsartmann\/go-finding v0.0.0-00010101000000-000000000000/github.com\/larsartmann\/go-finding v0.0.0-00010101000000-000000000000/' go.mod
-          '';
-
-          postConfigure = ''
-            # Inject go-finding from flake input into vendor directory
-            rm -rf vendor/github.com/larsartmann/go-finding
-            cp -r ${goFindingSrc} vendor/github.com/larsartmann/go-finding
-            chmod -R u+w vendor/github.com/larsartmann/go-finding
+            # Replace the dummy version with the actual commit from the flake input
+            goFindingRev=$(cd ${goFindingSrc} && git rev-parse HEAD 2>/dev/null || echo "unknown")
+            sed -i "s|github.com/larsartmann/go-finding v0.0.0-00010101000000-000000000000|github.com/larsartmann/go-finding v0.0.0-$(date -u -d @0 +%Y%m%d%H%M%S)-${goFindingRev}|" go.mod
           '';
 
           meta = with pkgs.lib; {
