@@ -33,7 +33,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 # =============================================================================
 # Runtime Stage
 # =============================================================================
-FROM golangci/golangci-lint:2.1.5-alpine AS runtime
+FROM golangci/golangci-lint:v2.1-alpine AS runtime
 
 # Install git (needed for version check)
 RUN apk add --no-cache git bash
