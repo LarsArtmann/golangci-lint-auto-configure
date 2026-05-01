@@ -33,12 +33,9 @@ var _ = Describe("CLI Integration Tests", func() {
 	// Helper function to build the binary
 	buildBinary := func() string {
 		binaryPath := filepath.Join(testDir, "golangci-lint-auto-configure")
-		// Get absolute path to the project root
 		projectRoot, _ := filepath.Abs(filepath.Join("..", ".."))
 		cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/golangci-lint-auto-configure")
 		cmd.Dir = projectRoot
-
-		cmd.Env = append(os.Environ(), "GOOS=darwin", "GOARCH=arm64")
 
 		output, err := cmd.CombinedOutput()
 		Expect(err).NotTo(HaveOccurred(), "Failed to build the CLI binary: "+string(output))
@@ -458,7 +455,11 @@ linters:
   enable:
     - errcheck
 `
-			output, err := runCommandWithConfig(binaryPath, configContent, []string{"analyze", "--format", "sarif"})
+			output, err := runCommandWithConfig(
+				binaryPath,
+				configContent,
+				[]string{"analyze", "--format", "sarif"},
+			)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(output).To(ContainSubstring(`"$schema"`))
 			Expect(output).To(ContainSubstring(`"golangci-lint-auto-configure"`))
@@ -471,7 +472,11 @@ linters:
   enable:
     - errcheck
 `
-			output, err := runCommandWithConfig(binaryPath, configContent, []string{"analyze", "--format", "finding"})
+			output, err := runCommandWithConfig(
+				binaryPath,
+				configContent,
+				[]string{"analyze", "--format", "finding"},
+			)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(output).To(ContainSubstring(`"golangci-lint-auto-configure"`))
 			Expect(output).To(ContainSubstring(`"findings"`))
