@@ -62,7 +62,7 @@ func RecommendationsToFindings(
 
 	for _, rec := range recommendations {
 		pos := finding.Position{File: configPath}
-		f := buildFinding(finding.NewBuilder(
+		found := buildFinding(finding.NewBuilder(
 			"missing-linter",
 			toolName,
 			fmt.Sprintf("Linter %s is disabled: %s", rec.Name, rec.Reason),
@@ -74,7 +74,7 @@ func RecommendationsToFindings(
 			WithFixStrategy(finding.FixStrategyDirect).
 			WithSuggestion(fmt.Sprintf("Enable %s in linters.enable section", rec.Name)))
 
-		result = append(result, f)
+		result = append(result, found)
 	}
 
 	return result
@@ -89,7 +89,7 @@ func FormatterRecommendationsToFindings(
 
 	for _, rec := range recommendations {
 		pos := finding.Position{File: configPath}
-		f := buildFinding(finding.NewBuilder(
+		found := buildFinding(finding.NewBuilder(
 			"missing-formatter",
 			toolName,
 			fmt.Sprintf("Formatter %s is disabled: %s", rec.Name, rec.Reason),
@@ -101,7 +101,7 @@ func FormatterRecommendationsToFindings(
 			WithFixStrategy(finding.FixStrategyDirect).
 			WithSuggestion(fmt.Sprintf("Enable %s in formatters.enable section", rec.Name)))
 
-		result = append(result, f)
+		result = append(result, found)
 	}
 
 	return result
@@ -117,11 +117,12 @@ func DeprecatedLintersToFindings(
 	for _, linter := range linters {
 		pos := finding.Position{File: configPath}
 		replacement := "no replacement specified"
+
 		if repl, ok := constants.DeprecatedLinters[linter.Name]; ok {
 			replacement = fmt.Sprintf("use %s instead (%s)", repl.Replacement, repl.Reason)
 		}
 
-		f := buildFinding(finding.NewBuilder(
+		found := buildFinding(finding.NewBuilder(
 			"deprecated-linter",
 			toolName,
 			fmt.Sprintf("Deprecated linter %s is enabled: %s", linter.Name, replacement),
@@ -133,7 +134,7 @@ func DeprecatedLintersToFindings(
 			WithFixStrategy(finding.FixStrategyDirect).
 			WithSuggestion(replacement))
 
-		result = append(result, f)
+		result = append(result, found)
 	}
 
 	return result
@@ -148,7 +149,7 @@ func ValidationErrorsToFindings(
 
 	for _, verr := range errors {
 		pos := finding.Position{File: configPath, Line: verr.Line}
-		f := buildFinding(finding.NewBuilder(
+		found := buildFinding(finding.NewBuilder(
 			"validation-error",
 			toolName,
 			verr.Message,
@@ -160,7 +161,7 @@ func ValidationErrorsToFindings(
 			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(fmt.Sprintf("Fix field %s: %s", verr.Field, verr.Message)))
 
-		result = append(result, f)
+		result = append(result, found)
 	}
 
 	return result
@@ -172,7 +173,7 @@ func ErrorsToFindings(errors []error, configPath string) []finding.Finding {
 
 	for _, err := range errors {
 		pos := finding.Position{File: configPath}
-		f := buildFinding(finding.NewBuilder(
+		found := buildFinding(finding.NewBuilder(
 			"validation-error",
 			toolName,
 			err.Error(),
@@ -181,7 +182,7 @@ func ErrorsToFindings(errors []error, configPath string) []finding.Finding {
 		).
 			WithCategory(finding.CategoryConfiguration))
 
-		result = append(result, f)
+		result = append(result, found)
 	}
 
 	return result

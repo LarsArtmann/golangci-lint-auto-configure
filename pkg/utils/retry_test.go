@@ -36,7 +36,7 @@ var _ = Describe("WithRetry", func() {
 	Context("Success cases", func() {
 		It("should return immediately on success", func() {
 			callCount := 0
-			//nolint:varnamelen // operation is clear in test context
+
 			op := func() ([]byte, error) {
 				callCount++
 
@@ -55,7 +55,7 @@ var _ = Describe("WithRetry", func() {
 	Context("Retry cases", func() {
 		It("should retry on retryable errors", func() {
 			callCount := 0
-			//nolint:varnamelen // operation is clear in test context
+
 			op := func() ([]byte, error) {
 				callCount++
 				if callCount < 3 {
@@ -95,7 +95,6 @@ var _ = Describe("WithRetry", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			callCount := 0
 
-			//nolint:varnamelen // operation is clear in test context
 			op := func() ([]byte, error) {
 				callCount++
 				if callCount == 1 {

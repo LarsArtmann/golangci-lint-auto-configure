@@ -33,7 +33,7 @@ var RedundantFormatters = map[types.FormatterName]string{
 // DefaultLinterSettings provides safe default settings for linters that require
 // configuration to work correctly when auto-enabled. Without these defaults,
 // some linters break builds (e.g. depguard denies everything by default).
-var DefaultLinterSettings = map[string]any{
+var DefaultLinterSettings = map[types.LinterName]any{
 	"depguard": map[string]any{
 		"rules": map[string]any{
 			"main": map[string]any{
@@ -43,5 +43,18 @@ var DefaultLinterSettings = map[string]any{
 	},
 	"ireturn": map[string]any{
 		"allow": []string{"error", "empty", "anon", "stdlib", "generic"},
+	},
+	"gocritic": map[string]any{
+		"disabled-checks": []string{
+			"dupImport",
+			"ifElseChain",
+			"octalLiteral",
+			"whyNoLint",
+		},
+	},
+	"exhaustruct": map[string]any{
+		"exclude": []string{
+			"os/exec.Cmd",
+		},
 	},
 }

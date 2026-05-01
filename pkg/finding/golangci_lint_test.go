@@ -147,7 +147,9 @@ func TestParseGolangciLintJSONRoundTrip(t *testing.T) {
 	}
 
 	var sarifMap map[string]json.RawMessage
-	if jsonErr := json.Unmarshal(sarif, &sarifMap); jsonErr != nil {
+
+	jsonErr := json.Unmarshal(sarif, &sarifMap)
+	if jsonErr != nil {
 		t.Fatalf("SARIF is not valid JSON: %v", jsonErr)
 	}
 

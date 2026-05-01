@@ -105,8 +105,8 @@ func updateConfigFromSets(
 // injectDefaultSettings injects safe default settings for linters that require
 // configuration, but only if the config doesn't already have settings for them.
 func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
-	for _, linter := range enabledLinters {
-		defaults, hasDefaults := constants.DefaultLinterSettings[linter]
+	for _, linterName := range enabledLinters {
+		defaults, hasDefaults := constants.DefaultLinterSettings[types.LinterName(linterName)]
 		if !hasDefaults {
 			continue
 		}
@@ -115,10 +115,10 @@ func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
 			cfg.Linters.Settings = make(map[string]any)
 		}
 
-		if _, exists := cfg.Linters.Settings[linter]; exists {
+		if _, exists := cfg.Linters.Settings[linterName]; exists {
 			continue
 		}
 
-		cfg.Linters.Settings[linter] = defaults
+		cfg.Linters.Settings[linterName] = defaults
 	}
 }

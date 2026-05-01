@@ -8,9 +8,9 @@ import (
 
 	"charm.land/log/v2"
 	finding "github.com/larsartmann/go-finding"
-	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/spf13/cobra"
 )
@@ -57,6 +57,25 @@ func runValidate(
 
 	logger.Infof("Validating configuration: %s", configFile)
 
+	err = validateLoadedConfig(configLoader, logger, configFile)
+	if err != nil {
+		return err
+	}
+
+	if !skipGolangciLint {
+		return runSchemaValidation(cmd, configFile, logger)
+	}
+
+	logger.Infof("✅ Configuration is valid")
+
+	return nil
+}
+
+func validateLoadedConfig(
+	configLoader *config.Loader,
+	logger *log.Logger,
+	configFile string,
+) error {
 	cfg, loadErr := configLoader.LoadConfig(configFile)
 	if loadErr != nil {
 		if reportFormat == formatSARIF {
@@ -78,12 +97,6 @@ func runValidate(
 	}
 
 	logger.Infof("✓ Internal validation passed")
-
-	if !skipGolangciLint {
-		return runSchemaValidation(cmd, configFile, logger)
-	}
-
-	logger.Infof("✅ Configuration is valid")
 
 	return nil
 }
@@ -159,7 +172,8 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 		return fmt.Errorf("failed to format SARIF: %w", prettyErr)
 	}
 
-	if _, writeErr := os.Stdout.Write(pretty); writeErr != nil {
+	_, writeErr := os.Stdout.Write(pretty)
+	if writeErr != nil {
 		return fmt.Errorf("failed to write SARIF output: %w", writeErr)
 	}
 

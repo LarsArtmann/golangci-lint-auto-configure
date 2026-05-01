@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const filePermOwnerOnly = 0o600
+
 func newReportCommand(builder *CommandBuilder) *cobra.Command {
 	return builder.Build(
 		"report",
@@ -127,7 +129,8 @@ func writeSARIFReport(
 		)
 	}
 
-	if writeErr := os.WriteFile(outputPath, sarif, 0o600); writeErr != nil {
+	writeErr := os.WriteFile(outputPath, sarif, filePermOwnerOnly)
+	if writeErr != nil {
 		return fmt.Errorf(
 			"failed to write SARIF report (configPath=%s, outputPath=%s): %w",
 			configFile,
@@ -154,7 +157,8 @@ func writeFindingJSONReport(
 		)
 	}
 
-	if writeErr := os.WriteFile(outputPath, []byte(data), 0o600); writeErr != nil {
+	writeErr := os.WriteFile(outputPath, []byte(data), filePermOwnerOnly)
+	if writeErr != nil {
 		return fmt.Errorf(
 			"failed to write finding JSON report (configPath=%s, outputPath=%s): %w",
 			configFile,

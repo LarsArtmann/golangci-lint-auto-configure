@@ -705,7 +705,7 @@ just test && just lint
 - **a-h/templ**: HTML templating (generates Go code from .templ files)
 - **go.yaml.in/yaml/v3**: YAML parsing (Unmarshal, Marshal)
 - **golang.org/x/mod/semver**: Semantic versioning (Compare, IsValid)
-- **samber/mo**: Functional programming utilities (monads, option types)
+- **samber/mo**: **REMOVED** — replaced with custom `types.Result[T]` in `pkg/types/result.go`. No external dependency for Result type.
 
 ## Project-Specific Patterns
 

@@ -78,7 +78,7 @@ func MigrationResultToFindings(
 	}
 
 	pos := finding.Position{File: configPath}
-	f := buildFinding(finding.NewBuilder(
+	found := buildFinding(finding.NewBuilder(
 		"config-fix",
 		toolName,
 		fmt.Sprintf("%s: %d fixes applied", message, fixesApplied),
@@ -88,5 +88,5 @@ func MigrationResultToFindings(
 		WithCategory(finding.CategoryConfiguration).
 		WithFixStrategy(finding.FixStrategyDirect))
 
-	return []finding.Finding{f}
+	return []finding.Finding{found}
 }

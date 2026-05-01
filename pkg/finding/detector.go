@@ -9,6 +9,8 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
+const initialFindingsCapacity = 3
+
 // ConfigAnalysisDetector implements pipeline.Detector for golangci-lint config analysis.
 // It detects missing linters, deprecated linters, and missing formatters.
 type ConfigAnalysisDetector struct {
@@ -38,7 +40,7 @@ func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding,
 		return nil, fmt.Errorf("analyze config %s: %w", d.configPath, err)
 	}
 
-	findings := make([]finding.Finding, 0, 3)
+	findings := make([]finding.Finding, 0, initialFindingsCapacity)
 
 	findings = append(findings, RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)...)
 	findings = append(

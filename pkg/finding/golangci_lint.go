@@ -29,35 +29,38 @@ type golangciLintOutput struct {
 func ParseGolangciLintJSON(data []byte) ([]finding.Finding, error) {
 	var output golangciLintOutput
 
-	if err := json.Unmarshal(data, &output); err != nil {
+	err := json.Unmarshal(data, &output)
+	if err != nil {
 		return nil, fmt.Errorf("parse golangci-lint JSON: %w", err)
 	}
 
 	findings := make([]finding.Finding, 0, len(output.Issues))
 
 	for _, issue := range output.Issues {
-		severity := golangciLintSeverityToFinding(issue.Severity)
-		category := linterNameToCategory(issue.FromLinter)
-		pos := finding.Position{
-			File:   issue.Pos.Filename,
-			Line:   issue.Pos.Line,
-			Column: issue.Pos.Column,
-		}
-
-		f := buildFinding(finding.NewBuilder(
-			issue.FromLinter,
-			"golangci-lint",
-			issue.Text,
-			severity,
-			pos,
-		).
-			WithCategory(category).
-			WithTags(finding.Tag(issue.FromLinter)))
-
-		findings = append(findings, f)
+		findings = append(findings, issueToFinding(issue))
 	}
 
 	return findings, nil
+}
+
+func issueToFinding(issue GolangciLintIssue) finding.Finding {
+	severity := golangciLintSeverityToFinding(issue.Severity)
+	category := linterNameToCategory(issue.FromLinter)
+	pos := finding.Position{
+		File:   issue.Pos.Filename,
+		Line:   issue.Pos.Line,
+		Column: issue.Pos.Column,
+	}
+
+	return buildFinding(finding.NewBuilder(
+		issue.FromLinter,
+		"golangci-lint",
+		issue.Text,
+		severity,
+		pos,
+	).
+		WithCategory(category).
+		WithTags(finding.Tag(issue.FromLinter)))
 }
 
 // golangciLintSeverityToFinding maps golangci-lint severity strings to finding.Severity.

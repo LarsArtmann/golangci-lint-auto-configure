@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"os/exec"
@@ -17,7 +18,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/pelletier/go-toml/v2"
-	"github.com/samber/mo"
 	"github.com/spf13/afero"
 	"go.yaml.in/yaml/v3"
 )
@@ -107,7 +107,7 @@ func detectFormat(path string) ConfigFormat {
 }
 
 // errUnsupportedConfigFormat is returned for unknown config formats.
-var errUnsupportedConfigFormat = fmt.Errorf("unsupported config format")
+var errUnsupportedConfigFormat = errors.New("unsupported config format")
 
 // unmarshalConfig unmarshals data into a Config based on the format.
 func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
@@ -371,7 +371,7 @@ func (l *Loader) SaveConfig(config *Config, path string) error {
 }
 
 // SaveConfigResult saves a config and returns a Result type for railway-oriented programming.
-func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] {
+func (l *Loader) SaveConfigResult(config *Config, path string) types.Result[Empty] {
 	format := detectFormat(path)
 
 	data, err := marshalConfig(config, format)
@@ -385,12 +385,12 @@ func (l *Loader) SaveConfigResult(config *Config, path string) mo.Result[Empty] 
 
 	l.logger.Infof("Saved config to %s (format: %s)", path, format)
 
-	return mo.Ok(Empty{})
+	return types.Ok(Empty{})
 }
 
 // saveError creates a config error result for save operations.
-func (l *Loader) saveError(operation, path string, err error) mo.Result[Empty] {
-	return mo.Err[Empty](apperrors.NewConfigError("failed to "+operation, path, err))
+func (l *Loader) saveError(operation, path string, err error) types.Result[Empty] {
+	return types.Err[Empty](apperrors.NewConfigError("failed to "+operation, path, err))
 }
 
 // IsGitRepo checks if we're inside a git repository.

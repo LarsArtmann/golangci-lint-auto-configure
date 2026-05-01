@@ -2,6 +2,7 @@ package finding
 
 import (
 	"encoding/json"
+	"errors"
 	"testing"
 
 	finding "github.com/larsartmann/go-finding"
@@ -159,6 +160,7 @@ func TestFormatterRecommendationsToFindings(t *testing.T) {
 			finding.FixStrategyDirect,
 		)
 	}
+
 	if len(findings[0].Tags) == 0 || string(findings[0].Tags[0]) != "gofumpt" {
 		t.Errorf("expected tag gofumpt, got %v", findings[0].Tags)
 	}
@@ -226,6 +228,48 @@ func TestValidationErrorsToFindings(t *testing.T) {
 	}
 }
 
+func TestErrorsToFindings(t *testing.T) {
+	errors := []error{
+		errors.New("file not found"),
+		errors.New("permission denied"),
+	}
+
+	results := ErrorsToFindings(errors, "config.yml")
+
+	if len(results) != 2 {
+		t.Fatalf("expected 2 findings, got %d", len(results))
+	}
+
+	for idx, found := range results {
+		if found.Rule != "validation-error" {
+			t.Errorf("findings[%d]: expected rule validation-error, got %s", idx, found.Rule)
+		}
+
+		if found.Severity != finding.SeverityError {
+			t.Errorf("findings[%d]: expected error severity, got %v", idx, found.Severity)
+		}
+
+		if found.Category != finding.CategoryConfiguration {
+			t.Errorf("findings[%d]: expected configuration category, got %v", idx, found.Category)
+		}
+
+		if found.Position.File != "config.yml" {
+			t.Errorf("findings[%d]: expected file config.yml, got %s", idx, found.Position.File)
+		}
+
+		if found.Message == "" {
+			t.Errorf("findings[%d]: expected non-empty message", idx)
+		}
+	}
+}
+
+func TestErrorsToFindingsEmpty(t *testing.T) {
+	findings := ErrorsToFindings(nil, "config.yml")
+	if len(findings) != 0 {
+		t.Errorf("expected 0 findings for nil input, got %d", len(findings))
+	}
+}
+
 func TestAnalysisToReport(t *testing.T) {
 	analysis := &types.ConfigAnalysis{
 		ConfigPath: ".golangci.yml",
@@ -287,7 +331,9 @@ func TestAnalysisToSARIF(t *testing.T) {
 	}
 
 	var sarif map[string]json.RawMessage
-	if err := json.Unmarshal(sarifJSON, &sarif); err != nil {
+
+	err = json.Unmarshal(sarifJSON, &sarif)
+	if err != nil {
 		t.Fatalf("SARIF is not valid JSON: %v", err)
 	}
 
@@ -337,12 +383,15 @@ func assertFinding(
 
 	if expectedTag != "" {
 		found := false
+
 		for _, tag := range f.Tags {
 			if string(tag) == expectedTag {
 				found = true
+
 				break
 			}
 		}
+
 		if !found {
 			t.Errorf("expected tag %q in %v", expectedTag, f.Tags)
 		}

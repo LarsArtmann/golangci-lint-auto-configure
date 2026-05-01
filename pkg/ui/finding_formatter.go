@@ -22,17 +22,17 @@ func FormatFindings(findings []finding.Finding) string {
 		builder.WriteString(SectionHeader(string(category)))
 		fmt.Fprintf(&builder, " (%d)\n", len(categoryFindings))
 
-		for _, f := range categoryFindings {
-			severityBadge := severityBadge(f.Severity)
+		for _, finding := range categoryFindings {
+			severityBadge := severityBadge(finding.Severity)
 			fmt.Fprintf(&builder, "  %s [%s] %s: %s\n",
 				severityBadge,
-				f.Rule,
-				f.Position,
-				f.Message,
+				finding.Rule,
+				finding.Position,
+				finding.Message,
 			)
 
-			if f.Suggestion != "" {
-				fmt.Fprintf(&builder, "    → %s\n", f.Suggestion)
+			if finding.Suggestion != "" {
+				fmt.Fprintf(&builder, "    → %s\n", finding.Suggestion)
 			}
 		}
 
