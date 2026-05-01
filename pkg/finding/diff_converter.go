@@ -70,7 +70,7 @@ func changeRule(t diff.ChangeType) string {
 func MigrationResultToFindings(
 	message string,
 	fixesApplied int,
-	nextSteps []string,
+	_ []string,
 	configPath string,
 ) []finding.Finding {
 	if fixesApplied == 0 {

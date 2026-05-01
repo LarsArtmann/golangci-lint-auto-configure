@@ -206,5 +206,10 @@ func AnalysisToReport(analysis *types.ConfigAnalysis, version string) *finding.R
 func AnalysisToSARIF(analysis *types.ConfigAnalysis, version string) ([]byte, error) {
 	report := AnalysisToReport(analysis, version)
 
-	return report.ToSARIF()
+	sarif, err := report.ToSARIF()
+	if err != nil {
+		return nil, fmt.Errorf("generate SARIF: %w", err)
+	}
+
+	return sarif, nil
 }

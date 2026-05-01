@@ -2,6 +2,7 @@ package finding
 
 import (
 	"context"
+	"fmt"
 
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
@@ -34,10 +35,10 @@ func (d *ConfigAnalysisDetector) Name() string {
 func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding, error) {
 	analysis, err := d.analyzer.AnalyzeConfig(ctx, d.configPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("analyze config %s: %w", d.configPath, err)
 	}
 
-	var findings []finding.Finding
+	findings := make([]finding.Finding, 0, 3)
 
 	findings = append(findings, RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)...)
 	findings = append(

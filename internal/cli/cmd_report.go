@@ -127,7 +127,7 @@ func writeSARIFReport(
 		)
 	}
 
-	if writeErr := os.WriteFile(outputPath, sarif, 0o644); writeErr != nil {
+	if writeErr := os.WriteFile(outputPath, sarif, 0o600); writeErr != nil {
 		return fmt.Errorf(
 			"failed to write SARIF report (configPath=%s, outputPath=%s): %w",
 			configFile,
@@ -154,7 +154,7 @@ func writeFindingJSONReport(
 		)
 	}
 
-	if writeErr := os.WriteFile(outputPath, []byte(data), 0o644); writeErr != nil {
+	if writeErr := os.WriteFile(outputPath, []byte(data), 0o600); writeErr != nil {
 		return fmt.Errorf(
 			"failed to write finding JSON report (configPath=%s, outputPath=%s): %w",
 			configFile,

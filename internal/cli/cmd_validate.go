@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 
 	"charm.land/log/v2"
@@ -158,7 +159,9 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 		return fmt.Errorf("failed to format SARIF: %w", prettyErr)
 	}
 
-	fmt.Println(string(pretty))
+	if _, writeErr := os.Stdout.Write(pretty); writeErr != nil {
+		return fmt.Errorf("failed to write SARIF output: %w", writeErr)
+	}
 
 	return nil
 }

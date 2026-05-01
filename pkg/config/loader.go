@@ -106,6 +106,9 @@ func detectFormat(path string) ConfigFormat {
 	}
 }
 
+// errUnsupportedConfigFormat is returned for unknown config formats.
+var errUnsupportedConfigFormat = fmt.Errorf("unsupported config format")
+
 // unmarshalConfig unmarshals data into a Config based on the format.
 func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
 	switch format {
@@ -119,7 +122,7 @@ func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
 
 		return decoder.Decode(config)
 	default:
-		return fmt.Errorf("unsupported config format: %s", format)
+		return fmt.Errorf("%w: %s", errUnsupportedConfigFormat, format)
 	}
 }
 

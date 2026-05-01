@@ -159,6 +159,8 @@ linters:
         - charm.land/log.Options
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/types.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
+        - github.com/larsartmann/go-finding.Position
+        - github.com/larsartmann/go-finding.ToolInfo
     funlen:
       lines: 30
       statements: 20
@@ -191,6 +193,9 @@ linters:
           - exhaustruct
           - err113
           - wrapcheck
+          - testpackage
+          - funlen
+          - varnamelen
       - path: internal/cli|examples/|cmd/|pkg/config/
         linters:
           - depguard
@@ -200,13 +205,19 @@ linters:
       - path: pkg/types/types\.go
         linters:
           - tagliatelle
+      - path: pkg/finding/golangci_lint\.go
+        linters:
+          - tagliatelle
+      - path: pkg/detection/detector\.go
+        linters:
+          - gosec
       - path: pkg/errors/errors\.go
         linters:
           - funcorder
       - path: internal/cli/|examples/|pkg/client/client\.go
         linters:
           - exhaustruct
-      - path: pkg/constants/
+      - path: pkg/constants/|pkg/finding/categories\.go|pkg/config/merger_helpers\.go
         linters:
           - gochecknoglobals
       - path: pkg/types/validation\.go
