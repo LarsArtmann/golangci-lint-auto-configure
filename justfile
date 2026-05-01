@@ -5,16 +5,22 @@ default: help
 
 help:
     @echo "Available commands:"
-    @echo "  just build        - Build the CLI binary"
-    @echo "  just test         - Run all tests with coverage"
-    @echo "  just test-coverage - Show coverage report"
-    @echo "  just coverage-html - Generate HTML coverage report"
-    @echo "  just lint         - Run linters"
-    @echo "  just run          - Run the CLI (default command)"
-    @echo "  just clean        - Clean build artifacts"
-    @echo "  just install      - Install the CLI to GOPATH/bin"
-    @echo "  just install-local - Install locally with version ldflags"
-    @echo "  just dogfood      - Run tool on itself (analyze our own config)"
+    @echo "  just build         - Build the CLI binary"
+    @echo "  just test          - Run all tests with coverage"
+    @echo "  just test-coverage  - Show coverage report"
+    @echo "  just coverage-html  - Generate HTML coverage report"
+    @echo "  just lint          - Run linters"
+    @echo "  just run           - Run the CLI (default command)"
+    @echo "  just clean         - Clean build artifacts"
+    @echo "  just install       - Install the CLI to GOPATH/bin"
+    @echo "  just install-local  - Install locally with version ldflags"
+    @echo "  just dogfood       - Run tool on itself (analyze our own config)"
+    @echo ""
+    @echo "Nix commands:"
+    @echo "  just nix-build     - Build with Nix (reproducible)"
+    @echo "  just nix-check     - Run all Nix checks"
+    @echo "  just nix-update    - Update Nix flake inputs"
+    @echo "  just nix-vendor    - Update vendorHash after go.mod changes"
 
 build:
     @echo "Building CLI..."
@@ -24,7 +30,6 @@ test:
     @echo "Running tests..."
     @GOWORK=off GOTOOLCHAIN=local ginkgo -r --cover
 
-# Show test coverage summary
 test-coverage:
     @echo "Test coverage summary:"
     @GOWORK=off GOTOOLCHAIN=local go test ./... -coverprofile=coverage.out -covermode=atomic 2>&1 | grep coverage:
@@ -32,7 +37,6 @@ test-coverage:
     @echo "Total coverage:"
     @go tool cover -func=coverage.out | grep total | awk '{print "  " $$3 " of statements"}'
 
-# Generate and open HTML coverage report
 coverage-html:
     @echo "Generating HTML coverage report..."
     @GOWORK=off GOTOOLCHAIN=local go test ./... -coverprofile=coverage.out -covermode=atomic > /dev/null 2>&1
@@ -57,7 +61,6 @@ configure build *args:
 validate build *args:
     @./bin/golangci-lint-auto-configure validate {{args}}
 
-# Dogfood: Run the tool on itself (follows Dogfooding First principle)
 dogfood: build
     @echo "🐕 Dogfooding: Running golangci-lint-auto-configure on itself..."
     @./bin/golangci-lint-auto-configure analyze
@@ -79,7 +82,6 @@ install: build
     @echo "Installing CLI..."
     @GOWORK=off GOTOOLCHAIN=local go install ./cmd/golangci-lint-auto-configure
 
-# Install locally with version ldflags
 install-local:
     #!/usr/bin/env bash
     set -e
@@ -104,3 +106,24 @@ tidy:
 deps:
     @echo "Installing dependencies..."
     @GOWORK=off GOTOOLCHAIN=local go mod download
+
+# Nix commands
+
+nix-build:
+    @echo "Building with Nix..."
+    @nix build
+    @echo "Binary: ./result/bin/golangci-lint-auto-configure"
+
+nix-check:
+    @echo "Running Nix checks..."
+    @nix flake check
+
+nix-update:
+    @echo "Updating Nix flake inputs..."
+    @nix flake update
+
+nix-vendor:
+    #!/usr/bin/env bash
+    set -e
+    echo "Building to calculate vendorHash..."
+    nix build 2>&1 | tail -5

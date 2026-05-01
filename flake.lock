@@ -21,14 +21,19 @@
     "goFindingSrc": {
       "flake": false,
       "locked": {
-        "path": "../go-finding",
-        "type": "path"
+        "lastModified": 1777596667,
+        "narHash": "sha256-qgP+6LOhSxNJyCBX0kvB/4E4OX2oSAUPBA+Tgfs5bBA=",
+        "ref": "master",
+        "rev": "8b65fddc6307d6b962409272f83033e439f213bc",
+        "revCount": 415,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-finding"
       },
       "original": {
-        "path": "../go-finding",
-        "type": "path"
-      },
-      "parent": []
+        "ref": "master",
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-finding"
+      }
     },
     "nixpkgs": {
       "locked": {

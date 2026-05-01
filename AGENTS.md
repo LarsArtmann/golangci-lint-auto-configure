@@ -34,6 +34,29 @@ just fmt-check      # Check formatting without modifying
 just tidy           # Tidy go.mod
 ```
 
+**Nix Commands:**
+
+```bash
+nix develop                          # Enter dev shell (all tools provided)
+nix develop --command just test      # Run tests inside Nix shell
+nix build                            # Build the CLI binary (reproducible)
+nix flake check                      # Run all Nix checks
+nix run . -- analyze                 # Run the CLI directly
+nix flake update                     # Update all flake inputs
+just nix-build                       # Build with Nix (just wrapper)
+just nix-check                       # Run Nix checks (just wrapper)
+just nix-update                      # Update flake inputs (just wrapper)
+```
+
+**vendorHash Update (after go.mod changes):**
+
+```bash
+just tidy                            # Tidy dependencies
+nix build 2>&1 | tail -5             # Get expected hash from error
+# Copy the "got:" hash into flake.nix vendorHash
+nix build                            # Rebuild with correct hash
+```
+
 **CLI Commands (after build):**
 
 ```bash
@@ -562,11 +585,13 @@ Built-in hooks:
 - Justfile `install-local` does: `go build -ldflags "-X main.version=$VERSION"`
 - Default value is "dev" if not set
 
-### 7. go-finding is Local Replace
+### 7. go-finding is Nix Flake Input
 
-- `go.mod` has: `replace github.com/larsartmann/go-finding => ../go-finding`
-- Path is relative, points to sibling directory
-- CI may not work with this local replace
+- `go.mod` has local replace: `replace github.com/larsartmann/go-finding => ../go-finding`
+- For Nix builds, `flake.nix` copies go-finding from a `git+ssh://` flake input into the source tree
+- The `postPatch` hook redirects the replace directive to `./go-finding-vendor`
+- Local dev still uses the `../go-finding` sibling directory directly
+- CI fetches go-finding via SSH from GitHub (private repo)
 
 ### 8. Cobra Deprecation
 

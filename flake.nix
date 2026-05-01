@@ -28,7 +28,7 @@
 
           src = ./.;
 
-          vendorHash = pkgs.lib.fakeHash;
+          vendorHash = "sha256-uWgp9syzgG6jDk5njdliy/HMFhmQjJu/02Vvx0CiTZE=";
 
           subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -40,14 +40,11 @@
 
           env.CGO_ENABLED = 0;
 
-          proxyVendor = true;
-
           postPatch = ''
-            # Remove the local replace directive so go mod can resolve normally
-            sed -i '/^replace github.com\/larsartmann\/go-finding/d' go.mod
-            # Replace the dummy version with the actual commit from the flake input
-            goFindingRev=$(cd ${goFindingSrc} && git rev-parse HEAD 2>/dev/null || echo "unknown")
-            sed -i "s|github.com/larsartmann/go-finding v0.0.0-00010101000000-000000000000|github.com/larsartmann/go-finding v0.0.0-$(date -u -d @0 +%Y%m%d%H%M%S)-${goFindingRev}|" go.mod
+            # Copy go-finding into the source tree and redirect the replace directive
+            cp -r ${goFindingSrc} go-finding-vendor
+            chmod -R u+w go-finding-vendor
+            sed -i 's|=> ../go-finding|=> ./go-finding-vendor|' go.mod
           '';
 
           meta = with pkgs.lib; {

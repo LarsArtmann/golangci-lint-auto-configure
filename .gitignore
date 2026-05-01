@@ -36,13 +36,11 @@ build/
 # Documentation builds
 docs/site/
 docs/public/
+
 # Dependencies
 node_modules/
-# Add pattern for Templ generated files
-*_templ.go
-# Build artifacts
-# Build artifacts
 /golangci-lint-auto-configure
+
 # Test coverage
 /coverage
 coverage.html
