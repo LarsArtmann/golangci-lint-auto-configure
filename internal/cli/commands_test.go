@@ -36,6 +36,7 @@ var _ = Describe("CLI Integration Tests", func() {
 		projectRoot, _ := filepath.Abs(filepath.Join("..", ".."))
 		cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/golangci-lint-auto-configure")
 		cmd.Dir = projectRoot
+
 		cmd.Env = append(os.Environ(),
 			"GOPRIVATE=github.com/larsartmann/go-finding",
 			"GONOSUMCHECK=github.com/larsartmann/go-finding",

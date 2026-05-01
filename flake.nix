@@ -90,7 +90,7 @@
             echo "  golangci-lint:  $(golangci-lint version --short 2>/dev/null || echo 'N/A')"
             echo "  ginkgo:         $(ginkgo version 2>/dev/null || echo 'N/A')"
             echo "  templ:          $(templ version 2>/dev/null || echo 'N/A')"
-            echo "  just:           $(just --bin-version)" 
+            echo "  just:           $(just --version)"
           '';
         };
 
