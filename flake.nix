@@ -10,9 +10,14 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, goFindingSrc }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
+  outputs = {
+    self,
+    nixpkgs,
+    flake-utils,
+    goFindingSrc,
+  }:
+    flake-utils.lib.eachDefaultSystem (
+      system: let
         pkgs = import nixpkgs {
           inherit system;
         };
@@ -30,7 +35,7 @@
 
           vendorHash = "sha256-uWgp9syzgG6jDk5njdliy/HMFhmQjJu/02Vvx0CiTZE=";
 
-          subPackages = [ "cmd/golangci-lint-auto-configure" ];
+          subPackages = ["cmd/golangci-lint-auto-configure"];
 
           ldflags = [
             "-s"
@@ -41,7 +46,6 @@
           env.CGO_ENABLED = 0;
 
           postPatch = ''
-            # Copy go-finding into the source tree and redirect the replace directive
             cp -r ${goFindingSrc} go-finding-vendor
             chmod -R u+w go-finding-vendor
             sed -i 's|=> ../go-finding|=> ./go-finding-vendor|' go.mod
@@ -55,9 +59,7 @@
             platforms = platforms.unix;
           };
         };
-
-      in
-      {
+      in {
         packages.default = golangci-lint-auto-configure;
 
         apps.default = {
@@ -65,9 +67,9 @@
           program = "${golangci-lint-auto-configure}/bin/golangci-lint-auto-configure";
         };
 
-        devShells.default = pkgs.mkShell {
-          inputsFrom = [ golangci-lint-auto-configure ];
+        formatter = pkgs.alejandra;
 
+        devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             go
             just
