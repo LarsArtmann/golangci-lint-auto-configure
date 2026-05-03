@@ -155,26 +155,12 @@ func runMigrator(
 ) error {
 	migrator, err := createMigrator(configFile, dryRun, skipValidation, verbose, logger)
 	if err != nil {
-		return fmt.Errorf(
-			"create migrator failed (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t): %w",
-			configFile,
-			dryRun,
-			skipValidation,
-			verbose,
-			err,
-		)
+		return fmt.Errorf("create migrator failed: %w", err)
 	}
 
 	success, fixesApplied, err := migrator.MigrateToV2()
 	if err != nil {
-		return fmt.Errorf(
-			"migration failed (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t): %w",
-			configFile,
-			dryRun,
-			skipValidation,
-			verbose,
-			err,
-		)
+		return fmt.Errorf("migration failed: %w", err)
 	}
 
 	showMigrationResult(logger, configLoader, configFile, oldConfig, success, fixesApplied, dryRun)

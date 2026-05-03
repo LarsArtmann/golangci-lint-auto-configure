@@ -98,7 +98,7 @@
           program = "${golangci-lint-auto-configure}/bin/golangci-lint-auto-configure";
         };
 
-        formatter = pkgs.alejandra;
+        formatter = pkgs.nixfmt;
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [

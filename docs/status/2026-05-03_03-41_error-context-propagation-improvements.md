@@ -12,13 +12,13 @@ Improved error context propagation in the golangci-lint-auto-configure codebase 
 
 ### Key Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **Total Error Paths** | 62 | 54 | -13% |
-| **CRITICAL Severity** | 0 | 0 | — |
-| **HIGH Severity** | 4 | 0 | **-100%** ✅ |
-| **MEDIUM Severity** | 98 | 75 | -23% |
-| **Quality Score** | 82.9/100 | 86.1/100 | +3.2 points |
+| Metric                | Before   | After    | Improvement  |
+| --------------------- | -------- | -------- | ------------ |
+| **Total Error Paths** | 62       | 54       | -13%         |
+| **CRITICAL Severity** | 0        | 0        | —            |
+| **HIGH Severity**     | 4        | 0        | **-100%** ✅ |
+| **MEDIUM Severity**   | 98       | 75       | -23%         |
+| **Quality Score**     | 82.9/100 | 86.1/100 | +3.2 points  |
 
 ---
 
@@ -71,14 +71,14 @@ Nothing - all work completed successfully with passing tests.
 
 ## Files Modified
 
-| File | Changes | Lines |
-|------|---------|-------|
-| `internal/cli/cmd/migrate.go` | 5 error contexts enriched | ~15 |
-| `internal/cli/cmd_report.go` | 3 error contexts enriched | ~8 |
-| `internal/cli/cmd_configure.go` | 5 error contexts enriched | ~12 |
-| `internal/cli/cmd_analyze.go` | 3 error contexts enriched | ~8 |
-| `internal/cli/cmd_validate.go` | 2 error contexts enriched | ~6 |
-| `pkg/linter/fixer.go` | 1 error context improved | ~3 |
+| File                            | Changes                   | Lines |
+| ------------------------------- | ------------------------- | ----- |
+| `internal/cli/cmd/migrate.go`   | 5 error contexts enriched | ~15   |
+| `internal/cli/cmd_report.go`    | 3 error contexts enriched | ~8    |
+| `internal/cli/cmd_configure.go` | 5 error contexts enriched | ~12   |
+| `internal/cli/cmd_analyze.go`   | 3 error contexts enriched | ~8    |
+| `internal/cli/cmd_validate.go`  | 2 error contexts enriched | ~6    |
+| `pkg/linter/fixer.go`           | 1 error context improved  | ~3    |
 
 **Total:** 6 files, ~52 lines changed
 
@@ -130,11 +130,13 @@ Nothing - all work completed successfully with passing tests.
 **How to properly suppress false positives in branching-flow without losing true positives?**
 
 The tool suggests including function parameters like `shouldRetry func(error) bool` in error messages, but these are:
+
 1. Function references that can't be meaningfully serialized
 2. Already captured in closure scope
 3. Not useful for debugging
 
 I've tried:
+
 - Reading tool documentation (none available)
 - Looking for config options (none found)
 - Analyzing false positive patterns (inconclusive)

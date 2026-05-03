@@ -34,26 +34,38 @@ func runReport(
 ) error {
 	setLogLevel(logger)
 
-	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
+	configFile, err := resolveReportConfig(cmd, configLoader, logger)
 	if err != nil {
-		return fmt.Errorf(
-			"failed to find config file (configPath=%s, reportFormat=%s): %w",
-			configPath,
-			reportFormat,
-			err,
-		)
+		return fmt.Errorf("resolve config: %w", err)
 	}
 
 	analysis, err := analyzeConfig(logger, cmd, analyzer, configFile)
 	if err != nil {
-		return fmt.Errorf(
-			"analyze config failed (configPath=%s, reportFormat=%s): %w",
-			configPath,
-			reportFormat,
-			err,
-		)
+		return fmt.Errorf("analyze config: %w", err)
 	}
 
+	return writeReport(cmd.Context(), analysis, logger, configFile)
+}
+
+func resolveReportConfig(
+	cmd *cobra.Command,
+	configLoader *config.Loader,
+	logger *log.Logger,
+) (string, error) {
+	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
+	if err != nil {
+		return "", fmt.Errorf("find config: %w", err)
+	}
+
+	return configFile, nil
+}
+
+func writeReport(
+	ctx context.Context,
+	analysis *types.ConfigAnalysis,
+	logger *log.Logger,
+	configFile string,
+) error {
 	outputPath := determineOutputPath(outputReport, reportFormat)
 
 	switch reportFormat {
@@ -64,7 +76,7 @@ func runReport(
 	case formatFinding:
 		return writeFindingJSONReport(analysis, outputPath, configFile)
 	default:
-		return writeHTMLReport(cmd.Context(), logger, analysis, outputPath, configFile)
+		return writeHTMLReport(ctx, logger, analysis, outputPath, configFile)
 	}
 }
 

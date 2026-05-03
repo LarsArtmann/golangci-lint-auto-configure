@@ -92,40 +92,37 @@ func runAnalyze(
 	configLoader *config.Loader,
 	format string,
 ) error {
-	if verbose {
-		logger.SetLevel(log.DebugLevel)
+	setLogLevel(logger)
+
+	configFile, err := resolveAnalyzeConfig(configLoader, format)
+	if err != nil {
+		return fmt.Errorf("resolve config: %w", err)
 	}
 
+	logger.Infof("Analyzing configuration: %s", configFile)
+
+	analysis, err := runAnalysisWithSpinner(cmd.Context(), analyzer, configFile)
+	if err != nil {
+		return fmt.Errorf("analyze config: %w", err)
+	}
+
+	return outputAnalysis(analysis, format, configFile)
+}
+
+func resolveAnalyzeConfig(configLoader *config.Loader, _ string) (string, error) {
 	configFile := configPath
 	if configFile == "" {
 		var err error
 
 		configFile, err = configLoader.FindConfigFile(".")
 		if err != nil {
-			return fmt.Errorf(
-				"failed to find config file (format=%s, configPath=%s): %w",
-				format,
-				configPath,
-				err,
-			)
+			return "", fmt.Errorf("find config: %w", err)
 		}
 	}
 
 	configLoader.HasMultipleConfigFiles(".")
 
-	logger.Infof("Analyzing configuration: %s", configFile)
-
-	analysis, err := runAnalysisWithSpinner(cmd.Context(), analyzer, configFile)
-	if err != nil {
-		return fmt.Errorf(
-			"failed to analyze config (format=%s, configPath=%s): %w",
-			format,
-			configFile,
-			err,
-		)
-	}
-
-	return outputAnalysis(analysis, format, configFile)
+	return configFile, nil
 }
 
 func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) error {

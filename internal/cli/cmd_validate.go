@@ -46,35 +46,53 @@ func runValidate(
 	configLoader *config.Loader,
 	skipGolangciLint bool,
 ) error {
-	if verbose {
-		logger.SetLevel(log.DebugLevel)
-	}
+	setLogLevel(logger)
 
-	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
+	configFile, err := resolveValidateConfig(cmd, configLoader, logger, skipGolangciLint)
 	if err != nil {
-		return fmt.Errorf(
-			"resolve config path failed (skipGolangciLint=%t): %w",
-			skipGolangciLint,
-			err,
-		)
+		return fmt.Errorf("resolve config: %w", err)
 	}
 
 	logger.Infof("Validating configuration: %s", configFile)
 
-	err = validateLoadedConfig(configLoader, logger, configFile)
+	err = validateConfig(configLoader, logger, configFile, skipGolangciLint)
 	if err != nil {
-		return fmt.Errorf(
-			"validate loaded config failed (skipGolangciLint=%t): %w",
-			skipGolangciLint,
-			err,
-		)
+		return fmt.Errorf("validate config: %w", err)
 	}
 
-	if !skipGolangciLint {
-		return runSchemaValidation(cmd, configFile, logger)
+	if skipGolangciLint {
+		logger.Infof("✅ Configuration is valid")
+
+		return nil
 	}
 
-	logger.Infof("✅ Configuration is valid")
+	return runSchemaValidation(cmd, configFile, logger)
+}
+
+func resolveValidateConfig(
+	cmd *cobra.Command,
+	configLoader *config.Loader,
+	logger *log.Logger,
+	_ bool,
+) (string, error) {
+	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
+	if err != nil {
+		return "", fmt.Errorf("resolve config path: %w", err)
+	}
+
+	return configFile, nil
+}
+
+func validateConfig(
+	configLoader *config.Loader,
+	logger *log.Logger,
+	configFile string,
+	_ bool,
+) error {
+	err := validateLoadedConfig(configLoader, logger, configFile)
+	if err != nil {
+		return fmt.Errorf("validate loaded config: %w", err)
+	}
 
 	return nil
 }
