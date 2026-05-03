@@ -32,38 +32,38 @@
           inherit version;
 
           src = pkgs.lib.cleanSourceWith {
-          filter = path: _type: let
-            b = baseNameOf path;
-          in
-            !(
-              b == "vendor"
-              || b == ".git"
-              || b == "docs"
-              || b == ".crush"
-              || b == "reports"
-              || b == "examples"
-              || b == "scripts"
-              || b == ".envrc"
-              || b == ".github"
-              || b == "bin"
-              || b == "justfile"
-              || b == "Dockerfile"
-              || b == ".dockerignore"
-              || b == ".gitattributes"
-              || b == ".pre-commit-config.yaml"
-              || b == ".pre-commit-hooks.yaml"
-              || b == ".config"
-              || pkgs.lib.hasSuffix ".md" b
-              || pkgs.lib.hasSuffix ".lock" b
-              || pkgs.lib.hasSuffix ".yml" b
-              || pkgs.lib.hasSuffix ".yaml" b
-            );
-          src = pkgs.lib.cleanSource ./.;
-        };
+            filter = path: _type: let
+              b = baseNameOf path;
+            in
+              !(
+                b == "vendor"
+                || b == ".git"
+                || b == "docs"
+                || b == ".crush"
+                || b == "reports"
+                || b == "examples"
+                || b == "scripts"
+                || b == ".envrc"
+                || b == ".github"
+                || b == "bin"
+                || b == "justfile"
+                || b == "Dockerfile"
+                || b == ".dockerignore"
+                || b == ".gitattributes"
+                || b == ".pre-commit-config.yaml"
+                || b == ".pre-commit-hooks.yaml"
+                || b == ".config"
+                || pkgs.lib.hasSuffix ".md" b
+                || pkgs.lib.hasSuffix ".lock" b
+                || pkgs.lib.hasSuffix ".yml" b
+                || pkgs.lib.hasSuffix ".yaml" b
+              );
+            src = pkgs.lib.cleanSource ./.;
+          };
 
           proxyVendor = true;
 
-          vendorHash = "sha256-4ooMHZbq+FnNCRoQcgofmqA1eQ8ELngMUq1Z4fnsSYI=";
+          vendorHash = "sha256-av2uH8xiTKkaYQtyb2oZNLXF4XoFfNCvvJ5D3/xmCtU=";
 
           subPackages = ["cmd/golangci-lint-auto-configure"];
 
