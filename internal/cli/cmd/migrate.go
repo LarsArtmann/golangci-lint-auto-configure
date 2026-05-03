@@ -15,7 +15,6 @@ type MigrateFlags struct {
 	DryRun         bool
 	Verbose        bool
 	SkipValidation bool
-	OutputFormat   string
 }
 
 const migrateLong = `Migrates golangci-lint configuration from v1 to v2 schema.
@@ -46,8 +45,6 @@ func NewMigrateCommand(
 
 	cmd.Flags().
 		BoolVar(&flags.SkipValidation, "skip-validation", false, "Skip validation of v1 configuration")
-	cmd.Flags().
-		StringVar(&flags.OutputFormat, "format", "", "Output format (deprecated: format migration is no longer supported)")
 
 	return cmd
 }
