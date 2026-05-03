@@ -47,15 +47,6 @@ func (r Result[T]) MustGet() T {
 	return r.value
 }
 
-// Unwrap returns the value or panics.
-func (r Result[T]) Unwrap() T {
-	if r.err != nil {
-		panic(r.err)
-	}
-
-	return r.value
-}
-
 // --- Domain-Specific Result Type Aliases ---
 
 // ConfigResult is a Result type for Config operations.
