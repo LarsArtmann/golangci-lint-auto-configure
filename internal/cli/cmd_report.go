@@ -36,12 +36,22 @@ func runReport(
 
 	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
 	if err != nil {
-		return fmt.Errorf("failed to find config file (configPath=%s): %w", configPath, err)
+		return fmt.Errorf(
+			"failed to find config file (configPath=%s, reportFormat=%s): %w",
+			configPath,
+			reportFormat,
+			err,
+		)
 	}
 
 	analysis, err := analyzeConfig(logger, cmd, analyzer, configFile)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"analyze config failed (configPath=%s, reportFormat=%s): %w",
+			configPath,
+			reportFormat,
+			err,
+		)
 	}
 
 	outputPath := determineOutputPath(outputReport, reportFormat)
@@ -74,7 +84,12 @@ func analyzeConfig(
 
 	analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to analyze config (configPath=%s): %w", configFile, err)
+		return nil, fmt.Errorf(
+			"failed to analyze config (configPath=%s, reportFormat=%s): %w",
+			configFile,
+			reportFormat,
+			err,
+		)
 	}
 
 	return analysis, nil

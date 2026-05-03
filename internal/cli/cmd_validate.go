@@ -52,14 +52,22 @@ func runValidate(
 
 	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"resolve config path failed (skipGolangciLint=%t): %w",
+			skipGolangciLint,
+			err,
+		)
 	}
 
 	logger.Infof("Validating configuration: %s", configFile)
 
 	err = validateLoadedConfig(configLoader, logger, configFile)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"validate loaded config failed (skipGolangciLint=%t): %w",
+			skipGolangciLint,
+			err,
+		)
 	}
 
 	if !skipGolangciLint {

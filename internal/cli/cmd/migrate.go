@@ -62,7 +62,12 @@ func runMigrate(
 
 	configFile, err := resolveMigrateConfig(cmd, configLoader, flags, verbose)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"resolve migrate config failed (configPath=%q, verbose=%t): %w",
+			flags.ConfigPath,
+			verbose,
+			err,
+		)
 	}
 
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
@@ -103,7 +108,14 @@ func executeMigration(
 ) error {
 	oldConfig, err := loadConfigForMigration(logger, configLoader, configFile)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"load config failed (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t): %w",
+			configFile,
+			dryRun,
+			skipValidation,
+			verbose,
+			err,
+		)
 	}
 
 	if isAlreadyV2(oldConfig) {
@@ -143,12 +155,26 @@ func runMigrator(
 ) error {
 	migrator, err := createMigrator(configFile, dryRun, skipValidation, verbose, logger)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"create migrator failed (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t): %w",
+			configFile,
+			dryRun,
+			skipValidation,
+			verbose,
+			err,
+		)
 	}
 
 	success, fixesApplied, err := migrator.MigrateToV2()
 	if err != nil {
-		return fmt.Errorf("migration failed for %s: %w", configFile, err)
+		return fmt.Errorf(
+			"migration failed (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t): %w",
+			configFile,
+			dryRun,
+			skipValidation,
+			verbose,
+			err,
+		)
 	}
 
 	showMigrationResult(logger, configLoader, configFile, oldConfig, success, fixesApplied, dryRun)
@@ -163,7 +189,14 @@ func createMigrator(
 ) (*migration.Migrator, error) {
 	migrator, err := migration.NewMigrator(configFile, verbose)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create migrator: %w", err)
+		return nil, fmt.Errorf(
+			"failed to create migrator (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t): %w",
+			configFile,
+			dryRun,
+			skipValidation,
+			verbose,
+			err,
+		)
 	}
 
 	migrator.SetDryRun(dryRun)

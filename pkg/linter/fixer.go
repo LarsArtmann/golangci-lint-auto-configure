@@ -55,7 +55,7 @@ func (f *Fixer) FixConfigResult(
 
 	hasInvalid, err := f.runPreFlightChecks(cfg, configPath, priority, dryRun)
 	if err != nil {
-		return types.Err[*types.MigrationResult](err)
+		return migrationError("pre-flight checks", priority, dryRun, configPath, err)
 	}
 
 	if dryRun {

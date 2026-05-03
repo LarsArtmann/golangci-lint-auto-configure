@@ -180,7 +180,13 @@ func runConfigure(
 
 	configFile, err := prepareConfigFile(ctx, configPath, configLoader, logger)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"prepare config failed (priority=%s, preset=%s, dryRun=%t): %w",
+			priorityParam,
+			preset,
+			dryRun,
+			err,
+		)
 	}
 
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
@@ -201,7 +207,7 @@ func handlePresetMode(
 	dryRun bool,
 ) error {
 	if err := applyPreset(ctx, logger, configLoader, configFile, preset, dryRun); err != nil {
-		return err
+		return fmt.Errorf("apply preset failed (preset=%s, dryRun=%t): %w", preset, dryRun, err)
 	}
 
 	if !dryRun {
@@ -275,10 +281,10 @@ func ensureConfigFile(
 		defaultConfig := configLoader.CreateDefaultConfig(ctx)
 
 		if err := configLoader.SaveConfig(defaultConfig, configFile); err != nil {
-			return fmt.Errorf("failed to create default config: %w", err)
+			return fmt.Errorf("failed to create default config (inGitRepo=%t): %w", inGitRepo, err)
 		}
 	} else if err != nil {
-		return fmt.Errorf("failed to check config file: %w", err)
+		return fmt.Errorf("failed to check config file (inGitRepo=%t): %w", inGitRepo, err)
 	}
 
 	return nil
@@ -319,10 +325,11 @@ func loadPresetConfig(
 	linters, ok := constants.PresetLinters[preset]
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"%w: %s (valid: %s)",
+			"%w: %s (valid: %s, dryRun=%t)",
 			apperrors.ErrUnknownPreset,
 			preset,
 			constants.ValidPresets,
+			dryRun,
 		)
 	}
 
@@ -361,7 +368,12 @@ func applyPreset(
 ) error {
 	cfg, linterNames, err := loadPresetConfig(logger, configLoader, configFile, preset, dryRun)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"load preset config failed (preset=%s, dryRun=%t): %w",
+			preset,
+			dryRun,
+			err,
+		)
 	}
 
 	if dryRun {

@@ -79,7 +79,7 @@ func runAnalysisWithSpinner(
 	fmt.Fprintf(os.Stdout, "\r\033[K")
 
 	if err != nil {
-		return nil, fmt.Errorf("analyze config: %w", err)
+		return nil, fmt.Errorf("analyze config failed (configFile=%s): %w", configFile, err)
 	}
 
 	return analysis, nil
@@ -102,7 +102,12 @@ func runAnalyze(
 
 		configFile, err = configLoader.FindConfigFile(".")
 		if err != nil {
-			return fmt.Errorf("failed to find config file (format=%s): %w", format, err)
+			return fmt.Errorf(
+				"failed to find config file (format=%s, configPath=%s): %w",
+				format,
+				configPath,
+				err,
+			)
 		}
 	}
 
@@ -112,7 +117,12 @@ func runAnalyze(
 
 	analysis, err := runAnalysisWithSpinner(cmd.Context(), analyzer, configFile)
 	if err != nil {
-		return fmt.Errorf("failed to analyze config (format=%s): %w", format, err)
+		return fmt.Errorf(
+			"failed to analyze config (format=%s, configPath=%s): %w",
+			format,
+			configFile,
+			err,
+		)
 	}
 
 	return outputAnalysis(analysis, format, configFile)
