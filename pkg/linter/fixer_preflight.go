@@ -100,7 +100,7 @@ func needsDurationFix(timeout string) (bool, string) {
 func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) types.MigrationResultType {
 	f.logger.Infof("[DRY-RUN] Would fix invalid run.timeout: %q -> %q", cfg.Run.Timeout, constants.DefaultTimeout)
 
-	return types.OkMigration(&types.MigrationResult{
+	return types.Ok(&types.MigrationResult{
 		FixesApplied: 1,
 		Message: fmt.Sprintf(
 			"Would apply 1 fix (dry-run mode, skipped analysis due to invalid duration: run.timeout=%q)",
@@ -219,7 +219,7 @@ func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.Mig
 
 	f.logger.Infof("[DRY-RUN] Would apply %d fixes", deprecationFixes)
 
-	return types.OkMigration(&types.MigrationResult{
+	return types.Ok(&types.MigrationResult{
 		FixesApplied: deprecationFixes,
 		Message: fmt.Sprintf(
 			"Would apply %d fixes (dry-run mode, skipped analysis due to deprecated linters)",

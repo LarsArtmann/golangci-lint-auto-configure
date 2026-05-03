@@ -69,19 +69,19 @@ func (a *Analyzer) AnalyzeConfig(ctx context.Context, configPath string) (*types
 // AnalyzeConfigResult analyzes the config and returns a Result type for railway-oriented programming.
 func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) types.AnalysisResult {
 	if err := a.FindBinary(ctx); err != nil {
-		return types.ErrAnalysis(err)
+		return types.Err[*types.ConfigAnalysis](err)
 	}
 
 	if err := a.CheckVersion(ctx); err != nil {
-		return types.ErrAnalysis(err)
+		return types.Err[*types.ConfigAnalysis](err)
 	}
 
 	linterOutput, formatterOutput, err := a.parseConfigOutputs(ctx, configPath)
 	if err != nil {
-		return types.ErrAnalysis(err)
+		return types.Err[*types.ConfigAnalysis](err)
 	}
 
-	return types.OkAnalysis(a.buildAnalysis(configPath, linterOutput, formatterOutput))
+	return types.Ok(a.buildAnalysis(configPath, linterOutput, formatterOutput))
 }
 
 // parseConfigOutputs runs linter and formatter parsing in parallel using errgroup.

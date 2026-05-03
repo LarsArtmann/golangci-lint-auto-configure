@@ -30,12 +30,12 @@ func migrationError(
 	configPath string,
 	err error,
 ) types.MigrationResultType {
-	return types.ErrMigration(analysisError(operation, priority, dryRun, configPath, err))
+	return types.Err[*types.MigrationResult](analysisError(operation, priority, dryRun, configPath, err))
 }
 
 // dryRunResult creates a result for dry-run mode with the number of fixes that would be applied.
 func dryRunResult(counts fixCounts) types.MigrationResultType {
-	return types.OkMigration(&types.MigrationResult{
+	return types.Ok(&types.MigrationResult{
 		FixesApplied: counts.total(),
 		Message:      fmt.Sprintf("[DRY-RUN] Would apply %d fixes", counts.total()),
 		NextSteps: []string{
@@ -47,7 +47,7 @@ func dryRunResult(counts fixCounts) types.MigrationResultType {
 
 // noFixesResult creates a result when no fixes are needed.
 func noFixesResult() types.MigrationResultType {
-	return types.OkMigration(&types.MigrationResult{
+	return types.Ok(&types.MigrationResult{
 		FixesApplied: 0,
 		Message:      "No fixes to apply",
 		NextSteps: []string{
@@ -59,7 +59,7 @@ func noFixesResult() types.MigrationResultType {
 
 // successResult creates a result after successfully applying fixes.
 func successResult(counts fixCounts) types.MigrationResultType {
-	return types.OkMigration(&types.MigrationResult{
+	return types.Ok(&types.MigrationResult{
 		FixesApplied: counts.total(),
 		Message: fmt.Sprintf(
 			"Successfully applied %d fixes (%d linters, %d formatters, %d deprecated, %d redundant)",

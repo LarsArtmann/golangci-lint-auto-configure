@@ -55,7 +55,7 @@ func (f *Fixer) FixConfigResult(
 
 	hasInvalid, err := f.runPreFlightChecks(cfg, configPath, priority, dryRun)
 	if err != nil {
-		return types.ErrMigration(err)
+		return types.Err[*types.MigrationResult](err)
 	}
 
 	if dryRun {
@@ -103,7 +103,7 @@ func (f *Fixer) checkDryRunEarlyReturns(
 		return f.calculateDryRunResultWithDeprecated(cfg), true
 	}
 
-	return types.OkMigration(nil), false
+	return types.Ok[*types.MigrationResult](nil), false
 }
 
 // analysisError is re-exported from fixer_results.go for backward compatibility.

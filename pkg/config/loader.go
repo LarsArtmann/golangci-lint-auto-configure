@@ -145,7 +145,7 @@ func migrateLintersSettingsV1(config *Config, logger *log.Logger) {
 func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 	data, err := afero.ReadFile(l.fs, path)
 	if err != nil {
-		return types.ErrConfig(apperrors.NewConfigError("failed to read config file", path, err))
+		return types.Err[*types.Config](apperrors.NewConfigError("failed to read config file", path, err))
 	}
 
 	format := detectFormat(path)
@@ -153,14 +153,14 @@ func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
 	var config Config
 
 	if err := unmarshalConfig(data, format, &config); err != nil {
-		return types.ErrConfig(apperrors.NewConfigError("failed to parse config file", path, err))
+		return types.Err[*types.Config](apperrors.NewConfigError("failed to parse config file", path, err))
 	}
 
 	migrateLintersSettingsV1(&config, l.logger)
 
 	l.logger.Debugf("Loaded config from %s (format: %s)", path, format)
 
-	return types.OkConfig(&config)
+	return types.Ok(&config)
 }
 
 // FindConfigFile searches for a golangci-lint config file in the current directory and parent directories.
@@ -210,11 +210,11 @@ func (l *Loader) FindConfigFileResult(startDir string) types.StringResult {
 		if _, err := l.fs.Stat(path); err == nil {
 			l.logger.Debugf("Found config file: %s", path)
 
-			return types.OkString(path)
+			return types.Ok(path)
 		}
 	}
 
-	return types.ErrString(apperrors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil))
+	return types.Err[string](apperrors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil))
 }
 
 // FindOrGetDefaultConfigPath searches for a config file and returns a default path if none exists.
