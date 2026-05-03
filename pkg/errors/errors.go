@@ -7,161 +7,95 @@ import (
 
 // Static sentinel errors for use with stderrors.Is.
 var (
-	// ErrNotGitRepository indicates the current directory is not a git repository.
-	ErrNotGitRepository = stderrors.New("not a git repository (no .git directory found)")
-	// ErrNotInGitWorkingTree indicates the current directory is not inside a git working tree.
-	ErrNotInGitWorkingTree = stderrors.New("not inside git working tree")
-	// ErrHookAlreadyExists indicates the pre-commit hook already exists.
-	ErrHookAlreadyExists = stderrors.New("hook already exists")
-	// ErrUnknownPreset indicates an invalid preset name was provided.
-	ErrUnknownPreset = stderrors.New("unknown preset")
-	// ErrInvalidActivityContext indicates the activity context type is invalid.
+	ErrNotGitRepository       = stderrors.New("not a git repository (no .git directory found)")
+	ErrNotInGitWorkingTree    = stderrors.New("not inside git working tree")
+	ErrHookAlreadyExists      = stderrors.New("hook already exists")
+	ErrUnknownPreset          = stderrors.New("unknown preset")
 	ErrInvalidActivityContext = stderrors.New("invalid activity context type")
-	// ErrVersionParse indicates failure to parse version output.
-	ErrVersionParse = stderrors.New("could not parse version from output")
-	// ErrInvalidVersionFormat indicates the version string format is invalid.
-	ErrInvalidVersionFormat = stderrors.New("invalid version format")
-	// ErrVersionTooOld indicates the version is below the minimum required.
-	ErrVersionTooOld = stderrors.New("version is too old")
-	// ErrConfigValidationFailed indicates configuration validation failed.
+	ErrVersionParse           = stderrors.New("could not parse version from output")
+	ErrInvalidVersionFormat   = stderrors.New("invalid version format")
+	ErrVersionTooOld          = stderrors.New("version is too old")
 	ErrConfigValidationFailed = stderrors.New("configuration validation failed")
 )
 
-// ConfigError represents a configuration-related error.
-type ConfigError struct {
+// DomainError represents a domain-specific error with context about what went wrong
+// and where. Each domain (config, analysis, report, migration) has its own type alias
+// for type-safe error checking via errors.As.
+type DomainError struct {
 	Message string
 	Path    string
 	Cause   error
+	domain  string
 }
 
-// formatError creates a formatted error string with optional cause.
-func formatError(msg, location string, cause error, locationLabel string) string {
-	if cause != nil {
-		return fmt.Sprintf("%s (%s: %s): %v", msg, locationLabel, location, cause)
+func (e *DomainError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("%s (%s: %s): %v", e.Message, e.domain, e.Path, e.Cause)
 	}
 
-	return fmt.Sprintf("%s (%s: %s)", msg, locationLabel, location)
+	return fmt.Sprintf("%s (%s: %s)", e.Message, e.domain, e.Path)
 }
 
-func (e *ConfigError) Error() string {
-	return formatError(e.Message, e.Path, e.Cause, "path")
-}
-
-// Unwrap returns the underlying error for error chaining.
-func (e *ConfigError) Unwrap() error {
+func (e *DomainError) Unwrap() error {
 	return e.Cause
 }
+
+// ConfigError is a DomainError in the config domain.
+type ConfigError = DomainError
+
+// AnalysisError is a DomainError in the analysis domain.
+type AnalysisError = DomainError
+
+// ReportError is a DomainError in the report domain.
+type ReportError = DomainError
+
+// MigrationError is a DomainError in the migration domain.
+type MigrationError = DomainError
 
 // NewConfigError creates a new configuration error.
 func NewConfigError(msg, path string, err error) *ConfigError {
-	return &ConfigError{
-		Message: msg,
-		Path:    path,
-		Cause:   err,
-	}
-}
-
-// AnalysisError represents an analysis-related error.
-type AnalysisError struct {
-	Message string
-	File    string
-	Cause   error
-}
-
-func (e *AnalysisError) Error() string {
-	return formatError(e.Message, e.File, e.Cause, "file")
-}
-
-// Unwrap returns the underlying error for error chaining.
-func (e *AnalysisError) Unwrap() error {
-	return e.Cause
+	return &DomainError{Message: msg, Path: path, Cause: err, domain: "path"}
 }
 
 // NewAnalysisError creates a new analysis error.
 func NewAnalysisError(msg, file string, err error) *AnalysisError {
-	return &AnalysisError{
-		Message: msg,
-		File:    file,
-		Cause:   err,
-	}
-}
-
-// ReportError represents a report generation error.
-type ReportError struct {
-	Message string
-	Path    string
-	Cause   error
-}
-
-func (e *ReportError) Error() string {
-	return formatError(e.Message, e.Path, e.Cause, "path")
-}
-
-// Unwrap returns the underlying error for error chaining.
-func (e *ReportError) Unwrap() error {
-	return e.Cause
+	return &DomainError{Message: msg, Path: file, Cause: err, domain: "file"}
 }
 
 // NewReportError creates a new report error.
 func NewReportError(msg, path string, err error) *ReportError {
-	return &ReportError{
-		Message: msg,
-		Path:    path,
-		Cause:   err,
-	}
+	return &DomainError{Message: msg, Path: path, Cause: err, domain: "path"}
 }
 
-// --- Error Type Checking Helpers ---
+// NewMigrationError creates a new migration error.
+func NewMigrationError(msg, config string, err error) *MigrationError {
+	return &DomainError{Message: msg, Path: config, Cause: err, domain: "config"}
+}
 
 // IsConfigError checks if an error is a ConfigError.
 func IsConfigError(err error) bool {
 	var cfgErr *ConfigError
 
-	return stderrors.As(err, &cfgErr)
+	return stderrors.As(err, &cfgErr) && cfgErr.domain == "path"
 }
 
 // IsAnalysisError checks if an error is an AnalysisError.
 func IsAnalysisError(err error) bool {
 	var analysisErr *AnalysisError
 
-	return stderrors.As(err, &analysisErr)
+	return stderrors.As(err, &analysisErr) && analysisErr.domain == "file"
 }
 
 // IsReportError checks if an error is a ReportError.
 func IsReportError(err error) bool {
 	var reportErr *ReportError
 
-	return stderrors.As(err, &reportErr)
-}
-
-// MigrationError represents a migration-related error.
-type MigrationError struct {
-	Message string
-	Config  string
-	Cause   error
-}
-
-func (e *MigrationError) Error() string {
-	return formatError(e.Message, e.Config, e.Cause, "config")
-}
-
-// Unwrap returns the underlying error for error chaining.
-func (e *MigrationError) Unwrap() error {
-	return e.Cause
-}
-
-// NewMigrationError creates a new migration error.
-func NewMigrationError(msg, config string, err error) *MigrationError {
-	return &MigrationError{
-		Message: msg,
-		Config:  config,
-		Cause:   err,
-	}
+	return stderrors.As(err, &reportErr) && reportErr.domain == "path"
 }
 
 // IsMigrationError checks if an error is a MigrationError.
 func IsMigrationError(err error) bool {
 	var migrationErr *MigrationError
 
-	return stderrors.As(err, &migrationErr)
+	return stderrors.As(err, &migrationErr) && migrationErr.domain == "config"
 }

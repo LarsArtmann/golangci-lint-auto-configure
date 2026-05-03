@@ -69,7 +69,7 @@ var _ = Describe("AnalysisError", func() {
 		err := apperrors.NewAnalysisError("analysis failed", "analyzer.go", nil)
 		Expect(err.Error()).To(Equal("analysis failed (file: analyzer.go)"))
 		Expect(err.Message).To(Equal("analysis failed"))
-		Expect(err.File).To(Equal("analyzer.go"))
+		Expect(err.Path).To(Equal("analyzer.go"))
 	})
 
 	It("should include cause in error message", func() {
@@ -123,7 +123,7 @@ var _ = Describe("MigrationError", func() {
 		err := apperrors.NewMigrationError("migration failed", ".golangci.yml", nil)
 		Expect(err.Error()).To(Equal("migration failed (config: .golangci.yml)"))
 		Expect(err.Message).To(Equal("migration failed"))
-		Expect(err.Config).To(Equal(".golangci.yml"))
+		Expect(err.Path).To(Equal(".golangci.yml"))
 	})
 
 	It("should include cause in error message", func() {
