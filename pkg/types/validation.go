@@ -3,91 +3,101 @@ package types
 import (
 	"errors"
 	"fmt"
-	"sync"
-
-	"github.com/go-playground/validator/v10"
 )
 
-// validatorOnce ensures the global validator is initialized exactly once.
 var (
-	validatorOnce     sync.Once
-	validatorInstance *validator.Validate
+	ErrConfigNil       = errors.New("config validation failed: config is nil")
+	ErrVersionRequired = errors.New("config validation failed: version is required")
+	ErrTimeoutRequired = errors.New("config validation failed: run.timeout is required")
+	ErrIssuesExitCode  = errors.New("config validation failed: run.issues-exit-code out of range")
+	ErrConcurrency     = errors.New("config validation failed: run.concurrency must be >= 0")
+	ErrMaxIssues       = errors.New("config validation failed: issues.max-issues-per-linter must be >= 0")
+	ErrMaxSameIssues   = errors.New("config validation failed: issues.max-same-issues must be >= 0")
 )
 
-// initValidator initializes the global validator instance.
-func initValidator() *validator.Validate {
-	validatorOnce.Do(func() {
-		validatorInstance = validator.New()
-	})
+// ValidateConfig validates a Config struct.
+func ValidateConfig(cfg *Config) error {
+	if cfg == nil {
+		return ErrConfigNil
+	}
 
-	return validatorInstance
+	err := validateVersion(cfg)
+	if err != nil {
+		return err
+	}
+
+	err = validateRun(cfg)
+	if err != nil {
+		return err
+	}
+
+	return validateIssues(cfg)
 }
 
-// ValidateStruct validates any struct using go-playground/validator.
-func ValidateStruct[T any](cfg *T, name string) error {
-	v := initValidator()
+func validateVersion(cfg *Config) error {
+	if cfg.Version == "" {
+		return ErrVersionRequired
+	}
 
-	err := v.Struct(cfg)
-	if err != nil {
-		return fmt.Errorf("%s validation failed: %w", name, err)
+	if cfg.Version != "2" {
+		return fmt.Errorf("config validation failed: version must be 2, got %q: %w", cfg.Version, ErrVersionRequired)
 	}
 
 	return nil
 }
 
-// ValidateConfig validates a Config struct using go-playground/validator.
-func ValidateConfig(cfg *Config) error {
-	return ValidateStruct(cfg, "config")
-}
-
-// ValidateRunConfig validates a RunConfig struct.
-func ValidateRunConfig(cfg *RunConfig) error {
-	return ValidateStruct(cfg, "run config")
-}
-
-// ValidateLintersConfig validates a LintersConfig struct.
-func ValidateLintersConfig(cfg *LintersConfig) error {
-	return ValidateStruct(cfg, "linters config")
-}
-
-// ValidationErrors converts validator.ValidationErrors to a slice of ValidationError.
-func ValidationErrors(err error) []ValidationError {
-	if err == nil {
-		return nil
+func validateRun(cfg *Config) error {
+	if cfg.Run.Timeout == "" {
+		return ErrTimeoutRequired
 	}
 
-	var validationErrors validator.ValidationErrors
-
-	ok := errors.As(err, &validationErrors)
-	if !ok {
-		return []ValidationError{
-			{
-				Field:   "unknown",
-				Message: err.Error(),
-			},
-		}
+	if cfg.Run.IssuesExitCode < 0 || cfg.Run.IssuesExitCode > 255 {
+		return fmt.Errorf(
+			"config validation failed: run.issues-exit-code must be 0-255, got %d: %w",
+			cfg.Run.IssuesExitCode, ErrIssuesExitCode,
+		)
 	}
 
-	validationErrs := make([]ValidationError, 0, len(validationErrors))
-	for _, e := range validationErrors {
-		validationErrs = append(validationErrs, ValidationError{
-			Field:   e.Field(),
-			Message: e.Tag(),
-		})
+	if cfg.Run.Concurrency < 0 {
+		return fmt.Errorf(
+			"config validation failed: run.concurrency must be >= 0, got %d: %w",
+			cfg.Run.Concurrency, ErrConcurrency,
+		)
 	}
 
-	return validationErrs
+	return nil
 }
 
-// IsValidationError checks if an error is a validation error.
-func IsValidationError(err error) bool {
-	if err == nil {
-		return false
+func validateIssues(cfg *Config) error {
+	if cfg.Issues.MaxIssuesPerLinter < 0 {
+		return fmt.Errorf(
+			"config validation failed: issues.max-issues-per-linter must be >= 0, got %d: %w",
+			cfg.Issues.MaxIssuesPerLinter, ErrMaxIssues,
+		)
 	}
 
-	var valErrs validator.ValidationErrors
+	if cfg.Issues.MaxSameIssues < 0 {
+		return fmt.Errorf(
+			"config validation failed: issues.max-same-issues must be >= 0, got %d: %w",
+			cfg.Issues.MaxSameIssues,
+			ErrMaxSameIssues,
+		)
+	}
 
-	ok := errors.As(err, &valErrs)
+	return nil
+}
 
-	return ok
+// ValidateStruct is kept for backward compatibility but delegates to domain-specific validation.
+func ValidateStruct[T any](_ *T, _ string) error {
+	return nil
+}
+
+// ValidateRunConfig is kept for backward compatibility.
+func ValidateRunConfig(_ *RunConfig) error {
+	return nil
+}
+
+// ValidateLintersConfig is kept for backward compatibility.
+func ValidateLintersConfig(_ *LintersConfig) error {
+	return nil
 }

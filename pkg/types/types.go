@@ -241,26 +241,26 @@ type ConfigLoader interface {
 
 // Config represents a golangci-lint configuration file.
 type Config struct {
-	Version           string           `json:"version"    toml:"version"              validate:"required,oneof=2" yaml:"version"`
-	Run               RunConfig        `json:"run"        toml:"run"                  validate:"required"         yaml:"run"`
-	Output            OutputConfig     `json:"output"     toml:"output"                                           yaml:"output"`
-	Linters           LintersConfig    `json:"linters"    toml:"linters"                                          yaml:"linters"`
-	Formatters        FormattersConfig `json:"formatters" toml:"formatters,omitempty"                             yaml:"formatters,omitempty"`
-	Issues            IssuesConfig     `json:"issues"     toml:"issues"                                           yaml:"issues"`
-	LintersSettingsV1 map[string]any   `json:"-"          toml:"-"                                                yaml:"linters-settings,omitempty"`
+	Version           string           `json:"version"    toml:"version"              yaml:"version"`
+	Run               RunConfig        `json:"run"        toml:"run"                  yaml:"run"`
+	Output            OutputConfig     `json:"output"     toml:"output"               yaml:"output"`
+	Linters           LintersConfig    `json:"linters"    toml:"linters"              yaml:"linters"`
+	Formatters        FormattersConfig `json:"formatters" toml:"formatters,omitempty" yaml:"formatters,omitempty"`
+	Issues            IssuesConfig     `json:"issues"     toml:"issues"               yaml:"issues"`
+	LintersSettingsV1 map[string]any   `json:"-"          toml:"-"                    yaml:"linters-settings,omitempty"`
 }
 
 type RunConfig struct {
-	Timeout              string   `json:"timeout"                         toml:"timeout"                         validate:"required"      yaml:"timeout"`
-	Go                   string   `json:"go"                              toml:"go"                                                       yaml:"go"`
-	BuildTags            []string `json:"build-tags"                      toml:"build-tags"                                               yaml:"build-tags"`
-	ModulesDownloadMode  string   `json:"modules-download-mode,omitempty" toml:"modules-download-mode,omitempty"                          yaml:"modules-download-mode,omitempty"`
-	AllowParallelRunners bool     `json:"allow-parallel-runners"          toml:"allow-parallel-runners"                                   yaml:"allow-parallel-runners"`
-	AllowSerialRunners   bool     `json:"allow-serial-runners"            toml:"allow-serial-runners"                                     yaml:"allow-serial-runners"`
-	IssuesExitCode       int      `json:"issues-exit-code,omitempty"      toml:"issues-exit-code,omitempty"      validate:"min=0,max=255" yaml:"issues-exit-code,omitempty"`
-	Tests                bool     `json:"tests,omitempty"                 toml:"tests,omitempty"                                          yaml:"tests,omitempty"`
-	Concurrency          int      `json:"concurrency,omitempty"           toml:"concurrency,omitempty"           validate:"min=0"         yaml:"concurrency,omitempty"`
-	RelativePathMode     string   `json:"relative-path-mode,omitempty"    toml:"relative-path-mode,omitempty"                             yaml:"relative-path-mode,omitempty"`
+	Timeout              string   `json:"timeout"                         toml:"timeout"                         yaml:"timeout"`
+	Go                   string   `json:"go"                              toml:"go"                              yaml:"go"`
+	BuildTags            []string `json:"build-tags"                      toml:"build-tags"                      yaml:"build-tags"`
+	ModulesDownloadMode  string   `json:"modules-download-mode,omitempty" toml:"modules-download-mode,omitempty" yaml:"modules-download-mode,omitempty"`
+	AllowParallelRunners bool     `json:"allow-parallel-runners"          toml:"allow-parallel-runners"          yaml:"allow-parallel-runners"`
+	AllowSerialRunners   bool     `json:"allow-serial-runners"            toml:"allow-serial-runners"            yaml:"allow-serial-runners"`
+	IssuesExitCode       int      `json:"issues-exit-code,omitempty"      toml:"issues-exit-code,omitempty"      yaml:"issues-exit-code,omitempty"`
+	Tests                bool     `json:"tests,omitempty"                 toml:"tests,omitempty"                 yaml:"tests,omitempty"`
+	Concurrency          int      `json:"concurrency,omitempty"           toml:"concurrency,omitempty"           yaml:"concurrency,omitempty"`
+	RelativePathMode     string   `json:"relative-path-mode,omitempty"    toml:"relative-path-mode,omitempty"    yaml:"relative-path-mode,omitempty"`
 }
 
 type OutputConfig struct {
@@ -297,15 +297,15 @@ type ExclusionRuleConfig struct {
 }
 
 type IssuesConfig struct {
-	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitempty" toml:"max-issues-per-linter,omitempty" validate:"min=0" yaml:"max-issues-per-linter,omitempty"`
-	MaxSameIssues      int    `json:"max-same-issues,omitempty"       toml:"max-same-issues,omitempty"       validate:"min=0" yaml:"max-same-issues,omitempty"`
-	NewFromRev         string `json:"new-from-rev,omitempty"          toml:"new-from-rev,omitempty"                           yaml:"new-from-rev,omitempty"`
-	NewFromPatch       string `json:"new-from-patch,omitempty"        toml:"new-from-patch,omitempty"                         yaml:"new-from-patch,omitempty"`
-	New                bool   `json:"new,omitempty"                   toml:"new,omitempty"                                    yaml:"new,omitempty"`
-	NewFromMergeBase   string `json:"new-from-merge-base,omitempty"   toml:"new-from-merge-base,omitempty"                    yaml:"new-from-merge-base,omitempty"`
-	WholeFiles         bool   `json:"whole-files,omitempty"           toml:"whole-files,omitempty"                            yaml:"whole-files,omitempty"`
-	Fix                bool   `json:"fix,omitempty"                   toml:"fix,omitempty"                                    yaml:"fix,omitempty"`
-	UniqByLine         bool   `json:"uniq-by-line,omitempty"          toml:"uniq-by-line,omitempty"                           yaml:"uniq-by-line,omitempty"`
+	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitempty" toml:"max-issues-per-linter,omitempty" yaml:"max-issues-per-linter,omitempty"`
+	MaxSameIssues      int    `json:"max-same-issues,omitempty"       toml:"max-same-issues,omitempty"       yaml:"max-same-issues,omitempty"`
+	NewFromRev         string `json:"new-from-rev,omitempty"          toml:"new-from-rev,omitempty"          yaml:"new-from-rev,omitempty"`
+	NewFromPatch       string `json:"new-from-patch,omitempty"        toml:"new-from-patch,omitempty"        yaml:"new-from-patch,omitempty"`
+	New                bool   `json:"new,omitempty"                   toml:"new,omitempty"                   yaml:"new,omitempty"`
+	NewFromMergeBase   string `json:"new-from-merge-base,omitempty"   toml:"new-from-merge-base,omitempty"   yaml:"new-from-merge-base,omitempty"`
+	WholeFiles         bool   `json:"whole-files,omitempty"           toml:"whole-files,omitempty"           yaml:"whole-files,omitempty"`
+	Fix                bool   `json:"fix,omitempty"                   toml:"fix,omitempty"                   yaml:"fix,omitempty"`
+	UniqByLine         bool   `json:"uniq-by-line,omitempty"          toml:"uniq-by-line,omitempty"          yaml:"uniq-by-line,omitempty"`
 }
 
 type FormattersConfig struct {
