@@ -6,7 +6,6 @@ import (
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-	"github.com/spf13/afero"
 )
 
 // mergeSettingsMaps deep-merges secondary settings into primary, returning number of changes.
@@ -148,15 +147,15 @@ var configFilePriority = map[string]int{
 }
 
 // createBackup creates a backup of the given config file.
-func createBackup(fileSystem afero.Fs, path string) (string, error) {
-	data, err := afero.ReadFile(fileSystem, path)
+func createBackup(fileSystem FS, path string) (string, error) {
+	data, err := fileSystem.ReadFile(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to read config %s for backup: %w", path, err)
 	}
 
 	backupPath := path + ".merge-backup"
 
-	err = afero.WriteFile(fileSystem, backupPath, data, backupFilePermission)
+	err = fileSystem.WriteFile(backupPath, data, backupFilePermission)
 	if err != nil {
 		return "", fmt.Errorf("failed to write backup %s: %w", backupPath, err)
 	}

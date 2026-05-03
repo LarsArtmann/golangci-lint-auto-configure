@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"charm.land/log/v2"
-	"github.com/spf13/afero"
 )
 
 // Backup file permission (read/write for owner only).
@@ -18,22 +17,14 @@ var ErrNoConfigFiles = errors.New("no config files to merge")
 // Merger handles merging multiple golangci-lint configuration files.
 type Merger struct {
 	logger *log.Logger
-	fs     afero.Fs
+	fs     FS
 }
 
 // NewMerger creates a new configuration merger.
 func NewMerger(logger *log.Logger) *Merger {
 	return &Merger{
 		logger: logger,
-		fs:     afero.NewOsFs(),
-	}
-}
-
-// NewMergerWithFS creates a new configuration merger with a custom filesystem.
-func NewMergerWithFS(logger *log.Logger, fs afero.Fs) *Merger {
-	return &Merger{
-		logger: logger,
-		fs:     fs,
+		fs:     osFS{},
 	}
 }
 

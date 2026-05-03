@@ -186,7 +186,7 @@ golangci-lint-auto-configure/
 **1. Interface-Based Design (for testability)**
 All major components implement interfaces defined in `pkg/types/types.go`:
 
-- `ConfigLoader`: Load, save, validate configs
+- `ConfigLoader`: Composite interface in `pkg/types/types.go` — combines ConfigReader, ConfigWriter, ConfigDiscovery, ConfigValidator, ConfigInspector, ConfigCreator. Backed by `*Loader` in `pkg/config/loader.go` using a minimal `config.FS` interface for filesystem ops.
 - `LinterAnalyzer`: Analyze configs, get recommendations
 - `LinterFixer`: Apply fixes to configs
 
@@ -731,6 +731,7 @@ just test && just lint
 - **go.yaml.in/yaml/v3**: YAML parsing (Unmarshal, Marshal)
 - **golang.org/x/mod/semver**: Semantic versioning (Compare, IsValid)
 - **samber/mo**: **REMOVED** — replaced with custom `types.Result[T]` in `pkg/types/result.go`. No external dependency for Result type.
+- **spf13/afero**: **REMOVED** — replaced with minimal `config.FS` interface backed by `os` package. No external dependency for filesystem abstraction.
 
 ## Project-Specific Patterns
 

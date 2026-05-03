@@ -219,12 +219,6 @@ type ConfigInspector interface {
 // ConfigCreator defines the interface for creating default configurations.
 type ConfigCreator interface {
 	CreateDefaultConfig(ctx context.Context) *Config
-	GetAllLinterNames(ctx context.Context) ([]string, error)
-}
-
-// GitChecker defines the interface for checking git repository status.
-type GitChecker interface {
-	EnsureGitRepo(ctx context.Context, startDir string) error
 }
 
 // ConfigLoader defines the composite interface for loading and saving golangci-lint configurations.
@@ -236,7 +230,6 @@ type ConfigLoader interface {
 	ConfigValidator
 	ConfigInspector
 	ConfigCreator
-	GitChecker
 }
 
 // Config represents a golangci-lint configuration file.

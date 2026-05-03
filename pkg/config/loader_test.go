@@ -1,7 +1,6 @@
 package config_test
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -131,19 +130,6 @@ output:
 			Expect(loaded.Run.Timeout).To(Equal("5m"))
 			Expect(loaded.Linters.Enable).To(HaveLen(2))
 			Expect(loaded.Linters.Disable).To(HaveLen(1))
-		})
-	})
-
-	Context("EnsureGitRepo", func() {
-		It("should succeed when in a git repository", func() {
-			err := loader.EnsureGitRepo(context.Background(), ".")
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		It("should fail when not in a git repository", func() {
-			err := loader.EnsureGitRepo(context.Background(), "/tmp")
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("not in a git repository"))
 		})
 	})
 

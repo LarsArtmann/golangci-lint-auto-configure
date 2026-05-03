@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -18,7 +19,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/pelletier/go-toml/v2"
-	"github.com/spf13/afero"
 	"go.yaml.in/yaml/v3"
 )
 
@@ -59,23 +59,39 @@ type (
 	FormattersExclusionsConfig = types.FormattersExclusionsConfig
 )
 
+// FS defines the filesystem operations needed by the config package.
+type FS interface {
+	ReadFile(name string) ([]byte, error)
+	WriteFile(name string, data []byte, perm os.FileMode) error
+	Stat(name string) (os.FileInfo, error)
+	Remove(name string) error
+}
+
+type osFS struct{}
+
+func (osFS) ReadFile(name string) ([]byte, error) { return os.ReadFile(name) }
+func (osFS) WriteFile(name string, data []byte, perm os.FileMode) error {
+	return os.WriteFile(name, data, perm)
+}
+func (osFS) Stat(name string) (os.FileInfo, error) { return os.Stat(name) }
+func (osFS) Remove(name string) error              { return os.Remove(name) }
+
 // Loader handles loading golangci-lint configuration files.
 type Loader struct {
 	logger *log.Logger
-	fs     afero.Fs
+	fs     FS
 }
 
 // NewLoader creates a new configuration loader.
 func NewLoader(logger *log.Logger) *Loader {
 	return &Loader{
 		logger: logger,
-		fs:     afero.NewOsFs(),
+		fs:     osFS{},
 	}
 }
 
 // NewLoaderWithFS creates a new configuration loader with a custom filesystem.
-// Useful for testing with in-memory filesystems.
-func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader {
+func NewLoaderWithFS(logger *log.Logger, fs FS) *Loader {
 	return &Loader{
 		logger: logger,
 		fs:     fs,
@@ -143,7 +159,7 @@ func migrateLintersSettingsV1(config *Config, logger *log.Logger) {
 
 // LoadConfigResult loads a config and returns a Result type for railway-oriented programming.
 func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
-	data, err := afero.ReadFile(l.fs, path)
+	data, err := l.fs.ReadFile(path)
 	if err != nil {
 		return types.Err[*types.Config](apperrors.NewConfigError("failed to read config file", path, err))
 	}
@@ -238,8 +254,8 @@ type LinterList struct {
 	} `json:"disabled"`
 }
 
-// GetAllLinterNames fetches all available linter names from golangci-lint.
-func (l *Loader) GetAllLinterNames(ctx context.Context) ([]string, error) {
+// getAllLinterNames fetches all available linter names from golangci-lint.
+func (l *Loader) getAllLinterNames(ctx context.Context) ([]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, LintersTimeout)
 	defer cancel()
 
@@ -317,7 +333,7 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 }
 
 func (l *Loader) fetchLintersWithFallback(ctx context.Context) []string {
-	allLinters, err := l.GetAllLinterNames(ctx)
+	allLinters, err := l.getAllLinterNames(ctx)
 	if err != nil {
 		l.logger.Warnf("Failed to fetch all linters, using critical set: %v", err)
 
@@ -379,7 +395,7 @@ func (l *Loader) SaveConfigResult(config *Config, path string) types.Result[Empt
 		return l.saveError("marshal config", path, err)
 	}
 
-	if err := afero.WriteFile(l.fs, path, data, defaultFilePermissions); err != nil {
+	if err := l.fs.WriteFile(path, data, defaultFilePermissions); err != nil {
 		return l.saveError("write config file", path, err)
 	}
 
@@ -396,23 +412,6 @@ func (l *Loader) saveError(operation, path string, err error) types.Result[Empty
 // IsGitRepo checks if we're inside a git repository.
 func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool {
 	return utils.IsGitRepo(ctx, startDir)
-}
-
-// EnsureGitRepo checks if we're inside a git repository and returns an error if not.
-// Since git provides version control, backup files are redundant.
-func (l *Loader) EnsureGitRepo(ctx context.Context, startDir string) error {
-	if err := utils.CheckGitRepo(ctx, startDir); err != nil {
-		return apperrors.NewConfigError(
-			"not in a git repository - git provides version control, so backup files are not created. "+
-				"Please initialize a git repository first: git init",
-			startDir,
-			err,
-		)
-	}
-
-	l.logger.Debugf("Git repository detected")
-
-	return nil
 }
 
 // ValidateConfig performs validation on the configuration using struct validation.
