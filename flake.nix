@@ -31,7 +31,37 @@
           pname = "golangci-lint-auto-configure";
           inherit version;
 
-          src = ./.;
+          src = pkgs.lib.cleanSourceWith {
+          filter = path: _type: let
+            b = baseNameOf path;
+          in
+            !(
+              b == "vendor"
+              || b == ".git"
+              || b == "docs"
+              || b == ".crush"
+              || b == "reports"
+              || b == "examples"
+              || b == "scripts"
+              || b == ".envrc"
+              || b == ".github"
+              || b == "bin"
+              || b == "justfile"
+              || b == "Dockerfile"
+              || b == ".dockerignore"
+              || b == ".gitattributes"
+              || b == ".pre-commit-config.yaml"
+              || b == ".pre-commit-hooks.yaml"
+              || b == ".config"
+              || pkgs.lib.hasSuffix ".md" b
+              || pkgs.lib.hasSuffix ".lock" b
+              || pkgs.lib.hasSuffix ".yml" b
+              || pkgs.lib.hasSuffix ".yaml" b
+            );
+          src = pkgs.lib.cleanSource ./.;
+        };
+
+          proxyVendor = true;
 
           vendorHash = "sha256-4ooMHZbq+FnNCRoQcgofmqA1eQ8ELngMUq1Z4fnsSYI=";
 
@@ -43,12 +73,13 @@
             "-X main.version=${version}"
           ];
 
-          env.CGO_ENABLED = 0;
+          env = {
+            CGO_ENABLED = 0;
+            GOWORK = "off";
+          };
 
           postPatch = ''
-            cp -r ${goFindingSrc} go-finding-vendor
-            chmod -R u+w go-finding-vendor
-            echo 'replace github.com/larsartmann/go-finding => ./go-finding-vendor' >> go.mod
+            echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
           '';
 
           meta = with pkgs.lib; {
