@@ -38,15 +38,6 @@ func (r Result[T]) IsError() bool {
 	return r.err != nil
 }
 
-// MustGet returns the value or panics if the result is an error.
-func (r Result[T]) MustGet() T {
-	if r.err != nil {
-		panic(r.err)
-	}
-
-	return r.value
-}
-
 // --- Domain-Specific Result Type Aliases ---
 
 // ConfigResult is a Result type for Config operations.
