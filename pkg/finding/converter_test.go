@@ -16,10 +16,10 @@ func assertEqualSeverity(t *testing.T, name string, input any, got, expected fin
 	}
 }
 
-func assertPositionLine(t *testing.T, findings []finding.Finding, idx int, expectedLine int) {
+func assertPositionLine(t *testing.T, findings []finding.Finding, idx int, expectedLine int, msg string) {
 	t.Helper()
 	if findings[idx].Position.Line != expectedLine {
-		t.Errorf("expected line %d, got %d", expectedLine, findings[idx].Position.Line)
+		t.Errorf(msg, expectedLine, findings[idx].Position.Line)
 	}
 }
 
@@ -229,11 +229,9 @@ func TestValidationErrorsToFindings(t *testing.T) {
 		finding.FixStrategySuggest,
 	)
 
-	assertPositionLine(t, findings, 0, 5)
+	assertPositionLine(t, findings, 0, 5, "expected line %d, got %d")
 
-	if findings[1].Position.Line != 0 {
-		t.Errorf("expected line 0 for no-line error, got %d", findings[1].Position.Line)
-	}
+	assertPositionLine(t, findings, 1, 0, "expected line %d for no-line error, got %d")
 }
 
 func TestErrorsToFindings(t *testing.T) {

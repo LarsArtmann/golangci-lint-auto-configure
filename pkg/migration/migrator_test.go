@@ -76,16 +76,10 @@ func testMigrationWithConfig(testDir, configContent string) string {
 	return configPath
 }
 
-// testSimpleMigration creates a test dir, writes config and runs migration.
-func testSimpleMigration(configContent string) {
+// testMigrationWithSimpleConfig creates a test dir, writes config and runs migration.
+func testMigrationWithSimpleConfig(configContent string) {
 	testDir := GinkgoT().TempDir()
-	configPath := filepath.Join(testDir, ".golangci.yml")
-	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
-
-	success, fixes, err := runMigration(configPath)
-	Expect(err).NotTo(HaveOccurred())
-	Expect(success).To(BeTrue())
-	Expect(fixes).To(BeNumerically(">", 0))
+	testMigrationWithConfig(testDir, configContent)
 }
 
 // v2ConfigWithExcludeDirs returns a v2 config with exclude-dirs.
@@ -566,8 +560,7 @@ linters:
 
 	Describe("migrateOutputProperties", func() {
 		It("should remove deprecated output properties", func() {
-			testDir := GinkgoT().TempDir()
-			configContent := `version: "2"
+			testMigrationWithSimpleConfig(`version: "2"
 run:
   timeout: 5m
 output:
@@ -578,8 +571,7 @@ output:
 linters:
   enable:
     - errcheck
-`
-			testMigrationWithConfig(testDir, configContent)
+`)
 		})
 	})
 
@@ -600,13 +592,11 @@ linters:
 		})
 
 		It("should handle version with v prefix", func() {
-			testDir := GinkgoT().TempDir()
-			configContent := `version: "v1"
+			testMigrationWithSimpleConfig(`version: "v1"
 linters:
   enable:
     - errcheck
-`
-			testMigrationWithConfig(testDir, configContent)
+`)
 		})
 	})
 
@@ -630,13 +620,13 @@ linters:
 
 	Describe("migrateIssuesExcludeDirs", func() {
 		It("should migrate exclude-dirs to exclusions.paths", func() {
-			testSimpleMigration(v2ConfigWithExcludeDirs("vendor", "generated"))
+			testMigrationWithSimpleConfig(v2ConfigWithExcludeDirs("vendor", "generated"))
 		})
 	})
 
 	Describe("migrateIssuesExcludeFiles", func() {
 		It("should migrate exclude-files to exclusions.paths", func() {
-			testSimpleMigration(v2ConfigWithExcludeFiles("*.gen.go", "**/*_test.go"))
+			testMigrationWithSimpleConfig(v2ConfigWithExcludeFiles("*.gen.go", "**/*_test.go"))
 		})
 	})
 })
