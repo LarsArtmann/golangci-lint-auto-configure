@@ -9,6 +9,20 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
+func assertEqualSeverity(t *testing.T, name string, input any, got, expected finding.Severity) {
+	t.Helper()
+	if got != expected {
+		t.Errorf("%s(%v) = %v, want %v", name, input, got, expected)
+	}
+}
+
+func assertPositionLine(t *testing.T, findings []finding.Finding, idx int, expectedLine int) {
+	t.Helper()
+	if findings[idx].Position.Line != expectedLine {
+		t.Errorf("expected line %d, got %d", expectedLine, findings[idx].Position.Line)
+	}
+}
+
 func TestPriorityToSeverity(t *testing.T) {
 	tests := []struct {
 		input    types.LinterPriority
@@ -23,9 +37,7 @@ func TestPriorityToSeverity(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.input.String(), func(t *testing.T) {
 			got := PriorityToSeverity(tt.input)
-			if got != tt.expected {
-				t.Errorf("PriorityToSeverity(%v) = %v, want %v", tt.input, got, tt.expected)
-			}
+			assertEqualSeverity(t, "PriorityToSeverity", tt.input, got, tt.expected)
 		})
 	}
 }
@@ -43,9 +55,7 @@ func TestFormatterPriorityToSeverity(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.input.String(), func(t *testing.T) {
 			got := FormatterPriorityToSeverity(tt.input)
-			if got != tt.expected {
-				t.Errorf("FormatterPriorityToSeverity(%v) = %v, want %v", tt.input, got, tt.expected)
-			}
+			assertEqualSeverity(t, "FormatterPriorityToSeverity", tt.input, got, tt.expected)
 		})
 	}
 }
@@ -219,9 +229,7 @@ func TestValidationErrorsToFindings(t *testing.T) {
 		finding.FixStrategySuggest,
 	)
 
-	if findings[0].Position.Line != 5 {
-		t.Errorf("expected line 5, got %d", findings[0].Position.Line)
-	}
+	assertPositionLine(t, findings, 0, 5)
 
 	if findings[1].Position.Line != 0 {
 		t.Errorf("expected line 0 for no-line error, got %d", findings[1].Position.Line)

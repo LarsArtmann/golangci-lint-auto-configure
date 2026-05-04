@@ -44,6 +44,21 @@ func resolveConfigPath(
 	return resolveWithAutoMerge(configLoader, logger, configFile, isDryRun)
 }
 
+// resolveConfig is a helper that resolves config path with a custom error prefix.
+func resolveConfig(
+	ctx context.Context,
+	configLoader *config.Loader,
+	logger *log.Logger,
+	errorPrefix string,
+) (string, error) {
+	configFile, err := resolveConfigPath(ctx, configLoader, logger, configPath, dryRun)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", errorPrefix, err)
+	}
+
+	return configFile, nil
+}
+
 func resolveWithAutoMerge(
 	configLoader *config.Loader,
 	logger *log.Logger,

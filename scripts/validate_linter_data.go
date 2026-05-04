@@ -14,11 +14,15 @@ package main
 import (
 	"fmt"
 	"os"
-	"sort"
+	"slices"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
+
+func sortSlice[T types.LinterName | types.FormatterName](slice []T) {
+	slices.Sort(slice)
+}
 
 func main() {
 	exitCode := 0
@@ -101,9 +105,7 @@ func checkMissingReasons() []types.LinterName {
 			missing = append(missing, linter)
 		}
 	}
-	sort.Slice(missing, func(i, j int) bool {
-		return missing[i] < missing[j]
-	})
+	sortSlice(missing)
 	return missing
 }
 
@@ -114,9 +116,7 @@ func checkOrphanReasons() []types.LinterName {
 			orphan = append(orphan, linter)
 		}
 	}
-	sort.Slice(orphan, func(i, j int) bool {
-		return orphan[i] < orphan[j]
-	})
+	sortSlice(orphan)
 	return orphan
 }
 
@@ -127,9 +127,7 @@ func checkFormatterPriorities() []types.FormatterName {
 			missing = append(missing, formatter)
 		}
 	}
-	sort.Slice(missing, func(i, j int) bool {
-		return missing[i] < missing[j]
-	})
+	sortSlice(missing)
 	return missing
 }
 
@@ -140,8 +138,6 @@ func checkOrphanFormatterPriorities() []types.FormatterName {
 			orphan = append(orphan, formatter)
 		}
 	}
-	sort.Slice(orphan, func(i, j int) bool {
-		return orphan[i] < orphan[j]
-	})
+	sortSlice(orphan)
 	return orphan
 }

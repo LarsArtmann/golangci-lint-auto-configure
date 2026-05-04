@@ -75,12 +75,7 @@ func resolveValidateConfig(
 	logger *log.Logger,
 	_ bool,
 ) (string, error) {
-	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
-	if err != nil {
-		return "", fmt.Errorf("resolve config path: %w", err)
-	}
-
-	return configFile, nil
+	return resolveConfig(cmd.Context(), configLoader, logger, "resolve config path")
 }
 
 func validateConfig(

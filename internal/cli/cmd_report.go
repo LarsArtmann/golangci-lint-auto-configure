@@ -52,12 +52,7 @@ func resolveReportConfig(
 	configLoader *config.Loader,
 	logger *log.Logger,
 ) (string, error) {
-	configFile, err := resolveConfigPath(cmd.Context(), configLoader, logger, configPath, dryRun)
-	if err != nil {
-		return "", fmt.Errorf("find config: %w", err)
-	}
-
-	return configFile, nil
+	return resolveConfig(cmd.Context(), configLoader, logger, "find config")
 }
 
 func writeReport(

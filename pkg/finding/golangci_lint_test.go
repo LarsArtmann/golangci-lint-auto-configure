@@ -110,9 +110,7 @@ func TestGolangciLintSeverityToFinding(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
 			got := golangciLintSeverityToFinding(tt.input)
-			if got != tt.expected {
-				t.Errorf("golangciLintSeverityToFinding(%q) = %v, want %v", tt.input, got, tt.expected)
-			}
+			assertEqualSeverity(t, "golangciLintSeverityToFinding", tt.input, got, tt.expected)
 		})
 	}
 }
