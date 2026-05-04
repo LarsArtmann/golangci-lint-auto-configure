@@ -11,13 +11,15 @@ import (
 
 func assertEqualSeverity(t *testing.T, name string, input any, got, expected finding.Severity) {
 	t.Helper()
+
 	if got != expected {
 		t.Errorf("%s(%v) = %v, want %v", name, input, got, expected)
 	}
 }
 
-func assertPositionLine(t *testing.T, findings []finding.Finding, idx int, expectedLine int, msg string) {
+func assertPositionLine(t *testing.T, findings []finding.Finding, idx, expectedLine int, msg string) {
 	t.Helper()
+
 	if findings[idx].Position.Line != expectedLine {
 		t.Errorf(msg, expectedLine, findings[idx].Position.Line)
 	}
