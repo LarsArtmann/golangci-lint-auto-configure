@@ -16,6 +16,9 @@ type Validator interface {
 	ValidateConfig(m *Migrator) error
 }
 
+// ValidationTimeout is the timeout for config validation.
+const ValidationTimeout = 30 * time.Second
+
 // DefaultValidator uses golangci-lint for validation.
 type DefaultValidator struct{}
 
@@ -25,8 +28,7 @@ func (v DefaultValidator) ValidateConfig(migrator *Migrator) error {
 		return fmt.Errorf("golangci-lint not found: %w", err)
 	}
 
-	//nolint:mnd // 30 seconds is a reasonable timeout for config validation
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), ValidationTimeout)
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, golangciLintPath, "config", "verify")

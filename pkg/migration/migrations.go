@@ -20,14 +20,18 @@ func (m *Migrator) migrateLintersSettings(config *Config) bool {
 		return true
 	}
 
-	if config.Linters.Settings == nil {
-		config.Linters.Settings = make(map[string]any)
-	}
+	initSettings(&config.Linters.Settings)
 
 	maps.Copy(config.Linters.Settings, config.LintersSettingsV1)
 	config.LintersSettingsV1 = nil
 
 	return true
+}
+
+func initSettings(settings *map[string]any) {
+	if *settings == nil {
+		*settings = make(map[string]any)
+	}
 }
 
 // migrateIssuesProperties migrates all issues properties.
@@ -198,9 +202,7 @@ func migrateFormatterSettingsFromLinters(config *Config) int {
 	formatterSettingNames := []string{"gofmt", "goimports", "gofumpt", "gci"}
 	fixes := 0
 
-	if config.Formatters.Settings == nil {
-		config.Formatters.Settings = make(map[string]any)
-	}
+	initSettings(&config.Formatters.Settings)
 
 	for _, name := range formatterSettingNames {
 		if settings, exists := config.Linters.Settings[name]; exists {

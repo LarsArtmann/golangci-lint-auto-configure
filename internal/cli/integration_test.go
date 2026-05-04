@@ -14,9 +14,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// CLITimeout is the timeout for CLI command execution.
+const CLITimeout = 30 * time.Second
+
 // runCLI runs the CLI binary with the given arguments and returns output.
 func runCLI(args ...string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), CLITimeout)
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "../../../bin/golangci-lint-auto-configure", args...)

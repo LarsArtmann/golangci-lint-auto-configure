@@ -111,9 +111,7 @@ func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
 			continue
 		}
 
-		if cfg.Linters.Settings == nil {
-			cfg.Linters.Settings = make(map[string]any)
-		}
+		types.InitLintersSettings(&cfg.Linters)
 
 		if _, exists := cfg.Linters.Settings[linterName]; exists {
 			continue

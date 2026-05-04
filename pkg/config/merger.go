@@ -156,6 +156,12 @@ func (cm *Merger) mergeConfigInto(primary, secondary *Config) int {
 	return changes
 }
 
+func (cm *Merger) logAndContinue(path string, err error, operation string) bool {
+	cm.logger.Warnf("Failed to %s %s: %v", operation, path, err)
+
+	return true
+}
+
 // SaveMergedConfig saves the merged config and optionally removes secondary configs.
 // Creates backups of all modified configs before making changes.
 func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSecondary bool) error {
@@ -169,7 +175,7 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 	for _, path := range allConfigs {
 		backupPath, err := createBackup(cm.fs, path)
 		if err != nil {
-			cm.logger.Warnf("Failed to create backup for %s: %v", path, err)
+			cm.logAndContinue(path, err, "create backup for")
 
 			continue
 		}
@@ -192,7 +198,7 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 		for _, path := range result.MergedConfigs {
 			err := cm.fs.Remove(path)
 			if err != nil {
-				cm.logger.Warnf("Failed to remove secondary config %s: %v", path, err)
+				cm.logAndContinue(path, err, "remove")
 
 				continue
 			}

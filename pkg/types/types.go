@@ -323,3 +323,10 @@ type LinterAnalyzer interface {
 	GetSummary(analysis *ConfigAnalysis) string
 	GetLintersByPriority(recommendations []LinterRecommendation, priority LinterPriority) []LinterRecommendation
 }
+
+// InitLintersSettings initializes the Linters.Settings map if nil.
+func InitLintersSettings(cfg *LintersConfig) {
+	if cfg.Settings == nil {
+		cfg.Settings = make(map[string]any)
+	}
+}

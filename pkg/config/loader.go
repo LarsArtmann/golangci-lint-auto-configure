@@ -149,9 +149,7 @@ func migrateLintersSettingsV1(config *Config, logger *log.Logger) {
 
 	logger.Warnf("Migrating top-level linters-settings (v1) to linters.settings (v2)")
 
-	if config.Linters.Settings == nil {
-		config.Linters.Settings = make(map[string]any)
-	}
+	types.InitLintersSettings(&config.Linters)
 
 	maps.Copy(config.Linters.Settings, config.LintersSettingsV1)
 	config.LintersSettingsV1 = nil

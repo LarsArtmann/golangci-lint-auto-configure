@@ -87,28 +87,28 @@ No GitHub releases, no tags, no `goreleaser` config. The `version` variable is i
 
 ### Must (blocking)
 
-| # | Condition | Why |
-|---|-----------|-----|
-| 1 | **Make go-finding public** (or remove dependency) | `go install` will fail without it |
-| 2 | **Delete or archive docs/status/ and docs/planning/** | Noise, not useful publicly |
-| 3 | **Tag v0.1.0 release** | Users need a version to pin to |
+| #   | Condition                                             | Why                               |
+| --- | ----------------------------------------------------- | --------------------------------- |
+| 1   | **Make go-finding public** (or remove dependency)     | `go install` will fail without it |
+| 2   | **Delete or archive docs/status/ and docs/planning/** | Noise, not useful publicly        |
+| 3   | **Tag v0.1.0 release**                                | Users need a version to pin to    |
 
 ### Should (highly recommended)
 
-| # | Condition | Why |
-|---|-----------|-----|
-| 4 | Add `CONTRIBUTING.md` with PR/issue process | Set expectations for contributors |
-| 5 | Add GitHub release with binaries (goreleaser or similar) | Lower the barrier to trying the tool |
-| 6 | Verify all example configs are valid with latest golangci-lint | First impressions matter |
+| #   | Condition                                                      | Why                                  |
+| --- | -------------------------------------------------------------- | ------------------------------------ |
+| 4   | Add `CONTRIBUTING.md` with PR/issue process                    | Set expectations for contributors    |
+| 5   | Add GitHub release with binaries (goreleaser or similar)       | Lower the barrier to trying the tool |
+| 6   | Verify all example configs are valid with latest golangci-lint | First impressions matter             |
 
 ### Nice to have
 
-| # | Condition | Why |
-|---|-----------|-----|
-| 7 | Improve test coverage to 70%+ | Confidence for public consumers |
-| 8 | Add issue/PR templates | Professionalism |
-| 9 | Set up Renovate/Dependabot | Signal active maintenance |
-| 10 | Create a short demo GIF/asciinema for README | Increase adoption |
+| #   | Condition                                    | Why                             |
+| --- | -------------------------------------------- | ------------------------------- |
+| 7   | Improve test coverage to 70%+                | Confidence for public consumers |
+| 8   | Add issue/PR templates                       | Professionalism                 |
+| 9   | Set up Renovate/Dependabot                   | Signal active maintenance       |
+| 10  | Create a short demo GIF/asciinema for README | Increase adoption               |
 
 ---
 
@@ -124,4 +124,4 @@ This project has genuine, unique value in the Go ecosystem. No other tool does w
 
 ---
 
-*Analysis generated from full codebase review: 7,486 LOC production, 4,373 LOC test, 461 commits, 12 test suites, all passing.*
+_Analysis generated from full codebase review: 7,486 LOC production, 4,373 LOC test, 461 commits, 12 test suites, all passing._

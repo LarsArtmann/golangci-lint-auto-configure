@@ -52,24 +52,28 @@ type ReportError = DomainError
 // MigrationError is a DomainError in the migration domain.
 type MigrationError = DomainError
 
+func newDomainError(msg, path string, err error, domain string) *DomainError {
+	return &DomainError{Message: msg, Path: path, Cause: err, domain: domain}
+}
+
 // NewConfigError creates a new configuration error.
 func NewConfigError(msg, path string, err error) *ConfigError {
-	return &DomainError{Message: msg, Path: path, Cause: err, domain: "path"}
+	return newDomainError(msg, path, err, "path")
 }
 
 // NewAnalysisError creates a new analysis error.
 func NewAnalysisError(msg, file string, err error) *AnalysisError {
-	return &DomainError{Message: msg, Path: file, Cause: err, domain: "file"}
+	return newDomainError(msg, file, err, "file")
 }
 
 // NewReportError creates a new report error.
 func NewReportError(msg, path string, err error) *ReportError {
-	return &DomainError{Message: msg, Path: path, Cause: err, domain: "path"}
+	return newDomainError(msg, path, err, "path")
 }
 
 // NewMigrationError creates a new migration error.
 func NewMigrationError(msg, config string, err error) *MigrationError {
-	return &DomainError{Message: msg, Path: config, Cause: err, domain: "config"}
+	return newDomainError(msg, config, err, "config")
 }
 
 // IsConfigError checks if an error is a ConfigError.

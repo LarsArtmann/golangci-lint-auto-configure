@@ -303,9 +303,7 @@ func TestAnalysisToReport(t *testing.T) {
 		t.Fatalf("expected 3 findings, got %d", len(report.Findings))
 	}
 
-	if report.Summary.Total != 3 {
-		t.Errorf("expected summary total 3, got %d", report.Summary.Total)
-	}
+	assertReportSummaryTotal(t, report, 3)
 
 	if report.Summary.BySeverity[finding.SeverityCritical] != 1 {
 		t.Errorf("expected 1 critical in summary, got %d", report.Summary.BySeverity[finding.SeverityCritical])
@@ -357,12 +355,16 @@ func TestAnalysisToReportEmpty(t *testing.T) {
 
 	report := AnalysisToReport(analysis, "dev")
 
-	if report.Summary.Total != 0 {
-		t.Errorf("expected 0 findings for empty analysis, got %d", report.Summary.Total)
-	}
+	assertReportSummaryTotal(t, report, 0)
 
 	if len(report.Findings) != 0 {
 		t.Errorf("expected 0 findings, got %d", len(report.Findings))
+	}
+}
+
+func assertReportSummaryTotal(t *testing.T, report *finding.Report, expected int) {
+	if report.Summary.Total != expected {
+		t.Errorf("expected summary total %d, got %d", expected, report.Summary.Total)
 	}
 }
 

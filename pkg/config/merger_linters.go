@@ -22,7 +22,7 @@ func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
 	}
 
 	if primary.Settings == nil && len(secondary.Settings) > 0 {
-		primary.Settings = make(map[string]any)
+		types.InitLintersSettings(primary)
 	}
 
 	changes += mergeSettingsMaps(primary.Settings, secondary.Settings)

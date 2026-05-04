@@ -79,9 +79,9 @@ func (d *Differ) compareRunSettings(old, newConfig types.RunConfig) []Change {
 	var changes []Change
 
 	changes = d.addChangeIfDifferent(changes, old.Timeout, newConfig.Timeout, "run.timeout",
-		func(o, n string) string { return fmt.Sprintf("Timeout changed from %s to %s", o, n) })
+		func(o, n string) string { return formatChangeMessage("Timeout", o, n) })
 	changes = d.addChangeIfDifferent(changes, old.Go, newConfig.Go, "run.go",
-		func(o, n string) string { return fmt.Sprintf("Go version changed from %s to %s", o, n) })
+		func(o, n string) string { return formatChangeMessage("Go version", o, n) })
 	changes = d.addTestChangeIfDifferent(changes, old.Tests, newConfig.Tests)
 
 	return changes
@@ -104,6 +104,10 @@ func (d *Differ) addChangeIfDifferent(
 	}
 
 	return changes
+}
+
+func formatChangeMessage(fieldName, oldVal, newVal string) string {
+	return fmt.Sprintf("%s changed from %s to %s", fieldName, oldVal, newVal)
 }
 
 func (d *Differ) addTestChangeIfDifferent(changes []Change, oldTests, newTests bool) []Change {
