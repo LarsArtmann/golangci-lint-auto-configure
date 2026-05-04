@@ -102,7 +102,7 @@
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            go
+            go_1_26
             just
             golangci-lint
             ginkgo
@@ -112,7 +112,7 @@
             pre-commit
             gopls
             gotools
-            alejandra
+            nixfmt
           ];
 
           shellHook = ''
