@@ -371,6 +371,8 @@ func TestAnalysisToReportEmpty(t *testing.T) {
 }
 
 func assertReportSummaryTotal(t *testing.T, report *finding.Report, expected int) {
+	t.Helper()
+
 	if report.Summary.Total != expected {
 		t.Errorf("expected summary total %d, got %d", expected, report.Summary.Total)
 	}

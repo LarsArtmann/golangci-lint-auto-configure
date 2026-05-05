@@ -157,6 +157,7 @@ linters:
         - .*\.Test.*
         - .*Test.*
         - charm.land/log.Options
+        - charm.land/log/v2.Options
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/types.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
         - github.com/larsartmann/go-finding.Position
@@ -352,7 +353,7 @@ linters:
       - path: pkg/linter/fixer\.go
         linters:
           - cyclop
-      - path: internal/cli/cmd/installhook\.go|pkg/report/json_report_generator\.go
+      - path: internal/cli/cmd/installhook\.go|pkg/report/json_report_generator\.go|pkg/testutil/testutil\.go
         linters:
           - mnd
       - path: pkg/linter/fixer\.go

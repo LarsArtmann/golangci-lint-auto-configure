@@ -156,10 +156,8 @@ func (cm *Merger) mergeConfigInto(primary, secondary *Config) int {
 	return changes
 }
 
-func (cm *Merger) logAndContinue(path string, err error, operation string) bool {
+func (cm *Merger) logAndContinue(path string, err error, operation string) {
 	cm.logger.Warnf("Failed to %s %s: %v", operation, path, err)
-
-	return true
 }
 
 // SaveMergedConfig saves the merged config and optionally removes secondary configs.
