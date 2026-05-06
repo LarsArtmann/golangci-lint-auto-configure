@@ -15,11 +15,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Version is set by main package via ldflags.
-var Version = "dev"
-
-// VersionInfo holds structured version metadata.
-var VersionInfo = version.Info{}
+// Version is the CLI version string, derived from pkg/version.
+var Version = version.Get().Short()
 
 var (
 	configPath   string
