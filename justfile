@@ -1,6 +1,12 @@
 # Justfile for golangci-lint-auto-configure
 # Common development tasks
 
+# Version metadata (shared across build targets)
+VERSION := `git describe --tags --always --dirty 2>/dev/null || echo dev`
+COMMIT := `git rev-parse --short HEAD 2>/dev/null || echo none`
+DATE := `date -u +%Y-%m-%dT%H:%M:%SZ`
+TREE_STATE := `if git diff --quiet 2>/dev/null; then echo clean; else echo dirty; fi`
+
 default: help
 
 help:
@@ -23,8 +29,11 @@ help:
     @echo "  just nix-vendor    - Update vendorHash after go.mod changes"
 
 build:
-    @echo "Building CLI..."
-    @GOTOOLCHAIN=local go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Building CLI..."
+    GOTOOLCHAIN=local go build -ldflags "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.version={{VERSION}} -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.commit={{COMMIT}} -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.date={{DATE}} -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.treeState={{TREE_STATE}}" -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
+    echo "Built v{{VERSION}}"
 
 test:
     @echo "Running tests..."
@@ -80,16 +89,13 @@ clean:
 
 install: build
     @echo "Installing CLI..."
-    @GOTOOLCHAIN=local go install ./cmd/golangci-lint-auto-configure
+    @cp bin/golangci-lint-auto-configure "$(go env GOPATH)/bin/golangci-lint-auto-configure"
+    @echo "Installed to $(go env GOPATH)/bin/"
 
-install-local:
-    #!/usr/bin/env bash
-    set -e
-    echo "Installing locally with version..."
-    VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
-    GOPATH=$(go env GOPATH)
-    GOTOOLCHAIN=local go build -ldflags "-X main.version=$VERSION" -o "$GOPATH/bin/golangci-lint-auto-configure" ./cmd/golangci-lint-auto-configure
-    echo "Installed golangci-lint-auto-configure v$VERSION to $GOPATH/bin/"
+install-local: build
+    @echo "Installing locally..."
+    @GOPATH=$(go env GOPATH) && cp bin/golangci-lint-auto-configure "$GOPATH/bin/golangci-lint-auto-configure"
+    @echo "Installed v{{VERSION}} to $(go env GOPATH)/bin/"
 
 fmt:
     @echo "Formatting code..."

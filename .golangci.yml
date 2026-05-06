@@ -218,7 +218,7 @@ linters:
       - path: internal/cli/|examples/|pkg/client/client\.go
         linters:
           - exhaustruct
-      - path: pkg/constants/|pkg/finding/categories\.go|pkg/config/merger_helpers\.go
+      - path: pkg/constants/|pkg/finding/categories\.go|pkg/config/merger_helpers\.go|pkg/version/
         linters:
           - gochecknoglobals
       - path: pkg/types/validation\.go

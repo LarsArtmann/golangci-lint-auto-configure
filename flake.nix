@@ -27,6 +27,13 @@
           then builtins.substring 0 7 self.rev
           else "dev";
 
+        commit =
+          if self ? rev
+          then self.rev
+          else "none";
+
+        buildDate = self.lastModifiedDate or "unknown";
+
         golangci-lint-auto-configure = pkgs.buildGoModule rec {
           pname = "golangci-lint-auto-configure";
           inherit version;
@@ -70,7 +77,10 @@
           ldflags = [
             "-s"
             "-w"
-            "-X main.version=${version}"
+            "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.version=${version}"
+            "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.commit=${commit}"
+            "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.date=${buildDate}"
+            "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.treeState=clean"
           ];
 
           env = {

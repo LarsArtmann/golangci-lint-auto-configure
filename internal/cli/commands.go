@@ -11,11 +11,15 @@ import (
 	clicmd "github.com/larsartmann/golangci-lint-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/version"
 	"github.com/spf13/cobra"
 )
 
 // Version is set by main package via ldflags.
 var Version = "dev"
+
+// VersionInfo holds structured version metadata.
+var VersionInfo = version.Info{}
 
 var (
 	configPath   string
@@ -178,6 +182,8 @@ actionable recommendations to improve your Go code quality.`,
 
 	addSubCommands(rootCmd, logger, analyzer, configLoader, migrateFlags)
 	registerGlobalFlags(rootCmd)
+
+	rootCmd.SetVersionTemplate(version.Get().Full() + "\n")
 
 	return rootCmd
 }
