@@ -25,8 +25,14 @@ COPY . .
 # Build the binary
 # -s: strip symbols (smaller binary)
 # -w: omit DWARF symbols (smaller binary)
+ARG VERSION=dev
+ARG COMMIT=none
+ARG BUILD_DATE=unknown
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-    -ldflags="-s -w" \
+    -ldflags="-s -w \
+      -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.version=${VERSION} \
+      -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.commit=${COMMIT} \
+      -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.date=${BUILD_DATE}" \
     -o /usr/local/bin/golangci-lint-auto-configure \
     ./cmd/golangci-lint-auto-configure
 
