@@ -115,7 +115,6 @@
             go_1_26
             just
             golangci-lint
-            ginkgo
             templ
             jq
             git
@@ -126,6 +125,9 @@
           ];
 
           shellHook = ''
+            # Install ginkgo from go.mod to ensure version match
+            go install github.com/onsi/ginkgo/v2/ginkgo 2>/dev/null || true
+
             echo "golangci-lint-auto-configure dev shell"
             echo "  Go:             $(go version)"
             echo "  golangci-lint:  $(golangci-lint version --short 2>/dev/null || echo 'N/A')"

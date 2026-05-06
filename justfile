@@ -37,7 +37,7 @@ build:
 
 test:
     @echo "Running tests..."
-    @GOTOOLCHAIN=local ginkgo -r --cover
+    @GOTOOLCHAIN=local go run github.com/onsi/ginkgo/v2/ginkgo -r --cover
 
 test-coverage:
     @echo "Test coverage summary:"
