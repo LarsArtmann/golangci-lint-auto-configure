@@ -145,6 +145,8 @@ golangci-lint-auto-configure/
 │   │   └── testdata/               # Test fixtures for migration
 │   ├── errors/
 │   │   └── errors.go              # Custom error types (package: apperrors)
+│   ├── version/
+│   │   └── version.go             # Structured version info with runtime/debug fallback
 ├── internal/
 │   ├── cli/
 │   │   ├── commands.go             # Root command + subcommand wiring
@@ -579,11 +581,15 @@ Built-in hooks:
 - Modify those files to change linter behavior
 - Not dynamically computed from golangci-lint
 
-### 6. Version String Injected at Build Time
+### 6. Versioning
 
-- `main.version` variable injected via ldflags
-- Justfile `install-local` does: `go build -ldflags "-X main.version=$VERSION"`
-- Default value is "dev" if not set
+- `pkg/version/` package manages version info (version, commit, date, treeState)
+- `runtime/debug.ReadBuildInfo()` provides automatic VCS fallback when ldflags are not set
+- Ldflags take precedence over buildinfo fallback
+- All build targets (justfile, Nix, Docker) inject version via ldflags to `pkg/version.version/commit/date/treeState`
+- `cli.Version` is self-initializing from `version.Get().Short()` — no manual setup needed
+- `--version` output shows: Version, Commit, Built, Tree state
+- Justfile shared variables: `VERSION`, `COMMIT`, `DATE`, `TREE_STATE`
 
 ### 7. go-finding is Nix Flake Input
 
