@@ -21,11 +21,11 @@
     "goFindingSrc": {
       "flake": false,
       "locked": {
-        "lastModified": 1777925548,
-        "narHash": "sha256-3wPE7my7mtM0SOz4rGv4qgqU0ch2q+hPoCQ5N1lzTZM=",
+        "lastModified": 1778079309,
+        "narHash": "sha256-rgLrNEx45b8ZxhyLY8vfYNPjiVYuG9eeZVLsGpHUj5U=",
         "ref": "master",
-        "rev": "e8df1bf695a34ec85e2f42328ae0ab12e25cb36d",
-        "revCount": 456,
+        "rev": "56cc6b20d3f74776c3845cdd70078a5acb9b60c9",
+        "revCount": 496,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/go-finding"
       },
@@ -37,11 +37,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1777578337,
-        "narHash": "sha256-Ad49moKWeXtKBJNy2ebiTQUEgdLyvGmTeykAQ9xM+Z4=",
+        "lastModified": 1777954456,
+        "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "15f4ee454b1dce334612fa6843b3e05cf546efab",
+        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
         "type": "github"
       },
       "original": {
