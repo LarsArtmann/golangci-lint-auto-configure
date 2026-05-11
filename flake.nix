@@ -99,10 +99,6 @@
           };
         };
       in {
-        overlays.default = _final: prev: {
-          golangci-lint-auto-configure = self.packages.${prev.stdenv.system}.default;
-        };
-
         packages.default = golangci-lint-auto-configure;
 
         apps.default = {
@@ -150,5 +146,10 @@
           build = golangci-lint-auto-configure;
         };
       }
-    );
+    )
+    // {
+      overlays.default = _final: prev: {
+        golangci-lint-auto-configure = self.packages.${prev.stdenv.system}.default;
+      };
+    };
 }
