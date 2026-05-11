@@ -18,9 +18,7 @@
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
-        pkgs = import nixpkgs {
-          inherit system;
-        };
+        pkgs = nixpkgs.legacyPackages.${system};
 
         version =
           if self ? rev
@@ -101,6 +99,10 @@
           };
         };
       in {
+        overlays.default = _final: prev: {
+          golangci-lint-auto-configure = self.packages.${prev.stdenv.system}.default;
+        };
+
         packages.default = golangci-lint-auto-configure;
 
         apps.default = {
@@ -123,6 +125,13 @@
             gotools
             nixfmt
           ];
+
+          env = {
+            CGO_ENABLED = "0";
+            GOWORK = "off";
+            GOPRIVATE = "github.com/LarsArtmann";
+            GOTOOLCHAIN = "local";
+          };
 
           shellHook = ''
             # Install ginkgo from go.mod to ensure version match
