@@ -593,6 +593,37 @@ issues:
 
 ---
 
+## 15. Automated Health Checks (NEW)
+
+As a direct result of this audit, the `validate` command now includes **structural health checks** that detect the patterns identified above. These run automatically during `validate` and produce SARIF output for CI integration.
+
+### Detection Rules
+
+| Rule | Severity | What It Detects | From Report Section |
+|------|----------|----------------|---------------------|
+| `duplicate-linter` | CRITICAL | Linters listed multiple times in enable/disable | Section 1.1 |
+| `enable-disable-overlap` | WARNING | Same linter in both enable and disable lists | Section 3 |
+| `missing-critical-linter` | WARNING | Missing errcheck, staticcheck, or govet | Section 4 |
+| `v1-syntax-in-v2` | WARNING | Top-level `linters-settings` in v2 config | Section 1.2 |
+
+### Usage
+
+```bash
+# Text output (default)
+golangci-lint-auto-configure validate --config path/to/.golangci.yml
+
+# SARIF output for CI
+golangci-lint-auto-configure validate --format sarif --config path/to/.golangci.yml
+```
+
+### Architecture
+
+- **Type:** `ConfigHealth` in `pkg/types/validation.go` — pure function, no dependencies
+- **Integration:** Wired into `internal/cli/cmd_validate.go` after schema validation passes
+- **Testing:** 18 BDD specs in `pkg/types/health_test.go`
+
+---
+
 ## 14. Methodology
 
 - **126 config files** found across all managed projects
