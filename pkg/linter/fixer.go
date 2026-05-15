@@ -140,11 +140,12 @@ type fixCounts struct {
 	deprecation int
 	enable      int
 	formatter   int
+	generated   int
 	redundant   int
 }
 
 func (c fixCounts) total() int {
-	return c.deprecation + c.enable + c.formatter + c.redundant
+	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant
 }
 
 func newFixCounts() fixCounts {
@@ -152,6 +153,7 @@ func newFixCounts() fixCounts {
 		deprecation: 0,
 		enable:      0,
 		formatter:   0,
+		generated:   0,
 		redundant:   0,
 	}
 }
@@ -226,6 +228,10 @@ func (f *Fixer) applyAndSave(
 	updater.updateRunnerSettings(cfg)
 	updater.updateBuildTags(cfg)
 	updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
+
+	if !dryRun {
+		counts.generated = updater.updateGeneratedExclusions(cfg, configPath)
+	}
 
 	f.logger.Infof("Saving configuration...")
 

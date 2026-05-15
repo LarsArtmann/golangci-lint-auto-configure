@@ -2,11 +2,13 @@ package linter
 
 import (
 	"context"
+	"path/filepath"
 	"slices"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/gogenfilter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -70,6 +72,62 @@ func sortAndDeduplicate(tags []string) []string {
 	slices.Sort(tags)
 
 	return slices.Compact(tags)
+}
+
+// updateGeneratedExclusions scans the project for auto-generated Go files
+// and injects exclusion path patterns into both linters and formatters exclusions.
+// Uses gogenfilter for two-phase detection (filename first, content second).
+func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath string) int {
+	projectDir := filepath.Dir(configPath)
+
+	if cfg.Linters.Exclusions.Generated == "" {
+		cu.logger.Infof("Setting linters.exclusions.generated to \"lax\"")
+		cfg.Linters.Exclusions.Generated = "lax"
+	}
+
+	if cfg.Formatters.Exclusions.Generated == "" {
+		cu.logger.Infof("Setting formatters.exclusions.generated to \"lax\"")
+		cfg.Formatters.Exclusions.Generated = "lax"
+	}
+
+	result, err := gogenfilter.ScanProject(projectDir)
+	if err != nil {
+		cu.logger.Debugf("Generated file scan skipped: %v", err)
+
+		return 0
+	}
+
+	if len(result.Exclusions) == 0 {
+		return 0
+	}
+
+	cu.logger.Infof(
+		"Found %d generated file types (%d files scanned, %d generated): %v",
+		len(result.Generators), result.ScannedFiles, result.GeneratedFiles, result.Generators,
+	)
+
+	newPaths := gogenfilter.ExclusionPaths(result.Exclusions)
+
+	linterPathsAdded := mergeExclusionPaths(&cfg.Linters.Exclusions.Paths, newPaths, cu.logger, "linters")
+	formatterPathsAdded := mergeExclusionPaths(&cfg.Formatters.Exclusions.Paths, newPaths, cu.logger, "formatters")
+
+	return linterPathsAdded + formatterPathsAdded
+}
+
+func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logger, section string) int {
+	if len(newPaths) == 0 {
+		return 0
+	}
+
+	merged := gogenfilter.MergeExclusionPaths(*existing, newPaths)
+	added := len(merged) - len(*existing)
+
+	if added > 0 {
+		logger.Infof("Adding %d generated file exclusions to %s: %v", added, section, newPaths)
+		*existing = merged
+	}
+
+	return added
 }
 
 // updateConfigFromSets applies the linter and formatter sets back to the config struct.
