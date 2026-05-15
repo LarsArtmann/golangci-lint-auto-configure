@@ -11,7 +11,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"slices"
 	"sort"
 	"strings"
 
@@ -31,10 +30,10 @@ func (e GeneratedExclusion) String() string {
 
 // ScanResult holds the results of scanning a project for generated files.
 type ScanResult struct {
-	Exclusions    []GeneratedExclusion
-	ScannedFiles  int
+	Exclusions     []GeneratedExclusion
+	ScannedFiles   int
 	GeneratedFiles int
-	Generators    []string // unique generator names detected
+	Generators     []string // unique generator names detected
 }
 
 // ScanProject scans a project directory for auto-generated Go files
@@ -148,35 +147,31 @@ func shouldSkipDir(name string, isRoot bool) bool {
 // for golangci-lint exclusion configuration.
 //
 // For each generator type, it produces the minimal set of glob patterns that
-// cover all detected files of that type.
+// cover all detected files of that type. Each pattern is an individual entry
+// (not pipe-delimited), because golangci-lint expects separate paths entries.
 func deriveExclusionPatterns(
 	detectedByGenerator map[string][]string,
 	projectDir string,
 ) []GeneratedExclusion {
-	var exclusions []GeneratedExclusion
-
 	generatorPatterns := map[string]struct {
 		pattern string
 		reason  string
 	}{
-		"templ":       {pattern: "**/*_templ.go", reason: "templ generated HTML components"},
-		"protobuf":    {pattern: "**/*.pb.go", reason: "protobuf generated code"},
-		"go-enum":     {pattern: "**/*_enum.go", reason: "go-enum generated enumerations"},
+		"templ":        {pattern: "**/*_templ.go", reason: "templ generated HTML components"},
+		"protobuf":     {pattern: "**/*.pb.go", reason: "protobuf generated code"},
+		"go-enum":      {pattern: "**/*_enum.go", reason: "go-enum generated enumerations"},
 		"deepcopy-gen": {pattern: "**/zz_generated.*.go", reason: "deepcopy-gen generated code"},
-		"wire":        {pattern: "**/wire_gen.go", reason: "wire generated dependency injection"},
-		"moq":         {pattern: "**/*_moq.go", reason: "moq generated mocks"},
-		"mockgen":     {pattern: "**/*_mock.go", reason: "mockgen generated mocks"},
-		"stringer":    {pattern: "**/*_string.go", reason: "stringer generated string methods"},
+		"wire":         {pattern: "**/wire_gen.go", reason: "wire generated dependency injection"},
+		"moq":          {pattern: "**/*_moq.go", reason: "moq generated mocks"},
+		"mockgen":      {pattern: "**/*_mock.go", reason: "mockgen generated mocks"},
+		"stringer":     {pattern: "**/*_string.go", reason: "stringer generated string methods"},
 	}
 
-	for generator, files := range detectedByGenerator {
-		pattern, reason := patternForGenerator(generator, files, projectDir, generatorPatterns)
+	var exclusions []GeneratedExclusion
 
-		if pattern != "" {
-			exclusions = append(exclusions, GeneratedExclusion{
-				Path:   pattern,
-				Reason: reason,
-			})
+	for generator, files := range detectedByGenerator {
+		for _, excl := range exclusionsForGenerator(generator, files, projectDir, generatorPatterns) {
+			exclusions = append(exclusions, excl)
 		}
 	}
 
@@ -187,7 +182,8 @@ func deriveExclusionPatterns(
 	return exclusions
 }
 
-func patternForGenerator(
+// exclusionsForGenerator returns one or more exclusion patterns for a given generator type.
+func exclusionsForGenerator(
 	generator string,
 	files []string,
 	projectDir string,
@@ -195,30 +191,29 @@ func patternForGenerator(
 		pattern string
 		reason  string
 	},
-) (string, string) {
+) []GeneratedExclusion {
 	if preset, ok := generatorPatterns[generator]; ok {
-		return preset.pattern, preset.reason
+		return []GeneratedExclusion{{Path: preset.pattern, Reason: preset.reason}}
 	}
 
-	if generator == "sqlc" {
-		return sqlcPatterns(files, projectDir)
+	switch generator {
+	case "sqlc":
+		return sqlcExclusions(files, projectDir)
+	case "oapi-codegen":
+		return oapiExclusions(files)
+	case "generic":
+		return nil
+	default:
+		return dirBasedExclusions(files, "auto-generated code")
 	}
-
-	if generator == "oapi-codegen" {
-		return oapiPatterns(files)
-	}
-
-	if generator == "generic" {
-		return "", ""
-	}
-
-	return genericPatternFromFiles(files)
 }
 
-// sqlcPatterns generates exclusion patterns for sqlc files.
+// sqlcExclusions generates exclusion patterns for sqlc files.
 // Attempts to use sqlc config discovery for output directories,
 // falling back to directory-based patterns from detected files.
-func sqlcPatterns(files []string, projectDir string) (string, string) {
+func sqlcExclusions(files []string, projectDir string) []GeneratedExclusion {
+	const reason = "sqlc generated database code"
+
 	dirs, err := gogenfilter.GetSQLOutputDirs([]string{projectDir})
 	if err == nil && len(dirs) > 0 {
 		patterns := make([]string, 0, len(dirs))
@@ -231,68 +226,60 @@ func sqlcPatterns(files []string, projectDir string) (string, string) {
 			patterns = append(patterns, rel+"/**")
 		}
 
-		slices.Sort(patterns)
-		pattern := strings.Join(patterns, "|")
-
-		return pattern, "sqlc generated database code"
+		return exclusionsFromDirs(patterns, reason)
 	}
 
-	return dirBasedPattern(files, "sqlc generated database code")
+	return dirBasedExclusions(files, reason)
 }
 
-// oapiPatterns generates exclusion patterns for oapi-codegen files.
-func oapiPatterns(files []string) (string, string) {
-	genFiles := filterSuffix(files, ".gen.go")
-	if len(genFiles) > 0 {
-		return "**/*.gen.go", "oapi-codegen generated API code"
-	}
-
-	return dirBasedPattern(files, "oapi-codegen generated API code")
-}
-
-// dirBasedPattern generates a pattern covering the parent directories of the given files.
-func dirBasedPattern(files []string, reason string) (string, string) {
-	dirs := make(map[string]struct{})
+// oapiExclusions generates exclusion patterns for oapi-codegen files.
+func oapiExclusions(files []string) []GeneratedExclusion {
 	for _, f := range files {
-		dirs[filepath.Dir(f)] = struct{}{}
-	}
-
-	dirList := make([]string, 0, len(dirs))
-	for dir := range dirs {
-		dirList = append(dirList, dir)
-	}
-	sort.Strings(dirList)
-
-	patterns := make([]string, 0, len(dirList))
-	for _, dir := range dirList {
-		patterns = append(patterns, dir+"/**")
-	}
-
-	return strings.Join(patterns, "|"), reason
-}
-
-func filterSuffix(files []string, suffix string) []string {
-	var filtered []string
-	for _, f := range files {
-		if strings.HasSuffix(f, suffix) {
-			filtered = append(filtered, f)
+		if strings.HasSuffix(f, ".gen.go") {
+			return []GeneratedExclusion{
+				{Path: "**/*.gen.go", Reason: "oapi-codegen generated API code"},
+			}
 		}
 	}
 
-	return filtered
+	return dirBasedExclusions(files, "oapi-codegen generated API code")
 }
 
-func genericPatternFromFiles(files []string) (string, string) {
-	if len(files) == 0 {
-		return "", ""
+// dirBasedExclusions generates one exclusion entry per unique parent directory.
+func dirBasedExclusions(files []string, reason string) []GeneratedExclusion {
+	dirSet := make(map[string]struct{})
+	for _, f := range files {
+		dirSet[filepath.Dir(f)] = struct{}{}
 	}
 
-	return dirBasedPattern(files, "auto-generated code ("+filepath.Base(filepath.Dir(files[0]))+")")
+	dirs := make([]string, 0, len(dirSet))
+	for dir := range dirSet {
+		dirs = append(dirs, dir)
+	}
+
+	patterns := make([]string, 0, len(dirs))
+	for _, dir := range dirs {
+		patterns = append(patterns, dir+"/**")
+	}
+
+	return exclusionsFromDirs(patterns, reason)
+}
+
+// exclusionsFromDirs converts directory-based patterns into individual exclusion entries.
+func exclusionsFromDirs(dirPatterns []string, reason string) []GeneratedExclusion {
+	sort.Strings(dirPatterns)
+
+	exclusions := make([]GeneratedExclusion, len(dirPatterns))
+	for i, p := range dirPatterns {
+		exclusions[i] = GeneratedExclusion{Path: p, Reason: reason}
+	}
+
+	return exclusions
 }
 
 // MergeExclusionPaths merges new exclusion paths into existing ones,
 // avoiding duplicates. Returns the merged list sorted alphabetically.
-func MergeExclusionPaths(existing, new []string) []string {
+func MergeExclusionPaths(existing, newPaths []string) []string {
 	seen := make(map[string]struct{}, len(existing))
 	for _, p := range existing {
 		seen[p] = struct{}{}
@@ -301,7 +288,7 @@ func MergeExclusionPaths(existing, new []string) []string {
 	merged := make([]string, len(existing))
 	copy(merged, existing)
 
-	for _, p := range new {
+	for _, p := range newPaths {
 		if _, ok := seen[p]; !ok {
 			merged = append(merged, p)
 			seen[p] = struct{}{}
