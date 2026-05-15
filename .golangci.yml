@@ -184,6 +184,8 @@ linters:
           yaml: kebab
   exclusions:
     generated: lax
+    paths:
+      - _templ\.go$
     presets:
       - comments
       - common-false-positives
@@ -373,6 +375,9 @@ formatters:
     - gofumpt
     - golines
     - swaggo
+  exclusions:
+    paths:
+      - _templ\.go$
   settings:
     golines:
       max-len: 120
