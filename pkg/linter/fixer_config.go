@@ -2,6 +2,7 @@ package linter
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"slices"
 
@@ -90,7 +91,7 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 		cfg.Formatters.Exclusions.Generated = "lax"
 	}
 
-	result, err := gogenfilter.ScanProject(projectDir)
+	result, err := gogenfilter.ScanProject(os.DirFS(projectDir), projectDir)
 	if err != nil {
 		cu.logger.Debugf("Generated file scan skipped: %v", err)
 
