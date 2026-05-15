@@ -119,7 +119,121 @@ func validateLoadedConfig(
 
 	logger.Infof("✓ Internal validation passed")
 
+	return checkConfigHealth(cfg, logger, configFile)
+}
+
+func checkConfigHealth(cfg *types.Config, logger *log.Logger, configFile string) error {
+	health := types.CheckConfigHealth(cfg)
+
+	if health.IsHealthy() {
+		logger.Infof("✓ Config health check passed")
+
+		return nil
+	}
+
+	if reportFormat == formatSARIF {
+		return outputHealthSARIF(health, configFile)
+	}
+
+	logHealthIssues(logger, health)
+
+	return fmt.Errorf(
+		"%w: %d health issues (%d critical, %d warning)",
+		apperrors.ErrConfigValidationFailed,
+		len(health.Issues),
+		len(health.CriticalIssues()),
+		len(health.WarningIssues()),
+	)
+}
+
+func logHealthIssues(logger *log.Logger, health *types.ConfigHealth) {
+	logger.Warnf("⚠️  Config health check found issues:")
+
+	for _, issue := range health.CriticalIssues() {
+		logger.Errorf("  🔴 [%s] %s (%s)", issue.Severity, issue.Message, issue.Rule)
+	}
+
+	for _, issue := range health.WarningIssues() {
+		logger.Warnf("  🟡 [%s] %s (%s)", issue.Severity, issue.Message, issue.Rule)
+	}
+
+	for _, issue := range health.Issues {
+		if issue.Severity == types.HealthSeverityInfo {
+			logger.Infof("  ℹ️  [%s] %s (%s)", issue.Severity, issue.Message, issue.Rule)
+		}
+	}
+
+	logger.Warnf("  Suggestions:")
+	for _, issue := range health.Issues {
+		if issue.Suggestion != "" {
+			logger.Warnf("    - %s: %s", issue.Rule, issue.Suggestion)
+		}
+	}
+}
+
+func outputHealthSARIF(health *types.ConfigHealth, configFile string) error {
+	report := finding.NewReport(finding.ToolInfo{
+		Name:    "golangci-lint-auto-configure",
+		Version: Version,
+	})
+
+	report.AddFindings(healthIssuesToFindings(health, configFile))
+	report.ComputeSummary()
+
+	sarif, err := report.ToSARIF()
+	if err != nil {
+		return fmt.Errorf("failed to generate SARIF: %w", err)
+	}
+
+	var raw json.RawMessage = sarif
+
+	pretty, err := json.MarshalIndent(raw, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to format SARIF: %w", err)
+	}
+
+	if _, err := os.Stdout.Write(pretty); err != nil {
+		return fmt.Errorf("failed to write SARIF output: %w", err)
+	}
+
 	return nil
+}
+
+func healthIssuesToFindings(health *types.ConfigHealth, configFile string) []finding.Finding {
+	result := make([]finding.Finding, 0, len(health.Issues))
+
+	for _, issue := range health.Issues {
+		pos := finding.Position{File: configFile}
+
+		var severity finding.Severity
+		switch issue.Severity {
+		case types.HealthSeverityCritical:
+			severity = finding.SeverityCritical
+		case types.HealthSeverityWarning:
+			severity = finding.SeverityError
+		default:
+			severity = finding.SeverityWarning
+		}
+
+		f, err := finding.NewBuilder(
+			issue.Rule,
+			"golangci-lint-auto-configure",
+			issue.Message,
+			severity,
+			pos,
+		).
+			WithCategory(finding.CategoryConfiguration).
+			WithFixStrategy(finding.FixStrategySuggest).
+			WithSuggestion(issue.Suggestion).
+			Build()
+		if err != nil {
+			continue
+		}
+
+		result = append(result, f)
+	}
+
+	return result
 }
 
 func logAndFailLoad(logger *log.Logger, err error) error {

@@ -284,6 +284,8 @@ run:
 linters:
   enable:
     - errcheck
+    - staticcheck
+    - govet
     - gosec
 `
 			testCommandSuccess(configContent, "validate", "valid")
