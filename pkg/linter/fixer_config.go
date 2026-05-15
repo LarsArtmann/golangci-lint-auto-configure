@@ -114,6 +114,15 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 	return linterPathsAdded + formatterPathsAdded
 }
 
+// ApplyGeneratedExclusions scans a project config for auto-generated Go files
+// and injects exclusion paths into the config. This is the public entry point
+// used by both the fixer flow and the preset flow.
+func ApplyGeneratedExclusions(logger *log.Logger, cfg *types.Config, configPath string) int {
+	updater := newConfigUpdater(logger)
+
+	return updater.updateGeneratedExclusions(cfg, configPath)
+}
+
 func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logger, section string) int {
 	if len(newPaths) == 0 {
 		return 0

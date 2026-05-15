@@ -346,6 +346,11 @@ func savePresetConfig(
 	cfg.Linters.Enable = linterNames
 	cfg.Linters.Disable = []string{}
 
+	generatedCount := linter.ApplyGeneratedExclusions(logger, cfg, configFile)
+	if generatedCount > 0 {
+		logger.Infof("Added %d generated file exclusions", generatedCount)
+	}
+
 	if err := configLoader.SaveConfig(cfg, configFile); err != nil {
 		return fmt.Errorf(
 			"failed to save config (preset=%s, linterCount=%d): %w",
