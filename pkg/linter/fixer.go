@@ -149,13 +149,7 @@ func (c fixCounts) total() int {
 }
 
 func newFixCounts() fixCounts {
-	return fixCounts{
-		deprecation: 0,
-		enable:      0,
-		formatter:   0,
-		generated:   0,
-		redundant:   0,
-	}
+	return fixCounts{}
 }
 
 // applyLintersFix processes linter recommendations, applies fixes, and saves the config.
