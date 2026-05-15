@@ -176,10 +176,6 @@ func (f *Fixer) applyLintersFix(
 		return f.dryRunResult(counts)
 	}
 
-	if counts.total() == 0 {
-		return noFixesResult()
-	}
-
 	return f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, counts)
 }
 
@@ -221,17 +217,19 @@ func (f *Fixer) applyAndSave(
 	dryRun bool,
 	counts fixCounts,
 ) types.MigrationResultType {
-	f.logger.Infof("Applying %d fixes...", counts.total())
-
 	updater := newConfigUpdater(f.logger)
 	updater.updateGoVersion(ctx, cfg)
 	updater.updateRunnerSettings(cfg)
 	updater.updateBuildTags(cfg)
 	updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
 
-	if !dryRun {
-		counts.generated = updater.updateGeneratedExclusions(cfg, configPath)
+	counts.generated = updater.updateGeneratedExclusions(cfg, configPath)
+
+	if counts.total() == 0 {
+		return noFixesResult()
 	}
+
+	f.logger.Infof("Applying %d fixes...", counts.total())
 
 	f.logger.Infof("Saving configuration...")
 
