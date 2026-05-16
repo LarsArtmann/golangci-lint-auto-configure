@@ -66,33 +66,32 @@ func FormatFindingsSummary(findings []finding.Finding) string {
 	return "Findings: " + strings.Join(parts, ", ")
 }
 
-var severityData = []struct {
-	severity finding.Severity
-	label    string
-	badge    string
-}{
-	{finding.SeverityCritical, "critical", "\U0001f534"},
-	{finding.SeverityError, "error", "\U0001f7e0"},
-	{finding.SeverityWarning, "warning", "\U0001f7e1"},
-	{finding.SeverityInfo, "info", "\U0001f535"},
-}
-
 func severityLabel(severity finding.Severity) string {
-	for _, s := range severityData {
-		if s.severity == severity {
-			return s.label
-		}
+	switch severity {
+	case finding.SeverityCritical:
+		return "critical"
+	case finding.SeverityError:
+		return "error"
+	case finding.SeverityWarning:
+		return "warning"
+	case finding.SeverityInfo:
+		return "info"
+	default:
+		return "unknown"
 	}
-
-	return "unknown"
 }
 
 func severityBadge(severity finding.Severity) string {
-	for _, s := range severityData {
-		if s.severity == severity {
-			return s.badge
-		}
+	switch severity {
+	case finding.SeverityCritical:
+		return "\U0001f534"
+	case finding.SeverityError:
+		return "\U0001f7e0"
+	case finding.SeverityWarning:
+		return "\U0001f7e1"
+	case finding.SeverityInfo:
+		return "\U0001f535"
+	default:
+		return "\u26aa"
 	}
-
-	return "\u26aa"
 }
