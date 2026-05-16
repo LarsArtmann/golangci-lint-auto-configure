@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	gogenfilter "github.com/LarsArtmann/gogenfilter/v3"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // GeneratedExclusion represents a path-based exclusion for auto-generated code.
@@ -273,24 +274,13 @@ func exclusionsFromDirs(dirPatterns []string, reason string) []GeneratedExclusio
 // MergeExclusionPaths merges new exclusion paths into existing ones,
 // avoiding duplicates. Returns the merged list sorted alphabetically.
 func MergeExclusionPaths(existing, newPaths []string) []string {
-	seen := make(map[string]struct{}, len(existing))
-	for _, p := range existing {
-		seen[p] = struct{}{}
-	}
-
-	merged := make([]string, 0, len(existing)+len(newPaths))
-	merged = append(merged, existing...)
+	result := types.NewSet(existing...)
 
 	for _, p := range newPaths {
-		if _, ok := seen[p]; !ok {
-			merged = append(merged, p)
-			seen[p] = struct{}{}
-		}
+		result.Add(p)
 	}
 
-	sort.Strings(merged)
-
-	return merged
+	return types.ToSortedSlice(result)
 }
 
 // ExclusionPaths extracts just the path patterns from a slice of exclusions.
