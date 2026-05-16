@@ -147,6 +147,21 @@ type ConfigAnalysis struct {
 	DeprecatedCount          int                       `json:"deprecated_count"`
 }
 
+// TotalRecommendations returns the total number of linter + formatter recommendations.
+func (a *ConfigAnalysis) TotalRecommendations() int {
+	return len(a.LinterRecommendations) + len(a.FormatterRecommendations)
+}
+
+// EnabledLinterNames returns just the names of enabled linters.
+func (a *ConfigAnalysis) EnabledLinterNames() []string {
+	names := make([]string, len(a.EnabledLinters))
+	for i, l := range a.EnabledLinters {
+		names[i] = string(l.Name)
+	}
+
+	return names
+}
+
 // MigrationResult represents the result of a configuration migration.
 type MigrationResult struct {
 	FixesApplied int      `json:"fixes_applied"`
