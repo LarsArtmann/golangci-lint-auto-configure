@@ -9,6 +9,7 @@ import (
 	"charm.land/log/v2"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -125,7 +126,7 @@ func validateLoadedConfig(
 }
 
 func checkConfigHealth(cfg *types.Config, logger *log.Logger, configFile string) error {
-	health := types.CheckConfigHealth(cfg)
+	health := types.CheckConfigHealthWithCriticalLinters(cfg, constants.CriticalLinters())
 
 	if health.IsHealthy() {
 		logger.Infof("✓ Config health check passed")
@@ -209,18 +210,7 @@ func healthIssuesToFindings(health *types.ConfigHealth, configFile string) []fin
 	for _, issue := range health.Issues {
 		pos := finding.Position{File: configFile}
 
-		var severity finding.Severity
-
-		switch issue.Severity {
-		case types.HealthSeverityCritical:
-			severity = finding.SeverityCritical
-		case types.HealthSeverityWarning:
-			severity = finding.SeverityError
-		case types.HealthSeverityInfo:
-			severity = finding.SeverityInfo
-		default:
-			severity = finding.SeverityWarning
-		}
+		severity := appfinding.SeverityFromHealthSeverity(issue.Severity)
 
 		findingObj, err := finding.NewBuilder(
 			issue.Rule,

@@ -126,3 +126,13 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 
 	// All other linters default to Optional
 }
+
+// CriticalLinters returns the names of the core critical linters that MUST
+// be configured in every golangci-lint config for correctness checking.
+// These are the fundamental linters (errcheck, staticcheck, govet) that
+// the health check enforces. Other critical-priority linters (gosec, musttag,
+// etc.) are also critical but the health check focuses on these three as
+// the absolute minimum baseline.
+func CriticalLinters() []string {
+	return []string{"errcheck", "staticcheck", "govet"}
+}

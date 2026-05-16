@@ -42,6 +42,21 @@ func AnalysisFindingsByCategory(analysis *types.ConfigAnalysis, version string) 
 	return finding.GroupByCategory(report.Findings)
 }
 
+// SeverityFromHealthSeverity converts a types.HealthSeverity to the corresponding
+// go-finding Severity. Warnings map to error severity (the highest non-critical).
+func SeverityFromHealthSeverity(sev types.HealthSeverity) finding.Severity {
+	switch sev {
+	case types.HealthSeverityCritical:
+		return finding.SeverityCritical
+	case types.HealthSeverityWarning:
+		return finding.SeverityError
+	case types.HealthSeverityInfo:
+		return finding.SeverityInfo
+	default:
+		return finding.SeverityWarning
+	}
+}
+
 // AutoFixableFindings returns only findings with FixStrategyDirect.
 func AutoFixableFindings(analysis *types.ConfigAnalysis, version string) []finding.Finding {
 	report := AnalysisToReport(analysis, version)

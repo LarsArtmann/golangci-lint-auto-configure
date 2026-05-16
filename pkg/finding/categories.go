@@ -72,7 +72,6 @@ var linterCategories = map[string]finding.Category{
 	// Structure
 	"sloglint":      finding.CategoryStructure,
 	"loggercheck":   finding.CategoryStructure,
-	"gomodguard":    finding.CategoryStructure,
 	"gomodguard_v2": finding.CategoryStructure,
 }
 

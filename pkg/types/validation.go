@@ -160,7 +160,16 @@ func filterHealthIssues(issues []HealthIssue, severity HealthSeverity) []HealthI
 // Unlike ValidateConfig (which checks schema correctness), this checks for
 // patterns that indicate config quality issues: duplicates, enable+disable
 // overlaps, missing critical linters, and v1/v2 syntax mixing.
+//
+// Uses the default set of critical linters (errcheck, staticcheck, govet).
+// Use CheckConfigHealthWithCriticalLinters for a custom critical linter set.
 func CheckConfigHealth(cfg *Config) *ConfigHealth {
+	return CheckConfigHealthWithCriticalLinters(cfg, []string{"errcheck", "staticcheck", "govet"})
+}
+
+// CheckConfigHealthWithCriticalLinters performs structural health checks on a config
+// with a configurable set of critical linter names.
+func CheckConfigHealthWithCriticalLinters(cfg *Config, criticalLinters []string) *ConfigHealth {
 	if cfg == nil {
 		return &ConfigHealth{}
 	}
@@ -168,7 +177,7 @@ func CheckConfigHealth(cfg *Config) *ConfigHealth {
 	health := &ConfigHealth{}
 	health.checkDuplicateLinters(cfg)
 	health.checkEnableDisableOverlap(cfg)
-	health.checkMissingCriticalLinters(cfg)
+	health.checkMissingCriticalLinters(cfg, criticalLinters)
 	health.checkV1SyntaxMixing(cfg)
 
 	return health
@@ -236,11 +245,9 @@ func (h *ConfigHealth) checkEnableDisableOverlap(cfg *Config) {
 	}
 }
 
-func (h *ConfigHealth) checkMissingCriticalLinters(cfg *Config) {
+func (h *ConfigHealth) checkMissingCriticalLinters(cfg *Config, criticalLinters []string) {
 	enabledSet := NewSet(cfg.Linters.Enable...)
 	disabledSet := NewSet(cfg.Linters.Disable...)
-
-	criticalLinters := []string{"errcheck", "staticcheck", "govet"}
 
 	for _, name := range criticalLinters {
 		if !enabledSet.Contains(name) && !disabledSet.Contains(name) {
