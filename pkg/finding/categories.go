@@ -70,8 +70,10 @@ var linterCategories = map[string]finding.Category{
 	"copyloopvar":     finding.CategoryTypeSafety,
 	"intrange":        finding.CategoryTypeSafety,
 	// Structure
-	"sloglint":    finding.CategoryStructure,
-	"loggercheck": finding.CategoryStructure,
+	"sloglint":      finding.CategoryStructure,
+	"loggercheck":   finding.CategoryStructure,
+	"gomodguard":    finding.CategoryStructure,
+	"gomodguard_v2": finding.CategoryStructure,
 }
 
 // LinterToCategory maps a linter name to its finding category.

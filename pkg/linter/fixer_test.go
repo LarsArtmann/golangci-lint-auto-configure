@@ -242,6 +242,51 @@ linters:
 				Expect(content).NotTo(ContainSubstring("wsl:"))
 			})
 		})
+
+		It("should detect deprecated linter gomodguard and suggest gomodguard_v2", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+    - gomodguard
+`
+			testDeprecatedLinterDryRun(fixer, testConfig, configContent)
+		})
+
+		It("should fix deprecated gomodguard in non-dry-run mode", func() {
+			testLinterModification(
+				fixer, testConfig, "gomodguard",
+				types.LinterPriorityHigh, false,
+				func(content string) {
+					Expect(content).To(ContainSubstring("gomodguard_v2"))
+					Expect(content).NotTo(ContainSubstring("- gomodguard\n"))
+				},
+			)
+		})
+
+		It("should migrate gomodguard settings to gomodguard_v2", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+    - gomodguard
+  settings:
+    gomodguard:
+      allowed:
+        modules:
+          - golang.org/x/mod
+`
+			writeConfig(testConfig, configContent)
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("gomodguard_v2"))
+			Expect(content).To(ContainSubstring("golang.org/x/mod"))
+			Expect(content).NotTo(ContainSubstring("- gomodguard\n"))
+		})
 	})
 
 	Context("Invalid Duration Fields", func() {

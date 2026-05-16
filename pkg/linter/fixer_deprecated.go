@@ -22,31 +22,60 @@ func (h *deprecatedLinterHandler) replaceLinters(
 	enabledLinters []string,
 	dryRun bool,
 	counts *fixCounts,
+	cfg *types.Config,
 ) types.Set[string] {
 	for _, linter := range enabledLinters {
-		replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
-		if !isDeprecated {
-			continue
-		}
-
-		counts.deprecation++
-
-		linterSet.Delete(linter)
-
-		if linterSet.Contains(string(replacement.Replacement)) {
-			h.logKeep(linter, replacement.Replacement, dryRun)
-
-			continue
-		}
-
-		h.logReplace(linter, replacement, dryRun)
-
-		if !dryRun {
-			linterSet.Add(string(replacement.Replacement))
-		}
+		h.replaceOne(linterSet, linter, dryRun, counts, cfg)
 	}
 
 	return linterSet
+}
+
+func (h *deprecatedLinterHandler) replaceOne(
+	linterSet types.Set[string],
+	linter string,
+	dryRun bool,
+	counts *fixCounts,
+	cfg *types.Config,
+) {
+	replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
+	if !isDeprecated {
+		return
+	}
+
+	counts.deprecation++
+
+	linterSet.Delete(linter)
+
+	if linterSet.Contains(string(replacement.Replacement)) {
+		h.logKeep(linter, replacement.Replacement, dryRun)
+
+		return
+	}
+
+	h.logReplace(linter, replacement, dryRun)
+
+	if !dryRun {
+		linterSet.Add(string(replacement.Replacement))
+		h.migrateSettings(cfg, linter, string(replacement.Replacement))
+	}
+}
+
+// migrateSettings moves linter settings from the deprecated name to the replacement name.
+func (h *deprecatedLinterHandler) migrateSettings(cfg *types.Config, oldName, newName string) {
+	if cfg.Linters.Settings == nil {
+		return
+	}
+
+	settings, exists := cfg.Linters.Settings[oldName]
+	if !exists {
+		return
+	}
+
+	h.logger.Debugf("Migrating settings from %s to %s", oldName, newName)
+
+	cfg.Linters.Settings[newName] = settings
+	delete(cfg.Linters.Settings, oldName)
 }
 
 func (h *deprecatedLinterHandler) logKeep(linter string, replacement types.LinterName, dryRun bool) {

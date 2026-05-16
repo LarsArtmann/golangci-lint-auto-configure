@@ -190,7 +190,7 @@ func (f *Fixer) applyAllFixes(
 ) fixCounts {
 	counts := newFixCounts()
 	handler := newDeprecatedLinterHandler(f.logger)
-	linterSet = handler.replaceLinters(linterSet, originalEnabled, dryRun, &counts)
+	linterSet = handler.replaceLinters(linterSet, originalEnabled, dryRun, &counts, cfg)
 	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
 	counts.formatter += f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun)
 	counts.formatter += f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun)

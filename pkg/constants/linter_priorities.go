@@ -92,6 +92,7 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"godoclint":                 types.LinterPriorityMedium,
 	"gomoddirectives":           types.LinterPriorityMedium,
 	"gomodguard":                types.LinterPriorityMedium,
+	"gomodguard_v2":             types.LinterPriorityMedium,
 	"ireturn":                   types.LinterPriorityMedium,
 	"lll":                       types.LinterPriorityMedium,
 	"mnd":                       types.LinterPriorityMedium,

@@ -40,6 +40,10 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 		Replacement: "revive",
 		Reason:      "nosnakecase was removed in golangci-lint v2, use revive instead",
 	},
+	"gomodguard": {
+		Replacement: "gomodguard_v2",
+		Reason:      "gomodguard is deprecated since golangci-lint v2.12.0, use gomodguard_v2 instead",
+	},
 }
 
 // DisabledLinters is a set of linters that should never be recommended or enabled.

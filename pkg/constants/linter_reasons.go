@@ -92,6 +92,7 @@ var LinterReasons = map[types.LinterName]string{
 	"godoclint":                 "Checks Golang's documentation practice (godoc)",
 	"gomoddirectives":           "Manage the use of replace, retract, and excludes directives in go.mod",
 	"gomodguard":                "Allow and blocklist linter for direct Go module dependencies",
+	"gomodguard_v2":             "Allow and blocklist linter for direct Go module dependencies (updated major version)",
 	"ireturn":                   "Accept Interfaces, Return Concrete Types",
 	"lll":                       "Reports long lines",
 	"mnd":                       "Detects magic numbers",
