@@ -77,7 +77,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := filterByRule(health.Issues, "enable-disable-overlap")
+				issues := health.IssuesByRule("enable-disable-overlap")
 				Expect(issues).To(HaveLen(1))
 				Expect(issues[0].Severity).To(Equal(types.HealthSeverityWarning))
 				Expect(issues[0].Message).To(ContainSubstring("nlreturn"))
@@ -92,7 +92,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := filterByRule(health.Issues, "enable-disable-overlap")
+				issues := health.IssuesByRule("enable-disable-overlap")
 				Expect(issues).To(HaveLen(2))
 			})
 		})
@@ -106,7 +106,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := filterByRule(health.Issues, "missing-critical-linter")
+				issues := health.IssuesByRule("missing-critical-linter")
 				Expect(issues).To(HaveLen(1))
 				Expect(issues[0].Message).To(ContainSubstring("errcheck"))
 			})
@@ -119,7 +119,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := filterByRule(health.Issues, "missing-critical-linter")
+				issues := health.IssuesByRule("missing-critical-linter")
 				Expect(issues).To(HaveLen(3))
 			})
 		})
@@ -132,7 +132,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := filterByRule(health.Issues, "missing-critical-linter")
+				issues := health.IssuesByRule("missing-critical-linter")
 				Expect(issues).To(BeEmpty())
 			})
 		})
@@ -148,7 +148,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := filterByRule(health.Issues, "v1-syntax-in-v2")
+				issues := health.IssuesByRule("v1-syntax-in-v2")
 				Expect(issues).To(HaveLen(1))
 				Expect(issues[0].Severity).To(Equal(types.HealthSeverityWarning))
 			})
@@ -164,7 +164,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := filterByRule(health.Issues, "v1-syntax-in-v2")
+				issues := health.IssuesByRule("v1-syntax-in-v2")
 				Expect(issues).To(BeEmpty())
 			})
 		})
@@ -238,6 +238,49 @@ var _ = Describe("ConfigHealth", func() {
 			Expect(health.WarningIssues()).To(HaveLen(2))
 		})
 	})
+
+	Describe("IssuesByRule", func() {
+		It("filters issues by rule name", func() {
+			health := &types.ConfigHealth{
+				Issues: []types.HealthIssue{
+					{Severity: types.HealthSeverityWarning, Rule: "duplicate-linter"},
+					{Severity: types.HealthSeverityInfo, Rule: "v1-syntax-in-v2"},
+					{Severity: types.HealthSeverityWarning, Rule: "duplicate-linter"},
+				},
+			}
+			Expect(health.IssuesByRule("duplicate-linter")).To(HaveLen(2))
+			Expect(health.IssuesByRule("v1-syntax-in-v2")).To(HaveLen(1))
+			Expect(health.IssuesByRule("unknown")).To(BeEmpty())
+		})
+	})
+
+	Describe("HasRule", func() {
+		It("returns true when rule exists", func() {
+			health := &types.ConfigHealth{
+				Issues: []types.HealthIssue{
+					{Severity: types.HealthSeverityWarning, Rule: "enable-disable-overlap"},
+				},
+			}
+			Expect(health.HasRule("enable-disable-overlap")).To(BeTrue())
+			Expect(health.HasRule("duplicate-linter")).To(BeFalse())
+		})
+	})
+
+	Describe("CountBySeverity", func() {
+		It("returns count for each severity", func() {
+			health := &types.ConfigHealth{
+				Issues: []types.HealthIssue{
+					{Severity: types.HealthSeverityCritical, Rule: "a"},
+					{Severity: types.HealthSeverityCritical, Rule: "b"},
+					{Severity: types.HealthSeverityWarning, Rule: "c"},
+					{Severity: types.HealthSeverityInfo, Rule: "d"},
+				},
+			}
+			Expect(health.CountBySeverity(types.HealthSeverityCritical)).To(Equal(2))
+			Expect(health.CountBySeverity(types.HealthSeverityWarning)).To(Equal(1))
+			Expect(health.CountBySeverity(types.HealthSeverityInfo)).To(Equal(1))
+		})
+	})
 })
 
 func validConfig() *types.Config {
@@ -250,16 +293,4 @@ func validConfig() *types.Config {
 			Enable: []string{"errcheck", "staticcheck", "govet"},
 		},
 	}
-}
-
-func filterByRule(issues []types.HealthIssue, rule string) []types.HealthIssue {
-	var filtered []types.HealthIssue
-
-	for _, issue := range issues {
-		if issue.Rule == rule {
-			filtered = append(filtered, issue)
-		}
-	}
-
-	return filtered
 }

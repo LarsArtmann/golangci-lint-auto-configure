@@ -156,6 +156,43 @@ func filterHealthIssues(issues []HealthIssue, severity HealthSeverity) []HealthI
 	return filtered
 }
 
+// IssuesByRule returns all issues matching the given rule name.
+func (h *ConfigHealth) IssuesByRule(rule string) []HealthIssue {
+	var filtered []HealthIssue
+
+	for _, issue := range h.Issues {
+		if issue.Rule == rule {
+			filtered = append(filtered, issue)
+		}
+	}
+
+	return filtered
+}
+
+// HasRule returns true if any issue matches the given rule name.
+func (h *ConfigHealth) HasRule(rule string) bool {
+	for _, issue := range h.Issues {
+		if issue.Rule == rule {
+			return true
+		}
+	}
+
+	return false
+}
+
+// CountBySeverity returns the number of issues with the given severity.
+func (h *ConfigHealth) CountBySeverity(severity HealthSeverity) int {
+	count := 0
+
+	for _, issue := range h.Issues {
+		if issue.Severity == severity {
+			count++
+		}
+	}
+
+	return count
+}
+
 // CheckConfigHealth performs structural health checks on a config.
 // Unlike ValidateConfig (which checks schema correctness), this checks for
 // patterns that indicate config quality issues: duplicates, enable+disable
