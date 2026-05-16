@@ -24,12 +24,12 @@ This session addressed **8 architecture and code-quality improvements** across 1
 
 Replaced 20-line manual map-based deduplication with existing `types.Set[string]`:
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Lines | 20 | 4 |
-| Manual map creation | ✅ | ❌ |
-| `slices.Sort` call | ✅ | ❌ |
-| Uses `types.Set` | ❌ | ✅ |
+| Metric              | Before | After |
+| ------------------- | ------ | ----- |
+| Lines               | 20     | 4     |
+| Manual map creation | ✅     | ❌    |
+| `slices.Sort` call  | ✅     | ❌    |
+| Uses `types.Set`    | ❌     | ✅    |
 
 ```go
 // Before: manual map, append, sort
@@ -68,6 +68,7 @@ func MergeExclusionPaths(existing, newPaths []string) []string {
 **Solution:**
 
 1. Added `CriticalLinters()` in `pkg/constants`:
+
 ```go
 func CriticalLinters() []string {
     return []string{"errcheck", "staticcheck", "govet"}
@@ -75,6 +76,7 @@ func CriticalLinters() []string {
 ```
 
 2. Added `CheckConfigHealthWithCriticalLinters(cfg, criticalLinters)` — caller controls the set:
+
 ```go
 // CLI usage:
 health := types.CheckConfigHealthWithCriticalLinters(cfg, constants.CriticalLinters())
@@ -123,15 +125,16 @@ Removed `gomodguard` from `linterCategories` map. Only `gomodguard_v2` maps to `
 
 Added 3 value methods to `ConfigHealth`, following existing pattern (`CriticalIssues`, `WarningIssues`):
 
-| Method | Signature | Tests |
-|--------|-----------|-------|
-| `IssuesByRule` | `(rule string) []HealthIssue` | ✅ 1 spec |
-| `HasRule` | `(rule string) bool` | ✅ 1 spec |
-| `CountBySeverity` | `(sev HealthSeverity) int` | ✅ 1 spec |
+| Method            | Signature                     | Tests     |
+| ----------------- | ----------------------------- | --------- |
+| `IssuesByRule`    | `(rule string) []HealthIssue` | ✅ 1 spec |
+| `HasRule`         | `(rule string) bool`          | ✅ 1 spec |
+| `CountBySeverity` | `(sev HealthSeverity) int`    | ✅ 1 spec |
 
 Migrated 7 test call sites from `filterByRule(health.Issues, "duplicate-linter")` to `health.IssuesByRule("duplicate-linter")`. Removed standalone `filterByRule` helper.
 
 **Example migration:**
+
 ```go
 // Before: free function (5-line helper + 7 call sites)
 issues := filterByRule(health.Issues, "missing-critical-linter")
@@ -149,6 +152,7 @@ issues := health.IssuesByRule("missing-critical-linter")
 **SRP violation fixed:** `presetForProjectType()` lived in CLI layer but operates on detection domain type.
 
 **Before:**
+
 ```go
 // internal/cli/cmd_configure.go — 88 lines (func + 2 constants)
 func presetForProjectType(projectType detection.ProjectType) string {
@@ -165,6 +169,7 @@ func presetForProjectType(projectType detection.ProjectType) string {
 ```
 
 **After:**
+
 ```go
 // pkg/detection/detector.go — 10 lines (value method)
 func (p ProjectType) Preset() string {
@@ -192,6 +197,7 @@ func (p ProjectType) Preset() string {
 **File:** `internal/cli/cmd_validate.go`
 
 **Bug:** `finding.Build()` errors silently skipped with bare `continue`:
+
 ```go
 findingObj, err := finding.NewBuilder(...).Build()
 if err != nil {
@@ -200,6 +206,7 @@ if err != nil {
 ```
 
 **Fix:** Threaded `*log.Logger` through `outputHealthSARIF` → `healthIssuesToFindings`:
+
 ```go
 if err != nil {
     logger.Warnf("⚠️  Failed to build finding for rule %q: %v", issue.Rule, err)
@@ -208,6 +215,7 @@ if err != nil {
 ```
 
 **API changes:**
+
 - `outputHealthSARIF(health, configFile)` → `outputHealthSARIF(health, configFile, logger)`
 - `healthIssuesToFindings(health, configFile)` → `healthIssuesToFindings(health, configFile, logger)`
 
@@ -217,10 +225,10 @@ if err != nil {
 
 **File:** `pkg/types/types.go`
 
-| Method | Use Case |
-|--------|----------|
-| `TotalRecommendations() int` | "Found N total recommendations" in reports |
-| `EnabledLinterNames() []string` | Logging, set operations, comparison |
+| Method                          | Use Case                                   |
+| ------------------------------- | ------------------------------------------ |
+| `TotalRecommendations() int`    | "Found N total recommendations" in reports |
+| `EnabledLinterNames() []string` | Logging, set operations, comparison        |
 
 ```go
 func (a *ConfigAnalysis) TotalRecommendations() int {
@@ -311,77 +319,77 @@ Every started task was completed and committed. The extraction of `applyPreset` 
 
 Sorted by Impact × Effort (Pareto highest first):
 
-| # | P | Task | Effort | Impact | Customer Value |
-|---|---|------|--------|--------|---------------|
-| 1 | 🔴 | Extract `ConfigureService` interface from `cmd_configure.go` | Medium | **High** | Testability, SRP |
-| 2 | 🔴 | Add unit tests for `pkg/report/` generators (0% → 50%+) | Medium | **High** | Report reliability |
-| 3 | 🔴 | Create `FEATURES.md` with honest feature inventory | Low | **High** | Project clarity |
-| 4 | 🟡 | Add `go:generate stringer` for `HealthSeverity` | 5 min | Low | Standard Go |
-| 5 | 🟡 | Add `ConfigAnalysis.TotalLinters()`, `HasDeprecatedLinters()` | 10 min | Low | API completeness |
-| 6 | 🟡 | Extract `applyPreset` from `cmd_configure.go` | Medium | Medium | File size |
-| 7 | 🟡 | Create `TODO_LIST.md` comprehensive backlog | Medium | Medium | Execution roadmap |
-| 8 | 🟡 | Improve `internal/cli` coverage: unit tests for output functions | Medium | Medium | Core path testing |
-| 9 | 🟡 | Add `HealthIssue` builder pattern | Low | Low | Consistency |
-| 10 | 🟢 | Tag `v0.1.0` release | 5 min | Low | Release mgmt |
-| 11 | 🟢 | Add goreleaser config | 1 hr | Medium | Distribution |
-| 12 | 🟢 | Document 0%-coverage packages | 15 min | Low | Documentation |
-| 13 | 🟢 | Add `ConfigAnalysis.String()` debug method | 5 min | Low | DX |
-| 14 | 🟢 | Verify `nix build` still passes | 5 min | Low | Build health |
-| 15 | 🟢 | Extract `runConfigure` from `cmd_configure.go` | Medium | Medium | File size |
-| 16 | 🟢 | Add `HealthRule` interface for extensible health checks | 1 hr | Medium | Extensibility |
-| 17 | 🟢 | Add `//go:generate` for `ProjectType` (String already exists) | 5 min | Low | Standard Go |
-| 18 | 🟢 | Refactor `cmd_validate.go` output functions to own file | Low | Medium | File size |
-| 19 | 🟢 | Add benchmark for `ScanProject` on large codebase | 30 min | Low | Performance |
-| 20 | 🟢 | Add context cancellation to `ScanProject` | 30 min | Medium | Responsiveness |
-| 21 | 🟢 | Update `README.md` to reflect current features | 30 min | Medium | User docs |
-| 22 | 🟢 | Add `CONTEXT.md` for AI agent onboarding | 20 min | Low | Onboarding |
-| 23 | 🟢 | Audit `.golangci.yml` exclusion rules for obsolescence | 20 min | Low | Config hygiene |
-| 24 | 🟢 | Add example configs for `gomodguard_v2` in `examples/` | 15 min | Low | User guidance |
-| 25 | 🟢 | Consider `deprecated-linters` subcommand for discoverability | 1 hr | Low | UX |
+| #   | P   | Task                                                             | Effort | Impact   | Customer Value     |
+| --- | --- | ---------------------------------------------------------------- | ------ | -------- | ------------------ |
+| 1   | 🔴  | Extract `ConfigureService` interface from `cmd_configure.go`     | Medium | **High** | Testability, SRP   |
+| 2   | 🔴  | Add unit tests for `pkg/report/` generators (0% → 50%+)          | Medium | **High** | Report reliability |
+| 3   | 🔴  | Create `FEATURES.md` with honest feature inventory               | Low    | **High** | Project clarity    |
+| 4   | 🟡  | Add `go:generate stringer` for `HealthSeverity`                  | 5 min  | Low      | Standard Go        |
+| 5   | 🟡  | Add `ConfigAnalysis.TotalLinters()`, `HasDeprecatedLinters()`    | 10 min | Low      | API completeness   |
+| 6   | 🟡  | Extract `applyPreset` from `cmd_configure.go`                    | Medium | Medium   | File size          |
+| 7   | 🟡  | Create `TODO_LIST.md` comprehensive backlog                      | Medium | Medium   | Execution roadmap  |
+| 8   | 🟡  | Improve `internal/cli` coverage: unit tests for output functions | Medium | Medium   | Core path testing  |
+| 9   | 🟡  | Add `HealthIssue` builder pattern                                | Low    | Low      | Consistency        |
+| 10  | 🟢  | Tag `v0.1.0` release                                             | 5 min  | Low      | Release mgmt       |
+| 11  | 🟢  | Add goreleaser config                                            | 1 hr   | Medium   | Distribution       |
+| 12  | 🟢  | Document 0%-coverage packages                                    | 15 min | Low      | Documentation      |
+| 13  | 🟢  | Add `ConfigAnalysis.String()` debug method                       | 5 min  | Low      | DX                 |
+| 14  | 🟢  | Verify `nix build` still passes                                  | 5 min  | Low      | Build health       |
+| 15  | 🟢  | Extract `runConfigure` from `cmd_configure.go`                   | Medium | Medium   | File size          |
+| 16  | 🟢  | Add `HealthRule` interface for extensible health checks          | 1 hr   | Medium   | Extensibility      |
+| 17  | 🟢  | Add `//go:generate` for `ProjectType` (String already exists)    | 5 min  | Low      | Standard Go        |
+| 18  | 🟢  | Refactor `cmd_validate.go` output functions to own file          | Low    | Medium   | File size          |
+| 19  | 🟢  | Add benchmark for `ScanProject` on large codebase                | 30 min | Low      | Performance        |
+| 20  | 🟢  | Add context cancellation to `ScanProject`                        | 30 min | Medium   | Responsiveness     |
+| 21  | 🟢  | Update `README.md` to reflect current features                   | 30 min | Medium   | User docs          |
+| 22  | 🟢  | Add `CONTEXT.md` for AI agent onboarding                         | 20 min | Low      | Onboarding         |
+| 23  | 🟢  | Audit `.golangci.yml` exclusion rules for obsolescence           | 20 min | Low      | Config hygiene     |
+| 24  | 🟢  | Add example configs for `gomodguard_v2` in `examples/`           | 15 min | Low      | User guidance      |
+| 25  | 🟢  | Consider `deprecated-linters` subcommand for discoverability     | 1 hr   | Low      | UX                 |
 
 ---
 
 ## G. Project Health Summary
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Go Version | 1.26+ | ✅ Current |
-| golangci-lint Version | v2.12.2 | ✅ Current |
-| Tests | 14 suites, ALL PASS | ✅ Green |
-| Composite Coverage | 59.9% | ⚠️ Needs 75%+ |
-| Lint Issues | 0 | ✅ Clean |
-| Build | Clean | ✅ |
-| Packages | 20 | ✅ |
-| Go Source Files | 72 | ✅ |
-| Test Files | 25 | ✅ |
-| Total Lines of Code | ~16,884 | ✅ |
-| Deprecated Linters in Own Config | 0 (gomodguard_v2 in use) | ✅ Fixed |
-| Files Over 350 Lines | 13 (was 14) | ⚠️ cmd_configure.go at 395 |
-| Modified Files This Session | 12 | ✅ Focused changes |
-| New Tests This Session | 7 (3 health + 1 preset + existing suite additions) | ✅ |
+| Metric                           | Value                                              | Status                     |
+| -------------------------------- | -------------------------------------------------- | -------------------------- |
+| Go Version                       | 1.26+                                              | ✅ Current                 |
+| golangci-lint Version            | v2.12.2                                            | ✅ Current                 |
+| Tests                            | 14 suites, ALL PASS                                | ✅ Green                   |
+| Composite Coverage               | 59.9%                                              | ⚠️ Needs 75%+              |
+| Lint Issues                      | 0                                                  | ✅ Clean                   |
+| Build                            | Clean                                              | ✅                         |
+| Packages                         | 20                                                 | ✅                         |
+| Go Source Files                  | 72                                                 | ✅                         |
+| Test Files                       | 25                                                 | ✅                         |
+| Total Lines of Code              | ~16,884                                            | ✅                         |
+| Deprecated Linters in Own Config | 0 (gomodguard_v2 in use)                           | ✅ Fixed                   |
+| Files Over 350 Lines             | 13 (was 14)                                        | ⚠️ cmd_configure.go at 395 |
+| Modified Files This Session      | 12                                                 | ✅ Focused changes         |
+| New Tests This Session           | 7 (3 health + 1 preset + existing suite additions) | ✅                         |
 
 ---
 
 ## Coverage Matrix
 
-| Package | Coverage | Trend | Status |
-|---------|----------|-------|--------|
-| `pkg/constants` | 100% | — | ✅ Excellent |
-| `pkg/errors` | 100% | — | ✅ Excellent |
-| `pkg/diff` | 96.5% | — | ✅ Excellent |
-| `pkg/utils` | 94.6% | — | ✅ Excellent |
-| `pkg/linter` | 78.6% | — | ✅ Good |
-| `pkg/config` | 65.9% | — | ⚠️ Needs work |
-| `pkg/detection` | 65.5% | — | ⚠️ Needs work |
-| `pkg/migration` | 66.8% | — | ⚠️ Needs work |
-| `pkg/ui` | 64.9% | — | ⚠️ Needs work |
-| `pkg/types` | 59.4% | — | ⚠️ Needs work |
-| `pkg/finding` | 56.0% | — | ⚠️ Needs work |
-| `pkg/gogenfilter` | 59.8% | — | ⚠️ Needs work |
-| `pkg/version` | 51.4% | — | ⚠️ Needs work |
-| `internal/cli` | 8.7% | — | ❌ Critical gap |
-| `pkg/report` | 0% | — | ❌ Untested |
-| `internal/cli/cmd/` | 0% | — | ❌ Untested |
+| Package             | Coverage | Trend | Status          |
+| ------------------- | -------- | ----- | --------------- |
+| `pkg/constants`     | 100%     | —     | ✅ Excellent    |
+| `pkg/errors`        | 100%     | —     | ✅ Excellent    |
+| `pkg/diff`          | 96.5%    | —     | ✅ Excellent    |
+| `pkg/utils`         | 94.6%    | —     | ✅ Excellent    |
+| `pkg/linter`        | 78.6%    | —     | ✅ Good         |
+| `pkg/config`        | 65.9%    | —     | ⚠️ Needs work   |
+| `pkg/detection`     | 65.5%    | —     | ⚠️ Needs work   |
+| `pkg/migration`     | 66.8%    | —     | ⚠️ Needs work   |
+| `pkg/ui`            | 64.9%    | —     | ⚠️ Needs work   |
+| `pkg/types`         | 59.4%    | —     | ⚠️ Needs work   |
+| `pkg/finding`       | 56.0%    | —     | ⚠️ Needs work   |
+| `pkg/gogenfilter`   | 59.8%    | —     | ⚠️ Needs work   |
+| `pkg/version`       | 51.4%    | —     | ⚠️ Needs work   |
+| `internal/cli`      | 8.7%     | —     | ❌ Critical gap |
+| `pkg/report`        | 0%       | —     | ❌ Untested     |
+| `internal/cli/cmd/` | 0%       | —     | ❌ Untested     |
 
 ---
 
@@ -390,6 +398,7 @@ Sorted by Impact × Effort (Pareto highest first):
 **Should `cmd_configure.go` (395 lines, down from 420) be aggressively split into multiple files now, or should we first design a `ConfigureService` interface and THEN extract?**
 
 The tension:
+
 - **Piecemeal extraction** (now): Move `applyPreset`, `runConfigure`, `runDetectOrConfigure` to separate files. Fast, but creates files with 10+ parameter dependencies (`*CommandBuilder`, `*cobra.Command`, `*log.Logger`, `*linter.Analyzer`, `*config.Loader`). Result: fragmented code, not necessarily cleaner.
 - **Interface-first refactor** (later): Design `ConfigureService` interface with methods like `Configure(ctx, priority, preset, dryRun) (MigrationResult, error)`. Then make `cmd_configure.go` a thin adapter. Better architecture, but requires more design work and all tests must be updated.
 

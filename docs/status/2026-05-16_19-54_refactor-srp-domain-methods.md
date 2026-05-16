@@ -13,24 +13,24 @@ Replaced 20-line manual map-based dedup in `pkg/gogenfilter/scanner.go:275-294` 
 **Before:** 20 lines: manual map creation + append + sort
 **After:** 4 lines: `types.NewSet(existing...)`, `Add()`, `ToSortedSlice()`
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Lines | 20 | 4 |
-| Imports added | 0 | `types` (already in package graph) |
-| Tests modified | 0 | 0 |
+| Metric         | Before | After                              |
+| -------------- | ------ | ---------------------------------- |
+| Lines          | 20     | 4                                  |
+| Imports added  | 0      | `types` (already in package graph) |
+| Tests modified | 0      | 0                                  |
 
 ### 2. ConfigHealth Critical Linters Derivation (commit `2b0fb0f`)
 
 **Problem:** `checkMissingCriticalLinters` hardcoded `["errcheck", "staticcheck", "govet"]`
 **Solution:** Added `CriticalLinters()` in `pkg/constants` + new `CheckConfigHealthWithCriticalLinters` signature
 
-| File | Change |
-|------|--------|
-| `pkg/constants/linter_priorities.go` | Added `CriticalLinters()` returning curated 3-linter set |
-| `pkg/types/validation.go` | New `CheckConfigHealthWithCriticalLinters` accepting `[]string` param |
-| `internal/cli/cmd_validate.go` | Calls `CheckConfigHealthWithCriticalLinters(cfg, constants.CriticalLinters())` |
-| `pkg/finding/helpers.go` | Added `SeverityFromHealthSeverity` (eliminates 8-line manual switch in CLI) |
-| `pkg/finding/categories.go` | Removed deprecated `gomodguard` mapping |
+| File                                 | Change                                                                         |
+| ------------------------------------ | ------------------------------------------------------------------------------ |
+| `pkg/constants/linter_priorities.go` | Added `CriticalLinters()` returning curated 3-linter set                       |
+| `pkg/types/validation.go`            | New `CheckConfigHealthWithCriticalLinters` accepting `[]string` param          |
+| `internal/cli/cmd_validate.go`       | Calls `CheckConfigHealthWithCriticalLinters(cfg, constants.CriticalLinters())` |
+| `pkg/finding/helpers.go`             | Added `SeverityFromHealthSeverity` (eliminates 8-line manual switch in CLI)    |
+| `pkg/finding/categories.go`          | Removed deprecated `gomodguard` mapping                                        |
 
 **Key decision:** `CriticalLinters()` returns curated 3-liner set, not all `LinterPriorityCritical` linters. All 11 critical linters (including `paralleltest`, `sloglint`) would be too aggressive for health checks.
 
@@ -50,11 +50,11 @@ if err != nil {
 
 Added 3 methods to `ConfigHealth` + migrated 7 test call sites:
 
-| Method | Purpose | Tests |
-|--------|---------|-------|
-| `IssuesByRule(rule string) []HealthIssue` | Filter by rule name | ✅ Added test |
-| `HasRule(rule string) bool` | Check rule existence | ✅ Added test |
-| `CountBySeverity(sev HealthSeverity) int` | Count by severity | ✅ Added test |
+| Method                                    | Purpose              | Tests         |
+| ----------------------------------------- | -------------------- | ------------- |
+| `IssuesByRule(rule string) []HealthIssue` | Filter by rule name  | ✅ Added test |
+| `HasRule(rule string) bool`               | Check rule existence | ✅ Added test |
+| `CountBySeverity(sev HealthSeverity) int` | Count by severity    | ✅ Added test |
 
 Removed standalone `filterByRule` test helper (5 lines).
 
@@ -62,20 +62,20 @@ Removed standalone `filterByRule` test helper (5 lines).
 
 **Moved** `presetForProjectType()` from CLI layer to detection package as value method:
 
-| Before (CLI) | After (Detection) |
-|--------------|-------------------|
-| `presetForProjectType(projectType)` | `projectType.Preset()` |
-| `defaultPreset`, `presetStrict` constants in CLI | Eliminated (2 unused consts removed) |
-| No unit tests | `TestProjectType_Preset` covering all 6 types |
+| Before (CLI)                                     | After (Detection)                             |
+| ------------------------------------------------ | --------------------------------------------- |
+| `presetForProjectType(projectType)`              | `projectType.Preset()`                        |
+| `defaultPreset`, `presetStrict` constants in CLI | Eliminated (2 unused consts removed)          |
+| No unit tests                                    | `TestProjectType_Preset` covering all 6 types |
 
 **SRP violation fixed:** Preset selection is a property of project type, not a CLI concern.
 
 ### 6. ConfigAnalysis Convenience Methods (commit `ca6b00d`)
 
-| Method | Use Case |
-|--------|----------|
-| `TotalRecommendations() int` | Reporting: "Found N recommendations" |
-| `EnabledLinterNames() []string` | Logging, comparison, set operations |
+| Method                          | Use Case                             |
+| ------------------------------- | ------------------------------------ |
+| `TotalRecommendations() int`    | Reporting: "Found N recommendations" |
+| `EnabledLinterNames() []string` | Logging, comparison, set operations  |
 
 ---
 
@@ -127,38 +127,38 @@ Nothing. All code builds, tests pass, lint is clean.
 
 ## F. Top #25 Things to Get Done Next
 
-| # | Priority | Task | Value |
-|---|----------|------|-------|
-| 1 | HIGH | Extract `applyPreset` from `cmd_configure.go` to `cmd_configure_preset.go` | File size |
-| 2 | HIGH | Extract `runConfigure` from `cmd_configure.go` to `cmd_configure_core.go` | File size |
-| 3 | MEDIUM | Add `//go:generate stringer` for `HealthSeverity` | Standard Go |
-| 4 | MEDIUM | Add `ConfigAnalysis.TotalLinters()`, `HasDeprecatedLinters()` | API completeness |
-| 5 | MEDIUM | Create `FEATURES.md` | Project clarity |
-| 6 | MEDIUM | Create `TODO_LIST.md` | Execution roadmap |
-| 7 | MEDIUM | Improve `internal/cli` coverage (8.6%) | Core path testing |
-| 8 | MEDIUM | Improve `pkg/report` coverage (0%) | Report reliability |
-| 9 | MEDIUM | Improve `pkg/finding` coverage (56.0%) | Finding pipeline |
-| 10 | LOW | Add `ConfigAnalysis.String()` debug method | DX |
-| 11 | LOW | Document 0%-coverage packages | Documentation |
-| 12 | LOW | Add `HealthIssue` builder pattern | Consistency |
-| 13 | LOW | Tag `v0.1.0` release | Release mgmt |
-| 14 | LOW | Add goreleaser config | Distribution |
-| 15 | LOW | Evaluate nix flake-based releases | Build system |
+| #   | Priority | Task                                                                       | Value              |
+| --- | -------- | -------------------------------------------------------------------------- | ------------------ |
+| 1   | HIGH     | Extract `applyPreset` from `cmd_configure.go` to `cmd_configure_preset.go` | File size          |
+| 2   | HIGH     | Extract `runConfigure` from `cmd_configure.go` to `cmd_configure_core.go`  | File size          |
+| 3   | MEDIUM   | Add `//go:generate stringer` for `HealthSeverity`                          | Standard Go        |
+| 4   | MEDIUM   | Add `ConfigAnalysis.TotalLinters()`, `HasDeprecatedLinters()`              | API completeness   |
+| 5   | MEDIUM   | Create `FEATURES.md`                                                       | Project clarity    |
+| 6   | MEDIUM   | Create `TODO_LIST.md`                                                      | Execution roadmap  |
+| 7   | MEDIUM   | Improve `internal/cli` coverage (8.6%)                                     | Core path testing  |
+| 8   | MEDIUM   | Improve `pkg/report` coverage (0%)                                         | Report reliability |
+| 9   | MEDIUM   | Improve `pkg/finding` coverage (56.0%)                                     | Finding pipeline   |
+| 10  | LOW      | Add `ConfigAnalysis.String()` debug method                                 | DX                 |
+| 11  | LOW      | Document 0%-coverage packages                                              | Documentation      |
+| 12  | LOW      | Add `HealthIssue` builder pattern                                          | Consistency        |
+| 13  | LOW      | Tag `v0.1.0` release                                                       | Release mgmt       |
+| 14  | LOW      | Add goreleaser config                                                      | Distribution       |
+| 15  | LOW      | Evaluate nix flake-based releases                                          | Build system       |
 
 ---
 
 ## Metrics Summary
 
-| Metric | Before Session | After Session | Δ |
-|--------|---------------|---------------|---|
-| Composite Coverage | 59.7% | 59.9-60.1% | +0.2~+0.4% |
-| Files Over 350 Lines | 14 | 13 (cmd_configure down) | -1 |
-| Lint Issues | 1 (gochecknoglobals) | 0 | ✅ Fixed |
-| Deprecated linter mappings | 1 (gomodguard) | 0 | ✅ Fixed |
-| ConfigHealth methods | 2 (CriticalIssues, WarningIssues) | 5 (+ IssuesByRule, HasRule, CountBySeverity) | +3 |
-| ConfigAnalysis methods | 0 | 2 (+ TotalRecommendations, EnabledLinterNames) | +2 |
-| Manual switch statements | 2 (severity mapping, preset mapping) | 0 | ✅ Eliminated |
-| Free test helpers | 1 (`filterByRule`) | 0 | ✅ Eliminated |
+| Metric                     | Before Session                       | After Session                                  | Δ             |
+| -------------------------- | ------------------------------------ | ---------------------------------------------- | ------------- |
+| Composite Coverage         | 59.7%                                | 59.9-60.1%                                     | +0.2~+0.4%    |
+| Files Over 350 Lines       | 14                                   | 13 (cmd_configure down)                        | -1            |
+| Lint Issues                | 1 (gochecknoglobals)                 | 0                                              | ✅ Fixed      |
+| Deprecated linter mappings | 1 (gomodguard)                       | 0                                              | ✅ Fixed      |
+| ConfigHealth methods       | 2 (CriticalIssues, WarningIssues)    | 5 (+ IssuesByRule, HasRule, CountBySeverity)   | +3            |
+| ConfigAnalysis methods     | 0                                    | 2 (+ TotalRecommendations, EnabledLinterNames) | +2            |
+| Manual switch statements   | 2 (severity mapping, preset mapping) | 0                                              | ✅ Eliminated |
+| Free test helpers          | 1 (`filterByRule`)                   | 0                                              | ✅ Eliminated |
 
 ---
 
