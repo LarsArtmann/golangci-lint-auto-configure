@@ -135,7 +135,7 @@ func checkConfigHealth(cfg *types.Config, logger *log.Logger, configFile string)
 	}
 
 	if reportFormat == formatSARIF {
-		return outputHealthSARIF(health, configFile)
+		return outputHealthSARIF(health, configFile, logger)
 	}
 
 	logHealthIssues(logger, health)
@@ -175,13 +175,13 @@ func logHealthIssues(logger *log.Logger, health *types.ConfigHealth) {
 	}
 }
 
-func outputHealthSARIF(health *types.ConfigHealth, configFile string) error {
+func outputHealthSARIF(health *types.ConfigHealth, configFile string, logger *log.Logger) error {
 	report := finding.NewReport(finding.ToolInfo{
 		Name:    toolName,
 		Version: Version,
 	})
 
-	report.AddFindings(healthIssuesToFindings(health, configFile))
+	report.AddFindings(healthIssuesToFindings(health, configFile, logger))
 	report.ComputeSummary()
 
 	sarif, err := report.ToSARIF()
@@ -204,7 +204,11 @@ func outputHealthSARIF(health *types.ConfigHealth, configFile string) error {
 	return nil
 }
 
-func healthIssuesToFindings(health *types.ConfigHealth, configFile string) []finding.Finding {
+func healthIssuesToFindings(
+	health *types.ConfigHealth,
+	configFile string,
+	logger *log.Logger,
+) []finding.Finding {
 	result := make([]finding.Finding, 0, len(health.Issues))
 
 	for _, issue := range health.Issues {
@@ -224,6 +228,8 @@ func healthIssuesToFindings(health *types.ConfigHealth, configFile string) []fin
 			WithSuggestion(issue.Suggestion).
 			Build()
 		if err != nil {
+			logger.Warnf("⚠️  Failed to build finding for rule %q: %v", issue.Rule, err)
+
 			continue
 		}
 
