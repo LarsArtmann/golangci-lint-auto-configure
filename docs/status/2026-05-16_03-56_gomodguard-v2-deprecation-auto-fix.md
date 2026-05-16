@@ -12,15 +12,15 @@
 
 **Solution implemented across 7 files:**
 
-| File | Change |
-|------|--------|
-| `pkg/constants/rules.go` | Added `gomodguard` → `gomodguard_v2` to `DeprecatedLinters` map |
-| `pkg/constants/linter_priorities.go` | Added `gomodguard_v2` with Medium priority |
-| `pkg/constants/linter_reasons.go` | Added reason string for `gomodguard_v2` |
-| `pkg/finding/categories.go` | Added both `gomodguard` and `gomodguard_v2` to Structure category |
-| `pkg/linter/fixer_deprecated.go` | **Enhanced**: `replaceLinters` now migrates linter settings keys (e.g., `linters.settings.gomodguard` → `linters.settings.gomodguard_v2`). Extracted `replaceOne` + added `migrateSettings` method. |
-| `pkg/linter/fixer.go` | Updated call site to pass `cfg` to `replaceLinters` |
-| `pkg/linter/fixer_test.go` | Added 3 BDD tests: dry-run detection, non-dry-run fix, settings migration |
+| File                                 | Change                                                                                                                                                                                              |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pkg/constants/rules.go`             | Added `gomodguard` → `gomodguard_v2` to `DeprecatedLinters` map                                                                                                                                     |
+| `pkg/constants/linter_priorities.go` | Added `gomodguard_v2` with Medium priority                                                                                                                                                          |
+| `pkg/constants/linter_reasons.go`    | Added reason string for `gomodguard_v2`                                                                                                                                                             |
+| `pkg/finding/categories.go`          | Added both `gomodguard` and `gomodguard_v2` to Structure category                                                                                                                                   |
+| `pkg/linter/fixer_deprecated.go`     | **Enhanced**: `replaceLinters` now migrates linter settings keys (e.g., `linters.settings.gomodguard` → `linters.settings.gomodguard_v2`). Extracted `replaceOne` + added `migrateSettings` method. |
+| `pkg/linter/fixer.go`                | Updated call site to pass `cfg` to `replaceLinters`                                                                                                                                                 |
+| `pkg/linter/fixer_test.go`           | Added 3 BDD tests: dry-run detection, non-dry-run fix, settings migration                                                                                                                           |
 
 **Key architectural improvement:** The `migrateSettings` method is generic — it benefits ALL future deprecation replacements, not just gomodguard. Previously, replacing a deprecated linter would leave orphaned settings under the old key name in the YAML.
 
@@ -50,20 +50,20 @@ Pre-existing issue: `severityData` global variable at line 69. Not from this ses
 
 ### 3. Coverage Gaps
 
-| Package | Coverage |
-|---------|----------|
-| `internal/cli` | 8.5% |
-| `pkg/finding` | 58.1% |
-| `pkg/gogenfilter` | 62.5% |
-| `pkg/detection` | 65.0% |
-| `pkg/migration` | 66.8% |
-| `pkg/config` | 65.9% |
-| `pkg/ui` | 67.7% |
-| `pkg/types` | 57.7% |
-| `pkg/version` | 51.4% |
-| `cmd/` | 0.0% |
-| `pkg/report` | 0.0% |
-| `internal/cli/cmd/` | 0.0% |
+| Package             | Coverage |
+| ------------------- | -------- |
+| `internal/cli`      | 8.5%     |
+| `pkg/finding`       | 58.1%    |
+| `pkg/gogenfilter`   | 62.5%    |
+| `pkg/detection`     | 65.0%    |
+| `pkg/migration`     | 66.8%    |
+| `pkg/config`        | 65.9%    |
+| `pkg/ui`            | 67.7%    |
+| `pkg/types`         | 57.7%    |
+| `pkg/version`       | 51.4%    |
+| `cmd/`              | 0.0%     |
+| `pkg/report`        | 0.0%     |
+| `internal/cli/cmd/` | 0.0%     |
 
 Strong coverage: `pkg/constants` (100%), `pkg/errors` (100%), `pkg/diff` (96.5%), `pkg/utils` (94.6%), `pkg/linter` (78.6%).
 
@@ -123,33 +123,33 @@ Nothing catastrophic. Clean sailing this session. However:
 
 ## F. Top #25 Things to Get Done Next
 
-| # | Priority | Task | Impact |
-|---|----------|------|--------|
-| 1 | CRITICAL | Dogfood: Run configure on own `.golangci.yml` to fix `gomodguard` → `gomodguard_v2` | Eat your own dogfood |
-| 2 | CRITICAL | Fix `gochecknoglobals` in `finding_formatter.go:69` | Last lint failure |
-| 3 | HIGH | Create `FEATURES.md` with honest feature inventory | Project clarity |
-| 4 | HIGH | Create `TODO_LIST.md` comprehensive backlog | Execution roadmap |
-| 5 | HIGH | Add integration/E2E tests for CLI binary | Confidence in releases |
-| 6 | HIGH | Improve `internal/cli` test coverage (currently 8.5%) | Core path coverage |
-| 7 | HIGH | Remove stale `samber/mo` from depguard allow list | Clean dependencies |
-| 8 | HIGH | Remove stale `spf13/afero` from depguard allow list | Clean dependencies |
-| 9 | HIGH | Audit `.golangci.yml` exclusion rules for obsolescence | Config hygiene |
-| 10 | MEDIUM | Improve `pkg/finding` coverage (58.1%) | Finding pipeline reliability |
-| 11 | MEDIUM | Improve `pkg/types` coverage (57.7%) | Core types reliability |
-| 12 | MEDIUM | Create `docs/adr/` with architecture decision records | Knowledge preservation |
-| 13 | MEDIUM | Add performance benchmarks for analysis/fixing | Performance awareness |
-| 14 | MEDIUM | Refresh `README.md` to reflect current features | User documentation |
-| 15 | MEDIUM | Add `CONTEXT.md` for domain language | Onboarding |
-| 16 | MEDIUM | Verify CI/CD works with golangci-lint v2.12.x | Pipeline health |
-| 17 | MEDIUM | Add `gomodguard_v2` settings schema to migration rules | Complete migration path |
-| 18 | LOW | Tag first semver release (v0.1.0) | Release management |
-| 19 | LOW | Add changelog generation | Release documentation |
-| 20 | LOW | Explore `golangci-lint` plugin system for tighter integration | Future architecture |
-| 21 | LOW | Add `--verbose` flag output improvements | Debugging experience |
-| 22 | LOW | Review `pkg/report/` for 0% coverage | Report reliability |
-| 23 | LOW | Add example configs for `gomodguard_v2` in `examples/` | User guidance |
-| 24 | LOW | Consider adding `deprecated-linters` command to list all known deprecations | Discoverability |
-| 25 | LOW | Evaluate moving from justfile to flake.nix for build tasks (per AGENTS.md guidance) | Build system alignment |
+| #   | Priority | Task                                                                                | Impact                       |
+| --- | -------- | ----------------------------------------------------------------------------------- | ---------------------------- |
+| 1   | CRITICAL | Dogfood: Run configure on own `.golangci.yml` to fix `gomodguard` → `gomodguard_v2` | Eat your own dogfood         |
+| 2   | CRITICAL | Fix `gochecknoglobals` in `finding_formatter.go:69`                                 | Last lint failure            |
+| 3   | HIGH     | Create `FEATURES.md` with honest feature inventory                                  | Project clarity              |
+| 4   | HIGH     | Create `TODO_LIST.md` comprehensive backlog                                         | Execution roadmap            |
+| 5   | HIGH     | Add integration/E2E tests for CLI binary                                            | Confidence in releases       |
+| 6   | HIGH     | Improve `internal/cli` test coverage (currently 8.5%)                               | Core path coverage           |
+| 7   | HIGH     | Remove stale `samber/mo` from depguard allow list                                   | Clean dependencies           |
+| 8   | HIGH     | Remove stale `spf13/afero` from depguard allow list                                 | Clean dependencies           |
+| 9   | HIGH     | Audit `.golangci.yml` exclusion rules for obsolescence                              | Config hygiene               |
+| 10  | MEDIUM   | Improve `pkg/finding` coverage (58.1%)                                              | Finding pipeline reliability |
+| 11  | MEDIUM   | Improve `pkg/types` coverage (57.7%)                                                | Core types reliability       |
+| 12  | MEDIUM   | Create `docs/adr/` with architecture decision records                               | Knowledge preservation       |
+| 13  | MEDIUM   | Add performance benchmarks for analysis/fixing                                      | Performance awareness        |
+| 14  | MEDIUM   | Refresh `README.md` to reflect current features                                     | User documentation           |
+| 15  | MEDIUM   | Add `CONTEXT.md` for domain language                                                | Onboarding                   |
+| 16  | MEDIUM   | Verify CI/CD works with golangci-lint v2.12.x                                       | Pipeline health              |
+| 17  | MEDIUM   | Add `gomodguard_v2` settings schema to migration rules                              | Complete migration path      |
+| 18  | LOW      | Tag first semver release (v0.1.0)                                                   | Release management           |
+| 19  | LOW      | Add changelog generation                                                            | Release documentation        |
+| 20  | LOW      | Explore `golangci-lint` plugin system for tighter integration                       | Future architecture          |
+| 21  | LOW      | Add `--verbose` flag output improvements                                            | Debugging experience         |
+| 22  | LOW      | Review `pkg/report/` for 0% coverage                                                | Report reliability           |
+| 23  | LOW      | Add example configs for `gomodguard_v2` in `examples/`                              | User guidance                |
+| 24  | LOW      | Consider adding `deprecated-linters` command to list all known deprecations         | Discoverability              |
+| 25  | LOW      | Evaluate moving from justfile to flake.nix for build tasks (per AGENTS.md guidance) | Build system alignment       |
 
 ---
 
@@ -163,20 +163,20 @@ Running `./bin/golangci-lint-auto-configure configure` on the project's own conf
 
 ## Project Health Summary
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Go Version | 1.26+ | ✅ Current |
-| golangci-lint Version | v2.12.2 | ✅ Current |
-| Tests | 14 suites, ALL PASS | ✅ Green |
-| Composite Coverage | 59.8% | ⚠️ Needs improvement |
-| Lint Issues | 1 (pre-existing `gochecknoglobals`) | ⚠️ Not from this session |
-| Build | Clean | ✅ |
-| Packages | 20 | ✅ |
-| Go Source Files | 96 | ✅ |
-| Total Lines of Code | ~16,100 | ✅ |
-| Deprecated Linters in Own Config | 1 (`gomodguard`) | ❌ Should auto-fix |
-| Modified Files This Session | 7 | ✅ Focused changes |
-| New Tests This Session | 3 | ✅ |
+| Metric                           | Value                               | Status                   |
+| -------------------------------- | ----------------------------------- | ------------------------ |
+| Go Version                       | 1.26+                               | ✅ Current               |
+| golangci-lint Version            | v2.12.2                             | ✅ Current               |
+| Tests                            | 14 suites, ALL PASS                 | ✅ Green                 |
+| Composite Coverage               | 59.8%                               | ⚠️ Needs improvement     |
+| Lint Issues                      | 1 (pre-existing `gochecknoglobals`) | ⚠️ Not from this session |
+| Build                            | Clean                               | ✅                       |
+| Packages                         | 20                                  | ✅                       |
+| Go Source Files                  | 96                                  | ✅                       |
+| Total Lines of Code              | ~16,100                             | ✅                       |
+| Deprecated Linters in Own Config | 1 (`gomodguard`)                    | ❌ Should auto-fix       |
+| Modified Files This Session      | 7                                   | ✅ Focused changes       |
+| New Tests This Session           | 3                                   | ✅                       |
 
 ---
 
