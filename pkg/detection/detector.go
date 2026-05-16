@@ -67,6 +67,22 @@ func (p ProjectType) String() string {
 	return "Unknown"
 }
 
+// Preset returns the recommended linter preset for this project type.
+// "standard" is the default; "strict" for web/API/monorepo;
+// "minimal" for library projects.
+func (p ProjectType) Preset() string {
+	switch p {
+	case ProjectTypeUnknown, ProjectTypeCLI:
+		return "standard"
+	case ProjectTypeWeb, ProjectTypeAPI, ProjectTypeMonorepo:
+		return "strict"
+	case ProjectTypeLibrary:
+		return "minimal"
+	default:
+		return "standard"
+	}
+}
+
 type Detector struct {
 	rootDir string
 	cache   ProjectType

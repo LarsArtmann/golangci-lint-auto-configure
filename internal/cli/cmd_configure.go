@@ -22,11 +22,6 @@ type presetConfigLoader interface {
 	SaveConfig(config *types.Config, path string) error
 }
 
-const (
-	defaultPreset = "standard"
-	presetStrict  = "strict"
-)
-
 // Priority string constants for command-line arguments.
 const (
 	priorityCritical = "critical"
@@ -67,24 +62,6 @@ func runFmtCommand(
 
 	if err := analyzer.RunFmtCommand(ctx, configFile); err != nil {
 		logger.Warnf("⚠️  golangci-lint fmt failed: %v", err)
-	}
-}
-
-// presetForProjectType returns the recommended preset for a given project type.
-func presetForProjectType(projectType detection.ProjectType) string {
-	switch projectType {
-	case detection.ProjectTypeUnknown:
-		return defaultPreset
-	case detection.ProjectTypeCLI:
-		return defaultPreset
-	case detection.ProjectTypeWeb, detection.ProjectTypeAPI:
-		return presetStrict
-	case detection.ProjectTypeLibrary:
-		return "minimal"
-	case detection.ProjectTypeMonorepo:
-		return presetStrict
-	default:
-		return defaultPreset
 	}
 }
 
@@ -133,7 +110,7 @@ func runDetectOrConfigure(
 	if detect {
 		detector := detection.NewDetector(".")
 		projectType := detector.Detect()
-		selectedPreset = presetForProjectType(projectType)
+		selectedPreset = projectType.Preset()
 
 		logger.Infof("🔍 Detected project type: %s", projectType.String())
 		logger.Infof("📋 Selected preset: %s", selectedPreset)

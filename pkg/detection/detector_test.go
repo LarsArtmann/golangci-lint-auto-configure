@@ -121,6 +121,28 @@ func TestProjectType_String(t *testing.T) {
 	}
 }
 
+func TestProjectType_Preset(t *testing.T) {
+	tests := []struct {
+		pt   detectionpkg.ProjectType
+		want string
+	}{
+		{detectionpkg.ProjectTypeCLI, "standard"},
+		{detectionpkg.ProjectTypeLibrary, "minimal"},
+		{detectionpkg.ProjectTypeWeb, "strict"},
+		{detectionpkg.ProjectTypeAPI, "strict"},
+		{detectionpkg.ProjectTypeMonorepo, "strict"},
+		{detectionpkg.ProjectTypeUnknown, "standard"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.pt.String(), func(t *testing.T) {
+			if got := tc.pt.Preset(); got != tc.want {
+				t.Errorf("Preset() = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
 func TestGetRecommendedLinters(t *testing.T) {
 	for _, projType := range allProjectTypes() {
 		t.Run(projType.String(), func(t *testing.T) {
