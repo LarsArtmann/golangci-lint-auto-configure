@@ -1,0 +1,222 @@
+# GoReleaser configuration
+# Documentation: https://goreleaser.com
+
+version: 2
+
+project_name: golangci-lint-auto-configure
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: golangci-lint-auto-configure
+    main: ./cmd/golangci-lint-auto-configure
+    binary: golangci-lint-auto-configure
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: windows
+        goarch: arm64
+    tags:
+      - netgo
+      - osusergo
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -X main.builtBy=goreleaser
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_{{- if eq .Arch "amd64" }}x86_64
+        {{- else if eq .Arch "386" }}i386
+        {{- else }}{{ .Arch }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE*
+      - README*
+      - CHANGELOG*
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  groups:
+    - title: "Features"
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 0
+    - title: "Bug Fixes"
+      regexp: '^.*?fix(\(.+\))??!?:.+$'
+      order: 1
+    - title: "Other"
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - Merge pull request
+      - Merge branch
+
+signs:
+  - cmd: cosign
+    certificate: "${artifact}.pem"
+    args:
+      - sign-blob
+      - "--oidc-issuer=https://token.actions.githubusercontent.com"
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+    artifacts: all
+    output: true
+
+sboms:
+  - artifacts: archive
+
+brews:
+  - name: golangci-lint-auto-configure
+    homepage: "https://github.com/LarsArtmann/golangci-lint-auto-configure"
+    description: "Auto-configure golangci-lint for Go projects"
+    license: MIT
+    repository:
+      owner: LarsArtmann
+      name: homebrew-tap
+    folder: Formula
+    commit_author:
+      name: goreleaserbot
+      email: goreleaser@larsartmann.com
+    install: |
+      bin.install "golangci-lint-auto-configure"
+    test: |
+      system "#{{bin}}/golangci-lint-auto-configure --version"
+
+nix:
+  - name: golangci-lint-auto-configure
+    repository:
+      owner: LarsArtmann
+      name: nur-packages
+    homepage: "https://github.com/LarsArtmann/golangci-lint-auto-configure"
+    description: "Auto-configure golangci-lint for Go projects"
+    license: mit
+    formatter: nixfmt
+    path: pkgs/golangci-lint-auto-configure/default.nix
+    install: |
+      mkdir -p $out/bin
+      cp -vr ./{{binary}} $out/bin/golangci-lint-auto-configure
+
+nfpms:
+  - id: default
+    package_name: golangci-lint-auto-configure
+    file_name_template: "{{ .ConventionalFileName }}"
+    homepage: "https://github.com/LarsArtmann/golangci-lint-auto-configure"
+    description: "Auto-configure golangci-lint for Go projects"
+    license: MIT
+    maintainer: "Lars Artmann <lars@larsartmann.com>"
+    formats:
+      - deb
+      - rpm
+      - apk
+    contents:
+      - src: LICENSE
+        dst: /usr/share/doc/golangci-lint-auto-configure/LICENSE
+      - src: README.md
+        dst: /usr/share/doc/golangci-lint-auto-configure/README.md
+
+scoops:
+  - name: golangci-lint-auto-configure
+    repository:
+      owner: LarsArtmann
+      name: homebrew-tap
+    folder: Scoop
+    commit_author:
+      name: goreleaserbot
+      email: goreleaser@larsartmann.com
+    homepage: "https://github.com/LarsArtmann/golangci-lint-auto-configure"
+    description: "Auto-configure golangci-lint for Go projects"
+    license: MIT
+
+dockers:
+  - image_templates:
+      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-amd64"
+    dockerfile: Dockerfile
+    goarch: amd64
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-arm64"
+    dockerfile: Dockerfile
+    goarch: arm64
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-amd64"
+      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/larsartmann/golangci-lint-auto-configure:latest"
+    image_templates:
+      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-amd64"
+      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-arm64"
+
+release:
+  github:
+    owner: LarsArtmann
+    name: golangci-lint-auto-configure
+  draft: false
+  prerelease: auto
+  name_template: "golangci-lint-auto-configure v{{.Version}}"
+  footer: |
+    ## Installation
+
+    **Homebrew:**
+    ```bash
+    brew tap LarsArtmann/tap
+    brew install golangci-lint-auto-configure
+    ```
+
+    **Nix:**
+    ```bash
+    nix run github:LarsArtmann/nur-packages#golangci-lint-auto-configure
+    ```
+
+    **Linux (.deb):**
+    Download the .deb from the assets below.
+
+    **Windows (Scoop):**
+    ```bash
+    scoop bucket add LarsArtmann https://github.com/LarsArtmann/homebrew-tap
+    scoop install golangci-lint-auto-configure
+    ```
