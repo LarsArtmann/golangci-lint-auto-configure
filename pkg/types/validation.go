@@ -111,11 +111,11 @@ func (s HealthSeverity) String() string {
 
 // HealthIssue represents a structural health issue found in a config.
 type HealthIssue struct {
-	Severity    HealthSeverity `json:"severity"`
-	Rule        string         `json:"rule"`
-	Message     string         `json:"message"`
-	Field       string         `json:"field"`
-	Suggestion  string         `json:"suggestion,omitempty"`
+	Severity   HealthSeverity `json:"severity"`
+	Rule       string         `json:"rule"`
+	Message    string         `json:"message"`
+	Field      string         `json:"field"`
+	Suggestion string         `json:"suggestion,omitempty"`
 }
 
 // ConfigHealth represents the structural health assessment of a config.
@@ -130,6 +130,7 @@ func (h *ConfigHealth) IsHealthy() bool {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -145,11 +146,13 @@ func (h *ConfigHealth) WarningIssues() []HealthIssue {
 
 func filterHealthIssues(issues []HealthIssue, severity HealthSeverity) []HealthIssue {
 	var filtered []HealthIssue
+
 	for _, issue := range issues {
 		if issue.Severity == severity {
 			filtered = append(filtered, issue)
 		}
 	}
+
 	return filtered
 }
 

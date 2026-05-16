@@ -84,6 +84,7 @@ func ScanProject(fsys fs.FS, projectDir string) (*ScanResult, error) {
 	for gen := range detectedByGenerator {
 		generators = append(generators, gen)
 	}
+
 	sort.Strings(generators)
 
 	generatedCount := 0
@@ -164,9 +165,7 @@ func deriveExclusionPatterns(
 	var exclusions []GeneratedExclusion
 
 	for generator, files := range detectedByGenerator {
-		for _, excl := range exclusionsForGenerator(generator, files, projectDir, generatorPatterns) {
-			exclusions = append(exclusions, excl)
-		}
+		exclusions = append(exclusions, exclusionsForGenerator(generator, files, projectDir, generatorPatterns)...)
 	}
 
 	sort.Slice(exclusions, func(i, j int) bool {

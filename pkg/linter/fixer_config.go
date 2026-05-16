@@ -83,11 +83,13 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 
 	if cfg.Linters.Exclusions.Generated == "" {
 		cu.logger.Infof("Setting linters.exclusions.generated to \"lax\"")
+
 		cfg.Linters.Exclusions.Generated = "lax"
 	}
 
 	if cfg.Formatters.Exclusions.Generated == "" {
 		cu.logger.Infof("Setting formatters.exclusions.generated to \"lax\"")
+
 		cfg.Formatters.Exclusions.Generated = "lax"
 	}
 
@@ -134,6 +136,7 @@ func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logg
 
 	if added > 0 {
 		logger.Infof("Adding %d generated file exclusions to %s: %v", added, section, newPaths)
+
 		*existing = merged
 	}
 

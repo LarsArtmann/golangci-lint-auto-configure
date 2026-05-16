@@ -74,33 +74,33 @@ Integrate `github.com/LarsArtmann/gogenfilter/v3` to automatically detect and ex
 
 Sorted by **impact × effort** (highest impact, lowest effort first):
 
-| # | Task | Impact | Effort | Category |
-|---|------|--------|--------|----------|
-| 1 | Fix pipe-delimited pattern join → return multiple paths | CRITICAL | S | Bug fix |
-| 2 | Fix early-return bypass: always scan generated exclusions | CRITICAL | S | Bug fix |
-| 3 | Update `successResult` to include `counts.generated` | HIGH | XS | Bug fix |
-| 4 | Update `flake.nix` vendorHash | HIGH | XS | Build fix |
-| 5 | Simplify `newFixCounts()` → use `fixCounts{}` | LOW | XS | Cleanup |
-| 6 | Add `updateGeneratedExclusions` unit tests in linter package | HIGH | M | Testing |
-| 7 | Add sqlc multi-dir pattern test | HIGH | S | Testing |
-| 8 | Add oapi-codegen pattern test | MEDIUM | S | Testing |
-| 9 | Dogfood: add `**/*_templ.go` to own `.golangci.yml` exclusions.paths | MEDIUM | XS | Dogfood |
-| 10 | Refactor `ScanProject` to accept `fs.FS` | MEDIUM | S | Architecture |
-| 11 | Simplify `MergeExclusionPaths` using `types.Set[string]` | LOW | XS | Cleanup |
-| 12 | Integration test: configure → verify exclusion paths in output | HIGH | M | Testing |
-| 13 | Return `[]string` paths directly, eliminate `GeneratedExclusion` wrapper | MEDIUM | S | Simplification |
-| 14 | Move scanner to `pkg/gogenfilter` → consider merging into `pkg/detection` | LOW | M | Architecture |
-| 15 | Add `--verbose` logging for scanner results | MEDIUM | XS | UX |
-| 16 | Handle error from `filter.FilterDetailed()` instead of silently continuing | MEDIUM | XS | Robustness |
-| 17 | Test: project with existing exclusion paths + new generated files | MEDIUM | S | Testing |
-| 18 | Add `exclusions.generated: strict` option for stricter mode | LOW | M | Feature |
-| 19 | Cache scan results across multiple configure runs | LOW | M | Performance |
-| 20 | Add `--skip-generated-scan` flag | LOW | S | Feature |
-| 21 | Update `applyPreset` to also scan for generated files | HIGH | S | Feature gap |
-| 22 | Test generated exclusion with formatters (gci, goimports) | MEDIUM | M | Testing |
-| 23 | Add benchmark test for `ScanProject` on large codebases | LOW | S | Testing |
-| 24 | Consider using `gogenfilter.WithIncludePatterns` to scope scanning | LOW | S | Optimization |
-| 25 | Document generated exclusion in README.md | MEDIUM | S | Docs |
+| #   | Task                                                                       | Impact   | Effort | Category       |
+| --- | -------------------------------------------------------------------------- | -------- | ------ | -------------- |
+| 1   | Fix pipe-delimited pattern join → return multiple paths                    | CRITICAL | S      | Bug fix        |
+| 2   | Fix early-return bypass: always scan generated exclusions                  | CRITICAL | S      | Bug fix        |
+| 3   | Update `successResult` to include `counts.generated`                       | HIGH     | XS     | Bug fix        |
+| 4   | Update `flake.nix` vendorHash                                              | HIGH     | XS     | Build fix      |
+| 5   | Simplify `newFixCounts()` → use `fixCounts{}`                              | LOW      | XS     | Cleanup        |
+| 6   | Add `updateGeneratedExclusions` unit tests in linter package               | HIGH     | M      | Testing        |
+| 7   | Add sqlc multi-dir pattern test                                            | HIGH     | S      | Testing        |
+| 8   | Add oapi-codegen pattern test                                              | MEDIUM   | S      | Testing        |
+| 9   | Dogfood: add `**/*_templ.go` to own `.golangci.yml` exclusions.paths       | MEDIUM   | XS     | Dogfood        |
+| 10  | Refactor `ScanProject` to accept `fs.FS`                                   | MEDIUM   | S      | Architecture   |
+| 11  | Simplify `MergeExclusionPaths` using `types.Set[string]`                   | LOW      | XS     | Cleanup        |
+| 12  | Integration test: configure → verify exclusion paths in output             | HIGH     | M      | Testing        |
+| 13  | Return `[]string` paths directly, eliminate `GeneratedExclusion` wrapper   | MEDIUM   | S      | Simplification |
+| 14  | Move scanner to `pkg/gogenfilter` → consider merging into `pkg/detection`  | LOW      | M      | Architecture   |
+| 15  | Add `--verbose` logging for scanner results                                | MEDIUM   | XS     | UX             |
+| 16  | Handle error from `filter.FilterDetailed()` instead of silently continuing | MEDIUM   | XS     | Robustness     |
+| 17  | Test: project with existing exclusion paths + new generated files          | MEDIUM   | S      | Testing        |
+| 18  | Add `exclusions.generated: strict` option for stricter mode                | LOW      | M      | Feature        |
+| 19  | Cache scan results across multiple configure runs                          | LOW      | M      | Performance    |
+| 20  | Add `--skip-generated-scan` flag                                           | LOW      | S      | Feature        |
+| 21  | Update `applyPreset` to also scan for generated files                      | HIGH     | S      | Feature gap    |
+| 22  | Test generated exclusion with formatters (gci, goimports)                  | MEDIUM   | M      | Testing        |
+| 23  | Add benchmark test for `ScanProject` on large codebases                    | LOW      | S      | Testing        |
+| 24  | Consider using `gogenfilter.WithIncludePatterns` to scope scanning         | LOW      | S      | Optimization   |
+| 25  | Document generated exclusion in README.md                                  | MEDIUM   | S      | Docs           |
 
 ---
 

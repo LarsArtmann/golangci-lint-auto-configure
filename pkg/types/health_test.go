@@ -1,10 +1,9 @@
 package types_test
 
 import (
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 var _ = Describe("ConfigHealth", func() {
@@ -255,10 +254,12 @@ func validConfig() *types.Config {
 
 func filterByRule(issues []types.HealthIssue, rule string) []types.HealthIssue {
 	var filtered []types.HealthIssue
+
 	for _, issue := range issues {
 		if issue.Rule == rule {
 			filtered = append(filtered, issue)
 		}
 	}
+
 	return filtered
 }

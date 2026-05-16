@@ -164,6 +164,7 @@ func logHealthIssues(logger *log.Logger, health *types.ConfigHealth) {
 	}
 
 	logger.Warnf("  Suggestions:")
+
 	for _, issue := range health.Issues {
 		if issue.Suggestion != "" {
 			logger.Warnf("    - %s: %s", issue.Rule, issue.Suggestion)
@@ -206,6 +207,7 @@ func healthIssuesToFindings(health *types.ConfigHealth, configFile string) []fin
 		pos := finding.Position{File: configFile}
 
 		var severity finding.Severity
+
 		switch issue.Severity {
 		case types.HealthSeverityCritical:
 			severity = finding.SeverityCritical

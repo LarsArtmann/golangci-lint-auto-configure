@@ -10,11 +10,11 @@
 
 Out of 126 golangci-lint configuration files analyzed across the project portfolio, the AI agents have created **three distinct tiers** of configuration quality:
 
-| Tier | Configs | Description |
-|------|---------|-------------|
-| **Well-curated** | ~15 (12%) | Manually tuned, project-specific settings, meaningful exclusions, appropriate linter count (40-70) |
-| **Standardized template** | ~75 (60%) | Cookie-cutter "enable everything" configs with ~109-110 linters, minimal project-specific tuning |
-| **Problematic** | ~36 (28%) | Broken structure, duplicate entries, v1/v2 syntax mixing, excessive verbosity, or enable+disable conflicts |
+| Tier                      | Configs   | Description                                                                                                |
+| ------------------------- | --------- | ---------------------------------------------------------------------------------------------------------- |
+| **Well-curated**          | ~15 (12%) | Manually tuned, project-specific settings, meaningful exclusions, appropriate linter count (40-70)         |
+| **Standardized template** | ~75 (60%) | Cookie-cutter "enable everything" configs with ~109-110 linters, minimal project-specific tuning           |
+| **Problematic**           | ~36 (28%) | Broken structure, duplicate entries, v1/v2 syntax mixing, excessive verbosity, or enable+disable conflicts |
 
 ### Key Findings
 
@@ -33,16 +33,16 @@ Out of 126 golangci-lint configuration files analyzed across the project portfol
 
 These configs have linters listed twice in their enable section, meaning golangci-lint processes them redundantly:
 
-| Project | Duplicate Count | Severity |
-|---------|----------------|----------|
-| **GmbH** | 56 duplicates | Critical — also has a SECOND `linters.enable:` block orphaned before formatters |
-| **ActaFlow** | 43 duplicates | Critical |
-| **Polish-Customs** | 21 duplicates | Critical |
-| **desire-secrets** | 49 duplicates | Critical |
-| **storbi** | 17 duplicates | Critical |
-| **InboxClean** | 11 duplicates | High |
-| **smart-configs** | 13 duplicates | High |
-| **go-website-template** | 1 duplicate | Low |
+| Project                 | Duplicate Count | Severity                                                                        |
+| ----------------------- | --------------- | ------------------------------------------------------------------------------- |
+| **GmbH**                | 56 duplicates   | Critical — also has a SECOND `linters.enable:` block orphaned before formatters |
+| **ActaFlow**            | 43 duplicates   | Critical                                                                        |
+| **Polish-Customs**      | 21 duplicates   | Critical                                                                        |
+| **desire-secrets**      | 49 duplicates   | Critical                                                                        |
+| **storbi**              | 17 duplicates   | Critical                                                                        |
+| **InboxClean**          | 11 duplicates   | High                                                                            |
+| **smart-configs**       | 13 duplicates   | High                                                                            |
+| **go-website-template** | 1 duplicate     | Low                                                                             |
 
 **Root cause:** AI agents appended a second batch of linters to the enable list without checking for existing entries. The GmbH config is particularly broken — it has an orphaned linters section between the disable block and the formatters section, containing ~60 linters that are never read.
 
@@ -52,12 +52,12 @@ These configs have linters listed twice in their enable section, meaning golangc
 
 These configs declare `version: "2"` but use the v1 `linters-settings:` key instead of `linters.settings`:
 
-| Project | Issue |
-|---------|-------|
-| **ActaFlow** | Has `linters-settings:` after the formatters section |
-| **BerryBig** | Uses `linters-settings:` instead of nested `linters.settings` |
-| **CV** | Uses `linters-settings:` and `issues.exclude-rules` (v1 syntax) |
-| **storbi** | Has `linters-settings:` appended after `issues:` section |
+| Project      | Issue                                                           |
+| ------------ | --------------------------------------------------------------- |
+| **ActaFlow** | Has `linters-settings:` after the formatters section            |
+| **BerryBig** | Uses `linters-settings:` instead of nested `linters.settings`   |
+| **CV**       | Uses `linters-settings:` and `issues.exclude-rules` (v1 syntax) |
+| **storbi**   | Has `linters-settings:` appended after `issues:` section        |
 
 **Root cause:** golangci-lint v2 accepts both syntaxes for backward compatibility, but mixing them in the same file creates confusion and may cause settings to be silently ignored.
 
@@ -84,15 +84,16 @@ These configs use 4-space indentation (v1 style) instead of the v2 standard 2-sp
 The most prevalent issue is what I call the **"maximalist enable pattern"**: enabling 105-110 linters with zero project-specific tuning. This pattern appears in ~60% of all configs.
 
 **Typical example** (from the 34-project identical cluster):
+
 ```yaml
 linters:
   enable:
-    - arangolint      # ArangoDB-specific — useless for 90% of projects
-    - asasalint       # Checks pass []any as any in variadic func
-    - ginkgolinter    # Only useful in test files with ginkgo
-    - godoclint       # Requires godoc comments — may be unwanted
-    - godox           # Reports TODO/FIXME/BUG — creates noise
-    - nlreturn        # Forces blank line before return — extremely opinionated
+    - arangolint # ArangoDB-specific — useless for 90% of projects
+    - asasalint # Checks pass []any as any in variadic func
+    - ginkgolinter # Only useful in test files with ginkgo
+    - godoclint # Requires godoc comments — may be unwanted
+    - godox # Reports TODO/FIXME/BUG — creates noise
+    - nlreturn # Forces blank line before return — extremely opinionated
     - ... (100+ more)
 ```
 
@@ -106,6 +107,7 @@ linters:
 ### 2.3 The Well-Curated Alternative
 
 **go-commit** (importance: 95) is a good example of a curated config:
+
 - 62 linters enabled (vs 110)
 - Project-specific `revive` rules
 - Thoughtful `gosec` excludes (G101, G301, etc.)
@@ -114,6 +116,7 @@ linters:
 - Exclusion rules for test files
 
 **blog** (importance: 68) is another good example:
+
 - 41 linters — focused on what matters
 - `govet enable-all: true` (explicitly opt into all govet checks)
 - `revive` with disabled rules for noise reduction
@@ -121,20 +124,20 @@ linters:
 
 ### 2.4 Linters That Should NOT Be in Most Projects
 
-| Linter | Why Remove | Keep Only If |
-|--------|-----------|--------------|
-| `arangolint` | ArangoDB-specific | Using ArangoDB client |
-| `ginkgolinter` | Framework-specific | Using ginkgo testing |
-| `sqlclosecheck` | SQL-specific | Using `database/sql` directly |
-| `rowserrcheck` | SQL-specific | Using `database/sql` directly |
-| `zerologlint` | Library-specific | Using zerolog |
-| `sloglint` | Library-specific | Using log/slog extensively |
-| `godoclint` | Opinionated doc style | Project requires godoc on all symbols |
-| `nlreturn` | Extremely noisy style rule | Team explicitly wants this style |
-| `godox` | Reports TODO/FIXME as issues | Team wants zero TODOs |
-| `goheader` | Requires specific file headers | Project mandates headers |
-| `promlinter` | Prometheus-specific | Using Prometheus metrics |
-| `protogetter` | Protobuf-specific | Using protobuf |
+| Linter          | Why Remove                     | Keep Only If                          |
+| --------------- | ------------------------------ | ------------------------------------- |
+| `arangolint`    | ArangoDB-specific              | Using ArangoDB client                 |
+| `ginkgolinter`  | Framework-specific             | Using ginkgo testing                  |
+| `sqlclosecheck` | SQL-specific                   | Using `database/sql` directly         |
+| `rowserrcheck`  | SQL-specific                   | Using `database/sql` directly         |
+| `zerologlint`   | Library-specific               | Using zerolog                         |
+| `sloglint`      | Library-specific               | Using log/slog extensively            |
+| `godoclint`     | Opinionated doc style          | Project requires godoc on all symbols |
+| `nlreturn`      | Extremely noisy style rule     | Team explicitly wants this style      |
+| `godox`         | Reports TODO/FIXME as issues   | Team wants zero TODOs                 |
+| `goheader`      | Requires specific file headers | Project mandates headers              |
+| `promlinter`    | Prometheus-specific            | Using Prometheus metrics              |
+| `protogetter`   | Protobuf-specific              | Using protobuf                        |
 
 ---
 
@@ -143,24 +146,26 @@ linters:
 ### 33 configs use both `enable:` and `disable:`
 
 In golangci-lint v2, the recommended approach is:
+
 - `linters.default: none` + explicit `enable:` list, OR
 - `linters.default: standard` + additional `enable:` entries
 
 Using both `enable:` and `disable:` means:
+
 1. You're enabling linters that are then disabled — confusing
 2. The effective linter set is unclear without mental arithmetic
 3. It suggests the config was built by "start with everything, then remove noisy ones" — the opposite of intentional selection
 
 **Most commonly disabled linters:**
 
-| Linter | Disabled count | Assessment |
-|--------|---------------|------------|
-| `funcorder` | 28 | Reasonable — new linter, may be noisy |
-| `exhaustruct` | 11 | Questionable — if you enable it, configure it rather than disabling |
-| `paralleltest` | 9 | Reasonable — many test files don't benefit from parallel |
-| `gochecknoglobals` | 9 | Reasonable — many projects have legitimate globals |
-| `varnamelen` | 8 | Reasonable — very noisy without configuration |
-| `testpackage` | 8 | Reasonable — forces separate test packages, not always wanted |
+| Linter             | Disabled count | Assessment                                                          |
+| ------------------ | -------------- | ------------------------------------------------------------------- |
+| `funcorder`        | 28             | Reasonable — new linter, may be noisy                               |
+| `exhaustruct`      | 11             | Questionable — if you enable it, configure it rather than disabling |
+| `paralleltest`     | 9              | Reasonable — many test files don't benefit from parallel            |
+| `gochecknoglobals` | 9              | Reasonable — many projects have legitimate globals                  |
+| `varnamelen`       | 8              | Reasonable — very noisy without configuration                       |
+| `testpackage`      | 8              | Reasonable — forces separate test packages, not always wanted       |
 
 ---
 
@@ -178,7 +183,7 @@ errcheck is a **critical** linter that catches unchecked errors. These projects 
 
 ### 14 projects missing `staticcheck`
 
-staticcheck is the most important Go linter (replaces golint + many SA-* checks):
+staticcheck is the most important Go linter (replaces golint + many SA-\* checks):
 
 - Same 14 as above minus a few, plus Kernovia, terraform-diagrams-aggregator
 
@@ -204,12 +209,12 @@ gosec catches security vulnerabilities:
 
 ### Distribution
 
-| Size Range | Count | Typical Pattern |
-|-----------|-------|-----------------|
-| 40-100 lines | 20 | Minimal or well-curated |
-| 100-200 lines | 85 | Standard template (enable list + minimal settings) |
-| 200-400 lines | 15 | Extended settings + exclusions |
-| 400-900 lines | 6 | Over-configured (desire-secrets: 881, complaints-mcp: 822) |
+| Size Range    | Count | Typical Pattern                                            |
+| ------------- | ----- | ---------------------------------------------------------- |
+| 40-100 lines  | 20    | Minimal or well-curated                                    |
+| 100-200 lines | 85    | Standard template (enable list + minimal settings)         |
+| 200-400 lines | 15    | Extended settings + exclusions                             |
+| 400-900 lines | 6     | Over-configured (desire-secrets: 881, complaints-mcp: 822) |
 
 ### The Over-Configuration Problem
 
@@ -221,6 +226,7 @@ gosec catches security vulnerabilities:
 - `iface` with explicit enable list for all check types
 
 This is the **"AI agent read the docs and configured everything"** pattern. It:
+
 1. Makes the config impossible to review
 2. Bakes in defaults that may change between golangci-lint versions
 3. Provides no signal about what's intentionally configured vs auto-generated
@@ -235,13 +241,13 @@ This is the **"AI agent read the docs and configured everything"** pattern. It:
 
 Several groups of projects share identical configs, suggesting template-based generation:
 
-| Group Size | Projects | Linter Count |
-|-----------|----------|-------------|
-| 34 | rules, go-business-rules, gogenfilter, template-sqlc, ... | 109 |
-| 20 | accountability-system, template-SECURITY, SEC, golangci-lint-auto-configure, ... | 109 |
-| 9 | primeXchange-admin-dashboard, mr-sync, oxlint-auto-configure, cqrs-htmx, ... | 64 |
-| 5 | github-local-sync, prompt-crusher, reports, template-AUTHORS, template-MAINTAINERS | 109 |
-| 5 | AI-Speed-Test, AutoCart, invoices, BerryBig, KeyHolderAI | 109 |
+| Group Size | Projects                                                                           | Linter Count |
+| ---------- | ---------------------------------------------------------------------------------- | ------------ |
+| 34         | rules, go-business-rules, gogenfilter, template-sqlc, ...                          | 109          |
+| 20         | accountability-system, template-SECURITY, SEC, golangci-lint-auto-configure, ...   | 109          |
+| 9          | primeXchange-admin-dashboard, mr-sync, oxlint-auto-configure, cqrs-htmx, ...       | 64           |
+| 5          | github-local-sync, prompt-crusher, reports, template-AUTHORS, template-MAINTAINERS | 109          |
+| 5          | AI-Speed-Test, AutoCart, invoices, BerryBig, KeyHolderAI                           | 109          |
 
 **Assessment:** Template-based configs are fine for new projects (templates!), but production projects should diverge as they mature. Having 34 projects with identical configs suggests they were bulk-generated rather than tuned.
 
@@ -252,6 +258,7 @@ Several groups of projects share identical configs, suggesting template-based ge
 ### 122 of 126 configs have `build-tags:`
 
 The most common tags:
+
 ```yaml
 build-tags:
   - goexperiment.goroutineleakprofile
@@ -260,9 +267,10 @@ build-tags:
 ```
 
 Some newer configs also include:
+
 ```yaml
-  - goexperiment.arenas
-  - goexperiment.runtimesecret
+- goexperiment.arenas
+- goexperiment.runtimesecret
 ```
 
 **Assessment:** This is a good pattern — enabling Go experiment features consistently across the portfolio. The variation between having 3, 4, or 5 tags is harmless but could be standardized.
@@ -273,14 +281,14 @@ Some newer configs also include:
 
 ### All 126 configs have formatters enabled
 
-| Formatter | Projects |
-|-----------|----------|
-| `gofumpt` | 122 |
-| `goimports` | 121 |
-| `gci` | 121 |
-| `golines` | 120 |
-| `swaggo` | 7 |
-| `gofmt` | 1 (CV) |
+| Formatter   | Projects |
+| ----------- | -------- |
+| `gofumpt`   | 122      |
+| `goimports` | 121      |
+| `gci`       | 121      |
+| `golines`   | 120      |
+| `swaggo`    | 7        |
+| `gofmt`     | 1 (CV)   |
 
 **Assessment:** Excellent consistency. The `gci` + `goimports` + `gofumpt` + `golines` combination is the right choice. The 5 projects missing `golines` should add it for line-length consistency.
 
@@ -295,6 +303,7 @@ These changes should be **kept and standardized**:
 ### 9.1 Comprehensive Exclusion Rules for Tests
 
 Most configs correctly exclude noisy linters from test files:
+
 ```yaml
 exclusions:
   rules:
@@ -306,11 +315,13 @@ exclusions:
         - funlen
         - varnamelen
 ```
+
 **Verdict: GOOD.** Test files have different standards than production code.
 
 ### 9.2 depguard for Dependency Control
 
 ~51 configs use `depguard` to restrict imports:
+
 ```yaml
 depguard:
   rules:
@@ -320,17 +331,20 @@ depguard:
         - github.com/charmbracelet
         - github.com/larsartmann/...
 ```
+
 **Verdict: GOOD.** Prevents dependency drift and enforces architectural boundaries.
 
 ### 9.3 exhaustruct with Targeted Exclusions
 
 Well-configured projects list specific types to exclude from exhaustruct:
+
 ```yaml
 exhaustruct:
   exclude:
     - '.+/cobra\.Command$'
     - '.+/http\.Server$'
 ```
+
 **Verdict: GOOD.** exhaustruct is too noisy without exclusions, but the right fix is targeted exclusions, not disabling.
 
 ### 9.4 ireturn with Allow List
@@ -344,6 +358,7 @@ ireturn:
     - stdlib
     - generic
 ```
+
 **Verdict: GOOD.** ireturn without configuration is unusable; with this allow list it catches real issues.
 
 ### 9.5 Build Tags for Go Experiments
@@ -354,6 +369,7 @@ build-tags:
   - goexperiment.jsonv2
   - goexperiment.simd
 ```
+
 **Verdict: GOOD.** Forward-looking, enables newer Go features consistently.
 
 ### 9.6 Standardized Formatter Suite
@@ -369,11 +385,11 @@ These should be **reverted or fixed**:
 
 ### 10.1 Enable Everything, Disable Nothing (or Both)
 
-| Pattern | Projects | Fix |
-|---------|----------|-----|
-| 110 linters, zero settings | ~40 | Reduce to 50-70, add project-specific settings |
-| enable + disable in same config | 33 | Use `default: none` + `enable:` only |
-| Duplicate entries in enable | 8 | Regenerate deduplicated list |
+| Pattern                         | Projects | Fix                                            |
+| ------------------------------- | -------- | ---------------------------------------------- |
+| 110 linters, zero settings      | ~40      | Reduce to 50-70, add project-specific settings |
+| enable + disable in same config | 33       | Use `default: none` + `enable:` only           |
+| Duplicate entries in enable     | 8        | Regenerate deduplicated list                   |
 
 ### 10.2 Over-Configuration of Defaults
 
@@ -398,12 +414,12 @@ Writing out every default setting explicitly (desire-secrets: 881 lines, complai
 ### 10.6 Inconsistent Go Version
 
 | Version | Count |
-|---------|-------|
-| 1.26.0 | 12 |
-| 1.26.1 | 52 |
-| 1.26.2 | 51 |
-| 1.26 | 6 |
-| unset | 5 |
+| ------- | ----- |
+| 1.26.0  | 12    |
+| 1.26.1  | 52    |
+| 1.26.2  | 51    |
+| 1.26    | 6     |
+| unset   | 5     |
 
 **Fix:** Standardize on `1.26` (without patch) or the actual Go version used by the project. Pinning to `1.26.2` in a project that runs `1.26.1` causes version mismatch warnings.
 
@@ -413,39 +429,39 @@ Writing out every default setting explicitly (desire-secrets: 881 lines, complai
 
 ### Critical (must fix immediately)
 
-| Project | Issues |
-|---------|--------|
-| **GmbH** | 56 duplicate entries, orphaned enable section, 169 linters with massive disable list |
-| **ActaFlow** | 43 duplicates, v1/v2 syntax mixing, 155 linters |
-| **desire-secrets** | 49 duplicates, 881 lines of over-configuration, 160 linters |
-| **Polish-Customs** | 21 duplicates, 134 linters with 30+ disabled |
-| **storbi** | 17 duplicates, v1/v2 syntax mixing, 128 linters |
+| Project            | Issues                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| **GmbH**           | 56 duplicate entries, orphaned enable section, 169 linters with massive disable list |
+| **ActaFlow**       | 43 duplicates, v1/v2 syntax mixing, 155 linters                                      |
+| **desire-secrets** | 49 duplicates, 881 lines of over-configuration, 160 linters                          |
+| **Polish-Customs** | 21 duplicates, 134 linters with 30+ disabled                                         |
+| **storbi**         | 17 duplicates, v1/v2 syntax mixing, 128 linters                                      |
 
 ### High (should fix soon)
 
-| Project | Issues |
-|---------|--------|
-| **InboxClean** | 11 duplicates, enable-all: true |
-| **smart-configs** | 13 duplicates |
-| **CreditReformBilanzampel** | Missing errcheck/staticcheck/govet/gosec, 4-space indentation |
-| **projects-management-automation** | Missing errcheck/staticcheck/govet/gosec, 4-space indentation |
-| **file-and-image-renamer** | Missing errcheck/staticcheck/govet/gosec, 4-space indentation |
-| **standard-bug-tracking-schema** | Missing errcheck/staticcheck/govet/gosec, 4-space indentation |
-| **CV** | v1 syntax (`linters-settings:`, `issues.exclude-rules`), minimal linter set (7), missing formatters |
-| **BerryBig** | v1/v2 syntax mixing |
+| Project                            | Issues                                                                                              |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **InboxClean**                     | 11 duplicates, enable-all: true                                                                     |
+| **smart-configs**                  | 13 duplicates                                                                                       |
+| **CreditReformBilanzampel**        | Missing errcheck/staticcheck/govet/gosec, 4-space indentation                                       |
+| **projects-management-automation** | Missing errcheck/staticcheck/govet/gosec, 4-space indentation                                       |
+| **file-and-image-renamer**         | Missing errcheck/staticcheck/govet/gosec, 4-space indentation                                       |
+| **standard-bug-tracking-schema**   | Missing errcheck/staticcheck/govet/gosec, 4-space indentation                                       |
+| **CV**                             | v1 syntax (`linters-settings:`, `issues.exclude-rules`), minimal linter set (7), missing formatters |
+| **BerryBig**                       | v1/v2 syntax mixing                                                                                 |
 
 ### Medium (should fix when convenient)
 
-| Project | Issues |
-|---------|--------|
-| **blog** | Missing errcheck/govet/staticcheck (despite being important), small but curated |
-| **go-composable-business-types** | Missing errcheck/staticcheck/govet (despite being importance: 96!) |
-| **hierarchical-errors** | Missing errcheck/staticcheck/govet |
-| **Go-Deterministic-Simulation-Testing** | Missing errcheck/staticcheck/govet |
-| **go-auto-upgrade** | Missing errcheck/staticcheck/govet |
-| **emeet-pixyd** | Missing errcheck/staticcheck/govet |
-| **ai-task-prioritizer** | Missing errcheck/gosec |
-| **Kernovia** | Missing staticcheck, minimal config |
+| Project                                 | Issues                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------- |
+| **blog**                                | Missing errcheck/govet/staticcheck (despite being important), small but curated |
+| **go-composable-business-types**        | Missing errcheck/staticcheck/govet (despite being importance: 96!)              |
+| **hierarchical-errors**                 | Missing errcheck/staticcheck/govet                                              |
+| **Go-Deterministic-Simulation-Testing** | Missing errcheck/staticcheck/govet                                              |
+| **go-auto-upgrade**                     | Missing errcheck/staticcheck/govet                                              |
+| **emeet-pixyd**                         | Missing errcheck/staticcheck/govet                                              |
+| **ai-task-prioritizer**                 | Missing errcheck/gosec                                                          |
+| **Kernovia**                            | Missing staticcheck, minimal config                                             |
 
 ---
 
@@ -599,12 +615,12 @@ As a direct result of this audit, the `validate` command now includes **structur
 
 ### Detection Rules
 
-| Rule | Severity | What It Detects | From Report Section |
-|------|----------|----------------|---------------------|
-| `duplicate-linter` | CRITICAL | Linters listed multiple times in enable/disable | Section 1.1 |
-| `enable-disable-overlap` | WARNING | Same linter in both enable and disable lists | Section 3 |
-| `missing-critical-linter` | WARNING | Missing errcheck, staticcheck, or govet | Section 4 |
-| `v1-syntax-in-v2` | WARNING | Top-level `linters-settings` in v2 config | Section 1.2 |
+| Rule                      | Severity | What It Detects                                 | From Report Section |
+| ------------------------- | -------- | ----------------------------------------------- | ------------------- |
+| `duplicate-linter`        | CRITICAL | Linters listed multiple times in enable/disable | Section 1.1         |
+| `enable-disable-overlap`  | WARNING  | Same linter in both enable and disable lists    | Section 3           |
+| `missing-critical-linter` | WARNING  | Missing errcheck, staticcheck, or govet         | Section 4           |
+| `v1-syntax-in-v2`         | WARNING  | Top-level `linters-settings` in v2 config       | Section 1.2         |
 
 ### Usage
 

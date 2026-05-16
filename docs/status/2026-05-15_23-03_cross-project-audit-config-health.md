@@ -15,6 +15,7 @@
 Analyzed **126 `.golangci.yml`/`.golangci.yaml`** files across all managed Go projects. Full content analysis + git history review + `golangci-lint-auto-configure analyze` runs.
 
 **Key findings:**
+
 - 8 configs have **broken YAML with duplicate linter entries** (GmbH worst: 56 duplicates + orphaned enable block)
 - 4 configs mix **v1/v2 syntax** (`linters-settings:` alongside `version: "2"`)
 - 14 configs are **missing critical linters** (errcheck, staticcheck, govet, or gosec)
@@ -31,14 +32,15 @@ Analyzed **126 `.golangci.yml`/`.golangci.yaml`** files across all managed Go pr
 
 Added `ConfigHealth` type with 4 detection rules wired into the `validate` command:
 
-| Rule | Severity | What It Detects | Projects Affected |
-|------|----------|----------------|-------------------|
-| `duplicate-linter` | CRITICAL | Duplicate entries in enable/disable | 8 projects |
-| `enable-disable-overlap` | WARNING | Same linter in both lists | 33 projects |
-| `missing-critical-linter` | WARNING | No errcheck/staticcheck/govet | 14 projects |
-| `v1-syntax-in-v2` | WARNING | `linters-settings:` in v2 config | 4 projects |
+| Rule                      | Severity | What It Detects                     | Projects Affected |
+| ------------------------- | -------- | ----------------------------------- | ----------------- |
+| `duplicate-linter`        | CRITICAL | Duplicate entries in enable/disable | 8 projects        |
+| `enable-disable-overlap`  | WARNING  | Same linter in both lists           | 33 projects       |
+| `missing-critical-linter` | WARNING  | No errcheck/staticcheck/govet       | 14 projects       |
+| `v1-syntax-in-v2`         | WARNING  | `linters-settings:` in v2 config    | 4 projects        |
 
 **Architecture:**
+
 - `ConfigHealth` struct with `IsHealthy()`, `CriticalIssues()`, `WarningIssues()` methods
 - `CheckConfigHealth(cfg *Config)` — pure function, zero external dependencies
 - `HealthIssue` struct with severity, rule, message, field, suggestion
@@ -53,6 +55,7 @@ Added `ConfigHealth` type with 4 detection rules wired into the `validate` comma
 Integrates `gogenfilter/v3` library to detect auto-generated Go files and inject exclusion patterns during `configure`. Detects: templ, protobuf, sqlc, wire, mockgen, moq, go-enum, stringer, deepcopy-gen, oapi-codegen, and generic codegen.
 
 **Key decisions:**
+
 - `ScanProject` accepts `fs.FS` interface for testability
 - Returns individual regex path patterns (not pipe-delimited globs)
 - `MergeExclusionPaths` handles deduplication and sorting
@@ -70,22 +73,22 @@ Added documentation linking audit findings to the new automated detection rules,
 
 **All 14 test suites passing, 251 total specs, composite coverage: 59.7%**
 
-| Suite | Specs | Coverage |
-|-------|-------|----------|
-| CLI Commands | 23 | 8.5% |
-| Config | 37 | 65.9% |
-| Experiments | 6 | 100.0% |
-| Errors | 20 | 100.0% |
-| GoGenFilter Scanner | 15 | 62.9% |
-| Analyzer | 39 | 78.4% |
-| Migration | 37 | 66.8% |
-| Set | 38 | 57.7% |
-| Utils | 16 | 94.6% |
-| Version | 6 | 51.4% |
-| Differ | 12 | 65.0% |
-| Linter Fixer | 14 | 96.5% |
-| Detection | 7 | 58.1% |
-| Categorizer | 1 | — |
+| Suite               | Specs | Coverage |
+| ------------------- | ----- | -------- |
+| CLI Commands        | 23    | 8.5%     |
+| Config              | 37    | 65.9%    |
+| Experiments         | 6     | 100.0%   |
+| Errors              | 20    | 100.0%   |
+| GoGenFilter Scanner | 15    | 62.9%    |
+| Analyzer            | 39    | 78.4%    |
+| Migration           | 37    | 66.8%    |
+| Set                 | 38    | 57.7%    |
+| Utils               | 16    | 94.6%    |
+| Version             | 6     | 51.4%    |
+| Differ              | 12    | 65.0%    |
+| Linter Fixer        | 14    | 96.5%    |
+| Detection           | 7     | 58.1%    |
+| Categorizer         | 1     | —        |
 
 ---
 
@@ -191,33 +194,33 @@ Section 12 of the audit report defines a recommended standard config template (5
 
 Sorted by impact/effort ratio (highest first):
 
-| # | Task | Impact | Effort | Type |
-|---|------|--------|--------|------|
-| 1 | Auto-deduplicate enable list in `updateConfigFromSets()` | High | Low | Bug fix |
-| 2 | Derive critical linters from `constants.LinterPriorities` instead of hardcoding | Medium | Low | Refactor |
-| 3 | Add integration test for `validate` command health checks | High | Low | Testing |
-| 4 | Add `overly-long-config` health rule (>200 lines) | Medium | Low | Feature |
-| 5 | Add `enable-all-anti-pattern` health rule | Medium | Low | Feature |
-| 6 | Add `inconsistent-go-version` health rule | Medium | Low | Feature |
-| 7 | Run `golangci-lint-auto-configure validate` across all 126 projects | High | Low | Audit |
-| 8 | Implement `preset: recommended` from audit Section 12 | High | Medium | Feature |
-| 9 | Add `irrelevant-linter` health rule using `pkg/detection` | Medium | Medium | Feature |
-| 10 | Auto-fix enable+disable overlap in `configure` | Medium | Low | Feature |
-| 11 | Add `unbounded-issues` health rule (max-issues-per-linter: 0) | Low | Low | Feature |
-| 12 | Add context support to gogenfilter scanner | Medium | Medium | Improvement |
-| 13 | Add `ToFindingSeverity()` method on `HealthSeverity` | Low | Low | Refactor |
-| 14 | Log errors in `healthIssuesToFindings` instead of silent skip | Low | Low | Bug fix |
-| 15 | Improve gogenfilter scanner test coverage to >80% | Medium | Medium | Testing |
-| 16 | Add CI step to validate tool's own config with health checks | Medium | Low | CI/CD |
-| 17 | Add `golangci-lint-auto-configure fix --health` command | High | Medium | Feature |
-| 18 | Create project-type-aware linter suggestion layer | High | High | Feature |
-| 19 | Normalize 4-space indentation to 2-space during `configure` | Low | Low | Feature |
-| 20 | Strip default values from configs during `configure` | Medium | Medium | Feature |
-| 21 | Add SARIF golden file integration test | Medium | Medium | Testing |
-| 22 | Update AGENTS.md with ConfigHealth, gogenfilter, audit findings | Low | Low | Docs |
-| 23 | Add performance benchmarks for gogenfilter on large projects | Low | Medium | Testing |
-| 24 | Build cross-project config drift detection | High | High | Feature |
-| 25 | Update vendorHash and verify `nix build` after go.mod changes | Medium | Low | Build |
+| #   | Task                                                                            | Impact | Effort | Type        |
+| --- | ------------------------------------------------------------------------------- | ------ | ------ | ----------- |
+| 1   | Auto-deduplicate enable list in `updateConfigFromSets()`                        | High   | Low    | Bug fix     |
+| 2   | Derive critical linters from `constants.LinterPriorities` instead of hardcoding | Medium | Low    | Refactor    |
+| 3   | Add integration test for `validate` command health checks                       | High   | Low    | Testing     |
+| 4   | Add `overly-long-config` health rule (>200 lines)                               | Medium | Low    | Feature     |
+| 5   | Add `enable-all-anti-pattern` health rule                                       | Medium | Low    | Feature     |
+| 6   | Add `inconsistent-go-version` health rule                                       | Medium | Low    | Feature     |
+| 7   | Run `golangci-lint-auto-configure validate` across all 126 projects             | High   | Low    | Audit       |
+| 8   | Implement `preset: recommended` from audit Section 12                           | High   | Medium | Feature     |
+| 9   | Add `irrelevant-linter` health rule using `pkg/detection`                       | Medium | Medium | Feature     |
+| 10  | Auto-fix enable+disable overlap in `configure`                                  | Medium | Low    | Feature     |
+| 11  | Add `unbounded-issues` health rule (max-issues-per-linter: 0)                   | Low    | Low    | Feature     |
+| 12  | Add context support to gogenfilter scanner                                      | Medium | Medium | Improvement |
+| 13  | Add `ToFindingSeverity()` method on `HealthSeverity`                            | Low    | Low    | Refactor    |
+| 14  | Log errors in `healthIssuesToFindings` instead of silent skip                   | Low    | Low    | Bug fix     |
+| 15  | Improve gogenfilter scanner test coverage to >80%                               | Medium | Medium | Testing     |
+| 16  | Add CI step to validate tool's own config with health checks                    | Medium | Low    | CI/CD       |
+| 17  | Add `golangci-lint-auto-configure fix --health` command                         | High   | Medium | Feature     |
+| 18  | Create project-type-aware linter suggestion layer                               | High   | High   | Feature     |
+| 19  | Normalize 4-space indentation to 2-space during `configure`                     | Low    | Low    | Feature     |
+| 20  | Strip default values from configs during `configure`                            | Medium | Medium | Feature     |
+| 21  | Add SARIF golden file integration test                                          | Medium | Medium | Testing     |
+| 22  | Update AGENTS.md with ConfigHealth, gogenfilter, audit findings                 | Low    | Low    | Docs        |
+| 23  | Add performance benchmarks for gogenfilter on large projects                    | Low    | Medium | Testing     |
+| 24  | Build cross-project config drift detection                                      | High   | High   | Feature     |
+| 25  | Update vendorHash and verify `nix build` after go.mod changes                   | Medium | Low    | Build       |
 
 ---
 
@@ -226,6 +229,7 @@ Sorted by impact/effort ratio (highest first):
 **Should `golangci-lint-auto-configure fix --health` auto-fix health issues (remove duplicates, remove enable+disable overlaps, add missing critical linters) WITHOUT running the full `golangci-lint configure` flow (which requires `golangci-lint` binary + version check + full analysis)?**
 
 The tension: `configure` requires golangci-lint installed and running in a git repo. But `CheckConfigHealth` is a pure function that needs only the config file. A `fix --health` mode that only does structural fixes (dedup, overlap removal, version normalization) would be:
+
 - Much faster (no external binary needed)
 - Runnable on any config file (no git repo needed)
 - Safe to run in CI on config PRs
@@ -236,19 +240,19 @@ But it would create a second code path for config modification that diverges fro
 
 ## Metrics Summary
 
-| Metric | Value |
-|--------|-------|
-| Commits this session | 11 |
-| Files changed | 17 |
-| Lines added | 2,037 |
-| Lines removed | 18 |
-| New test specs | 33 (18 health + 15 gogenfilter) |
-| Test suites | 14/14 passing |
-| Composite coverage | 59.7% |
-| Configs audited | 126 |
-| Health rules added | 4 |
-| Source files in project | 68 |
-| Test files in project | 25 |
+| Metric                  | Value                           |
+| ----------------------- | ------------------------------- |
+| Commits this session    | 11                              |
+| Files changed           | 17                              |
+| Lines added             | 2,037                           |
+| Lines removed           | 18                              |
+| New test specs          | 33 (18 health + 15 gogenfilter) |
+| Test suites             | 14/14 passing                   |
+| Composite coverage      | 59.7%                           |
+| Configs audited         | 126                             |
+| Health rules added      | 4                               |
+| Source files in project | 68                              |
+| Test files in project   | 25                              |
 
 ---
 
