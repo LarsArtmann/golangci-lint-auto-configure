@@ -18,6 +18,8 @@ import (
 // Version is the CLI version string, derived from pkg/version.
 var Version = version.Get().Short()
 
+const toolNameCLI = "golangci-lint-auto-configure"
+
 var (
 	configPath   string
 	dryRun       bool
@@ -160,7 +162,7 @@ func NewRootCommand() *cobra.Command {
 	slog.SetDefault(slog.New(logger))
 
 	rootCmd := &cobra.Command{
-		Use:   "golangci-lint-auto-configure",
+		Use:   toolNameCLI,
 		Short: "Automatically configure and optimize golangci-lint",
 		Long: `A tool that automatically analyzes golangci-lint configurations,
 detects missing linters with smart categorization, and provides

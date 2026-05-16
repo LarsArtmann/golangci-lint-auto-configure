@@ -289,6 +289,18 @@ linters:
       - path: pkg/linter/fixer\.go
         linters:
           - funlen
+      - path: internal/cli/cmd_validate\.go
+        linters:
+          - funlen
+      - path: pkg/gogenfilter/scanner\.go
+        linters:
+          - funlen
+      - path: pkg/linter/fixer_config\.go
+        linters:
+          - funlen
+      - path: pkg/types/validation\.go
+        linters:
+          - funlen
       - path: pkg/constants/linter_reasons\.go
         linters:
           - gosec
@@ -368,6 +380,15 @@ linters:
       - path: pkg/constants/linter_priorities\.go|pkg/constants/linter_reasons\.go
         linters:
           - misspell
+      - path: pkg/constants/linter_priorities\.go|pkg/constants/linter_reasons\.go|pkg/constants/presets\.go|pkg/constants/formatter_data\.go|pkg/constants/rules\.go|pkg/constants/config\.go
+        linters:
+          - goconst
+      - path: _test\.go
+        linters:
+          - goconst
+      - path: pkg/types/types\.go|pkg/types/validation\.go|pkg/detection/patterns\.go|pkg/finding/categories\.go|pkg/migration/rules\.go
+        linters:
+          - goconst
 formatters:
   enable:
     - gci

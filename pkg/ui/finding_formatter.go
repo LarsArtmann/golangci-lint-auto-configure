@@ -51,36 +51,48 @@ func FormatFindingsSummary(findings []finding.Finding) string {
 	bySeverity := finding.GroupBySeverity(findings)
 
 	var parts []string
-	if group, ok := bySeverity[finding.SeverityCritical]; ok {
-		parts = append(parts, strconv.Itoa(len(group))+" critical")
-	}
 
-	if group, ok := bySeverity[finding.SeverityError]; ok {
-		parts = append(parts, strconv.Itoa(len(group))+" error")
-	}
-
-	if group, ok := bySeverity[finding.SeverityWarning]; ok {
-		parts = append(parts, strconv.Itoa(len(group))+" warning")
-	}
-
-	if group, ok := bySeverity[finding.SeverityInfo]; ok {
-		parts = append(parts, strconv.Itoa(len(group))+" info")
+	for _, severity := range []finding.Severity{
+		finding.SeverityCritical,
+		finding.SeverityError,
+		finding.SeverityWarning,
+		finding.SeverityInfo,
+	} {
+		if group, ok := bySeverity[severity]; ok {
+			parts = append(parts, strconv.Itoa(len(group))+" "+severityLabel(severity))
+		}
 	}
 
 	return "Findings: " + strings.Join(parts, ", ")
 }
 
-func severityBadge(severity finding.Severity) string {
-	switch severity {
-	case finding.SeverityCritical:
-		return "\U0001f534"
-	case finding.SeverityError:
-		return "\U0001f7e0"
-	case finding.SeverityWarning:
-		return "\U0001f7e1"
-	case finding.SeverityInfo:
-		return "\U0001f535"
-	default:
-		return "\u26aa"
+var severityData = []struct {
+	severity finding.Severity
+	label    string
+	badge    string
+}{
+	{finding.SeverityCritical, "critical", "\U0001f534"},
+	{finding.SeverityError, "error", "\U0001f7e0"},
+	{finding.SeverityWarning, "warning", "\U0001f7e1"},
+	{finding.SeverityInfo, "info", "\U0001f535"},
+}
+
+func severityLabel(severity finding.Severity) string {
+	for _, s := range severityData {
+		if s.severity == severity {
+			return s.label
+		}
 	}
+
+	return "unknown"
+}
+
+func severityBadge(severity finding.Severity) string {
+	for _, s := range severityData {
+		if s.severity == severity {
+			return s.badge
+		}
+	}
+
+	return "\u26aa"
 }

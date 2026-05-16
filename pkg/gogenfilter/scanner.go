@@ -105,27 +105,27 @@ func ScanProject(fsys fs.FS, projectDir string) (*ScanResult, error) {
 func collectGoFiles(fsys fs.FS) ([]string, error) {
 	var goFiles []string
 
-	err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(fsys, ".", func(path string, dirEntry fs.DirEntry, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("walking directory %s: %w", path, err)
 		}
 
-		if !d.IsDir() {
-			if strings.HasSuffix(d.Name(), ".go") {
+		if !dirEntry.IsDir() {
+			if strings.HasSuffix(dirEntry.Name(), ".go") {
 				goFiles = append(goFiles, path)
 			}
 
 			return nil
 		}
 
-		if path != "." && shouldSkipDir(d.Name()) {
+		if path != "." && shouldSkipDir(dirEntry.Name()) {
 			return fs.SkipDir
 		}
 
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to walk filesystem: %w", err)
 	}
 
 	return goFiles, nil
@@ -162,7 +162,7 @@ func deriveExclusionPatterns(
 		"stringer":     {pattern: `_string\.go$`, reason: "stringer generated string methods"},
 	}
 
-	var exclusions []GeneratedExclusion
+	exclusions := make([]GeneratedExclusion, 0, len(detectedByGenerator))
 
 	for generator, files := range detectedByGenerator {
 		exclusions = append(exclusions, exclusionsForGenerator(generator, files, projectDir, generatorPatterns)...)
@@ -278,8 +278,8 @@ func MergeExclusionPaths(existing, newPaths []string) []string {
 		seen[p] = struct{}{}
 	}
 
-	merged := make([]string, len(existing))
-	copy(merged, existing)
+	merged := make([]string, 0, len(existing)+len(newPaths))
+	merged = append(merged, existing...)
 
 	for _, p := range newPaths {
 		if _, ok := seen[p]; !ok {

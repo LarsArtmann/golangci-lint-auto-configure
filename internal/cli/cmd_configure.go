@@ -22,7 +22,18 @@ type presetConfigLoader interface {
 	SaveConfig(config *types.Config, path string) error
 }
 
-const defaultPreset = "standard"
+const (
+	defaultPreset = "standard"
+	presetStrict  = "strict"
+)
+
+// Priority string constants for command-line arguments.
+const (
+	priorityCritical = "critical"
+	priorityHigh     = "high"
+	priorityMedium   = "medium"
+	priorityOptional = "optional"
+)
 
 const configureLong = `Automatically configures golangci-lint by enabling recommended linters.
 
@@ -67,11 +78,11 @@ func presetForProjectType(projectType detection.ProjectType) string {
 	case detection.ProjectTypeCLI:
 		return defaultPreset
 	case detection.ProjectTypeWeb, detection.ProjectTypeAPI:
-		return "strict"
+		return presetStrict
 	case detection.ProjectTypeLibrary:
 		return "minimal"
 	case detection.ProjectTypeMonorepo:
-		return "strict"
+		return presetStrict
 	default:
 		return defaultPreset
 	}
@@ -293,13 +304,13 @@ func ensureConfigFile(
 // ParsePriorityParam converts a priority string to LinterPriority.
 func ParsePriorityParam(priorityParam string) types.LinterPriority {
 	switch priorityParam {
-	case "critical":
+	case priorityCritical:
 		return types.LinterPriorityCritical
-	case "high":
+	case priorityHigh:
 		return types.LinterPriorityHigh
-	case "medium":
+	case priorityMedium:
 		return types.LinterPriorityMedium
-	case "optional":
+	case priorityOptional:
 		return types.LinterPriorityOptional
 	default:
 		return types.LinterPriorityOptional

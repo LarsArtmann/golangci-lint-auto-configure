@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const toolName = "golangci-lint-auto-configure"
+
 // newValidateCommand creates the validate command.
 func newValidateCommand(builder *CommandBuilder) *cobra.Command {
 	var skipGolangciLint bool
@@ -174,7 +176,7 @@ func logHealthIssues(logger *log.Logger, health *types.ConfigHealth) {
 
 func outputHealthSARIF(health *types.ConfigHealth, configFile string) error {
 	report := finding.NewReport(finding.ToolInfo{
-		Name:    "golangci-lint-auto-configure",
+		Name:    toolName,
 		Version: Version,
 	})
 
@@ -193,7 +195,8 @@ func outputHealthSARIF(health *types.ConfigHealth, configFile string) error {
 		return fmt.Errorf("failed to format SARIF: %w", err)
 	}
 
-	if _, err := os.Stdout.Write(pretty); err != nil {
+	_, err = os.Stdout.Write(pretty)
+	if err != nil {
 		return fmt.Errorf("failed to write SARIF output: %w", err)
 	}
 
@@ -213,13 +216,15 @@ func healthIssuesToFindings(health *types.ConfigHealth, configFile string) []fin
 			severity = finding.SeverityCritical
 		case types.HealthSeverityWarning:
 			severity = finding.SeverityError
+		case types.HealthSeverityInfo:
+			severity = finding.SeverityInfo
 		default:
 			severity = finding.SeverityWarning
 		}
 
-		f, err := finding.NewBuilder(
+		findingObj, err := finding.NewBuilder(
 			issue.Rule,
-			"golangci-lint-auto-configure",
+			toolName,
 			issue.Message,
 			severity,
 			pos,
@@ -232,7 +237,7 @@ func healthIssuesToFindings(health *types.ConfigHealth, configFile string) []fin
 			continue
 		}
 
-		result = append(result, f)
+		result = append(result, findingObj)
 	}
 
 	return result
