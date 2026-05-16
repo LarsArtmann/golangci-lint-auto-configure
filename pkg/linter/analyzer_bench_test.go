@@ -10,8 +10,12 @@ import (
 
 const defaultTestConfigPath = "../../.golangci.yml"
 
+func newBenchLogger() *log.Logger {
+	return log.NewWithOptions(nil, log.Options{ReportCaller: false, Level: log.ErrorLevel})
+}
+
 func BenchmarkAnalyzer_AnalyzeConfig(b *testing.B) {
-	logger := log.NewWithOptions(nil, log.Options{ReportCaller: false, Level: log.ErrorLevel})
+	logger := newBenchLogger()
 	analyzer := linterpkg.NewAnalyzer(logger)
 
 	for b.Loop() {
@@ -23,7 +27,7 @@ func BenchmarkAnalyzer_AnalyzeConfig(b *testing.B) {
 }
 
 func BenchmarkAnalyzer_GetLintersByPriority(b *testing.B) {
-	logger := log.NewWithOptions(nil, log.Options{ReportCaller: false, Level: log.ErrorLevel})
+	logger := newBenchLogger()
 	analyzer := linterpkg.NewAnalyzer(logger)
 
 	analysis, err := analyzer.AnalyzeConfig(context.Background(), defaultTestConfigPath)
@@ -39,7 +43,7 @@ func BenchmarkAnalyzer_GetLintersByPriority(b *testing.B) {
 }
 
 func BenchmarkAnalyzer_FormatRecommendations(b *testing.B) {
-	logger := log.NewWithOptions(nil, log.Options{ReportCaller: false, Level: log.ErrorLevel})
+	logger := newBenchLogger()
 	analyzer := linterpkg.NewAnalyzer(logger)
 
 	analysis, err := analyzer.AnalyzeConfig(context.Background(), defaultTestConfigPath)

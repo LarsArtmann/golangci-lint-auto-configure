@@ -67,31 +67,24 @@ func FormatFindingsSummary(findings []finding.Finding) string {
 }
 
 func severityLabel(severity finding.Severity) string {
-	switch severity {
-	case finding.SeverityCritical:
-		return "critical"
-	case finding.SeverityError:
-		return "error"
-	case finding.SeverityWarning:
-		return "warning"
-	case finding.SeverityInfo:
-		return "info"
-	default:
-		return "unknown"
-	}
+	return severityString(severity, "critical", "error", "warning", "info", "unknown")
 }
 
 func severityBadge(severity finding.Severity) string {
+	return severityString(severity, "\U0001f534", "\U0001f7e0", "\U0001f7e1", "\U0001f535", "\u26aa")
+}
+
+func severityString(severity finding.Severity, critical, err, warning, info, fallback string) string {
 	switch severity {
 	case finding.SeverityCritical:
-		return "\U0001f534"
+		return critical
 	case finding.SeverityError:
-		return "\U0001f7e0"
+		return err
 	case finding.SeverityWarning:
-		return "\U0001f7e1"
+		return warning
 	case finding.SeverityInfo:
-		return "\U0001f535"
+		return info
 	default:
-		return "\u26aa"
+		return fallback
 	}
 }

@@ -49,6 +49,11 @@ func (m *mockPresetConfigLoader) SaveConfig(config *types.Config, path string) e
 	return m.saveErr
 }
 
+// newTestLogger creates a logger for tests with error-level output.
+func newTestLogger() *log.Logger {
+	return log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
+}
+
 func TestParsePriorityParam(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -92,7 +97,7 @@ func TestParsePriorityParam_AllPriorities(t *testing.T) {
 
 func TestApplyPreset_ValidPreset(t *testing.T) {
 	mock := &mockPresetConfigLoader{}
-	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
+	logger := newTestLogger()
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "minimal", false)
 	if err != nil {
@@ -117,7 +122,7 @@ func TestApplyPreset_ValidPreset(t *testing.T) {
 
 func TestApplyPreset_DryRun(t *testing.T) {
 	mock := &mockPresetConfigLoader{}
-	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
+	logger := newTestLogger()
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "minimal", true)
 	if err != nil {
@@ -132,7 +137,7 @@ func TestApplyPreset_DryRun(t *testing.T) {
 
 func TestApplyPreset_UnknownPreset(t *testing.T) {
 	mock := &mockPresetConfigLoader{}
-	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
+	logger := newTestLogger()
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "nonexistent", false)
 	if err == nil {
@@ -144,7 +149,7 @@ func TestApplyPreset_LoadError(t *testing.T) {
 	mock := &mockPresetConfigLoader{
 		loadErr: errors.New("failed to load config"),
 	}
-	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
+	logger := newTestLogger()
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "minimal", false)
 	if err == nil {
@@ -156,7 +161,7 @@ func TestApplyPreset_SaveError(t *testing.T) {
 	mock := &mockPresetConfigLoader{
 		saveErr: errors.New("failed to save config"),
 	}
-	logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
+	logger := newTestLogger()
 
 	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "minimal", false)
 	if err == nil {
@@ -170,7 +175,7 @@ func TestApplyPreset_AllPresets(t *testing.T) {
 	for _, preset := range presets {
 		t.Run(preset, func(t *testing.T) {
 			mock := &mockPresetConfigLoader{}
-			logger := log.NewWithOptions(&mockWriter{}, log.Options{Level: log.ErrorLevel})
+			logger := newTestLogger()
 
 			err := applyPreset(
 				context.Background(),

@@ -51,7 +51,7 @@ linters:
   enable:
     - gosec
 `
-			Expect(os.WriteFile(ymlPath, []byte(configContent), 0o644)).To(Succeed())
+			writeConfigContent(ymlPath, configContent)
 
 			cfg, result, err := merger.MergeConfigs([]string{ymlPath})
 
@@ -67,7 +67,7 @@ linters:
 			// Primary config (.golangci.yml has higher priority)
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
 			primaryContent := testConfigYML
-			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
+			writeConfigContent(ymlPath, primaryContent)
 
 			// Secondary config (.golangci.yaml)
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
@@ -78,7 +78,7 @@ linters:
     - errcheck
     - staticcheck
 `
-			Expect(os.WriteFile(yamlPath, []byte(secondaryContent), 0o644)).To(Succeed())
+			writeConfigContent(yamlPath, secondaryContent)
 
 			cfg, result, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
@@ -99,7 +99,7 @@ linters:
   enable:
     - gosec
 `
-			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
+			writeConfigContent(ymlPath, primaryContent)
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 			secondaryContent := `
@@ -109,7 +109,7 @@ run:
   go: "1.23"
   tests: true
 `
-			Expect(os.WriteFile(yamlPath, []byte(secondaryContent), 0o644)).To(Succeed())
+			writeConfigContent(yamlPath, secondaryContent)
 
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
@@ -122,7 +122,7 @@ run:
 		It("should keep primary values when both configs have settings", func() {
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
 			primaryContent := testConfigYML
-			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
+			writeConfigContent(ymlPath, primaryContent)
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 			secondaryContent := `
@@ -134,7 +134,7 @@ linters:
   enable:
     - errcheck
 `
-			Expect(os.WriteFile(yamlPath, []byte(secondaryContent), 0o644)).To(Succeed())
+			writeConfigContent(yamlPath, secondaryContent)
 
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
@@ -150,22 +150,22 @@ linters:
 		It("should respect golangci-lint priority order", func() {
 			// Create configs in different formats
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(ymlPath, []byte(`version: "2"
+			writeConfigContent(ymlPath, `version: "2"
 run:
   timeout: 5m
-`), 0o644)).To(Succeed())
+`)
 
 			tomlPath := filepath.Join(testDir, ".golangci.toml")
-			Expect(os.WriteFile(tomlPath, []byte(`version = "2"
+			writeConfigContent(tomlPath, `version = "2"
 [run]
 timeout = "10m"
-`), 0o644)).To(Succeed())
+`)
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
-			Expect(os.WriteFile(yamlPath, []byte(`version: "2"
+			writeConfigContent(yamlPath, `version: "2"
 run:
   timeout: 15m
-`), 0o644)).To(Succeed())
+`)
 
 			// Pass configs in random order
 			_, result, err := merger.MergeConfigs([]string{tomlPath, yamlPath, ymlPath})
@@ -183,7 +183,7 @@ linters:
   disable:
     - unused
 `
-			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
+			writeConfigContent(ymlPath, primaryContent)
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 			secondaryContent := `
@@ -192,7 +192,7 @@ linters:
   disable:
     - gocyclo
 `
-			Expect(os.WriteFile(yamlPath, []byte(secondaryContent), 0o644)).To(Succeed())
+			writeConfigContent(yamlPath, secondaryContent)
 
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
@@ -202,18 +202,11 @@ linters:
 
 		It("should merge issues settings", func() {
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(
-				os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644),
-			).To(Succeed())
+			writeConfigContent(ymlPath, "version: \"2\"\nlinters:\n  enable:\n    - gosec\n")
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
-			Expect(
-				os.WriteFile(
-					yamlPath,
-					[]byte("version: \"2\"\nissues:\n  max-issues-per-linter: 100\n  max-same-issues: 5\n"),
-					0o644,
-				),
-			).To(Succeed())
+			writeConfigContent(yamlPath, "version: \"2\"\n"+
+				"issues:\n  max-issues-per-linter: 100\n  max-same-issues: 5\n")
 
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
@@ -228,13 +221,8 @@ linters:
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 
-			Expect(
-				os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644),
-			).To(Succeed())
-
-			Expect(
-				os.WriteFile(yamlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - errcheck\n"), 0o644),
-			).To(Succeed())
+			writeConfigContent(ymlPath, "version: \"2\"\nlinters:\n  enable:\n    - gosec\n")
+			writeConfigContent(yamlPath, "version: \"2\"\nlinters:\n  enable:\n    - errcheck\n")
 
 			cfg, result, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 			Expect(err).NotTo(HaveOccurred())
@@ -257,13 +245,8 @@ linters:
 			ymlPath := filepath.Join(testDir, ".golangci.yml")
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 
-			Expect(
-				os.WriteFile(ymlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n"), 0o644),
-			).To(Succeed())
-
-			Expect(
-				os.WriteFile(yamlPath, []byte("version: \"2\"\nlinters:\n  enable:\n    - errcheck\n"), 0o644),
-			).To(Succeed())
+			writeConfigContent(ymlPath, "version: \"2\"\nlinters:\n  enable:\n    - gosec\n")
+			writeConfigContent(yamlPath, "version: \"2\"\nlinters:\n  enable:\n    - errcheck\n")
 
 			cfg, result, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 			Expect(err).NotTo(HaveOccurred())
@@ -290,7 +273,7 @@ formatters:
   enable:
     - gofmt
 `
-			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
+			writeConfigContent(ymlPath, primaryContent)
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 			secondaryContent := `
@@ -299,7 +282,7 @@ formatters:
   enable:
     - goimports
 `
-			Expect(os.WriteFile(yamlPath, []byte(secondaryContent), 0o644)).To(Succeed())
+			writeConfigContent(yamlPath, secondaryContent)
 
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
@@ -319,7 +302,7 @@ linters:
       lines: 80
       statements: 50
 `
-			Expect(os.WriteFile(ymlPath, []byte(primaryContent), 0o644)).To(Succeed())
+			writeConfigContent(ymlPath, primaryContent)
 
 			yamlPath := filepath.Join(testDir, ".golangci.yaml")
 			secondaryContent := `
@@ -331,7 +314,7 @@ linters:
     gocyclo:
       min-complexity: 15
 `
-			Expect(os.WriteFile(yamlPath, []byte(secondaryContent), 0o644)).To(Succeed())
+			writeConfigContent(yamlPath, secondaryContent)
 
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 

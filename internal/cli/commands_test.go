@@ -30,6 +30,14 @@ var _ = Describe("CLI Integration Tests", func() {
 		testDir = GinkgoT().TempDir()
 	})
 
+	// Helper function to write config content to the standard config path.
+	writeConfig := func(configContent string) string {
+		configPath := filepath.Join(testDir, ".golangci.yml")
+		Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+		return configPath
+	}
+
 	// Helper function to build the binary
 	buildBinary := func() string {
 		binaryPath := filepath.Join(testDir, "golangci-lint-auto-configure")
@@ -70,10 +78,10 @@ var _ = Describe("CLI Integration Tests", func() {
 
 	// Helper function to test that invalid YAML is rejected
 	assertInvalidYAMLRejected := func(binaryPath string) {
-		invalidConfig := filepath.Join(testDir, "invalid.yml")
-		Expect(os.WriteFile(invalidConfig, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
+		invalidPath := filepath.Join(testDir, "invalid.yml")
+		Expect(os.WriteFile(invalidPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
 
-		cmd := exec.Command(binaryPath, "validate", "--config", invalidConfig)
+		cmd := exec.Command(binaryPath, "validate", "--config", invalidPath)
 		_, err := cmd.CombinedOutput()
 
 		Expect(err).To(HaveOccurred())
@@ -127,8 +135,7 @@ linters:
     - ineffassign
     - staticcheck
     - unused`
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(configContent)
 
 			cmd := exec.Command(binaryPath, "analyze", "--config", configPath)
 			output, err := cmd.CombinedOutput()
@@ -159,8 +166,7 @@ linters:
 			initGitRepo()
 
 			binaryPath := buildBinary()
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(testConfigContentMinimal), 0o644)).To(Succeed())
+			configPath := writeConfig(testConfigContentMinimal)
 
 			cmd := exec.Command(binaryPath, "configure", "--config", configPath, "--dry-run")
 			output, err := cmd.CombinedOutput()
@@ -188,8 +194,7 @@ linters:
     - ineffassign
     - staticcheck
     - unused`
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(configContent)
 
 			cmd := exec.Command(binaryPath, "configure", "--config", configPath)
 			_, err := cmd.CombinedOutput()
@@ -204,9 +209,7 @@ linters:
 
 		It("should succeed with warning when not in a git repository", func() {
 			binaryPath := buildBinary()
-			configContent := testConfigContentMinimal
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(testConfigContentMinimal)
 
 			// Note: testDir is NOT a git repo (no initGitRepo() called)
 			cmd := exec.Command(binaryPath, "configure", "--config", configPath)
@@ -230,8 +233,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(configContent)
 
 			cmd := exec.Command(
 				binaryPath,
@@ -257,8 +259,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(configContent)
 
 			cmd := exec.Command(
 				binaryPath,
@@ -339,8 +340,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(configContent)
 
 			cmd := exec.Command(binaryPath, "analyze", "--config", configPath, "--verbose")
 			output, err := cmd.CombinedOutput()
@@ -369,8 +369,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(configContent)
 
 			reportPath := filepath.Join(testDir, "report.json")
 			cmd := exec.Command(
@@ -399,8 +398,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(configContent)
 
 			reportPath := filepath.Join(testDir, "report.sarif.json")
 			cmd := exec.Command(
@@ -429,8 +427,7 @@ linters:
   enable:
     - errcheck
 `
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeConfig(configContent)
 
 			reportPath := filepath.Join(testDir, "report.finding.json")
 			cmd := exec.Command(

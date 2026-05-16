@@ -13,24 +13,26 @@ type disabledLinterEntry struct {
 	deprecated bool
 }
 
+func newDisabledEntry(name string, deprecated bool) disabledLinterEntry {
+	return disabledLinterEntry{name: name, deprecated: deprecated}
+}
+
 // shared linter sets for common test scenarios.
 var (
-	linterSetLllMisspell = []disabledLinterEntry{
-		{name: "lll", deprecated: false},
-		{name: "misspell", deprecated: false},
-	}
-	linterSetLllOnly = []disabledLinterEntry{
-		{name: "lll", deprecated: false},
-	}
-	linterSetLllDeadcode = []disabledLinterEntry{
-		{name: "lll", deprecated: false},
-		{name: "deadcode", deprecated: true},
-	}
-	linterSetLllFuncorder = []disabledLinterEntry{
-		{name: "lll", deprecated: false},
-		{name: "funcorder", deprecated: false},
-	}
+	linterSetLllMisspell  = newDisabledEntries("lll", "misspell")
+	linterSetLllOnly      = newDisabledEntries("lll")
+	linterSetLllDeadcode  = append(newDisabledEntries("lll"), newDisabledEntry("deadcode", true))
+	linterSetLllFuncorder = newDisabledEntries("lll", "funcorder")
 )
+
+func newDisabledEntries(names ...string) []disabledLinterEntry {
+	entries := make([]disabledLinterEntry, len(names))
+	for i, name := range names {
+		entries[i] = newDisabledEntry(name, false)
+	}
+
+	return entries
+}
 
 func extractLinterNames(recommendations []types.LinterRecommendation) []string {
 	names := make([]string, len(recommendations))

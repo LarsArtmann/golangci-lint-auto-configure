@@ -137,6 +137,21 @@ func writeJSONReport(
 	return nil
 }
 
+func writeReportFile(outputPath, configFile, label string, data []byte) error {
+	writeErr := os.WriteFile(outputPath, data, filePermOwnerOnly)
+	if writeErr != nil {
+		return fmt.Errorf(
+			"failed to write %s report (configPath=%s, outputPath=%s): %w",
+			label,
+			configFile,
+			outputPath,
+			writeErr,
+		)
+	}
+
+	return nil
+}
+
 func writeSARIFReport(
 	analysis *types.ConfigAnalysis,
 	outputPath, configFile string,
@@ -151,17 +166,7 @@ func writeSARIFReport(
 		)
 	}
 
-	writeErr := os.WriteFile(outputPath, sarif, filePermOwnerOnly)
-	if writeErr != nil {
-		return fmt.Errorf(
-			"failed to write SARIF report (configPath=%s, outputPath=%s): %w",
-			configFile,
-			outputPath,
-			writeErr,
-		)
-	}
-
-	return nil
+	return writeReportFile(outputPath, configFile, "SARIF", sarif)
 }
 
 func writeFindingJSONReport(
@@ -179,17 +184,7 @@ func writeFindingJSONReport(
 		)
 	}
 
-	writeErr := os.WriteFile(outputPath, []byte(data), filePermOwnerOnly)
-	if writeErr != nil {
-		return fmt.Errorf(
-			"failed to write finding JSON report (configPath=%s, outputPath=%s): %w",
-			configFile,
-			outputPath,
-			writeErr,
-		)
-	}
-
-	return nil
+	return writeReportFile(outputPath, configFile, "finding JSON", []byte(data))
 }
 
 func writeHTMLReport(

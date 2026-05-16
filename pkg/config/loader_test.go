@@ -20,6 +20,10 @@ func writeTestConfigFile(dir, filename string) {
 	Expect(os.WriteFile(filepath.Join(dir, filename), []byte("version: 1"), 0o644)).To(Succeed())
 }
 
+func writeConfigContent(path, content string) {
+	Expect(os.WriteFile(path, []byte(content), 0o644)).To(Succeed())
+}
+
 func removeTestConfigFile(dir, filename string) {
 	Expect(os.Remove(filepath.Join(dir, filename))).To(Succeed())
 }
@@ -52,7 +56,7 @@ linters:
     - gosec
     - errcheck
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+			writeConfigContent(testConfig, configContent)
 
 			cfg, err := loader.LoadConfig(testConfig)
 
@@ -78,7 +82,7 @@ output:
       path: stdout
       colors: true
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+			writeConfigContent(testConfig, configContent)
 
 			cfg, err := loader.LoadConfig(testConfig)
 
@@ -304,7 +308,7 @@ linters-settings:
           - $gostd
           - github.com/myproject
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+			writeConfigContent(testConfig, configContent)
 
 			cfg, err := loader.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -338,7 +342,7 @@ linters:
             - $gostd
             - github.com/myproject
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+			writeConfigContent(testConfig, configContent)
 
 			cfg, err := loader.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -364,7 +368,7 @@ linters:
     - gosec
     - errcheck
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+			writeConfigContent(testConfig, configContent)
 
 			cfg, err := loader.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -411,7 +415,7 @@ output:
       path: stdout
       colors: true
 `
-			Expect(os.WriteFile(testConfig, []byte(configContent), 0o644)).To(Succeed())
+			writeConfigContent(testConfig, configContent)
 
 			cfg, err := loader.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())

@@ -20,9 +20,16 @@ func TestMigration(t *testing.T) {
 }
 
 // testMigrationWithExpectedContent tests a migration and verifies expected content in the result.
-func testMigrationWithExpectedContent(testDir, configContent, expectedContent string) {
+// writeYMLConfig writes configContent to a .golangci.yml in testDir and returns the path.
+func writeYMLConfig(testDir, configContent string) string {
 	configPath := filepath.Join(testDir, ".golangci.yml")
 	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+
+	return configPath
+}
+
+func testMigrationWithExpectedContent(testDir, configContent, expectedContent string) {
+	configPath := writeYMLConfig(testDir, configContent)
 
 	m, err := migration.NewMigrator(configPath, false)
 	Expect(err).NotTo(HaveOccurred())
@@ -65,8 +72,7 @@ func runMigration(configPath string) (bool, int, error) {
 
 // testMigrationWithConfig creates a config file and runs migration.
 func testMigrationWithConfig(testDir, configContent string) string {
-	configPath := filepath.Join(testDir, ".golangci.yml")
-	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+	configPath := writeYMLConfig(testDir, configContent)
 
 	success, fixes, err := runMigration(configPath)
 	Expect(err).NotTo(HaveOccurred())
@@ -128,8 +134,7 @@ var _ = Describe("Migrator", func() {
 
 	Describe("NewMigrator", func() {
 		It("should create a migrator with valid path", func() {
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte("version: \"2\""), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, "version: \"2\"")
 
 			m, err := migration.NewMigrator(configPath, false)
 			Expect(err).NotTo(HaveOccurred())
@@ -145,8 +150,7 @@ var _ = Describe("Migrator", func() {
 
 	Describe("SetDryRun", func() {
 		It("should set dry run mode", func() {
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte("version: \"2\""), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, "version: \"2\"")
 
 			m, err := migration.NewMigrator(configPath, false)
 			Expect(err).NotTo(HaveOccurred())
@@ -159,8 +163,7 @@ var _ = Describe("Migrator", func() {
 
 	Describe("SetNoEmojis", func() {
 		It("should set no emojis mode", func() {
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte("version: \"2\""), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, "version: \"2\"")
 
 			m, err := migration.NewMigrator(configPath, false)
 			Expect(err).NotTo(HaveOccurred())
@@ -173,7 +176,6 @@ var _ = Describe("Migrator", func() {
 	Describe("MigrateToV2", func() {
 		Context("with already v2 config", func() {
 			It("should not migrate when config is already v2 with all required fields", func() {
-				configPath := filepath.Join(testDir, ".golangci.yml")
 				configContent := `version: "2"
 run:
   timeout: 5m
@@ -181,7 +183,7 @@ linters:
   enable:
     - errcheck
 `
-				Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+				configPath := writeYMLConfig(testDir, configContent)
 
 				m, err := migration.NewMigrator(configPath, false)
 				Expect(err).NotTo(HaveOccurred())
@@ -214,7 +216,6 @@ linters:
 
 		Context("with deprecated linters-settings", func() {
 			It("should move linters-settings to linters.settings", func() {
-				configPath := filepath.Join(testDir, ".golangci.yml")
 				configContent := `version: "1"
 linters-settings:
   errcheck:
@@ -223,7 +224,7 @@ linters:
   enable:
     - errcheck
 `
-				Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+				configPath := writeYMLConfig(testDir, configContent)
 
 				m, err := migration.NewMigrator(configPath, false)
 				Expect(err).NotTo(HaveOccurred())
@@ -244,7 +245,6 @@ linters:
 
 		Context("with deprecated output properties", func() {
 			It("should remove deprecated output properties", func() {
-				configPath := filepath.Join(testDir, ".golangci.yml")
 				configContent := `version: "2"
 run:
   timeout: 5m
@@ -256,7 +256,7 @@ linters:
   enable:
     - errcheck
 `
-				Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+				configPath := writeYMLConfig(testDir, configContent)
 
 				m, err := migration.NewMigrator(configPath, false)
 				Expect(err).NotTo(HaveOccurred())
@@ -276,7 +276,6 @@ linters:
 
 		Context("in dry-run mode", func() {
 			It("should not modify the file", func() {
-				configPath := filepath.Join(testDir, ".golangci.yml")
 				configContent := `version: "1"
 linters-settings:
   gofmt:
@@ -285,7 +284,7 @@ linters:
   enable:
     - gofmt
 `
-				Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+				configPath := writeYMLConfig(testDir, configContent)
 
 				originalContent, err := os.ReadFile(configPath)
 				Expect(err).NotTo(HaveOccurred())
@@ -393,7 +392,6 @@ var _ = Describe("YAMLLoader", func() {
 	Describe("LoadConfig", func() {
 		It("should load valid YAML config", func() {
 			testDir := GinkgoT().TempDir()
-			configPath := filepath.Join(testDir, ".golangci.yml")
 			configContent := `version: "2"
 run:
   timeout: 5m
@@ -401,7 +399,7 @@ linters:
   enable:
     - errcheck
 `
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, configContent)
 
 			cfg, err := migration.LoadConfig(configPath)
 			Expect(err).NotTo(HaveOccurred())
@@ -418,8 +416,7 @@ linters:
 
 		It("should return error for invalid YAML", func() {
 			testDir := GinkgoT().TempDir()
-			configPath := filepath.Join(testDir, ".golangci.yml")
-			Expect(os.WriteFile(configPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, "invalid: yaml: content:")
 
 			_, err := migration.LoadConfig(configPath)
 			Expect(err).To(HaveOccurred())
@@ -464,7 +461,6 @@ var _ = Describe("ConfigTypes", func() {
 	Describe("UnmarshalYAML", func() {
 		It("should handle v1 issues structure", func() {
 			testDir := GinkgoT().TempDir()
-			configPath := filepath.Join(testDir, ".golangci.yml")
 			configContent := `version: "2"
 run:
   timeout: 5m
@@ -477,7 +473,7 @@ linters:
   enable:
     - errcheck
 `
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, configContent)
 
 			cfg, err := migration.LoadConfig(configPath)
 			Expect(err).NotTo(HaveOccurred())
@@ -486,7 +482,6 @@ linters:
 
 		It("should handle nested issues structure from v1", func() {
 			testDir := GinkgoT().TempDir()
-			configPath := filepath.Join(testDir, ".golangci.yml")
 			configContent := `version: "1"
 run:
   issues:
@@ -499,7 +494,7 @@ linters:
   enable:
     - errcheck
 `
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, configContent)
 
 			cfg, err := migration.LoadConfig(configPath)
 			Expect(err).NotTo(HaveOccurred())
@@ -512,13 +507,12 @@ var _ = Describe("MigrationFunctions", func() {
 	Describe("migrateLintersSettings", func() {
 		It("should handle config with no linters settings", func() {
 			testDir := GinkgoT().TempDir()
-			configPath := filepath.Join(testDir, ".golangci.yml")
 			configContent := `version: "2"
 linters:
   enable:
     - errcheck
 `
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, configContent)
 
 			cfg, err := migration.LoadConfig(configPath)
 			Expect(err).NotTo(HaveOccurred())
@@ -529,7 +523,6 @@ linters:
 	Describe("migrateFormatters", func() {
 		It("should migrate formatters from linters.enable to formatters.enable", func() {
 			testDir := GinkgoT().TempDir()
-			configPath := filepath.Join(testDir, ".golangci.yml")
 			configContent := `version: "1"
 linters:
   enable:
@@ -537,7 +530,7 @@ linters:
     - goimports
     - errcheck
 `
-			Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
+			configPath := writeYMLConfig(testDir, configContent)
 
 			m, err := migration.NewMigrator(configPath, false)
 			Expect(err).NotTo(HaveOccurred())
