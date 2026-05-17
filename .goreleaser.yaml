@@ -95,7 +95,7 @@ sboms:
 
 brews:
   - name: golangci-lint-auto-configure
-    skip_upload: auto
+    skip_upload: true
     homepage: "https://github.com/LarsArtmann/golangci-lint-auto-configure"
     description: "Auto-configure golangci-lint for Go projects"
     license: MIT
@@ -146,7 +146,7 @@ nfpms:
 
 scoops:
   - name: golangci-lint-auto-configure
-    skip_upload: auto
+    skip_upload: true
     repository:
       owner: LarsArtmann
       name: homebrew-tap
