@@ -101,6 +101,7 @@ func (cp ConfigPath) IsValid() bool {
 type LinterReplacement struct {
 	Replacement LinterName `json:"replacement"`
 	Reason      string     `json:"reason"`
+	MinVersion  string     `json:"minVersion,omitempty"` // Minimum golangci-lint version where the replacement exists
 }
 
 // LinterToFormatter represents a linter that is superseded by a formatter.
@@ -334,6 +335,7 @@ type LinterAnalyzer interface {
 	AnalyzeConfig(ctx context.Context, configPath string) (*ConfigAnalysis, error)
 	FindBinary(ctx context.Context) error
 	CheckVersion(ctx context.Context) error
+	GetDetectedVersion() string
 	FormatRecommendations(analysis *ConfigAnalysis) string
 	GetSummary(analysis *ConfigAnalysis) string
 	GetLintersByPriority(recommendations []LinterRecommendation, priority LinterPriority) []LinterRecommendation

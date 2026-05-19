@@ -53,20 +53,49 @@ func (f *Fixer) FixConfigResult(
 
 	originalEnabled := f.configLoader.GetLintersEnabled(cfg)
 
-	hasInvalid, err := f.runPreFlightChecks(cfg, configPath, priority, dryRun)
+	version := f.detectVersion(ctx)
+
+	hasInvalid, err := f.runPreFlightChecks(cfg, configPath, priority, dryRun, version)
 	if err != nil {
 		return migrationError("pre-flight checks", priority, dryRun, configPath, err)
 	}
 
 	if dryRun {
 		if result, shouldReturn := f.checkDryRunEarlyReturns(
-			cfg, hasInvalid, hasDeprecatedLinters(originalEnabled),
+			cfg, hasInvalid, hasDeprecatedLinters(originalEnabled, version),
 		); shouldReturn {
 			return result
 		}
 	}
 
-	return f.analyzeAndFix(ctx, cfg, configPath, priority, dryRun, originalEnabled)
+	return f.analyzeAndFix(ctx, cfg, configPath, priority, dryRun, originalEnabled, version)
+}
+
+// detectVersion tries to detect the golangci-lint version early for version-gated replacements.
+// Returns empty string if detection fails (version-gating is skipped, all replacements applied).
+func (f *Fixer) detectVersion(ctx context.Context) string {
+	if f.analyzer == nil {
+		return ""
+	}
+
+	version := f.analyzer.GetDetectedVersion()
+	if version != "" {
+		return version
+	}
+
+	if err := f.analyzer.FindBinary(ctx); err != nil {
+		f.logger.Debugf("Version detection skipped: %v", err)
+
+		return ""
+	}
+
+	if err := f.analyzer.CheckVersion(ctx); err != nil {
+		f.logger.Debugf("Version check failed: %v", err)
+
+		return ""
+	}
+
+	return f.analyzer.GetDetectedVersion()
 }
 
 func (f *Fixer) analyzeAndFix(
@@ -76,6 +105,7 @@ func (f *Fixer) analyzeAndFix(
 	priority types.LinterPriority,
 	dryRun bool,
 	originalEnabled []string,
+	version string,
 ) types.MigrationResultType {
 	f.logger.Infof("Analyzing configuration...")
 
@@ -84,7 +114,7 @@ func (f *Fixer) analyzeAndFix(
 		return migrationError("analyze config", priority, dryRun, configPath, err)
 	}
 
-	return f.applyLintersFix(ctx, cfg, analysis, configPath, priority, dryRun, originalEnabled)
+	return f.applyLintersFix(ctx, cfg, analysis, configPath, priority, dryRun, originalEnabled, version)
 }
 
 // checkDryRunEarlyReturns checks if we should early-return in dry-run mode.
@@ -114,6 +144,7 @@ func (f *Fixer) runPreFlightChecks(
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,
+	version string,
 ) (bool, error) {
 	hasInvalid, err := f.preFixInvalidDurations(cfg, configPath, dryRun)
 	if err != nil {
@@ -124,7 +155,7 @@ func (f *Fixer) runPreFlightChecks(
 		return hasInvalid, analysisError("pre-fix version field", priority, dryRun, configPath, err)
 	}
 
-	if err := f.preFixDeprecatedLinters(cfg, configPath, dryRun); err != nil {
+	if err := f.preFixDeprecatedLinters(cfg, configPath, dryRun, version); err != nil {
 		return hasInvalid, analysisError("pre-fix deprecated linters", priority, dryRun, configPath, err)
 	}
 
@@ -167,10 +198,21 @@ func (f *Fixer) applyLintersFix(
 	priority types.LinterPriority,
 	dryRun bool,
 	originalEnabled []string,
+	version string,
 ) types.MigrationResultType {
 	linterSet := types.NewSet(cfg.Linters.Enable...)
 	formatterSet := types.NewSet(cfg.Formatters.Enable...)
-	counts := f.applyAllFixes(linterSet, formatterSet, cfg, analysis, configPath, priority, dryRun, originalEnabled)
+	counts := f.applyAllFixes(
+		linterSet,
+		formatterSet,
+		cfg,
+		analysis,
+		configPath,
+		priority,
+		dryRun,
+		originalEnabled,
+		version,
+	)
 
 	if dryRun {
 		return f.dryRunResult(counts)
@@ -187,9 +229,10 @@ func (f *Fixer) applyAllFixes(
 	priority types.LinterPriority,
 	dryRun bool,
 	originalEnabled []string,
+	version string,
 ) fixCounts {
 	counts := newFixCounts()
-	handler := newDeprecatedLinterHandler(f.logger)
+	handler := newDeprecatedLinterHandler(f.logger, version)
 	linterSet = handler.replaceLinters(linterSet, originalEnabled, dryRun, &counts, cfg)
 	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
 	counts.formatter += f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun)

@@ -116,17 +116,17 @@ func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) typ
 // preFixDeprecatedLinters replaces deprecated linters in the config before analysis.
 // This is necessary because golangci-lint linters command will fail if the config
 // contains deprecated/removed linters (even in the disable list).
-func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dryRun bool) error {
+func (f *Fixer) preFixDeprecatedLinters(cfg *types.Config, configPath string, dryRun bool, version string) error {
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
 	disabledLinters := f.configLoader.GetLintersDisabled(cfg)
 
 	var deprecatedFound []string
 
 	linterSet := types.NewSet[string]()
-	deprecatedFound = filterDeprecatedFrom(enabledLinters, "", deprecatedFound, linterSet)
+	deprecatedFound = filterDeprecatedFrom(enabledLinters, "", deprecatedFound, linterSet, version)
 
 	disabledSet := types.NewSet[string]()
-	deprecatedFound = filterDeprecatedFrom(disabledLinters, " (disabled)", deprecatedFound, disabledSet)
+	deprecatedFound = filterDeprecatedFrom(disabledLinters, " (disabled)", deprecatedFound, disabledSet, version)
 
 	if len(deprecatedFound) == 0 {
 		return nil
@@ -151,9 +151,11 @@ func filterDeprecatedFrom(
 	suffix string,
 	found []string,
 	result types.Set[string],
+	version string,
 ) []string {
 	for _, linter := range linters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
+		replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
+		if isDeprecated && replacementAvailable(replacement, version) {
 			found = append(found, linter+suffix)
 
 			continue

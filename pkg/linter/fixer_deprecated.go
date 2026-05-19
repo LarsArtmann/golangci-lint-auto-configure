@@ -4,16 +4,18 @@ import (
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	"golang.org/x/mod/semver"
 )
 
 // deprecatedLinterHandler handles deprecated linter replacements.
 type deprecatedLinterHandler struct {
-	logger *log.Logger
+	logger  *log.Logger
+	version string // detected golangci-lint version
 }
 
 // newDeprecatedLinterHandler creates a new deprecated linter handler.
-func newDeprecatedLinterHandler(logger *log.Logger) *deprecatedLinterHandler {
-	return &deprecatedLinterHandler{logger: logger}
+func newDeprecatedLinterHandler(logger *log.Logger, version string) *deprecatedLinterHandler {
+	return &deprecatedLinterHandler{logger: logger, version: version}
 }
 
 // replaceLinters replaces deprecated linters with their successors in the linter set.
@@ -43,6 +45,23 @@ func (h *deprecatedLinterHandler) replaceOne(
 		return
 	}
 
+	if !h.replacementAvailable(replacement) {
+		h.logSkip(linter, replacement)
+
+		return
+	}
+
+	h.applyReplacement(linterSet, linter, replacement, dryRun, counts, cfg)
+}
+
+func (h *deprecatedLinterHandler) applyReplacement(
+	linterSet types.Set[string],
+	linter string,
+	replacement types.LinterReplacement,
+	dryRun bool,
+	counts *fixCounts,
+	cfg *types.Config,
+) {
 	counts.deprecation++
 
 	linterSet.Delete(linter)
@@ -59,6 +78,26 @@ func (h *deprecatedLinterHandler) replaceOne(
 		linterSet.Add(string(replacement.Replacement))
 		h.migrateSettings(cfg, linter, string(replacement.Replacement))
 	}
+}
+
+func (h *deprecatedLinterHandler) logSkip(linter string, replacement types.LinterReplacement) {
+	h.logger.Debugf(
+		"Skipping deprecation replacement %s -> %s: installed golangci-lint %s < %s",
+		linter, replacement.Replacement, h.version, replacement.MinVersion,
+	)
+}
+
+// replacementAvailable checks if the replacement linter exists in the installed golangci-lint version.
+func (h *deprecatedLinterHandler) replacementAvailable(replacement types.LinterReplacement) bool {
+	if replacement.MinVersion == "" {
+		return true
+	}
+
+	if h.version == "" {
+		return true
+	}
+
+	return semver.Compare(h.version, replacement.MinVersion) >= 0
 }
 
 // migrateSettings moves linter settings from the deprecated name to the replacement name.
@@ -101,15 +140,34 @@ func (h *deprecatedLinterHandler) logReplace(linter string, replacement types.Li
 	)
 }
 
-// hasDeprecatedLinters checks if any of the enabled linters are deprecated.
-func hasDeprecatedLinters(enabledLinters []string) bool {
+// hasDeprecatedLinters checks if any of the enabled linters are deprecated
+// and have replacements available for the installed golangci-lint version.
+func hasDeprecatedLinters(enabledLinters []string, version string) bool {
 	for _, linter := range enabledLinters {
-		if _, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]; isDeprecated {
+		replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
+		if !isDeprecated {
+			continue
+		}
+
+		if replacementAvailable(replacement, version) {
 			return true
 		}
 	}
 
 	return false
+}
+
+// replacementAvailable checks if a replacement is available for the given golangci-lint version.
+func replacementAvailable(replacement types.LinterReplacement, version string) bool {
+	if replacement.MinVersion == "" {
+		return true
+	}
+
+	if version == "" {
+		return true
+	}
+
+	return semver.Compare(version, replacement.MinVersion) >= 0
 }
 
 // resolveLinterName resolves a linter name, replacing deprecated linters with their successors.

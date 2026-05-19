@@ -25,6 +25,7 @@ import (
 type Analyzer struct {
 	golangciLintPath string
 	logger           *log.Logger
+	detectedVersion  string
 }
 
 // NewAnalyzer creates a new linter analyzer.
@@ -32,10 +33,15 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 	return &Analyzer{
 		golangciLintPath: "",
 		logger:           logger,
+		detectedVersion:  "",
 	}
 }
 
-// golangciLintOutput represents JSON output from golangci-lint linters command.
+// GetDetectedVersion returns the detected golangci-lint version, or empty string if not yet checked.
+func (a *Analyzer) GetDetectedVersion() string {
+	return a.detectedVersion
+}
+
 type golangciLintOutput struct {
 	Enabled  []types.LinterInfo `json:"enabled"`
 	Disabled []types.LinterInfo `json:"disabled"`

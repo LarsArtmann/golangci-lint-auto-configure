@@ -43,6 +43,7 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 	"gomodguard": {
 		Replacement: "gomodguard_v2",
 		Reason:      "gomodguard is deprecated since golangci-lint v2.12.0, use gomodguard_v2 instead",
+		MinVersion:  "v2.12.0",
 	},
 }
 

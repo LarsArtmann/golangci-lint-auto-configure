@@ -52,6 +52,8 @@ func (a *Analyzer) validateVersion(version string) error {
 
 	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
 
+	a.detectedVersion = version
+
 	return nil
 }
 
