@@ -21,11 +21,11 @@
     "goFindingSrc": {
       "flake": false,
       "locked": {
-        "lastModified": 1779130061,
-        "narHash": "sha256-o8lNJeB+5BBeBzNv+R/sTDXcCMoK/ew6Mrn8gkC9Bik=",
+        "lastModified": 1779157724,
+        "narHash": "sha256-7Inp2hvOkJ40W14CxclzRN6/VELxIYQhesdwZSj69zk=",
         "ref": "master",
-        "rev": "d8a607badb108f9c957838b3cc25b3d365a16193",
-        "revCount": 550,
+        "rev": "0ca0565fff53efa83924c2280b6aaeb62b9d0a69",
+        "revCount": 558,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/go-finding"
       },
