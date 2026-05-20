@@ -20,15 +20,9 @@
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        version =
-          if self ? rev
-          then builtins.substring 0 7 self.rev
-          else "dev";
+        version = "0.1.0";
 
-        commit =
-          if self ? rev
-          then self.rev
-          else "none";
+        commit = self.rev or "none";
 
         buildDate = self.lastModifiedDate or "unknown";
 
