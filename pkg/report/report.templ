@@ -12,7 +12,26 @@ type ReportData struct {
 	Analysis *types.ConfigAnalysis
 }
 
-// LinterPrioritySection renders a section for a specific linter priority level.
+// SummaryCard renders a summary card with number and label.
+templ SummaryCard(class string, count int, label string) {
+	<div class={ "summary-card", class }>
+		<div class="number">{ fmt.Sprintf("%d", count) }</div>
+		<div class="label">{ label }</div>
+	</div>
+}
+
+// LinterListSection renders a section with a list of linter tags.
+templ LinterListSection(title string, icon string, class string, linters []types.LinterInfo) {
+	<div class="section">
+		<h2>{ icon } { title }</h2>
+		<div class="linter-list">
+			for _, linter := range linters {
+				<span class={ "linter-tag", class }>{ linter.Name.String() }</span>
+			}
+		</div>
+	</div>
+}
+
 templ LinterPrioritySection(analysis *types.ConfigAnalysis, title string, count int, priority types.LinterPriority, emoji string, class string, badge string) {
 	<div class="section">
 		<h2>{ emoji } { title } <span class="count">{ fmt.Sprintf("%d", count) }</span></h2>
@@ -136,30 +155,12 @@ templ Report(data ReportData) {
 					<p>Analysis of { data.Analysis.ConfigPath }</p>
 				</div>
 				<div class="summary-grid">
-					<div class="summary-card critical">
-						<div class="number">{ data.Analysis.CriticalCount }</div>
-						<div class="label">Critical</div>
-					</div>
-					<div class="summary-card high">
-						<div class="number">{ data.Analysis.HighValueCount }</div>
-						<div class="label">High Priority</div>
-					</div>
-					<div class="summary-card medium">
-						<div class="number">{ data.Analysis.MediumValueCount }</div>
-						<div class="label">Medium Priority</div>
-					</div>
-					<div class="summary-card optional">
-						<div class="number">{ data.Analysis.OptionalCount }</div>
-						<div class="label">Optional</div>
-					</div>
-					<div class="summary-card enabled">
-						<div class="number">{ len(data.Analysis.EnabledLinters) }</div>
-						<div class="label">Enabled</div>
-					</div>
-					<div class="summary-card disabled">
-						<div class="number">{ len(data.Analysis.DisabledLinters) }</div>
-						<div class="label">Disabled</div>
-					</div>
+					@SummaryCard("critical", data.Analysis.CriticalCount, "Critical")
+					@SummaryCard("high", data.Analysis.HighValueCount, "High Priority")
+					@SummaryCard("medium", data.Analysis.MediumValueCount, "Medium Priority")
+					@SummaryCard("optional", data.Analysis.OptionalCount, "Optional")
+					@SummaryCard("enabled", len(data.Analysis.EnabledLinters), "Enabled")
+					@SummaryCard("disabled", len(data.Analysis.DisabledLinters), "Disabled")
 				</div>
 				<div class="progress-container">
 					<div class="progress-item">
@@ -182,24 +183,10 @@ templ Report(data ReportData) {
 					</div>
 				}
 				if len(data.Analysis.EnabledLinters) > 0 {
-					<div class="section">
-						<h2>✓ Enabled Linters</h2>
-						<div class="linter-list">
-							for _, linter := range data.Analysis.EnabledLinters {
-								<span class="linter-tag enabled">{ linter.Name.String() }</span>
-							}
-						</div>
-					</div>
+					@LinterListSection("Enabled Linters", "✓", "enabled", data.Analysis.EnabledLinters)
 				}
 				if len(data.Analysis.DisabledLinters) > 0 {
-					<div class="section">
-						<h2>✗ Disabled Linters</h2>
-						<div class="linter-list">
-							for _, linter := range data.Analysis.DisabledLinters {
-								<span class="linter-tag disabled">{ linter.Name.String() }</span>
-							}
-						</div>
-					</div>
+					@LinterListSection("Disabled Linters", "✗", "disabled", data.Analysis.DisabledLinters)
 				}
 			</div>
 		</body>
