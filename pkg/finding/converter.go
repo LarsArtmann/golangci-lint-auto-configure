@@ -209,7 +209,7 @@ func AnalysisToSARIF(analysis *types.ConfigAnalysis, version string) ([]byte, er
 
 	sarif, err := report.ToSARIF()
 	if err != nil {
-		return nil, fmt.Errorf("generate SARIF: %w", err)
+		return nil, fmt.Errorf("generate SARIF (version=%s): %w", version, err)
 	}
 
 	return sarif, nil

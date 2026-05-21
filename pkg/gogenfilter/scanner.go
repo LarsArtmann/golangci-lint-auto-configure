@@ -50,17 +50,17 @@ type ScanResult struct {
 func ScanProject(fsys fs.FS, projectDir string) (*ScanResult, error) {
 	opts, err := gogenfilter.WithFilterOptions(gogenfilter.FilterAll)
 	if err != nil {
-		return nil, fmt.Errorf("configure gogenfilter options: %w", err)
+		return nil, fmt.Errorf("configure gogenfilter options (projectDir=%s): %w", projectDir, err)
 	}
 
 	filter, err := gogenfilter.NewFilter(opts, gogenfilter.WithFS(fsys))
 	if err != nil {
-		return nil, fmt.Errorf("create gogenfilter: %w", err)
+		return nil, fmt.Errorf("create gogenfilter (projectDir=%s): %w", projectDir, err)
 	}
 
 	goFiles, err := collectGoFiles(fsys)
 	if err != nil {
-		return nil, fmt.Errorf("collect Go files: %w", err)
+		return nil, fmt.Errorf("collect Go files (projectDir=%s): %w", projectDir, err)
 	}
 
 	detectedByGenerator := make(map[string][]string)

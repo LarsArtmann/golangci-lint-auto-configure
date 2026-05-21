@@ -48,7 +48,7 @@ func (f *Fixer) FixConfigResult(
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
 	if err != nil {
-		return migrationError("load config", priority, dryRun, configPath, err)
+		return migrationError("load config", priority, dryRun, configPath, "", err)
 	}
 
 	originalEnabled := f.configLoader.GetLintersEnabled(cfg)
@@ -57,7 +57,7 @@ func (f *Fixer) FixConfigResult(
 
 	hasInvalid, err := f.runPreFlightChecks(cfg, configPath, priority, dryRun, version)
 	if err != nil {
-		return migrationError("pre-flight checks", priority, dryRun, configPath, err)
+		return migrationError("pre-flight checks", priority, dryRun, configPath, version, err)
 	}
 
 	if dryRun {
@@ -111,7 +111,7 @@ func (f *Fixer) analyzeAndFix(
 
 	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return migrationError("analyze config", priority, dryRun, configPath, err)
+		return migrationError("analyze config", priority, dryRun, configPath, version, err)
 	}
 
 	return f.applyLintersFix(ctx, cfg, analysis, configPath, priority, dryRun, originalEnabled, version)
@@ -148,19 +148,19 @@ func (f *Fixer) runPreFlightChecks(
 ) (bool, error) {
 	hasInvalid, err := f.preFixInvalidDurations(cfg, configPath, dryRun)
 	if err != nil {
-		return hasInvalid, analysisError("pre-fix invalid durations", priority, dryRun, configPath, err)
+		return hasInvalid, analysisError("pre-fix invalid durations", priority, dryRun, configPath, version, err)
 	}
 
 	if err := f.preFixVersion(cfg, configPath, dryRun); err != nil {
-		return hasInvalid, analysisError("pre-fix version field", priority, dryRun, configPath, err)
+		return hasInvalid, analysisError("pre-fix version field", priority, dryRun, configPath, version, err)
 	}
 
 	if err := f.preFixDeprecatedLinters(cfg, configPath, dryRun, version); err != nil {
-		return hasInvalid, analysisError("pre-fix deprecated linters", priority, dryRun, configPath, err)
+		return hasInvalid, analysisError("pre-fix deprecated linters", priority, dryRun, configPath, version, err)
 	}
 
 	if _, err := f.preFixTypecheck(cfg, configPath, dryRun); err != nil {
-		return hasInvalid, analysisError("pre-fix typecheck", priority, dryRun, configPath, err)
+		return hasInvalid, analysisError("pre-fix typecheck", priority, dryRun, configPath, version, err)
 	}
 
 	return hasInvalid, nil
@@ -277,7 +277,7 @@ func (f *Fixer) applyAndSave(
 	f.logger.Infof("Saving configuration...")
 
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
-		return migrationError("save config", priority, dryRun, configPath, err)
+		return migrationError("save config", priority, dryRun, configPath, version, err)
 	}
 
 	return successResult(counts)

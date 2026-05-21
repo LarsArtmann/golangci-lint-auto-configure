@@ -13,10 +13,11 @@ func analysisError(
 	priority types.LinterPriority,
 	dryRun bool,
 	configPath string,
+	version string,
 	err error,
 ) error {
 	return apperrors.NewAnalysisError(
-		fmt.Sprintf("failed to %s (priority=%d, dryRun=%t)", action, priority, dryRun),
+		fmt.Sprintf("failed to %s (priority=%d, dryRun=%t, version=%s)", action, priority, dryRun, version),
 		configPath,
 		err,
 	)
@@ -28,9 +29,10 @@ func migrationError(
 	priority types.LinterPriority,
 	dryRun bool,
 	configPath string,
+	version string,
 	err error,
 ) types.MigrationResultType {
-	return types.Err[*types.MigrationResult](analysisError(operation, priority, dryRun, configPath, err))
+	return types.Err[*types.MigrationResult](analysisError(operation, priority, dryRun, configPath, version, err))
 }
 
 // dryRunResult creates a result for dry-run mode with the number of fixes that would be applied.
