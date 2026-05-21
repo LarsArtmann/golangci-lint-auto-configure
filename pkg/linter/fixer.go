@@ -218,7 +218,7 @@ func (f *Fixer) applyLintersFix(
 		return f.dryRunResult(counts)
 	}
 
-	return f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, counts)
+	return f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, version, counts)
 }
 
 func (f *Fixer) applyAllFixes(
@@ -258,6 +258,7 @@ func (f *Fixer) applyAndSave(
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,
+	version string,
 	counts fixCounts,
 ) types.MigrationResultType {
 	updater := newConfigUpdater(f.logger)

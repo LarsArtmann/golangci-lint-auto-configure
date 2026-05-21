@@ -99,45 +99,32 @@ func TestDetector_Detect(t *testing.T) {
 	}
 }
 
-func TestProjectType_String(t *testing.T) {
+func TestProjectType_StringAndPreset(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
-		pt   detectionpkg.ProjectType
-		want string
+		pt           detectionpkg.ProjectType
+		stringResult string
+		presetResult string
 	}{
-		{detectionpkg.ProjectTypeCLI, "CLI"},
-		{detectionpkg.ProjectTypeLibrary, "Library"},
-		{detectionpkg.ProjectTypeWeb, "Web"},
-		{detectionpkg.ProjectTypeAPI, "API"},
-		{detectionpkg.ProjectTypeMonorepo, "Monorepo"},
-		{detectionpkg.ProjectTypeUnknown, "Unknown"},
+		{detectionpkg.ProjectTypeCLI, "CLI", "standard"},
+		{detectionpkg.ProjectTypeLibrary, "Library", "minimal"},
+		{detectionpkg.ProjectTypeWeb, "Web", "strict"},
+		{detectionpkg.ProjectTypeAPI, "API", "strict"},
+		{detectionpkg.ProjectTypeMonorepo, "Monorepo", "strict"},
+		{detectionpkg.ProjectTypeUnknown, "Unknown", "standard"},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.want, func(t *testing.T) {
-			if got := tc.pt.String(); got != tc.want {
-				t.Errorf("String() = %v, want %v", got, tc.want)
+		t.Run(tc.stringResult, func(t *testing.T) {
+			t.Parallel()
+
+			if got := tc.pt.String(); got != tc.stringResult {
+				t.Errorf("String() = %v, want %v", got, tc.stringResult)
 			}
-		})
-	}
-}
 
-func TestProjectType_Preset(t *testing.T) {
-	tests := []struct {
-		pt   detectionpkg.ProjectType
-		want string
-	}{
-		{detectionpkg.ProjectTypeCLI, "standard"},
-		{detectionpkg.ProjectTypeLibrary, "minimal"},
-		{detectionpkg.ProjectTypeWeb, "strict"},
-		{detectionpkg.ProjectTypeAPI, "strict"},
-		{detectionpkg.ProjectTypeMonorepo, "strict"},
-		{detectionpkg.ProjectTypeUnknown, "standard"},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.pt.String(), func(t *testing.T) {
-			if got := tc.pt.Preset(); got != tc.want {
-				t.Errorf("Preset() = %v, want %v", got, tc.want)
+			if got := tc.pt.Preset(); got != tc.presetResult {
+				t.Errorf("Preset() = %v, want %v", got, tc.presetResult)
 			}
 		})
 	}

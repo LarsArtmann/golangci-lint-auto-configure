@@ -236,12 +236,21 @@ linters:
 			testDeprecatedLinterDryRun(fixer, testConfig, configContent)
 		})
 
-		It("should fix deprecated linters in non-dry-run mode", func() {
-			testLinterModification(fixer, testConfig, "wsl", types.LinterPriorityHigh, false, func(content string) {
-				Expect(content).To(ContainSubstring("wsl_v5"))
-				Expect(content).NotTo(ContainSubstring("wsl:"))
-			})
-		})
+		DescribeTable(
+			"should fix deprecated linters in non-dry-run mode",
+			func(linterName, replacement, absentSubstr string) {
+				testLinterModification(
+					fixer, testConfig, linterName,
+					types.LinterPriorityHigh, false,
+					func(content string) {
+						Expect(content).To(ContainSubstring(replacement))
+						Expect(content).NotTo(ContainSubstring(absentSubstr))
+					},
+				)
+			},
+			Entry("wsl -> wsl_v5", "wsl", "wsl_v5", "wsl:"),
+			Entry("gomodguard -> gomodguard_v2", "gomodguard", "gomodguard_v2", "- gomodguard\n"),
+		)
 
 		It("should detect deprecated linter gomodguard and suggest gomodguard_v2", func() {
 			configContent := `version: "2"
@@ -253,17 +262,6 @@ linters:
     - gomodguard
 `
 			testDeprecatedLinterDryRun(fixer, testConfig, configContent)
-		})
-
-		It("should fix deprecated gomodguard in non-dry-run mode", func() {
-			testLinterModification(
-				fixer, testConfig, "gomodguard",
-				types.LinterPriorityHigh, false,
-				func(content string) {
-					Expect(content).To(ContainSubstring("gomodguard_v2"))
-					Expect(content).NotTo(ContainSubstring("- gomodguard\n"))
-				},
-			)
 		})
 
 		It("should migrate gomodguard settings to gomodguard_v2", func() {
