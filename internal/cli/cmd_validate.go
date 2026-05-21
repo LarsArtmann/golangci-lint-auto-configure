@@ -22,7 +22,8 @@ const toolName = "golangci-lint-auto-configure"
 func newValidateCommand(builder *CommandBuilder) *cobra.Command {
 	var skipGolangciLint bool
 
-	cmd := builder.Build("validate", "Validate golangci-lint configuration",
+	cmd := builder.Build(
+		"validate", "Validate golangci-lint configuration",
 		func(cmd *cobra.Command, _ []string) error {
 			return runValidate(cmd, builder.Logger(), builder.ConfigLoader(), skipGolangciLint)
 		},

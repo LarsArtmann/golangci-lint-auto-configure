@@ -24,7 +24,8 @@ func FormatFindings(findings []finding.Finding) string {
 
 		for _, finding := range categoryFindings {
 			severityBadge := severityBadge(finding.Severity)
-			fmt.Fprintf(&builder, "  %s [%s] %s: %s\n",
+			fmt.Fprintf(
+				&builder, "  %s [%s] %s: %s\n",
 				severityBadge,
 				finding.Rule,
 				finding.Position,

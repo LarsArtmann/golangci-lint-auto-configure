@@ -196,7 +196,8 @@ linters:
 			})
 		})
 
-		DescribeTable("Migrations with v1 config",
+		DescribeTable(
+			"Migrations with v1 config",
 			func(configContent, expectedContent string) {
 				testMigrationWithExpectedContent(testDir, configContent, expectedContent)
 			},

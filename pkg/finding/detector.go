@@ -45,7 +45,8 @@ func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding,
 	findings = append(findings, RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)...)
 	findings = append(
 		findings,
-		FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath)...)
+		FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath)...,
+	)
 	findings = append(findings, DeprecatedLintersToFindings(analysis.DeprecatedLinters, analysis.ConfigPath)...)
 
 	return findings, nil

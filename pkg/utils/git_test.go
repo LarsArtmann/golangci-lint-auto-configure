@@ -20,7 +20,8 @@ func TestUtils(t *testing.T) {
 }
 
 var _ = Describe("Git Utils", func() {
-	DescribeTable("IsGitRepo",
+	DescribeTable(
+		"IsGitRepo",
 		func(path string, expected bool) {
 			ctx := context.Background()
 			Expect(utils.IsGitRepo(ctx, path)).To(Equal(expected))
@@ -29,7 +30,8 @@ var _ = Describe("Git Utils", func() {
 		Entry("should return false for non-existent directory", "/non/existent/path", false),
 	)
 
-	DescribeTable("CheckGitRepo",
+	DescribeTable(
+		"CheckGitRepo",
 		func(path string, expectSuccess bool) {
 			ctx := context.Background()
 			if expectSuccess {

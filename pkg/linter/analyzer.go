@@ -208,7 +208,8 @@ func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string {
 		return "All linters enabled - no recommendations"
 	}
 
-	return fmt.Sprintf("Found %d disabled linters: %s (see details above)",
+	return fmt.Sprintf(
+		"Found %d disabled linters: %s (see details above)",
 		len(analysis.LinterRecommendations),
 		strings.Join(parts, ", "),
 	)
