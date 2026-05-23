@@ -35,7 +35,7 @@
 
 - [x] Fix error types: use distinct structs instead of type aliases for errors.As discrimination
 - [x] Remove 3 dead backward-compat validation functions from pkg/types/validation.go
-- [x] Simplify updateExclusionRules from O(n*m) to O(n+m) using set-based lookup
+- [x] Simplify updateExclusionRules from O(n\*m) to O(n+m) using set-based lookup
 - [x] Remove redundant newFixCounts() constructor (Go zero-init is sufficient)
 - [x] Add report package tests (HTML and JSON generators)
 - [x] Migrate charmbracelet/fang v1 → v2 (charm.land/fang/v2)
@@ -43,6 +43,6 @@
 - [x] Add comprehensive default linter settings (revive, varnamelen, gomoddirectives, cyclop)
 - [x] Add default formatter settings (golines max-len: 120)
 - [x] Add default exclusion rules for test files
-- [x] Add default exclusion paths for _templ.go and vendor/
+- [x] Add default exclusion paths for \_templ.go and vendor/
 - [x] Fix all lint violations (funlen, varnamelen, exhaustruct, gci, golines, gocritic)
 - [x] Create FEATURES.md feature audit

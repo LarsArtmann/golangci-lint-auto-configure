@@ -1,5 +1,3 @@
 [allowlist]
-  description = "Global allow list"
-  paths = [
-    '''reports/.*\.md$''',
-  ]
+description = "Global allow list"
+paths = ['''reports/.*\.md$''']
