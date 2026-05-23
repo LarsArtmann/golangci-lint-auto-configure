@@ -3,11 +3,11 @@ module github.com/larsartmann/golangci-lint-auto-configure
 go 1.26.2
 
 require (
+	charm.land/fang/v2 v2.0.1
 	charm.land/lipgloss/v2 v2.0.3
 	charm.land/log/v2 v2.0.0
 	github.com/LarsArtmann/gogenfilter/v3 v3.0.1
 	github.com/a-h/templ v0.3.1020
-	github.com/charmbracelet/fang v1.0.0
 	github.com/larsartmann/go-finding v0.3.0
 	github.com/onsi/ginkgo/v2 v2.29.0
 	github.com/onsi/gomega v1.41.0

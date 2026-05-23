@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
+	"charm.land/fang/v2"
 	"charm.land/log/v2"
-	"github.com/charmbracelet/fang"
 	clicmd "github.com/larsartmann/golangci-lint-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
