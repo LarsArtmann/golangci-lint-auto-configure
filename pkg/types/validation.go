@@ -310,4 +310,3 @@ func (h *ConfigHealth) checkV1SyntaxMixing(cfg *Config) {
 		)
 	}
 }
-

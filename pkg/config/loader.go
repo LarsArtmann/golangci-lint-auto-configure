@@ -266,11 +266,8 @@ func (l *Loader) getAllLinterNames(ctx context.Context) ([]string, error) {
 
 	var linterList LinterList
 	if err := json.Unmarshal(output, &linterList); err != nil {
-		return nil, fmt.Errorf(
-			"failed to parse golangci-lint linters output (linterList=%v, output=%s): %w",
-			linterList,
-			output,
-			err,
+		return nil, fmt.Errorf("failed to parse golangci-lint linters output (linterList=%v, output=%s): %w",
+			linterList, output, err,
 		)
 	}
 

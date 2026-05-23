@@ -168,10 +168,7 @@ linters:
       min-complexity: 25
     gocritic:
       disabled-checks:
-        - dupImport
         - ifElseChain
-        - octalLiteral
-        - whyNoLint
     gocyclo:
       min-complexity: 20
     ireturn:
