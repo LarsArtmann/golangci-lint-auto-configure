@@ -311,17 +311,3 @@ func (h *ConfigHealth) checkV1SyntaxMixing(cfg *Config) {
 	}
 }
 
-// ValidateStruct is kept for backward compatibility but delegates to domain-specific validation.
-func ValidateStruct[T any](_ *T, _ string) error {
-	return nil
-}
-
-// ValidateRunConfig is kept for backward compatibility.
-func ValidateRunConfig(_ *RunConfig) error {
-	return nil
-}
-
-// ValidateLintersConfig is kept for backward compatibility.
-func ValidateLintersConfig(_ *LintersConfig) error {
-	return nil
-}
