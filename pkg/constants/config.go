@@ -30,6 +30,20 @@ var RedundantFormatters = map[types.FormatterName]string{
 	"gofmt": "redundant when gofumpt is enabled",
 }
 
+// DefaultLinterExclusionPaths are exclusion paths always injected into linters.exclusions.paths
+// regardless of dynamic gogenfilter scan results. These match common patterns that should never
+// be linted: templ generated files and vendored dependencies.
+var DefaultLinterExclusionPaths = []string{
+	`_templ\.go$`,
+	"vendor/",
+}
+
+// DefaultFormatterExclusionPaths are exclusion paths always injected into formatters.exclusions.paths.
+// Vendor is excluded because vendored code should never be reformatted.
+var DefaultFormatterExclusionPaths = []string{
+	`_templ\.go$`,
+}
+
 // DefaultLinterSettings provides safe default settings for linters that require
 // configuration to work correctly when auto-enabled. Without these defaults,
 // some linters break builds (e.g. depguard denies everything by default).

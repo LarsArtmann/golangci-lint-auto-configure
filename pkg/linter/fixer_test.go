@@ -483,4 +483,72 @@ linters:
 			Expect(alphaIdx).To(BeNumerically("<", zebraIdx))
 		})
 	})
+
+	Context("Default Exclusion Paths", func() {
+		It("should add _templ.go$ and vendor/ to linters exclusions", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(content).To(ContainSubstring("_templ\\.go$"))
+			Expect(content).To(ContainSubstring("vendor/"))
+		})
+
+		It("should add _templ.go$ to formatters exclusions", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(content).To(ContainSubstring("vendor/"))
+		})
+
+		It("should not duplicate already-present default exclusion paths", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  exclusions:
+    paths:
+      - _templ\.go$
+      - vendor/
+formatters:
+  exclusions:
+    paths:
+      - _templ\.go$
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			templCount := countSubstring(content, "_templ\\.go$")
+			Expect(templCount).To(Equal(2)) // once in linters, once in formatters
+
+			vendorCount := countSubstring(content, "vendor/")
+			Expect(vendorCount).To(Equal(1)) // only in linters
+		})
+
+		It("should preserve existing exclusion paths while adding defaults", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  exclusions:
+    paths:
+      - custom_path/
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(content).To(ContainSubstring("custom_path/"))
+			Expect(content).To(ContainSubstring("_templ\\.go$"))
+			Expect(content).To(ContainSubstring("vendor/"))
+		})
+	})
 })

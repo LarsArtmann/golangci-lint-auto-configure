@@ -10,14 +10,16 @@
     };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    goFindingSrc,
-  }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      goFindingSrc,
+    }:
     flake-utils.lib.eachDefaultSystem (
-      system: let
+      system:
+      let
         pkgs = nixpkgs.legacyPackages.${system};
 
         version = "0.2.0";
@@ -31,9 +33,11 @@
           inherit version;
 
           src = pkgs.lib.cleanSourceWith {
-            filter = path: _type: let
-              b = baseNameOf path;
-            in
+            filter =
+              path: _type:
+              let
+                b = baseNameOf path;
+              in
               !(
                 b == "vendor"
                 || b == ".git"
@@ -64,7 +68,7 @@
 
           vendorHash = "sha256-PXItwurNdQF7gXzKXjOLeeczEzacxCji/BmRvVSy45A=";
 
-          subPackages = ["cmd/golangci-lint-auto-configure"];
+          subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
           ldflags = [
             "-s"
@@ -92,7 +96,8 @@
             platforms = platforms.unix;
           };
         };
-      in {
+      in
+      {
         packages.default = golangci-lint-auto-configure;
 
         apps.default = {

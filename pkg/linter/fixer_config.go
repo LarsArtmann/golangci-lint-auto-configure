@@ -75,8 +75,8 @@ func sortAndDeduplicate(tags []string) []string {
 	return slices.Compact(tags)
 }
 
-// updateGeneratedExclusions scans the project for auto-generated Go files
-// and injects exclusion path patterns into both linters and formatters exclusions.
+// updateGeneratedExclusions injects default exclusion paths (templ, vendor) and scans
+// the project for auto-generated Go files to add additional exclusion patterns.
 // Uses gogenfilter for two-phase detection (filename first, content second).
 func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath string) int {
 	projectDir := filepath.Dir(configPath)
@@ -93,28 +93,36 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 		cfg.Formatters.Exclusions.Generated = "lax"
 	}
 
+	totalAdded := 0
+
+	linterDefaults := mergeExclusionPaths(
+		&cfg.Linters.Exclusions.Paths, constants.DefaultLinterExclusionPaths, cu.logger, "linters",
+	)
+	formatterDefaults := mergeExclusionPaths(
+		&cfg.Formatters.Exclusions.Paths, constants.DefaultFormatterExclusionPaths, cu.logger, "formatters",
+	)
+	totalAdded += linterDefaults + formatterDefaults
+
 	result, err := gogenfilter.ScanProject(os.DirFS(projectDir), projectDir)
 	if err != nil {
 		cu.logger.Debugf("Generated file scan skipped: %v", err)
 
-		return 0
+		return totalAdded
 	}
 
-	if len(result.Exclusions) == 0 {
-		return 0
+	if len(result.Exclusions) > 0 {
+		cu.logger.Infof(
+			"Found %d generated file types (%d files scanned, %d generated): %v",
+			len(result.Generators), result.ScannedFiles, result.GeneratedFiles, result.Generators,
+		)
+
+		newPaths := gogenfilter.ExclusionPaths(result.Exclusions)
+
+		totalAdded += mergeExclusionPaths(&cfg.Linters.Exclusions.Paths, newPaths, cu.logger, "linters")
+		totalAdded += mergeExclusionPaths(&cfg.Formatters.Exclusions.Paths, newPaths, cu.logger, "formatters")
 	}
 
-	cu.logger.Infof(
-		"Found %d generated file types (%d files scanned, %d generated): %v",
-		len(result.Generators), result.ScannedFiles, result.GeneratedFiles, result.Generators,
-	)
-
-	newPaths := gogenfilter.ExclusionPaths(result.Exclusions)
-
-	linterPathsAdded := mergeExclusionPaths(&cfg.Linters.Exclusions.Paths, newPaths, cu.logger, "linters")
-	formatterPathsAdded := mergeExclusionPaths(&cfg.Formatters.Exclusions.Paths, newPaths, cu.logger, "formatters")
-
-	return linterPathsAdded + formatterPathsAdded
+	return totalAdded
 }
 
 // ApplyGeneratedExclusions scans a project config for auto-generated Go files
