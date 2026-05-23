@@ -26,6 +26,13 @@ linters:
     - loggercheck
     - musttag
 
+  exclusions:
+    generated: lax
+    paths:
+      - _templ\.go$
+      - .gen\.go$
+      - vendor/
+
 issues:
   max-issues-per-linter: 50
   max-same-issues: 10

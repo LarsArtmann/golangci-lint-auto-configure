@@ -83,10 +83,7 @@ var DefaultLinterSettings = map[types.LinterName]any{
 	},
 	"gocritic": map[string]any{
 		"disabled-checks": []string{
-			"dupImport",
 			"ifElseChain",
-			"octalLiteral",
-			"whyNoLint",
 		},
 	},
 	"exhaustruct": map[string]any{

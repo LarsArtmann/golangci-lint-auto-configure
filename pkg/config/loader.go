@@ -313,6 +313,8 @@ const GoVersionTimeout = 5 * time.Second
 const LintersTimeout = 30 * time.Second
 
 // CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled.
+// The config includes production-ready defaults: exclusion paths, exclusion rules for test files,
+// and the standard issues configuration.
 func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 	allLinters := l.fetchLintersWithFallback(ctx)
 	goVersion := l.detectGoVersion(ctx)
@@ -327,6 +329,17 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 		},
 		Linters: LintersConfig{
 			Enable: allLinters,
+			Exclusions: LintersExclusionsConfig{
+				Generated: "lax",
+				Rules:     defaultExclusionRules(),
+				Paths:     defaultExclusionPaths(),
+			},
+		},
+		Formatters: FormattersConfig{
+			Exclusions: FormattersExclusionsConfig{
+				Generated: "lax",
+				Paths:     defaultFormatterExclusionPaths(),
+			},
 		},
 		Issues: IssuesConfig{
 			MaxIssuesPerLinter: DefaultMaxIssuesPerLinter,
@@ -361,6 +374,30 @@ func (l *Loader) detectGoVersion(ctx context.Context) string {
 	}
 
 	return goVersion
+}
+
+func defaultExclusionPaths() []string {
+	paths := make([]string, len(constants.DefaultLinterExclusionPaths))
+
+	copy(paths, constants.DefaultLinterExclusionPaths)
+
+	return paths
+}
+
+func defaultFormatterExclusionPaths() []string {
+	paths := make([]string, len(constants.DefaultFormatterExclusionPaths))
+
+	copy(paths, constants.DefaultFormatterExclusionPaths)
+
+	return paths
+}
+
+func defaultExclusionRules() []types.ExclusionRuleConfig {
+	rules := make([]types.ExclusionRuleConfig, len(constants.DefaultExclusionRules))
+
+	copy(rules, constants.DefaultExclusionRules)
+
+	return rules
 }
 
 // Empty is a type alias for an empty struct, used for operations that don't return a value.
