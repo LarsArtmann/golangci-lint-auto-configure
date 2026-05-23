@@ -179,16 +179,6 @@ func (c fixCounts) total() int {
 	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant
 }
 
-func newFixCounts() fixCounts {
-	return fixCounts{
-		deprecation: 0,
-		enable:      0,
-		formatter:   0,
-		generated:   0,
-		redundant:   0,
-	}
-}
-
 // applyLintersFix processes linter recommendations, applies fixes, and saves the config.
 func (f *Fixer) applyLintersFix(
 	ctx context.Context,
@@ -231,7 +221,7 @@ func (f *Fixer) applyAllFixes(
 	originalEnabled []string,
 	version string,
 ) fixCounts {
-	counts := newFixCounts()
+	counts := fixCounts{}
 	handler := newDeprecatedLinterHandler(f.logger, version)
 	linterSet = handler.replaceLinters(linterSet, originalEnabled, dryRun, &counts, cfg)
 	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
