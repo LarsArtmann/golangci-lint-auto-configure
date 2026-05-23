@@ -19,6 +19,17 @@ func NewSet[T comparable](items ...T) Set[T] {
 	return result
 }
 
+// NewSetWithFunc creates a Set by transforming indices using the provided function.
+func NewSetWithFunc[T comparable](n int, fn func(int) T) Set[T] {
+	result := make(Set[T], n)
+
+	for i := range n {
+		result[fn(i)] = struct{}{}
+	}
+
+	return result
+}
+
 // Add inserts an item into the set.
 func (s Set[T]) Add(item T) {
 	s[item] = struct{}{}

@@ -305,6 +305,10 @@ type ExclusionRuleConfig struct {
 	Linters    []string `json:"linters,omitempty"     toml:"linters,omitempty"     yaml:"linters,omitempty"`
 }
 
+func (r ExclusionRuleConfig) RuleKey() string {
+	return r.Path + "|" + r.Text + "|" + r.Source
+}
+
 type IssuesConfig struct {
 	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitempty" toml:"max-issues-per-linter,omitempty" yaml:"max-issues-per-linter,omitempty"`
 	MaxSameIssues      int    `json:"max-same-issues,omitempty"       toml:"max-same-issues,omitempty"       yaml:"max-same-issues,omitempty"`

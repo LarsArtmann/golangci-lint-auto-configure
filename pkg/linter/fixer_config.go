@@ -128,46 +128,15 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 // updateExclusionRules injects default exclusion rules for test files.
 // These suppress linters that are noisy or inappropriate in test code.
 func (cu *configUpdater) updateExclusionRules(cfg *types.Config) int {
-	existing := cfg.Linters.Exclusions.Rules
-
-	if len(existing) >= len(constants.DefaultExclusionRules) {
-		matched := 0
-
-		for _, defaultRule := range constants.DefaultExclusionRules {
-			for _, existingRule := range existing {
-				if existingRule.Path == defaultRule.Path &&
-					existingRule.Text == defaultRule.Text &&
-					existingRule.Source == defaultRule.Source {
-					matched++
-
-					break
-				}
-			}
-		}
-
-		if matched == len(constants.DefaultExclusionRules) {
-			return 0
-		}
-	}
+	existingKeys := types.NewSetWithFunc(len(cfg.Linters.Exclusions.Rules), func(i int) string {
+		return cfg.Linters.Exclusions.Rules[i].RuleKey()
+	})
 
 	added := 0
 
 	for _, rule := range constants.DefaultExclusionRules {
-		alreadyExists := false
-
-		for _, existingRule := range existing {
-			if existingRule.Path == rule.Path &&
-				existingRule.Text == rule.Text &&
-				existingRule.Source == rule.Source {
-				alreadyExists = true
-
-				break
-			}
-		}
-
-		if !alreadyExists {
+		if !existingKeys.Contains(rule.RuleKey()) {
 			cfg.Linters.Exclusions.Rules = append(cfg.Linters.Exclusions.Rules, rule)
-
 			added++
 		}
 	}
