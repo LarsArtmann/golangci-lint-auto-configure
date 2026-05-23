@@ -409,6 +409,146 @@ linters:
 			Expect(content).To(ContainSubstring("generic"))
 			Expect(content).To(ContainSubstring("$gostd"))
 		})
+
+		It("should inject revive defaults when revive is enabled without settings", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - revive
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("revive:"))
+			Expect(content).To(ContainSubstring("exported"))
+			Expect(content).To(ContainSubstring("package-comments"))
+		})
+
+		It("should inject varnamelen defaults when varnamelen is enabled", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - varnamelen
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("varnamelen:"))
+			Expect(content).To(ContainSubstring("ignore-map-index-ok"))
+			Expect(content).To(ContainSubstring("ignore-type-assert-ok"))
+		})
+
+		It("should inject gomoddirectives defaults when enabled", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - gomoddirectives
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("gomoddirectives:"))
+			Expect(content).To(ContainSubstring("replace-local"))
+		})
+
+		It("should inject cyclop defaults when cyclop is enabled", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - cyclop
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("cyclop:"))
+			Expect(content).To(ContainSubstring("max-complexity"))
+		})
+	})
+
+	Context("Default Formatter Settings", func() {
+		It("should inject golines max-len when golines formatter is enabled", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - lll
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("golines:"))
+			Expect(content).To(ContainSubstring("max-len"))
+		})
+
+		It("should not overwrite existing golines settings", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - lll
+formatters:
+  settings:
+    golines:
+      max-len: 100
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("max-len: 100"))
+			Expect(content).NotTo(ContainSubstring("max-len: 120"))
+		})
+	})
+
+	Context("Default Exclusion Rules", func() {
+		It("should add test file exclusion rules", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("_test\\.go"))
+			Expect(content).To(ContainSubstring("exhaustruct"))
+			Expect(content).To(ContainSubstring("funlen"))
+			Expect(content).To(ContainSubstring("cyclop"))
+		})
+
+		It("should not duplicate existing test exclusion rules", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - exhaustruct
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - goconst
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			testRuleCount := countSubstring(content, "_test\\.go")
+			Expect(testRuleCount).To(Equal(2))
+		})
+
+		It("should add .gen.go to default exclusion paths", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("\\.gen\\.go$"))
+		})
 	})
 
 	Context("Build Tags", func() {

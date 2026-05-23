@@ -182,27 +182,7 @@ func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string 
 
 // GetSummary returns a brief summary of recommendations.
 func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string {
-	var parts []string
-
-	if analysis.DeprecatedCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d DEPRECATED", analysis.DeprecatedCount))
-	}
-
-	if analysis.CriticalCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d CRITICAL", analysis.CriticalCount))
-	}
-
-	if analysis.HighValueCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d HIGH", analysis.HighValueCount))
-	}
-
-	if analysis.MediumValueCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d MEDIUM", analysis.MediumValueCount))
-	}
-
-	if analysis.OptionalCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d OPTIONAL", analysis.OptionalCount))
-	}
+	parts := summaryParts(analysis)
 
 	if len(parts) == 0 {
 		return "All linters enabled - no recommendations"
@@ -213,6 +193,29 @@ func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string {
 		len(analysis.LinterRecommendations),
 		strings.Join(parts, ", "),
 	)
+}
+
+func summaryParts(analysis *types.ConfigAnalysis) []string {
+	counts := []struct {
+		n int
+		l string
+	}{
+		{analysis.DeprecatedCount, "DEPRECATED"},
+		{analysis.CriticalCount, "CRITICAL"},
+		{analysis.HighValueCount, "HIGH"},
+		{analysis.MediumValueCount, "MEDIUM"},
+		{analysis.OptionalCount, "OPTIONAL"},
+	}
+
+	var parts []string
+
+	for _, c := range counts {
+		if c.n > 0 {
+			parts = append(parts, fmt.Sprintf("%d %s", c.n, c.l))
+		}
+	}
+
+	return parts
 }
 
 func (a *Analyzer) parseLintersOutput(ctx context.Context, configPath string) (*golangciLintOutput, error) {

@@ -19,28 +19,31 @@ func FormatFindings(findings []finding.Finding) string {
 	groups := finding.GroupByCategory(findings)
 
 	for category, categoryFindings := range groups {
-		builder.WriteString(SectionHeader(string(category)))
-		fmt.Fprintf(&builder, " (%d)\n", len(categoryFindings))
-
-		for _, finding := range categoryFindings {
-			severityBadge := severityBadge(finding.Severity)
-			fmt.Fprintf(
-				&builder, "  %s [%s] %s: %s\n",
-				severityBadge,
-				finding.Rule,
-				finding.Position,
-				finding.Message,
-			)
-
-			if finding.Suggestion != "" {
-				fmt.Fprintf(&builder, "    → %s\n", finding.Suggestion)
-			}
-		}
-
-		builder.WriteString("\n")
+		writeFindingGroup(&builder, string(category), categoryFindings)
 	}
 
 	return builder.String()
+}
+
+func writeFindingGroup(builder *strings.Builder, category string, findings []finding.Finding) {
+	builder.WriteString(SectionHeader(category))
+	fmt.Fprintf(builder, " (%d)\n", len(findings))
+
+	for _, item := range findings {
+		fmt.Fprintf(
+			builder, "  %s [%s] %s: %s\n",
+			severityBadge(item.Severity),
+			item.Rule,
+			item.Position,
+			item.Message,
+		)
+
+		if item.Suggestion != "" {
+			fmt.Fprintf(builder, "    → %s\n", item.Suggestion)
+		}
+	}
+
+	builder.WriteString("\n")
 }
 
 // FormatFindingsSummary renders a compact summary of findings.

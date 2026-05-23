@@ -268,6 +268,7 @@ func (f *Fixer) applyAndSave(
 	updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
 
 	counts.generated = updater.updateGeneratedExclusions(cfg, configPath)
+	counts.generated += updater.updateExclusionRules(cfg)
 
 	if counts.total() == 0 {
 		return noFixesResult()

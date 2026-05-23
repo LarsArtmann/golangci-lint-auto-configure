@@ -125,6 +125,60 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 	return totalAdded
 }
 
+// updateExclusionRules injects default exclusion rules for test files.
+// These suppress linters that are noisy or inappropriate in test code.
+func (cu *configUpdater) updateExclusionRules(cfg *types.Config) int {
+	existing := cfg.Linters.Exclusions.Rules
+
+	if len(existing) >= len(constants.DefaultExclusionRules) {
+		matched := 0
+
+		for _, defaultRule := range constants.DefaultExclusionRules {
+			for _, existingRule := range existing {
+				if existingRule.Path == defaultRule.Path &&
+					existingRule.Text == defaultRule.Text &&
+					existingRule.Source == defaultRule.Source {
+					matched++
+
+					break
+				}
+			}
+		}
+
+		if matched == len(constants.DefaultExclusionRules) {
+			return 0
+		}
+	}
+
+	added := 0
+
+	for _, rule := range constants.DefaultExclusionRules {
+		alreadyExists := false
+
+		for _, existingRule := range existing {
+			if existingRule.Path == rule.Path &&
+				existingRule.Text == rule.Text &&
+				existingRule.Source == rule.Source {
+				alreadyExists = true
+
+				break
+			}
+		}
+
+		if !alreadyExists {
+			cfg.Linters.Exclusions.Rules = append(cfg.Linters.Exclusions.Rules, rule)
+
+			added++
+		}
+	}
+
+	if added > 0 {
+		cu.logger.Infof("Added %d default exclusion rules for test files", added)
+	}
+
+	return added
+}
+
 // ApplyGeneratedExclusions scans a project config for auto-generated Go files
 // and injects exclusion paths into the config. This is the public entry point
 // used by both the fixer flow and the preset flow.
@@ -179,6 +233,10 @@ func updateConfigFromSets(
 	}
 
 	injectDefaultSettings(cfg, enabledLinters)
+
+	if formatterSet.Len() > 0 {
+		injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable)
+	}
 }
 
 // injectDefaultSettings injects safe default settings for linters that require
@@ -197,5 +255,26 @@ func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
 		}
 
 		cfg.Linters.Settings[linterName] = defaults
+	}
+}
+
+// injectDefaultFormatterSettings injects safe default settings for formatters that require
+// configuration, but only if the config doesn't already have settings for them.
+func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []string) {
+	for _, formatterName := range enabledFormatters {
+		defaults, hasDefaults := constants.DefaultFormatterSettings[types.FormatterName(formatterName)]
+		if !hasDefaults {
+			continue
+		}
+
+		if cfg.Formatters.Settings == nil {
+			cfg.Formatters.Settings = make(map[string]any)
+		}
+
+		if _, exists := cfg.Formatters.Settings[formatterName]; exists {
+			continue
+		}
+
+		cfg.Formatters.Settings[formatterName] = defaults
 	}
 }

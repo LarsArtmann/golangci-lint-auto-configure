@@ -32,9 +32,10 @@ var RedundantFormatters = map[types.FormatterName]string{
 
 // DefaultLinterExclusionPaths are exclusion paths always injected into linters.exclusions.paths
 // regardless of dynamic gogenfilter scan results. These match common patterns that should never
-// be linted: templ generated files and vendored dependencies.
+// be linted: templ generated files, generic generated files, and vendored dependencies.
 var DefaultLinterExclusionPaths = []string{
 	`_templ\.go$`,
+	`\.gen\.go$`,
 	"vendor/",
 }
 
@@ -42,6 +43,28 @@ var DefaultLinterExclusionPaths = []string{
 // Vendor is excluded because vendored code should never be reformatted.
 var DefaultFormatterExclusionPaths = []string{
 	`_templ\.go$`,
+}
+
+// DefaultExclusionRules are exclusion rules always injected into linters.exclusions.rules.
+// These suppress linters that are noisy or inappropriate in test files.
+var DefaultExclusionRules = []types.ExclusionRuleConfig{
+	{
+		Path:    `_test\.go`,
+		Linters: []string{"exhaustruct", "testpackage", "gochecknoglobals", "funlen", "cyclop", "goconst"},
+	},
+	{
+		Path:    `_test\.go`,
+		Text:    "unused",
+		Linters: []string{"unused"},
+	},
+}
+
+// DefaultFormatterSettings provides safe default settings for formatters that require
+// configuration. Injected only when the formatter is enabled and no settings exist.
+var DefaultFormatterSettings = map[types.FormatterName]any{
+	"golines": map[string]any{
+		"max-len": 120, //nolint:mnd // intentional default line length
+	},
 }
 
 // DefaultLinterSettings provides safe default settings for linters that require
@@ -70,5 +93,22 @@ var DefaultLinterSettings = map[types.LinterName]any{
 		"exclude": []string{
 			"os/exec.Cmd",
 		},
+	},
+	"revive": map[string]any{
+		"rules": []any{
+			map[string]any{"disabled": true, "name": "exported"},
+			map[string]any{"disabled": true, "name": "package-comments"},
+		},
+	},
+	"varnamelen": map[string]any{
+		"ignore-map-index-ok":   true,
+		"ignore-names":          []string{"err", "ok", "tt", "fn", "t", "i", "m", "g", "a", "b", "v"},
+		"ignore-type-assert-ok": true,
+	},
+	"gomoddirectives": map[string]any{
+		"replace-local": true,
+	},
+	"cyclop": map[string]any{
+		"max-complexity": 12, //nolint:mnd // intentional default complexity threshold
 	},
 }
