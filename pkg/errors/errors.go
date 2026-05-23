@@ -18,88 +18,126 @@ var (
 	ErrConfigValidationFailed = stderrors.New("configuration validation failed")
 )
 
-// DomainError represents a domain-specific error with context about what went wrong
-// and where. Each domain (config, analysis, report, migration) has its own type alias
-// for type-safe error checking via errors.As.
-type DomainError struct {
+// ConfigError represents an error during configuration loading, saving, or validation.
+type ConfigError struct {
 	Message string
 	Path    string
 	Cause   error
-	domain  string
 }
 
-func (e *DomainError) Error() string {
+func (e *ConfigError) Error() string {
 	if e.Cause != nil {
-		return fmt.Sprintf("%s (%s: %s): %v", e.Message, e.domain, e.Path, e.Cause)
+		return fmt.Sprintf("%s (config: %s): %v", e.Message, e.Path, e.Cause)
 	}
 
-	return fmt.Sprintf("%s (%s: %s)", e.Message, e.domain, e.Path)
+	return fmt.Sprintf("%s (config: %s)", e.Message, e.Path)
 }
 
-func (e *DomainError) Unwrap() error {
+func (e *ConfigError) Unwrap() error {
 	return e.Cause
-}
-
-// ConfigError is a DomainError in the config domain.
-type ConfigError = DomainError
-
-// AnalysisError is a DomainError in the analysis domain.
-type AnalysisError = DomainError
-
-// ReportError is a DomainError in the report domain.
-type ReportError = DomainError
-
-// MigrationError is a DomainError in the migration domain.
-type MigrationError = DomainError
-
-func newDomainError(msg, path string, err error, domain string) *DomainError {
-	return &DomainError{Message: msg, Path: path, Cause: err, domain: domain}
 }
 
 // NewConfigError creates a new configuration error.
 func NewConfigError(msg, path string, err error) *ConfigError {
-	return newDomainError(msg, path, err, "path")
-}
-
-// NewAnalysisError creates a new analysis error.
-func NewAnalysisError(msg, file string, err error) *AnalysisError {
-	return newDomainError(msg, file, err, "file")
-}
-
-// NewReportError creates a new report error.
-func NewReportError(msg, path string, err error) *ReportError {
-	return newDomainError(msg, path, err, "path")
-}
-
-// NewMigrationError creates a new migration error.
-func NewMigrationError(msg, config string, err error) *MigrationError {
-	return newDomainError(msg, config, err, "config")
+	return &ConfigError{Message: msg, Path: path, Cause: err}
 }
 
 // IsConfigError checks if an error is a ConfigError.
 func IsConfigError(err error) bool {
 	var cfgErr *ConfigError
 
-	return stderrors.As(err, &cfgErr) && cfgErr.domain == "path"
+	return stderrors.As(err, &cfgErr)
+}
+
+// AnalysisError represents an error during configuration analysis.
+type AnalysisError struct {
+	Message string
+	File    string
+	Cause   error
+}
+
+func (e *AnalysisError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("%s (analysis: %s): %v", e.Message, e.File, e.Cause)
+	}
+
+	return fmt.Sprintf("%s (analysis: %s)", e.Message, e.File)
+}
+
+func (e *AnalysisError) Unwrap() error {
+	return e.Cause
+}
+
+// NewAnalysisError creates a new analysis error.
+func NewAnalysisError(msg, file string, err error) *AnalysisError {
+	return &AnalysisError{Message: msg, File: file, Cause: err}
 }
 
 // IsAnalysisError checks if an error is an AnalysisError.
 func IsAnalysisError(err error) bool {
 	var analysisErr *AnalysisError
 
-	return stderrors.As(err, &analysisErr) && analysisErr.domain == "file"
+	return stderrors.As(err, &analysisErr)
+}
+
+// ReportError represents an error during report generation.
+type ReportError struct {
+	Message string
+	Path    string
+	Cause   error
+}
+
+func (e *ReportError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("%s (report: %s): %v", e.Message, e.Path, e.Cause)
+	}
+
+	return fmt.Sprintf("%s (report: %s)", e.Message, e.Path)
+}
+
+func (e *ReportError) Unwrap() error {
+	return e.Cause
+}
+
+// NewReportError creates a new report error.
+func NewReportError(msg, path string, err error) *ReportError {
+	return &ReportError{Message: msg, Path: path, Cause: err}
 }
 
 // IsReportError checks if an error is a ReportError.
 func IsReportError(err error) bool {
 	var reportErr *ReportError
 
-	return stderrors.As(err, &reportErr) && reportErr.domain == "path"
+	return stderrors.As(err, &reportErr)
+}
+
+// MigrationError represents an error during configuration migration.
+type MigrationError struct {
+	Message string
+	Config  string
+	Cause   error
+}
+
+func (e *MigrationError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("%s (migration: %s): %v", e.Message, e.Config, e.Cause)
+	}
+
+	return fmt.Sprintf("%s (migration: %s)", e.Message, e.Config)
+}
+
+func (e *MigrationError) Unwrap() error {
+	return e.Cause
+}
+
+// NewMigrationError creates a new migration error.
+func NewMigrationError(msg, config string, err error) *MigrationError {
+	return &MigrationError{Message: msg, Config: config, Cause: err}
 }
 
 // IsMigrationError checks if an error is a MigrationError.
 func IsMigrationError(err error) bool {
 	var migrationErr *MigrationError
 
-	return stderrors.As(err, &migrationErr) && migrationErr.domain == "config"
+	return stderrors.As(err, &migrationErr)
 }

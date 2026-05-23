@@ -40,7 +40,7 @@ var _ = Describe("Sentinel Errors", func() {
 var _ = Describe("ConfigError", func() {
 	It("should create error with message and path", func() {
 		err := apperrors.NewConfigError("failed to load", "/path/to/config.yml", nil)
-		Expect(err.Error()).To(Equal("failed to load (path: /path/to/config.yml)"))
+		Expect(err.Error()).To(Equal("failed to load (config: /path/to/config.yml)"))
 		Expect(err.Message).To(Equal("failed to load"))
 		Expect(err.Path).To(Equal("/path/to/config.yml"))
 	})
@@ -67,9 +67,9 @@ var _ = Describe("ConfigError", func() {
 var _ = Describe("AnalysisError", func() {
 	It("should create error with message and file", func() {
 		err := apperrors.NewAnalysisError("analysis failed", "analyzer.go", nil)
-		Expect(err.Error()).To(Equal("analysis failed (file: analyzer.go)"))
+		Expect(err.Error()).To(Equal("analysis failed (analysis: analyzer.go)"))
 		Expect(err.Message).To(Equal("analysis failed"))
-		Expect(err.Path).To(Equal("analyzer.go"))
+		Expect(err.File).To(Equal("analyzer.go"))
 	})
 
 	It("should include cause in error message", func() {
@@ -94,7 +94,7 @@ var _ = Describe("AnalysisError", func() {
 var _ = Describe("ReportError", func() {
 	It("should create error with message and path", func() {
 		err := apperrors.NewReportError("report failed", "/path/to/report.html", nil)
-		Expect(err.Error()).To(Equal("report failed (path: /path/to/report.html)"))
+		Expect(err.Error()).To(Equal("report failed (report: /path/to/report.html)"))
 		Expect(err.Message).To(Equal("report failed"))
 		Expect(err.Path).To(Equal("/path/to/report.html"))
 	})
@@ -121,9 +121,9 @@ var _ = Describe("ReportError", func() {
 var _ = Describe("MigrationError", func() {
 	It("should create error with message and config", func() {
 		err := apperrors.NewMigrationError("migration failed", ".golangci.yml", nil)
-		Expect(err.Error()).To(Equal("migration failed (config: .golangci.yml)"))
+		Expect(err.Error()).To(Equal("migration failed (migration: .golangci.yml)"))
 		Expect(err.Message).To(Equal("migration failed"))
-		Expect(err.Path).To(Equal(".golangci.yml"))
+		Expect(err.Config).To(Equal(".golangci.yml"))
 	})
 
 	It("should include cause in error message", func() {
