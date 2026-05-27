@@ -22,46 +22,28 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        version = "0.2.0";
+        version = self.rev or self.dirtyRev or "dev";
 
         commit = self.rev or "none";
 
         buildDate = self.lastModifiedDate or "unknown";
 
-        golangci-lint-auto-configure = pkgs.buildGoModule rec {
+        ldflagsPkg = "github.com/larsartmann/golangci-lint-auto-configure/pkg/version";
+
+        golangci-lint-auto-configure = pkgs.buildGoModule {
           pname = "golangci-lint-auto-configure";
           inherit version;
 
-          src = pkgs.lib.cleanSourceWith {
-            filter =
-              path: _type:
-              let
-                b = baseNameOf path;
-              in
-              !(
-                b == "vendor"
-                || b == ".git"
-                || b == "docs"
-                || b == ".crush"
-                || b == "reports"
-                || b == "examples"
-                || b == "scripts"
-                || b == ".envrc"
-                || b == ".github"
-                || b == "bin"
-                || b == "justfile"
-                || b == "Dockerfile"
-                || b == ".dockerignore"
-                || b == ".gitattributes"
-                || b == ".pre-commit-config.yaml"
-                || b == ".pre-commit-hooks.yaml"
-                || b == ".config"
-                || pkgs.lib.hasSuffix ".md" b
-                || pkgs.lib.hasSuffix ".lock" b
-                || pkgs.lib.hasSuffix ".yml" b
-                || pkgs.lib.hasSuffix ".yaml" b
-              );
-            src = pkgs.lib.cleanSource ./.;
+          src = pkgs.lib.fileset.toSource {
+            root = ./.;
+            fileset = pkgs.lib.fileset.unions [
+              ./go.mod
+              ./go.sum
+              ./cmd
+              ./pkg
+              ./internal
+              ./scripts
+            ];
           };
 
           proxyVendor = true;
@@ -73,10 +55,10 @@
           ldflags = [
             "-s"
             "-w"
-            "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.version=${version}"
-            "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.commit=${commit}"
-            "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.date=${buildDate}"
-            "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.treeState=clean"
+            "-X ${ldflagsPkg}.version=${version}"
+            "-X ${ldflagsPkg}.commit=${commit}"
+            "-X ${ldflagsPkg}.date=${buildDate}"
+            "-X ${ldflagsPkg}.treeState=clean"
           ];
 
           env = {
@@ -102,12 +84,12 @@
 
         apps.default = {
           type = "app";
-          program = "${golangci-lint-auto-configure}/bin/golangci-lint-auto-configure";
+          program = pkgs.lib.getExe golangci-lint-auto-configure;
         };
 
         formatter = pkgs.nixfmt;
 
-        devShells.default = pkgs.mkShell {
+        devShells.default = pkgs.mkShellNoCC {
           packages = with pkgs; [
             go_1_26
             just
@@ -129,9 +111,6 @@
           };
 
           shellHook = ''
-            # Install ginkgo from go.mod to ensure version match
-            go install github.com/onsi/ginkgo/v2/ginkgo 2>/dev/null || true
-
             echo "golangci-lint-auto-configure dev shell"
             echo "  Go:             $(go version)"
             echo "  golangci-lint:  $(golangci-lint version --short 2>/dev/null || echo 'N/A')"
@@ -143,6 +122,9 @@
 
         checks = {
           build = golangci-lint-auto-configure;
+          test = golangci-lint-auto-configure.overrideAttrs (_: {
+            doCheck = true;
+          });
         };
       }
     )
