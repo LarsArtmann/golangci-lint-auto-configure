@@ -66,7 +66,7 @@
 
           proxyVendor = true;
 
-          vendorHash = "";
+          vendorHash = "sha256-eu2K277Cw6/0HDrFMHoXEesdjkNMRurJjbfT2gFedZM=";
 
           subPackages = [ "cmd/golangci-lint-auto-configure" ];
 

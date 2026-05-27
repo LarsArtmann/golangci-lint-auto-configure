@@ -274,7 +274,6 @@ func (m *Migrator) clearOutputProperties(config *Config) int {
 
 // migrateVersion ensures the config has a valid v2 version string.
 func migrateVersion(version *string, rules *MigrationRules) bool {
-	//nolint:varnamelen // 'v' is clear enough in this context
 	v := *version
 
 	if rules.IsValidVersion(v) {
