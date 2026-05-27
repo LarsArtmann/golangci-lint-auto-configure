@@ -66,7 +66,7 @@
 
           proxyVendor = true;
 
-          vendorHash = "sha256-tv1CxE0XsEQgtpoRq/VERaf20up/g1pIazNiZULWgR0=";
+          vendorHash = "";
 
           subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -84,8 +84,17 @@
             GOWORK = "off";
           };
 
+          overrideModAttrs = _: {
+            preBuild = ''
+              export HOME=$(mktemp -d)
+              echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
+              go mod tidy
+            '';
+          };
+
           postPatch = ''
             echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
+            go mod tidy
           '';
 
           meta = with pkgs.lib; {
