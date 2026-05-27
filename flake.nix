@@ -84,17 +84,8 @@
             GOWORK = "off";
           };
 
-          overrideModAttrs = _: {
-            preBuild = ''
-              export HOME=$(mktemp -d)
-              echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
-              go mod tidy
-            '';
-          };
-
           postPatch = ''
             echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
-            go mod tidy
           '';
 
           meta = with pkgs.lib; {
