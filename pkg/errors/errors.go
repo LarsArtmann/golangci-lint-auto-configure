@@ -18,6 +18,25 @@ var (
 	ErrConfigValidationFailed = stderrors.New("configuration validation failed")
 )
 
+// domainError provides shared Error() and Unwrap() for domain-specific error types.
+type domainError struct {
+	Message string
+	Source  string
+	Cause   error
+}
+
+func (e *domainError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("%s (%s): %v", e.Message, e.Source, e.Cause)
+	}
+
+	return fmt.Sprintf("%s (%s)", e.Message, e.Source)
+}
+
+func (e *domainError) Unwrap() error {
+	return e.Cause
+}
+
 // ConfigError represents an error during configuration loading, saving, or validation.
 type ConfigError struct {
 	Message string
@@ -26,16 +45,10 @@ type ConfigError struct {
 }
 
 func (e *ConfigError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("%s (config: %s): %v", e.Message, e.Path, e.Cause)
-	}
-
-	return fmt.Sprintf("%s (config: %s)", e.Message, e.Path)
+	return (&domainError{Message: e.Message, Source: "config: " + e.Path, Cause: e.Cause}).Error()
 }
 
-func (e *ConfigError) Unwrap() error {
-	return e.Cause
-}
+func (e *ConfigError) Unwrap() error { return e.Cause }
 
 // NewConfigError creates a new configuration error.
 func NewConfigError(msg, path string, err error) *ConfigError {
@@ -57,16 +70,10 @@ type AnalysisError struct {
 }
 
 func (e *AnalysisError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("%s (analysis: %s): %v", e.Message, e.File, e.Cause)
-	}
-
-	return fmt.Sprintf("%s (analysis: %s)", e.Message, e.File)
+	return (&domainError{Message: e.Message, Source: "analysis: " + e.File, Cause: e.Cause}).Error()
 }
 
-func (e *AnalysisError) Unwrap() error {
-	return e.Cause
-}
+func (e *AnalysisError) Unwrap() error { return e.Cause }
 
 // NewAnalysisError creates a new analysis error.
 func NewAnalysisError(msg, file string, err error) *AnalysisError {
@@ -88,16 +95,10 @@ type ReportError struct {
 }
 
 func (e *ReportError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("%s (report: %s): %v", e.Message, e.Path, e.Cause)
-	}
-
-	return fmt.Sprintf("%s (report: %s)", e.Message, e.Path)
+	return (&domainError{Message: e.Message, Source: "report: " + e.Path, Cause: e.Cause}).Error()
 }
 
-func (e *ReportError) Unwrap() error {
-	return e.Cause
-}
+func (e *ReportError) Unwrap() error { return e.Cause }
 
 // NewReportError creates a new report error.
 func NewReportError(msg, path string, err error) *ReportError {
@@ -119,16 +120,10 @@ type MigrationError struct {
 }
 
 func (e *MigrationError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("%s (migration: %s): %v", e.Message, e.Config, e.Cause)
-	}
-
-	return fmt.Sprintf("%s (migration: %s)", e.Message, e.Config)
+	return (&domainError{Message: e.Message, Source: "migration: " + e.Config, Cause: e.Cause}).Error()
 }
 
-func (e *MigrationError) Unwrap() error {
-	return e.Cause
-}
+func (e *MigrationError) Unwrap() error { return e.Cause }
 
 // NewMigrationError creates a new migration error.
 func NewMigrationError(msg, config string, err error) *MigrationError {

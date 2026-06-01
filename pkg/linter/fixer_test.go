@@ -136,6 +136,43 @@ linters:
 `, strings.Join(linters, "\n    - "))
 }
 
+// fixHighPriorityAndContain writes config, runs fix at high priority (non-dry-run),
+// asserts no error, and verifies the result contains all expected substrings.
+func fixHighPriorityAndContain(
+	fixer *linter.Fixer,
+	configPath, content string,
+	expected ...string,
+) {
+	fixHighPriority(fixer, configPath, content, func(result string) {
+		for _, e := range expected {
+			Expect(result).To(ContainSubstring(e))
+		}
+	})
+}
+
+// fixHighPriority writes config, runs fix at high priority (non-dry-run), asserts no error,
+// then calls assertFunc with the result.
+func fixHighPriority(
+	fixer *linter.Fixer,
+	configPath, content string,
+	assertFunc func(string),
+) {
+	fixAndAssert(fixer, configPath, content, types.LinterPriorityHigh, false, assertFunc)
+}
+
+// fixAndAssert writes config, runs fix, asserts no error, then calls assertFunc with the result.
+func fixAndAssert(
+	fixer *linter.Fixer,
+	configPath, content string,
+	priority types.LinterPriority,
+	dryRun bool,
+	assertFunc func(string),
+) {
+	contentResult, err := fixAndRead(fixer, configPath, content, priority, dryRun)
+	Expect(err).NotTo(HaveOccurred())
+	assertFunc(contentResult)
+}
+
 func countSubstring(s, substr string) int {
 	return strings.Count(s, substr)
 }
@@ -307,18 +344,17 @@ linters:
 
 	Context("Typecheck Linter", func() {
 		It("should remove typecheck from enabled linters", func() {
-			configContent := `version: "2"
+			fixHighPriority(fixer, testConfig, `version: "2"
 run:
   timeout: 5m
 linters:
   enable:
     - gosec
     - typecheck
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("gosec"))
-			Expect(content).NotTo(ContainSubstring("- typecheck"))
+`, func(content string) {
+				Expect(content).To(ContainSubstring("gosec"))
+				Expect(content).NotTo(ContainSubstring("- typecheck"))
+			})
 		})
 
 		It("should remove typecheck from disabled linters", func() {
@@ -350,17 +386,12 @@ linters:
 
 	Context("Default Linter Settings", func() {
 		It("should inject depguard defaults when depguard is enabled without settings", func() {
-			configContent := `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
     - depguard
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("depguard:"))
-			Expect(content).To(ContainSubstring("$gostd"))
-			Expect(content).To(ContainSubstring("$module"))
+`, "depguard:", "$gostd", "$module")
 		})
 
 		It("should inject ireturn defaults when ireturn is enabled without settings", func() {
@@ -411,17 +442,12 @@ linters:
 		})
 
 		It("should inject revive defaults when revive is enabled without settings", func() {
-			configContent := `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
     - revive
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("revive:"))
-			Expect(content).To(ContainSubstring("exported"))
-			Expect(content).To(ContainSubstring("package-comments"))
+`, "revive:", "exported", "package-comments")
 		})
 
 		It("should inject varnamelen defaults when varnamelen is enabled", func() {
@@ -439,16 +465,15 @@ linters:
 		})
 
 		It("should inject gomoddirectives defaults when enabled", func() {
-			configContent := `version: "2"
+			fixHighPriority(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
     - gomoddirectives
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("gomoddirectives:"))
-			Expect(content).To(ContainSubstring("replace-local"))
+`, func(content string) {
+				Expect(content).To(ContainSubstring("gomoddirectives:"))
+				Expect(content).To(ContainSubstring("replace-local"))
+			})
 		})
 
 		It("should inject cyclop defaults when cyclop is enabled", func() {
@@ -467,20 +492,19 @@ linters:
 
 	Context("Default Formatter Settings", func() {
 		It("should inject golines max-len when golines formatter is enabled", func() {
-			configContent := `version: "2"
+			fixHighPriority(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
     - lll
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("golines:"))
-			Expect(content).To(ContainSubstring("max-len"))
+`, func(content string) {
+				Expect(content).To(ContainSubstring("golines:"))
+				Expect(content).To(ContainSubstring("max-len"))
+			})
 		})
 
 		It("should not overwrite existing golines settings", func() {
-			configContent := `version: "2"
+			fixHighPriority(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
@@ -489,11 +513,10 @@ formatters:
   settings:
     golines:
       max-len: 100
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("max-len: 100"))
-			Expect(content).NotTo(ContainSubstring("max-len: 120"))
+`, func(content string) {
+				Expect(content).To(ContainSubstring("max-len: 100"))
+				Expect(content).NotTo(ContainSubstring("max-len: 120"))
+			})
 		})
 	})
 
@@ -571,7 +594,7 @@ linters:
 		})
 
 		It("should preserve existing build tags", func() {
-			configContent := `version: "2"
+			fixHighPriority(fixer, testConfig, `version: "2"
 run:
   timeout: 5m
   build-tags:
@@ -579,12 +602,10 @@ run:
 linters:
   enable:
     - gosec
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(content).To(ContainSubstring("custom_tag"))
-			Expect(content).To(ContainSubstring("goexperiment.jsonv2"))
+`, func(content string) {
+				Expect(content).To(ContainSubstring("custom_tag"))
+				Expect(content).To(ContainSubstring("goexperiment.jsonv2"))
+			})
 		})
 
 		It("should not duplicate already-present experiment tags", func() {
@@ -626,16 +647,14 @@ linters:
 
 	Context("Default Exclusion Paths", func() {
 		It("should add _templ.go$ and vendor/ to linters exclusions", func() {
-			configContent := `version: "2"
+			fixHighPriority(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(content).To(ContainSubstring("_templ\\.go$"))
-			Expect(content).To(ContainSubstring("vendor/"))
+`, func(content string) {
+				Expect(content).To(ContainSubstring("_templ\\.go$"))
+				Expect(content).To(ContainSubstring("vendor/"))
+			})
 		})
 
 		It("should add _templ.go$ to formatters exclusions", func() {
@@ -675,20 +694,14 @@ formatters:
 		})
 
 		It("should preserve existing exclusion paths while adding defaults", func() {
-			configContent := `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
   exclusions:
     paths:
       - custom_path/
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(content).To(ContainSubstring("custom_path/"))
-			Expect(content).To(ContainSubstring("_templ\\.go$"))
-			Expect(content).To(ContainSubstring("vendor/"))
+`, "custom_path/", "_templ\\.go$", "vendor/")
 		})
 	})
 })
