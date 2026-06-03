@@ -325,6 +325,9 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 			IssuesExitCode: 1,
 			Tests:          true,
 		},
+		Output: OutputConfig{
+			Formats: map[string]any{},
+		},
 		Linters: LintersConfig{
 			Enable: allLinters,
 			Exclusions: LintersExclusionsConfig{

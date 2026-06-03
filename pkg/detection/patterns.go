@@ -40,6 +40,8 @@ var SwaggoImports = []string{
 	"github.com/swaggo/echo-swagger",
 	"github.com/swaggo/fiber-swagger",
 	"github.com/swaggo/http-swagger",
+	"github.com/swaggo/swag/cmd/swag",
+	"github.com/swaggo/files",
 }
 
 // SwaggoPatterns contains swaggo annotation patterns to search for in code.
@@ -53,6 +55,10 @@ var SwaggoPatterns = []string{
 	"@Success",
 	"@Failure",
 	"@Router",
+	"@Security",
+	"@Header",
+	"@ID",
+	"swagger",
 }
 
 // RecommendedLinters maps project types to their recommended linters.

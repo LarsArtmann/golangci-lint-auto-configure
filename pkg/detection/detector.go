@@ -123,7 +123,28 @@ func (d *Detector) HasSwaggo() (bool, error) {
 		return true, nil
 	}
 
+	if d.hasSwaggoConfigFile() {
+		return true, nil
+	}
+
 	return d.hasSwaggoInCode()
+}
+
+func (d *Detector) hasSwaggoConfigFile() bool {
+	swaggoConfigFiles := []string{
+		"swag.yml",
+		"swag.yaml",
+		"docs/swagger.yaml",
+		"docs/swagger.json",
+	}
+
+	for _, f := range swaggoConfigFiles {
+		if _, err := os.Stat(filepath.Join(d.rootDir, f)); err == nil {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (d *Detector) detect() ProjectType {

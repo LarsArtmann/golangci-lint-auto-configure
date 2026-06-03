@@ -108,4 +108,14 @@ var DefaultLinterSettings = map[types.LinterName]any{
 	"cyclop": map[string]any{
 		"max-complexity": 12, //nolint:mnd // intentional default complexity threshold
 	},
+	"ginkgolinter": map[string]any{
+		"forbid-focus-container": true,
+		"forbid-spec-pollution":  true,
+	},
+	"testifylint": map[string]any{
+		"enable-all": true,
+		"disable": []string{
+			"go-require",
+		},
+	},
 }

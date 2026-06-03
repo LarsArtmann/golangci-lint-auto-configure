@@ -280,6 +280,44 @@ Style and consistency linters:
 - `revive` - Fast, configurable linter
 - `varnamelen` - Variable name length rules
 
+## Exclusion Patterns
+
+golangci-lint v2 uses [RE2 regex](https://github.com/google/re2/wiki/Syntax) for exclusion paths. The tool automatically injects these defaults into your config:
+
+**Linter exclusion paths:**
+
+```yaml
+linters:
+  exclusions:
+    paths:
+      - '_templ\.go$'    # Templ generated files
+      - '\.gen\.go$'     # Generic generated files
+      - 'vendor/'         # Vendored dependencies
+```
+
+**Formatter exclusion paths:**
+
+```yaml
+formatters:
+  exclusions:
+    paths:
+      - '_templ\.go$'    # Templ generated files
+```
+
+**Common RE2 patterns:**
+
+| Pattern | Matches |
+|---------|---------|
+| `_test\.go` | All test files |
+| `_templ\.go$` | Templ generated files (end of filename) |
+| `\.gen\.go$` | Generic generated files (end of filename) |
+| `\.pb\.go$` | Protobuf generated files |
+| `vendor/` | Vendored dependencies (prefix match) |
+| `^(cmd\|internal)/` | Files in cmd/ or internal/ directories |
+| `.*_string\.go$` | Stringer generated files |
+
+Note: Unlike standard regex, RE2 anchors like `$` are literal — the pattern is matched against the full file path. Unanchored patterns (like `vendor/`) match any path containing that substring.
+
 ## Testing
 
 ```bash

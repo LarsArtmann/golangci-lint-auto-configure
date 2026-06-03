@@ -3,6 +3,7 @@ package linter
 import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	"golang.org/x/mod/semver"
 )
 
 // CategorizeLinters categorizes disabled linters by priority.
@@ -40,6 +41,17 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 		a.logger.Debugf("Skipping explicitly disabled linter in analysis: %s", linter.Name)
 
 		return true
+	}
+
+	if minVer, hasMin := constants.LinterMinVersions[linter.Name]; hasMin {
+		if a.detectedVersion != "" && semver.Compare(a.detectedVersion, minVer) < 0 {
+			a.logger.Debugf(
+				"Skipping linter %s: requires golangci-lint %s (have %s)",
+				linter.Name, minVer, a.detectedVersion,
+			)
+
+			return true
+		}
 	}
 
 	if mapping, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
