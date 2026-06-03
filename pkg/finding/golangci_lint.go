@@ -60,7 +60,7 @@ func issueToFinding(issue GolangciLintIssue) finding.Finding {
 		pos,
 	).
 		WithCategory(category).
-		WithTags(finding.Tag(issue.FromLinter)))
+		WithTags(linterTag(issue.FromLinter)))
 }
 
 // golangciLintSeverityToFinding maps golangci-lint severity strings to finding.Severity.

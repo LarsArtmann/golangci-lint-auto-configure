@@ -110,7 +110,6 @@ func TestRecommendationsToFindings(t *testing.T) {
 		"gosec",
 		finding.SeverityCritical,
 		finding.CategorySecurity,
-		finding.FixStrategyDirect,
 	)
 	assertFinding(
 		t,
@@ -119,7 +118,6 @@ func TestRecommendationsToFindings(t *testing.T) {
 		"funlen",
 		finding.SeverityError,
 		finding.CategoryComplexity,
-		finding.FixStrategyDirect,
 	)
 	assertFinding(
 		t,
@@ -128,7 +126,6 @@ func TestRecommendationsToFindings(t *testing.T) {
 		"gci",
 		finding.SeverityWarning,
 		finding.CategoryStyle,
-		finding.FixStrategyDirect,
 	)
 
 	for _, f := range findings {
@@ -169,7 +166,6 @@ func TestFormatterRecommendationsToFindings(t *testing.T) {
 			"",
 			finding.SeverityError,
 			finding.CategoryStyle,
-			finding.FixStrategyDirect,
 		)
 	}
 
@@ -197,7 +193,6 @@ func TestDeprecatedLintersToFindings(t *testing.T) {
 		"wsl",
 		finding.SeverityWarning,
 		finding.CategoryMigration,
-		finding.FixStrategyDirect,
 	)
 
 	if findings[0].Suggestion == "" {
@@ -225,10 +220,9 @@ func TestValidationErrorsToFindings(t *testing.T) {
 		t,
 		findings[0],
 		"validation-error",
-		"run.timeout",
+		"run-timeout",
 		finding.SeverityError,
 		finding.CategoryConfiguration,
-		finding.FixStrategySuggest,
 	)
 
 	assertPositionLine(t, findings, 0, 5, "expected line %d, got %d")
@@ -385,7 +379,6 @@ func assertFinding(
 	expectedTag string,
 	expectedSeverity finding.Severity,
 	expectedCategory finding.Category,
-	expectedFixStrategy finding.FixStrategy,
 ) {
 	t.Helper()
 
@@ -415,10 +408,6 @@ func assertFinding(
 
 	if f.Category != expectedCategory {
 		t.Errorf("expected category %v, got %v", expectedCategory, f.Category)
-	}
-
-	if f.FixStrategy != expectedFixStrategy {
-		t.Errorf("expected fix strategy %v, got %v", expectedFixStrategy, f.FixStrategy)
 	}
 
 	if f.ToolName != toolName {

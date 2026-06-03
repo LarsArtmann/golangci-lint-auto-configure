@@ -29,7 +29,7 @@ func normalizeLocalPrefixes(settings map[string]any) int {
 
 // migrateLinterSettings applies all linter-specific settings migrations.
 //
-//nolint:gocognit,nestif,gocyclo,varnamelen,cyclop,funlen // Complex migration logic with many linter-specific cases
+//nolint:gocognit,nestif,gocyclo,cyclop,funlen // Complex migration logic with many linter-specific cases
 func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 	fixes := 0
 

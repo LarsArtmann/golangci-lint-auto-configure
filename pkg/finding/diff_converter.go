@@ -86,7 +86,8 @@ func MigrationResultToFindings(
 		pos,
 	).
 		WithCategory(finding.CategoryConfiguration).
-		WithFixStrategy(finding.FixStrategyDirect))
+		WithFixStrategy(finding.FixStrategySuggest).
+		WithSuggestion(fmt.Sprintf("%d fixes applied", fixesApplied)))
 
 	return []finding.Finding{found}
 }

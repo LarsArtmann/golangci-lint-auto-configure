@@ -4,6 +4,7 @@ package finding
 
 import (
 	"fmt"
+	"strings"
 
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -11,6 +12,14 @@ import (
 )
 
 const toolName = "golangci-lint-auto-configure"
+
+// linterTag sanitizes a string into a valid go-finding Tag.
+// Tags must be lowercase-hyphenated (first char must be a letter).
+func linterTag(name string) finding.Tag {
+	r := strings.NewReplacer("_", "-", ".", "-", "/", "-")
+
+	return finding.Tag(r.Replace(name))
+}
 
 // buildFinding is a helper that builds a Finding or panics on invalid state.
 // All callers construct valid findings by design.
@@ -69,9 +78,9 @@ func RecommendationsToFindings(
 			PriorityToSeverity(rec.Priority),
 			pos,
 		).
-			WithTags(finding.Tag(string(rec.Name))).
+			WithTags(linterTag(string(rec.Name))).
 			WithCategory(LinterNameToCategory(rec.Name)).
-			WithFixStrategy(finding.FixStrategyDirect).
+			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(fmt.Sprintf("Enable %s in linters.enable section", rec.Name)))
 
 		result = append(result, found)
@@ -96,9 +105,9 @@ func FormatterRecommendationsToFindings(
 			FormatterPriorityToSeverity(rec.Priority),
 			pos,
 		).
-			WithTags(finding.Tag(string(rec.Name))).
+			WithTags(linterTag(string(rec.Name))).
 			WithCategory(finding.CategoryStyle).
-			WithFixStrategy(finding.FixStrategyDirect).
+			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(fmt.Sprintf("Enable %s in formatters.enable section", rec.Name)))
 
 		result = append(result, found)
@@ -129,9 +138,9 @@ func DeprecatedLintersToFindings(
 			finding.SeverityWarning,
 			pos,
 		).
-			WithTags(finding.Tag(string(linter.Name))).
+			WithTags(linterTag(string(linter.Name))).
 			WithCategory(finding.CategoryMigration).
-			WithFixStrategy(finding.FixStrategyDirect).
+			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(replacement))
 
 		result = append(result, found)
@@ -156,7 +165,7 @@ func ValidationErrorsToFindings(
 			finding.SeverityError,
 			pos,
 		).
-			WithTags(finding.Tag(verr.Field)).
+			WithTags(linterTag(verr.Field)).
 			WithCategory(finding.CategoryConfiguration).
 			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(fmt.Sprintf("Fix field %s: %s", verr.Field, verr.Message)))
