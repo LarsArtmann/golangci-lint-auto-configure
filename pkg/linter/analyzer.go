@@ -11,7 +11,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"charm.land/log/v2"
@@ -54,6 +56,7 @@ type golangciLintFormattersOutput struct {
 }
 
 // FindBinary finds the golangci-lint binary in PATH.
+// It warns if multiple golangci-lint binaries are found in different PATH entries.
 func (a *Analyzer) FindBinary(_ context.Context) error {
 	path, err := exec.LookPath("golangci-lint")
 	if err != nil {
@@ -61,6 +64,14 @@ func (a *Analyzer) FindBinary(_ context.Context) error {
 	}
 
 	a.golangciLintPath = path
+
+	if allPaths := lookupAll("golangci-lint"); len(allPaths) > 1 {
+		a.logger.Warnf(
+			"Multiple golangci-lint binaries found in PATH (%s); "+
+				"using %s — consider removing duplicates to avoid ambiguity",
+			strings.Join(allPaths, ", "), path,
+		)
+	}
 
 	return nil
 }
@@ -289,4 +300,32 @@ func (a *Analyzer) formatPrioritySection(
 	}
 
 	builder.WriteString("\n")
+}
+
+// lookupAll searches every directory in PATH for the named executable
+// and returns all matching absolute paths in order.
+func lookupAll(name string) []string {
+	pathEnv := os.Getenv("PATH")
+	if pathEnv == "" {
+		return nil
+	}
+
+	var found []string
+
+	for _, dir := range filepath.SplitList(pathEnv) {
+		candidate := filepath.Join(dir, name)
+		if info, err := os.Stat(candidate); err == nil && //nolint:gosec // PATH entries are trusted
+			!info.IsDir() && isExecutable(info) {
+			if abs, err := filepath.Abs(candidate); err == nil {
+				found = append(found, abs)
+			}
+		}
+	}
+
+	return found
+}
+
+// isExecutable checks whether the file mode has any execute bit set.
+func isExecutable(info os.FileInfo) bool {
+	return info.Mode().Perm()&0o111 != 0
 }

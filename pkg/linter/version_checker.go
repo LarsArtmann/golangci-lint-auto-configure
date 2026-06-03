@@ -22,12 +22,10 @@ type golangciLintVersion struct {
 // validateVersion checks if the version meets minimum requirements.
 // Returns error if version is too old, nil if valid.
 func (a *Analyzer) validateVersion(version string) error {
-	// Ensure version has 'v' prefix for semver
 	if !strings.HasPrefix(version, "v") {
 		version = "v" + version
 	}
 
-	// Validate semver format
 	if !semver.IsValid(version) {
 		return apperrors.NewAnalysisError(
 			"invalid golangci-lint version format",
@@ -36,7 +34,6 @@ func (a *Analyzer) validateVersion(version string) error {
 		)
 	}
 
-	// Compare with minimum required version
 	minVersion := constants.MinGolangCILintVersion
 	if semver.Compare(version, minVersion) < 0 {
 		return apperrors.NewAnalysisError(
@@ -51,10 +48,23 @@ func (a *Analyzer) validateVersion(version string) error {
 	}
 
 	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
-
 	a.detectedVersion = version
+	a.warnUnexpectedVersion(version)
 
 	return nil
+}
+
+// warnUnexpectedVersion warns when the detected version differs from the tested version.
+func (a *Analyzer) warnUnexpectedVersion(version string) {
+	if version == constants.ExpectedGolangCILintVersion {
+		return
+	}
+
+	a.logger.Warnf(
+		"golangci-lint version %s detected but %s is recommended — "+
+			"unexpected versions may have behavioral differences",
+		version, constants.ExpectedGolangCILintVersion,
+	)
 }
 
 // CheckVersion verifies golangci-lint is at least the minimum required version.
