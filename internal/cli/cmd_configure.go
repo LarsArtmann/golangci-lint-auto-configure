@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
+	appdiff "github.com/larsartmann/golangci-lint-auto-configure/pkg/diff"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -69,6 +71,7 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 	var (
 		preset string
 		detect bool
+		check  bool
 	)
 
 	cmd := builder.Build(
@@ -82,6 +85,7 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 				builder.ConfigLoader(),
 				preset,
 				detect,
+				check,
 			)
 		},
 		WithLong(configureLong),
@@ -93,6 +97,8 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 		StringVar(&preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance)")
 	cmd.Flags().
 		BoolVar(&detect, "detect", false, "Auto-detect project type and select appropriate preset")
+	cmd.Flags().
+		BoolVar(&check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
 
 	return cmd
 }
@@ -104,6 +110,7 @@ func runDetectOrConfigure(
 	configLoader *config.Loader,
 	preset string,
 	detect bool,
+	check bool,
 ) error {
 	selectedPreset := preset
 
@@ -123,8 +130,9 @@ func runDetectOrConfigure(
 		configLoader,
 		priority,
 		selectedPreset,
-		dryRun,
+		check || dryRun,
 		configPath,
+		check,
 	)
 }
 
@@ -159,8 +167,9 @@ func runConfigure(
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
 	priorityParam, preset string,
-	dryRun bool,
+	isDryRun bool,
 	configPath string,
+	check bool,
 ) error {
 	if verbose {
 		logger.SetLevel(log.DebugLevel)
@@ -172,7 +181,7 @@ func runConfigure(
 			"prepare config failed (priority=%s, preset=%s, dryRun=%t): %w",
 			priorityParam,
 			preset,
-			dryRun,
+			isDryRun,
 			err,
 		)
 	}
@@ -180,10 +189,10 @@ func runConfigure(
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
 	if preset != "" {
-		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, preset, dryRun)
+		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, preset, isDryRun)
 	}
 
-	return runFixerMode(ctx, logger, analyzer, configLoader, configFile, priorityParam, dryRun)
+	return runFixerMode(ctx, logger, analyzer, configLoader, configFile, priorityParam, isDryRun, check)
 }
 
 func handlePresetMode(
@@ -211,30 +220,90 @@ func runFixerMode(
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
 	configFile, priorityParam string,
-	dryRun bool,
+	isDryRun bool,
+	check bool,
 ) error {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
 
 	linterPriority := ParsePriorityParam(priorityParam)
 
-	result, err := fixer.FixConfig(ctx, configFile, linterPriority, dryRun)
+	var originalCfg *types.Config
+
+	if showDiff {
+		originalCfg = cloneConfig(configLoader, configFile, logger)
+	}
+
+	result, err := fixer.FixConfig(ctx, configFile, linterPriority, isDryRun)
 	if err != nil {
 		return fmt.Errorf(
 			"failed to fix configuration (priority=%s, dryRun=%t): %w",
-			priorityParam, dryRun, err,
+			priorityParam, isDryRun, err,
 		)
+	}
+
+	if showDiff && originalCfg != nil {
+		showConfigDiff(configLoader, originalCfg, configFile, logger)
 	}
 
 	fmt.Fprintln(os.Stdout, "\n"+ui.FormatConfigHeader(configFile))
 	fmt.Fprintln(os.Stdout, ui.FormatFixResult(result))
 
-	if !dryRun {
+	if !isDryRun {
 		runFmtCommand(ctx, logger, analyzer, configFile)
 	}
 
 	logNextSteps(logger, result.NextSteps)
 
+	if check && result.FixesApplied > 0 {
+		logger.Infof("Check mode: %d changes needed", result.FixesApplied)
+
+		return apperrors.ErrChangesNeeded
+	}
+
 	return nil
+}
+
+func cloneConfig(configLoader *config.Loader, configFile string, logger *log.Logger) *types.Config {
+	cfg, err := configLoader.LoadConfig(configFile)
+	if err != nil {
+		logger.Debugf("Failed to load config for diff: %v", err)
+
+		return nil
+	}
+
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		logger.Debugf("Failed to marshal config for diff: %v", err)
+
+		return nil
+	}
+
+	var clone types.Config
+	if err := json.Unmarshal(data, &clone); err != nil {
+		logger.Debugf("Failed to unmarshal config for diff: %v", err)
+
+		return nil
+	}
+
+	return &clone
+}
+
+func showConfigDiff(configLoader *config.Loader, oldCfg *types.Config, configFile string, logger *log.Logger) {
+	newCfg, err := configLoader.LoadConfig(configFile)
+	if err != nil {
+		logger.Debugf("Failed to load modified config for diff: %v", err)
+
+		return
+	}
+
+	differ := appdiff.NewDiffer()
+	changes := differ.Compare(oldCfg, newCfg)
+
+	if len(changes) == 0 {
+		return
+	}
+
+	fmt.Fprintln(os.Stdout, differ.FormatChanges(changes))
 }
 
 func logNextSteps(logger *log.Logger, steps []string) {

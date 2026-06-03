@@ -29,6 +29,7 @@ var (
 	priority     string
 	reportFormat string
 	noAutoMerge  bool
+	showDiff     bool
 )
 
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
@@ -222,6 +223,8 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 		StringVar(&reportFormat, "format", "html", "Output format (html, json, sarif, finding)")
 	rootCmd.PersistentFlags().
 		BoolVar(&noAutoMerge, "no-auto-merge", false, "Disable automatic merging of multiple config files")
+	rootCmd.PersistentFlags().
+		BoolVar(&showDiff, "diff", false, "Show diff of config changes before applying")
 }
 
 // Execute runs the CLI using fang for enhanced CLI features.

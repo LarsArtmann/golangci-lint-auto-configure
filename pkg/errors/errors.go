@@ -16,6 +16,7 @@ var (
 	ErrInvalidVersionFormat   = stderrors.New("invalid version format")
 	ErrVersionTooOld          = stderrors.New("version is too old")
 	ErrConfigValidationFailed = stderrors.New("configuration validation failed")
+	ErrChangesNeeded          = stderrors.New("configuration changes needed")
 )
 
 // domainError provides shared Error() and Unwrap() for domain-specific error types.
