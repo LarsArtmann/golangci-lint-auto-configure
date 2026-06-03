@@ -42,12 +42,26 @@ func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding,
 
 	findings := make([]finding.Finding, 0, initialFindingsCapacity)
 
-	findings = append(findings, RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)...)
-	findings = append(
-		findings,
-		FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath)...,
-	)
-	findings = append(findings, DeprecatedLintersToFindings(analysis.DeprecatedLinters, analysis.ConfigPath)...)
+	recs, err := RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("convert recommendations: %w", err)
+	}
+
+	findings = append(findings, recs...)
+
+	fmtRecs, err := FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("convert formatter recommendations: %w", err)
+	}
+
+	findings = append(findings, fmtRecs...)
+
+	depRecs, err := DeprecatedLintersToFindings(analysis.DeprecatedLinters, analysis.ConfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("convert deprecated linters: %w", err)
+	}
+
+	findings = append(findings, depRecs...)
 
 	return findings, nil
 }
@@ -62,7 +76,12 @@ func (d *ConfigAnalysisDetector) DetectWithValidation(
 		return nil, err
 	}
 
-	findings = append(findings, ValidationErrorsToFindings(validationErrors, d.configPath)...)
+	valRecs, err := ValidationErrorsToFindings(validationErrors, d.configPath)
+	if err != nil {
+		return nil, fmt.Errorf("convert validation errors: %w", err)
+	}
+
+	findings = append(findings, valRecs...)
 
 	return findings, nil
 }

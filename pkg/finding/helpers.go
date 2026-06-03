@@ -1,6 +1,8 @@
 package finding
 
 import (
+	"fmt"
+
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
@@ -29,17 +31,25 @@ func MergeReports(reports []*finding.Report) *finding.Report {
 }
 
 // AnalysisFindingsByFile groups analysis findings by file path.
-func AnalysisFindingsByFile(analysis *types.ConfigAnalysis, version string) map[string][]finding.Finding {
-	report := AnalysisToReport(analysis, version)
+func AnalysisFindingsByFile(analysis *types.ConfigAnalysis, version string) (map[string][]finding.Finding, error) {
+	report, err := AnalysisToReport(analysis, version)
+	if err != nil {
+		return nil, fmt.Errorf("build report: %w", err)
+	}
 
-	return finding.GroupByFile(report.Findings)
+	return finding.GroupByFile(report.Findings), nil
 }
 
 // AnalysisFindingsByCategory groups analysis findings by category.
-func AnalysisFindingsByCategory(analysis *types.ConfigAnalysis, version string) map[finding.Category][]finding.Finding {
-	report := AnalysisToReport(analysis, version)
+func AnalysisFindingsByCategory(
+	analysis *types.ConfigAnalysis, version string,
+) (map[finding.Category][]finding.Finding, error) {
+	report, err := AnalysisToReport(analysis, version)
+	if err != nil {
+		return nil, fmt.Errorf("build report: %w", err)
+	}
 
-	return finding.GroupByCategory(report.Findings)
+	return finding.GroupByCategory(report.Findings), nil
 }
 
 // SeverityFromHealthSeverity converts a types.HealthSeverity to the corresponding
@@ -58,8 +68,11 @@ func SeverityFromHealthSeverity(sev types.HealthSeverity) finding.Severity {
 }
 
 // AutoFixableFindings returns only findings with FixStrategyDirect.
-func AutoFixableFindings(analysis *types.ConfigAnalysis, version string) []finding.Finding {
-	report := AnalysisToReport(analysis, version)
+func AutoFixableFindings(analysis *types.ConfigAnalysis, version string) ([]finding.Finding, error) {
+	report, err := AnalysisToReport(analysis, version)
+	if err != nil {
+		return nil, fmt.Errorf("build report: %w", err)
+	}
 
-	return report.ByFixStrategy(finding.FixStrategyDirect)
+	return report.ByFixStrategy(finding.FixStrategyDirect), nil
 }

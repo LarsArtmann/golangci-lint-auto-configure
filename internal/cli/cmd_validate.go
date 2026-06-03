@@ -296,7 +296,12 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 		Version: Version,
 	})
 
-	report.AddFindings(appfinding.ErrorsToFindings(errors, configFile))
+	findings, err := appfinding.ErrorsToFindings(errors, configFile)
+	if err != nil {
+		return fmt.Errorf("failed to convert errors to findings: %w", err)
+	}
+
+	report.AddFindings(findings)
 	report.ComputeSummary()
 
 	sarif, sarifErr := report.ToSARIF()

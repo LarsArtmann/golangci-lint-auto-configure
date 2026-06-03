@@ -163,7 +163,10 @@ func outputSARIF(analysis *types.ConfigAnalysis) error {
 }
 
 func outputFindingJSON(analysis *types.ConfigAnalysis) error {
-	r := appfinding.AnalysisToReport(analysis, Version)
+	r, err := appfinding.AnalysisToReport(analysis, Version)
+	if err != nil {
+		return fmt.Errorf("failed to generate finding report: %w", err)
+	}
 
 	data, err := r.PrettyJSON()
 	if err != nil {

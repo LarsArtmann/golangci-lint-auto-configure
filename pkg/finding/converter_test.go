@@ -97,7 +97,10 @@ func TestRecommendationsToFindings(t *testing.T) {
 		{Name: "gci", Priority: types.LinterPriorityMedium, Reason: "Import organizer"},
 	}
 
-	findings := RecommendationsToFindings(recommendations, ".golangci.yml")
+	findings, err := RecommendationsToFindings(recommendations, ".golangci.yml")
+	if err != nil {
+		t.Fatalf("RecommendationsToFindings failed: %v", err)
+	}
 
 	if len(findings) != 3 {
 		t.Fatalf("expected 3 findings, got %d", len(findings))
@@ -140,7 +143,11 @@ func TestRecommendationsToFindings(t *testing.T) {
 }
 
 func TestRecommendationsToFindingsEmpty(t *testing.T) {
-	findings := RecommendationsToFindings(nil, ".golangci.yml")
+	findings, err := RecommendationsToFindings(nil, ".golangci.yml")
+	if err != nil {
+		t.Fatalf("RecommendationsToFindings failed: %v", err)
+	}
+
 	if len(findings) != 0 {
 		t.Errorf("expected 0 findings for nil input, got %d", len(findings))
 	}
@@ -152,7 +159,10 @@ func TestFormatterRecommendationsToFindings(t *testing.T) {
 		{Name: "golines", Priority: types.FormatterPriorityHigh, Reason: "Long line fixer"},
 	}
 
-	findings := FormatterRecommendationsToFindings(recommendations, ".golangci.yml")
+	findings, err := FormatterRecommendationsToFindings(recommendations, ".golangci.yml")
+	if err != nil {
+		t.Fatalf("FormatterRecommendationsToFindings failed: %v", err)
+	}
 
 	if len(findings) != 2 {
 		t.Fatalf("expected 2 findings, got %d", len(findings))
@@ -180,7 +190,10 @@ func TestDeprecatedLintersToFindings(t *testing.T) {
 		{Name: "deadcode", Description: "Removed linter"},
 	}
 
-	findings := DeprecatedLintersToFindings(linters, ".golangci.yml")
+	findings, err := DeprecatedLintersToFindings(linters, ".golangci.yml")
+	if err != nil {
+		t.Fatalf("DeprecatedLintersToFindings failed: %v", err)
+	}
 
 	if len(findings) != 2 {
 		t.Fatalf("expected 2 findings, got %d", len(findings))
@@ -210,7 +223,10 @@ func TestValidationErrorsToFindings(t *testing.T) {
 		{Field: "version", Message: "must be 2"},
 	}
 
-	findings := ValidationErrorsToFindings(errors, ".golangci.yml")
+	findings, err := ValidationErrorsToFindings(errors, ".golangci.yml")
+	if err != nil {
+		t.Fatalf("ValidationErrorsToFindings failed: %v", err)
+	}
 
 	if len(findings) != 2 {
 		t.Fatalf("expected 2 findings, got %d", len(findings))
@@ -236,7 +252,10 @@ func TestErrorsToFindings(t *testing.T) {
 		errors.New("permission denied"),
 	}
 
-	results := ErrorsToFindings(errors, "config.yml")
+	results, err := ErrorsToFindings(errors, "config.yml")
+	if err != nil {
+		t.Fatalf("ErrorsToFindings failed: %v", err)
+	}
 
 	if len(results) != 2 {
 		t.Fatalf("expected 2 findings, got %d", len(results))
@@ -266,7 +285,11 @@ func TestErrorsToFindings(t *testing.T) {
 }
 
 func TestErrorsToFindingsEmpty(t *testing.T) {
-	findings := ErrorsToFindings(nil, "config.yml")
+	findings, err := ErrorsToFindings(nil, "config.yml")
+	if err != nil {
+		t.Fatalf("ErrorsToFindings failed: %v", err)
+	}
+
 	if len(findings) != 0 {
 		t.Errorf("expected 0 findings for nil input, got %d", len(findings))
 	}
@@ -291,7 +314,10 @@ func TestAnalysisToReport(t *testing.T) {
 		DeprecatedCount:  1,
 	}
 
-	report := AnalysisToReport(analysis, "v0.5.0")
+	report, err := AnalysisToReport(analysis, "v0.5.0")
+	if err != nil {
+		t.Fatalf("AnalysisToReport failed: %v", err)
+	}
 
 	if report.Tool.Name != toolName {
 		t.Errorf("expected tool name %s, got %s", toolName, report.Tool.Name)
@@ -355,7 +381,10 @@ func TestAnalysisToReportEmpty(t *testing.T) {
 		ConfigPath: ".golangci.yml",
 	}
 
-	report := AnalysisToReport(analysis, "dev")
+	report, err := AnalysisToReport(analysis, "dev")
+	if err != nil {
+		t.Fatalf("AnalysisToReport failed: %v", err)
+	}
 
 	assertReportSummaryTotal(t, report, 0)
 

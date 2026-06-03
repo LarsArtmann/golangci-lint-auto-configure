@@ -173,7 +173,14 @@ func writeFindingJSONReport(
 	analysis *types.ConfigAnalysis,
 	outputPath, configFile string,
 ) error {
-	r := appfinding.AnalysisToReport(analysis, Version)
+	r, err := appfinding.AnalysisToReport(analysis, Version)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to generate finding report (configPath=%s): %w",
+			configFile,
+			err,
+		)
+	}
 
 	data, err := r.PrettyJSON()
 	if err != nil {

@@ -37,13 +37,18 @@ func ParseGolangciLintJSON(data []byte) ([]finding.Finding, error) {
 	findings := make([]finding.Finding, 0, len(output.Issues))
 
 	for _, issue := range output.Issues {
-		findings = append(findings, issueToFinding(issue))
+		f, err := issueToFinding(issue)
+		if err != nil {
+			return nil, fmt.Errorf("convert issue from %s: %w", issue.FromLinter, err)
+		}
+
+		findings = append(findings, f)
 	}
 
 	return findings, nil
 }
 
-func issueToFinding(issue GolangciLintIssue) finding.Finding {
+func issueToFinding(issue GolangciLintIssue) (finding.Finding, error) {
 	severity := golangciLintSeverityToFinding(issue.Severity)
 	category := linterNameToCategory(issue.FromLinter)
 	pos := finding.Position{

@@ -8,7 +8,7 @@ import (
 )
 
 // ChangesToFindings converts diff.Change slice to Findings.
-func ChangesToFindings(changes []diff.Change, configPath string) []finding.Finding {
+func ChangesToFindings(changes []diff.Change, configPath string) ([]finding.Finding, error) {
 	result := make([]finding.Finding, 0, len(changes))
 
 	for _, change := range changes {
@@ -34,10 +34,15 @@ func ChangesToFindings(changes []diff.Change, configPath string) []finding.Findi
 			builder = builder.WithAfterCode(change.NewValue)
 		}
 
-		result = append(result, buildFinding(builder))
+		f, err := buildFinding(builder)
+		if err != nil {
+			return nil, fmt.Errorf("build finding for change %s: %w", change.Path, err)
+		}
+
+		result = append(result, f)
 	}
 
-	return result
+	return result, nil
 }
 
 func changeSeverity(t diff.ChangeType) finding.Severity {
@@ -72,13 +77,14 @@ func MigrationResultToFindings(
 	fixesApplied int,
 	_ []string,
 	configPath string,
-) []finding.Finding {
+) ([]finding.Finding, error) {
 	if fixesApplied == 0 {
-		return nil
+		return nil, nil
 	}
 
 	pos := finding.Position{File: configPath}
-	found := buildFinding(finding.NewBuilder(
+
+	found, err := buildFinding(finding.NewBuilder(
 		"config-fix",
 		toolName,
 		fmt.Sprintf("%s: %d fixes applied", message, fixesApplied),
@@ -88,6 +94,9 @@ func MigrationResultToFindings(
 		WithCategory(finding.CategoryConfiguration).
 		WithFixStrategy(finding.FixStrategySuggest).
 		WithSuggestion(fmt.Sprintf("%d fixes applied", fixesApplied)))
+	if err != nil {
+		return nil, fmt.Errorf("build migration result finding: %w", err)
+	}
 
-	return []finding.Finding{found}
+	return []finding.Finding{found}, nil
 }

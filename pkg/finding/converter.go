@@ -21,15 +21,15 @@ func linterTag(name string) finding.Tag {
 	return finding.Tag(r.Replace(name))
 }
 
-// buildFinding is a helper that builds a Finding or panics on invalid state.
-// All callers construct valid findings by design.
-func buildFinding(b *finding.Builder) finding.Finding {
+// buildFinding is a helper that builds a Finding from a Builder, returning an error
+// instead of panicking on invalid builder state.
+func buildFinding(b *finding.Builder) (finding.Finding, error) {
 	f, err := b.Build()
 	if err != nil {
-		panic(fmt.Sprintf("finding builder error: %v", err))
+		return finding.Finding{}, fmt.Errorf("finding builder error: %w", err)
 	}
 
-	return f
+	return f, nil
 }
 
 // PriorityToSeverity maps LinterPriority to finding.Severity.
@@ -66,12 +66,13 @@ func FormatterPriorityToSeverity(p types.FormatterPriority) finding.Severity {
 func RecommendationsToFindings(
 	recommendations []types.LinterRecommendation,
 	configPath string,
-) []finding.Finding {
+) ([]finding.Finding, error) {
 	result := make([]finding.Finding, 0, len(recommendations))
 
 	for _, rec := range recommendations {
 		pos := finding.Position{File: configPath}
-		found := buildFinding(finding.NewBuilder(
+
+		found, err := buildFinding(finding.NewBuilder(
 			"missing-linter",
 			toolName,
 			fmt.Sprintf("Linter %s is disabled: %s", rec.Name, rec.Reason),
@@ -82,23 +83,27 @@ func RecommendationsToFindings(
 			WithCategory(LinterNameToCategory(rec.Name)).
 			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(fmt.Sprintf("Enable %s in linters.enable section", rec.Name)))
+		if err != nil {
+			return nil, fmt.Errorf("build finding for linter %s: %w", rec.Name, err)
+		}
 
 		result = append(result, found)
 	}
 
-	return result
+	return result, nil
 }
 
 // FormatterRecommendationsToFindings converts FormatterRecommendations to Findings.
 func FormatterRecommendationsToFindings(
 	recommendations []types.FormatterRecommendation,
 	configPath string,
-) []finding.Finding {
+) ([]finding.Finding, error) {
 	result := make([]finding.Finding, 0, len(recommendations))
 
 	for _, rec := range recommendations {
 		pos := finding.Position{File: configPath}
-		found := buildFinding(finding.NewBuilder(
+
+		found, err := buildFinding(finding.NewBuilder(
 			"missing-formatter",
 			toolName,
 			fmt.Sprintf("Formatter %s is disabled: %s", rec.Name, rec.Reason),
@@ -109,18 +114,21 @@ func FormatterRecommendationsToFindings(
 			WithCategory(finding.CategoryStyle).
 			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(fmt.Sprintf("Enable %s in formatters.enable section", rec.Name)))
+		if err != nil {
+			return nil, fmt.Errorf("build finding for formatter %s: %w", rec.Name, err)
+		}
 
 		result = append(result, found)
 	}
 
-	return result
+	return result, nil
 }
 
 // DeprecatedLintersToFindings converts deprecated linter info to Findings.
 func DeprecatedLintersToFindings(
 	linters []types.LinterInfo,
 	configPath string,
-) []finding.Finding {
+) ([]finding.Finding, error) {
 	result := make([]finding.Finding, 0, len(linters))
 
 	for _, linter := range linters {
@@ -131,7 +139,7 @@ func DeprecatedLintersToFindings(
 			replacement = fmt.Sprintf("use %s instead (%s)", repl.Replacement, repl.Reason)
 		}
 
-		found := buildFinding(finding.NewBuilder(
+		found, err := buildFinding(finding.NewBuilder(
 			"deprecated-linter",
 			toolName,
 			fmt.Sprintf("Deprecated linter %s is enabled: %s", linter.Name, replacement),
@@ -142,23 +150,27 @@ func DeprecatedLintersToFindings(
 			WithCategory(finding.CategoryMigration).
 			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(replacement))
+		if err != nil {
+			return nil, fmt.Errorf("build finding for deprecated linter %s: %w", linter.Name, err)
+		}
 
 		result = append(result, found)
 	}
 
-	return result
+	return result, nil
 }
 
 // ValidationErrorsToFindings converts ValidationErrors to Findings.
 func ValidationErrorsToFindings(
 	errors []types.ValidationError,
 	configPath string,
-) []finding.Finding {
+) ([]finding.Finding, error) {
 	result := make([]finding.Finding, 0, len(errors))
 
 	for _, verr := range errors {
 		pos := finding.Position{File: configPath, Line: verr.Line}
-		found := buildFinding(finding.NewBuilder(
+
+		found, err := buildFinding(finding.NewBuilder(
 			"validation-error",
 			toolName,
 			verr.Message,
@@ -169,20 +181,24 @@ func ValidationErrorsToFindings(
 			WithCategory(finding.CategoryConfiguration).
 			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(fmt.Sprintf("Fix field %s: %s", verr.Field, verr.Message)))
+		if err != nil {
+			return nil, fmt.Errorf("build finding for validation error %s: %w", verr.Field, err)
+		}
 
 		result = append(result, found)
 	}
 
-	return result
+	return result, nil
 }
 
 // ErrorsToFindings converts generic errors to Findings.
-func ErrorsToFindings(errors []error, configPath string) []finding.Finding {
+func ErrorsToFindings(errors []error, configPath string) ([]finding.Finding, error) {
 	result := make([]finding.Finding, 0, len(errors))
 
 	for _, err := range errors {
 		pos := finding.Position{File: configPath}
-		found := buildFinding(finding.NewBuilder(
+
+		found, buildErr := buildFinding(finding.NewBuilder(
 			"validation-error",
 			toolName,
 			err.Error(),
@@ -190,31 +206,54 @@ func ErrorsToFindings(errors []error, configPath string) []finding.Finding {
 			pos,
 		).
 			WithCategory(finding.CategoryConfiguration))
+		if buildErr != nil {
+			return nil, fmt.Errorf("build finding for error %q: %w", err.Error(), buildErr)
+		}
 
 		result = append(result, found)
 	}
 
-	return result
+	return result, nil
 }
 
 // AnalysisToReport converts a full ConfigAnalysis to a finding.Report.
-func AnalysisToReport(analysis *types.ConfigAnalysis, version string) *finding.Report {
+func AnalysisToReport(analysis *types.ConfigAnalysis, version string) (*finding.Report, error) {
 	report := finding.NewReport(finding.ToolInfo{
 		Name:    toolName,
 		Version: version,
 	})
 
-	report.AddFindings(RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath))
-	report.AddFindings(FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath))
-	report.AddFindings(DeprecatedLintersToFindings(analysis.DeprecatedLinters, analysis.ConfigPath))
+	recs, err := RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("convert recommendations: %w", err)
+	}
+
+	report.AddFindings(recs)
+
+	fmtRecs, err := FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("convert formatter recommendations: %w", err)
+	}
+
+	report.AddFindings(fmtRecs)
+
+	depRecs, err := DeprecatedLintersToFindings(analysis.DeprecatedLinters, analysis.ConfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("convert deprecated linters: %w", err)
+	}
+
+	report.AddFindings(depRecs)
 	report.ComputeSummary()
 
-	return report
+	return report, nil
 }
 
 // AnalysisToSARIF converts a ConfigAnalysis directly to SARIF JSON.
 func AnalysisToSARIF(analysis *types.ConfigAnalysis, version string) ([]byte, error) {
-	report := AnalysisToReport(analysis, version)
+	report, err := AnalysisToReport(analysis, version)
+	if err != nil {
+		return nil, fmt.Errorf("build report: %w", err)
+	}
 
 	sarif, err := report.ToSARIF()
 	if err != nil {
