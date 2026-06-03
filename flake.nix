@@ -22,7 +22,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        version = self.shortRev or self.dirtyRev or "dev";
+        version = "0.2.0";
 
         commit = self.rev or "none";
 
