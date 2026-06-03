@@ -25,7 +25,7 @@ func FilterByPriority(findings []finding.Finding, priority types.LinterPriority)
 
 // MergeReports merges multiple finding Reports with deduplication.
 func MergeReports(reports []*finding.Report) *finding.Report {
-	return finding.Merge(reports, finding.WithDeduplication(true))
+	return finding.Combine(reports, finding.WithDeduplication(true))
 }
 
 // AnalysisFindingsByFile groups analysis findings by file path.
