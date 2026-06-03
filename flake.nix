@@ -46,6 +46,12 @@
             ];
           };
 
+          nativeBuildInputs = [ pkgs.templ ];
+
+          preBuild = ''
+            templ generate
+          '';
+
           proxyVendor = true;
 
           vendorHash = "sha256-LCz14+53dif4m6fq8I11hHkKwSueYKnjVjTl4EUQUl0=";

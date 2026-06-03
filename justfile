@@ -31,6 +31,8 @@ help:
 build:
     #!/usr/bin/env bash
     set -euo pipefail
+    echo "Generating templ files..."
+    templ generate
     echo "Building CLI..."
     GOTOOLCHAIN=local go build -ldflags "-X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.version={{VERSION}} -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.commit={{COMMIT}} -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.date={{DATE}} -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.treeState={{TREE_STATE}}" -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
     echo "Built v{{VERSION}}"
