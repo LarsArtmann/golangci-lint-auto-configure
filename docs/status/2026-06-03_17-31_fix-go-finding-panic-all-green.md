@@ -14,30 +14,30 @@
 
 ### This Session (uncommitted)
 
-| Change                                                                   | Files                                                                                         | Status         |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | -------------- |
-| Fix go-finding FixStrategyDirect panic in converter.go                   | `pkg/finding/converter.go`                                                                   | Tests pass     |
-| Fix go-finding tag validation panic (underscores/dots in linter names)   | `pkg/finding/converter.go`, `pkg/finding/golangci_lint.go`                                   | Tests pass     |
-| Fix nolintlint unused varnamelen directive                               | `pkg/migration/migrations_linters_settings.go`                                                | Lint clean     |
-| Update converter tests for FixStrategySuggest + sanitized tags            | `pkg/finding/converter_test.go`                                                              | All pass       |
-| Fix MigrationResultToFindings to use FixStrategySuggest                  | `pkg/finding/diff_converter.go`                                                              | All pass       |
-| All 4 previously-failing CLI integration tests now pass                  | `internal/cli/commands_test.go` (SARIF + finding format for report and analyze commands)     | 23/23 specs    |
-| Zero lint issues across entire codebase                                  | —                                                                                             | CLEAN          |
+| Change                                                                 | Files                                                                                    | Status      |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------- |
+| Fix go-finding FixStrategyDirect panic in converter.go                 | `pkg/finding/converter.go`                                                               | Tests pass  |
+| Fix go-finding tag validation panic (underscores/dots in linter names) | `pkg/finding/converter.go`, `pkg/finding/golangci_lint.go`                               | Tests pass  |
+| Fix nolintlint unused varnamelen directive                             | `pkg/migration/migrations_linters_settings.go`                                           | Lint clean  |
+| Update converter tests for FixStrategySuggest + sanitized tags         | `pkg/finding/converter_test.go`                                                          | All pass    |
+| Fix MigrationResultToFindings to use FixStrategySuggest                | `pkg/finding/diff_converter.go`                                                          | All pass    |
+| All 4 previously-failing CLI integration tests now pass                | `internal/cli/commands_test.go` (SARIF + finding format for report and analyze commands) | 23/23 specs |
+| Zero lint issues across entire codebase                                | —                                                                                        | CLEAN       |
 
 ### Recently Committed (last 10 commits)
 
-| Commit    | Description                                                           |
-| --------- | --------------------------------------------------------------------- |
-| `64b7333` | chore: regenerate templ output, refresh nixpkgs, reformat status tables |
-| `c4cdf23` | docs(status): comprehensive status report 2026-06-03                 |
+| Commit    | Description                                                                   |
+| --------- | ----------------------------------------------------------------------------- |
+| `64b7333` | chore: regenerate templ output, refresh nixpkgs, reformat status tables       |
+| `c4cdf23` | docs(status): comprehensive status report 2026-06-03                          |
 | `f2adaa6` | feat(linter): warn on multiple golangci-lint binaries and unexpected versions |
-| `a089f3c` | chore(nix): use semver version 0.2.0                                  |
-| `fef6943` | fix: update go-finding API Merge→Combine                              |
-| `2797950` | refactor: eliminate all semantic code clones at threshold 45+         |
-| `441d00b` | chore(deps): update direct and indirect Go dependencies               |
-| `3cef051` | chore(deps): update indirect dependencies and go-finding flake input  |
-| `783368d` | fix(nix): use shortRev for version to produce readable store paths    |
-| `1820a99` | chore(project): Add project configuration and documentation           |
+| `a089f3c` | chore(nix): use semver version 0.2.0                                          |
+| `fef6943` | fix: update go-finding API Merge→Combine                                      |
+| `2797950` | refactor: eliminate all semantic code clones at threshold 45+                 |
+| `441d00b` | chore(deps): update direct and indirect Go dependencies                       |
+| `3cef051` | chore(deps): update indirect dependencies and go-finding flake input          |
+| `783368d` | fix(nix): use shortRev for version to produce readable store paths            |
+| `1820a99` | chore(project): Add project configuration and documentation                   |
 
 ### Core Features (Working)
 
@@ -59,12 +59,12 @@
 
 ## b) PARTIALLY DONE
 
-| Feature                       | Status                                            | Gap                                                                                                    |
-| ----------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| CLI integration test coverage | 9.0% coverage (23 specs)                          | Only basic smoke tests for each command; no edge cases, error paths, or flag combination tests          |
-| gogenfilter scanner coverage  | 59.8%                                             | Missing coverage for edge cases in scanner logic                                                       |
-| Migration coverage            | 66.8%                                             | Below project standard; some migration paths untested                                                  |
-| `report_templ.go` removal     | File is in `.gitignore` but still git-tracked     | Removing it requires adding `templ generate` to the Nix build pipeline first — architectural change    |
+| Feature                       | Status                                        | Gap                                                                                                 |
+| ----------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| CLI integration test coverage | 9.0% coverage (23 specs)                      | Only basic smoke tests for each command; no edge cases, error paths, or flag combination tests      |
+| gogenfilter scanner coverage  | 59.8%                                         | Missing coverage for edge cases in scanner logic                                                    |
+| Migration coverage            | 66.8%                                         | Below project standard; some migration paths untested                                               |
+| `report_templ.go` removal     | File is in `.gitignore` but still git-tracked | Removing it requires adding `templ generate` to the Nix build pipeline first — architectural change |
 
 ---
 
@@ -123,23 +123,23 @@ All previously critical issues have been resolved this session:
 
 ### Tier 1: Quality & Safety (1-5)
 
-| #   | Priority | Item                                                           | Est. Effort |
-| --- | -------- | -------------------------------------------------------------- | ----------- |
-| 1   | HIGH     | Add regression tests for SARIF/finding format commands         | 30min       |
-| 2   | HIGH     | Increase CLI integration test coverage from 9.0%               | 4h          |
-| 3   | HIGH     | Increase gogenfilter scanner coverage from 59.8%               | 2h          |
-| 4   | HIGH     | Increase migration coverage from 66.8%                         | 3h          |
-| 5   | HIGH     | Trim AGENTS.md from 912 to ≤377 lines                          | 2h          |
+| #   | Priority | Item                                                   | Est. Effort |
+| --- | -------- | ------------------------------------------------------ | ----------- |
+| 1   | HIGH     | Add regression tests for SARIF/finding format commands | 30min       |
+| 2   | HIGH     | Increase CLI integration test coverage from 9.0%       | 4h          |
+| 3   | HIGH     | Increase gogenfilter scanner coverage from 59.8%       | 2h          |
+| 4   | HIGH     | Increase migration coverage from 66.8%                 | 3h          |
+| 5   | HIGH     | Trim AGENTS.md from 912 to ≤377 lines                  | 2h          |
 
 ### Tier 2: Architecture (6-10)
 
-| #   | Priority | Item                                                         | Est. Effort |
-| --- | -------- | ------------------------------------------------------------ | ----------- |
-| 6   | HIGH     | Add `templ generate` to Nix build pipeline                   | 1h          |
-| 7   | HIGH     | Remove `report_templ.go` from git tracking (after #6)        | 15min       |
-| 8   | MEDIUM   | Return errors instead of panicking in `buildFinding`         | 30min       |
-| 9   | MEDIUM   | Add `--check` mode for CI exit codes                         | 2h          |
-| 10  | MEDIUM   | Add `--diff` flag to show config changes before applying     | 1h          |
+| #   | Priority | Item                                                     | Est. Effort |
+| --- | -------- | -------------------------------------------------------- | ----------- |
+| 6   | HIGH     | Add `templ generate` to Nix build pipeline               | 1h          |
+| 7   | HIGH     | Remove `report_templ.go` from git tracking (after #6)    | 15min       |
+| 8   | MEDIUM   | Return errors instead of panicking in `buildFinding`     | 30min       |
+| 9   | MEDIUM   | Add `--check` mode for CI exit codes                     | 2h          |
+| 10  | MEDIUM   | Add `--diff` flag to show config changes before applying | 1h          |
 
 ### Tier 3: Features (11-18)
 
@@ -183,19 +183,19 @@ This is an architectural decision about build complexity vs. repository cleanlin
 
 ## Test Results Summary
 
-| Suite             | Specs   | Coverage | Status |
-| ----------------- | ------- | -------- | ------ |
-| CLI Commands      | 23/23   | 9.0%     | PASS   |
-| Config            | 37/37   | 64.5%    | PASS   |
-| Experiments       | 6/6     | 80.0%    | PASS   |
-| Errors            | 20/20   | 95.8%    | PASS   |
-| GoGenFilter       | 15/15   | 59.8%    | PASS   |
-| Analyzer (linter) | 59/59   | 56.6%    | PASS   |
-| Migration         | 37/37   | 66.8%    | PASS   |
-| Report            | 4/4     | 71.9%    | PASS   |
-| Set (types)       | 41/41   | 82.0%    | PASS   |
-| Utils             | 16/16   | 67.7%    | PASS   |
-| Version           | 6/6     | 94.6%    | PASS   |
+| Suite             | Specs    | Coverage  | Status       |
+| ----------------- | -------- | --------- | ------------ |
+| CLI Commands      | 23/23    | 9.0%      | PASS         |
+| Config            | 37/37    | 64.5%     | PASS         |
+| Experiments       | 6/6      | 80.0%     | PASS         |
+| Errors            | 20/20    | 95.8%     | PASS         |
+| GoGenFilter       | 15/15    | 59.8%     | PASS         |
+| Analyzer (linter) | 59/59    | 56.6%     | PASS         |
+| Migration         | 37/37    | 66.8%     | PASS         |
+| Report            | 4/4      | 71.9%     | PASS         |
+| Set (types)       | 41/41    | 82.0%     | PASS         |
+| Utils             | 16/16    | 67.7%     | PASS         |
+| Version           | 6/6      | 94.6%     | PASS         |
 | **Total**         | **~264** | **62.6%** | **ALL PASS** |
 
 ## Lint Status
