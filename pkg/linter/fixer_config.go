@@ -209,7 +209,8 @@ func updateConfigFromSets(
 }
 
 // injectDefaultSettings injects safe default settings for linters that require
-// configuration, but only if the config doesn't already have settings for them.
+// configuration, but only if the config doesn't already have meaningful settings for them.
+// Empty or nil values are treated as missing and will be overwritten with defaults.
 func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
 	for _, linterName := range enabledLinters {
 		defaults, hasDefaults := constants.DefaultLinterSettings[types.LinterName(linterName)]
@@ -219,7 +220,7 @@ func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
 
 		types.InitLintersSettings(&cfg.Linters)
 
-		if _, exists := cfg.Linters.Settings[linterName]; exists {
+		if existing, exists := cfg.Linters.Settings[linterName]; exists && !isEmptySettingsValue(existing) {
 			continue
 		}
 
@@ -227,8 +228,21 @@ func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
 	}
 }
 
+// isEmptySettingsValue reports whether a settings value is nil or an empty map,
+// meaning it carries no actual configuration and should be treated as missing.
+func isEmptySettingsValue(v any) bool {
+	if v == nil {
+		return true
+	}
+
+	m, ok := v.(map[string]any)
+
+	return ok && len(m) == 0
+}
+
 // injectDefaultFormatterSettings injects safe default settings for formatters that require
-// configuration, but only if the config doesn't already have settings for them.
+// configuration, but only if the config doesn't already have meaningful settings for them.
+// Empty or nil values are treated as missing and will be overwritten with defaults.
 func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []string) {
 	for _, formatterName := range enabledFormatters {
 		defaults, hasDefaults := constants.DefaultFormatterSettings[types.FormatterName(formatterName)]
@@ -240,7 +254,7 @@ func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []strin
 			cfg.Formatters.Settings = make(map[string]any)
 		}
 
-		if _, exists := cfg.Formatters.Settings[formatterName]; exists {
+		if existing, exists := cfg.Formatters.Settings[formatterName]; exists && !isEmptySettingsValue(existing) {
 			continue
 		}
 

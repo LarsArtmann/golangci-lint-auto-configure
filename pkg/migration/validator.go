@@ -55,17 +55,3 @@ type MockValidator struct{}
 func (v MockValidator) ValidateConfig(_ *Migrator) error {
 	return nil
 }
-
-// FailingValidator is a mock validator that always fails.
-type FailingValidator struct {
-	ErrorMessage string
-}
-
-func (v FailingValidator) ValidateConfig(_ *Migrator) error {
-	if v.ErrorMessage == "" {
-		return ErrMockValidationFailed
-	}
-
-	//nolint:err113 // Test helper that needs dynamic error message
-	return fmt.Errorf("%s", v.ErrorMessage)
-}

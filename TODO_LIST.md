@@ -6,13 +6,11 @@
 
 ## Critical Priority
 
-- [ ] Increase CLI integration test coverage (currently 8.2%)
+- [ ] Increase CLI integration test coverage (currently 9.0%)
 
 ## High Priority
 
-- [ ] Trim AGENTS.md from 912 to ≤377 lines (extract detailed docs to referenced files)
-- [ ] Increase gogenfilter scanner coverage (currently 59.8%)
-- [ ] Increase migration coverage (currently 66.8%)
+- [ ] Increase gogenfilter scanner coverage (currently 63.9%)
 
 ## Medium Priority
 
@@ -34,6 +32,10 @@
 - [ ] Migrate justfile → flake.nix apps (per global AGENTS.md preference)
 
 ## Completed
+
+- [x] Trim AGENTS.md from 912 to ≤377 lines (current: 373)
+- [x] Increase migration coverage from 66.8% to 75.5%
+- [x] Fix gofumpt formatting in integration_test.go
 
 - [x] Fix all lint violations — round 2 (7 funlen, 1 noinlineerr, 1 varnamelen → 0 issues)
 

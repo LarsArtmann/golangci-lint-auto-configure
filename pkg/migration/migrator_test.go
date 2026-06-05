@@ -374,14 +374,14 @@ var _ = Describe("Validator", func() {
 
 	Describe("FailingValidator", func() {
 		It("should return error with default message", func() {
-			v := migration.FailingValidator{}
+			v := FailingValidator{}
 			err := v.ValidateConfig(nil)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("mock validation failed"))
 		})
 
 		It("should return error with custom message", func() {
-			v := migration.FailingValidator{ErrorMessage: "custom error"}
+			v := FailingValidator{ErrorMessage: "custom error"}
 			err := v.ValidateConfig(nil)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("custom error"))

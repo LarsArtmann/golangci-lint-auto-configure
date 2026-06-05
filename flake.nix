@@ -46,10 +46,10 @@
             ];
           };
 
-          nativeBuildInputs = [ pkgs.templ ];
-
           preBuild = ''
-            templ generate
+            export GOBIN=$TMPDIR/bin
+            go install github.com/a-h/templ/cmd/templ
+            $GOBIN/templ generate
           '';
 
           proxyVendor = true;
@@ -107,6 +107,7 @@
             gopls
             gotools
             nixfmt
+            gcc
           ];
 
           env = {
@@ -130,6 +131,11 @@
           build = golangci-lint-auto-configure;
           test = golangci-lint-auto-configure.overrideAttrs (_: {
             doCheck = true;
+          });
+          race = golangci-lint-auto-configure.overrideAttrs (old: {
+            doCheck = true;
+            checkFlags = [ "-race" ];
+            env = old.env // { CGO_ENABLED = "1"; };
           });
         };
       }
