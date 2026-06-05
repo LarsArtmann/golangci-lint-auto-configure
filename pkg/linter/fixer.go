@@ -32,18 +32,6 @@ func (f *Fixer) FixConfig(
 	priority types.LinterPriority,
 	dryRun bool,
 ) (*types.MigrationResult, error) {
-	result := f.FixConfigResult(ctx, configPath, priority, dryRun)
-
-	return result.Get()
-}
-
-// FixConfigResult fixes the config and returns a Result type for railway-oriented programming.
-func (f *Fixer) FixConfigResult(
-	ctx context.Context,
-	configPath string,
-	priority types.LinterPriority,
-	dryRun bool,
-) types.MigrationResultType {
 	f.logger.Infof("Loading configuration: %s", configPath)
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
@@ -61,10 +49,10 @@ func (f *Fixer) FixConfigResult(
 	}
 
 	if dryRun {
-		if result, shouldReturn := f.checkDryRunEarlyReturns(
+		if result, shouldReturn, err := f.checkDryRunEarlyReturns(
 			cfg, hasInvalid, hasDeprecatedLinters(originalEnabled, version),
 		); shouldReturn {
-			return result
+			return result, err
 		}
 	}
 
@@ -106,7 +94,7 @@ func (f *Fixer) analyzeAndFix(
 	dryRun bool,
 	originalEnabled []string,
 	version string,
-) types.MigrationResultType {
+) (*types.MigrationResult, error) {
 	f.logger.Infof("Analyzing configuration...")
 
 	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
@@ -122,18 +110,22 @@ func (f *Fixer) checkDryRunEarlyReturns(
 	cfg *types.Config,
 	hasInvalidDurations bool,
 	deprecatedPresent bool,
-) (types.MigrationResultType, bool) {
+) (*types.MigrationResult, bool, error) {
 	if hasInvalidDurations {
-		return f.calculateDryRunResultWithInvalidDurations(cfg), true
+		result, err := f.calculateDryRunResultWithInvalidDurations(cfg)
+
+		return result, true, err
 	}
 
 	if deprecatedPresent {
 		f.logger.Infof("Dry-run with deprecated linters - skipping analysis (run without --dry-run to fix)")
 
-		return f.calculateDryRunResultWithDeprecated(cfg), true
+		result, err := f.calculateDryRunResultWithDeprecated(cfg)
+
+		return result, true, err
 	}
 
-	return types.Ok[*types.MigrationResult](nil), false
+	return nil, false, nil
 }
 
 // analysisError is re-exported from fixer_results.go for backward compatibility.
@@ -189,7 +181,7 @@ func (f *Fixer) applyLintersFix(
 	dryRun bool,
 	originalEnabled []string,
 	version string,
-) types.MigrationResultType {
+) (*types.MigrationResult, error) {
 	linterSet := types.NewSet(cfg.Linters.Enable...)
 	formatterSet := types.NewSet(cfg.Formatters.Enable...)
 	counts := f.applyAllFixes(
@@ -243,7 +235,7 @@ func (f *Fixer) applyAllFixes(
 }
 
 // dryRunResult is re-exported from fixer_results.go.
-func (f *Fixer) dryRunResult(counts fixCounts) types.MigrationResultType {
+func (f *Fixer) dryRunResult(counts fixCounts) (*types.MigrationResult, error) {
 	return dryRunResult(counts)
 }
 
@@ -256,7 +248,7 @@ func (f *Fixer) applyAndSave(
 	dryRun bool,
 	version string,
 	counts fixCounts,
-) types.MigrationResultType {
+) (*types.MigrationResult, error) {
 	updater := newConfigUpdater(f.logger)
 	updater.updateGoVersion(ctx, cfg)
 	updater.updateRunnerSettings(cfg)

@@ -155,7 +155,6 @@ type Loader struct { ... }
 func NewLoader(logger *log.Logger) *Loader
 func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader
 func (l *Loader) LoadConfig(path string) (*Config, error)
-func (l *Loader) LoadConfigResult(path string) types.ConfigResult
 func (l *Loader) FindConfigFile(startDir string) (string, error)
 func (l *Loader) FindAllConfigFiles(startDir string) []string
 func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string

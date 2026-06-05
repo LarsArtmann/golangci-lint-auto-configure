@@ -51,7 +51,7 @@ Project is stable and documentation is now current. **All 15 test suites pass (6
 | Project type detection (5 types)                                        | ✅ DONE | `pkg/detection`   |
 | swaggo formatter detection (6 patterns)                                 | ✅ DONE | `pkg/detection`   |
 | Custom error types (4 domain types)                                     | ✅ DONE | `pkg/errors`      |
-| Result[T] railway-oriented type                                         | ✅ DONE | `pkg/types`       |
+| Result[T] railway-oriented type                                         | ❌ REMOVED | `pkg/types`    |
 | Panic-free finding builder                                              | ✅ DONE | `pkg/finding`     |
 
 ### Default Settings Injection (9 linters)
@@ -89,7 +89,7 @@ HTML (templ), JSON, SARIF, finding JSON — all ✅ DONE.
 | Semantic deduplication audit  | ✅ DONE (0 clones at t=50) |
 | Zero TODO/FIXME comments      | ✅ DONE                    |
 | `go vet` clean                | ✅ DONE                    |
-| Custom `Result[T]` (no mo)    | ✅ DONE                    |
+| Custom `Result[T]` (no mo)    | ❌ REMOVED — idiomatic `(T, error)` |
 | Custom `config.FS` (no afero) | ✅ DONE                    |
 | `report_templ.go` untracked   | ✅ DONE                    |
 

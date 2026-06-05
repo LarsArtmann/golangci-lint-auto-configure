@@ -322,8 +322,8 @@
     </div>
     <div class="score">
       <div class="label">Generics Used</div>
-      <div class="value">2 / 10</div>
-      <div class="sub"><code>Set[T]</code> and <code>Result[T]</code> — great, but barely tapped</div>
+      <div class="value">1 / 10</div>
+      <div class="sub"><code>Set[T]</code> only — <code>Result[T]</code> was deleted in favor of idiomatic <code>(T, error)</code></div>
     </div>
     <div class="score">
       <div class="label">Compile-Time Safety</div>
@@ -359,7 +359,7 @@
 
   <p><strong>Why this matters:</strong> You cannot accidentally pass a <code>FormatterName</code> where a <code>LinterName</code> is expected. The compiler rejects it. This is the right instinct — but the project stops short of taking this to its logical conclusion.</p>
 
-  <h3>2. Generic <code>Result[T]</code> — Railway-Oriented Error Handling</h3>
+  <h3>2. Generic <code>Result[T]</code> — <span style="color:var(--accent-bad)">DELETED</span> on 2026-06-05</h3>
 
   <div class="single-code">
     <div class="col-header"><span class="status status-ok"></span> pkg/types/result.go</div>
@@ -373,7 +373,7 @@
 <span class="keyword">func</span> <span class="func">Err</span>[<span class="param">T</span> <span class="keyword">any</span>](<span class="param">err</span> <span class="type">error</span>) <span class="type">Result</span>[T] { ... }</code></pre>
   </div>
 
-  <p><strong>Why this matters:</strong> The analyzer pipeline already uses this internally. But it lacks <code>Map</code>, <code>AndThen</code>, and <code>OrElse</code> — so callers still write nested <code>if err != nil</code> chains instead of fluent pipelines.</p>
+  <p><strong>Status:</strong> <code>pkg/types/result.go</code> was deleted. All functions now return idiomatic <code>(T, error)</code>. The wrapper added indirection with zero benefit — every call site immediately unwrapped with <code>.Get()</code>. The file was 54 lines of boilerplate wrapping values that were immediately unwrapped.</p>
 
   <h3>3. Generic <code>Set[T comparable]</code> — No Ad-Hoc Map Logic</h3>
 
@@ -495,7 +495,7 @@
 
   <p><strong>The problem:</strong> When <code>MinVersion</code> is <code>""</code>, does it mean "no minimum version required" or "forgot to set it"? When <code>MigrationResult.Error</code> is <code>nil</code>, does it mean success or "not yet checked"? The Go zero value is overloaded with semantic meaning. This is the billion-dollar mistake — the absence of a proper <code>Option[T]</code> or <code>Maybe</code> type.</p>
 
-  <h3>5. <code>Result[T]</code> Without Railway Methods</h3>
+  <h3>5. <code>Result[T]</code> Without Railway Methods <span class="badge badge-bad">DELETED</span></h3>
 
   <div class="single-code">
     <div class="col-header"><span class="status status-warn"></span> pkg/types/result.go</div>
@@ -839,7 +839,7 @@ analysis.LinterRecommendations = <span class="func">append</span>(analysis.Linte
 
   <p><strong>Impact:</strong> No more stale counts. The count is always a pure function of the source data. Mutating <code>Recommendations</code> automatically updates <code>Counts()</code> on the next call. The type system prevents assigning a formatter priority count to a linter analysis.</p>
 
-  <h3>7. Railway-Oriented <code>Result[T]</code> with <code>AndThen</code> / <code>Map</code></h3>
+  <h3>7. Railway-Oriented <code>Result[T]</code> with <code>AndThen</code> / <code>Map</code> <span class="badge badge-bad">NOT APPLIED — DELETED</span></h3>
 
   <div class="comparison">
     <div class="col">
@@ -890,7 +890,7 @@ analysis, err := result.<span class="func">Get</span>()
     </div>
   </div>
 
-  <p><strong>Impact:</strong> The analyzer pipeline (already using <code>Result[T]</code>) becomes a single fluent expression. Error handling is declarative, not imperative. The compiler ensures types flow correctly through each stage.</p>
+  <p><strong>Status:</strong> This proposal was not implemented. Instead, <code>Result[T]</code> was deleted entirely. The analyzer pipeline now uses plain <code>(T, error)</code> returns — no wrapping, no unwrapping, no indirection. Go's native error handling is exactly what we need.</p>
 
   <h3>8. Sealed Sum Type for Fix Outcomes</h3>
 

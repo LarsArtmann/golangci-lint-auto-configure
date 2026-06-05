@@ -78,27 +78,20 @@ func (a *Analyzer) FindBinary(_ context.Context) error {
 
 // AnalyzeConfig analyzes the current golangci-lint configuration.
 func (a *Analyzer) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error) {
-	result := a.AnalyzeConfigResult(ctx, configPath)
-
-	return result.Get()
-}
-
-// AnalyzeConfigResult analyzes the config and returns a Result type for railway-oriented programming.
-func (a *Analyzer) AnalyzeConfigResult(ctx context.Context, configPath string) types.AnalysisResult {
 	if err := a.FindBinary(ctx); err != nil {
-		return types.Err[*types.ConfigAnalysis](err)
+		return nil, err
 	}
 
 	if err := a.CheckVersion(ctx); err != nil {
-		return types.Err[*types.ConfigAnalysis](err)
+		return nil, err
 	}
 
 	linterOutput, formatterOutput, err := a.parseConfigOutputs(ctx, configPath)
 	if err != nil {
-		return types.Err[*types.ConfigAnalysis](err)
+		return nil, err
 	}
 
-	return types.Ok(a.buildAnalysis(configPath, linterOutput, formatterOutput))
+	return a.buildAnalysis(configPath, linterOutput, formatterOutput), nil
 }
 
 // parseConfigOutputs runs linter and formatter parsing in parallel using errgroup.

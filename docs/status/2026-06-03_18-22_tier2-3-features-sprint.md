@@ -68,7 +68,7 @@ None — all 13 items are functionally complete.
 
 6. **`golang.org/x/mod/semver` is already used** — Good. No change needed.
 
-7. **Consider `samber/mo` for `Result[T]`** — Wait, we already replaced it with custom `types.Result[T]`. Good decision — no external dependency.
+7. **`Result[T]` deleted** — Custom `types.Result[T]` wrapper removed. All functions now return idiomatic `(T, error)`. No monad abstraction, no external dependency.
 
 8. **`json.Marshal` for deep-copy is slow** — For large configs, consider `github.com/jinzhu/copier` or a hand-written `Clone()` method.
 

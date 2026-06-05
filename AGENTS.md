@@ -741,7 +741,7 @@ just test && just lint
 - **LarsArtmann/gogenfilter/v3**: Auto-generated code detection and filtering
 - **go.yaml.in/yaml/v3**: YAML parsing (Unmarshal, Marshal)
 - **golang.org/x/mod/semver**: Semantic versioning (Compare, IsValid)
-- **samber/mo**: **REMOVED** — replaced with custom `types.Result[T]` in `pkg/types/result.go`. No external dependency for Result type.
+- **samber/mo**: **REMOVED** — `types.Result[T]` wrapper deleted; all functions now return idiomatic `(T, error)`. No external dependency for monad types.
 - **spf13/afero**: **REMOVED** — replaced with minimal `config.FS` interface backed by `os` package. No external dependency for filesystem abstraction.
 
 ## Project-Specific Patterns

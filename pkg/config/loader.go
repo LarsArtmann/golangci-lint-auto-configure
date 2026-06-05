@@ -100,9 +100,24 @@ func NewLoaderWithFS(logger *log.Logger, fs FS) *Loader {
 
 // LoadConfig loads a golangci-lint configuration from the given path.
 func (l *Loader) LoadConfig(path string) (*Config, error) {
-	result := l.LoadConfigResult(path)
+	data, err := l.fs.ReadFile(path)
+	if err != nil {
+		return nil, apperrors.NewConfigError("failed to read config file", path, err)
+	}
 
-	return result.Get()
+	format := detectFormat(path)
+
+	var config Config
+
+	if err := unmarshalConfig(data, format, &config); err != nil {
+		return nil, apperrors.NewConfigError("failed to parse config file", path, err)
+	}
+
+	migrateLintersSettingsV1(&config, l.logger)
+
+	l.logger.Debugf("Loaded config from %s (format: %s)", path, format)
+
+	return &config, nil
 }
 
 // detectFormat determines the configuration format from the file extension.
@@ -155,33 +170,18 @@ func migrateLintersSettingsV1(config *Config, logger *log.Logger) {
 	config.LintersSettingsV1 = nil
 }
 
-// LoadConfigResult loads a config and returns a Result type for railway-oriented programming.
-func (l *Loader) LoadConfigResult(path string) types.ConfigResult {
-	data, err := l.fs.ReadFile(path)
-	if err != nil {
-		return types.Err[*types.Config](apperrors.NewConfigError("failed to read config file", path, err))
-	}
-
-	format := detectFormat(path)
-
-	var config Config
-
-	if err := unmarshalConfig(data, format, &config); err != nil {
-		return types.Err[*types.Config](apperrors.NewConfigError("failed to parse config file", path, err))
-	}
-
-	migrateLintersSettingsV1(&config, l.logger)
-
-	l.logger.Debugf("Loaded config from %s (format: %s)", path, format)
-
-	return types.Ok(&config)
-}
-
 // FindConfigFile searches for a golangci-lint config file in the current directory and parent directories.
 func (l *Loader) FindConfigFile(startDir string) (string, error) {
-	result := l.FindConfigFileResult(startDir)
+	for _, name := range constants.DefaultConfigFileNames {
+		path := filepath.Join(startDir, name)
+		if _, err := l.fs.Stat(path); err == nil {
+			l.logger.Debugf("Found config file: %s", path)
 
-	return result.Get()
+			return path, nil
+		}
+	}
+
+	return "", apperrors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil)
 }
 
 // FindAllConfigFiles returns all golangci-lint config files found in the directory.
@@ -215,20 +215,6 @@ func (l *Loader) HasMultipleConfigFiles(startDir string) bool {
 	}
 
 	return false
-}
-
-// FindConfigFileResult searches for a config file and returns a Result type.
-func (l *Loader) FindConfigFileResult(startDir string) types.StringResult {
-	for _, name := range constants.DefaultConfigFileNames {
-		path := filepath.Join(startDir, name)
-		if _, err := l.fs.Stat(path); err == nil {
-			l.logger.Debugf("Found config file: %s", path)
-
-			return types.Ok(path)
-		}
-	}
-
-	return types.Err[string](apperrors.NewConfigError("no golangci-lint config file found in "+startDir, startDir, nil))
 }
 
 // FindOrGetDefaultConfigPath searches for a config file and returns a default path if none exists.
@@ -405,9 +391,6 @@ func defaultExclusionRules() []types.ExclusionRuleConfig {
 	return rules
 }
 
-// Empty is a type alias for an empty struct, used for operations that don't return a value.
-type Empty = struct{}
-
 // marshalConfig marshals a Config to bytes based on the format.
 func marshalConfig(config *Config, format ConfigFormat) ([]byte, error) {
 	switch format {
@@ -425,14 +408,6 @@ func marshalConfig(config *Config, format ConfigFormat) ([]byte, error) {
 
 // SaveConfig saves a golangci-lint configuration to the given path.
 func (l *Loader) SaveConfig(config *Config, path string) error {
-	result := l.SaveConfigResult(config, path)
-	_, err := result.Get()
-
-	return err
-}
-
-// SaveConfigResult saves a config and returns a Result type for railway-oriented programming.
-func (l *Loader) SaveConfigResult(config *Config, path string) types.Result[Empty] {
 	format := detectFormat(path)
 
 	data, err := marshalConfig(config, format)
@@ -446,12 +421,12 @@ func (l *Loader) SaveConfigResult(config *Config, path string) types.Result[Empt
 
 	l.logger.Infof("Saved config to %s (format: %s)", path, format)
 
-	return types.Ok(Empty{})
+	return nil
 }
 
-// saveError creates a config error result for save operations.
-func (l *Loader) saveError(operation, path string, err error) types.Result[Empty] {
-	return types.Err[Empty](apperrors.NewConfigError("failed to "+operation, path, err))
+// saveError creates a config error for save operations.
+func (l *Loader) saveError(operation, path string, err error) error {
+	return apperrors.NewConfigError("failed to "+operation, path, err)
 }
 
 // IsGitRepo checks if we're inside a git repository.

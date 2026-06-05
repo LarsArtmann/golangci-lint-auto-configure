@@ -97,10 +97,10 @@ func needsDurationFix(timeout string) (bool, string) {
 // calculateDryRunResultWithInvalidDurations calculates the dry-run result when invalid durations are present.
 // Since the config has invalid durations, we can't run golangci-lint linters for analysis,
 // so we just report what would be fixed regarding durations.
-func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) types.MigrationResultType {
+func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) (*types.MigrationResult, error) {
 	f.logger.Infof("[DRY-RUN] Would fix invalid run.timeout: %q -> %q", cfg.Run.Timeout, constants.DefaultTimeout)
 
-	return types.Ok(&types.MigrationResult{
+	return &types.MigrationResult{
 		FixesApplied: 1,
 		Message: fmt.Sprintf(
 			"Would apply 1 fix (dry-run mode, skipped analysis due to invalid duration: run.timeout=%q)",
@@ -110,7 +110,7 @@ func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) typ
 			"Run without --dry-run to fix the invalid duration",
 			"Then run 'golangci-lint run --fix' to auto-fix code issues",
 		},
-	})
+	}, nil
 }
 
 // preFixDeprecatedLinters replaces deprecated linters in the config before analysis.
@@ -213,7 +213,7 @@ func filterLinter(linters []string, target string) ([]string, bool) {
 // calculateDryRunResultWithDeprecated calculates the dry-run result when deprecated linters are present.
 // Since the config has deprecated linters, we can't run golangci-lint linters for analysis,
 // so we just report what would be fixed regarding deprecated linters.
-func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.MigrationResultType {
+func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) (*types.MigrationResult, error) {
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
 
 	linterSet := types.NewSet[string]()
@@ -221,13 +221,13 @@ func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) types.Mig
 
 	f.logger.Infof("[DRY-RUN] Would apply %d fixes", deprecationFixes)
 
-	return types.Ok(&types.MigrationResult{
+	return &types.MigrationResult{
 		FixesApplied: deprecationFixes,
 		Message: fmt.Sprintf(
 			"Would apply %d fixes (dry-run mode, skipped analysis due to deprecated linters)",
 			deprecationFixes,
 		),
-	})
+	}, nil
 }
 
 func (f *Fixer) applyDeprecatedReplacements(linters []string, linterSet types.Set[string]) int {

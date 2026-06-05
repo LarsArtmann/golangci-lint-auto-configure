@@ -31,37 +31,37 @@ func migrationError(
 	configPath string,
 	version string,
 	err error,
-) types.MigrationResultType {
-	return types.Err[*types.MigrationResult](analysisError(operation, priority, dryRun, configPath, version, err))
+) (*types.MigrationResult, error) {
+	return nil, analysisError(operation, priority, dryRun, configPath, version, err)
 }
 
 // dryRunResult creates a result for dry-run mode with the number of fixes that would be applied.
-func dryRunResult(counts fixCounts) types.MigrationResultType {
-	return types.Ok(&types.MigrationResult{
+func dryRunResult(counts fixCounts) (*types.MigrationResult, error) {
+	return &types.MigrationResult{
 		FixesApplied: counts.total(),
 		Message:      fmt.Sprintf("[DRY-RUN] Would apply %d fixes", counts.total()),
 		NextSteps: []string{
 			"Run without --dry-run to apply these fixes",
 			"Then run 'golangci-lint run --fix' to auto-fix code issues",
 		},
-	})
+	}, nil
 }
 
 // noFixesResult creates a result when no fixes are needed.
-func noFixesResult() types.MigrationResultType {
-	return types.Ok(&types.MigrationResult{
+func noFixesResult() (*types.MigrationResult, error) {
+	return &types.MigrationResult{
 		FixesApplied: 0,
 		Message:      "No fixes to apply",
 		NextSteps: []string{
 			"Your configuration is already up to date",
 			"Run 'golangci-lint run' to check for code issues",
 		},
-	})
+	}, nil
 }
 
 // successResult creates a result after successfully applying fixes.
-func successResult(counts fixCounts) types.MigrationResultType {
-	return types.Ok(&types.MigrationResult{
+func successResult(counts fixCounts) (*types.MigrationResult, error) {
+	return &types.MigrationResult{
 		FixesApplied: counts.total(),
 		Message: fmt.Sprintf(
 			"Successfully applied %d fixes (%d linters, %d formatters, %d generated, %d deprecated, %d redundant)",
@@ -71,5 +71,5 @@ func successResult(counts fixCounts) types.MigrationResultType {
 			"Run 'golangci-lint run --fix' to auto-fix code issues found by the newly enabled linters",
 			"Run 'golangci-lint run' to see remaining issues that require manual fixes",
 		},
-	})
+	}, nil
 }
