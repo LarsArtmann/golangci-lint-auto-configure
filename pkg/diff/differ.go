@@ -124,104 +124,72 @@ func (d *Differ) addTestChangeIfDifferent(changes []Change, oldTests, newTests b
 	return changes
 }
 
-func (d *Differ) compareEnabled(oldEnable, newEnable []string, pathPrefix, entityName string) []Change {
-	oldEnabled := types.NewSet(oldEnable...)
-	newEnabled := types.NewSet(newEnable...)
-
-	changes := d.findAddedItems(oldEnabled, newEnabled, pathPrefix, entityName)
-	changes = d.findRemovedItems(oldEnabled, newEnabled, pathPrefix, entityName, changes)
-
-	return changes
-}
-
-func (d *Differ) compareDisabled(oldDisable, newDisable []string, pathPrefix, entityName string) []Change {
-	oldSet := types.NewSet(oldDisable...)
-	newSet := types.NewSet(newDisable...)
+func (d *Differ) compareListChanges(oldItems, newItems []string, pathPrefix, entityName, subKey string) []Change {
+	oldSet := types.NewSet(oldItems...)
+	newSet := types.NewSet(newItems...)
 
 	var changes []Change
 
 	for item := range newSet {
 		if !oldSet.Contains(item) {
-			changes = append(changes, Change{
-				Type:        ChangeTypeAdded,
-				Path:        fmt.Sprintf("%s.disable.%s", pathPrefix, item),
-				OldValue:    "",
-				NewValue:    item,
-				Description: fmt.Sprintf("Disabled %s: %s", entityName, item),
-			})
+			changes = append(changes, d.makeAddedChange(pathPrefix, subKey, entityName, item))
 		}
 	}
 
 	for item := range oldSet {
 		if !newSet.Contains(item) {
-			changes = append(changes, Change{
-				Type:        ChangeTypeRemoved,
-				Path:        fmt.Sprintf("%s.disable.%s", pathPrefix, item),
-				OldValue:    item,
-				NewValue:    "",
-				Description: fmt.Sprintf("Re-enabled %s: %s", entityName, item),
-			})
+			changes = append(changes, d.makeRemovedChange(pathPrefix, subKey, entityName, item))
 		}
 	}
 
 	return changes
 }
 
-func (d *Differ) findAddedItems(
-	oldEnabled, newEnabled types.Set[string],
-	pathPrefix, entityName string,
-) []Change {
-	var changes []Change
-
-	for item := range newEnabled {
-		if !oldEnabled.Contains(item) {
-			changes = append(changes, Change{
-				Type:        ChangeTypeAdded,
-				Path:        fmt.Sprintf("%s.enable.%s", pathPrefix, item),
-				OldValue:    "",
-				NewValue:    item,
-				Description: fmt.Sprintf("Enabled %s: %s", entityName, item),
-			})
-		}
+func (d *Differ) makeAddedChange(pathPrefix, subKey, entityName, item string) Change {
+	action := "Enabled"
+	if subKey == "disable" {
+		action = "Disabled"
 	}
 
-	return changes
+	return Change{
+		Type:        ChangeTypeAdded,
+		Path:        fmt.Sprintf("%s.%s.%s", pathPrefix, subKey, item),
+		OldValue:    "",
+		NewValue:    item,
+		Description: fmt.Sprintf("%s %s: %s", action, entityName, item),
+	}
 }
 
-func (d *Differ) findRemovedItems(
-	oldEnabled, newEnabled types.Set[string],
-	pathPrefix, entityName string,
-	changes []Change,
-) []Change {
-	for item := range oldEnabled {
-		if !newEnabled.Contains(item) {
-			changes = append(changes, Change{
-				Type:        ChangeTypeRemoved,
-				Path:        fmt.Sprintf("%s.enable.%s", pathPrefix, item),
-				OldValue:    item,
-				NewValue:    "",
-				Description: fmt.Sprintf("Disabled %s: %s", entityName, item),
-			})
-		}
+func (d *Differ) makeRemovedChange(pathPrefix, subKey, entityName, item string) Change {
+	action := "Disabled"
+	if subKey == "disable" {
+		action = "Re-enabled"
 	}
 
-	return changes
+	return Change{
+		Type:        ChangeTypeRemoved,
+		Path:        fmt.Sprintf("%s.%s.%s", pathPrefix, subKey, item),
+		OldValue:    item,
+		NewValue:    "",
+		Description: fmt.Sprintf("%s %s: %s", action, entityName, item),
+	}
 }
 
 func (d *Differ) compareLinters(old, newCfg types.LintersConfig) []Change {
-	var changes []Change
-
-	changes = append(changes, d.compareEnabled(old.Enable, newCfg.Enable, "linters", "linter")...)
-	changes = append(changes, d.compareDisabled(old.Disable, newCfg.Disable, "linters", "linter")...)
-
-	return changes
+	return d.compareEnableDisable(old.Enable, old.Disable, newCfg.Enable, newCfg.Disable, "linters", "linter")
 }
 
 func (d *Differ) compareFormatters(old, newCfg types.FormattersConfig) []Change {
-	var changes []Change
+	return d.compareEnableDisable(old.Enable, old.Disable, newCfg.Enable, newCfg.Disable, "formatters", "formatter")
+}
 
-	changes = append(changes, d.compareEnabled(old.Enable, newCfg.Enable, "formatters", "formatter")...)
-	changes = append(changes, d.compareDisabled(old.Disable, newCfg.Disable, "formatters", "formatter")...)
+func (d *Differ) compareEnableDisable(
+	oldEnable, oldDisable, newEnable, newDisable []string,
+	pathPrefix, entityName string,
+) []Change {
+	changes := make([]Change, 0, len(oldEnable)+len(oldDisable)+len(newEnable)+len(newDisable))
+	changes = append(changes, d.compareListChanges(oldEnable, newEnable, pathPrefix, entityName, "enable")...)
+	changes = append(changes, d.compareListChanges(oldDisable, newDisable, pathPrefix, entityName, "disable")...)
 
 	return changes
 }

@@ -6,15 +6,7 @@ import (
 
 // mergeLintersConfig merges linter configurations.
 func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
-	changes := 0
-
-	updated, fieldChanges := mergeSortedStringSlice(primary.Enable, secondary.Enable)
-	primary.Enable = updated
-	changes += fieldChanges
-
-	updated, fieldChanges = mergeSortedStringSlice(primary.Disable, secondary.Disable)
-	primary.Disable = updated
-	changes += fieldChanges
+	changes := mergeEnableDisable(&primary.Enable, &primary.Disable, secondary.Enable, secondary.Disable)
 
 	if primary.Default == "" && secondary.Default != "" {
 		primary.Default = secondary.Default

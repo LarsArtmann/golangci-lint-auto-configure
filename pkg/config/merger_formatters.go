@@ -2,19 +2,26 @@ package config
 
 // mergeFormattersConfig merges formatter configurations.
 func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) int {
-	changes := 0
-
-	updated, fieldChanges := mergeSortedStringSlice(primary.Enable, secondary.Enable)
-	primary.Enable = updated
-	changes += fieldChanges
-
-	updated, fieldChanges = mergeSortedStringSlice(primary.Disable, secondary.Disable)
-	primary.Disable = updated
-	changes += fieldChanges
+	changes := mergeEnableDisable(&primary.Enable, &primary.Disable, secondary.Enable, secondary.Disable)
 
 	changes += mergeSettingsMaps(primary.Settings, secondary.Settings)
 
 	changes += cm.mergeFormattersExclusions(&primary.Exclusions, &secondary.Exclusions)
+
+	return changes
+}
+
+// mergeEnableDisable merges enable and disable slices, returning the total change count.
+func mergeEnableDisable(primaryEnable, primaryDisable *[]string, secondaryEnable, secondaryDisable []string) int {
+	changes := 0
+
+	updated, fieldChanges := mergeSortedStringSlice(*primaryEnable, secondaryEnable)
+	*primaryEnable = updated
+	changes += fieldChanges
+
+	updated, fieldChanges = mergeSortedStringSlice(*primaryDisable, secondaryDisable)
+	*primaryDisable = updated
+	changes += fieldChanges
 
 	return changes
 }
