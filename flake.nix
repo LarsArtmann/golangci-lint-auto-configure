@@ -135,7 +135,9 @@
           race = golangci-lint-auto-configure.overrideAttrs (old: {
             doCheck = true;
             checkFlags = [ "-race" ];
-            env = old.env // { CGO_ENABLED = "1"; };
+            env = old.env // {
+              CGO_ENABLED = "1";
+            };
           });
         };
       }
