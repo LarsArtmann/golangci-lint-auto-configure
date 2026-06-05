@@ -109,7 +109,7 @@ func TestRecommendationsToFindings(t *testing.T) {
 	assertFinding(
 		t,
 		findings[0],
-		"missing-linter",
+		RuleIDMissingLinter,
 		"gosec",
 		finding.SeverityCritical,
 		finding.CategorySecurity,
@@ -117,7 +117,7 @@ func TestRecommendationsToFindings(t *testing.T) {
 	assertFinding(
 		t,
 		findings[1],
-		"missing-linter",
+		RuleIDMissingLinter,
 		"funlen",
 		finding.SeverityError,
 		finding.CategoryComplexity,
@@ -125,7 +125,7 @@ func TestRecommendationsToFindings(t *testing.T) {
 	assertFinding(
 		t,
 		findings[2],
-		"missing-linter",
+		RuleIDMissingLinter,
 		"gci",
 		finding.SeverityWarning,
 		finding.CategoryStyle,
@@ -172,7 +172,7 @@ func TestFormatterRecommendationsToFindings(t *testing.T) {
 		assertFinding(
 			t,
 			f,
-			"missing-formatter",
+			RuleIDMissingFormatter,
 			"",
 			finding.SeverityError,
 			finding.CategoryStyle,
@@ -202,7 +202,7 @@ func TestDeprecatedLintersToFindings(t *testing.T) {
 	assertFinding(
 		t,
 		findings[0],
-		"deprecated-linter",
+		RuleIDDeprecatedLinter,
 		"wsl",
 		finding.SeverityWarning,
 		finding.CategoryMigration,
@@ -235,7 +235,7 @@ func TestValidationErrorsToFindings(t *testing.T) {
 	assertFinding(
 		t,
 		findings[0],
-		"validation-error",
+		RuleIDValidationError,
 		"run-timeout",
 		finding.SeverityError,
 		finding.CategoryConfiguration,
@@ -262,8 +262,8 @@ func TestErrorsToFindings(t *testing.T) {
 	}
 
 	for idx, found := range results {
-		if found.Rule != "validation-error" {
-			t.Errorf("findings[%d]: expected rule validation-error, got %s", idx, found.Rule)
+		if found.Rule != RuleIDGenericError {
+			t.Errorf("findings[%d]: expected rule %s, got %s", idx, RuleIDGenericError, found.Rule)
 		}
 
 		if found.Severity != finding.SeverityError {

@@ -93,7 +93,7 @@ func MigrationResultToFindings(
 	pos := finding.Position{File: configPath}
 
 	found, err := configFinding(configFindingParams{
-		RuleID:     "config-fix",
+		RuleID:     RuleIDConfigFix,
 		Message:    fmt.Sprintf("%s: %d fixes applied", message, fixesApplied),
 		Severity:   finding.SeverityInfo,
 		Position:   pos,

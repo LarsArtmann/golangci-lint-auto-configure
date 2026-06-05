@@ -14,10 +14,19 @@ import (
 
 const toolName = "golangci-lint-auto-configure"
 
-func linterTag(name string) finding.Tag {
-	r := strings.NewReplacer("_", "-", ".", "-", "/", "-")
+const (
+	RuleIDMissingLinter    = "missing-linter"
+	RuleIDMissingFormatter = "missing-formatter"
+	RuleIDDeprecatedLinter = "deprecated-linter"
+	RuleIDValidationError  = "validation-error"
+	RuleIDGenericError     = "generic-error"
+	RuleIDConfigFix        = "config-fix"
+)
 
-	return finding.Tag(r.Replace(name))
+var linterTagReplacer = strings.NewReplacer("_", "-", ".", "-", "/", "-")
+
+func linterTag(name string) finding.Tag {
+	return finding.Tag(linterTagReplacer.Replace(name))
 }
 
 // PriorityToSeverity maps LinterPriority to finding.Severity.
@@ -59,7 +68,7 @@ func RecommendationsToFindings(
 
 	for _, rec := range recommendations {
 		found, err := configFinding(configFindingParams{
-			RuleID:     "missing-linter",
+			RuleID:     RuleIDMissingLinter,
 			Message:    fmt.Sprintf("Linter %s is disabled: %s", rec.Name, rec.Reason),
 			Severity:   PriorityToSeverity(rec.Priority),
 			Position:   finding.Position{File: configPath},
@@ -86,7 +95,7 @@ func FormatterRecommendationsToFindings(
 
 	for _, rec := range recommendations {
 		found, err := configFinding(configFindingParams{
-			RuleID:     "missing-formatter",
+			RuleID:     RuleIDMissingFormatter,
 			Message:    fmt.Sprintf("Formatter %s is disabled: %s", rec.Name, rec.Reason),
 			Severity:   FormatterPriorityToSeverity(rec.Priority),
 			Position:   finding.Position{File: configPath},
@@ -131,7 +140,7 @@ func deprecatedLinterFinding(linter types.LinterInfo, configPath string) (findin
 	}
 
 	return configFinding(configFindingParams{
-		RuleID:     "deprecated-linter",
+		RuleID:     RuleIDDeprecatedLinter,
 		Message:    fmt.Sprintf("Deprecated linter %s is enabled: %s", linter.Name, replacement),
 		Severity:   finding.SeverityWarning,
 		Position:   finding.Position{File: configPath},
@@ -150,7 +159,7 @@ func ValidationErrorsToFindings(
 
 	for _, verr := range errors {
 		found, err := configFinding(configFindingParams{
-			RuleID:     "validation-error",
+			RuleID:     RuleIDValidationError,
 			Message:    verr.Message,
 			Severity:   finding.SeverityError,
 			Position:   finding.Position{File: configPath, Line: verr.Line},
@@ -174,7 +183,7 @@ func ErrorsToFindings(errors []error, configPath string) ([]finding.Finding, err
 
 	for _, err := range errors {
 		found, buildErr := configFinding(configFindingParams{
-			RuleID:     "validation-error",
+			RuleID:     RuleIDGenericError,
 			Message:    err.Error(),
 			Severity:   finding.SeverityError,
 			Position:   finding.Position{File: configPath},
