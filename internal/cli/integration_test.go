@@ -67,7 +67,7 @@ linters:
 `
 
 // writeTestConfig writes a test config to the given temp dir and returns the path.
-func writeTestConfig(tempDir string, content string) string {
+func writeTestConfig(tempDir, content string) string {
 	configPath := filepath.Join(tempDir, ".golangci.yml")
 	Expect(os.WriteFile(configPath, []byte(content), 0o644)).To(Succeed())
 
