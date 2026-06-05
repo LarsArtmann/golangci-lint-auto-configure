@@ -90,6 +90,7 @@ nix build                            # Rebuild with correct hash
 ## Code Organization
 
 -> See docs/references/code-organization.md for full directory structure.
+
 ### Key Architectural Patterns
 
 **1. Interface-Based Design (for testability)**
@@ -114,10 +115,12 @@ All major components implement interfaces defined in `pkg/types/types.go`:
 - `internal/cli/commands.go`: CLI command wiring
 
 -> See docs/references/code-organization.md for patterns (interface-based, strong typing, data-driven, go-finding).
+
 ## Testing Approach
 
 -> See docs/references/testing-style-and-patterns.md for BDD testing patterns and coverage commands.
 Uses Ginkgo v2 + Gomega. Run: just test (= ginkgo -r --cover).
+
 ## Linter Priority System
 
 ### Priority Levels
@@ -278,9 +281,11 @@ Automatic replacement of deprecated linters:
   ```
 
 -> See docs/references/testing-style-and-patterns.md for code style, naming, and logging conventions.
+
 ## CI/CD Pipeline
 
 -> See docs/references/testing-style-and-patterns.md for GitHub Actions and pre-commit hook details.
+
 ## Important Gotchas
 
 ### 1. Use `just` Commands, Not Manual Commands
@@ -345,6 +350,7 @@ Automatic replacement of deprecated linters:
 ## Working with This Codebase
 
 → See [`docs/references/working-with-codebase.md`](docs/references/working-with-codebase.md) for:
+
 - Adding new CLI commands, modifying linter priorities, adding linter data
 - Common tasks (dev workflow, release prep, testing, fixing linter issues)
 - Debugging and troubleshooting guides

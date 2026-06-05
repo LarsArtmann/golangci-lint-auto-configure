@@ -16,17 +16,20 @@ Executed a 10-item task list focused on **correctness, test coverage, DRY, and a
 ## A) FULLY DONE ✅
 
 ### Task 6: Fix 3 gopls scanner.Err() warnings in detector.go
+
 - **File:** `pkg/detection/detector.go` (lines 301, 345, 394)
 - **Fix:** Added `_ = scanner.Err()` after `for scanner.Scan()` loops to satisfy gopls `scannererr` analysis
 - **Impact:** 3 warnings → 0 in this file
 
 ### Task 4: Add LinterMinVersions validation test
+
 - **File:** `pkg/constants/data_integrity_test.go` (new)
 - **Tests:**
   - All `LinterMinVersions` entries have valid semver (`golang.org/x/mod/semver`)
   - All `LinterMinVersions` keys exist in `LinterPriorities`
 
 ### Task 5: Validate reference preset against LinterPriorities
+
 - **File:** `pkg/constants/data_integrity_test.go` (same)
 - **Tests:**
   - All linters in `reference` preset exist in `LinterPriorities`
@@ -34,6 +37,7 @@ Executed a 10-item task list focused on **correctness, test coverage, DRY, and a
 - **Side-effect:** Created shared `suite_test.go` for `pkg/constants_test` (eliminated double-RunSpecs)
 
 ### Task 7: Add Config.Clone() method, remove JSON marshal hack
+
 - **New file:** `pkg/types/clone.go` — explicit deep-copy `Clone()` methods on `Config`, `RunConfig`, `OutputConfig`, `LintersConfig`, `LintersExclusionsConfig`, `IssuesConfig`, `FormattersConfig`, `FormattersExclusionsConfig`
 - **New file:** `pkg/types/clone_test.go` — verifies independent deep copy (mutation of clone doesn't affect original)
 - **Modified:** `internal/cli/cmd_configure.go` — `cloneConfig()` now calls `cfg.Clone()` instead of `json.Marshal`/`json.Unmarshal`
@@ -41,12 +45,14 @@ Executed a 10-item task list focused on **correctness, test coverage, DRY, and a
 - **Side-effect:** Created shared `suite_test.go` for `pkg/types_test`
 
 ### Task 8: Extract findingBuilder helper in converter.go
+
 - **New file:** `pkg/finding/finding_builder.go` — `configFindingParams` struct + `configFinding()` helper + retained `buildFinding()` for advanced builder usage
 - **Modified:** `pkg/finding/converter.go` — all 5 conversion functions now use `configFinding()` with named params instead of inline builder chains
 - **Modified:** `pkg/finding/diff_converter.go` — `MigrationResultToFindings` also uses `configFinding()`
 - **Impact:** Eliminated ~40 lines of repetitive builder chain code
 
 ### Task 9: Add --check + --diff interaction handling
+
 - **File:** `internal/cli/cmd_configure.go`
 - **Problem:** `--check` forced `isDryRun=true`, so `--diff` saw no changes on disk
 - **Fix:** When both `--check` and `--diff` are set:
@@ -58,6 +64,7 @@ Executed a 10-item task list focused on **correctness, test coverage, DRY, and a
 - **Extracted:** `runFixerMode` refactored to stay under funlen limit (30 lines)
 
 ### Tasks 1-3: CLI integration tests (dry-run, error paths, --check, --diff)
+
 - **File:** `internal/cli/commands_test.go` — 9 new integration tests (23→32 specs)
 - **New tests:**
   - `should exit 1 with --check when changes are needed` — verifies exit code 1
@@ -76,6 +83,7 @@ Executed a 10-item task list focused on **correctness, test coverage, DRY, and a
   - `TestConvertLinterNames`
 
 ### Task 10: Document --check + --diff caveat in README
+
 - **File:** `README.md` line 158
 - **Added:** Blockquote explaining that `--check + --diff` temporarily applies changes then restores
 
@@ -132,6 +140,7 @@ Nothing destroyed. But there are issues to be aware of:
 ## F) Top 25 Things We Should Get Done Next
 
 ### Critical (do first)
+
 1. Fix 4 remaining lint violations (errorlint, goconst, 2x wsl_v5) → **5 minutes**
 2. Update TODO_LIST.md to mark sprint items as completed → **5 minutes**
 3. Trim AGENTS.md to ≤377 lines (extract reference tables to separate files) → **1 hour**
@@ -139,6 +148,7 @@ Nothing destroyed. But there are issues to be aware of:
 5. Add `ginkgolinter` and `testifylint` default settings → **30 minutes**
 
 ### High (this week)
+
 6. Increase CLI unit test coverage to 30%+ (mock configLoader, test runConfigure directly) → **2 hours**
 7. Increase gogenfilter scanner coverage (59.8% → 80%+) → **1 hour**
 8. Increase migration coverage (66.8% → 80%+) → **1 hour**
@@ -149,6 +159,7 @@ Nothing destroyed. But there are issues to be aware of:
 13. Add `DryRun bool` field on `MigrationResult` for clearer "would fix" vs "did fix" messaging → **30 minutes**
 
 ### Medium (this sprint cycle)
+
 14. Add `--check` support for preset mode (currently only works with fixer mode) → **1 hour**
 15. Validate all presets contain only linters that exist in golangci-lint (runtime check) → **30 minutes**
 16. Add configuration file schema validation (beyond YAML parsing) → **1 hour**
@@ -158,6 +169,7 @@ Nothing destroyed. But there are issues to be aware of:
 20. Document all `configFindingParams` fields with GoDoc → **10 minutes**
 
 ### Low (backlog)
+
 21. Migrate justfile → flake.nix apps (per global AGENTS.md preference) → **2 hours**
 22. Add `golangci-lint fmt` integration tests → **30 minutes**
 23. Add performance regression tests (benchmark CI) → **1 hour**
@@ -183,37 +195,37 @@ What's the right approach for this project?
 
 ## Metrics
 
-| Metric | Before Sprint | After Sprint | Delta |
-|--------|--------------|--------------|-------|
-| Test suites | 15 | 15 | +0 |
-| Integration specs (CLI) | 23 | 32 | +9 |
-| Unit tests (CLI) | 8 | 13 | +5 |
-| Data integrity tests | 7 | 10 | +3 |
-| Clone tests | 0 | 3 | +3 |
-| Composite coverage | 61.0% | 61.5% | +0.5% |
-| CLI coverage (measured) | 8.1% | 9.7% | +1.6% |
-| Lint violations | ~6 pre-existing | 4 pre-existing | -2 fixed |
-| gopls warnings (detector) | 3 | 0 | -3 |
-| Go source lines | ~18,100 | ~18,259 | +159 |
+| Metric                    | Before Sprint   | After Sprint   | Delta    |
+| ------------------------- | --------------- | -------------- | -------- |
+| Test suites               | 15              | 15             | +0       |
+| Integration specs (CLI)   | 23              | 32             | +9       |
+| Unit tests (CLI)          | 8               | 13             | +5       |
+| Data integrity tests      | 7               | 10             | +3       |
+| Clone tests               | 0               | 3              | +3       |
+| Composite coverage        | 61.0%           | 61.5%          | +0.5%    |
+| CLI coverage (measured)   | 8.1%            | 9.7%           | +1.6%    |
+| Lint violations           | ~6 pre-existing | 4 pre-existing | -2 fixed |
+| gopls warnings (detector) | 3               | 0              | -3       |
+| Go source lines           | ~18,100         | ~18,259        | +159     |
 
 ## Files Changed
 
-| File | Action | Lines Changed |
-|------|--------|---------------|
-| `pkg/types/clone.go` | NEW | 120 |
-| `pkg/types/clone_test.go` | NEW | 99 |
-| `pkg/types/suite_test.go` | NEW | 13 |
-| `pkg/finding/finding_builder.go` | NEW | 51 |
-| `pkg/constants/data_integrity_test.go` | NEW | 57 |
-| `pkg/constants/suite_test.go` | NEW | 13 |
-| `internal/cli/cmd_configure.go` | MODIFIED | +34/-15 |
-| `internal/cli/commands_test.go` | MODIFIED | +187/-3 |
-| `internal/cli/cmd_configure_internal_test.go` | MODIFIED | +57/-0 |
-| `pkg/finding/converter.go` | MODIFIED | +62/-65 |
-| `pkg/finding/diff_converter.go` | MODIFIED | +6/-13 |
-| `pkg/detection/detector.go` | MODIFIED | +6/-0 |
-| `pkg/constants/experiments_test.go` | MODIFIED | -7 |
-| `pkg/types/set_test.go` | MODIFIED | -7 |
-| `README.md` | MODIFIED | +4/-1 |
+| File                                          | Action   | Lines Changed |
+| --------------------------------------------- | -------- | ------------- |
+| `pkg/types/clone.go`                          | NEW      | 120           |
+| `pkg/types/clone_test.go`                     | NEW      | 99            |
+| `pkg/types/suite_test.go`                     | NEW      | 13            |
+| `pkg/finding/finding_builder.go`              | NEW      | 51            |
+| `pkg/constants/data_integrity_test.go`        | NEW      | 57            |
+| `pkg/constants/suite_test.go`                 | NEW      | 13            |
+| `internal/cli/cmd_configure.go`               | MODIFIED | +34/-15       |
+| `internal/cli/commands_test.go`               | MODIFIED | +187/-3       |
+| `internal/cli/cmd_configure_internal_test.go` | MODIFIED | +57/-0        |
+| `pkg/finding/converter.go`                    | MODIFIED | +62/-65       |
+| `pkg/finding/diff_converter.go`               | MODIFIED | +6/-13        |
+| `pkg/detection/detector.go`                   | MODIFIED | +6/-0         |
+| `pkg/constants/experiments_test.go`           | MODIFIED | -7            |
+| `pkg/types/set_test.go`                       | MODIFIED | -7            |
+| `README.md`                                   | MODIFIED | +4/-1         |
 
 **Total: +675 insertions, -442 deletions (net +233)**

@@ -83,7 +83,7 @@ var _ = Describe("Config.Clone", func() {
 			Linters: types.LintersConfig{
 				Settings: map[string]any{
 					"funlen": map[string]any{
-						"lines":     80,
+						"lines":      80,
 						"statements": 50,
 					},
 					"gocyclo": map[string]any{

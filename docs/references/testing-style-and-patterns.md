@@ -171,4 +171,3 @@ if err != nil {
 }
 logger.Infof("Result: %s", result.Message)
 ```
-

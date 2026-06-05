@@ -19,7 +19,7 @@ The tool uses [gogenfilter/v3](https://github.com/LarsArtmann/gogenfilter) to au
 | protobuf     | `**/*.pb.go`                              | Filename suffix + content      |
 | go-enum      | `**/*_enum.go`                            | Filename suffix + content      |
 | deepcopy-gen | `**/zz_generated.*.go`                    | Filename prefix + content      |
-| wire         | `**/wire_gen.go`                           | Filename suffix + content      |
+| wire         | `**/wire_gen.go`                          | Filename suffix + content      |
 | moq          | `**/*_moq.go`                             | Filename suffix + content      |
 | mockgen      | `**/*_mock.go`                            | Filename suffix + content      |
 | stringer     | `**/*_string.go`                          | Content marker                 |

@@ -26,33 +26,33 @@ Project is stable and documentation is now current. **All 15 test suites pass (6
 
 ### Core Features (All Complete)
 
-| Feature                                                                 | Status  | Package           |
-| ----------------------------------------------------------------------- | ------- | ----------------- |
-| 119 linter priorities (4 tiers)                                         | ✅ DONE | `pkg/constants`   |
-| Priority-based filtering (`--priority`)                                 | ✅ DONE | `internal/cli`    |
-| Dry-run mode (`--dry-run`)                                              | ✅ DONE | `internal/cli`    |
-| CI check mode (`--check`)                                               | ✅ DONE | `internal/cli`    |
-| Diff preview (`--diff`)                                                 | ✅ DONE | `internal/cli`    |
-| `--detect` project type auto-detection                                  | ✅ DONE | `pkg/detection`   |
-| 6 presets (minimal, standard, strict, security, performance, reference) | ✅ DONE | `pkg/constants`   |
-| Deprecated linter auto-replacement                                      | ✅ DONE | `pkg/linter`      |
-| Version-gated deprecation (gomodguard_v2)                               | ✅ DONE | `pkg/linter`      |
-| Typecheck linter removal                                                | ✅ DONE | `pkg/linter`      |
-| Invalid timeout fix                                                     | ✅ DONE | `pkg/linter`      |
-| 9 default linter settings injection                                     | ✅ DONE | `pkg/linter`      |
-| Default formatter settings (golines)                                    | ✅ DONE | `pkg/linter`      |
-| gogenfilter/v3 dynamic scan (8+ generators)                             | ✅ DONE | `pkg/gogenfilter` |
-| `generated: lax` auto-set                                               | ✅ DONE | `pkg/linter`      |
-| Exclusion path deduplication                                            | ✅ DONE | `pkg/gogenfilter` |
-| GOEXPERIMENT build tags auto-injection (5 tags)                         | ✅ DONE | `pkg/linter`      |
-| Go version auto-detection                                               | ✅ DONE | `pkg/config`      |
-| Multiple golangci-lint binary detection                                 | ✅ DONE | `pkg/linter`      |
-| Version-aware feature flags                                             | ✅ DONE | `pkg/constants`   |
-| Project type detection (5 types)                                        | ✅ DONE | `pkg/detection`   |
-| swaggo formatter detection (6 patterns)                                 | ✅ DONE | `pkg/detection`   |
-| Custom error types (4 domain types)                                     | ✅ DONE | `pkg/errors`      |
-| Result[T] railway-oriented type                                         | ❌ REMOVED | `pkg/types`    |
-| Panic-free finding builder                                              | ✅ DONE | `pkg/finding`     |
+| Feature                                                                 | Status     | Package           |
+| ----------------------------------------------------------------------- | ---------- | ----------------- |
+| 119 linter priorities (4 tiers)                                         | ✅ DONE    | `pkg/constants`   |
+| Priority-based filtering (`--priority`)                                 | ✅ DONE    | `internal/cli`    |
+| Dry-run mode (`--dry-run`)                                              | ✅ DONE    | `internal/cli`    |
+| CI check mode (`--check`)                                               | ✅ DONE    | `internal/cli`    |
+| Diff preview (`--diff`)                                                 | ✅ DONE    | `internal/cli`    |
+| `--detect` project type auto-detection                                  | ✅ DONE    | `pkg/detection`   |
+| 6 presets (minimal, standard, strict, security, performance, reference) | ✅ DONE    | `pkg/constants`   |
+| Deprecated linter auto-replacement                                      | ✅ DONE    | `pkg/linter`      |
+| Version-gated deprecation (gomodguard_v2)                               | ✅ DONE    | `pkg/linter`      |
+| Typecheck linter removal                                                | ✅ DONE    | `pkg/linter`      |
+| Invalid timeout fix                                                     | ✅ DONE    | `pkg/linter`      |
+| 9 default linter settings injection                                     | ✅ DONE    | `pkg/linter`      |
+| Default formatter settings (golines)                                    | ✅ DONE    | `pkg/linter`      |
+| gogenfilter/v3 dynamic scan (8+ generators)                             | ✅ DONE    | `pkg/gogenfilter` |
+| `generated: lax` auto-set                                               | ✅ DONE    | `pkg/linter`      |
+| Exclusion path deduplication                                            | ✅ DONE    | `pkg/gogenfilter` |
+| GOEXPERIMENT build tags auto-injection (5 tags)                         | ✅ DONE    | `pkg/linter`      |
+| Go version auto-detection                                               | ✅ DONE    | `pkg/config`      |
+| Multiple golangci-lint binary detection                                 | ✅ DONE    | `pkg/linter`      |
+| Version-aware feature flags                                             | ✅ DONE    | `pkg/constants`   |
+| Project type detection (5 types)                                        | ✅ DONE    | `pkg/detection`   |
+| swaggo formatter detection (6 patterns)                                 | ✅ DONE    | `pkg/detection`   |
+| Custom error types (4 domain types)                                     | ✅ DONE    | `pkg/errors`      |
+| Result[T] railway-oriented type                                         | ❌ REMOVED | `pkg/types`       |
+| Panic-free finding builder                                              | ✅ DONE    | `pkg/finding`     |
 
 ### Default Settings Injection (9 linters)
 
@@ -84,14 +84,14 @@ HTML (templ), JSON, SARIF, finding JSON — all ✅ DONE.
 
 ### Code Quality
 
-| Item                          | Status                     |
-| ----------------------------- | -------------------------- |
-| Semantic deduplication audit  | ✅ DONE (0 clones at t=50) |
-| Zero TODO/FIXME comments      | ✅ DONE                    |
-| `go vet` clean                | ✅ DONE                    |
+| Item                          | Status                              |
+| ----------------------------- | ----------------------------------- |
+| Semantic deduplication audit  | ✅ DONE (0 clones at t=50)          |
+| Zero TODO/FIXME comments      | ✅ DONE                             |
+| `go vet` clean                | ✅ DONE                             |
 | Custom `Result[T]` (no mo)    | ❌ REMOVED — idiomatic `(T, error)` |
-| Custom `config.FS` (no afero) | ✅ DONE                    |
-| `report_templ.go` untracked   | ✅ DONE                    |
+| Custom `config.FS` (no afero) | ✅ DONE                             |
+| `report_templ.go` untracked   | ✅ DONE                             |
 
 ### Documentation Refresh (This Session)
 

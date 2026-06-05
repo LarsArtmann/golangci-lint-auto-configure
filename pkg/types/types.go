@@ -43,7 +43,10 @@ func ParseLinterPriority(s string) (LinterPriority, error) {
 	case "optional":
 		return LinterPriorityOptional, nil
 	default:
-		return LinterPriorityOptional, fmt.Errorf("invalid linter priority %q: must be critical, high, medium, or optional", s)
+		return LinterPriorityOptional, fmt.Errorf(
+			"invalid linter priority %q: must be critical, high, medium, or optional",
+			s,
+		)
 	}
 }
 

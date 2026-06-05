@@ -137,4 +137,3 @@ All major components implement interfaces defined in `pkg/types/types.go`:
 - `pkg/finding/` provides unified data model for static analysis results
 - SARIF 2.1.0 output for CI/CD integration
 - Priority-to-severity mapping (Critical→critical, High→error, etc.)
-

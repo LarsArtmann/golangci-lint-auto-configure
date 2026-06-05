@@ -15,6 +15,7 @@ Executed the Pareto execution plan from `docs/planning/2026-06-05_05-19_PARETO-E
 ## A) FULLY DONE
 
 ### CLI Integration Tests (Tasks 1-6) — Critical Path
+
 - **32 → 53 tests** in `internal/cli/commands_test.go` (+21 tests)
 - All 7 CLI commands now covered:
   - `configure`: all presets (minimal/standard/strict/security/performance/reference), deprecated linter replacement (wsl→wsl_v5), missing config, invalid YAML, priority filtering
@@ -28,11 +29,13 @@ Executed the Pareto execution plan from `docs/planning/2026-06-05_05-19_PARETO-E
 - `--diff` combinations: removed linters, no-changes diff
 
 ### Coverage Improvements (Tasks 10-13)
+
 - **gogenfilter**: 15 → 22 tests (59.8% → 63.9%) — moq, mockgen, stringer, go-enum, oapi-codegen, deepcopy-gen, node_modules exclusion
 - **migration**: 37 → 43 tests (66.8% → 75.5%) — cyclop skip-tests, gosec null excludes, containedctx, forbidigo p→pattern, goimports local-prefixes, gci skip-generated
 - **constants/data_integrity_test.go**: Already complete (LinterMinVersions + reference preset validation)
 
 ### AGENTS.md Trim (Task 7-9)
+
 - **912 → 367 lines** (target was ≤377)
 - Extracted to 5 reference files in `docs/references/`:
   - `code-organization.md` (140 lines)
@@ -42,11 +45,13 @@ Executed the Pareto execution plan from `docs/planning/2026-06-05_05-19_PARETO-E
   - `working-with-codebase.md` (143 lines)
 
 ### Correctness Improvements (Tasks 19-21)
+
 - **ginkgolinter/testifylint defaults**: Already existed in `pkg/constants/config.go`
 - **DryRun field**: Added `DryRun bool` to `MigrationResult`, set in all 3 dry-run result constructors
 - **errors.Join**: Replaced fail-fast error handling in `AnalysisToReport` with `errors.Join` for multi-finding conversion
 
 ### Stale File Cleanup
+
 - Identified `internal/cli/.golangci.yml` as stale override (duplicate of root config with just gosec)
 
 ---
@@ -54,12 +59,14 @@ Executed the Pareto execution plan from `docs/planning/2026-06-05_05-19_PARETO-E
 ## B) PARTIALLY DONE
 
 ### Type System Improvements (Tasks 22-24) — NOT STARTED but analyzed
+
 - Identified all fields that need typing: `[]string` → `[]LinterName`/`[]FormatterName`
 - Identified `GeneratedMode` enum need for `LintersExclusionsConfig.Generated`
 - Identified `OutputConfig.Formats` `map[string]any` → typed struct
 - Analysis complete, implementation deferred (see plan below)
 
 ### --diff + --check Bug (Task 17)
+
 - The test for `--diff --check` passes (line 379-406 of commands_test.go)
 - The interaction appears to work: diff is shown, original config is restored
 - Cannot reproduce the "diff shows nothing" bug described in the plan — may have been fixed previously
@@ -68,16 +75,16 @@ Executed the Pareto execution plan from `docs/planning/2026-06-05_05-19_PARETO-E
 
 ## C) NOT STARTED
 
-| Task | Priority | Reason |
-|------|----------|--------|
-| Task 22: `LintersConfig.Enable/Disable` → `[]LinterName` | Low | Type refactoring — requires all consumers updated |
-| Task 23: `OutputConfig.Formats` → typed struct | Low | Complex YAML round-trip implications |
-| Task 24: `GeneratedMode` enum | Low | Simple but touches YAML unmarshal |
-| Task 25: vendor/ decision + pkg/client tests | Low | Decision needed, smoke tests trivial |
-| Migrate justfile → flake.nix | Low | Per global AGENTS.md preference |
-| `Config.Clone()` deep clone fix | Critical | Latent data corruption bug |
-| `ParsePriority()` function | Medium | Invalid CLI input silently accepted |
-| CLI global mutable state elimination | Medium | Testability, parallel safety |
+| Task                                                     | Priority | Reason                                            |
+| -------------------------------------------------------- | -------- | ------------------------------------------------- |
+| Task 22: `LintersConfig.Enable/Disable` → `[]LinterName` | Low      | Type refactoring — requires all consumers updated |
+| Task 23: `OutputConfig.Formats` → typed struct           | Low      | Complex YAML round-trip implications              |
+| Task 24: `GeneratedMode` enum                            | Low      | Simple but touches YAML unmarshal                 |
+| Task 25: vendor/ decision + pkg/client tests             | Low      | Decision needed, smoke tests trivial              |
+| Migrate justfile → flake.nix                             | Low      | Per global AGENTS.md preference                   |
+| `Config.Clone()` deep clone fix                          | Critical | Latent data corruption bug                        |
+| `ParsePriority()` function                               | Medium   | Invalid CLI input silently accepted               |
+| CLI global mutable state elimination                     | Medium   | Testability, parallel safety                      |
 
 ---
 
@@ -133,33 +140,33 @@ Executed the Pareto execution plan from `docs/planning/2026-06-05_05-19_PARETO-E
 
 Sorted by Impact × Effort (highest leverage first):
 
-| # | Task | Impact | Effort | Category |
-|---|------|--------|--------|----------|
-| 1 | Fix `Config.Clone()` deep clone bug | Critical | 30m | Bugfix |
-| 2 | Remove stale `internal/cli/.golangci.yml` | Cleanup | 2m | Cleanup |
-| 3 | Add `ParsePriority(string)` with validation | High | 15m | Type Safety |
-| 4 | Enable `KnownFields(true)` in YAML decoder | High | 30m | Correctness |
-| 5 | Unify `ValidationResult` with `ConfigValidator` return | Medium | 30m | Architecture |
-| 6 | Add `pkg/client/client_test.go` smoke tests | Medium | 30m | Testing |
-| 7 | Type `LintersConfig.Enable/Disable` as `[]LinterName` | High | 45m | Type Safety |
-| 8 | Type `FormattersConfig.Enable/Disable` as `[]FormatterName` | High | 30m | Type Safety |
-| 9 | Add `GeneratedMode` enum for exclusions | Medium | 30m | Type Safety |
-| 10 | Extract `"validation-error"` string constant | Low | 5m | Code Quality |
-| 11 | Fix spinner goroutine leak (add context) | Medium | 15m | Bugfix |
-| 12 | Split `ConfigLoader` god interface | High | 60m | Architecture |
-| 13 | Return error from `detectFormat` for unknown extensions | Low | 10m | Correctness |
-| 14 | Add `IsValid()` to `LinterName`/`FormatterName` | Low | 15m | Type Safety |
-| 15 | Use `ConfigPath` type in `ConfigAnalysis.ConfigPath` | Low | 10m | Consistency |
-| 16 | Eliminate CLI global mutable state | High | 90m | Architecture |
-| 17 | Type `Config.Version` as `ConfigVersion` | Medium | 30m | Type Safety |
-| 18 | Type `RunConfig.Timeout` as duration string | Medium | 30m | Type Safety |
-| 19 | Add finding/detector unit tests | Medium | 45m | Testing |
-| 20 | Add ui/finding_formatter tests | Low | 30m | Testing |
-| 21 | Decide vendor/ in formatter exclusions | Low | 15m | Decision |
-| 22 | Migrate justfile → flake.nix apps | Low | 60m | Build |
-| 23 | Cache CLI test binary across tests | High | 30m | Testing |
-| 24 | Remove `pkg/config` type aliases | Medium | 30m | Architecture |
-| 25 | Use `CommandBuilder` with interfaces not concretes | Medium | 45m | Architecture |
+| #   | Task                                                        | Impact   | Effort | Category     |
+| --- | ----------------------------------------------------------- | -------- | ------ | ------------ |
+| 1   | Fix `Config.Clone()` deep clone bug                         | Critical | 30m    | Bugfix       |
+| 2   | Remove stale `internal/cli/.golangci.yml`                   | Cleanup  | 2m     | Cleanup      |
+| 3   | Add `ParsePriority(string)` with validation                 | High     | 15m    | Type Safety  |
+| 4   | Enable `KnownFields(true)` in YAML decoder                  | High     | 30m    | Correctness  |
+| 5   | Unify `ValidationResult` with `ConfigValidator` return      | Medium   | 30m    | Architecture |
+| 6   | Add `pkg/client/client_test.go` smoke tests                 | Medium   | 30m    | Testing      |
+| 7   | Type `LintersConfig.Enable/Disable` as `[]LinterName`       | High     | 45m    | Type Safety  |
+| 8   | Type `FormattersConfig.Enable/Disable` as `[]FormatterName` | High     | 30m    | Type Safety  |
+| 9   | Add `GeneratedMode` enum for exclusions                     | Medium   | 30m    | Type Safety  |
+| 10  | Extract `"validation-error"` string constant                | Low      | 5m     | Code Quality |
+| 11  | Fix spinner goroutine leak (add context)                    | Medium   | 15m    | Bugfix       |
+| 12  | Split `ConfigLoader` god interface                          | High     | 60m    | Architecture |
+| 13  | Return error from `detectFormat` for unknown extensions     | Low      | 10m    | Correctness  |
+| 14  | Add `IsValid()` to `LinterName`/`FormatterName`             | Low      | 15m    | Type Safety  |
+| 15  | Use `ConfigPath` type in `ConfigAnalysis.ConfigPath`        | Low      | 10m    | Consistency  |
+| 16  | Eliminate CLI global mutable state                          | High     | 90m    | Architecture |
+| 17  | Type `Config.Version` as `ConfigVersion`                    | Medium   | 30m    | Type Safety  |
+| 18  | Type `RunConfig.Timeout` as duration string                 | Medium   | 30m    | Type Safety  |
+| 19  | Add finding/detector unit tests                             | Medium   | 45m    | Testing      |
+| 20  | Add ui/finding_formatter tests                              | Low      | 30m    | Testing      |
+| 21  | Decide vendor/ in formatter exclusions                      | Low      | 15m    | Decision     |
+| 22  | Migrate justfile → flake.nix apps                           | Low      | 60m    | Build        |
+| 23  | Cache CLI test binary across tests                          | High     | 30m    | Testing      |
+| 24  | Remove `pkg/config` type aliases                            | Medium   | 30m    | Architecture |
+| 25  | Use `CommandBuilder` with interfaces not concretes          | Medium   | 45m    | Architecture |
 
 ---
 
@@ -168,6 +175,7 @@ Sorted by Impact × Effort (highest leverage first):
 **The `map[string]any` settings problem**: `LintersConfig.Settings` and `FormattersConfig.Settings` are `map[string]any` because golangci-lint's YAML schema for linter settings is completely dynamic — each linter has its own arbitrary settings structure, and new linters can be added at any time.
 
 **Question**: Should we:
+
 - (A) Keep `map[string]any` but add a `LinterSettings` type that wraps it with typed accessors (e.g., `GetString(linter, key) string`)?
 - (B) Define typed structs for the ~15 linters we inject defaults for, and keep `map[string]any` as fallback for unknown linters?
 - (C) Go all-in with code generation from golangci-lint's schema?
@@ -178,29 +186,29 @@ Option (B) seems pragmatic — typed where we know the shape, dynamic where we d
 
 ## Metrics
 
-| Metric | Before | After | Delta |
-|--------|--------|-------|-------|
-| CLI integration tests | 32 | 53 | +21 |
-| gogenfilter tests | 15 | 22 | +7 |
-| migration tests | 37 | 43 | +6 |
-| AGENTS.md lines | 912 | 367 | -545 |
-| Composite coverage | 61.5% | 62.6% | +1.1% |
-| gogenfilter coverage | 59.8% | 63.9% | +4.1% |
-| migration coverage | 66.8% | 75.5% | +8.7% |
-| Reference files created | 0 | 5 | +5 |
+| Metric                  | Before | After | Delta |
+| ----------------------- | ------ | ----- | ----- |
+| CLI integration tests   | 32     | 53    | +21   |
+| gogenfilter tests       | 15     | 22    | +7    |
+| migration tests         | 37     | 43    | +6    |
+| AGENTS.md lines         | 912    | 367   | -545  |
+| Composite coverage      | 61.5%  | 62.6% | +1.1% |
+| gogenfilter coverage    | 59.8%  | 63.9% | +4.1% |
+| migration coverage      | 66.8%  | 75.5% | +8.7% |
+| Reference files created | 0      | 5     | +5    |
 
 ---
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
-| `AGENTS.md` | Trimmed 912→367 lines, extracted to reference files |
-| `internal/cli/commands_test.go` | +21 CLI integration tests |
-| `pkg/gogenfilter/scanner_test.go` | +7 scanner detection tests |
-| `pkg/migration/migrator_test.go` | +6 linter-specific migration tests |
-| `pkg/types/types.go` | Added `DryRun bool` to `MigrationResult` |
-| `pkg/linter/fixer_results.go` | Set `DryRun: true` in dry-run result |
-| `pkg/linter/fixer_preflight.go` | Set `DryRun: true` in 2 preflight dry-run results |
-| `pkg/finding/converter.go` | `errors.Join` for multi-finding conversion |
-| `docs/references/*.md` | 5 new reference files (595 lines total) |
+| File                              | Change                                              |
+| --------------------------------- | --------------------------------------------------- |
+| `AGENTS.md`                       | Trimmed 912→367 lines, extracted to reference files |
+| `internal/cli/commands_test.go`   | +21 CLI integration tests                           |
+| `pkg/gogenfilter/scanner_test.go` | +7 scanner detection tests                          |
+| `pkg/migration/migrator_test.go`  | +6 linter-specific migration tests                  |
+| `pkg/types/types.go`              | Added `DryRun bool` to `MigrationResult`            |
+| `pkg/linter/fixer_results.go`     | Set `DryRun: true` in dry-run result                |
+| `pkg/linter/fixer_preflight.go`   | Set `DryRun: true` in 2 preflight dry-run results   |
+| `pkg/finding/converter.go`        | `errors.Join` for multi-finding conversion          |
+| `docs/references/*.md`            | 5 new reference files (595 lines total)             |

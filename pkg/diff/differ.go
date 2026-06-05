@@ -210,6 +210,7 @@ func (d *Differ) findRemovedItems(
 
 func (d *Differ) compareLinters(old, newCfg types.LintersConfig) []Change {
 	var changes []Change
+
 	changes = append(changes, d.compareEnabled(old.Enable, newCfg.Enable, "linters", "linter")...)
 	changes = append(changes, d.compareDisabled(old.Disable, newCfg.Disable, "linters", "linter")...)
 
@@ -218,6 +219,7 @@ func (d *Differ) compareLinters(old, newCfg types.LintersConfig) []Change {
 
 func (d *Differ) compareFormatters(old, newCfg types.FormattersConfig) []Change {
 	var changes []Change
+
 	changes = append(changes, d.compareEnabled(old.Enable, newCfg.Enable, "formatters", "formatter")...)
 	changes = append(changes, d.compareDisabled(old.Disable, newCfg.Disable, "formatters", "formatter")...)
 

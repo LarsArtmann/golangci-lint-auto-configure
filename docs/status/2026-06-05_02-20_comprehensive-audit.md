@@ -26,31 +26,31 @@ Project is in strong shape. **All 15 test suites pass (61.1% composite coverage)
 
 ### Core Features (All Complete)
 
-| Feature                                         | Status  | Package           |
-| ----------------------------------------------- | ------- | ----------------- |
-| 119 linter priorities (4 tiers)                 | ✅ DONE | `pkg/constants`   |
-| Priority-based filtering (`--priority`)         | ✅ DONE | `internal/cli`    |
-| Dry-run mode (`--dry-run`)                      | ✅ DONE | `internal/cli`    |
-| CI check mode (`--check`)                       | ✅ DONE | `internal/cli`    |
-| Diff preview (`--diff`)                         | ✅ DONE | `internal/cli`    |
-| Deprecated linter auto-replacement              | ✅ DONE | `pkg/linter`      |
-| Version-gated deprecation (gomodguard_v2)       | ✅ DONE | `pkg/linter`      |
-| Typecheck linter removal                        | ✅ DONE | `pkg/linter`      |
-| Invalid timeout fix                             | ✅ DONE | `pkg/linter`      |
-| 9 default linter settings injection             | ✅ DONE | `pkg/linter`      |
-| Default formatter settings (golines)            | ✅ DONE | `pkg/linter`      |
-| Reference preset (60+ linters)                  | ✅ DONE | `pkg/constants`   |
-| gogenfilter/v3 dynamic scan (8+ generators)     | ✅ DONE | `pkg/gogenfilter` |
-| `generated: lax` auto-set                       | ✅ DONE | `pkg/linter`      |
-| Exclusion path deduplication                    | ✅ DONE | `pkg/gogenfilter` |
-| GOEXPERIMENT build tags auto-injection (5 tags) | ✅ DONE | `pkg/linter`      |
-| Go version auto-detection                       | ✅ DONE | `pkg/config`      |
-| Multiple golangci-lint binary detection         | ✅ DONE | `pkg/linter`      |
-| Version-aware feature flags                     | ✅ DONE | `pkg/constants`   |
-| Project type detection (5 types)                | ✅ DONE | `pkg/detection`   |
-| swaggo formatter detection (6 patterns)         | ✅ DONE | `pkg/detection`   |
-| Custom error types (4 domain types)             | ✅ DONE | `pkg/errors`      |
-| Result[T] railway-oriented type                 | ❌ REMOVED | `pkg/types`    |
+| Feature                                         | Status     | Package           |
+| ----------------------------------------------- | ---------- | ----------------- |
+| 119 linter priorities (4 tiers)                 | ✅ DONE    | `pkg/constants`   |
+| Priority-based filtering (`--priority`)         | ✅ DONE    | `internal/cli`    |
+| Dry-run mode (`--dry-run`)                      | ✅ DONE    | `internal/cli`    |
+| CI check mode (`--check`)                       | ✅ DONE    | `internal/cli`    |
+| Diff preview (`--diff`)                         | ✅ DONE    | `internal/cli`    |
+| Deprecated linter auto-replacement              | ✅ DONE    | `pkg/linter`      |
+| Version-gated deprecation (gomodguard_v2)       | ✅ DONE    | `pkg/linter`      |
+| Typecheck linter removal                        | ✅ DONE    | `pkg/linter`      |
+| Invalid timeout fix                             | ✅ DONE    | `pkg/linter`      |
+| 9 default linter settings injection             | ✅ DONE    | `pkg/linter`      |
+| Default formatter settings (golines)            | ✅ DONE    | `pkg/linter`      |
+| Reference preset (60+ linters)                  | ✅ DONE    | `pkg/constants`   |
+| gogenfilter/v3 dynamic scan (8+ generators)     | ✅ DONE    | `pkg/gogenfilter` |
+| `generated: lax` auto-set                       | ✅ DONE    | `pkg/linter`      |
+| Exclusion path deduplication                    | ✅ DONE    | `pkg/gogenfilter` |
+| GOEXPERIMENT build tags auto-injection (5 tags) | ✅ DONE    | `pkg/linter`      |
+| Go version auto-detection                       | ✅ DONE    | `pkg/config`      |
+| Multiple golangci-lint binary detection         | ✅ DONE    | `pkg/linter`      |
+| Version-aware feature flags                     | ✅ DONE    | `pkg/constants`   |
+| Project type detection (5 types)                | ✅ DONE    | `pkg/detection`   |
+| swaggo formatter detection (6 patterns)         | ✅ DONE    | `pkg/detection`   |
+| Custom error types (4 domain types)             | ✅ DONE    | `pkg/errors`      |
+| Result[T] railway-oriented type                 | ❌ REMOVED | `pkg/types`       |
 
 ### Default Settings Injection (9 linters)
 
