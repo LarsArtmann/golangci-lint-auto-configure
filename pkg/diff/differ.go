@@ -134,6 +134,39 @@ func (d *Differ) compareEnabled(oldEnable, newEnable []string, pathPrefix, entit
 	return changes
 }
 
+func (d *Differ) compareDisabled(oldDisable, newDisable []string, pathPrefix, entityName string) []Change {
+	oldSet := types.NewSet(oldDisable...)
+	newSet := types.NewSet(newDisable...)
+
+	var changes []Change
+
+	for item := range newSet {
+		if !oldSet.Contains(item) {
+			changes = append(changes, Change{
+				Type:        ChangeTypeAdded,
+				Path:        fmt.Sprintf("%s.disable.%s", pathPrefix, item),
+				OldValue:    "",
+				NewValue:    item,
+				Description: fmt.Sprintf("Disabled %s: %s", entityName, item),
+			})
+		}
+	}
+
+	for item := range oldSet {
+		if !newSet.Contains(item) {
+			changes = append(changes, Change{
+				Type:        ChangeTypeRemoved,
+				Path:        fmt.Sprintf("%s.disable.%s", pathPrefix, item),
+				OldValue:    item,
+				NewValue:    "",
+				Description: fmt.Sprintf("Re-enabled %s: %s", entityName, item),
+			})
+		}
+	}
+
+	return changes
+}
+
 func (d *Differ) findAddedItems(
 	oldEnabled, newEnabled types.Set[string],
 	pathPrefix, entityName string,
@@ -176,11 +209,19 @@ func (d *Differ) findRemovedItems(
 }
 
 func (d *Differ) compareLinters(old, newCfg types.LintersConfig) []Change {
-	return d.compareEnabled(old.Enable, newCfg.Enable, "linters", "linter")
+	var changes []Change
+	changes = append(changes, d.compareEnabled(old.Enable, newCfg.Enable, "linters", "linter")...)
+	changes = append(changes, d.compareDisabled(old.Disable, newCfg.Disable, "linters", "linter")...)
+
+	return changes
 }
 
 func (d *Differ) compareFormatters(old, newCfg types.FormattersConfig) []Change {
-	return d.compareEnabled(old.Enable, newCfg.Enable, "formatters", "formatter")
+	var changes []Change
+	changes = append(changes, d.compareEnabled(old.Enable, newCfg.Enable, "formatters", "formatter")...)
+	changes = append(changes, d.compareDisabled(old.Disable, newCfg.Disable, "formatters", "formatter")...)
+
+	return changes
 }
 
 // FormatChanges formats changes as a human-readable string.
