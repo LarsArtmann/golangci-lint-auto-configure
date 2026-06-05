@@ -477,25 +477,7 @@
 
   <p><strong>The problem:</strong> Five fields that are pure derivatives of the <code>Recommendations</code> and <code>DeprecatedLinters</code> slices. They can drift out of sync if a caller mutates the slice but forgets to update the count. The type system sees five independent <code>int</code>s — it has no idea they're supposed to be coherent.</p>
 
-  <h3>4. Optional Fields with Zero-Value Semantics</h3>
-
-  <div class="single-code">
-    <div class="col-header"><span class="status status-bad"></span> pkg/types/types.go</div>
-    <pre><code><span class="keyword">type</span> <span class="type">LinterReplacement</span> <span class="keyword">struct</span> {
-    <span class="param">Replacement</span> <span class="type">LinterName</span>
-    <span class="param">Reason</span>      <span class="type">string</span>
-    <span class="param">MinVersion</span>  <span class="type">string</span>   <span class="comment">// &lt;-- omitempty, but zero-value ("") is valid!</span>
-}
-
-<span class="keyword">type</span> <span class="type">MigrationResult</span> <span class="keyword">struct</span> {
-    <span class="param">Error</span> <span class="type">error</span>   <span class="comment">// &lt;-- nil means success, but nil is the zero value</span>
-    ...
-}</code></pre>
-  </div>
-
-  <p><strong>The problem:</strong> When <code>MinVersion</code> is <code>""</code>, does it mean "no minimum version required" or "forgot to set it"? When <code>MigrationResult.Error</code> is <code>nil</code>, does it mean success or "not yet checked"? The Go zero value is overloaded with semantic meaning. This is the billion-dollar mistake — the absence of a proper <code>Option[T]</code> or <code>Maybe</code> type.</p>
-
-  <h3>5. <code>Result[T]</code> Without Railway Methods <span class="badge badge-bad">DELETED</span></h3>
+  <h3>4. <code>Result[T]</code> Without Railway Methods <span class="badge badge-bad">DELETED</span></h3>
 
   <div class="single-code">
     <div class="col-header"><span class="status status-warn"></span> pkg/types/result.go</div>
@@ -516,7 +498,7 @@ analysis, err := result.<span class="func">Get</span>()
 <span class="comment">// ... instead of a fluent chain.</span></code></pre>
   </div>
 
-  <h3>6. Fix Results Are Stringly-Typed</h3>
+  <h3>5. Fix Results Are Stringly-Typed</h3>
 
   <div class="single-code">
     <div class="col-header"><span class="status status-bad"></span> pkg/linter/fixer_results.go</div>
@@ -541,45 +523,7 @@ analysis, err := result.<span class="func">Get</span>()
     <p><em>Core Principle:</em> <strong>Make illegal states unrepresentable.</strong> Every gap above should become a compile-time error, not a runtime bug. Generics are the tool that gets us there.</p>
   </div>
 
-  <h3>1. Generic <code>Option[T]</code> — Kill the Billion-Dollar Mistake</h3>
-
-  <div class="comparison">
-    <div class="col">
-      <div class="col-header"><span class="status status-bad"></span> Current: Zero-value ambiguity</div>
-      <pre><code><span class="keyword">type</span> <span class="type">LinterReplacement</span> <span class="keyword">struct</span> {
-    <span class="param">MinVersion</span> <span class="type">string</span>  <span class="comment">// "" means... what?</span>
-}
-
-repl := <span class="type">LinterReplacement</span>{}
-<span class="comment">// repl.MinVersion == "" — is this "none" or "forgotten"?</span></code></pre>
-    </div>
-    <div class="col">
-      <div class="col-header"><span class="status status-good"></span> Proposed: Explicit Option[T]</div>
-      <pre><code><span class="keyword">type</span> <span class="type">Option</span>[<span class="param">T</span> <span class="keyword">any</span>] <span class="keyword">struct</span> {
-    <span class="param">value</span> T
-    <span class="param">set</span>   <span class="type">bool</span>
-}
-
-<span class="keyword">func</span> <span class="func">Some</span>[<span class="param">T</span> <span class="keyword">any</span>](<span class="param">v</span> T) <span class="type">Option</span>[T] { <span class="keyword">return</span> <span class="type">Option</span>[T]{value: v, set: <span class="keyword">true</span>} }
-<span class="keyword">func</span> <span class="func">None</span>[<span class="param">T</span> <span class="keyword">any</span>]() <span class="type">Option</span>[T]      { <span class="keyword">return</span> <span class="type">Option</span>[T]{} }
-
-<span class="keyword">func</span> (o <span class="type">Option</span>[T]) <span class="func">IsSome</span>() <span class="type">bool</span>  { <span class="keyword">return</span> o.set }
-<span class="keyword">func</span> (o <span class="type">Option</span>[T]) <span class="func">IsNone</span>() <span class="type">bool</span>  { <span class="keyword">return</span> !o.set }
-<span class="keyword">func</span> (o <span class="type">Option</span>[T]) <span class="func">Get</span>() (T, <span class="type">bool</span>) { <span class="keyword">return</span> o.value, o.set }
-
-<span class="comment">// Usage:</span>
-<span class="keyword">type</span> <span class="type">LinterReplacement</span> <span class="keyword">struct</span> {
-    <span class="param">MinVersion</span> <span class="type">Option</span>[<span class="type">string</span>]  <span class="comment">// None means "no minimum"</span>
-}
-
-repl := <span class="type">LinterReplacement</span>{}
-<span class="comment">// repl.MinVersion.IsNone() == true — unambiguous!</span></code></pre>
-    </div>
-  </div>
-
-  <p><strong>Impact:</strong> Every optional field in the domain becomes self-documenting. No more <code>omitempty</code> tag guessing. The compiler and the reader both know exactly when a value is present vs. absent.</p>
-
-  <h3>2. Sealed <code>Name</code> Interface + Generic <code>Priority[N]</code></h3>
+  <h3>1. Sealed <code>Name</code> Interface + Generic <code>Priority[N]</code></h3>
 
   <div class="comparison">
     <div class="col">
@@ -629,7 +573,7 @@ rec := <span class="type">LinterRecommendation</span>{
 
   <p><strong>Impact:</strong> The compiler now enforces that a <code>LinterRecommendation</code> can never hold a <code>FormatterPriority</code>. This is the difference between "don't do that" (docs) and "literally impossible" (types).</p>
 
-  <h3>3. Generic <code>Catalog[E, N]</code> — Replace Six Maps with One Type</h3>
+  <h3>2. Generic <code>Catalog[E, N]</code> — Replace Six Maps with One Type</h3>
 
   <div class="comparison">
     <div class="col">
@@ -688,7 +632,7 @@ entry, ok := catalog.<span class="func">Get</span>(<span class="string">"gosec"<
 
   <p><strong>Impact:</strong> Adding a new linter now means adding one struct literal to one slice. The compiler enforces that every field is populated. No more silent omissions across six maps. Plus, you get rich query methods (<code>FilterByPriority</code>, <code>Names</code>, etc.) for free.</p>
 
-  <h3>4. Sealed <code>LinterSetting</code> Interface — Type-Safe Config Settings</h3>
+  <h3>3. Sealed <code>LinterSetting</code> Interface — Type-Safe Config Settings</h3>
 
   <div class="comparison">
     <div class="col">
@@ -741,7 +685,7 @@ settings := raw.(<span class="type">FunlenSettings</span>)  <span class="comment
 
   <p><strong>Impact:</strong> Every linter setting is either a known typed struct (with IDE autocomplete and compile-time safety) or an explicit <code>RawSettings</code> fallback. The <code>Validate()</code> method means invalid values are caught at parse time, not runtime.</p>
 
-  <h3>5. <code>Validated[T]</code> — Parse, Don't Validate</h3>
+  <h3>4. <code>Validated[T]</code> — Parse, Don't Validate</h3>
 
   <div class="comparison">
     <div class="col">
@@ -789,7 +733,7 @@ settings := raw.(<span class="type">FunlenSettings</span>)  <span class="comment
 
   <p><strong>Impact:</strong> Functions that need a valid config now demand <code>Validated[Config]</code> in their signature. You <em>cannot</em> pass a raw <code>Config</code> — the compiler rejects it. This is "parse, don't validate" at the type level.</p>
 
-  <h3>6. Generic <code>PriorityCounts[N]</code> — Derived Data, Guaranteed Coherent</h3>
+  <h3>5. Generic <code>PriorityCounts[N]</code> — Derived Data, Guaranteed Coherent</h3>
 
   <div class="comparison">
     <div class="col">
@@ -839,7 +783,7 @@ analysis.LinterRecommendations = <span class="func">append</span>(analysis.Linte
 
   <p><strong>Impact:</strong> No more stale counts. The count is always a pure function of the source data. Mutating <code>Recommendations</code> automatically updates <code>Counts()</code> on the next call. The type system prevents assigning a formatter priority count to a linter analysis.</p>
 
-  <h3>7. Railway-Oriented <code>Result[T]</code> with <code>AndThen</code> / <code>Map</code> <span class="badge badge-bad">NOT APPLIED — DELETED</span></h3>
+  <h3>6. Railway-Oriented <code>Result[T]</code> with <code>AndThen</code> / <code>Map</code> <span class="badge badge-bad">NOT APPLIED — DELETED</span></h3>
 
   <div class="comparison">
     <div class="col">
@@ -892,7 +836,7 @@ analysis, err := result.<span class="func">Get</span>()
 
   <p><strong>Status:</strong> This proposal was not implemented. Instead, <code>Result[T]</code> was deleted entirely. The analyzer pipeline now uses plain <code>(T, error)</code> returns — no wrapping, no unwrapping, no indirection. Go's native error handling is exactly what we need.</p>
 
-  <h3>8. Sealed Sum Type for Fix Outcomes</h3>
+  <h3>7. Sealed Sum Type for Fix Outcomes</h3>
 
   <div class="comparison">
     <div class="col">
@@ -955,7 +899,7 @@ analysis, err := result.<span class="func">Get</span>()
 
   <p><strong>Impact:</strong> The CLI layer now has structured access to every piece of fix metadata. No string parsing. No guesswork. The compiler verifies that every outcome variant is handled (if you use a type switch without a default, the compiler nags you about exhaustiveness in practice).</p>
 
-  <h3>9. Summary: The Full Type Hierarchy</h3>
+  <h3>8. Summary: The Full Type Hierarchy</h3>
 
   <div class="single-code">
     <div class="col-header">Proposed Complete Type System</div>
@@ -993,7 +937,7 @@ analysis, err := result.<span class="func">Get</span>()
 <span class="type">NoChangesNeeded</span> <span class="keyword">struct</span>{}     <span class="keyword">func</span> (<span class="type">NoChangesNeeded</span>) <span class="func">fixOutcome</span>()
 <span class="type">DryRun</span>          <span class="keyword">struct</span>{...}  <span class="keyword">func</span> (<span class="type">DryRun</span>) <span class="func">fixOutcome</span>()
 <span class="type">Applied</span>         <span class="keyword">struct</span>{...}  <span class="keyword">func</span> (<span class="type">Applied</span>) <span class="func">fixOutcome</span>()
-<span class="type">FixResult</span>       <span class="keyword">struct</span>{ Outcome <span class="type">FixOutcome</span>; Config <span class="type">Option</span>[<span class="type">Validated</span>[<span class="type">Config</span>]] }</code></pre>
+<span class="type">FixResult</span>       <span class="keyword">struct</span>{ Outcome <span class="type">FixOutcome</span>; Config <span class="type">*Config</span> }</code></pre>
   </div>
 </section>
 
@@ -1009,42 +953,36 @@ analysis, err := result.<span class="func">Get</span>()
     <tbody>
       <tr>
         <td><strong>1</strong></td>
-        <td>Add <code>Option[T]</code> in <code>pkg/types/option.go</code><br>Use it for new fields only</td>
-        <td class="impact impact-low">Low</td>
-        <td>Zero — purely additive</td>
+        <td><span style="text-decoration:line-through;color:var(--text-dim)">Add <code>Result[T].AndThen</code> / <code>Map</code> / <code>UnwrapOr</code><br>Refactor <code>analyzer.go</code> pipeline to use them</span><br><strong>DELETED</strong> — <code>Result[T]</code> removed entirely</td>
+        <td class="impact impact-low">—</td>
+        <td>Deleted on 2026-06-05</td>
       </tr>
       <tr>
         <td><strong>2</strong></td>
-        <td>Add <code>Result[T].AndThen</code> / <code>Map</code> / <code>UnwrapOr</code><br>Refactor <code>analyzer.go</code> pipeline to use them</td>
-        <td class="impact impact-low">Low</td>
-        <td>Low — mechanical refactoring with tests</td>
-      </tr>
-      <tr>
-        <td><strong>3</strong></td>
         <td>Add sealed <code>Name</code> interface<br>Add generic <code>Priority[N]</code>, <code>Recommendation[N]</code><br>Keep old types as type aliases</td>
         <td class="impact impact-medium">Medium</td>
         <td>Medium — type aliases preserve compat</td>
       </tr>
       <tr>
-        <td><strong>4</strong></td>
+        <td><strong>3</strong></td>
         <td>Build <code>Entry[N]</code> and <code>Catalog[E, N]</code><br>Port linter data into a single <code>AllLinterEntries</code> slice<br>Keep old maps as views into the catalog</td>
         <td class="impact impact-medium">Medium</td>
         <td>Medium — old maps become read-only views</td>
       </tr>
       <tr>
-        <td><strong>5</strong></td>
+        <td><strong>4</strong></td>
         <td>Add sealed <code>LinterSetting</code> interface<br>Port known linter settings to typed structs<br>Keep <code>map[string]any</code> as <code>RawSettings</code> fallback</td>
         <td class="impact impact-medium">Medium</td>
         <td>Medium — YAML unmarshaling needs custom logic</td>
       </tr>
       <tr>
-        <td><strong>6</strong></td>
+        <td><strong>5</strong></td>
         <td>Add <code>Validated[T]</code><br>Update <code>ConfigLoader</code> interface to return <code>Validated[Config]</code><br>Update analyzers to accept <code>Validated[Config]</code></td>
         <td class="impact impact-high">High</td>
         <td>High — changes public interface signatures</td>
       </tr>
       <tr>
-        <td><strong>7</strong></td>
+        <td><strong>6</strong></td>
         <td>Replace <code>ConfigAnalysis</code> with <code>Analysis[N]</code><br>Replace <code>MigrationResult</code> with <code>FixResult</code> sum type<br>Deprecate old types, remove in v2</td>
         <td class="impact impact-high">High</td>
         <td>High — breaks JSON serialization shapes</td>
@@ -1092,7 +1030,7 @@ analysis, err := result.<span class="func">Get</span>()
   </div>
 
   <div class="principle">
-    <p><em>5. Explicit over Implicit:</em> <code>Option[T]</code> is better than <code>*T</code> or zero-value guessing. <code>Validated[T]</code> is better than "validate before use" conventions. <code>Result[T]</code> with <code>AndThen</code> is better than <code>if err != nil</code> chains. The type should carry the intent.</p>
+    <p><em>5. Explicit over Implicit:</em> <code>Validated[T]</code> is better than "validate before use" conventions. Types should carry intent — but wrappers that are immediately unwrapped (like the deleted <code>Result[T]</code>) add indirection without value. Prefer idiomatic Go when it is already explicit enough.</p>
   </div>
 
   <div class="principle">
