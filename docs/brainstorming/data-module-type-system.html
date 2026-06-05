@@ -306,6 +306,7 @@
     <a href="#improvements">Proposed Improvements</a>
     <a href="#migration">Migration Path</a>
     <a href="#philosophy">Philosophy</a>
+    <a href="#error-family">go-error-family</a>
   </nav>
 </header>
 
@@ -1035,6 +1036,96 @@ analysis, err := result.<span class="func">Get</span>()
   <div class="principle">
     <p><em>6. Parse, Don't Validate:</em> A function should receive data that is <strong>already proven valid</strong> in its type, not validate it after receiving it. <code>AnalyzeConfig(cfg Validated[Config])</code> is better than <code>AnalyzeConfig(cfg *Config)</code> with an internal <code>ValidateConfig</code> call.</p>
   </div>
+</section>
+
+<section id="error-family">
+  <h2>go-error-family Review <span class="badge badge-good">Adopt</span></h2>
+
+  <p>Structured error protocol library by the same author. Zero dependencies, small interfaces, behavioral classification via <code>Family</code> enum. This is how you design a Go library.</p>
+
+  <h3>What It Gives You</h3>
+  <ul>
+    <li><strong><code>Family</code></strong> — 5 behavioral classes (Rejection, Conflict, Transient, Corruption, Infrastructure) that drive retry decisions, exit codes, and user-facing tone</li>
+    <li><strong>Small interfaces</strong> — <code>Coded</code>, <code>Classified</code>, <code>Contextual</code>, <code>Retryable</code> — each error type implements what it needs</li>
+    <li><strong><code>Classify(err)</code></strong> — universal classification for any error (multi-error → interface → registered sentinels → default)</li>
+    <li><strong><code>ExitCode(err)</code></strong> — BSD sysexits.h exit codes derived from Family</li>
+    <li><strong><code>HandleError(err)</code></strong> — CLI boundary handler with structured messages (What / Why / Fix / WayOut)</li>
+    <li><strong><code>Compose(errs...)</code></strong> — combine errors via <code>errors.Join</code> for partial-success patterns</li>
+    <li><strong>Diagnostic rules</strong> — deterministic checks (PostgreSQL, filesystem, network, git) that auto-discover why an error occurred</li>
+  </ul>
+
+  <h3>Verdict: Exceptional</h3>
+
+  <table class="migration-table">
+    <thead>
+      <tr><th>Aspect</th><th>Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Zero dependencies</td><td><code>go.mod</code> is <code>go 1.26.3</code> and nothing else</td></tr>
+      <tr><td>Small interfaces</td><td>Composable, each does one thing</td></tr>
+      <tr><td>Family concept</td><td>One enum drives retry, exit code, tone, audience</td></tr>
+      <tr><td>Classification precedence</td><td>Sensible, documented, testable</td></tr>
+      <tr><td>Protocol over implementation</td><td>Build your own <code>*FindingError</code>, it just works</td></tr>
+      <tr><td>Thread-safe registry</td><td>Lock-free read snapshots</td></tr>
+      <tr><td>AGENTS.md</td><td>Honest about surprising behaviors</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Concerns</h3>
+
+  <table class="migration-table">
+    <thead>
+      <tr><th>Issue</th><th>Severity</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>Error</code> is mutable</td><td class="impact impact-medium">Medium</td><td><code>WithContext</code> and <code>WithCause</code> mutate the struct in place. Two callers add context to the "same" error and clobber each other.</td></tr>
+      <tr><td><code>HandleConfig</code> mutated by callee</td><td class="impact impact-medium">Medium</td><td><code>HandleErrorWithContext</code> replaces <code>cfg.Output = os.Stderr</code> if nil. The caller's struct is modified.</td></tr>
+      <tr><td><code>Classify(nil) == Rejection</code></td><td class="impact impact-low">Low</td><td>Documented as intentional, but violates principle of least astonishment.</td></tr>
+      <tr><td><code>lookupRegistered</code> full snapshot</td><td class="impact impact-low">Low</td><td>Copies entire map under RLock to iterate. For &lt;100 entries, just iterate under the read lock.</td></tr>
+      <tr><td>Go 1.26 minimum</td><td class="impact impact-low">Low</td><td><code>errors.AsType[T]()</code> is cutting-edge. Fine for us, limits broader adoption.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Why We Should Adopt It</h3>
+
+  <p>Our current error types in <code>pkg/errors/errors.go</code> (<code>ConfigError</code>, <code>AnalysisError</code>, <code>ReportError</code>, <code>MigrationError</code>) are hand-rolled <code>domainError</code> wrappers with <code>Message/Source/Cause</code>. They don't implement <code>Classified</code>, so <code>Classify</code> would default them to <code>Transient</code> (retryable). That's wrong for config validation errors.</p>
+
+  <div class="single-code">
+    <div class="col-header">Current vs. go-error-family</div>
+    <pre><code><span class="comment">// Current: ConfigError is just a string + path + cause</span>
+<span class="keyword">type</span> <span class="type">ConfigError</span> <span class="keyword">struct</span> { Message <span class="type">string</span>; Path <span class="type">string</span>; Cause <span class="type">error</span> }
+<span class="comment">// Classify(configErr) → Transient (default for unknowns) — WRONG</span>
+
+<span class="comment">// With go-error-family:</span>
+<span class="keyword">type</span> <span class="type">ConfigError</span> <span class="keyword">struct</span> {
+    code   <span class="type">string</span>
+    path   <span class="type">string</span>
+    cause  <span class="type">error</span>
+    family <span class="type">Family</span>  <span class="comment">// Rejection = user's fault</span>
+}
+<span class="keyword">func</span> (e *<span class="type">ConfigError</span>) <span class="func">ErrorFamily</span>() <span class="type">Family</span> { <span class="keyword">return</span> e.family }
+<span class="comment">// Classify(configErr) → Rejection → ExitCode = 1 → not retryable</span></code></pre>
+  </div>
+
+  <p>If integrated:</p>
+  <ul>
+    <li><code>ConfigError</code> → <code>Rejection</code> (user's fault, bad config)</li>
+    <li><code>AnalysisError</code> → <code>Infrastructure</code> (system can't analyze)</li>
+    <li><code>ReportError</code> → <code>Transient</code> (maybe retry writing)</li>
+    <li><code>MigrationError</code> → <code>Corruption</code> (data in bad state)</li>
+  </ul>
+
+  <p>BSD exit codes, retry decisions, and structured CLI messages — free.</p>
+
+  <h3>Recommended Integration</h3>
+
+  <ol>
+    <li>Add as dependency (zero-dep, won't bloat our tree)</li>
+    <li>Replace <code>pkg/errors/errors.go</code> with family-aware error types</li>
+    <li>Wire <code>HandleError</code> into <code>cmd/main.go</code> for CLI exit codes</li>
+    <li>Register stdlib sentinels (<code>os.ErrNotExist</code> → <code>Rejection</code>, etc.) in <code>init()</code></li>
+    <li>Keep custom error types but have them implement <code>Classified</code></li>
+  </ol>
 </section>
 
 </main>
