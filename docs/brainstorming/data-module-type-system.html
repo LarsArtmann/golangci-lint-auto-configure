@@ -597,8 +597,8 @@ reason, ok2 := <span class="type">LinterReasons</span>[name]
     <span class="param">Name</span>        N
     <span class="param">Priority</span>    <span class="type">Priority</span>[N]
     <span class="param">Reason</span>      <span class="type">string</span>
-    <span class="param">Deprecated</span>  <span class="type">Option</span>[<span class="type">Replacement</span>[N]]
-    <span class="param">MinVersion</span>  <span class="type">Option</span>[<span class="type">string</span>]
+    <span class="param">Deprecated</span>  *<span class="type">Replacement</span>[N]  <span class="comment">// nil means "not deprecated"</span>
+    <span class="param">MinVersion</span>  <span class="type">string</span>          <span class="comment">// "" means "no minimum version"</span>
     <span class="param">Groups</span>      []<span class="type">string</span>
     <span class="param">Fast</span>        <span class="type">bool</span>
     <span class="param">AutoFix</span>     <span class="type">bool</span>
@@ -618,14 +618,14 @@ reason, ok2 := <span class="type">LinterReasons</span>[name]
     <span class="param">nameFn</span> <span class="keyword">func</span>(E) N,
 ) *<span class="type">Catalog</span>[E, N]
 
-<span class="keyword">func</span> (c *<span class="type">Catalog</span>[E, N]) <span class="func">Get</span>(<span class="param">name</span> N) <span class="type">Option</span>[E]
+<span class="keyword">func</span> (c *<span class="type">Catalog</span>[E, N]) <span class="func">Get</span>(<span class="param">name</span> N) (E, <span class="type">bool</span>)
 <span class="keyword">func</span> (c *<span class="type">Catalog</span>[E, N]) <span class="func">MustGet</span>(<span class="param">name</span> N) E
 <span class="keyword">func</span> (c *<span class="type">Catalog</span>[E, N]) <span class="func">Names</span>() <span class="type">Set</span>[N]
 <span class="keyword">func</span> (c *<span class="type">Catalog</span>[E, N]) <span class="func">FilterByPriority</span>(<span class="param">p</span> <span class="type">Priority</span>[N]) []E
 
 <span class="comment">// Usage:</span>
 catalog := <span class="func">NewCatalog</span>(<span class="type">AllLinterEntries</span>, <span class="keyword">func</span>(e <span class="type">LinterEntry</span>) <span class="type">LinterName</span> { <span class="keyword">return</span> e.Name })
-entry, ok := catalog.<span class="func">Get</span>(<span class="string">"gosec"</span>).<span class="func">Get</span>()
+entry, ok := catalog.<span class="func">Get</span>(<span class="string">"gosec"</span>)
 <span class="comment">// entry has Priority, Reason, Deprecated, MinVersion — all in one lookup.</span></code></pre>
     </div>
   </div>
@@ -878,7 +878,7 @@ analysis, err := result.<span class="func">Get</span>()
 
 <span class="keyword">type</span> <span class="type">FixResult</span> <span class="keyword">struct</span> {
     <span class="param">Outcome</span> <span class="type">FixOutcome</span>
-    <span class="param">Config</span>  <span class="type">Option</span>[<span class="type">Validated</span>[<span class="type">Config</span>]]
+    <span class="param">Config</span>  *<span class="type">Config</span>  <span class="comment">// nil when dry-run or no changes</span>
 }
 
 <span class="comment">// Caller uses a type switch for full structured access:</span>
@@ -914,8 +914,7 @@ analysis, err := result.<span class="func">Get</span>()
 <span class="type">ConfigPath</span>    ~<span class="type">string</span>
 
 <span class="comment">// ── Generic Types ──</span>
-<span class="type">Option</span>[T <span class="keyword">any</span>]              <span class="comment">// Explicit presence/absence</span>
-<span class="type">Result</span>[T <span class="keyword">any</span>]              <span class="comment">// Railway-oriented value|error with AndThen/Map</span>
+<span class="type">Result</span>[T <span class="keyword">any</span>]              <span class="comment">// DELETED — use idiomatic (T, error)</span>
 <span class="type">Validated</span>[T <span class="keyword">any</span>]           <span class="comment">// Proof that validation passed</span>
 <span class="type">Set</span>[T <span class="keyword">comparable</span>]         <span class="comment">// Already exists — excellent</span>
 <span class="type">Priority</span>[N <span class="type">Name</span>]           <span class="comment">// Tied to a specific name type</span>
