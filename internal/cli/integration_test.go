@@ -17,12 +17,43 @@ import (
 // CLITimeout is the timeout for CLI command execution.
 const CLITimeout = 30 * time.Second
 
+// findBinary locates the CLI binary.
+func findBinary() string {
+	candidates := []string{
+		"../../../bin/golangci-lint-auto-configure", // from internal/cli/
+		"../../bin/golangci-lint-auto-configure",    // from cli/ (if compiled elsewhere)
+		"bin/golangci-lint-auto-configure",          // from project root
+	}
+
+	// Also try relative to the test binary location
+	if exe, err := os.Executable(); err == nil {
+		dir := filepath.Dir(exe)
+		for dir != "/" {
+			candidate := filepath.Join(dir, "bin", "golangci-lint-auto-configure")
+			candidates = append(candidates, candidate)
+			parent := filepath.Dir(dir)
+			if parent == dir {
+				break
+			}
+			dir = parent
+		}
+	}
+
+	for _, candidate := range candidates {
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+
+	return "../../../bin/golangci-lint-auto-configure" // fallback
+}
+
 // runCLI runs the CLI binary with the given arguments and returns output.
 func runCLI(args ...string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), CLITimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "../../../bin/golangci-lint-auto-configure", args...)
+	cmd := exec.CommandContext(ctx, findBinary(), args...)
 	return cmd.CombinedOutput()
 }
 
@@ -36,16 +67,23 @@ func testConfigCommand(tempDir, command, configContent string) ([]byte, error) {
 	return runCLI(command, "--config", configPath)
 }
 
-// testStandardConfigCommand runs a CLI command with a standard test config
-func testStandardConfigCommand(tempDir, command string) {
-	content := `version: "2"
+// validConfigContent returns a config that passes all validation checks.
+func validConfigContent() string {
+	return `version: "2"
 run:
   timeout: 5m
 linters:
   enable:
     - gosec
+    - errcheck
+    - staticcheck
+    - govet
 `
-	output, err := testConfigCommand(tempDir, command, content)
+}
+
+// testStandardConfigCommand runs a CLI command with a standard test config
+func testStandardConfigCommand(tempDir, command string) {
+	output, err := testConfigCommand(tempDir, command, validConfigContent())
 	// May fail if golangci-lint not installed, but should handle gracefully
 	Expect(err).ToNot(HaveOccurred())
 	Expect(output).ToNot(BeEmpty())
@@ -201,4 +239,180 @@ linters:
 
 	testStandardCommandContext(tempDir, "analyze")
 	testStandardCommandContext(tempDir, "validate")
+
+	Context("Analyze command", func() {
+		It("should analyze with JSON output", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			initialContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			output, err := runCLI("analyze", "--config", configPath, "--format", "json")
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(string(output)).To(ContainSubstring("recommendations"))
+		})
+
+		It("should analyze with SARIF output", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			initialContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			output, err := runCLI("analyze", "--config", configPath, "--format", "sarif")
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(string(output)).To(ContainSubstring("$schema"))
+		})
+	})
+
+	Context("Validate command", func() {
+		It("should validate a valid config", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			initialContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			output, err := runCLI("validate", "--config", configPath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(string(output)).To(ContainSubstring("valid"))
+		})
+
+		It("should reject an invalid config", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			initialContent := `version: "1"
+` // v1 config without migration
+			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = runCLI("validate", "--config", configPath)
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Context("Report command", func() {
+		It("should generate JSON report", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			initialContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			reportPath := filepath.Join(tempDir, "report.json")
+			output, err := runCLI("report", "--config", configPath, "--format", "json", "--output", reportPath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(string(output)).To(ContainSubstring("Report generated"))
+
+			_, err = os.Stat(reportPath)
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Context("Migrate command", func() {
+		It("should migrate v1 config to v2", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			v1Content := `linters-settings:
+  gci:
+    sections:
+      - Standard
+linters:
+  enable:
+    - gosec
+`
+			err := os.WriteFile(configPath, []byte(v1Content), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			output, err := runCLI("migrate", "--config", configPath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(string(output)).To(ContainSubstring("Migrated"))
+
+			// Verify v2 format
+			content, err := os.ReadFile(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("version: \"2\""))
+		})
+	})
+
+	Context("Check mode", func() {
+		It("should exit 0 for optimal config", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			initialContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+    - errcheck
+    - staticcheck
+    - govet
+`
+			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = runCLI("configure", "--config", configPath, "--priority", "critical", "--check")
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should exit 1 for suboptimal config", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			initialContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = runCLI("configure", "--config", configPath, "--priority", "critical", "--check")
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
+	Context("Diff mode", func() {
+		It("should show diff for changes", func() {
+			configPath := filepath.Join(tempDir, ".golangci.yml")
+			initialContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
+			Expect(err).NotTo(HaveOccurred())
+
+			output, err := runCLI("configure", "--config", configPath, "--priority", "critical", "--diff")
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(string(output)).To(ContainSubstring("Added"))
+		})
+	})
 })

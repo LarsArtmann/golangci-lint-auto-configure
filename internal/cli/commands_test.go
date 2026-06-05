@@ -213,7 +213,6 @@ linters:
 			binaryPath := buildBinary()
 			configPath := writeConfig(testConfigContentMinimal)
 
-			// Note: testDir is NOT a git repo (no initGitRepo() called)
 			cmd := exec.Command(binaryPath, "configure", "--config", configPath)
 			cmd.Dir = testDir // Run from non-git directory
 			output, err := cmd.CombinedOutput()
@@ -296,6 +295,7 @@ linters:
 			_, err := cmd.CombinedOutput()
 
 			Expect(err).To(HaveOccurred())
+
 			exitErr := &exec.ExitError{}
 			ok := errors.As(err, &exitErr)
 			Expect(ok).To(BeTrue())
@@ -492,6 +492,22 @@ linters:
 		It("should handle missing config file", func() {
 			testMissingConfigError("validate")
 		})
+
+		It("should output SARIF from validate", func() {
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+    - gosec
+`
+			configPath := writeConfig(configContent)
+
+			cmd := exec.Command(binaryPath, "validate", "--config", configPath, "--format", "sarif")
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(output)).To(ContainSubstring(`"$schema"`))
+		})
 	})
 
 	Context("help and flags", func() {
@@ -551,6 +567,34 @@ linters:
 		It("should skip migration for v2 configs", func() {
 			testMigrateCommand("already version 2")
 		})
+
+		It("should handle --skip-validation flag", func() {
+			binaryPath := buildBinary()
+			v1Content := `linters-settings:
+  gci:
+    sections:
+      - Standard
+linters:
+  enable:
+    - gosec
+`
+			configPath := writeConfig(v1Content)
+
+			cmd := exec.Command(binaryPath, "migrate", "--config", configPath, "--skip-validation")
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred(), string(output))
+			Expect(string(output)).To(ContainSubstring("migrated"))
+		})
+
+		It("should handle invalid v1 config", func() {
+			binaryPath := buildBinary()
+			invalidPath := filepath.Join(testDir, "invalid.yml")
+			Expect(os.WriteFile(invalidPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
+
+			cmd := exec.Command(binaryPath, "migrate", "--config", invalidPath)
+			_, err := cmd.CombinedOutput()
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
 	Context("report command", func() {
@@ -578,9 +622,37 @@ linters:
 
 			Expect(err).NotTo(HaveOccurred())
 
-			// Verify report file was created
 			_, err = os.Stat(reportPath)
 			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should generate HTML report", func() {
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			configPath := writeConfig(configContent)
+
+			reportPath := filepath.Join(testDir, "report.html")
+			cmd := exec.Command(
+				binaryPath,
+				"report",
+				"--config",
+				configPath,
+				"--output",
+				reportPath,
+				"--format",
+				"html",
+			)
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred(), string(output))
+
+			data, err := os.ReadFile(reportPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(data)).To(ContainSubstring("<!doctype html>"))
+			Expect(string(data)).To(ContainSubstring("golangci-lint"))
 		})
 
 		It("should generate SARIF report", func() {
@@ -641,6 +713,22 @@ linters:
 			Expect(string(data)).To(ContainSubstring(`"findings"`))
 			Expect(string(data)).To(ContainSubstring(`"summary"`))
 		})
+
+		It("should handle missing config file", func() {
+			binaryPath := buildBinary()
+			cmd := exec.Command(
+				binaryPath,
+				"report",
+				"--config",
+				"/non/existent/path.yml",
+				"--output",
+				filepath.Join(testDir, "report.json"),
+				"--format",
+				"json",
+			)
+			_, err := cmd.CombinedOutput()
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
 	Context("analyze command with go-finding formats", func() {
@@ -677,6 +765,282 @@ linters:
 			Expect(output).To(ContainSubstring(`"golangci-lint-auto-configure"`))
 			Expect(output).To(ContainSubstring(`"findings"`))
 			Expect(output).To(ContainSubstring(`"summary"`))
+		})
+	})
+
+	Context("configure presets", func() {
+		DescribeTable(
+			"should apply preset successfully",
+			func(presetName string) {
+				initGitRepo()
+
+				binaryPath := buildBinary()
+				configPath := writeConfig(testConfigContentMinimal)
+
+				cmd := exec.Command(
+					binaryPath,
+					"configure",
+					"--config",
+					configPath,
+					"--preset",
+					presetName,
+				)
+				output, err := cmd.CombinedOutput()
+				Expect(err).NotTo(HaveOccurred(), string(output))
+
+				content, err := os.ReadFile(configPath)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("version:"))
+			},
+			Entry("security preset", "security"),
+			Entry("strict preset", "strict"),
+			Entry("performance preset", "performance"),
+			Entry("reference preset", "reference"),
+			Entry("minimal preset", "minimal"),
+			Entry("standard preset", "standard"),
+		)
+
+		It("should apply security preset with only gosec", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--preset",
+				"security",
+			)
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred(), string(output))
+
+			content, err := os.ReadFile(configPath)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("gosec"))
+		})
+	})
+
+	Context("configure with deprecated linters", func() {
+		It("should replace wsl with wsl_v5", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+    - wsl
+`
+			configPath := writeConfig(configContent)
+
+			cmd := exec.Command(binaryPath, "configure", "--config", configPath)
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred(), string(output))
+
+			content, err := os.ReadFile(configPath)
+			Expect(err).NotTo(HaveOccurred())
+
+			contentStr := string(content)
+			Expect(contentStr).NotTo(ContainSubstring("- wsl\n"))
+			Expect(contentStr).To(ContainSubstring("wsl_v5"))
+		})
+	})
+
+	Context("install-hook command", func() {
+		It("should install pre-commit hook in a git repo", func() {
+			binaryPath := buildBinary()
+			hookDir := filepath.Join(testDir, ".git", "hooks")
+			Expect(os.MkdirAll(hookDir, 0o755)).To(Succeed())
+
+			cmd := exec.Command("git", "init", testDir)
+			_, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+
+			cmd = exec.Command(binaryPath, "install-hook")
+			cmd.Dir = testDir
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred(), string(output))
+			Expect(string(output)).To(ContainSubstring("hook"))
+		})
+	})
+
+	Context("completion command", func() {
+		It("should generate bash completion script", func() {
+			binaryPath := buildBinary()
+			cmd := exec.Command(binaryPath, "completion", "bash")
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(output)).To(ContainSubstring("bash"))
+		})
+
+		It("should generate zsh completion script", func() {
+			binaryPath := buildBinary()
+			cmd := exec.Command(binaryPath, "completion", "zsh")
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(output)).To(ContainSubstring("zsh"))
+		})
+	})
+
+	Context("check mode combinations", func() {
+		It("should exit 0 with --check --priority critical after configure", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			configureCmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+			)
+			_, err := configureCmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+
+			checkCmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+				"--check",
+			)
+			_, err = checkCmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should not modify file with --check --dry-run", func() {
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"high",
+				"--check",
+				"--dry-run",
+			)
+			_, _ = cmd.CombinedOutput()
+
+			content, _ := os.ReadFile(configPath)
+			Expect(string(content)).To(Equal(testConfigContentMinimal))
+		})
+
+		It("should exit 0 with --check --preset after configure", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			configureCmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--preset",
+				"minimal",
+			)
+			_, err := configureCmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+
+			checkCmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--preset",
+				"minimal",
+				"--check",
+			)
+			_, err = checkCmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Context("diff mode combinations", func() {
+		It("should show removed linters in diff output", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+    - someunknownlinter
+`
+			configPath := writeConfig(configContent)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+				"--diff",
+				"--dry-run",
+			)
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+
+			outputStr := string(output)
+			Expect(outputStr).To(Or(
+				ContainSubstring("Added"),
+				ContainSubstring("Removed"),
+				ContainSubstring("[DRY-RUN]"),
+			))
+		})
+
+		It("should show no diff when config is optimal", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+
+			configureCmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				filepath.Join(testDir, ".golangci.yml"),
+				"--priority",
+				"critical",
+			)
+			configPath := writeConfig(testConfigContentMinimal)
+			configureCmd = exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+			)
+			_, err := configureCmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+
+			checkCmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+				"--diff",
+			)
+			output, err := checkCmd.CombinedOutput()
+			outputStr := string(output)
+
+			if err == nil {
+				Expect(outputStr).NotTo(ContainSubstring("Added"))
+			}
 		})
 	})
 })
