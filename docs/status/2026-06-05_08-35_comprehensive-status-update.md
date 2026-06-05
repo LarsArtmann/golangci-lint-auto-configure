@@ -8,18 +8,18 @@
 
 ## Project Snapshot
 
-| Metric | Value |
-|--------|-------|
-| **Production code** | 11,062 LOC across 65+ `.go` files |
-| **Test code** | 7,630 LOC across 20+ `_test.go` files |
-| **Test coverage** | 62.4% composite (15 Ginkgo suites, all passing) |
-| **Lint issues** | **0** (was 12 before today's sprints) |
-| **Structural clones** | **0** (art-dupl: 0 groups, 0 clones) |
-| **Copy-paste duplicates** | 24 (jscpd — test patterns + generated code, acceptable) |
-| **Build** | Clean — `just build` passes, binary at `bin/golangci-lint-auto-configure` |
-| **Dead code** | ~15 exported functions + 1 dead package (`pkg/testutil/`) |
-| **Last commit** | `ebf699e` — fix: remaining art-dupl clones, jscpd config, and wsl whitespace |
-| **Branch** | `master` (clean working tree, pending formatting fix + this report) |
+| Metric                    | Value                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| **Production code**       | 11,062 LOC across 65+ `.go` files                                            |
+| **Test code**             | 7,630 LOC across 20+ `_test.go` files                                        |
+| **Test coverage**         | 62.4% composite (15 Ginkgo suites, all passing)                              |
+| **Lint issues**           | **0** (was 12 before today's sprints)                                        |
+| **Structural clones**     | **0** (art-dupl: 0 groups, 0 clones)                                         |
+| **Copy-paste duplicates** | 24 (jscpd — test patterns + generated code, acceptable)                      |
+| **Build**                 | Clean — `just build` passes, binary at `bin/golangci-lint-auto-configure`    |
+| **Dead code**             | ~15 exported functions + 1 dead package (`pkg/testutil/`)                    |
+| **Last commit**           | `ebf699e` — fix: remaining art-dupl clones, jscpd config, and wsl whitespace |
+| **Branch**                | `master` (clean working tree, pending formatting fix + this report)          |
 
 ---
 
@@ -29,16 +29,16 @@
 
 All 12 pre-existing lint issues fixed across 5 files:
 
-| Linter | File | Fix |
-|--------|------|-----|
-| `err113` | `pkg/types/types.go` | Added `ErrInvalidLinterPriority` sentinel, `%w` wrapping |
-| `forcetypeassert` ×4 | `pkg/types/clone_test.go` | Added `ok` checks + `Expect(ok).To(BeTrue())` |
-| `funlen` | `pkg/finding/converter.go` | Extracted `collectAnalysisFindings` helper |
-| `gochecknoglobals` | `pkg/finding/converter.go` | Moved `linterTagReplacer` to function scope |
-| `ineffassign` | `internal/cli/commands_test.go` | Removed dead `configureCmd` first assignment |
-| `unparam` | `pkg/linter/fixer.go` | Removed always-nil `error` return |
-| `varnamelen` ×3 | `pkg/types/types.go`, `pkg/types/clone.go` | Renamed `s`→`input`, `s`→`src`, `cp`→`cloned` |
-| `wsl_v5` ×2 | `pkg/types/clone_test.go` | Added blank lines above assignments |
+| Linter               | File                                       | Fix                                                      |
+| -------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| `err113`             | `pkg/types/types.go`                       | Added `ErrInvalidLinterPriority` sentinel, `%w` wrapping |
+| `forcetypeassert` ×4 | `pkg/types/clone_test.go`                  | Added `ok` checks + `Expect(ok).To(BeTrue())`            |
+| `funlen`             | `pkg/finding/converter.go`                 | Extracted `collectAnalysisFindings` helper               |
+| `gochecknoglobals`   | `pkg/finding/converter.go`                 | Moved `linterTagReplacer` to function scope              |
+| `ineffassign`        | `internal/cli/commands_test.go`            | Removed dead `configureCmd` first assignment             |
+| `unparam`            | `pkg/linter/fixer.go`                      | Removed always-nil `error` return                        |
+| `varnamelen` ×3      | `pkg/types/types.go`, `pkg/types/clone.go` | Renamed `s`→`input`, `s`→`src`, `cp`→`cloned`            |
+| `wsl_v5` ×2          | `pkg/types/clone_test.go`                  | Added blank lines above assignments                      |
 
 ### Zero Structural Clones (today)
 
@@ -54,7 +54,7 @@ Reduced art-dupl from **9 groups / 22 clones** → **0 / 0** across 5 commits:
 
 - All 22 TODO_LIST.md items marked `[x]` — see `TODO_LIST.md` for full list
 - `Config.Clone()` deep clone (was JSON marshal/unmarshal hack)
-- Exclusion rules O(n*m) → O(n+m) optimization
+- Exclusion rules O(n\*m) → O(n+m) optimization
 - `--check` mode for CI (exit codes)
 - `--diff` flag for config preview
 - 7 presets (reference, recommended, etc.)
@@ -86,53 +86,53 @@ jscpd       → 24 duplicates (test patterns, acceptable)
 
 ### Buildflow (1 of 4+ checks still problematic)
 
-| Check | Status | Root Cause | Fixable? |
-|-------|--------|-----------|----------|
-| `test-race` | FAIL | `CGO_ENABLED=1` not in nix shell | Yes — add `cgo` to `flake.nix` |
-| `test-coverage` | FAIL | Buildflow uses `go test -parallel` which Ginkgo rejects | Needs buildflow config or wrapper |
-| `jscpd` | WARN | 24 duplicates remain (test patterns) | Marginal — could raise thresholds |
-| `library-policy` | WARN | Recommends `go-error-family` | Decision needed |
+| Check            | Status | Root Cause                                              | Fixable?                          |
+| ---------------- | ------ | ------------------------------------------------------- | --------------------------------- |
+| `test-race`      | FAIL   | `CGO_ENABLED=1` not in nix shell                        | Yes — add `cgo` to `flake.nix`    |
+| `test-coverage`  | FAIL   | Buildflow uses `go test -parallel` which Ginkgo rejects | Needs buildflow config or wrapper |
+| `jscpd`          | WARN   | 24 duplicates remain (test patterns)                    | Marginal — could raise thresholds |
+| `library-policy` | WARN   | Recommends `go-error-family`                            | Decision needed                   |
 
 ### Test Coverage — Thin in Key Areas
 
-| Package | Coverage | Notes |
-|---------|----------|-------|
-| `internal/cli` | 9.0% | Integration tests skipped unless tag `//go:build integration` |
-| `pkg/client` | 0.0% | Public API client — no tests at all |
-| `pkg/finding` | 51.5% | `detector.go`, `diff_converter.go`, `helpers.go` untested |
-| `pkg/version` | 51.4% | Edge cases in buildinfo fallback |
-| `pkg/config` | 63.4% | Loader paths partially covered |
-| `pkg/detection` | 62.5% | Detection strategies partially covered |
+| Package         | Coverage | Notes                                                         |
+| --------------- | -------- | ------------------------------------------------------------- |
+| `internal/cli`  | 9.0%     | Integration tests skipped unless tag `//go:build integration` |
+| `pkg/client`    | 0.0%     | Public API client — no tests at all                           |
+| `pkg/finding`   | 51.5%    | `detector.go`, `diff_converter.go`, `helpers.go` untested     |
+| `pkg/version`   | 51.4%    | Edge cases in buildinfo fallback                              |
+| `pkg/config`    | 63.4%    | Loader paths partially covered                                |
+| `pkg/detection` | 62.5%    | Detection strategies partially covered                        |
 
 ### File Size — 10 Files Over 350 Lines
 
-| File | Lines | Severity |
-|------|-------|----------|
-| `internal/cli/commands_test.go` | 935 | Critical |
-| `pkg/migration/migrator_test.go` | 713 | Critical |
-| `pkg/linter/fixer_test.go` | 707 | Critical |
-| `internal/cli/cmd_configure.go` | 512 | High |
-| `pkg/config/loader_test.go` | 469 | High |
-| `pkg/config/loader.go` | 462 | High |
-| `pkg/finding/converter_test.go` | 453 | High |
-| `pkg/detection/detector.go` | 421 | Medium |
-| `internal/cli/integration_test.go` | 364 | Low |
-| `pkg/config/merger_test.go` | 351 | Low |
+| File                               | Lines | Severity |
+| ---------------------------------- | ----- | -------- |
+| `internal/cli/commands_test.go`    | 935   | Critical |
+| `pkg/migration/migrator_test.go`   | 713   | Critical |
+| `pkg/linter/fixer_test.go`         | 707   | Critical |
+| `internal/cli/cmd_configure.go`    | 512   | High     |
+| `pkg/config/loader_test.go`        | 469   | High     |
+| `pkg/config/loader.go`             | 462   | High     |
+| `pkg/finding/converter_test.go`    | 453   | High     |
+| `pkg/detection/detector.go`        | 421   | Medium   |
+| `internal/cli/integration_test.go` | 364   | Low      |
+| `pkg/config/merger_test.go`        | 351   | Low      |
 
 ### TODO_LIST.md — 10 Open Items Remain
 
-| Priority | Item |
-|----------|------|
-| Critical | CLI integration test coverage (8.2%) |
-| High | Trim AGENTS.md (already done — list is stale) |
-| High | gogenfilter coverage (59.8%) |
-| High | Migration coverage (66.8%) → now 75.5% |
-| Medium | `--check` / `--diff` integration tests |
-| Medium | `LinterMinVersions` validation test |
-| Medium | `reference` preset validation |
-| Medium | vendor/ formatter exclusion decision |
-| Medium | `ginkgolinter` / `testifylint` defaults |
-| Low | 5 items (Config.Clone, client tests, errors.Join, DryRun field, justfile→flake) |
+| Priority | Item                                                                            |
+| -------- | ------------------------------------------------------------------------------- |
+| Critical | CLI integration test coverage (8.2%)                                            |
+| High     | Trim AGENTS.md (already done — list is stale)                                   |
+| High     | gogenfilter coverage (59.8%)                                                    |
+| High     | Migration coverage (66.8%) → now 75.5%                                          |
+| Medium   | `--check` / `--diff` integration tests                                          |
+| Medium   | `LinterMinVersions` validation test                                             |
+| Medium   | `reference` preset validation                                                   |
+| Medium   | vendor/ formatter exclusion decision                                            |
+| Medium   | `ginkgolinter` / `testifylint` defaults                                         |
+| Low      | 5 items (Config.Clone, client tests, errors.Join, DryRun field, justfile→flake) |
 
 ---
 
@@ -169,7 +169,7 @@ jscpd       → 24 duplicates (test patterns, acceptable)
 
 10. **Templ CLI version mismatch** — Installed v0.3.1001 vs go.mod v0.3.1020. Warning on every build.
 
-11. **CGO in nix shell** — `flake.nix` doesn't include CGO, breaking `test-race`. 
+11. **CGO in nix shell** — `flake.nix` doesn't include CGO, breaking `test-race`.
 
 12. **`FailingValidator` in production code** — `pkg/migration/validator.go` has a test-only type in production package. Should move to test file.
 
@@ -239,53 +239,53 @@ No tests broken, no features lost, no data corruption. All previous functionalit
 
 ### Tier 1: Quick Wins (5-15 min each, high impact)
 
-| # | Task | Impact | Effort | Why |
-|---|------|--------|--------|-----|
-| 1 | Upgrade templ CLI to v0.3.1020 | Eliminates build warning | 2 min | Nix or manual install |
-| 2 | Prune stale TODO_LIST.md items | Accuracy | 5 min | AGENTS.md trim already done, migration coverage improved |
-| 3 | Move `FailingValidator` to test file | Dead production code | 5 min | Test-only type in production package |
-| 4 | Add CGO to `flake.nix` buildInputs | Fixes test-race | 15 min | Unblock buildflow race check |
-| 5 | Commit gofumpt formatting fix in `integration_test.go` | Clean diff | 1 min | Already applied, just needs commit |
+| #   | Task                                                   | Impact                   | Effort | Why                                                      |
+| --- | ------------------------------------------------------ | ------------------------ | ------ | -------------------------------------------------------- |
+| 1   | Upgrade templ CLI to v0.3.1020                         | Eliminates build warning | 2 min  | Nix or manual install                                    |
+| 2   | Prune stale TODO_LIST.md items                         | Accuracy                 | 5 min  | AGENTS.md trim already done, migration coverage improved |
+| 3   | Move `FailingValidator` to test file                   | Dead production code     | 5 min  | Test-only type in production package                     |
+| 4   | Add CGO to `flake.nix` buildInputs                     | Fixes test-race          | 15 min | Unblock buildflow race check                             |
+| 5   | Commit gofumpt formatting fix in `integration_test.go` | Clean diff               | 1 min  | Already applied, just needs commit                       |
 
 ### Tier 2: High Impact (15-30 min each)
 
-| # | Task | Impact | Effort | Why |
-|---|------|--------|--------|-----|
-| 6 | Split `commands_test.go` (935→~150 each) into per-command files | File size, readability | 25 min | Largest test file in project |
-| 7 | Split `fixer_test.go` (707→~200 each) into focused test files | File size, readability | 20 min | Second largest |
-| 8 | Split `migrator_test.go` (713→~200 each) into focused test files | File size, readability | 20 min | Third largest |
-| 9 | Extract shared test helpers to `pkg/testutil/config.go` | Dedup, reusability | 15 min | Both cli test files have duplicate helpers |
-| 10 | Remove dead `pkg/testutil/` functions or wire them in | Dead code cleanup | 10 min | Package never imported |
-| 11 | Add tests for `pkg/finding/detector.go` and `diff_converter.go` | Coverage | 25 min | Zero-test files in active package |
+| #   | Task                                                             | Impact                 | Effort | Why                                        |
+| --- | ---------------------------------------------------------------- | ---------------------- | ------ | ------------------------------------------ |
+| 6   | Split `commands_test.go` (935→~150 each) into per-command files  | File size, readability | 25 min | Largest test file in project               |
+| 7   | Split `fixer_test.go` (707→~200 each) into focused test files    | File size, readability | 20 min | Second largest                             |
+| 8   | Split `migrator_test.go` (713→~200 each) into focused test files | File size, readability | 20 min | Third largest                              |
+| 9   | Extract shared test helpers to `pkg/testutil/config.go`          | Dedup, reusability     | 15 min | Both cli test files have duplicate helpers |
+| 10  | Remove dead `pkg/testutil/` functions or wire them in            | Dead code cleanup      | 10 min | Package never imported                     |
+| 11  | Add tests for `pkg/finding/detector.go` and `diff_converter.go`  | Coverage               | 25 min | Zero-test files in active package          |
 
 ### Tier 3: Architecture (30-45 min each)
 
-| # | Task | Impact | Effort | Why |
-|---|------|--------|--------|-----|
-| 12 | Add `EnableDisableConfig` shared type | Architecture, DRY | 45 min | Affects ~76 references |
-| 13 | Split `cmd_configure.go` (512 lines) — extract sub-handlers | File size | 25 min | Largest production file |
-| 14 | Split `loader.go` (462 lines) — extract reader/writer/discovery | File size | 30 min | Second largest |
-| 15 | Remove ~15 dead exported functions | Dead code | 20 min | `pkg/finding/helpers.go`, `pkg/ui/`, `pkg/client/` |
-| 16 | Evaluate `go-error-family` adoption | Buildflow pass | 30 min | Decision needed, then implement |
+| #   | Task                                                            | Impact            | Effort | Why                                                |
+| --- | --------------------------------------------------------------- | ----------------- | ------ | -------------------------------------------------- |
+| 12  | Add `EnableDisableConfig` shared type                           | Architecture, DRY | 45 min | Affects ~76 references                             |
+| 13  | Split `cmd_configure.go` (512 lines) — extract sub-handlers     | File size         | 25 min | Largest production file                            |
+| 14  | Split `loader.go` (462 lines) — extract reader/writer/discovery | File size         | 30 min | Second largest                                     |
+| 15  | Remove ~15 dead exported functions                              | Dead code         | 20 min | `pkg/finding/helpers.go`, `pkg/ui/`, `pkg/client/` |
+| 16  | Evaluate `go-error-family` adoption                             | Buildflow pass    | 30 min | Decision needed, then implement                    |
 
 ### Tier 4: Testing (20-30 min each)
 
-| # | Task | Impact | Effort | Why |
-|---|------|--------|--------|-----|
-| 17 | Add `internal/cli/cmd/migrate.go` tests | Coverage | 25 min | 200+ lines untested |
-| 18 | Add `pkg/client/client.go` tests | Coverage | 20 min | Public API with zero tests |
-| 19 | Add fuzz tests for `ParseLinterPriority`, `Clone`, `detectFormat` | Robustness | 30 min | Input parsing edge cases |
-| 20 | Add `pkg/linter/fixer_preflight.go` tests | Coverage | 20 min | Core pre-fix logic untested |
-| 21 | Add benchmarks for merger, detection, conversion | Performance visibility | 25 min | Only 2 packages have benchmarks |
+| #   | Task                                                              | Impact                 | Effort | Why                             |
+| --- | ----------------------------------------------------------------- | ---------------------- | ------ | ------------------------------- |
+| 17  | Add `internal/cli/cmd/migrate.go` tests                           | Coverage               | 25 min | 200+ lines untested             |
+| 18  | Add `pkg/client/client.go` tests                                  | Coverage               | 20 min | Public API with zero tests      |
+| 19  | Add fuzz tests for `ParseLinterPriority`, `Clone`, `detectFormat` | Robustness             | 30 min | Input parsing edge cases        |
+| 20  | Add `pkg/linter/fixer_preflight.go` tests                         | Coverage               | 20 min | Core pre-fix logic untested     |
+| 21  | Add benchmarks for merger, detection, conversion                  | Performance visibility | 25 min | Only 2 packages have benchmarks |
 
 ### Tier 5: Polish (15-30 min each)
 
-| # | Task | Impact | Effort | Why |
-|---|------|--------|--------|-----|
-| 22 | Add `stringer` for `LinterPriority` and `FormatterPriority` | DRY, compile-time safety | 15 min | Enum completeness guaranteed |
-| 23 | Create ROADMAP.md (or rename Pareto plan) | Documentation clarity | 10 min | Conventional project file missing |
-| 24 | Raise jscpd Go minTokens to 80 | Reduce noise | 5 min | 24 remaining duplicates are test patterns |
-| 25 | Add `go-enum` or `stringer` generation to `justfile`/`flake.nix` | Build automation | 20 min | Ensure enums stay in sync |
+| #   | Task                                                             | Impact                   | Effort | Why                                       |
+| --- | ---------------------------------------------------------------- | ------------------------ | ------ | ----------------------------------------- |
+| 22  | Add `stringer` for `LinterPriority` and `FormatterPriority`      | DRY, compile-time safety | 15 min | Enum completeness guaranteed              |
+| 23  | Create ROADMAP.md (or rename Pareto plan)                        | Documentation clarity    | 10 min | Conventional project file missing         |
+| 24  | Raise jscpd Go minTokens to 80                                   | Reduce noise             | 5 min  | 24 remaining duplicates are test patterns |
+| 25  | Add `go-enum` or `stringer` generation to `justfile`/`flake.nix` | Build automation         | 20 min | Ensure enums stay in sync                 |
 
 ---
 
@@ -294,19 +294,22 @@ No tests broken, no features lost, no data corruption. All previous functionalit
 **Should we adopt `go-error-family` as recommended by buildflow's `library-policy` check?**
 
 **Current state:** The project has 3 custom error types in `pkg/errors/errors.go`:
+
 - `ConfigError` — wraps config loading/reading errors
-- `AnalysisError` — wraps analysis failures  
+- `AnalysisError` — wraps analysis failures
 - `ReportError` — wraps report generation failures
 
 **What `go-error-family` offers:**
+
 - `NewRejection()` — permanent/business-logic errors
 - `NewTransient()` — retryable/infrastructure errors
 - `WrapRejection()` / `WrapTransient()` — wrapping variants
 - Standardized error classification (retryable vs permanent)
 
-**The tension:** Our existing types classify by *domain* (where the error occurred: Config vs Analysis vs Report). `go-error-family` classifies by *nature* (permanent vs retryable). These are orthogonal taxonomies.
+**The tension:** Our existing types classify by _domain_ (where the error occurred: Config vs Analysis vs Report). `go-error-family` classifies by _nature_ (permanent vs retryable). These are orthogonal taxonomies.
 
 **Three options:**
+
 1. **Replace** — Lose domain context, gain retry semantics. Net negative for debugging.
 2. **Coexist** — Each custom error wraps a go-error-family error. Two classification systems.
 3. **Suppress** — Keep current system, tell buildflow to ignore this rule. Simplest.
@@ -317,31 +320,31 @@ No tests broken, no features lost, no data corruption. All previous functionalit
 
 ## Session History (2026-06-05)
 
-| Time | What |
-|------|------|
-| 02:20 | Comprehensive audit + docs trim |
-| 02:39 | Post-docs update status |
-| 02:55 | Lint-zero sprint (round 2) |
-| 03:37 | Sprint 10-task execution |
-| 05:19 | Pareto execution plan (25 tasks, 78 subtasks) |
-| 06:12 | Pareto sprint + self-review (11/25 done) |
-| 06:23 | Pareto sprint completion + self-review |
-| 07:14 | Deep audit + targeted fixes (4 bug fixes) |
+| Time  | What                                                 |
+| ----- | ---------------------------------------------------- |
+| 02:20 | Comprehensive audit + docs trim                      |
+| 02:39 | Post-docs update status                              |
+| 02:55 | Lint-zero sprint (round 2)                           |
+| 03:37 | Sprint 10-task execution                             |
+| 05:19 | Pareto execution plan (25 tasks, 78 subtasks)        |
+| 06:12 | Pareto sprint + self-review (11/25 done)             |
+| 06:23 | Pareto sprint completion + self-review               |
+| 07:14 | Deep audit + targeted fixes (4 bug fixes)            |
 | 07:54 | Buildflow deduplication sprint (9→0 art-dupl clones) |
-| 08:29 | Zero-lint sprint (12→0 lint issues) |
-| 08:35 | **This report** |
+| 08:29 | Zero-lint sprint (12→0 lint issues)                  |
+| 08:35 | **This report**                                      |
 
 ## Commits Today (10)
 
-| Hash | Message |
-|------|---------|
-| `bce7bc1` | docs(status): deep audit and targeted fix sprint report |
-| `aac15fa` | fix: deep clone ExclusionRuleConfig.Linters slice in Clone() |
+| Hash      | Message                                                                             |
+| --------- | ----------------------------------------------------------------------------------- |
+| `bce7bc1` | docs(status): deep audit and targeted fix sprint report                             |
+| `aac15fa` | fix: deep clone ExclusionRuleConfig.Linters slice in Clone()                        |
 | `4d01e8f` | fix: version double-v-prefix, unparam warnings, health rule constants, detectFormat |
-| `5b27981` | refactor: eliminate structural duplication in differ and merger |
-| `c700f32` | refactor: extract test helpers to reduce boilerplate duplication |
-| `55bdc5d` | docs(status): buildflow deduplication sprint report |
-| `065def9` | refactor: tighten error handling, extract helpers, and improve naming |
-| `d3b7961` | docs(research): add go-filewatcher integration review (PRO/CONTRA) |
-| `ebf699e` | fix: remaining art-dupl clones, jscpd config, and wsl whitespace |
-| *pending* | gofumpt fix + this status report |
+| `5b27981` | refactor: eliminate structural duplication in differ and merger                     |
+| `c700f32` | refactor: extract test helpers to reduce boilerplate duplication                    |
+| `55bdc5d` | docs(status): buildflow deduplication sprint report                                 |
+| `065def9` | refactor: tighten error handling, extract helpers, and improve naming               |
+| `d3b7961` | docs(research): add go-filewatcher integration review (PRO/CONTRA)                  |
+| `ebf699e` | fix: remaining art-dupl clones, jscpd config, and wsl whitespace                    |
+| _pending_ | gofumpt fix + this status report                                                    |
