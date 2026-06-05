@@ -23,14 +23,6 @@ type presetConfigLoader interface {
 	SaveConfig(config *types.Config, path string) error
 }
 
-// Priority string constants for command-line arguments.
-const (
-	priorityCritical = "critical"
-	priorityHigh     = "high"
-	priorityMedium   = "medium"
-	priorityOptional = "optional"
-)
-
 const configureLong = `Automatically configures golangci-lint by enabling recommended linters.
 
 Use --priority to filter which linters to enable (default: optional):
@@ -412,18 +404,9 @@ func ensureConfigFile(
 
 // ParsePriorityParam converts a priority string to LinterPriority.
 func ParsePriorityParam(priorityParam string) types.LinterPriority {
-	switch priorityParam {
-	case priorityCritical:
-		return types.LinterPriorityCritical
-	case priorityHigh:
-		return types.LinterPriorityHigh
-	case priorityMedium:
-		return types.LinterPriorityMedium
-	case priorityOptional:
-		return types.LinterPriorityOptional
-	default:
-		return types.LinterPriorityOptional
-	}
+	p, _ := types.ParseLinterPriority(priorityParam)
+
+	return p
 }
 
 func loadPresetConfig(

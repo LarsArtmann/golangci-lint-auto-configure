@@ -30,6 +30,23 @@ func (p LinterPriority) String() string {
 	}
 }
 
+// ParseLinterPriority parses a case-insensitive priority string.
+// Returns an error for unrecognized values.
+func ParseLinterPriority(s string) (LinterPriority, error) {
+	switch s {
+	case "critical":
+		return LinterPriorityCritical, nil
+	case "high":
+		return LinterPriorityHigh, nil
+	case "medium":
+		return LinterPriorityMedium, nil
+	case "optional":
+		return LinterPriorityOptional, nil
+	default:
+		return LinterPriorityOptional, fmt.Errorf("invalid linter priority %q: must be critical, high, medium, or optional", s)
+	}
+}
+
 // FormatterPriority represents the priority level for a formatter.
 type FormatterPriority int
 
