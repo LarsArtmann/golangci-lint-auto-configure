@@ -8,6 +8,10 @@
       url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=master";
       flake = false;
     };
+    gogenfilterSrc = {
+      url = "git+ssh://git@github.com/LarsArtmann/gogenfilter?ref=master";
+      flake = false;
+    };
   };
 
   outputs =
@@ -16,6 +20,7 @@
       nixpkgs,
       flake-utils,
       goFindingSrc,
+      gogenfilterSrc,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -47,14 +52,14 @@
           };
 
           preBuild = ''
-            export GOBIN=$TMPDIR/bin
-            go install github.com/a-h/templ/cmd/templ
+            export GOBIN=$GOPATH/bin
+            go install github.com/a-h/templ/cmd/templ@v0.3.1020
             $GOBIN/templ generate
           '';
 
           proxyVendor = true;
 
-          vendorHash = "sha256-LCz14+53dif4m6fq8I11hHkKwSueYKnjVjTl4EUQUl0=";
+          vendorHash = "sha256-eV7wSZ6B8G+Bx0xWB+XFUGF7vcbY78G/Xi9KPvtJlrw=";
 
           subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -74,6 +79,7 @@
 
           postPatch = ''
             echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
+            echo 'replace github.com/LarsArtmann/gogenfilter/v3 => ${gogenfilterSrc}' >> go.mod
           '';
 
           meta = with pkgs.lib; {

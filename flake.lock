@@ -35,6 +35,23 @@
         "url": "ssh://git@github.com/LarsArtmann/go-finding"
       }
     },
+    "gogenfilterSrc": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780611115,
+        "narHash": "sha256-386yXZwZQXDfhP51Nllt/e5oOdByEn+y1uWhnHITCVA=",
+        "ref": "master",
+        "rev": "21d7a95dc8dba6d5809602f071d87116131556bc",
+        "revCount": 660,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/gogenfilter"
+      },
+      "original": {
+        "ref": "master",
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/gogenfilter"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1780243769,
@@ -55,6 +72,7 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "goFindingSrc": "goFindingSrc",
+        "gogenfilterSrc": "gogenfilterSrc",
         "nixpkgs": "nixpkgs"
       }
     },
