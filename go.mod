@@ -6,9 +6,9 @@ require (
 	charm.land/fang/v2 v2.0.1
 	charm.land/lipgloss/v2 v2.0.3
 	charm.land/log/v2 v2.0.0
-	github.com/LarsArtmann/gogenfilter/v3 v3.0.3-0.20260603092628-6c28a428a37d
+	github.com/LarsArtmann/gogenfilter/v3 v3.1.0
 	github.com/a-h/templ v0.3.1020
-	github.com/larsartmann/go-finding v0.4.4-0.20260602024353-e9c4fa6e4bea
+	github.com/larsartmann/go-finding v0.4.4-0.20260605012728-fe76486f6e10
 	github.com/onsi/ginkgo/v2 v2.29.0
 	github.com/onsi/gomega v1.41.0
 	github.com/pelletier/go-toml/v2 v2.3.1
@@ -52,7 +52,7 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20260529124908-c761662dc8c9 // indirect
+	golang.org/x/exp v0.0.0-20260603202125-055de637280b // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
