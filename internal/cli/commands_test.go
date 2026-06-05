@@ -78,15 +78,36 @@ var _ = Describe("CLI Integration Tests", func() {
 		return string(output), err
 	}
 
-	// Helper function to test that invalid YAML is rejected
-	assertInvalidYAMLRejected := func(binaryPath string) {
+	// Helper function to test that invalid YAML is rejected by a given command
+	assertInvalidYAMLRejectedBy := func(binaryPath, command string) {
 		invalidPath := filepath.Join(testDir, "invalid.yml")
 		Expect(os.WriteFile(invalidPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
 
-		cmd := exec.Command(binaryPath, "validate", "--config", invalidPath)
+		cmd := exec.Command(binaryPath, command, "--config", invalidPath)
 		_, err := cmd.CombinedOutput()
 
 		Expect(err).To(HaveOccurred())
+	}
+
+	// Helper function to test that a command help output contains expected text
+	assertHelpContains := func(binaryPath, subcommand, expected string) {
+		cmd := exec.Command(binaryPath, subcommand, "--help")
+		output, err := cmd.CombinedOutput()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(string(output)).To(ContainSubstring(expected))
+	}
+
+	// Helper function to generate a report and return its file content
+	generateReport := func(binaryPath, configPath, reportExt, format string) string {
+		reportPath := filepath.Join(testDir, "report."+reportExt)
+		cmd := exec.Command(binaryPath, "report", "--config", configPath, "--output", reportPath, "--format", format)
+		output, err := cmd.CombinedOutput()
+		Expect(err).NotTo(HaveOccurred(), string(output))
+
+		data, err := os.ReadFile(reportPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		return string(data)
 	}
 
 	// Helper function to test command succeeds with expected output
@@ -158,8 +179,7 @@ linters:
 		})
 
 		It("should handle invalid YAML gracefully", func() {
-			binaryPath := buildBinary()
-			assertInvalidYAMLRejected(binaryPath)
+			assertInvalidYAMLRejectedBy(buildBinary(), "validate")
 		})
 	})
 
@@ -459,14 +479,7 @@ linters:
 		})
 
 		It("should handle invalid YAML in configure", func() {
-			binaryPath := buildBinary()
-			invalidPath := filepath.Join(testDir, "invalid.yml")
-			Expect(os.WriteFile(invalidPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
-
-			cmd := exec.Command(binaryPath, "configure", "--config", invalidPath)
-			_, err := cmd.CombinedOutput()
-
-			Expect(err).To(HaveOccurred())
+			assertInvalidYAMLRejectedBy(buildBinary(), "configure")
 		})
 	})
 
@@ -486,8 +499,7 @@ linters:
 		})
 
 		It("should reject invalid YAML", func() {
-			binaryPath := buildBinary()
-			assertInvalidYAMLRejected(binaryPath)
+			assertInvalidYAMLRejectedBy(buildBinary(), "validate")
 		})
 
 		It("should handle missing config file", func() {
@@ -534,12 +546,7 @@ linters:
 		})
 
 		It("should show analyze help", func() {
-			binaryPath := buildBinary()
-			cmd := exec.Command(binaryPath, "analyze", "--help")
-			output, err := cmd.CombinedOutput()
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("analyze"))
+			assertHelpContains(buildBinary(), "analyze", "analyze")
 		})
 
 		It("should handle verbose flag", func() {
@@ -588,25 +595,18 @@ linters:
 		})
 
 		It("should handle invalid v1 config", func() {
-			binaryPath := buildBinary()
-			invalidPath := filepath.Join(testDir, "invalid.yml")
-			Expect(os.WriteFile(invalidPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
-
-			cmd := exec.Command(binaryPath, "migrate", "--config", invalidPath)
-			_, err := cmd.CombinedOutput()
-			Expect(err).To(HaveOccurred())
+			assertInvalidYAMLRejectedBy(buildBinary(), "migrate")
 		})
 	})
 
 	Context("report command", func() {
 		It("should generate JSON report", func() {
 			binaryPath := buildBinary()
-			configContent := `version: "2"
+			configPath := writeConfig(`version: "2"
 linters:
   enable:
     - errcheck
-`
-			configPath := writeConfig(configContent)
+`)
 
 			reportPath := filepath.Join(testDir, "report.json")
 			cmd := exec.Command(
@@ -620,99 +620,41 @@ linters:
 				"json",
 			)
 			_, err := cmd.CombinedOutput()
-
 			Expect(err).NotTo(HaveOccurred())
 
 			_, err = os.Stat(reportPath)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		It("should generate HTML report", func() {
+		// testReportFormat verifies a report format generates output containing all expected substrings.
+		testReportFormat := func(ext, format string, expected []string) {
 			binaryPath := buildBinary()
-			configContent := `version: "2"
+			configPath := writeConfig(`version: "2"
 linters:
   enable:
     - errcheck
-`
-			configPath := writeConfig(configContent)
+`)
 
-			reportPath := filepath.Join(testDir, "report.html")
-			cmd := exec.Command(
-				binaryPath,
-				"report",
-				"--config",
-				configPath,
-				"--output",
-				reportPath,
-				"--format",
-				"html",
-			)
-			output, err := cmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred(), string(output))
+			data := generateReport(binaryPath, configPath, ext, format)
+			for _, e := range expected {
+				Expect(data).To(ContainSubstring(e))
+			}
+		}
 
-			data, err := os.ReadFile(reportPath)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(data)).To(ContainSubstring("<!doctype html>"))
-			Expect(string(data)).To(ContainSubstring("golangci-lint"))
+		It("should generate HTML report", func() {
+			testReportFormat("html", "html", []string{"<!doctype html>", "golangci-lint"})
 		})
 
 		It("should generate SARIF report", func() {
-			binaryPath := buildBinary()
-			configContent := `version: "2"
-linters:
-  enable:
-    - errcheck
-`
-			configPath := writeConfig(configContent)
-
-			reportPath := filepath.Join(testDir, "report.sarif.json")
-			cmd := exec.Command(
-				binaryPath,
-				"report",
-				"--config",
-				configPath,
-				"--output",
-				reportPath,
-				"--format",
-				"sarif",
-			)
-			_, err := cmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred())
-
-			data, err := os.ReadFile(reportPath)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(data)).To(ContainSubstring(`"$schema"`))
-			Expect(string(data)).To(ContainSubstring(`"golangci-lint-auto-configure"`))
+			testReportFormat("sarif.json", "sarif", []string{`"$schema"`, `"golangci-lint-auto-configure"`})
 		})
 
 		It("should generate finding report", func() {
-			binaryPath := buildBinary()
-			configContent := `version: "2"
-linters:
-  enable:
-    - errcheck
-`
-			configPath := writeConfig(configContent)
-
-			reportPath := filepath.Join(testDir, "report.finding.json")
-			cmd := exec.Command(
-				binaryPath,
-				"report",
-				"--config",
-				configPath,
-				"--output",
-				reportPath,
-				"--format",
+			testReportFormat(
+				"finding.json",
 				"finding",
+				[]string{`"golangci-lint-auto-configure"`, `"findings"`, `"summary"`},
 			)
-			_, err := cmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred())
-
-			data, err := os.ReadFile(reportPath)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(data)).To(ContainSubstring(`"golangci-lint-auto-configure"`))
-			Expect(string(data)).To(ContainSubstring(`"findings"`))
-			Expect(string(data)).To(ContainSubstring(`"summary"`))
 		})
 
 		It("should handle missing config file", func() {
@@ -870,11 +812,7 @@ linters:
 
 	Context("completion command", func() {
 		It("should generate bash completion script", func() {
-			binaryPath := buildBinary()
-			cmd := exec.Command(binaryPath, "completion", "bash")
-			output, err := cmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(ContainSubstring("bash"))
+			assertHelpContains(buildBinary(), "completion", "bash")
 		})
 
 		It("should generate zsh completion script", func() {
@@ -887,34 +825,20 @@ linters:
 	})
 
 	Context("check mode combinations", func() {
+		// configureThenCheck runs configure with given flags, then runs configure --check with the same flags.
+		configureThenCheck := func(binaryPath, configPath, flagName, flagValue string) {
+			_, err := exec.Command(binaryPath, "configure", "--config", configPath, "--"+flagName, flagValue).
+				CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = exec.Command(binaryPath, "configure", "--config", configPath, "--"+flagName, flagValue, "--check").
+				CombinedOutput()
+			Expect(err).NotTo(HaveOccurred())
+		}
+
 		It("should exit 0 with --check --priority critical after configure", func() {
 			initGitRepo()
-
-			binaryPath := buildBinary()
-			configPath := writeConfig(testConfigContentMinimal)
-
-			configureCmd := exec.Command(
-				binaryPath,
-				"configure",
-				"--config",
-				configPath,
-				"--priority",
-				"critical",
-			)
-			_, err := configureCmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred())
-
-			checkCmd := exec.Command(
-				binaryPath,
-				"configure",
-				"--config",
-				configPath,
-				"--priority",
-				"critical",
-				"--check",
-			)
-			_, err = checkCmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred())
+			configureThenCheck(buildBinary(), writeConfig(testConfigContentMinimal), "priority", "critical")
 		})
 
 		It("should not modify file with --check --dry-run", func() {
@@ -939,32 +863,7 @@ linters:
 
 		It("should exit 0 with --check --preset after configure", func() {
 			initGitRepo()
-
-			binaryPath := buildBinary()
-			configPath := writeConfig(testConfigContentMinimal)
-
-			configureCmd := exec.Command(
-				binaryPath,
-				"configure",
-				"--config",
-				configPath,
-				"--preset",
-				"minimal",
-			)
-			_, err := configureCmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred())
-
-			checkCmd := exec.Command(
-				binaryPath,
-				"configure",
-				"--config",
-				configPath,
-				"--preset",
-				"minimal",
-				"--check",
-			)
-			_, err = checkCmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred())
+			configureThenCheck(buildBinary(), writeConfig(testConfigContentMinimal), "preset", "minimal")
 		})
 	})
 

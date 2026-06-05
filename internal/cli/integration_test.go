@@ -57,13 +57,31 @@ func runCLI(args ...string) ([]byte, error) {
 	return cmd.CombinedOutput()
 }
 
+// minimalConfigContent returns a minimal valid v2 config for testing.
+const minimalConfigContent = `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+
+// writeTestConfig writes a test config to the given temp dir and returns the path.
+func writeTestConfig(tempDir string, content string) string {
+	configPath := filepath.Join(tempDir, ".golangci.yml")
+	Expect(os.WriteFile(configPath, []byte(content), 0o644)).To(Succeed())
+
+	return configPath
+}
+
+// writeMinimalTestConfig writes the standard minimal test config and returns the path.
+func writeMinimalTestConfig(tempDir string) string {
+	return writeTestConfig(tempDir, minimalConfigContent)
+}
+
 // testConfigCommand creates a test config file, runs a CLI command, and returns the output.
 func testConfigCommand(tempDir, command, configContent string) ([]byte, error) {
-	configPath := filepath.Join(tempDir, ".golangci.yml")
-	err := os.WriteFile(configPath, []byte(configContent), 0o644)
-	if err != nil {
-		return nil, err
-	}
+	configPath := writeTestConfig(tempDir, configContent)
 	return runCLI(command, "--config", configPath)
 }
 
@@ -170,20 +188,8 @@ var _ = Describe("CLI Integration", func() {
 		})
 
 		It("should support dry-run mode", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
+			configPath := writeMinimalTestConfig(tempDir)
 
-			// Create initial config
-			initialContent := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
-			Expect(err).NotTo(HaveOccurred())
-
-			// Run dry-run
 			output, err := runCLI(
 				"configure",
 				"--config",
@@ -242,16 +248,7 @@ linters:
 
 	Context("Analyze command", func() {
 		It("should analyze with JSON output", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			initialContent := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
-			Expect(err).NotTo(HaveOccurred())
+			configPath := writeMinimalTestConfig(tempDir)
 
 			output, err := runCLI("analyze", "--config", configPath, "--format", "json")
 			Expect(err).NotTo(HaveOccurred())
@@ -260,16 +257,7 @@ linters:
 		})
 
 		It("should analyze with SARIF output", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			initialContent := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
-			Expect(err).NotTo(HaveOccurred())
+			configPath := writeMinimalTestConfig(tempDir)
 
 			output, err := runCLI("analyze", "--config", configPath, "--format", "sarif")
 			Expect(err).NotTo(HaveOccurred())
@@ -280,16 +268,7 @@ linters:
 
 	Context("Validate command", func() {
 		It("should validate a valid config", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			initialContent := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
-			Expect(err).NotTo(HaveOccurred())
+			configPath := writeMinimalTestConfig(tempDir)
 
 			output, err := runCLI("validate", "--config", configPath)
 			Expect(err).NotTo(HaveOccurred())
@@ -298,29 +277,16 @@ linters:
 		})
 
 		It("should reject an invalid config", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			initialContent := `version: "1"
-` // v1 config without migration
-			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
-			Expect(err).NotTo(HaveOccurred())
+			configPath := writeTestConfig(tempDir, "version: \"1\"\n")
 
-			_, err = runCLI("validate", "--config", configPath)
+			_, err := runCLI("validate", "--config", configPath)
 			Expect(err).To(HaveOccurred())
 		})
 	})
 
 	Context("Report command", func() {
 		It("should generate JSON report", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			initialContent := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
-			Expect(err).NotTo(HaveOccurred())
+			configPath := writeMinimalTestConfig(tempDir)
 
 			reportPath := filepath.Join(tempDir, "report.json")
 			output, err := runCLI("report", "--config", configPath, "--format", "json", "--output", reportPath)
@@ -380,34 +346,16 @@ linters:
 		})
 
 		It("should exit 1 for suboptimal config", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			initialContent := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
-			Expect(err).NotTo(HaveOccurred())
+			configPath := writeMinimalTestConfig(tempDir)
 
-			_, err = runCLI("configure", "--config", configPath, "--priority", "critical", "--check")
+			_, err := runCLI("configure", "--config", configPath, "--priority", "critical", "--check")
 			Expect(err).To(HaveOccurred())
 		})
 	})
 
 	Context("Diff mode", func() {
 		It("should show diff for changes", func() {
-			configPath := filepath.Join(tempDir, ".golangci.yml")
-			initialContent := `version: "2"
-run:
-  timeout: 5m
-linters:
-  enable:
-    - gosec
-`
-			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
-			Expect(err).NotTo(HaveOccurred())
+			configPath := writeMinimalTestConfig(tempDir)
 
 			output, err := runCLI("configure", "--config", configPath, "--priority", "critical", "--diff")
 			Expect(err).NotTo(HaveOccurred())

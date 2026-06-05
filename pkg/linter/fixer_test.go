@@ -150,6 +150,25 @@ func fixHighPriorityAndContain(
 	})
 }
 
+// fixHighPriorityContainAndNotContain is like fixHighPriorityAndContain but also
+// verifies the result does NOT contain the specified substrings.
+func fixHighPriorityContainAndNotContain(
+	fixer *linter.Fixer,
+	configPath, content string,
+	contain []string,
+	notContain []string,
+) {
+	fixHighPriority(fixer, configPath, content, func(result string) {
+		for _, e := range contain {
+			Expect(result).To(ContainSubstring(e))
+		}
+
+		for _, e := range notContain {
+			Expect(result).NotTo(ContainSubstring(e))
+		}
+	})
+}
+
 // fixHighPriority writes config, runs fix at high priority (non-dry-run), asserts no error,
 // then calls assertFunc with the result.
 func fixHighPriority(
@@ -344,17 +363,14 @@ linters:
 
 	Context("Typecheck Linter", func() {
 		It("should remove typecheck from enabled linters", func() {
-			fixHighPriority(fixer, testConfig, `version: "2"
+			fixHighPriorityContainAndNotContain(fixer, testConfig, `version: "2"
 run:
   timeout: 5m
 linters:
   enable:
     - gosec
     - typecheck
-`, func(content string) {
-				Expect(content).To(ContainSubstring("gosec"))
-				Expect(content).NotTo(ContainSubstring("- typecheck"))
-			})
+`, []string{"gosec"}, []string{"- typecheck"})
 		})
 
 		It("should remove typecheck from disabled linters", func() {
@@ -465,15 +481,12 @@ linters:
 		})
 
 		It("should inject gomoddirectives defaults when enabled", func() {
-			fixHighPriority(fixer, testConfig, `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
     - gomoddirectives
-`, func(content string) {
-				Expect(content).To(ContainSubstring("gomoddirectives:"))
-				Expect(content).To(ContainSubstring("replace-local"))
-			})
+`, "gomoddirectives:", "replace-local")
 		})
 
 		It("should inject cyclop defaults when cyclop is enabled", func() {
@@ -492,19 +505,16 @@ linters:
 
 	Context("Default Formatter Settings", func() {
 		It("should inject golines max-len when golines formatter is enabled", func() {
-			fixHighPriority(fixer, testConfig, `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
     - lll
-`, func(content string) {
-				Expect(content).To(ContainSubstring("golines:"))
-				Expect(content).To(ContainSubstring("max-len"))
-			})
+`, "golines:", "max-len")
 		})
 
 		It("should not overwrite existing golines settings", func() {
-			fixHighPriority(fixer, testConfig, `version: "2"
+			fixHighPriorityContainAndNotContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
@@ -513,10 +523,7 @@ formatters:
   settings:
     golines:
       max-len: 100
-`, func(content string) {
-				Expect(content).To(ContainSubstring("max-len: 100"))
-				Expect(content).NotTo(ContainSubstring("max-len: 120"))
-			})
+`, []string{"max-len: 100"}, []string{"max-len: 120"})
 		})
 	})
 
@@ -594,7 +601,7 @@ linters:
 		})
 
 		It("should preserve existing build tags", func() {
-			fixHighPriority(fixer, testConfig, `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 run:
   timeout: 5m
   build-tags:
@@ -602,10 +609,7 @@ run:
 linters:
   enable:
     - gosec
-`, func(content string) {
-				Expect(content).To(ContainSubstring("custom_tag"))
-				Expect(content).To(ContainSubstring("goexperiment.jsonv2"))
-			})
+`, "custom_tag", "goexperiment.jsonv2")
 		})
 
 		It("should not duplicate already-present experiment tags", func() {
@@ -647,14 +651,11 @@ linters:
 
 	Context("Default Exclusion Paths", func() {
 		It("should add _templ.go$ and vendor/ to linters exclusions", func() {
-			fixHighPriority(fixer, testConfig, `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
-`, func(content string) {
-				Expect(content).To(ContainSubstring("_templ\\.go$"))
-				Expect(content).To(ContainSubstring("vendor/"))
-			})
+`, "_templ\\.go$", "vendor/")
 		})
 
 		It("should add _templ.go$ to formatters exclusions", func() {
