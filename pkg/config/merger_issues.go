@@ -11,7 +11,7 @@ func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 	return changes
 }
 
-// Note: 0 is a valid value (disable), so we check if primary hasn't been explicitly set.
+// Zero is a valid value (disable), so we check if primary hasn't been explicitly set.
 func mergeIssuesNumericFields(primary, secondary *IssuesConfig) int {
 	changes := 0
 
