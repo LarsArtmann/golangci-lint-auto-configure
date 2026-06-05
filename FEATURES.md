@@ -1,7 +1,7 @@
 # golangci-lint-auto-configure — Feature Audit
 
 **Version:** v0.2.0+ (unreleased changes)
-**Last Audited:** 2026-05-23
+**Last Audited:** 2026-06-05
 
 ---
 
@@ -25,10 +25,13 @@
 | Linter reasons (human-readable)                       | Stable | `pkg/constants/linter_reasons.go`          |
 | Priority-based filtering (`--priority`)               | Stable | configure command                          |
 | Dry-run mode (`--dry-run`)                            | Stable | Shows what would change                    |
+| CI check mode (`--check`)                             | Stable | Exit 0 if optimal, exit 1 if changes needed |
+| Diff preview (`--diff`)                               | Stable | Shows config diff before applying          |
 | Deprecated linter auto-replacement                    | Stable | wsl→wsl_v5, gomodguard→gomodguard_v2, etc. |
 | Version-gated deprecation                             | Stable | gomodguard_v2 requires v2.12.0+            |
 | Typecheck linter removal                              | Stable | Removes from enable/disable lists          |
 | Invalid duration fix                                  | Stable | Fixes empty/invalid timeout values         |
+| Multiple binary detection                             | Stable | Warns if multiple golangci-lint binaries   |
 
 ## Default Settings Injection
 
@@ -43,6 +46,7 @@
 | gomoddirectives defaults (replace-local: true)         | Stable | Local dev support                  |
 | cyclop defaults (max-complexity: 12)                   | Stable | Reasonable complexity threshold    |
 | golines formatter defaults (max-len: 120)              | Stable | When enabled via lll replacement   |
+| output.formats initialization                          | Stable | Empty map to prevent nil issues    |
 
 ## Exclusion Automation
 
@@ -56,6 +60,18 @@
 | gogenfilter dynamic scan                                        | Stable | Detects templ, protobuf, wire, moq, mockgen, stringer, sqlc, oapi-codegen |
 | gogenfilter/v3 two-phase detection                              | Stable | Filename first, content second                                            |
 | Deduplication of exclusion paths                                | Stable | MergeExclusionPaths                                                       |
+
+## Presets
+
+| Feature                                              | Status | Notes                              |
+| ---------------------------------------------------- | ------ | ---------------------------------- |
+| `minimal` preset (5 linters)                         | Stable | Essential only, fastest            |
+| `standard` preset (8 linters)                        | Stable | Good balance for most projects     |
+| `strict` preset (17 linters)                         | Stable | Maximum linting for CI/CD          |
+| `security` preset                                    | Stable | Security-focused only              |
+| `performance` preset                                 | Stable | Performance optimization           |
+| `reference` preset (60+ linters)                     | Stable | All critical + high priority       |
+| Auto-detect project type and select preset (`--detect`) | Stable | CLI, web, library, API, monorepo |
 
 ## Formatter Management
 
@@ -77,6 +93,7 @@
 | allow-parallel-runners enablement      | Stable | Always enabled                                            |
 | allow-serial-runners enablement        | Stable | Always enabled                                            |
 | Version field fix (empty → "2")        | Stable | Pre-flight check                                          |
+| Benchmarking suite                     | Stable | analyzer and fixer benchmarks                             |
 
 ## Migration (v1 → v2)
 
@@ -112,13 +129,14 @@
 
 ## Project Detection
 
-| Feature                                     | Status | Notes |
-| ------------------------------------------- | ------ | ----- |
-| Monorepo detection (multiple go.mod)        | Stable |       |
-| CLI project detection (cobra, urfave/cli)   | Stable |       |
-| Web project detection (gin, echo, net/http) | Stable |       |
-| Library project detection                   | Stable |       |
-| API service detection                       | Stable |       |
+| Feature                                     | Status | Notes                                  |
+| ------------------------------------------- | ------ | -------------------------------------- |
+| Monorepo detection (multiple go.mod)        | Stable |                                        |
+| CLI project detection (cobra, urfave/cli)   | Stable |                                        |
+| Web project detection (gin, echo, net/http) | Stable |                                        |
+| Library project detection                   | Stable |                                        |
+| API service detection                       | Stable |                                        |
+| swaggo annotation detection                 | Stable | `@Router`, `@Summary`, `@Tags`, etc.   |
 
 ## Error Handling
 
@@ -128,6 +146,7 @@
 | Result type (railway-oriented)                               | Stable | `pkg/types/result.go`  |
 | Error wrapping with context (%w)                             | Stable |                        |
 | Structured logging (charmbracelet/log)                       | Stable |                        |
+| Panic-free finding builder                                   | Stable | `pkg/finding/`         |
 
 ## Build & CI
 
@@ -139,3 +158,4 @@
 | Pre-commit hook                         | Stable | golangci-lint, go-test, go-fmt   |
 | Version injection via ldflags           | Stable | version, commit, date, treeState |
 | Auto-tag workflow                       | Stable | Tags on merge to master          |
+| templ generate in Nix build             | Stable | Generated code in pipeline       |

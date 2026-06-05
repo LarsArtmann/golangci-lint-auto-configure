@@ -135,12 +135,32 @@ golangci-lint-auto-configure configure --priority critical   # Security only
 golangci-lint-auto-configure configure --priority high       # Recommended (default)
 golangci-lint-auto-configure configure --priority medium     # Include style linters
 golangci-lint-auto-configure configure --priority optional   # All linters
+
+# Use a preset linter set
+golangci-lint-auto-configure configure --preset minimal      # Essential only
+golangci-lint-auto-configure configure --preset standard     # Balanced (default behavior)
+golangci-lint-auto-configure configure --preset strict       # Maximum coverage
+golangci-lint-auto-configure configure --preset reference    # All critical + high linters
+
+# Auto-detect project type and apply appropriate preset
+golangci-lint-auto-configure configure --detect
+
+# CI check mode — exit 1 if changes needed, 0 if optimal
+golangci-lint-auto-configure configure --check
+
+# Preview config changes as a diff before applying
+golangci-lint-auto-configure configure --diff
+
+# Combine flags
+golangci-lint-auto-configure configure --check --diff        # CI diff preview
+golangci-lint-auto-configure configure --dry-run --diff      # Preview without saving
 ```
 
 **Automatic Deprecation Handling:**
 The tool automatically detects and replaces deprecated linters with their recommended successors:
 
 - `wsl` → `wsl_v5` (original wsl is deprecated since golangci-lint v2.2.0)
+- `gomodguard` → `gomodguard_v2` (requires golangci-lint v2.12.0+)
 
 **Safety Features:**
 
@@ -211,8 +231,8 @@ jobs:
           go-version: "1.26"
       - name: Install golangci-lint-auto-configure
         run: go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
-      - name: Auto-configure
-        run: golangci-lint-auto-configure configure
+      - name: Check config is optimal
+        run: golangci-lint-auto-configure configure --check
       - name: Run linters
         run: golangci-lint run ./...
 ```
@@ -231,14 +251,19 @@ jobs:
 
 ## Flags
 
-| Flag            | Description                                               |
-| --------------- | --------------------------------------------------------- |
-| `-c, --config`  | Path to golangci-lint config file                         |
-| `-d, --dry-run` | Show what would be done without making changes            |
-| `--priority`    | Minimum priority level (critical, high, medium, optional) |
-| `-v, --verbose` | Enable verbose output                                     |
-| `--format`      | Output format (html, json, sarif, finding)                |
-| `--output`      | Output path for report file                               |
+| Flag               | Description                                               |
+| ------------------ | --------------------------------------------------------- |
+| `-c, --config`     | Path to golangci-lint config file                         |
+| `-d, --dry-run`    | Show what would be done without making changes            |
+| `--check`          | CI mode: exit 1 if changes needed, 0 if optimal           |
+| `--diff`           | Show diff of config changes before applying               |
+| `--priority`       | Minimum priority level (critical, high, medium, optional) |
+| `--preset`         | Use a preset (minimal, standard, strict, security, performance, reference) |
+| `--detect`         | Auto-detect project type and select appropriate preset    |
+| `-v, --verbose`    | Enable verbose output                                     |
+| `--format`         | Output format (html, json, sarif, finding)                |
+| `--output`         | Output path for report file                               |
+| `--no-auto-merge`  | Disable automatic merging of multiple config files        |
 
 ## Project-Specific Examples
 
@@ -321,15 +346,17 @@ Note: Unlike standard regex, RE2 anchors like `$` are literal — the pattern is
 ## Testing
 
 ```bash
-# Run all tests
-ginkgo -r --cover
+# Run all tests with coverage
+just test
 
 # Run with verbose output
 ginkgo -v ./...
 
-# Generate coverage report
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
+# Generate and view HTML coverage report
+just coverage-html
+
+# Check test coverage summary
+just test-coverage
 ```
 
 ## Building from Source
@@ -347,10 +374,11 @@ go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create a feature branch (`git switch -c feature/amazing-feature`)
 3. Make your changes and add tests
-4. Ensure all tests pass (`ginkgo -r`)
-5. Submit a pull request
+4. Ensure all tests pass (`just test`)
+5. Run linters (`just lint`)
+6. Submit a pull request
 
 ## License
 
