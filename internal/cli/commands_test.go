@@ -905,17 +905,9 @@ linters:
 			initGitRepo()
 
 			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
 
 			configureCmd := exec.Command(
-				binaryPath,
-				"configure",
-				"--config",
-				filepath.Join(testDir, ".golangci.yml"),
-				"--priority",
-				"critical",
-			)
-			configPath := writeConfig(testConfigContentMinimal)
-			configureCmd = exec.Command(
 				binaryPath,
 				"configure",
 				"--config",

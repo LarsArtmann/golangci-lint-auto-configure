@@ -35,17 +35,17 @@ func deepCloneAny(v any) any {
 	}
 }
 
-func deepCloneSlice(s []any) []any {
-	if s == nil {
+func deepCloneSlice(src []any) []any {
+	if src == nil {
 		return nil
 	}
 
-	cp := make([]any, len(s))
-	for i, v := range s {
-		cp[i] = deepCloneAny(v)
+	cloned := make([]any, len(src))
+	for i, v := range src {
+		cloned[i] = deepCloneAny(v)
 	}
 
-	return cp
+	return cloned
 }
 
 func cloneExclusionRules(src []ExclusionRuleConfig) []ExclusionRuleConfig {
@@ -53,9 +53,9 @@ func cloneExclusionRules(src []ExclusionRuleConfig) []ExclusionRuleConfig {
 		return nil
 	}
 
-	cp := make([]ExclusionRuleConfig, len(src))
+	cloned := make([]ExclusionRuleConfig, len(src))
 	for i, rule := range src {
-		cp[i] = ExclusionRuleConfig{
+		cloned[i] = ExclusionRuleConfig{
 			Path:       rule.Path,
 			PathExcept: rule.PathExcept,
 			Text:       rule.Text,
@@ -64,7 +64,7 @@ func cloneExclusionRules(src []ExclusionRuleConfig) []ExclusionRuleConfig {
 		}
 	}
 
-	return cp
+	return cloned
 }
 
 // Clone returns a deep copy of the Config.

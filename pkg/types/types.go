@@ -2,8 +2,12 @@ package types
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
+
+// ErrInvalidLinterPriority indicates an unrecognized linter priority value.
+var ErrInvalidLinterPriority = errors.New("invalid linter priority: must be critical, high, medium, or optional")
 
 // LinterPriority represents the priority level for a linter.
 type LinterPriority int
@@ -32,8 +36,8 @@ func (p LinterPriority) String() string {
 
 // ParseLinterPriority parses a case-insensitive priority string.
 // Returns an error for unrecognized values.
-func ParseLinterPriority(s string) (LinterPriority, error) {
-	switch s {
+func ParseLinterPriority(input string) (LinterPriority, error) {
+	switch input {
 	case "critical":
 		return LinterPriorityCritical, nil
 	case "high":
@@ -44,8 +48,8 @@ func ParseLinterPriority(s string) (LinterPriority, error) {
 		return LinterPriorityOptional, nil
 	default:
 		return LinterPriorityOptional, fmt.Errorf(
-			"invalid linter priority %q: must be critical, high, medium, or optional",
-			s,
+			"%w: %q",
+			ErrInvalidLinterPriority, input,
 		)
 	}
 }

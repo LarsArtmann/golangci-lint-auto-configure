@@ -23,10 +23,10 @@ const (
 	RuleIDConfigFix        = "config-fix"
 )
 
-var linterTagReplacer = strings.NewReplacer("_", "-", ".", "-", "/", "-")
-
 func linterTag(name string) finding.Tag {
-	return finding.Tag(linterTagReplacer.Replace(name))
+	replacer := strings.NewReplacer("_", "-", ".", "-", "/", "-")
+
+	return finding.Tag(replacer.Replace(name))
 }
 
 // PriorityToSeverity maps LinterPriority to finding.Severity.
@@ -208,6 +208,18 @@ func AnalysisToReport(analysis *types.ConfigAnalysis, version string) (*finding.
 		Version: version,
 	})
 
+	errs := collectAnalysisFindings(report, analysis)
+	if len(errs) > 0 {
+		return nil, errors.Join(errs...)
+	}
+
+	report.ComputeSummary()
+
+	return report, nil
+}
+
+// collectAnalysisFindings adds all analysis findings to the report and returns any errors.
+func collectAnalysisFindings(report *finding.Report, analysis *types.ConfigAnalysis) []error {
 	var errs []error
 
 	recs, err := RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)
@@ -231,13 +243,7 @@ func AnalysisToReport(analysis *types.ConfigAnalysis, version string) (*finding.
 
 	report.AddFindings(depRecs)
 
-	if len(errs) > 0 {
-		return nil, errors.Join(errs...)
-	}
-
-	report.ComputeSummary()
-
-	return report, nil
+	return errs
 }
 
 // AnalysisToSARIF converts a ConfigAnalysis directly to SARIF JSON.

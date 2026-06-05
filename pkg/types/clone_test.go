@@ -95,10 +95,12 @@ var _ = Describe("Config.Clone", func() {
 
 		cloned := original.Clone()
 
-		funlenCloned := cloned.Linters.Settings["funlen"].(map[string]any)
+		funlenCloned, ok := cloned.Linters.Settings["funlen"].(map[string]any)
+		Expect(ok).To(BeTrue())
 		funlenCloned["lines"] = 200
 
-		funlenOriginal := original.Linters.Settings["funlen"].(map[string]any)
+		funlenOriginal, ok := original.Linters.Settings["funlen"].(map[string]any)
+		Expect(ok).To(BeTrue())
 		Expect(funlenOriginal["lines"]).To(Equal(80))
 	})
 
@@ -116,10 +118,12 @@ var _ = Describe("Config.Clone", func() {
 
 		cloned := original.Clone()
 
-		jsonCloned := cloned.Output.Formats["json"].(map[string]any)
+		jsonCloned, ok := cloned.Output.Formats["json"].(map[string]any)
+		Expect(ok).To(BeTrue())
 		jsonCloned["path"] = "stderr"
 
-		jsonOriginal := original.Output.Formats["json"].(map[string]any)
+		jsonOriginal, ok := original.Output.Formats["json"].(map[string]any)
+		Expect(ok).To(BeTrue())
 		Expect(jsonOriginal["path"]).To(Equal("stdout"))
 	})
 })

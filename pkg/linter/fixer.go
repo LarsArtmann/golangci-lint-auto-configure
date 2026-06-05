@@ -49,10 +49,10 @@ func (f *Fixer) FixConfig(
 	}
 
 	if dryRun {
-		if result, shouldReturn, err := f.checkDryRunEarlyReturns(
+		if result, shouldReturn := f.checkDryRunEarlyReturns(
 			cfg, hasInvalid, hasDeprecatedLinters(originalEnabled, version),
 		); shouldReturn {
-			return result, err
+			return result, nil
 		}
 	}
 
@@ -110,11 +110,11 @@ func (f *Fixer) checkDryRunEarlyReturns(
 	cfg *types.Config,
 	hasInvalidDurations bool,
 	deprecatedPresent bool,
-) (*types.MigrationResult, bool, error) {
+) (*types.MigrationResult, bool) {
 	if hasInvalidDurations {
 		result := f.calculateDryRunResultWithInvalidDurations(cfg)
 
-		return result, true, nil
+		return result, true
 	}
 
 	if deprecatedPresent {
@@ -122,10 +122,10 @@ func (f *Fixer) checkDryRunEarlyReturns(
 
 		result := f.calculateDryRunResultWithDeprecated(cfg)
 
-		return result, true, nil
+		return result, true
 	}
 
-	return nil, false, nil
+	return nil, false
 }
 
 // analysisError is re-exported from fixer_results.go for backward compatibility.
