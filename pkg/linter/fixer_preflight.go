@@ -97,7 +97,7 @@ func needsDurationFix(timeout string) (bool, string) {
 // calculateDryRunResultWithInvalidDurations calculates the dry-run result when invalid durations are present.
 // Since the config has invalid durations, we can't run golangci-lint linters for analysis,
 // so we just report what would be fixed regarding durations.
-func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) (*types.MigrationResult, error) {
+func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) *types.MigrationResult {
 	f.logger.Infof("[DRY-RUN] Would fix invalid run.timeout: %q -> %q", cfg.Run.Timeout, constants.DefaultTimeout)
 
 	return &types.MigrationResult{
@@ -111,7 +111,7 @@ func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) (*t
 			"Run without --dry-run to fix the invalid duration",
 			"Then run 'golangci-lint run --fix' to auto-fix code issues",
 		},
-	}, nil
+	}
 }
 
 // preFixDeprecatedLinters replaces deprecated linters in the config before analysis.
@@ -214,7 +214,7 @@ func filterLinter(linters []string, target string) ([]string, bool) {
 // calculateDryRunResultWithDeprecated calculates the dry-run result when deprecated linters are present.
 // Since the config has deprecated linters, we can't run golangci-lint linters for analysis,
 // so we just report what would be fixed regarding deprecated linters.
-func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) (*types.MigrationResult, error) {
+func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) *types.MigrationResult {
 	enabledLinters := f.configLoader.GetLintersEnabled(cfg)
 
 	linterSet := types.NewSet[string]()
@@ -229,7 +229,7 @@ func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) (*types.M
 			"Would apply %d fixes (dry-run mode, skipped analysis due to deprecated linters)",
 			deprecationFixes,
 		),
-	}, nil
+	}
 }
 
 func (f *Fixer) applyDeprecatedReplacements(linters []string, linterSet types.Set[string]) int {

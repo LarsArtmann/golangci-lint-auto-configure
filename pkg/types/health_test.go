@@ -36,7 +36,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				Expect(health.Issues).To(HaveLen(1))
 				Expect(health.Issues[0].Severity).To(Equal(types.HealthSeverityCritical))
-				Expect(health.Issues[0].Rule).To(Equal("duplicate-linter"))
+				Expect(health.Issues[0].Rule).To(Equal(types.RuleDuplicateLinter))
 				Expect(health.Issues[0].Message).To(ContainSubstring("errcheck"))
 				Expect(health.Issues[0].Message).To(ContainSubstring("2 times"))
 			})
@@ -51,7 +51,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				Expect(health.Issues).To(HaveLen(1))
 				Expect(health.Issues[0].Severity).To(Equal(types.HealthSeverityWarning))
-				Expect(health.Issues[0].Rule).To(Equal("duplicate-linter"))
+				Expect(health.Issues[0].Rule).To(Equal(types.RuleDuplicateLinter))
 			})
 		})
 
@@ -77,7 +77,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := health.IssuesByRule("enable-disable-overlap")
+				issues := health.IssuesByRule(types.RuleEnableDisableOverlap)
 				Expect(issues).To(HaveLen(1))
 				Expect(issues[0].Severity).To(Equal(types.HealthSeverityWarning))
 				Expect(issues[0].Message).To(ContainSubstring("nlreturn"))
@@ -92,7 +92,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := health.IssuesByRule("enable-disable-overlap")
+				issues := health.IssuesByRule(types.RuleEnableDisableOverlap)
 				Expect(issues).To(HaveLen(2))
 			})
 		})
@@ -106,7 +106,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := health.IssuesByRule("missing-critical-linter")
+				issues := health.IssuesByRule(types.RuleMissingCriticalLinter)
 				Expect(issues).To(HaveLen(1))
 				Expect(issues[0].Message).To(ContainSubstring("errcheck"))
 			})
@@ -119,7 +119,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := health.IssuesByRule("missing-critical-linter")
+				issues := health.IssuesByRule(types.RuleMissingCriticalLinter)
 				Expect(issues).To(HaveLen(3))
 			})
 		})
@@ -132,7 +132,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := health.IssuesByRule("missing-critical-linter")
+				issues := health.IssuesByRule(types.RuleMissingCriticalLinter)
 				Expect(issues).To(BeEmpty())
 			})
 		})
@@ -148,7 +148,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := health.IssuesByRule("v1-syntax-in-v2")
+				issues := health.IssuesByRule(types.RuleV1SyntaxInV2)
 				Expect(issues).To(HaveLen(1))
 				Expect(issues[0].Severity).To(Equal(types.HealthSeverityWarning))
 			})
@@ -164,7 +164,7 @@ var _ = Describe("ConfigHealth", func() {
 
 				health := types.CheckConfigHealth(cfg)
 
-				issues := health.IssuesByRule("v1-syntax-in-v2")
+				issues := health.IssuesByRule(types.RuleV1SyntaxInV2)
 				Expect(issues).To(BeEmpty())
 			})
 		})
@@ -243,13 +243,13 @@ var _ = Describe("ConfigHealth", func() {
 		It("filters issues by rule name", func() {
 			health := &types.ConfigHealth{
 				Issues: []types.HealthIssue{
-					{Severity: types.HealthSeverityWarning, Rule: "duplicate-linter"},
-					{Severity: types.HealthSeverityInfo, Rule: "v1-syntax-in-v2"},
-					{Severity: types.HealthSeverityWarning, Rule: "duplicate-linter"},
+					{Severity: types.HealthSeverityWarning, Rule: types.RuleDuplicateLinter},
+					{Severity: types.HealthSeverityInfo, Rule: types.RuleV1SyntaxInV2},
+					{Severity: types.HealthSeverityWarning, Rule: types.RuleDuplicateLinter},
 				},
 			}
 			Expect(health.IssuesByRule("duplicate-linter")).To(HaveLen(2))
-			Expect(health.IssuesByRule("v1-syntax-in-v2")).To(HaveLen(1))
+			Expect(health.IssuesByRule(types.RuleV1SyntaxInV2)).To(HaveLen(1))
 			Expect(health.IssuesByRule("unknown")).To(BeEmpty())
 		})
 	})
@@ -258,11 +258,11 @@ var _ = Describe("ConfigHealth", func() {
 		It("returns true when rule exists", func() {
 			health := &types.ConfigHealth{
 				Issues: []types.HealthIssue{
-					{Severity: types.HealthSeverityWarning, Rule: "enable-disable-overlap"},
+					{Severity: types.HealthSeverityWarning, Rule: types.RuleEnableDisableOverlap},
 				},
 			}
-			Expect(health.HasRule("enable-disable-overlap")).To(BeTrue())
-			Expect(health.HasRule("duplicate-linter")).To(BeFalse())
+			Expect(health.HasRule(types.RuleEnableDisableOverlap)).To(BeTrue())
+			Expect(health.HasRule(types.RuleDuplicateLinter)).To(BeFalse())
 		})
 	})
 

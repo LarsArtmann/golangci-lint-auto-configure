@@ -112,17 +112,17 @@ func (f *Fixer) checkDryRunEarlyReturns(
 	deprecatedPresent bool,
 ) (*types.MigrationResult, bool, error) {
 	if hasInvalidDurations {
-		result, err := f.calculateDryRunResultWithInvalidDurations(cfg)
+		result := f.calculateDryRunResultWithInvalidDurations(cfg)
 
-		return result, true, err
+		return result, true, nil
 	}
 
 	if deprecatedPresent {
 		f.logger.Infof("Dry-run with deprecated linters - skipping analysis (run without --dry-run to fix)")
 
-		result, err := f.calculateDryRunResultWithDeprecated(cfg)
+		result := f.calculateDryRunResultWithDeprecated(cfg)
 
-		return result, true, err
+		return result, true, nil
 	}
 
 	return nil, false, nil

@@ -5,6 +5,13 @@ import (
 	"fmt"
 )
 
+const (
+	RuleDuplicateLinter       = "duplicate-linter"
+	RuleEnableDisableOverlap  = "enable-disable-overlap"
+	RuleMissingCriticalLinter = "missing-critical-linter"
+	RuleV1SyntaxInV2          = "v1-syntax-in-v2"
+)
+
 var (
 	ErrConfigNil       = errors.New("config validation failed: config is nil")
 	ErrVersionRequired = errors.New("config validation failed: version is required")
@@ -240,7 +247,7 @@ func (h *ConfigHealth) checkDuplicateLinters(cfg *Config) {
 		if count > 1 {
 			h.addIssue(
 				HealthSeverityCritical,
-				"duplicate-linter",
+				RuleDuplicateLinter,
 				fmt.Sprintf("Linter %q appears %d times in linters.enable", name, count),
 				"linters.enable",
 				fmt.Sprintf("Remove duplicate entries of %q from the enable list", name),
@@ -257,7 +264,7 @@ func (h *ConfigHealth) checkDuplicateLinters(cfg *Config) {
 		if count > 1 {
 			h.addIssue(
 				HealthSeverityWarning,
-				"duplicate-linter",
+				RuleDuplicateLinter,
 				fmt.Sprintf("Linter %q appears %d times in linters.disable", name, count),
 				"linters.disable",
 				fmt.Sprintf("Remove duplicate entries of %q from the disable list", name),
@@ -273,7 +280,7 @@ func (h *ConfigHealth) checkEnableDisableOverlap(cfg *Config) {
 		if enabledSet.Contains(name) {
 			h.addIssue(
 				HealthSeverityWarning,
-				"enable-disable-overlap",
+				RuleEnableDisableOverlap,
 				fmt.Sprintf("Linter %q is in both enable and disable lists", name),
 				"linters",
 				fmt.Sprintf("Remove %q from one of the lists; prefer using linters.default + enable only", name),
@@ -290,7 +297,7 @@ func (h *ConfigHealth) checkMissingCriticalLinters(cfg *Config, criticalLinters 
 		if !enabledSet.Contains(name) && !disabledSet.Contains(name) {
 			h.addIssue(
 				HealthSeverityWarning,
-				"missing-critical-linter",
+				RuleMissingCriticalLinter,
 				fmt.Sprintf("Critical linter %q is not configured (neither enabled nor disabled)", name),
 				"linters.enable",
 				fmt.Sprintf("Add %q to linters.enable for correctness checking", name),
@@ -303,7 +310,7 @@ func (h *ConfigHealth) checkV1SyntaxMixing(cfg *Config) {
 	if cfg.Version == "2" && len(cfg.LintersSettingsV1) > 0 {
 		h.addIssue(
 			HealthSeverityWarning,
-			"v1-syntax-in-v2",
+			RuleV1SyntaxInV2,
 			"Config declares version 2 but uses top-level linters-settings (v1 syntax)",
 			"linters-settings",
 			"Move settings into linters.settings block and remove top-level linters-settings",

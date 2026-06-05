@@ -22,9 +22,8 @@ type golangciLintVersion struct {
 // validateVersion checks if the version meets minimum requirements.
 // Returns error if version is too old, nil if valid.
 func (a *Analyzer) validateVersion(version string) error {
-	if !strings.HasPrefix(version, "v") {
-		version = "v" + version
-	}
+	version = strings.TrimPrefix(version, "v")
+	version = "v" + version
 
 	if !semver.IsValid(version) {
 		return apperrors.NewAnalysisError(

@@ -129,10 +129,9 @@ func detectFormat(path string) ConfigFormat {
 		return ConfigFormatTOML
 	case ".json":
 		return ConfigFormatJSON
-	case ".yml", ".yaml":
+	case ".yml", ".yaml", "":
 		return ConfigFormatYAML
 	default:
-		// Default to YAML for unknown extensions
 		return ConfigFormatYAML
 	}
 }
