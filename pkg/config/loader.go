@@ -317,6 +317,10 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 	allLinters := l.fetchLintersWithFallback(ctx)
 	goVersion := l.detectGoVersion(ctx)
 
+	return newDefaultConfig(allLinters, goVersion)
+}
+
+func newDefaultConfig(allLinters []string, goVersion string) *Config {
 	return &Config{
 		Version: "2",
 		Run: RunConfig{

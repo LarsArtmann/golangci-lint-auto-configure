@@ -132,32 +132,40 @@ func DeprecatedLintersToFindings(
 	result := make([]finding.Finding, 0, len(linters))
 
 	for _, linter := range linters {
-		pos := finding.Position{File: configPath}
-		replacement := "no replacement specified"
-
-		if repl, ok := constants.DeprecatedLinters[linter.Name]; ok {
-			replacement = fmt.Sprintf("use %s instead (%s)", repl.Replacement, repl.Reason)
-		}
-
-		found, err := buildFinding(finding.NewBuilder(
-			"deprecated-linter",
-			toolName,
-			fmt.Sprintf("Deprecated linter %s is enabled: %s", linter.Name, replacement),
-			finding.SeverityWarning,
-			pos,
-		).
-			WithTags(linterTag(string(linter.Name))).
-			WithCategory(finding.CategoryMigration).
-			WithFixStrategy(finding.FixStrategySuggest).
-			WithSuggestion(replacement))
+		found, err := deprecatedLinterFinding(linter, configPath)
 		if err != nil {
-			return nil, fmt.Errorf("build finding for deprecated linter %s: %w", linter.Name, err)
+			return nil, err
 		}
 
 		result = append(result, found)
 	}
 
 	return result, nil
+}
+
+func deprecatedLinterFinding(linter types.LinterInfo, configPath string) (finding.Finding, error) {
+	replacement := "no replacement specified"
+
+	if repl, ok := constants.DeprecatedLinters[linter.Name]; ok {
+		replacement = fmt.Sprintf("use %s instead (%s)", repl.Replacement, repl.Reason)
+	}
+
+	found, err := buildFinding(finding.NewBuilder(
+		"deprecated-linter",
+		toolName,
+		fmt.Sprintf("Deprecated linter %s is enabled: %s", linter.Name, replacement),
+		finding.SeverityWarning,
+		finding.Position{File: configPath},
+	).
+		WithTags(linterTag(string(linter.Name))).
+		WithCategory(finding.CategoryMigration).
+		WithFixStrategy(finding.FixStrategySuggest).
+		WithSuggestion(replacement))
+	if err != nil {
+		return finding.Finding{}, fmt.Errorf("build finding for deprecated linter %s: %w", linter.Name, err)
+	}
+
+	return found, nil
 }
 
 // ValidationErrorsToFindings converts ValidationErrors to Findings.

@@ -12,37 +12,45 @@ func ChangesToFindings(changes []diff.Change, configPath string) ([]finding.Find
 	result := make([]finding.Finding, 0, len(changes))
 
 	for _, change := range changes {
-		severity := changeSeverity(change.Type)
-		rule := changeRule(change.Type)
-
-		pos := finding.Position{File: configPath}
-		builder := finding.NewBuilder(
-			rule,
-			toolName,
-			change.Description,
-			severity,
-			pos,
-		).
-			WithCategory(finding.CategoryConfiguration).
-			WithSuggestion(change.Description)
-
-		if change.OldValue != "" {
-			builder = builder.WithBeforeCode(change.OldValue)
-		}
-
-		if change.NewValue != "" {
-			builder = builder.WithAfterCode(change.NewValue)
-		}
-
-		f, err := buildFinding(builder)
+		f, err := changeFinding(change, configPath)
 		if err != nil {
-			return nil, fmt.Errorf("build finding for change %s: %w", change.Path, err)
+			return nil, err
 		}
 
 		result = append(result, f)
 	}
 
 	return result, nil
+}
+
+func changeFinding(change diff.Change, configPath string) (finding.Finding, error) {
+	severity := changeSeverity(change.Type)
+	rule := changeRule(change.Type)
+
+	builder := finding.NewBuilder(
+		rule,
+		toolName,
+		change.Description,
+		severity,
+		finding.Position{File: configPath},
+	).
+		WithCategory(finding.CategoryConfiguration).
+		WithSuggestion(change.Description)
+
+	if change.OldValue != "" {
+		builder = builder.WithBeforeCode(change.OldValue)
+	}
+
+	if change.NewValue != "" {
+		builder = builder.WithAfterCode(change.NewValue)
+	}
+
+	f, err := buildFinding(builder)
+	if err != nil {
+		return finding.Finding{}, fmt.Errorf("build finding for change %s: %w", change.Path, err)
+	}
+
+	return f, nil
 }
 
 func changeSeverity(t diff.ChangeType) finding.Severity {

@@ -139,7 +139,8 @@ func (d *Detector) hasSwaggoConfigFile() bool {
 	}
 
 	for _, f := range swaggoConfigFiles {
-		if _, err := os.Stat(filepath.Join(d.rootDir, f)); err == nil {
+		_, err := os.Stat(filepath.Join(d.rootDir, f))
+		if err == nil {
 			return true
 		}
 	}

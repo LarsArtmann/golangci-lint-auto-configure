@@ -91,16 +91,20 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 		WithLong(configureLong),
 	)
 
+	addConfigureFlags(cmd, &preset, &detect, &check)
+
+	return cmd
+}
+
+func addConfigureFlags(cmd *cobra.Command, preset *string, detect *bool, check *bool) {
 	cmd.Flags().
 		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
-		StringVar(&preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance)")
+		StringVar(preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance)")
 	cmd.Flags().
-		BoolVar(&detect, "detect", false, "Auto-detect project type and select appropriate preset")
+		BoolVar(detect, "detect", false, "Auto-detect project type and select appropriate preset")
 	cmd.Flags().
-		BoolVar(&check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
-
-	return cmd
+		BoolVar(check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
 }
 
 func runDetectOrConfigure(
@@ -188,6 +192,17 @@ func runConfigure(
 
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
+	return runPresetOrFixer(ctx, logger, analyzer, configLoader, configFile, priorityParam, preset, isDryRun, check)
+}
+
+func runPresetOrFixer(
+	ctx context.Context,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configLoader *config.Loader,
+	configFile, priorityParam, preset string,
+	isDryRun, check bool,
+) error {
 	if preset != "" {
 		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, preset, isDryRun)
 	}
@@ -224,14 +239,9 @@ func runFixerMode(
 	check bool,
 ) error {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
-
 	linterPriority := ParsePriorityParam(priorityParam)
 
-	var originalCfg *types.Config
-
-	if showDiff {
-		originalCfg = cloneConfig(configLoader, configFile, logger)
-	}
+	originalCfg := captureOriginalConfig(showDiff, configLoader, configFile, logger)
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, isDryRun)
 	if err != nil {
@@ -245,15 +255,44 @@ func runFixerMode(
 		showConfigDiff(configLoader, originalCfg, configFile, logger)
 	}
 
+	displayFixResult(configFile, result)
+	runFmtUnlessDry(ctx, logger, analyzer, configFile, isDryRun)
+	logNextSteps(logger, result.NextSteps)
+
+	return handleCheckMode(check, result, logger)
+}
+
+func captureOriginalConfig(
+	shouldClone bool,
+	configLoader *config.Loader,
+	configFile string,
+	logger *log.Logger,
+) *types.Config {
+	if !shouldClone {
+		return nil
+	}
+
+	return cloneConfig(configLoader, configFile, logger)
+}
+
+func displayFixResult(configFile string, result *types.MigrationResult) {
 	fmt.Fprintln(os.Stdout, "\n"+ui.FormatConfigHeader(configFile))
 	fmt.Fprintln(os.Stdout, ui.FormatFixResult(result))
+}
 
+func runFmtUnlessDry(
+	ctx context.Context,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configFile string,
+	isDryRun bool,
+) {
 	if !isDryRun {
 		runFmtCommand(ctx, logger, analyzer, configFile)
 	}
+}
 
-	logNextSteps(logger, result.NextSteps)
-
+func handleCheckMode(check bool, result *types.MigrationResult, logger *log.Logger) error {
 	if check && result.FixesApplied > 0 {
 		logger.Infof("Check mode: %d changes needed", result.FixesApplied)
 

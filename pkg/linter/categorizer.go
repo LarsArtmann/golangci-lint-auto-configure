@@ -43,15 +43,8 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 		return true
 	}
 
-	if minVer, hasMin := constants.LinterMinVersions[linter.Name]; hasMin {
-		if a.detectedVersion != "" && semver.Compare(a.detectedVersion, minVer) < 0 {
-			a.logger.Debugf(
-				"Skipping linter %s: requires golangci-lint %s (have %s)",
-				linter.Name, minVer, a.detectedVersion,
-			)
-
-			return true
-		}
+	if a.isLinterBelowMinVersion(linter) {
+		return true
 	}
 
 	if mapping, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
@@ -60,6 +53,24 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 
 			return true
 		}
+	}
+
+	return false
+}
+
+func (a *Analyzer) isLinterBelowMinVersion(linter types.LinterInfo) bool {
+	minVer, hasMin := constants.LinterMinVersions[linter.Name]
+	if !hasMin {
+		return false
+	}
+
+	if a.detectedVersion != "" && semver.Compare(a.detectedVersion, minVer) < 0 {
+		a.logger.Debugf(
+			"Skipping linter %s: requires golangci-lint %s (have %s)",
+			linter.Name, minVer, a.detectedVersion,
+		)
+
+		return true
 	}
 
 	return false
