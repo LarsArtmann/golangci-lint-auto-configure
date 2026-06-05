@@ -76,4 +76,50 @@ var _ = Describe("Config.Clone", func() {
 		cloned.Output.Formats["json"] = "modified"
 		Expect(original.Output.Formats["json"]).ToNot(Equal("modified"))
 	})
+
+	It("should isolate nested map[string]any mutations", func() {
+		original := &types.Config{
+			Version: "2",
+			Linters: types.LintersConfig{
+				Settings: map[string]any{
+					"funlen": map[string]any{
+						"lines":     80,
+						"statements": 50,
+					},
+					"gocyclo": map[string]any{
+						"min-complexity": 15,
+					},
+				},
+			},
+		}
+
+		cloned := original.Clone()
+
+		funlenCloned := cloned.Linters.Settings["funlen"].(map[string]any)
+		funlenCloned["lines"] = 200
+
+		funlenOriginal := original.Linters.Settings["funlen"].(map[string]any)
+		Expect(funlenOriginal["lines"]).To(Equal(80))
+	})
+
+	It("should isolate nested slices inside map[string]any", func() {
+		original := &types.Config{
+			Version: "2",
+			Output: types.OutputConfig{
+				Formats: map[string]any{
+					"json": map[string]any{
+						"path": "stdout",
+					},
+				},
+			},
+		}
+
+		cloned := original.Clone()
+
+		jsonCloned := cloned.Output.Formats["json"].(map[string]any)
+		jsonCloned["path"] = "stderr"
+
+		jsonOriginal := original.Output.Formats["json"].(map[string]any)
+		Expect(jsonOriginal["path"]).To(Equal("stdout"))
+	})
 })

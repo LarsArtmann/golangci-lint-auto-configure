@@ -1,7 +1,5 @@
 package types
 
-import "maps"
-
 func cloneSlice[T any](src []T) []T {
 	if src == nil {
 		return nil
@@ -19,7 +17,33 @@ func cloneAnyMap(m map[string]any) map[string]any {
 	}
 
 	cp := make(map[string]any, len(m))
-	maps.Copy(cp, m)
+	for k, v := range m {
+		cp[k] = deepCloneAny(v)
+	}
+
+	return cp
+}
+
+func deepCloneAny(v any) any {
+	switch val := v.(type) {
+	case map[string]any:
+		return cloneAnyMap(val)
+	case []any:
+		return deepCloneSlice(val)
+	default:
+		return v
+	}
+}
+
+func deepCloneSlice(s []any) []any {
+	if s == nil {
+		return nil
+	}
+
+	cp := make([]any, len(s))
+	for i, v := range s {
+		cp[i] = deepCloneAny(v)
+	}
 
 	return cp
 }
