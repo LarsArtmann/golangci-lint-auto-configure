@@ -623,4 +623,91 @@ linters:
 			testMigrationWithSimpleConfig(v2ConfigWithExcludeFiles("*.gen.go", "**/*_test.go"))
 		})
 	})
+
+	Describe("migrateLinterSettings", func() {
+		It("should remove deprecated cyclop skip-tests property", func() {
+			testMigrationWithSimpleConfig(`version: "2"
+run:
+  timeout: 5m
+linters:
+  settings:
+    cyclop:
+      skip-tests: true
+      max-complexity: 15
+  enable:
+    - errcheck
+`)
+		})
+
+		It("should remove gosec null excludes", func() {
+			testMigrationWithSimpleConfig(`version: "2"
+run:
+  timeout: 5m
+linters:
+  settings:
+    gosec:
+      excludes: null
+  enable:
+    - errcheck
+`)
+		})
+
+		It("should remove settings for linters without settings", func() {
+			testMigrationWithSimpleConfig(`version: "2"
+run:
+  timeout: 5m
+linters:
+  settings:
+    containedctx:
+      some-setting: true
+  enable:
+    - errcheck
+`)
+		})
+
+		It("should migrate forbidigo p to pattern rename", func() {
+			testMigrationWithSimpleConfig(`version: "2"
+run:
+  timeout: 5m
+linters:
+  settings:
+    forbidigo:
+      forbid:
+        - p: fmt.Print.*
+  enable:
+    - errcheck
+`)
+		})
+
+		It("should normalize goimports local-prefixes from string to array", func() {
+			testMigrationWithSimpleConfig(`version: "2"
+run:
+  timeout: 5m
+linters:
+  settings:
+    goimports:
+      local-prefixes: github.com/myorg
+  enable:
+    - errcheck
+`)
+		})
+	})
+
+	Describe("migrateFormattersSettings", func() {
+		It("should remove gci skip-generated property", func() {
+			testMigrationWithSimpleConfig(`version: "2"
+run:
+  timeout: 5m
+formatters:
+  settings:
+    gci:
+      skip-generated: true
+      sections:
+        - Standard
+linters:
+  enable:
+    - errcheck
+`)
+		})
+	})
 })
