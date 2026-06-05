@@ -307,6 +307,7 @@
     <a href="#migration">Migration Path</a>
     <a href="#philosophy">Philosophy</a>
     <a href="#error-family">go-error-family</a>
+    <a href="#more-gaps">More Gaps</a>
   </nav>
 </header>
 
@@ -1036,6 +1037,101 @@ analysis, err := result.<span class="func">Get</span>()
   <div class="principle">
     <p><em>6. Parse, Don't Validate:</em> A function should receive data that is <strong>already proven valid</strong> in its type, not validate it after receiving it. <code>AnalyzeConfig(cfg Validated[Config])</code> is better than <code>AnalyzeConfig(cfg *Config)</code> with an internal <code>ValidateConfig</code> call.</p>
   </div>
+</section>
+
+<section id="more-gaps">
+  <h2>More Gaps — Low-Hanging Type-Safety Fruit <span class="badge badge-warn">Easy Wins</span></h2>
+
+  <h3>6. <code>LintersConfig.Enable</code> is <code>[]string</code>, not <code>[]LinterName</code></h3>
+
+  <div class="comparison">
+    <div class="col">
+      <div class="col-header"><span class="status status-bad"></span> Current: stringly-typed lists</div>
+      <pre><code><span class="keyword">type</span> <span class="type">LintersConfig</span> <span class="keyword">struct</span> {
+    <span class="param">Enable</span>  []<span class="type">string</span>
+    <span class="param">Disable</span> []<span class="type">string</span>
+}
+
+<span class="keyword">type</span> <span class="type">ExclusionRuleConfig</span> <span class="keyword">struct</span> {
+    <span class="param">Linters</span> []<span class="type">string</span>  <span class="comment">// Could put a formatter name here by accident</span>
+}
+
+<span class="comment">// A formatter name can silently enter the linter enable list:</span>
+cfg.Linters.Enable = <span class="func">append</span>(cfg.Linters.Enable, <span class="string">"gofumpt"</span>)  <span class="comment">// Compiles! Wrong!</span></code></pre>
+    </div>
+    <div class="col">
+      <div class="col-header"><span class="status status-good"></span> Proposed: []LinterName</div>
+      <pre><code><span class="keyword">type</span> <span class="type">LintersConfig</span> <span class="keyword">struct</span> {
+    <span class="param">Enable</span>  []<span class="type">LinterName</span>
+    <span class="param">Disable</span> []<span class="type">LinterName</span>
+}
+
+<span class="keyword">type</span> <span class="type">ExclusionRuleConfig</span> <span class="keyword">struct</span> {
+    <span class="param">Linters</span> []<span class="type">LinterName</span>  <span class="comment">// FormatterName won't fit</span>
+}
+
+<span class="comment">// Now this is a COMPILE ERROR:</span>
+cfg.Linters.Enable = <span class="func">append</span>(cfg.Linters.Enable, <span class="string">"gofumpt"</span>)
+<span class="comment">// Cannot use string where LinterName is expected</span></code></pre>
+    </div>
+  </div>
+
+  <p><strong>Why this matters:</strong> YAML unmarshaling still works because <code>LinterName</code> is <code>~string</code>. The struct tag decoder handles it transparently. The change is purely compile-time safety with zero runtime cost.</p>
+
+  <h3>7. <code>OutputConfig.Formats</code> is <code>map[string]any</code></h3>
+
+  <div class="single-code">
+    <div class="col-header"><span class="status status-bad"></span> pkg/types/types.go — the single most dangerous <code>any</code> in the codebase</div>
+    <pre><code><span class="keyword">type</span> <span class="type">OutputConfig</span> <span class="keyword">struct</span> {
+    <span class="param">Formats</span> <span class="keyword">map</span>[<span class="type">string</span>]<span class="keyword">any</span>  <span class="comment">// What keys? What values? Runtime panic city.</span>
+}</code></pre>
+  </div>
+
+  <p><strong>The problem:</strong> Every config I/O operation touches this. It's a <code>map[string]any</code> where the keys are output format names ("text", "json", "html") and the values are format-specific configuration. There's no IDE autocomplete, no compile-time safety, and runtime panics on wrong type casts.</p>
+
+  <div class="single-code">
+    <div class="col-header"><span class="status status-good"></span> Proposed: Typed slice</div>
+    <pre><code><span class="keyword">type</span> <span class="type">OutputFormat</span> <span class="keyword">struct</span> {
+    <span class="param">Format</span> <span class="type">string</span>
+    <span class="param">Path</span>   <span class="type">string</span>
+}
+
+<span class="keyword">type</span> <span class="type">OutputConfig</span> <span class="keyword">struct</span> {
+    <span class="param">Formats</span> []<span class="type">OutputFormat</span>
+}</code></pre>
+  </div>
+
+  <h3>8. <code>LintersExclusionsConfig.Generated</code> is <code>string</code></h3>
+
+  <div class="comparison">
+    <div class="col">
+      <div class="col-header"><span class="status status-bad"></span> Current: raw string</div>
+      <pre><code><span class="keyword">type</span> <span class="type">LintersExclusionsConfig</span> <span class="keyword">struct</span> {
+    <span class="param">Generated</span> <span class="type">string</span>  <span class="comment">// "lax" or "strict"... or "laxs"</span>
+}
+
+<span class="comment">// This compiles silently and fails at runtime:</span>
+cfg.Linters.Exclusions.Generated = <span class="string">"laxs"</span></code></pre>
+    </div>
+    <div class="col">
+      <div class="col-header"><span class="status status-good"></span> Proposed: Typed enum</div>
+      <pre><code><span class="keyword">type</span> <span class="type">GeneratedMode</span> <span class="type">string</span>
+
+<span class="keyword">const</span> (
+    GeneratedLax    GeneratedMode = <span class="string">"lax"</span>
+    GeneratedStrict GeneratedMode = <span class="string">"strict"</span>
+)
+
+<span class="keyword">type</span> <span class="type">LintersExclusionsConfig</span> <span class="keyword">struct</span> {
+    <span class="param">Generated</span> <span class="type">GeneratedMode</span>
+}
+
+<span class="comment">// Now this is a COMPILE ERROR:</span>
+cfg.Linters.Exclusions.Generated = <span class="string">"laxs"</span></code></pre>
+    </div>
+  </div>
+
+  <p><strong>Impact:</strong> Three tiny changes, all with zero runtime cost, all preventing real bugs at compile time. These are the kinds of type-safety wins that Go's nominal type system is built for.</p>
 </section>
 
 <section id="error-family">
