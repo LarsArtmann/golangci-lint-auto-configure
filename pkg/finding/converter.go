@@ -13,23 +13,10 @@ import (
 
 const toolName = "golangci-lint-auto-configure"
 
-// linterTag sanitizes a string into a valid go-finding Tag.
-// Tags must be lowercase-hyphenated (first char must be a letter).
 func linterTag(name string) finding.Tag {
 	r := strings.NewReplacer("_", "-", ".", "-", "/", "-")
 
 	return finding.Tag(r.Replace(name))
-}
-
-// buildFinding is a helper that builds a Finding from a Builder, returning an error
-// instead of panicking on invalid builder state.
-func buildFinding(b *finding.Builder) (finding.Finding, error) {
-	f, err := b.Build()
-	if err != nil {
-		return finding.Finding{}, fmt.Errorf("finding builder error: %w", err)
-	}
-
-	return f, nil
 }
 
 // PriorityToSeverity maps LinterPriority to finding.Severity.
@@ -70,19 +57,15 @@ func RecommendationsToFindings(
 	result := make([]finding.Finding, 0, len(recommendations))
 
 	for _, rec := range recommendations {
-		pos := finding.Position{File: configPath}
-
-		found, err := buildFinding(finding.NewBuilder(
-			"missing-linter",
-			toolName,
-			fmt.Sprintf("Linter %s is disabled: %s", rec.Name, rec.Reason),
-			PriorityToSeverity(rec.Priority),
-			pos,
-		).
-			WithTags(linterTag(string(rec.Name))).
-			WithCategory(LinterNameToCategory(rec.Name)).
-			WithFixStrategy(finding.FixStrategySuggest).
-			WithSuggestion(fmt.Sprintf("Enable %s in linters.enable section", rec.Name)))
+		found, err := configFinding(configFindingParams{
+			RuleID:     "missing-linter",
+			Message:    fmt.Sprintf("Linter %s is disabled: %s", rec.Name, rec.Reason),
+			Severity:   PriorityToSeverity(rec.Priority),
+			Position:   finding.Position{File: configPath},
+			Category:   LinterNameToCategory(rec.Name),
+			Tags:       []finding.Tag{linterTag(string(rec.Name))},
+			Suggestion: fmt.Sprintf("Enable %s in linters.enable section", rec.Name),
+		})
 		if err != nil {
 			return nil, fmt.Errorf("build finding for linter %s: %w", rec.Name, err)
 		}
@@ -101,19 +84,15 @@ func FormatterRecommendationsToFindings(
 	result := make([]finding.Finding, 0, len(recommendations))
 
 	for _, rec := range recommendations {
-		pos := finding.Position{File: configPath}
-
-		found, err := buildFinding(finding.NewBuilder(
-			"missing-formatter",
-			toolName,
-			fmt.Sprintf("Formatter %s is disabled: %s", rec.Name, rec.Reason),
-			FormatterPriorityToSeverity(rec.Priority),
-			pos,
-		).
-			WithTags(linterTag(string(rec.Name))).
-			WithCategory(finding.CategoryStyle).
-			WithFixStrategy(finding.FixStrategySuggest).
-			WithSuggestion(fmt.Sprintf("Enable %s in formatters.enable section", rec.Name)))
+		found, err := configFinding(configFindingParams{
+			RuleID:     "missing-formatter",
+			Message:    fmt.Sprintf("Formatter %s is disabled: %s", rec.Name, rec.Reason),
+			Severity:   FormatterPriorityToSeverity(rec.Priority),
+			Position:   finding.Position{File: configPath},
+			Category:   finding.CategoryStyle,
+			Tags:       []finding.Tag{linterTag(string(rec.Name))},
+			Suggestion: fmt.Sprintf("Enable %s in formatters.enable section", rec.Name),
+		})
 		if err != nil {
 			return nil, fmt.Errorf("build finding for formatter %s: %w", rec.Name, err)
 		}
@@ -132,12 +111,12 @@ func DeprecatedLintersToFindings(
 	result := make([]finding.Finding, 0, len(linters))
 
 	for _, linter := range linters {
-		found, err := deprecatedLinterFinding(linter, configPath)
+		f, err := deprecatedLinterFinding(linter, configPath)
 		if err != nil {
 			return nil, err
 		}
 
-		result = append(result, found)
+		result = append(result, f)
 	}
 
 	return result, nil
@@ -150,22 +129,15 @@ func deprecatedLinterFinding(linter types.LinterInfo, configPath string) (findin
 		replacement = fmt.Sprintf("use %s instead (%s)", repl.Replacement, repl.Reason)
 	}
 
-	found, err := buildFinding(finding.NewBuilder(
-		"deprecated-linter",
-		toolName,
-		fmt.Sprintf("Deprecated linter %s is enabled: %s", linter.Name, replacement),
-		finding.SeverityWarning,
-		finding.Position{File: configPath},
-	).
-		WithTags(linterTag(string(linter.Name))).
-		WithCategory(finding.CategoryMigration).
-		WithFixStrategy(finding.FixStrategySuggest).
-		WithSuggestion(replacement))
-	if err != nil {
-		return finding.Finding{}, fmt.Errorf("build finding for deprecated linter %s: %w", linter.Name, err)
-	}
-
-	return found, nil
+	return configFinding(configFindingParams{
+		RuleID:     "deprecated-linter",
+		Message:    fmt.Sprintf("Deprecated linter %s is enabled: %s", linter.Name, replacement),
+		Severity:   finding.SeverityWarning,
+		Position:   finding.Position{File: configPath},
+		Category:   finding.CategoryMigration,
+		Tags:       []finding.Tag{linterTag(string(linter.Name))},
+		Suggestion: replacement,
+	})
 }
 
 // ValidationErrorsToFindings converts ValidationErrors to Findings.
@@ -176,19 +148,15 @@ func ValidationErrorsToFindings(
 	result := make([]finding.Finding, 0, len(errors))
 
 	for _, verr := range errors {
-		pos := finding.Position{File: configPath, Line: verr.Line}
-
-		found, err := buildFinding(finding.NewBuilder(
-			"validation-error",
-			toolName,
-			verr.Message,
-			finding.SeverityError,
-			pos,
-		).
-			WithTags(linterTag(verr.Field)).
-			WithCategory(finding.CategoryConfiguration).
-			WithFixStrategy(finding.FixStrategySuggest).
-			WithSuggestion(fmt.Sprintf("Fix field %s: %s", verr.Field, verr.Message)))
+		found, err := configFinding(configFindingParams{
+			RuleID:     "validation-error",
+			Message:    verr.Message,
+			Severity:   finding.SeverityError,
+			Position:   finding.Position{File: configPath, Line: verr.Line},
+			Category:   finding.CategoryConfiguration,
+			Tags:       []finding.Tag{linterTag(verr.Field)},
+			Suggestion: fmt.Sprintf("Fix field %s: %s", verr.Field, verr.Message),
+		})
 		if err != nil {
 			return nil, fmt.Errorf("build finding for validation error %s: %w", verr.Field, err)
 		}
@@ -204,16 +172,15 @@ func ErrorsToFindings(errors []error, configPath string) ([]finding.Finding, err
 	result := make([]finding.Finding, 0, len(errors))
 
 	for _, err := range errors {
-		pos := finding.Position{File: configPath}
-
-		found, buildErr := buildFinding(finding.NewBuilder(
-			"validation-error",
-			toolName,
-			err.Error(),
-			finding.SeverityError,
-			pos,
-		).
-			WithCategory(finding.CategoryConfiguration))
+		found, buildErr := configFinding(configFindingParams{
+			RuleID:     "validation-error",
+			Message:    err.Error(),
+			Severity:   finding.SeverityError,
+			Position:   finding.Position{File: configPath},
+			Category:   finding.CategoryConfiguration,
+			Tags:       []finding.Tag{},
+			Suggestion: "",
+		})
 		if buildErr != nil {
 			return nil, fmt.Errorf("build finding for error %q: %w", err.Error(), buildErr)
 		}

@@ -14,7 +14,7 @@ Project is in strong shape. **All 15 test suites pass (61.1% composite coverage)
 
 | Command        | Status  | Coverage |
 | -------------- | ------- | -------- |
-| `configure`    | ✅ DONE | 8.2%*    |
+| `configure`    | ✅ DONE | 8.2%\*   |
 | `analyze`      | ✅ DONE | —        |
 | `validate`     | ✅ DONE | —        |
 | `report`       | ✅ DONE | —        |
@@ -22,35 +22,35 @@ Project is in strong shape. **All 15 test suites pass (61.1% composite coverage)
 | `install-hook` | ✅ DONE | —        |
 | `completion`   | ✅ DONE | —        |
 
-*CLI integration tests run actual binary, coverage appears low but functionality is well-tested through `pkg/linter` (81.8%).
+\*CLI integration tests run actual binary, coverage appears low but functionality is well-tested through `pkg/linter` (81.8%).
 
 ### Core Features (All Complete)
 
-| Feature                                          | Status  | Package              |
-| ------------------------------------------------ | ------- | -------------------- |
-| 119 linter priorities (4 tiers)                  | ✅ DONE | `pkg/constants`      |
-| Priority-based filtering (`--priority`)          | ✅ DONE | `internal/cli`       |
-| Dry-run mode (`--dry-run`)                       | ✅ DONE | `internal/cli`       |
-| CI check mode (`--check`)                        | ✅ DONE | `internal/cli`       |
-| Diff preview (`--diff`)                          | ✅ DONE | `internal/cli`       |
-| Deprecated linter auto-replacement               | ✅ DONE | `pkg/linter`         |
-| Version-gated deprecation (gomodguard_v2)        | ✅ DONE | `pkg/linter`         |
-| Typecheck linter removal                         | ✅ DONE | `pkg/linter`         |
-| Invalid timeout fix                              | ✅ DONE | `pkg/linter`         |
-| 9 default linter settings injection              | ✅ DONE | `pkg/linter`         |
-| Default formatter settings (golines)             | ✅ DONE | `pkg/linter`         |
-| Reference preset (60+ linters)                   | ✅ DONE | `pkg/constants`      |
-| gogenfilter/v3 dynamic scan (8+ generators)      | ✅ DONE | `pkg/gogenfilter`    |
-| `generated: lax` auto-set                        | ✅ DONE | `pkg/linter`         |
-| Exclusion path deduplication                     | ✅ DONE | `pkg/gogenfilter`    |
-| GOEXPERIMENT build tags auto-injection (5 tags)  | ✅ DONE | `pkg/linter`         |
-| Go version auto-detection                        | ✅ DONE | `pkg/config`         |
-| Multiple golangci-lint binary detection          | ✅ DONE | `pkg/linter`         |
-| Version-aware feature flags                      | ✅ DONE | `pkg/constants`      |
-| Project type detection (5 types)                 | ✅ DONE | `pkg/detection`      |
-| swaggo formatter detection (6 patterns)          | ✅ DONE | `pkg/detection`      |
-| Custom error types (4 domain types)              | ✅ DONE | `pkg/errors`         |
-| Result[T] railway-oriented type                  | ✅ DONE | `pkg/types`          |
+| Feature                                         | Status  | Package           |
+| ----------------------------------------------- | ------- | ----------------- |
+| 119 linter priorities (4 tiers)                 | ✅ DONE | `pkg/constants`   |
+| Priority-based filtering (`--priority`)         | ✅ DONE | `internal/cli`    |
+| Dry-run mode (`--dry-run`)                      | ✅ DONE | `internal/cli`    |
+| CI check mode (`--check`)                       | ✅ DONE | `internal/cli`    |
+| Diff preview (`--diff`)                         | ✅ DONE | `internal/cli`    |
+| Deprecated linter auto-replacement              | ✅ DONE | `pkg/linter`      |
+| Version-gated deprecation (gomodguard_v2)       | ✅ DONE | `pkg/linter`      |
+| Typecheck linter removal                        | ✅ DONE | `pkg/linter`      |
+| Invalid timeout fix                             | ✅ DONE | `pkg/linter`      |
+| 9 default linter settings injection             | ✅ DONE | `pkg/linter`      |
+| Default formatter settings (golines)            | ✅ DONE | `pkg/linter`      |
+| Reference preset (60+ linters)                  | ✅ DONE | `pkg/constants`   |
+| gogenfilter/v3 dynamic scan (8+ generators)     | ✅ DONE | `pkg/gogenfilter` |
+| `generated: lax` auto-set                       | ✅ DONE | `pkg/linter`      |
+| Exclusion path deduplication                    | ✅ DONE | `pkg/gogenfilter` |
+| GOEXPERIMENT build tags auto-injection (5 tags) | ✅ DONE | `pkg/linter`      |
+| Go version auto-detection                       | ✅ DONE | `pkg/config`      |
+| Multiple golangci-lint binary detection         | ✅ DONE | `pkg/linter`      |
+| Version-aware feature flags                     | ✅ DONE | `pkg/constants`   |
+| Project type detection (5 types)                | ✅ DONE | `pkg/detection`   |
+| swaggo formatter detection (6 patterns)         | ✅ DONE | `pkg/detection`   |
+| Custom error types (4 domain types)             | ✅ DONE | `pkg/errors`      |
+| Result[T] railway-oriented type                 | ✅ DONE | `pkg/types`       |
 
 ### Default Settings Injection (9 linters)
 
@@ -82,14 +82,14 @@ HTML (templ), JSON, SARIF, finding JSON — all ✅ DONE.
 
 ### Code Quality
 
-| Item                         | Status  |
-| ---------------------------- | ------- |
-| Semantic deduplication audit | ✅ DONE (0 clones at t=50) |
-| Zero TODO/FIXME comments     | ✅ DONE |
-| `go vet` clean               | ✅ DONE |
-| Custom `Result[T]` (no mo)   | ✅ DONE |
-| Custom `config.FS` (no afero)| ✅ DONE |
-| `report_templ.go` untracked  | ✅ DONE |
+| Item                          | Status                     |
+| ----------------------------- | -------------------------- |
+| Semantic deduplication audit  | ✅ DONE (0 clones at t=50) |
+| Zero TODO/FIXME comments      | ✅ DONE                    |
+| `go vet` clean                | ✅ DONE                    |
+| Custom `Result[T]` (no mo)    | ✅ DONE                    |
+| Custom `config.FS` (no afero) | ✅ DONE                    |
+| `report_templ.go` untracked   | ✅ DONE                    |
 
 ---
 
@@ -104,34 +104,34 @@ HTML (templ), JSON, SARIF, finding JSON — all ✅ DONE.
 | `pkg/utils`        | 94.6%    | ✅ Excellent  |
 | `pkg/constants`    | 80.0%    | ✅ Good       |
 | `pkg/linter`       | 81.8%    | ✅ Good       |
-| `pkg/report`       | 71.9%    | ⚠️ Adequate  |
-| `pkg/ui`           | 67.7%    | ⚠️ Adequate  |
-| `pkg/migration`    | 66.8%    | ⚠️ Adequate  |
-| `pkg/config`       | 64.5%    | ⚠️ Adequate  |
-| `pkg/detection`    | 62.8%    | ⚠️ Adequate  |
+| `pkg/report`       | 71.9%    | ⚠️ Adequate   |
+| `pkg/ui`           | 67.7%    | ⚠️ Adequate   |
+| `pkg/migration`    | 66.8%    | ⚠️ Adequate   |
+| `pkg/config`       | 64.5%    | ⚠️ Adequate   |
+| `pkg/detection`    | 62.8%    | ⚠️ Adequate   |
 | `pkg/gogenfilter`  | 59.8%    | ⚠️ Needs work |
 | `pkg/types`        | 58.8%    | ⚠️ Needs work |
 | `pkg/finding`      | 50.0%    | ⚠️ Needs work |
 | `pkg/version`      | 51.4%    | ⚠️ Needs work |
-| `internal/cli`     | 8.2%     | 🔴 Critical  |
-| `pkg/client`       | 0.0%     | 🔴 No tests  |
-| `internal/cli/cmd` | 0.0%     | 🔴 No tests  |
+| `internal/cli`     | 8.2%     | 🔴 Critical   |
+| `pkg/client`       | 0.0%     | 🔴 No tests   |
+| `internal/cli/cmd` | 0.0%     | 🔴 No tests   |
 
 **~45 exported functions lack dedicated direct tests** (many have indirect coverage through integration tests).
 
 ### 2. Lint Cleanliness (9 issues remain)
 
-| File                                  | Linter     | Details                                      |
-| ------------------------------------- | ---------- | -------------------------------------------- |
-| `internal/cli/cmd_configure.go:70`    | funlen     | `newConfigureCommand` 33 > 30 lines         |
-| `internal/cli/cmd_configure.go:164`   | funlen     | `runConfigure` 31 > 30 lines                |
-| `internal/cli/cmd_configure.go:217`   | funlen     | `runFixerMode` 46 > 30 lines                |
-| `pkg/config/loader.go:316`            | funlen     | `CreateDefaultConfig` 33 > 30 lines         |
-| `pkg/finding/converter.go:128`        | funlen     | `DeprecatedLintersToFindings` 32 > 30 lines |
-| `pkg/finding/diff_converter.go:11`    | funlen     | `ChangesToFindings` 34 > 30 lines           |
-| `pkg/linter/categorizer.go:33`        | funlen     | `shouldSkipLinter` 32 > 30 lines            |
-| `pkg/detection/detector.go:142`       | noinlineerr| Inline error in `if` condition               |
-| `internal/cli/cmd_report.go:176`      | varnamelen | Variable `r` too short                      |
+| File                                | Linter      | Details                                     |
+| ----------------------------------- | ----------- | ------------------------------------------- |
+| `internal/cli/cmd_configure.go:70`  | funlen      | `newConfigureCommand` 33 > 30 lines         |
+| `internal/cli/cmd_configure.go:164` | funlen      | `runConfigure` 31 > 30 lines                |
+| `internal/cli/cmd_configure.go:217` | funlen      | `runFixerMode` 46 > 30 lines                |
+| `pkg/config/loader.go:316`          | funlen      | `CreateDefaultConfig` 33 > 30 lines         |
+| `pkg/finding/converter.go:128`      | funlen      | `DeprecatedLintersToFindings` 32 > 30 lines |
+| `pkg/finding/diff_converter.go:11`  | funlen      | `ChangesToFindings` 34 > 30 lines           |
+| `pkg/linter/categorizer.go:33`      | funlen      | `shouldSkipLinter` 32 > 30 lines            |
+| `pkg/detection/detector.go:142`     | noinlineerr | Inline error in `if` condition              |
+| `internal/cli/cmd_report.go:176`    | varnamelen  | Variable `r` too short                      |
 
 ### 3. `--diff` in `--check` Mode
 
@@ -147,18 +147,18 @@ Still at 912 lines — TODO_LIST.md says ≤377 target. Contains detailed refere
 
 ### From TODO_LIST.md (Open Items)
 
-| Priority | Item                                                            |
-|----------|-----------------------------------------------------------------|
-| Critical | Increase CLI integration test coverage (currently 8.2%)        |
-| High     | Trim AGENTS.md from 912 to ≤377 lines                          |
-| High     | Remove `report_templ.go` from git tracking → **DONE** (stale)  |
-| Medium   | Add `output.formats: {}` to default config → **DONE** (stale)  |
-| Medium   | Add reference preset → **DONE** (stale)                         |
-| Medium   | Consider swaggo improvements → **DONE** (stale)                |
-| Medium   | Add benchmarking → **DONE** (stale)                             |
-| Medium   | Document RE2 patterns in README → **DONE** (stale)             |
-| Medium   | Add `--check` mode → **DONE** (stale)                           |
-| Medium   | Add `--diff` flag → **DONE** (stale)                            |
+| Priority | Item                                                          |
+| -------- | ------------------------------------------------------------- |
+| Critical | Increase CLI integration test coverage (currently 8.2%)       |
+| High     | Trim AGENTS.md from 912 to ≤377 lines                         |
+| High     | Remove `report_templ.go` from git tracking → **DONE** (stale) |
+| Medium   | Add `output.formats: {}` to default config → **DONE** (stale) |
+| Medium   | Add reference preset → **DONE** (stale)                       |
+| Medium   | Consider swaggo improvements → **DONE** (stale)               |
+| Medium   | Add benchmarking → **DONE** (stale)                           |
+| Medium   | Document RE2 patterns in README → **DONE** (stale)            |
+| Medium   | Add `--check` mode → **DONE** (stale)                         |
+| Medium   | Add `--diff` flag → **DONE** (stale)                          |
 
 **TODO_LIST.md is significantly stale** — 7 of 10 open items are actually completed.
 
@@ -265,33 +265,33 @@ The `LinterMinVersions` map could reference linters that don't exist in `LinterP
 
 ## f) Top #25 Things to Do Next (Sorted by Impact × Effort)
 
-| #   | Priority | Item                                                           | Est.     | Impact          |
-| --- | -------- | -------------------------------------------------------------- | -------- | --------------- |
-| 1   | CRITICAL | Update TODO_LIST.md (7/10 items stale)                         | 30min    | Truth           |
-| 2   | CRITICAL | Fix `varnamelen` in cmd_report.go (`r` → `report`)             | 2min     | Lint clean      |
-| 3   | CRITICAL | Fix `noinlineerr` in detector.go                               | 2min     | Lint clean      |
-| 4   | HIGH     | Add `--check` mode integration tests                           | 1h       | Correctness     |
-| 5   | HIGH     | Add `LinterMinVersions` validation test                        | 15min    | Correctness     |
-| 6   | HIGH     | Validate `reference` preset against `LinterPriorities`         | 15min    | Correctness     |
-| 7   | HIGH     | Fix funlen: extract `runFixerMode` helpers (46→≤30 lines)      | 30min    | Code quality    |
-| 8   | HIGH     | Fix funlen: extract `newConfigureCommand` helpers (33→≤30)     | 15min    | Code quality    |
-| 9   | HIGH     | Fix funlen: extract `CreateDefaultConfig` helpers (33→≤30)     | 15min    | Code quality    |
-| 10  | HIGH     | Add `Config.Clone()` method, remove JSON marshal hack          | 30min    | Architecture    |
-| 11  | HIGH     | Add `--diff` flag integration tests                            | 1h       | Correctness     |
-| 12  | MEDIUM   | Add tests for ginkgolinter/testifylint default settings        | 30min    | Correctness     |
-| 13  | MEDIUM   | Fix funlen: `DeprecatedLintersToFindings` (32→≤30)             | 15min    | Code quality    |
-| 14  | MEDIUM   | Fix funlen: `ChangesToFindings` (34→≤30)                       | 15min    | Code quality    |
-| 15  | MEDIUM   | Fix funlen: `shouldSkipLinter` (32→≤30)                        | 15min    | Code quality    |
-| 16  | MEDIUM   | Extract `findingBuilder` helper in converter.go                | 1h       | Architecture    |
-| 17  | MEDIUM   | Add `pkg/client` smoke tests                                   | 1h       | Coverage        |
-| 18  | MEDIUM   | Add `--check` + `--diff` interaction handling (warn or fix)    | 1h       | UX              |
-| 19  | MEDIUM   | Document `--check`, `--diff`, `reference` preset in README     | 15min    | Docs            |
-| 20  | MEDIUM   | Use `errors.Join` for multi-finding failures in converter      | 30min    | Robustness      |
-| 21  | LOW      | Add `DryRun bool` to `MigrationResult`                         | 15min    | Type model      |
-| 22  | LOW      | Validate `LinterMinVersions` entries exist in `LinterPriorities`| 15min   | Correctness     |
-| 23  | LOW      | Trim AGENTS.md from 912 to ≤377 lines                          | 2h       | Maintainability |
-| 24  | LOW      | Typed linter settings structs (replace `map[string]any`)       | 4h       | Architecture    |
-| 25  | LOW      | Migrate justfile → flake.nix apps                              | 2h       | Build           |
+| #   | Priority | Item                                                             | Est.  | Impact          |
+| --- | -------- | ---------------------------------------------------------------- | ----- | --------------- |
+| 1   | CRITICAL | Update TODO_LIST.md (7/10 items stale)                           | 30min | Truth           |
+| 2   | CRITICAL | Fix `varnamelen` in cmd_report.go (`r` → `report`)               | 2min  | Lint clean      |
+| 3   | CRITICAL | Fix `noinlineerr` in detector.go                                 | 2min  | Lint clean      |
+| 4   | HIGH     | Add `--check` mode integration tests                             | 1h    | Correctness     |
+| 5   | HIGH     | Add `LinterMinVersions` validation test                          | 15min | Correctness     |
+| 6   | HIGH     | Validate `reference` preset against `LinterPriorities`           | 15min | Correctness     |
+| 7   | HIGH     | Fix funlen: extract `runFixerMode` helpers (46→≤30 lines)        | 30min | Code quality    |
+| 8   | HIGH     | Fix funlen: extract `newConfigureCommand` helpers (33→≤30)       | 15min | Code quality    |
+| 9   | HIGH     | Fix funlen: extract `CreateDefaultConfig` helpers (33→≤30)       | 15min | Code quality    |
+| 10  | HIGH     | Add `Config.Clone()` method, remove JSON marshal hack            | 30min | Architecture    |
+| 11  | HIGH     | Add `--diff` flag integration tests                              | 1h    | Correctness     |
+| 12  | MEDIUM   | Add tests for ginkgolinter/testifylint default settings          | 30min | Correctness     |
+| 13  | MEDIUM   | Fix funlen: `DeprecatedLintersToFindings` (32→≤30)               | 15min | Code quality    |
+| 14  | MEDIUM   | Fix funlen: `ChangesToFindings` (34→≤30)                         | 15min | Code quality    |
+| 15  | MEDIUM   | Fix funlen: `shouldSkipLinter` (32→≤30)                          | 15min | Code quality    |
+| 16  | MEDIUM   | Extract `findingBuilder` helper in converter.go                  | 1h    | Architecture    |
+| 17  | MEDIUM   | Add `pkg/client` smoke tests                                     | 1h    | Coverage        |
+| 18  | MEDIUM   | Add `--check` + `--diff` interaction handling (warn or fix)      | 1h    | UX              |
+| 19  | MEDIUM   | Document `--check`, `--diff`, `reference` preset in README       | 15min | Docs            |
+| 20  | MEDIUM   | Use `errors.Join` for multi-finding failures in converter        | 30min | Robustness      |
+| 21  | LOW      | Add `DryRun bool` to `MigrationResult`                           | 15min | Type model      |
+| 22  | LOW      | Validate `LinterMinVersions` entries exist in `LinterPriorities` | 15min | Correctness     |
+| 23  | LOW      | Trim AGENTS.md from 912 to ≤377 lines                            | 2h    | Maintainability |
+| 24  | LOW      | Typed linter settings structs (replace `map[string]any`)         | 4h    | Architecture    |
+| 25  | LOW      | Migrate justfile → flake.nix apps                                | 2h    | Build           |
 
 ---
 
@@ -300,12 +300,14 @@ The `LinterMinVersions` map could reference linters that don't exist in `LinterP
 **What is the intended public API surface for `pkg/client`?**
 
 The `pkg/client/client.go` exposes `Client`, `New()`, `SimpleFix()`, `SimpleAnalyze()` with an `Options` struct. But:
+
 - It has zero tests
 - It's not imported by any other package in the codebase
 - It's not documented in README or FEATURES.md
 - No examples exist in `examples/` for library usage
 
 **Is this package:**
+
 1. **A public library API** meant for programmatic use by external consumers? (Needs tests, docs, semver guarantees)
 2. **Internal scaffolding** that should move to `internal/`? (Remove from public surface)
 3. **A work-in-progress** that's not ready yet? (Add to FEATURES.md as partial)
@@ -316,24 +318,24 @@ This matters because it affects the next sprint priorities: if it's public API, 
 
 ## Package Health Matrix
 
-| Package          | Files | Coverage | Lint Issues | Duplication | Verdict    |
-| ---------------- | ----- | -------- | ----------- | ----------- | ---------- |
-| `pkg/diff`       | 3     | 96.5%    | 0           | 0           | 🟢 Healthy |
-| `pkg/errors`     | 2     | 95.8%    | 0           | 0           | 🟢 Healthy |
-| `pkg/utils`      | 4     | 94.6%    | 0           | 0           | 🟢 Healthy |
-| `pkg/constants`  | 7     | 80.0%    | 0           | 0           | 🟢 Healthy |
-| `pkg/linter`     | 18    | 81.8%    | 1           | 0           | 🟢 Healthy |
-| `pkg/report`     | 4     | 71.9%    | 0           | 0           | 🟡 OK      |
-| `pkg/ui`         | 4     | 67.7%    | 0           | 0           | 🟡 OK      |
-| `pkg/migration`  | 7     | 66.8%    | 0           | 0           | 🟡 OK      |
-| `pkg/config`     | 9     | 64.5%    | 1           | 0           | 🟡 OK      |
-| `pkg/detection`  | 4     | 62.8%    | 1           | 0           | 🟡 OK      |
-| `pkg/gogenfilter`| 2     | 59.8%    | 0           | 0           | 🟡 OK      |
-| `pkg/types`      | 7     | 58.8%    | 0           | 0           | 🟡 OK      |
-| `pkg/finding`    | 8     | 50.0%    | 2           | 0           | 🟠 Needs   |
-| `pkg/version`    | 2     | 51.4%    | 0           | 0           | 🟠 Needs   |
-| `internal/cli`   | 12    | 8.2%     | 4           | 0           | 🔴 Critical|
-| `pkg/client`     | 1     | 0.0%     | 0           | 0           | 🔴 No tests|
+| Package           | Files | Coverage | Lint Issues | Duplication | Verdict     |
+| ----------------- | ----- | -------- | ----------- | ----------- | ----------- |
+| `pkg/diff`        | 3     | 96.5%    | 0           | 0           | 🟢 Healthy  |
+| `pkg/errors`      | 2     | 95.8%    | 0           | 0           | 🟢 Healthy  |
+| `pkg/utils`       | 4     | 94.6%    | 0           | 0           | 🟢 Healthy  |
+| `pkg/constants`   | 7     | 80.0%    | 0           | 0           | 🟢 Healthy  |
+| `pkg/linter`      | 18    | 81.8%    | 1           | 0           | 🟢 Healthy  |
+| `pkg/report`      | 4     | 71.9%    | 0           | 0           | 🟡 OK       |
+| `pkg/ui`          | 4     | 67.7%    | 0           | 0           | 🟡 OK       |
+| `pkg/migration`   | 7     | 66.8%    | 0           | 0           | 🟡 OK       |
+| `pkg/config`      | 9     | 64.5%    | 1           | 0           | 🟡 OK       |
+| `pkg/detection`   | 4     | 62.8%    | 1           | 0           | 🟡 OK       |
+| `pkg/gogenfilter` | 2     | 59.8%    | 0           | 0           | 🟡 OK       |
+| `pkg/types`       | 7     | 58.8%    | 0           | 0           | 🟡 OK       |
+| `pkg/finding`     | 8     | 50.0%    | 2           | 0           | 🟠 Needs    |
+| `pkg/version`     | 2     | 51.4%    | 0           | 0           | 🟠 Needs    |
+| `internal/cli`    | 12    | 8.2%     | 4           | 0           | 🔴 Critical |
+| `pkg/client`      | 1     | 0.0%     | 0           | 0           | 🔴 No tests |
 
 ## Test Suite Summary
 
@@ -342,23 +344,23 @@ Ginkgo ran 15 suites in 16.5s — ALL PASS
 Composite coverage: 61.1% of statements
 ```
 
-| Suite            | Specs | Coverage |
-| ---------------- | ----- | -------- |
-| Linter           | ?     | 81.8%    |
-| Config           | ?     | 64.5%    |
-| Constants        | ?     | 80.0%    |
-| Detection        | ?     | 62.8%    |
-| Diff             | ?     | 96.5%    |
-| Errors           | ?     | 95.8%    |
-| Finding          | ?     | 50.0%    |
-| Gogenfilter      | ?     | 59.8%    |
-| Migration        | ?     | 66.8%    |
-| Report           | ?     | 71.9%    |
-| Types            | ?     | 58.8%    |
-| UI               | 16    | 67.7%    |
-| Utils            | 16    | 94.6%    |
-| Version          | 6     | 51.4%    |
-| CLI Integration  | ?     | 8.2%     |
+| Suite           | Specs | Coverage |
+| --------------- | ----- | -------- |
+| Linter          | ?     | 81.8%    |
+| Config          | ?     | 64.5%    |
+| Constants       | ?     | 80.0%    |
+| Detection       | ?     | 62.8%    |
+| Diff            | ?     | 96.5%    |
+| Errors          | ?     | 95.8%    |
+| Finding         | ?     | 50.0%    |
+| Gogenfilter     | ?     | 59.8%    |
+| Migration       | ?     | 66.8%    |
+| Report          | ?     | 71.9%    |
+| Types           | ?     | 58.8%    |
+| UI              | 16    | 67.7%    |
+| Utils           | 16    | 94.6%    |
+| Version         | 6     | 51.4%    |
+| CLI Integration | ?     | 8.2%     |
 
 ## Build Status
 
@@ -372,6 +374,7 @@ Composite coverage: 61.1% of statements
 ## What Changed Since Last Report (2026-06-03)
 
 Only 1 commit since last status report:
+
 - `bfd0a12` — docs: reformat RE2 exclusion patterns section in README and refresh status tables
 
 No functional changes. Codebase is stable and awaiting next sprint.

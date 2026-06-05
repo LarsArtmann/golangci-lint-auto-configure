@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -275,6 +276,196 @@ linters:
 
 			// Should show [DRY-RUN] indicator
 			Expect(string(output)).To(ContainSubstring("[DRY-RUN]"))
+		})
+
+		It("should exit 1 with --check when changes are needed", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"high",
+				"--check",
+			)
+			_, err := cmd.CombinedOutput()
+
+			Expect(err).To(HaveOccurred())
+			exitErr := &exec.ExitError{}
+			ok := errors.As(err, &exitErr)
+			Expect(ok).To(BeTrue())
+			Expect(exitErr.ExitCode()).To(Equal(1))
+		})
+
+		It("should exit 0 with --check after configuring with a preset", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			configureCmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--preset",
+				"standard",
+			)
+			configureOutput, err := configureCmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred(), string(configureOutput))
+
+			checkCmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--preset",
+				"standard",
+				"--check",
+			)
+			checkOutput, err := checkCmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred(), string(checkOutput))
+		})
+
+		It("should not modify file with --check alone", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"high",
+				"--check",
+			)
+			_, _ = cmd.CombinedOutput()
+
+			content, _ := os.ReadFile(configPath)
+			Expect(string(content)).To(Equal(testConfigContentMinimal))
+		})
+
+		It("should show diff output with --diff", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"high",
+				"--diff",
+			)
+			output, err := cmd.CombinedOutput()
+
+			Expect(err).NotTo(HaveOccurred())
+
+			outputStr := string(output)
+			Expect(outputStr).To(ContainSubstring("Added"))
+		})
+
+		It("should show diff with --check and restore original", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"high",
+				"--check",
+				"--diff",
+			)
+			output, err := cmd.CombinedOutput()
+
+			Expect(err).To(HaveOccurred())
+
+			outputStr := string(output)
+			Expect(outputStr).To(ContainSubstring("Added"))
+
+			restored, _ := os.ReadFile(configPath)
+			restoredStr := string(restored)
+			Expect(restoredStr).To(ContainSubstring("errcheck"))
+			Expect(restoredStr).NotTo(ContainSubstring("gosec"))
+		})
+
+		It("should default to optional priority for unrecognized value", func() {
+			initGitRepo()
+
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"invalid",
+				"--dry-run",
+			)
+			output, err := cmd.CombinedOutput()
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(output)).To(ContainSubstring("[DRY-RUN]"))
+		})
+
+		It("should fail with invalid preset flag", func() {
+			binaryPath := buildBinary()
+			configPath := writeConfig(testConfigContentMinimal)
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				configPath,
+				"--preset",
+				"nonexistent",
+			)
+			_, err := cmd.CombinedOutput()
+
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("should handle missing config file gracefully", func() {
+			binaryPath := buildBinary()
+
+			cmd := exec.Command(
+				binaryPath,
+				"configure",
+				"--config",
+				"/non/existent/path.yml",
+			)
+			_, err := cmd.CombinedOutput()
+
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("should handle invalid YAML in configure", func() {
+			binaryPath := buildBinary()
+			invalidPath := filepath.Join(testDir, "invalid.yml")
+			Expect(os.WriteFile(invalidPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
+
+			cmd := exec.Command(binaryPath, "configure", "--config", invalidPath)
+			_, err := cmd.CombinedOutput()
+
+			Expect(err).To(HaveOccurred())
 		})
 	})
 

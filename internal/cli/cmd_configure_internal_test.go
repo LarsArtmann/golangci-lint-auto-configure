@@ -7,6 +7,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -202,4 +203,60 @@ type mockWriter struct{}
 
 func (m *mockWriter) Write(p []byte) (int, error) {
 	return len(p), nil
+}
+
+func TestHandleCheckMode(t *testing.T) {
+	t.Run("returns nil when check is false", func(t *testing.T) {
+		err := handleCheckMode(false, &types.MigrationResult{FixesApplied: 5}, nil)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+	})
+
+	t.Run("returns nil when check true but no fixes", func(t *testing.T) {
+		err := handleCheckMode(true, &types.MigrationResult{FixesApplied: 0}, nil)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+	})
+
+	t.Run("returns ErrChangesNeeded when check true and fixes applied", func(t *testing.T) {
+		logger := newTestLogger()
+
+		err := handleCheckMode(true, &types.MigrationResult{FixesApplied: 3}, logger)
+		if !errors.Is(err, apperrors.ErrChangesNeeded) {
+			t.Errorf("expected ErrChangesNeeded, got %v", err)
+		}
+	})
+}
+
+func TestCaptureOriginalConfig(t *testing.T) {
+	t.Run("returns nil when shouldClone is false", func(t *testing.T) {
+		result := captureOriginalConfig(false, nil, "", nil)
+		if result != nil {
+			t.Errorf("expected nil, got %v", result)
+		}
+	})
+}
+
+func TestDisplayFixResult(t *testing.T) {
+	t.Run("does not panic", func(t *testing.T) {
+		displayFixResult("test.yml", &types.MigrationResult{
+			FixesApplied: 2,
+			Message:      "test",
+		})
+	})
+}
+
+func TestConvertLinterNames(t *testing.T) {
+	input := []types.LinterName{"gosec", "errcheck"}
+	result := convertLinterNames(input)
+
+	if len(result) != 2 {
+		t.Fatalf("expected 2, got %d", len(result))
+	}
+
+	if result[0] != "gosec" {
+		t.Errorf("expected gosec, got %s", result[0])
+	}
 }

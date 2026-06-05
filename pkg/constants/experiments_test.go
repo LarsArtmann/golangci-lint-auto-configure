@@ -1,18 +1,11 @@
 package constants_test
 
 import (
-	"testing"
-
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
-
-func TestExperiments(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Experiments Suite")
-}
 
 var _ = Describe("GoExperiments", func() {
 	It("should have all required fields populated", func() {

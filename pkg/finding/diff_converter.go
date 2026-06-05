@@ -92,16 +92,15 @@ func MigrationResultToFindings(
 
 	pos := finding.Position{File: configPath}
 
-	found, err := buildFinding(finding.NewBuilder(
-		"config-fix",
-		toolName,
-		fmt.Sprintf("%s: %d fixes applied", message, fixesApplied),
-		finding.SeverityInfo,
-		pos,
-	).
-		WithCategory(finding.CategoryConfiguration).
-		WithFixStrategy(finding.FixStrategySuggest).
-		WithSuggestion(fmt.Sprintf("%d fixes applied", fixesApplied)))
+	found, err := configFinding(configFindingParams{
+		RuleID:     "config-fix",
+		Message:    fmt.Sprintf("%s: %d fixes applied", message, fixesApplied),
+		Severity:   finding.SeverityInfo,
+		Position:   pos,
+		Category:   finding.CategoryConfiguration,
+		Tags:       []finding.Tag{},
+		Suggestion: fmt.Sprintf("%d fixes applied", fixesApplied),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("build migration result finding: %w", err)
 	}

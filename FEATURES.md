@@ -19,19 +19,19 @@
 
 ## Auto-Configuration Features
 
-| Feature                                               | Status | Notes                                      |
-| ----------------------------------------------------- | ------ | ------------------------------------------ |
-| 119 linter priorities (Critical/High/Medium/Optional) | Stable | `pkg/constants/linter_priorities.go`       |
-| Linter reasons (human-readable)                       | Stable | `pkg/constants/linter_reasons.go`          |
-| Priority-based filtering (`--priority`)               | Stable | configure command                          |
-| Dry-run mode (`--dry-run`)                            | Stable | Shows what would change                    |
+| Feature                                               | Status | Notes                                       |
+| ----------------------------------------------------- | ------ | ------------------------------------------- |
+| 119 linter priorities (Critical/High/Medium/Optional) | Stable | `pkg/constants/linter_priorities.go`        |
+| Linter reasons (human-readable)                       | Stable | `pkg/constants/linter_reasons.go`           |
+| Priority-based filtering (`--priority`)               | Stable | configure command                           |
+| Dry-run mode (`--dry-run`)                            | Stable | Shows what would change                     |
 | CI check mode (`--check`)                             | Stable | Exit 0 if optimal, exit 1 if changes needed |
-| Diff preview (`--diff`)                               | Stable | Shows config diff before applying          |
-| Deprecated linter auto-replacement                    | Stable | wsl→wsl_v5, gomodguard→gomodguard_v2, etc. |
-| Version-gated deprecation                             | Stable | gomodguard_v2 requires v2.12.0+            |
-| Typecheck linter removal                              | Stable | Removes from enable/disable lists          |
-| Invalid duration fix                                  | Stable | Fixes empty/invalid timeout values         |
-| Multiple binary detection                             | Stable | Warns if multiple golangci-lint binaries   |
+| Diff preview (`--diff`)                               | Stable | Shows config diff before applying           |
+| Deprecated linter auto-replacement                    | Stable | wsl→wsl_v5, gomodguard→gomodguard_v2, etc.  |
+| Version-gated deprecation                             | Stable | gomodguard_v2 requires v2.12.0+             |
+| Typecheck linter removal                              | Stable | Removes from enable/disable lists           |
+| Invalid duration fix                                  | Stable | Fixes empty/invalid timeout values          |
+| Multiple binary detection                             | Stable | Warns if multiple golangci-lint binaries    |
 
 ## Default Settings Injection
 
@@ -63,14 +63,14 @@
 
 ## Presets
 
-| Feature                                              | Status | Notes                              |
-| ---------------------------------------------------- | ------ | ---------------------------------- |
-| `minimal` preset (5 linters)                         | Stable | Essential only, fastest            |
-| `standard` preset (8 linters)                        | Stable | Good balance for most projects     |
-| `strict` preset (17 linters)                         | Stable | Maximum linting for CI/CD          |
-| `security` preset                                    | Stable | Security-focused only              |
-| `performance` preset                                 | Stable | Performance optimization           |
-| `reference` preset (60+ linters)                     | Stable | All critical + high priority       |
+| Feature                                                 | Status | Notes                            |
+| ------------------------------------------------------- | ------ | -------------------------------- |
+| `minimal` preset (5 linters)                            | Stable | Essential only, fastest          |
+| `standard` preset (8 linters)                           | Stable | Good balance for most projects   |
+| `strict` preset (17 linters)                            | Stable | Maximum linting for CI/CD        |
+| `security` preset                                       | Stable | Security-focused only            |
+| `performance` preset                                    | Stable | Performance optimization         |
+| `reference` preset (60+ linters)                        | Stable | All critical + high priority     |
 | Auto-detect project type and select preset (`--detect`) | Stable | CLI, web, library, API, monorepo |
 
 ## Formatter Management
@@ -129,14 +129,14 @@
 
 ## Project Detection
 
-| Feature                                     | Status | Notes                                  |
-| ------------------------------------------- | ------ | -------------------------------------- |
-| Monorepo detection (multiple go.mod)        | Stable |                                        |
-| CLI project detection (cobra, urfave/cli)   | Stable |                                        |
-| Web project detection (gin, echo, net/http) | Stable |                                        |
-| Library project detection                   | Stable |                                        |
-| API service detection                       | Stable |                                        |
-| swaggo annotation detection                 | Stable | `@Router`, `@Summary`, `@Tags`, etc.   |
+| Feature                                     | Status | Notes                                |
+| ------------------------------------------- | ------ | ------------------------------------ |
+| Monorepo detection (multiple go.mod)        | Stable |                                      |
+| CLI project detection (cobra, urfave/cli)   | Stable |                                      |
+| Web project detection (gin, echo, net/http) | Stable |                                      |
+| Library project detection                   | Stable |                                      |
+| API service detection                       | Stable |                                      |
+| swaggo annotation detection                 | Stable | `@Router`, `@Summary`, `@Tags`, etc. |
 
 ## Error Handling
 

@@ -1,0 +1,59 @@
+package finding
+
+import (
+	"fmt"
+
+	finding "github.com/larsartmann/go-finding"
+)
+
+// buildFinding is a helper that builds a Finding from a Builder, returning an error
+// instead of panicking on invalid builder state.
+func buildFinding(b *finding.Builder) (finding.Finding, error) {
+	f, err := b.Build()
+	if err != nil {
+		return finding.Finding{}, fmt.Errorf("finding builder error: %w", err)
+	}
+
+	return f, nil
+}
+
+type configFindingParams struct {
+	RuleID     string
+	Message    string
+	Severity   finding.Severity
+	Position   finding.Position
+	Category   finding.Category
+	Tags       []finding.Tag
+	Suggestion string
+}
+
+func configFinding(params configFindingParams) (finding.Finding, error) {
+	builder := finding.NewBuilder(
+		params.RuleID,
+		toolName,
+		params.Message,
+		params.Severity,
+		params.Position,
+	)
+
+	if len(params.Tags) > 0 {
+		builder = builder.WithTags(params.Tags...)
+	}
+
+	if params.Category != "" {
+		builder = builder.WithCategory(params.Category)
+	}
+
+	builder = builder.WithFixStrategy(finding.FixStrategySuggest)
+
+	if params.Suggestion != "" {
+		builder = builder.WithSuggestion(params.Suggestion)
+	}
+
+	f, err := builder.Build()
+	if err != nil {
+		return finding.Finding{}, fmt.Errorf("build finding for %s: %w", params.RuleID, err)
+	}
+
+	return f, nil
+}

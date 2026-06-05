@@ -1,17 +1,10 @@
 package types_test
 
 import (
-	"testing"
-
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
-
-func TestSet(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Set Suite")
-}
 
 var _ = Describe("Set", func() {
 	It("should create an empty set", func() {

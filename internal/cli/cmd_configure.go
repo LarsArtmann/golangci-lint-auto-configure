@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -242,8 +241,9 @@ func runFixerMode(
 	linterPriority := ParsePriorityParam(priorityParam)
 
 	originalCfg := captureOriginalConfig(showDiff, configLoader, configFile, logger)
+	effectiveDryRun := effectiveDryRunForCheckDiff(isDryRun, check, originalCfg)
 
-	result, err := fixer.FixConfig(ctx, configFile, linterPriority, isDryRun)
+	result, err := fixer.FixConfig(ctx, configFile, linterPriority, effectiveDryRun)
 	if err != nil {
 		return fmt.Errorf(
 			"failed to fix configuration (priority=%s, dryRun=%t): %w",
@@ -251,15 +251,38 @@ func runFixerMode(
 		)
 	}
 
-	if showDiff && originalCfg != nil {
-		showConfigDiff(configLoader, originalCfg, configFile, logger)
-	}
-
+	applyCheckDiff(showDiff, check, configLoader, originalCfg, configFile, logger)
 	displayFixResult(configFile, result)
 	runFmtUnlessDry(ctx, logger, analyzer, configFile, isDryRun)
 	logNextSteps(logger, result.NextSteps)
 
 	return handleCheckMode(check, result, logger)
+}
+
+func effectiveDryRunForCheckDiff(isDryRun, check bool, originalCfg *types.Config) bool {
+	if check && showDiff && originalCfg != nil {
+		return false
+	}
+
+	return isDryRun
+}
+
+func applyCheckDiff(
+	shouldDiff, check bool,
+	configLoader *config.Loader,
+	originalCfg *types.Config,
+	configFile string,
+	logger *log.Logger,
+) {
+	if !shouldDiff || originalCfg == nil {
+		return
+	}
+
+	showConfigDiff(configLoader, originalCfg, configFile, logger)
+
+	if check {
+		restoreOriginalConfig(configLoader, originalCfg, configFile, logger)
+	}
 }
 
 func captureOriginalConfig(
@@ -310,21 +333,7 @@ func cloneConfig(configLoader *config.Loader, configFile string, logger *log.Log
 		return nil
 	}
 
-	data, err := json.Marshal(cfg)
-	if err != nil {
-		logger.Debugf("Failed to marshal config for diff: %v", err)
-
-		return nil
-	}
-
-	var clone types.Config
-	if err := json.Unmarshal(data, &clone); err != nil {
-		logger.Debugf("Failed to unmarshal config for diff: %v", err)
-
-		return nil
-	}
-
-	return &clone
+	return cfg.Clone()
 }
 
 func showConfigDiff(configLoader *config.Loader, oldCfg *types.Config, configFile string, logger *log.Logger) {
@@ -343,6 +352,21 @@ func showConfigDiff(configLoader *config.Loader, oldCfg *types.Config, configFil
 	}
 
 	fmt.Fprintln(os.Stdout, differ.FormatChanges(changes))
+}
+
+func restoreOriginalConfig(
+	configLoader *config.Loader,
+	originalCfg *types.Config,
+	configFile string,
+	logger *log.Logger,
+) {
+	if err := configLoader.SaveConfig(originalCfg, configFile); err != nil {
+		logger.Warnf("⚠️  Failed to restore original config after check+diff: %v", err)
+
+		return
+	}
+
+	logger.Debugf("Restored original config after check+diff: %s", configFile)
 }
 
 func logNextSteps(logger *log.Logger, steps []string) {

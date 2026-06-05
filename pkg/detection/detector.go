@@ -308,6 +308,8 @@ func (d *Detector) hasMainPackage() bool {
 			}
 		}
 
+		_ = scanner.Err()
+
 		return nil
 	})
 
@@ -353,6 +355,8 @@ func (d *Detector) hasAPICodePatterns() bool {
 				}
 			}
 		}
+
+		_ = scanner.Err()
 
 		return nil
 	})
@@ -400,6 +404,8 @@ func (d *Detector) scanFileForSwaggo(file *os.File, found *bool) error {
 			return filepath.SkipAll
 		}
 	}
+
+	_ = scanner.Err()
 
 	return nil
 }
