@@ -96,7 +96,7 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 	return cmd
 }
 
-func addConfigureFlags(cmd *cobra.Command, preset *string, detect *bool, check *bool) {
+func addConfigureFlags(cmd *cobra.Command, preset *string, detect, check *bool) {
 	cmd.Flags().
 		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().

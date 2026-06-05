@@ -16,7 +16,6 @@
 
 ## Medium Priority
 
-- [ ] Fix 9 lint issues (7 funlen, 1 noinlineerr, 1 varnamelen)
 - [ ] Add `--check` mode integration tests (exit codes, flag combinations)
 - [ ] Add `--diff` flag integration tests
 - [ ] Fix `--diff` + `--check` interaction (diff shows nothing in check mode)
@@ -36,9 +35,11 @@
 
 ## Completed
 
+- [x] Fix all lint violations — round 2 (7 funlen, 1 noinlineerr, 1 varnamelen → 0 issues)
+
 - [x] Fix error types: use distinct structs instead of type aliases for errors.As discrimination
 - [x] Remove 3 dead backward-compat validation functions from pkg/types/validation.go
-- [x] Simplify updateExclusionRules from O(n*m) to O(n+m) using set-based lookup
+- [x] Simplify updateExclusionRules from O(n\*m) to O(n+m) using set-based lookup
 - [x] Remove redundant newFixCounts() constructor (Go zero-init is sufficient)
 - [x] Add report package tests (HTML and JSON generators)
 - [x] Migrate charmbracelet/fang v1 → v2 (charm.land/fang/v2)
