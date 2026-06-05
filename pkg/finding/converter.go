@@ -3,6 +3,7 @@
 package finding
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -198,26 +199,33 @@ func AnalysisToReport(analysis *types.ConfigAnalysis, version string) (*finding.
 		Version: version,
 	})
 
+	var errs []error
+
 	recs, err := RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)
 	if err != nil {
-		return nil, fmt.Errorf("convert recommendations: %w", err)
+		errs = append(errs, fmt.Errorf("convert recommendations: %w", err))
 	}
 
 	report.AddFindings(recs)
 
 	fmtRecs, err := FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath)
 	if err != nil {
-		return nil, fmt.Errorf("convert formatter recommendations: %w", err)
+		errs = append(errs, fmt.Errorf("convert formatter recommendations: %w", err))
 	}
 
 	report.AddFindings(fmtRecs)
 
 	depRecs, err := DeprecatedLintersToFindings(analysis.DeprecatedLinters, analysis.ConfigPath)
 	if err != nil {
-		return nil, fmt.Errorf("convert deprecated linters: %w", err)
+		errs = append(errs, fmt.Errorf("convert deprecated linters: %w", err))
 	}
 
 	report.AddFindings(depRecs)
+
+	if len(errs) > 0 {
+		return nil, errors.Join(errs...)
+	}
+
 	report.ComputeSummary()
 
 	return report, nil

@@ -40,6 +40,7 @@ func dryRunResult(counts fixCounts) (*types.MigrationResult, error) {
 	return &types.MigrationResult{
 		FixesApplied: counts.total(),
 		Message:      fmt.Sprintf("[DRY-RUN] Would apply %d fixes", counts.total()),
+		DryRun:       true,
 		NextSteps: []string{
 			"Run without --dry-run to apply these fixes",
 			"Then run 'golangci-lint run --fix' to auto-fix code issues",

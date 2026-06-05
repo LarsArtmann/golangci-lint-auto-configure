@@ -102,6 +102,7 @@ func (f *Fixer) calculateDryRunResultWithInvalidDurations(cfg *types.Config) (*t
 
 	return &types.MigrationResult{
 		FixesApplied: 1,
+		DryRun:       true,
 		Message: fmt.Sprintf(
 			"Would apply 1 fix (dry-run mode, skipped analysis due to invalid duration: run.timeout=%q)",
 			cfg.Run.Timeout,
@@ -223,6 +224,7 @@ func (f *Fixer) calculateDryRunResultWithDeprecated(cfg *types.Config) (*types.M
 
 	return &types.MigrationResult{
 		FixesApplied: deprecationFixes,
+		DryRun:       true,
 		Message: fmt.Sprintf(
 			"Would apply %d fixes (dry-run mode, skipped analysis due to deprecated linters)",
 			deprecationFixes,

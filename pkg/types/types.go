@@ -168,7 +168,8 @@ type MigrationResult struct {
 	FixesApplied int      `json:"fixes_applied"`
 	Message      string   `json:"message"`
 	NextSteps    []string `json:"next_steps,omitempty"`
-	Error        error    `json:"-"` // Error is not serialized to JSON
+	Error        error    `json:"-"`       // Error is not serialized to JSON
+	DryRun       bool     `json:"dry_run"` // DryRun indicates changes were previewed, not applied
 }
 
 // IsSuccess returns true if the migration was successful.
