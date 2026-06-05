@@ -410,6 +410,21 @@ linters:
 `, "depguard:", "$gostd", "$module")
 		})
 
+		It("should inject depguard defaults when depguard has empty settings in optional mode", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  settings:
+    depguard:
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityOptional, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("depguard:"))
+			Expect(content).To(ContainSubstring("$gostd"))
+			Expect(content).To(ContainSubstring("$module"))
+		})
+
 		It("should inject ireturn defaults when ireturn is enabled without settings", func() {
 			configContent := `version: "2"
 linters:
