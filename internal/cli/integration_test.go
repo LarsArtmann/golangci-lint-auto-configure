@@ -188,12 +188,10 @@ var _ = Describe("CLI Integration", func() {
 		})
 
 		It("should support dry-run mode", func() {
-			configPath := writeMinimalTestConfig(tempDir)
-
 			output, err := runCLI(
 				"configure",
 				"--config",
-				configPath,
+				writeMinimalTestConfig(tempDir),
 				"--priority",
 				"high",
 				"--dry-run",
@@ -243,26 +241,26 @@ var _ = Describe("CLI Integration", func() {
 		})
 	})
 
+	// analyzeWithFormat runs analyze with a format and verifies the output contains expected substrings.
+	analyzeWithFormat := func(format string, expected ...string) {
+		configPath := writeMinimalTestConfig(tempDir)
+		output, err := runCLI("analyze", "--config", configPath, "--format", format)
+		Expect(err).NotTo(HaveOccurred())
+		for _, e := range expected {
+			Expect(string(output)).To(ContainSubstring(e))
+		}
+	}
+
 	testStandardCommandContext(tempDir, "analyze")
 	testStandardCommandContext(tempDir, "validate")
 
 	Context("Analyze command", func() {
 		It("should analyze with JSON output", func() {
-			configPath := writeMinimalTestConfig(tempDir)
-
-			output, err := runCLI("analyze", "--config", configPath, "--format", "json")
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(string(output)).To(ContainSubstring("recommendations"))
+			analyzeWithFormat("json", "recommendations")
 		})
 
 		It("should analyze with SARIF output", func() {
-			configPath := writeMinimalTestConfig(tempDir)
-
-			output, err := runCLI("analyze", "--config", configPath, "--format", "sarif")
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(string(output)).To(ContainSubstring("$schema"))
+			analyzeWithFormat("sarif", "$schema")
 		})
 	})
 

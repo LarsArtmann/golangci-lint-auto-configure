@@ -1,0 +1,23 @@
+{
+  "threshold": 0,
+  "reporters": ["console", "json"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/docs/archive/**",
+    "**/docs/status/**",
+    "**/docs/brainstorming/**",
+    "**/*_templ.go",
+    "**/vendor/**",
+    "**/bin/**",
+    "**/.crush/**"
+  ],
+  "formatting": {
+    "go": {
+      "minLines": 5,
+      "minTokens": 70
+    }
+  },
+  "minLines": 5,
+  "minTokens": 50
+}
