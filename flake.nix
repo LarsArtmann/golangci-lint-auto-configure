@@ -39,6 +39,9 @@
 
       imports = [ inputs.treefmt-nix.flakeModule ];
 
+
+      checks.format = config.treefmt.build.check self;
+      checks.build = config.packages.default;
       perSystem =
         { config, pkgs, lib, ... }:
         let
@@ -147,8 +150,8 @@
                 golangci-lint
                 templ
               ];
-            };
-          };
+            GOPRIVATE = "github.com/LarsArtmann";
+            };          };
 
           checks = {
             build = golangci-lint-auto-configure;
@@ -165,16 +168,18 @@
           };
 
           treefmt = {
-            projectRootFile = "flake.nix";
+            projectRootFile = "go.mod";
             programs = {
               nixfmt.enable = true;
               gofumpt.enable = true;
+              goimports.enable = true;
+              templ.enable = true;
             };
           };
         };
 
-      flake.overlays.default = _final: prev: {
-        golangci-lint-auto-configure = self.packages.${prev.stdenv.system}.default;
+      flake.overlays.default = final: _prev: {
+        golangci-lint-auto-configure = self.packages.${final.stdenv.system}.default;
       };
     };
 }
