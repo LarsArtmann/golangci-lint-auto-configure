@@ -40,7 +40,12 @@
       imports = [ inputs.treefmt-nix.flakeModule ];
 
       perSystem =
-        { config, pkgs, lib, ... }:
+        {
+          config,
+          pkgs,
+          lib,
+          ...
+        }:
         let
           version = "0.2.0";
           commit = self.rev or "none";
@@ -147,8 +152,9 @@
                 golangci-lint
                 templ
               ];
-            GOPRIVATE = "github.com/LarsArtmann";
-            };          };
+              GOPRIVATE = "github.com/LarsArtmann";
+            };
+          };
 
           checks = {
             format = config.treefmt.build.check self;
