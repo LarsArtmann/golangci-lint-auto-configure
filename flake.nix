@@ -39,9 +39,6 @@
 
       imports = [ inputs.treefmt-nix.flakeModule ];
 
-
-      checks.format = config.treefmt.build.check self;
-      checks.build = config.packages.default;
       perSystem =
         { config, pkgs, lib, ... }:
         let
@@ -154,6 +151,7 @@
             };          };
 
           checks = {
+            format = config.treefmt.build.check self;
             build = golangci-lint-auto-configure;
             test = golangci-lint-auto-configure.overrideAttrs (_: {
               doCheck = true;
