@@ -72,20 +72,11 @@
               export GOBIN=$GOPATH/bin
               go install github.com/a-h/templ/cmd/templ@v0.3.1020
               $GOBIN/templ generate
-              export HOME=$TMPDIR
-              go mod tidy
             '';
 
             proxyVendor = true;
 
-            vendorHash = "sha256-m5Y+RiJujRIANWnUR0Plc4PqX2lwLotDkOLLQyDG+mg=";
-
-            overrideModAttrs = _: {
-              preBuild = ''
-                export HOME=$TMPDIR
-                go mod tidy
-              '';
-            };
+            vendorHash = "sha256-sIjS6s3xFoPz5Ee2rKi2O6r5pHztU3OgnkHUxOoQMSI=";
 
             subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
