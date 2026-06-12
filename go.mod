@@ -4,7 +4,7 @@ go 1.26.3
 
 require (
 	charm.land/fang/v2 v2.0.1
-	charm.land/lipgloss/v2 v2.0.3
+	charm.land/lipgloss/v2 v2.0.4
 	charm.land/log/v2 v2.0.0
 	github.com/LarsArtmann/gogenfilter/v3 v3.1.0
 	github.com/a-h/templ v0.3.1020
@@ -52,9 +52,9 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20260603202125-055de637280b // indirect
-	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/exp v0.0.0-20260611194520-c48552f49976 // indirect
+	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
-	golang.org/x/tools v0.45.0 // indirect
+	golang.org/x/tools v0.46.0 // indirect
 )
