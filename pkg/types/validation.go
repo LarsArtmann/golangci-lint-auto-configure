@@ -15,6 +15,7 @@ const (
 var (
 	ErrConfigNil       = errors.New("config validation failed: config is nil")
 	ErrVersionRequired = errors.New("config validation failed: version is required")
+	ErrVersionInvalid  = errors.New("config validation failed: version is invalid")
 	ErrTimeoutRequired = errors.New("config validation failed: run.timeout is required")
 	ErrIssuesExitCode  = errors.New("config validation failed: run.issues-exit-code out of range")
 	ErrConcurrency     = errors.New("config validation failed: run.concurrency must be >= 0")
@@ -47,7 +48,7 @@ func validateVersion(cfg *Config) error {
 	}
 
 	if cfg.Version != "2" {
-		return fmt.Errorf("config validation failed: version must be 2, got %q: %w", cfg.Version, ErrVersionRequired)
+		return fmt.Errorf("config validation failed: version must be 2, got %q: %w", cfg.Version, ErrVersionInvalid)
 	}
 
 	return nil
