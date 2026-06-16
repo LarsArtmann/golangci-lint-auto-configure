@@ -11,7 +11,7 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
-const permUserRead = 0o644 // rw-r--r--
+const permOwnerOnly = 0o600 // rw-------
 
 // LoadConfig loads a golangci-lint configuration from a YAML file.
 func LoadConfig(path string) (*Config, error) {
@@ -46,7 +46,7 @@ func SaveConfig(config *Config, path string) error {
 		return fmt.Errorf("failed to encode YAML %s: %w", path, err)
 	}
 
-	err = os.WriteFile(path, buf.Bytes(), permUserRead)
+	err = os.WriteFile(path, buf.Bytes(), permOwnerOnly)
 	if err != nil {
 		return fmt.Errorf("failed to write config file %s: %w", path, err)
 	}

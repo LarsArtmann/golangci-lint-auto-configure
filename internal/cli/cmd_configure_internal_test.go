@@ -72,6 +72,7 @@ func TestParsePriorityParam(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ParsePriorityParam(%q) returned unexpected error: %v", tt.input, err)
 			}
+
 			if result != tt.expected {
 				t.Errorf("ParsePriorityParam(%q) = %v, want %v", tt.input, result, tt.expected)
 			}
@@ -103,6 +104,7 @@ func TestParsePriorityParam_AllPriorities(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ParsePriorityParam(%q) returned unexpected error: %v", input, err)
 		}
+
 		if result != expected {
 			t.Errorf("ParsePriorityParam(%q) = %v, want %v", input, result, expected)
 		}

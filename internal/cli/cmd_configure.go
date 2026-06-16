@@ -230,6 +230,7 @@ func runFixerMode(
 	check bool,
 ) error {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
+
 	linterPriority, err := ParsePriorityParam(priorityParam)
 	if err != nil {
 		return fmt.Errorf("invalid priority %q: %w", priorityParam, err)
