@@ -89,15 +89,7 @@ func (h *deprecatedLinterHandler) logSkip(linter string, replacement types.Linte
 
 // replacementAvailable checks if the replacement linter exists in the installed golangci-lint version.
 func (h *deprecatedLinterHandler) replacementAvailable(replacement types.LinterReplacement) bool {
-	if replacement.MinVersion == "" {
-		return true
-	}
-
-	if h.version == "" {
-		return true
-	}
-
-	return semver.Compare(h.version, replacement.MinVersion) >= 0
+	return isReplacementAvailable(replacement, h.version)
 }
 
 // migrateSettings moves linter settings from the deprecated name to the replacement name.
@@ -159,6 +151,11 @@ func hasDeprecatedLinters(enabledLinters []string, version string) bool {
 
 // replacementAvailable checks if a replacement is available for the given golangci-lint version.
 func replacementAvailable(replacement types.LinterReplacement, version string) bool {
+	return isReplacementAvailable(replacement, version)
+}
+
+// isReplacementAvailable is the shared implementation for replacement availability checks.
+func isReplacementAvailable(replacement types.LinterReplacement, version string) bool {
 	if replacement.MinVersion == "" {
 		return true
 	}
