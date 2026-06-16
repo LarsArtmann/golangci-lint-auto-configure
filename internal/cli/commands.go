@@ -24,7 +24,6 @@ var (
 	configPath   string
 	dryRun       bool
 	verbose      bool
-	generateHTML bool
 	outputReport string
 	priority     string
 	reportFormat string
@@ -214,7 +213,6 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().
 		BoolVarP(&dryRun, "dry-run", "d", false, "Show what would be done without making changes")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
-	rootCmd.PersistentFlags().BoolVar(&generateHTML, "html", false, "Generate HTML report")
 	rootCmd.PersistentFlags().
 		StringVar(&outputReport, "output", "report.html", "Output path for HTML report")
 	rootCmd.PersistentFlags().
