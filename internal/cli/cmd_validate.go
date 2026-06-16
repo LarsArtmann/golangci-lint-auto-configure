@@ -16,9 +16,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const toolName = "golangci-lint-auto-configure"
-
-// newValidateCommand creates the validate command.
 func newValidateCommand(builder *CommandBuilder) *cobra.Command {
 	var skipGolangciLint bool
 
@@ -178,7 +175,7 @@ func logHealthIssues(logger *log.Logger, health *types.ConfigHealth) {
 
 func outputHealthSARIF(health *types.ConfigHealth, configFile string, logger *log.Logger) error {
 	report := finding.NewReport(finding.ToolInfo{
-		Name:    toolName,
+		Name:    constants.ToolName,
 		Version: Version,
 	})
 
@@ -219,7 +216,7 @@ func healthIssuesToFindings(
 
 		findingObj, err := finding.NewBuilder(
 			issue.Rule,
-			toolName,
+			constants.ToolName,
 			issue.Message,
 			severity,
 			pos,
@@ -292,7 +289,7 @@ func runSchemaValidation(cmd *cobra.Command, configFile string, logger *log.Logg
 
 func outputValidationSARIF(_ *types.Config, configFile string, errors []error) error {
 	report := finding.NewReport(finding.ToolInfo{
-		Name:    "golangci-lint-auto-configure",
+		Name:    constants.ToolName,
 		Version: Version,
 	})
 

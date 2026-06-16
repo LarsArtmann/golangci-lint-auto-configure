@@ -12,8 +12,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-const toolName = "golangci-lint-auto-configure"
-
 const (
 	RuleIDMissingLinter    = "missing-linter"
 	RuleIDMissingFormatter = "missing-formatter"
@@ -204,7 +202,7 @@ func ErrorsToFindings(errors []error, configPath string) ([]finding.Finding, err
 // AnalysisToReport converts a full ConfigAnalysis to a finding.Report.
 func AnalysisToReport(analysis *types.ConfigAnalysis, version string) (*finding.Report, error) {
 	report := finding.NewReport(finding.ToolInfo{
-		Name:    toolName,
+		Name:    constants.ToolName,
 		Version: version,
 	})
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	finding "github.com/larsartmann/go-finding"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/diff"
 )
 
@@ -29,7 +30,7 @@ func changeFinding(change diff.Change, configPath string) (finding.Finding, erro
 
 	builder := finding.NewBuilder(
 		rule,
-		toolName,
+		constants.ToolName,
 		change.Description,
 		severity,
 		finding.Position{File: configPath},

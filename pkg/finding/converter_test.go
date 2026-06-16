@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	finding "github.com/larsartmann/go-finding"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -319,8 +320,8 @@ func TestAnalysisToReport(t *testing.T) {
 		t.Fatalf("AnalysisToReport failed: %v", err)
 	}
 
-	if report.Tool.Name != toolName {
-		t.Errorf("expected tool name %s, got %s", toolName, report.Tool.Name)
+	if report.Tool.Name != constants.ToolName {
+		t.Errorf("expected tool name %s, got %s", constants.ToolName, report.Tool.Name)
 	}
 
 	if report.Tool.Version != "v0.5.0" {
@@ -439,8 +440,8 @@ func assertFinding(
 		t.Errorf("expected category %v, got %v", expectedCategory, f.Category)
 	}
 
-	if f.ToolName != toolName {
-		t.Errorf("expected tool name %q, got %q", toolName, f.ToolName)
+	if f.ToolName != constants.ToolName {
+		t.Errorf("expected tool name %q, got %q", constants.ToolName, f.ToolName)
 	}
 
 	if f.Message == "" {

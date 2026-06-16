@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	finding "github.com/larsartmann/go-finding"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 )
 
 // buildFinding is a helper that builds a Finding from a Builder, returning an error
@@ -30,7 +31,7 @@ type configFindingParams struct {
 func configFinding(params configFindingParams) (finding.Finding, error) {
 	builder := finding.NewBuilder(
 		params.RuleID,
-		toolName,
+		constants.ToolName,
 		params.Message,
 		params.Severity,
 		params.Position,

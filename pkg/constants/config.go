@@ -5,6 +5,9 @@ import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 // DefaultTimeout is the default run timeout value for golangci-lint configurations.
 const DefaultTimeout = "5m"
 
+// ToolName is the canonical name of this tool, used for reports, findings, and CLI identity.
+const ToolName = "golangci-lint-auto-configure"
+
 // DefaultConfigFileNames is a list of default golangci-lint config file names.
 var DefaultConfigFileNames = []string{
 	".golangci.yml",
