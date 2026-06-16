@@ -37,9 +37,11 @@ func (d *Detector) walkGoFiles(processFile func(*os.File) error) error {
 		if err != nil {
 			return nil
 		}
-		defer closeFile(file)
 
-		return processFile(file)
+		processErr := processFile(file)
+		closeFile(file)
+
+		return processErr
 	})
 	if walkErr != nil {
 		return fmt.Errorf("walking directory %s: %w", d.rootDir, walkErr)
