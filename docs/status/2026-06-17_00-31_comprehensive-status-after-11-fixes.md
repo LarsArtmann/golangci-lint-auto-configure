@@ -10,15 +10,15 @@
 
 ## Project Snapshot
 
-| Metric | Value |
-|--------|-------|
-| Go files (excl. vendor) | 133 |
-| Total lines of Go code | ~19,669 |
-| Test files | 50 |
-| Test framework | Ginkgo v2 + Gomega (BDD) |
-| Go version | 1.26+ |
-| Packages (`pkg/`) | 17 |
-| CLI subcommands | 7 (`configure`, `analyze`, `validate`, `report`, `migrate`, `install-hook`, `completion`) |
+| Metric                  | Value                                                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| Go files (excl. vendor) | 133                                                                                       |
+| Total lines of Go code  | ~19,669                                                                                   |
+| Test files              | 50                                                                                        |
+| Test framework          | Ginkgo v2 + Gomega (BDD)                                                                  |
+| Go version              | 1.26+                                                                                     |
+| Packages (`pkg/`)       | 17                                                                                        |
+| CLI subcommands         | 7 (`configure`, `analyze`, `validate`, `report`, `migrate`, `install-hook`, `completion`) |
 
 ---
 
@@ -28,24 +28,24 @@
 
 #### Round 1 — User-Facing Bugs (5 commits, `362f548` → `4efbfc3`)
 
-| # | Commit | Fix | Impact |
-|---|--------|-----|--------|
-| 1 | `362f548` | Removed dead `--html` flag | Flag was registered but variable never read; users got silence |
-| 2 | `d089d41` | Removed duplicate logger setup in `Main()` | `Main()` created a logger + set slog default; `NewRootCommand()` did it again; first was discarded |
-| 3 | `358c9d3` | Added `ErrVersionInvalid` sentinel | `errors.Is(err, ErrVersionRequired)` was true for both "missing" and "wrong" version — semantically incorrect |
-| 4 | `d5f6a07` | Close files immediately in `walkGoFiles` | `defer` inside `filepath.Walk` callback held all file handles open until entire walk completed — fd leak on large repos |
-| 5 | `4efbfc3` | Surface invalid `--priority` values | `ParsePriorityParam` discarded errors and silently returned `Optional` for any unrecognized input — typos went unnoticed |
+| #   | Commit    | Fix                                        | Impact                                                                                                                   |
+| --- | --------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| 1   | `362f548` | Removed dead `--html` flag                 | Flag was registered but variable never read; users got silence                                                           |
+| 2   | `d089d41` | Removed duplicate logger setup in `Main()` | `Main()` created a logger + set slog default; `NewRootCommand()` did it again; first was discarded                       |
+| 3   | `358c9d3` | Added `ErrVersionInvalid` sentinel         | `errors.Is(err, ErrVersionRequired)` was true for both "missing" and "wrong" version — semantically incorrect            |
+| 4   | `d5f6a07` | Close files immediately in `walkGoFiles`   | `defer` inside `filepath.Walk` callback held all file handles open until entire walk completed — fd leak on large repos  |
+| 5   | `4efbfc3` | Surface invalid `--priority` values        | `ParsePriorityParam` discarded errors and silently returned `Optional` for any unrecognized input — typos went unnoticed |
 
 #### Round 2 — Dead Code & Duplication (6 commits, `b19320d` → `7fe2a4e`)
 
-| # | Commit | Fix | Impact |
-|---|--------|-----|--------|
-| 6 | `b19320d` | Deduplicated `replacementAvailable` | Method and package function had identical logic copy-pasted; both now delegate to `isReplacementAvailable` |
-| 7 | `e002e8e` | Fixed `0o644` → `0o600` in migration `yaml_loader` | **Security**: migration wrote config files world-readable while every other package uses owner-only |
-| 8 | `ef4409b` | Consolidated `toolName` → `constants.ToolName` | 4 definitions (2 in same package!) → 1 single source of truth in `pkg/constants/config.go` |
-| 9 | `5916d32` | Removed 5 dead sub-interfaces | `ConfigReader`, `ConfigWriter`, `ConfigDiscovery`, `ConfigValidator`, `ConfigInspector`, `ConfigCreator` had zero references — inlined into `ConfigLoader` |
-| 10 | `21ad979` | Removed dead `Analyzer.FormatRecommendations` | Only called in tests; production uses `ui.FormatRecommendations`. Also removed 2 dead helper methods. |
-| 11 | `7fe2a4e` | Deleted error-swallowing `analyzeGoMod` | Never checked `scanner.Err()` on go.mod parsing; silently produced incomplete results on malformed files. Caller now uses `analyzeGoModWithError`. |
+| #   | Commit    | Fix                                                | Impact                                                                                                                                                     |
+| --- | --------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6   | `b19320d` | Deduplicated `replacementAvailable`                | Method and package function had identical logic copy-pasted; both now delegate to `isReplacementAvailable`                                                 |
+| 7   | `e002e8e` | Fixed `0o644` → `0o600` in migration `yaml_loader` | **Security**: migration wrote config files world-readable while every other package uses owner-only                                                        |
+| 8   | `ef4409b` | Consolidated `toolName` → `constants.ToolName`     | 4 definitions (2 in same package!) → 1 single source of truth in `pkg/constants/config.go`                                                                 |
+| 9   | `5916d32` | Removed 5 dead sub-interfaces                      | `ConfigReader`, `ConfigWriter`, `ConfigDiscovery`, `ConfigValidator`, `ConfigInspector`, `ConfigCreator` had zero references — inlined into `ConfigLoader` |
+| 10  | `21ad979` | Removed dead `Analyzer.FormatRecommendations`      | Only called in tests; production uses `ui.FormatRecommendations`. Also removed 2 dead helper methods.                                                      |
+| 11  | `7fe2a4e` | Deleted error-swallowing `analyzeGoMod`            | Never checked `scanner.Err()` on go.mod parsing; silently produced incomplete results on malformed files. Caller now uses `analyzeGoModWithError`.         |
 
 ### Pre-existing Work (Fully Functional)
 
@@ -86,12 +86,12 @@ All 7 shared fields (`Version`, `Run`, `Output`, `Linters`, `Formatters`, `Issue
 
 ### Test Coverage — 64.2% Composite
 
-| Package | Coverage |
-|---------|----------|
-| `pkg/version` | 94.6% |
-| `internal/cli` (utils) | 67.7% |
-| Composite (all packages) | 64.2% |
-| `pkg/migration` | ~51.4% (version) |
+| Package                  | Coverage         |
+| ------------------------ | ---------------- |
+| `pkg/version`            | 94.6%            |
+| `internal/cli` (utils)   | 67.7%            |
+| Composite (all packages) | 64.2%            |
+| `pkg/migration`          | ~51.4% (version) |
 
 **Status:** Passing but below the 80% target from `how-to-golang` skill. Migration package is the weakest.
 
@@ -119,6 +119,7 @@ All 7 shared fields (`Version`, `Run`, `Output`, `Linters`, `Formatters`, `Issue
 The codebase builds, all tests pass, all pre-commit hooks pass, and the CLI is functional. The issues found were code quality / architectural debt, not production-breaking bugs.
 
 **However**, two issues that WERE fucked up (now fixed):
+
 - The `--html` flag was pure dead UI — a user-facing lie
 - `ParsePriorityParam` silently swallowed invalid input, making typos invisible
 - `0o644` file permissions on migration configs was a security exposure
@@ -154,33 +155,33 @@ The codebase builds, all tests pass, all pre-commit hooks pass, and the CLI is f
 
 ## F) Top 25 Things to Get Done Next 🏆
 
-| # | Task | Impact | Effort | Type |
-|---|------|--------|--------|------|
-| 1 | **Commit `go.mod`/`go.sum` changes + update `flake.nix` vendorHash** | unblocks Nix builds | tiny | DevOps |
-| 2 | **Remove `FormattersManagedByBuildFlow` dead constant** | dead code removal | tiny | Cleanup |
-| 3 | **Move `ErrMockValidationFailed` to `_test.go` file** | stops test code leaking into production package | tiny | Cleanup |
-| 4 | **Consolidate file permission constants** into `pkg/constants` | DRY 3→1 | tiny | Cleanup |
-| 5 | **Replace hand-rolled Spinner with charm.land spinner** | uses existing dependency properly | small | Quality |
-| 6 | **Add `go vet -unreachable` or `staticcheck` unused code detection to CI** | prevents future dead code accumulation | small | DevOps |
-| 7 | **Decompose `MigrateToV2`** to remove `//nolint:cyclop,funlen` | addresses worst linter suppression | small | Quality |
-| 8 | **Decompose `migrations_linters_settings.go:32`** function (5-linter suppression) | addresses heaviest nolint | medium | Quality |
-| 9 | **Change `MigrateToV2` return type** from `(bool, int, error)` to `(*MigrationResult, error)` | makes impossible states unrepresentable | small | Architecture |
-| 10 | **Simplify `pkg/diff`** — replace 291-line differ with `reflect.DeepEqual` + YAML diff | removes over-engineering | medium | Architecture |
-| 11 | **Split `pkg/types`** into pure data types vs validation logic | clearer package boundaries | medium | Architecture |
-| 12 | **Add property-based tests** for config parsing (gopter) | catches edge cases unit tests miss | medium | Testing |
-| 13 | **Unify Config types** — merge `migration.Config` into `types.Config` | eliminates biggest split-brain | large | Architecture |
-| 14 | **Increase migration package test coverage** from ~51% to 80%+ | covers weakest area | medium | Testing |
-| 15 | **Add integration test for the full `configure` → `validate` → `report` pipeline** | verifies end-to-end flow | medium | Testing |
-| 16 | **Review and reduce remaining `//nolint:` suppressions** (9 remaining after #7/#8) | pays down deferred debt | medium | Quality |
-| 17 | **Add `go-error-family` structured errors** (flagged by go-structure-linter) | better error classification | medium | Architecture |
-| 18 | **Remove committed `bin/` binaries from git history** (flagged by go-structure-linter) | repo hygiene | small | DevOps |
-| 19 | **Add `DOMAIN_LANGUAGE.md`** for ubiquitous language definitions | DDD alignment | small | Docs |
-| 20 | **Review `CommandBuilder` pattern** — wraps 3 fields, adds little value over function args | simplification | small | Quality |
-| 21 | **Consolidate `golangciLintOutput` type name** — used for two different structs | prevents confusion | small | Quality |
-| 22 | **Add `context.Context` support to `FindBinary`** (takes ctx but ignores it) | honest signatures | small | Quality |
-| 23 | **Audit `pkg/client/` API** — public client API surface, ensure it's clean | library readiness | medium | Architecture |
-| 24 | **Add benchmark/regression CI** — detect performance regressions automatically | prevents perf decay | medium | DevOps |
-| 25 | **Document architecture decisions in `docs/adr/`** — record WHY decisions were made | onboarding | small | Docs |
+| #   | Task                                                                                          | Impact                                          | Effort | Type         |
+| --- | --------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------ | ------------ |
+| 1   | **Commit `go.mod`/`go.sum` changes + update `flake.nix` vendorHash**                          | unblocks Nix builds                             | tiny   | DevOps       |
+| 2   | **Remove `FormattersManagedByBuildFlow` dead constant**                                       | dead code removal                               | tiny   | Cleanup      |
+| 3   | **Move `ErrMockValidationFailed` to `_test.go` file**                                         | stops test code leaking into production package | tiny   | Cleanup      |
+| 4   | **Consolidate file permission constants** into `pkg/constants`                                | DRY 3→1                                         | tiny   | Cleanup      |
+| 5   | **Replace hand-rolled Spinner with charm.land spinner**                                       | uses existing dependency properly               | small  | Quality      |
+| 6   | **Add `go vet -unreachable` or `staticcheck` unused code detection to CI**                    | prevents future dead code accumulation          | small  | DevOps       |
+| 7   | **Decompose `MigrateToV2`** to remove `//nolint:cyclop,funlen`                                | addresses worst linter suppression              | small  | Quality      |
+| 8   | **Decompose `migrations_linters_settings.go:32`** function (5-linter suppression)             | addresses heaviest nolint                       | medium | Quality      |
+| 9   | **Change `MigrateToV2` return type** from `(bool, int, error)` to `(*MigrationResult, error)` | makes impossible states unrepresentable         | small  | Architecture |
+| 10  | **Simplify `pkg/diff`** — replace 291-line differ with `reflect.DeepEqual` + YAML diff        | removes over-engineering                        | medium | Architecture |
+| 11  | **Split `pkg/types`** into pure data types vs validation logic                                | clearer package boundaries                      | medium | Architecture |
+| 12  | **Add property-based tests** for config parsing (gopter)                                      | catches edge cases unit tests miss              | medium | Testing      |
+| 13  | **Unify Config types** — merge `migration.Config` into `types.Config`                         | eliminates biggest split-brain                  | large  | Architecture |
+| 14  | **Increase migration package test coverage** from ~51% to 80%+                                | covers weakest area                             | medium | Testing      |
+| 15  | **Add integration test for the full `configure` → `validate` → `report` pipeline**            | verifies end-to-end flow                        | medium | Testing      |
+| 16  | **Review and reduce remaining `//nolint:` suppressions** (9 remaining after #7/#8)            | pays down deferred debt                         | medium | Quality      |
+| 17  | **Add `go-error-family` structured errors** (flagged by go-structure-linter)                  | better error classification                     | medium | Architecture |
+| 18  | **Remove committed `bin/` binaries from git history** (flagged by go-structure-linter)        | repo hygiene                                    | small  | DevOps       |
+| 19  | **Add `DOMAIN_LANGUAGE.md`** for ubiquitous language definitions                              | DDD alignment                                   | small  | Docs         |
+| 20  | **Review `CommandBuilder` pattern** — wraps 3 fields, adds little value over function args    | simplification                                  | small  | Quality      |
+| 21  | **Consolidate `golangciLintOutput` type name** — used for two different structs               | prevents confusion                              | small  | Quality      |
+| 22  | **Add `context.Context` support to `FindBinary`** (takes ctx but ignores it)                  | honest signatures                               | small  | Quality      |
+| 23  | **Audit `pkg/client/` API** — public client API surface, ensure it's clean                    | library readiness                               | medium | Architecture |
+| 24  | **Add benchmark/regression CI** — detect performance regressions automatically                | prevents perf decay                             | medium | DevOps       |
+| 25  | **Document architecture decisions in `docs/adr/`** — record WHY decisions were made           | onboarding                                      | small  | Docs         |
 
 ---
 
