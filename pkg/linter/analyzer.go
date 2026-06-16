@@ -17,7 +17,6 @@ import (
 	"strings"
 
 	"charm.land/log/v2"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"golang.org/x/sync/errgroup"
@@ -165,25 +164,6 @@ func (a *Analyzer) GetLintersByPriority(
 	return filtered
 }
 
-// FormatRecommendations formats recommendations as human-readable output.
-func (a *Analyzer) FormatRecommendations(analysis *types.ConfigAnalysis) string {
-	var builder strings.Builder
-
-	a.formatDeprecatedSection(&builder, analysis)
-
-	critical := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityCritical)
-	highValue := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityHigh)
-	mediumValue := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityMedium)
-	optional := a.GetLintersByPriority(analysis.LinterRecommendations, types.LinterPriorityOptional)
-
-	a.formatPrioritySection(&builder, critical, "🚨", "CRITICAL", "should ALWAYS be enabled")
-	a.formatPrioritySection(&builder, highValue, "⚠️ ", "HIGH VALUE", "recommended for most projects")
-	a.formatPrioritySection(&builder, mediumValue, "ℹ️ ", "MEDIUM VALUE", "optional but recommended")
-	a.formatPrioritySection(&builder, optional, "💡", "OPTIONAL", "for niche use cases")
-
-	return builder.String()
-}
-
 // GetSummary returns a brief summary of recommendations.
 func (a *Analyzer) GetSummary(analysis *types.ConfigAnalysis) string {
 	parts := summaryParts(analysis)
@@ -255,44 +235,6 @@ func (a *Analyzer) parseFormattersOutput(ctx context.Context, configPath string)
 	}
 
 	return &output
-}
-
-func (a *Analyzer) formatDeprecatedSection(builder *strings.Builder, analysis *types.ConfigAnalysis) {
-	if len(analysis.DeprecatedLinters) == 0 {
-		return
-	}
-
-	fmt.Fprintf(builder, "⚠️  %d DEPRECATED linter(s) are enabled (should be migrated):\n",
-		len(analysis.DeprecatedLinters))
-
-	for _, linter := range analysis.DeprecatedLinters {
-		if replacement, ok := constants.DeprecatedLinters[linter.Name]; ok {
-			fmt.Fprintf(builder, "  - %s: Use %s instead (%s)\n",
-				linter.Name, replacement.Replacement, linter.Description)
-		} else {
-			fmt.Fprintf(builder, "  - %s: %s (no replacement specified)\n", linter.Name, linter.Description)
-		}
-	}
-
-	builder.WriteString("\n")
-}
-
-func (a *Analyzer) formatPrioritySection(
-	builder *strings.Builder,
-	recommendations []types.LinterRecommendation,
-	icon, label, subtitle string,
-) {
-	if len(recommendations) == 0 {
-		return
-	}
-
-	fmt.Fprintf(builder, "%s %d %s linter(s) are disabled (%s):\n", icon, len(recommendations), label, subtitle)
-
-	for _, rec := range recommendations {
-		fmt.Fprintf(builder, "  - %s: %s\n", rec.Name, rec.Reason)
-	}
-
-	builder.WriteString("\n")
 }
 
 // lookupAll searches every directory in PATH for the named executable

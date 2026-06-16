@@ -41,17 +41,3 @@ func BenchmarkAnalyzer_GetLintersByPriority(b *testing.B) {
 		_ = analyzer.GetLintersByPriority(recommendations, 0)
 	}
 }
-
-func BenchmarkAnalyzer_FormatRecommendations(b *testing.B) {
-	logger := newBenchLogger()
-	analyzer := linterpkg.NewAnalyzer(logger)
-
-	analysis, err := analyzer.AnalyzeConfig(context.Background(), defaultTestConfigPath)
-	if err != nil {
-		b.Fatalf("Setup failed: %v", err)
-	}
-
-	for b.Loop() {
-		_ = analyzer.FormatRecommendations(analysis)
-	}
-}
