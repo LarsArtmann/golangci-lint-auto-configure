@@ -10,6 +10,7 @@ import (
 	"charm.land/log/v2"
 	clicmd "github.com/larsartmann/golangci-lint-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/version"
 	"github.com/spf13/cobra"
@@ -17,8 +18,6 @@ import (
 
 // Version is the CLI version string, derived from pkg/version.
 var Version = version.Get().Short()
-
-const toolNameCLI = "golangci-lint-auto-configure"
 
 var (
 	configPath   string
@@ -162,7 +161,7 @@ func NewRootCommand() *cobra.Command {
 	slog.SetDefault(slog.New(logger))
 
 	rootCmd := &cobra.Command{
-		Use:   toolNameCLI,
+		Use:   constants.ToolName,
 		Short: "Automatically configure and optimize golangci-lint",
 		Long: `A tool that automatically analyzes golangci-lint configurations,
 detects missing linters with smart categorization, and provides
