@@ -229,48 +229,17 @@ type ValidationResult struct {
 
 // --- Interfaces for Testability ---
 
-// ConfigReader defines the interface for reading golangci-lint configurations.
-type ConfigReader interface {
+// ConfigLoader defines the composite interface for loading, saving, discovering,
+// validating, inspecting, and creating golangci-lint configurations.
+type ConfigLoader interface {
 	LoadConfig(path string) (*Config, error)
 	FindConfigFile(startDir string) (string, error)
-}
-
-// ConfigWriter defines the interface for writing golangci-lint configurations.
-type ConfigWriter interface {
-	SaveConfig(config *Config, path string) error
-}
-
-// ConfigDiscovery defines the interface for discovering configuration files.
-type ConfigDiscovery interface {
-	FindConfigFile(startDir string) (string, error)
 	FindOrGetDefaultConfigPath(startDir string) string
-}
-
-// ConfigValidator defines the interface for validating configurations.
-type ConfigValidator interface {
+	SaveConfig(config *Config, path string) error
 	ValidateConfig(config *Config) []error
-}
-
-// ConfigInspector defines the interface for inspecting configuration contents.
-type ConfigInspector interface {
 	GetLintersEnabled(config *Config) []string
 	GetLintersDisabled(config *Config) []string
-}
-
-// ConfigCreator defines the interface for creating default configurations.
-type ConfigCreator interface {
 	CreateDefaultConfig(ctx context.Context) *Config
-}
-
-// ConfigLoader defines the composite interface for loading and saving golangci-lint configurations.
-// This interface combines all the smaller, focused interfaces above for backward compatibility.
-type ConfigLoader interface {
-	ConfigReader
-	ConfigWriter
-	ConfigDiscovery
-	ConfigValidator
-	ConfigInspector
-	ConfigCreator
 }
 
 // Config represents a golangci-lint configuration file.
