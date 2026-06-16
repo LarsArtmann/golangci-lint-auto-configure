@@ -56,7 +56,7 @@ func newTestLogger() *log.Logger {
 }
 
 func TestParsePriorityParam(t *testing.T) {
-	tests := []struct {
+	validTests := []struct {
 		input    string
 		expected types.LinterPriority
 	}{
@@ -64,17 +64,27 @@ func TestParsePriorityParam(t *testing.T) {
 		{"high", types.LinterPriorityHigh},
 		{"medium", types.LinterPriorityMedium},
 		{"optional", types.LinterPriorityOptional},
-		{"unknown", types.LinterPriorityOptional},
-		{"", types.LinterPriorityOptional},
-		{"CRITICAL", types.LinterPriorityOptional},
-		{"MEDIUM", types.LinterPriorityOptional},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			result := ParsePriorityParam(tt.input)
+	for _, tt := range validTests {
+		t.Run("valid/"+tt.input, func(t *testing.T) {
+			result, err := ParsePriorityParam(tt.input)
+			if err != nil {
+				t.Fatalf("ParsePriorityParam(%q) returned unexpected error: %v", tt.input, err)
+			}
 			if result != tt.expected {
 				t.Errorf("ParsePriorityParam(%q) = %v, want %v", tt.input, result, tt.expected)
+			}
+		})
+	}
+
+	invalidTests := []string{"unknown", "", "CRITICAL", "MEDIUM"}
+
+	for _, input := range invalidTests {
+		t.Run("invalid/"+input, func(t *testing.T) {
+			_, err := ParsePriorityParam(input)
+			if err == nil {
+				t.Errorf("ParsePriorityParam(%q) expected error, got nil", input)
 			}
 		})
 	}
@@ -89,9 +99,12 @@ func TestParsePriorityParam_AllPriorities(t *testing.T) {
 	}
 
 	for input, expected := range priorities {
-		result := ParsePriorityParam(input)
+		result, err := ParsePriorityParam(input)
+		if err != nil {
+			t.Fatalf("ParsePriorityParam(%q) returned unexpected error: %v", input, err)
+		}
 		if result != expected {
-			t.Errorf("parsePriorityParam(%q) = %v, want %v", input, result, expected)
+			t.Errorf("ParsePriorityParam(%q) = %v, want %v", input, result, expected)
 		}
 	}
 }

@@ -252,7 +252,7 @@ linters:
 		Expect(restoredStr).NotTo(ContainSubstring("gosec"))
 	})
 
-	It("should default to optional priority for unrecognized value", func() {
+	It("should fail with invalid priority value", func() {
 		initGitRepo()
 
 		binaryPath := buildBinary()
@@ -269,8 +269,8 @@ linters:
 		)
 		output, err := cmd.CombinedOutput()
 
-		Expect(err).NotTo(HaveOccurred())
-		Expect(string(output)).To(ContainSubstring("[DRY-RUN]"))
+		Expect(err).To(HaveOccurred())
+		Expect(string(output)).To(ContainSubstring("invalid priority"))
 	})
 
 	It("should fail with invalid preset flag", func() {

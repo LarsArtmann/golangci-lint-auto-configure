@@ -230,7 +230,10 @@ func runFixerMode(
 	check bool,
 ) error {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
-	linterPriority := ParsePriorityParam(priorityParam)
+	linterPriority, err := ParsePriorityParam(priorityParam)
+	if err != nil {
+		return fmt.Errorf("invalid priority %q: %w", priorityParam, err)
+	}
 
 	originalCfg := captureOriginalConfig(showDiff, configLoader, configFile, logger)
 	effectiveDryRun := effectiveDryRunForCheckDiff(isDryRun, check, originalCfg)
@@ -403,10 +406,8 @@ func ensureConfigFile(
 }
 
 // ParsePriorityParam converts a priority string to LinterPriority.
-func ParsePriorityParam(priorityParam string) types.LinterPriority {
-	p, _ := types.ParseLinterPriority(priorityParam)
-
-	return p
+func ParsePriorityParam(priorityParam string) (types.LinterPriority, error) {
+	return types.ParseLinterPriority(priorityParam)
 }
 
 func loadPresetConfig(
