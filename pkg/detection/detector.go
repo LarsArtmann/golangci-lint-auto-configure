@@ -155,7 +155,7 @@ func (d *Detector) detect() ProjectType {
 		return ProjectTypeMonorepo
 	}
 
-	modulePath, imports := d.analyzeGoMod()
+	modulePath, imports, _ := d.analyzeGoModWithError()
 	hasMain := d.hasMainPackage()
 	hasHTTP := d.hasHTTPFramework(imports)
 	hasCLI := d.hasCLIFramework(imports)
@@ -258,21 +258,6 @@ func extractImportFromLine(line string, inRequire bool) string {
 	}
 
 	return ""
-}
-
-func (d *Detector) analyzeGoMod() (string, []string) {
-	goModPath := filepath.Join(d.rootDir, "go.mod")
-
-	file, err := os.Open(goModPath)
-	if err != nil {
-		return "", nil
-	}
-
-	defer closeFile(file)
-
-	info := scanGoMod(bufio.NewScanner(file))
-
-	return info.modulePath, info.imports
 }
 
 func (d *Detector) analyzeGoModWithError() (string, []string, error) {
