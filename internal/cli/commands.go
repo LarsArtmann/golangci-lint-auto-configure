@@ -240,9 +240,6 @@ func Execute(ctx context.Context) error {
 
 // Main is the entry point.
 func Main() {
-	logger := newLogger()
-	slog.SetDefault(slog.New(logger))
-
 	err := Execute(context.Background())
 	if err != nil {
 		slog.Error("CLI execution failed", "error", err)
