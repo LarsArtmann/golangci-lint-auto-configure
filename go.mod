@@ -6,12 +6,12 @@ require (
 	charm.land/fang/v2 v2.0.1
 	charm.land/lipgloss/v2 v2.0.4
 	charm.land/log/v2 v2.0.0
-	github.com/LarsArtmann/gogenfilter/v3 v3.1.0
+	github.com/LarsArtmann/gogenfilter/v3 v3.2.0
 	github.com/a-h/templ v0.3.1020
-	github.com/larsartmann/go-finding v0.6.1
+	github.com/larsartmann/go-finding v0.8.0
 	github.com/onsi/ginkgo/v2 v2.31.0
 	github.com/onsi/gomega v1.42.0
-	github.com/pelletier/go-toml/v2 v2.3.1
+	github.com/pelletier/go-toml/v2 v2.4.0
 	github.com/spf13/cobra v1.10.2
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/mod v0.37.0
