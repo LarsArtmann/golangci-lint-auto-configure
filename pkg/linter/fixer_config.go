@@ -24,44 +24,60 @@ func newConfigUpdater(logger *log.Logger) *configUpdater {
 }
 
 // updateGoVersion sets the Go version in the config to the local version.
-func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config) {
+func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config) int {
 	goVersion := config.GetLocalGoVersion(ctx)
 	if goVersion == "" {
-		return
+		return 0
 	}
 
 	if cfg.Run.Go != goVersion {
 		cu.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, goVersion)
 		cfg.Run.Go = goVersion
+
+		return 1
 	}
+
+	return 0
 }
 
 // updateRunnerSettings enables parallel and serial runners if not already enabled.
-func (cu *configUpdater) updateRunnerSettings(cfg *types.Config) {
+func (cu *configUpdater) updateRunnerSettings(cfg *types.Config) int {
+	added := 0
+
 	if !cfg.Run.AllowParallelRunners {
 		cu.logger.Infof("Enabling allow-parallel-runners: %v -> true", cfg.Run.AllowParallelRunners)
 		cfg.Run.AllowParallelRunners = true
+		added++
 	}
 
 	if !cfg.Run.AllowSerialRunners {
 		cu.logger.Infof("Enabling allow-serial-runners: %v -> true", cfg.Run.AllowSerialRunners)
 		cfg.Run.AllowSerialRunners = true
+		added++
 	}
+
+	return added
 }
 
 // updateBuildTags adds Go experiment tags to the config.
-func (cu *configUpdater) updateBuildTags(cfg *types.Config) {
+func (cu *configUpdater) updateBuildTags(cfg *types.Config) int {
 	existingTags := types.NewSet(cfg.Run.BuildTags...)
+
+	added := 0
 
 	for _, tag := range constants.GoExperimentTags() {
 		if !existingTags.Contains(tag) {
 			cu.logger.Infof("Adding build tag: %s", tag)
 			cfg.Run.BuildTags = append(cfg.Run.BuildTags, tag)
 			existingTags.Add(tag)
+
+			added++
 		}
 	}
 
 	cfg.Run.BuildTags = sortAndDeduplicate(cfg.Run.BuildTags)
+
+	return added
 }
 
 // sortAndDeduplicate sorts and deduplicates a slice of strings.
@@ -148,6 +164,27 @@ func (cu *configUpdater) updateExclusionRules(cfg *types.Config) int {
 	return added
 }
 
+// updateIssuesSettings injects default issue limits when they are missing.
+// Without these, golangci-lint defaults to max-same-issues:3, which hides
+// duplicate problems in CI output.
+func (cu *configUpdater) updateIssuesSettings(cfg *types.Config) int {
+	added := 0
+
+	if cfg.Issues.MaxIssuesPerLinter == 0 {
+		cu.logger.Infof("Setting issues.max-issues-per-linter to %d", config.DefaultMaxIssuesPerLinter)
+		cfg.Issues.MaxIssuesPerLinter = config.DefaultMaxIssuesPerLinter
+		added++
+	}
+
+	if cfg.Issues.MaxSameIssues == 0 {
+		cu.logger.Infof("Setting issues.max-same-issues to %d", config.DefaultMaxSameIssues)
+		cfg.Issues.MaxSameIssues = config.DefaultMaxSameIssues
+		added++
+	}
+
+	return added
+}
+
 // ApplyGeneratedExclusions scans a project config for auto-generated Go files
 // and injects exclusion paths into the config. This is the public entry point
 // used by both the fixer flow and the preset flow.
@@ -175,12 +212,13 @@ func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logg
 }
 
 // updateConfigFromSets applies the linter and formatter sets back to the config struct.
+// Returns the count of default settings injected.
 func updateConfigFromSets(
 	cfg *types.Config,
 	linterSet types.Set[string],
 	formatterSet types.Set[string],
 	formatterManager *FormatterManager,
-) {
+) int {
 	enabledLinters := types.ToSortedSlice(linterSet)
 
 	disabledLintersList := make([]string, 0)
@@ -197,21 +235,28 @@ func updateConfigFromSets(
 	cfg.Linters.Enable = enabledLinters
 	cfg.Linters.Disable = disabledLintersList
 
+	settingsInjected := 0
+
 	if formatterSet.Len() > 0 {
 		cfg.Formatters.Enable = formatterManager.ToOrderedSlice(formatterSet)
 	}
 
-	injectDefaultSettings(cfg, enabledLinters)
+	settingsInjected += injectDefaultSettings(cfg, enabledLinters)
 
 	if formatterSet.Len() > 0 {
-		injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable)
+		settingsInjected += injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable)
 	}
+
+	return settingsInjected
 }
 
 // injectDefaultSettings injects safe default settings for linters that require
 // configuration, but only if the config doesn't already have meaningful settings for them.
 // Empty or nil values are treated as missing and will be overwritten with defaults.
-func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
+// Returns the number of settings injected.
+func injectDefaultSettings(cfg *types.Config, enabledLinters []string) int {
+	injected := 0
+
 	for _, linterName := range enabledLinters {
 		defaults, hasDefaults := constants.DefaultLinterSettings[types.LinterName(linterName)]
 		if !hasDefaults {
@@ -225,7 +270,10 @@ func injectDefaultSettings(cfg *types.Config, enabledLinters []string) {
 		}
 
 		cfg.Linters.Settings[linterName] = defaults
+		injected++
 	}
+
+	return injected
 }
 
 // isEmptySettingsValue reports whether a settings value is nil or an empty map,
@@ -243,7 +291,10 @@ func isEmptySettingsValue(v any) bool {
 // injectDefaultFormatterSettings injects safe default settings for formatters that require
 // configuration, but only if the config doesn't already have meaningful settings for them.
 // Empty or nil values are treated as missing and will be overwritten with defaults.
-func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []string) {
+// Returns the number of settings injected.
+func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []string) int {
+	injected := 0
+
 	for _, formatterName := range enabledFormatters {
 		defaults, hasDefaults := constants.DefaultFormatterSettings[types.FormatterName(formatterName)]
 		if !hasDefaults {
@@ -259,5 +310,8 @@ func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []strin
 		}
 
 		cfg.Formatters.Settings[formatterName] = defaults
+		injected++
 	}
+
+	return injected
 }

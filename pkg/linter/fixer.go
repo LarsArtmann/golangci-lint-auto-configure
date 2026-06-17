@@ -165,10 +165,11 @@ type fixCounts struct {
 	formatter   int
 	generated   int
 	redundant   int
+	config      int // config-level normalizations: go version, runners, build tags, settings, issues
 }
 
 func (c fixCounts) total() int {
-	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant
+	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant + c.config
 }
 
 // applyLintersFix processes linter recommendations, applies fixes, and saves the config.
@@ -250,13 +251,14 @@ func (f *Fixer) applyAndSave(
 	counts fixCounts,
 ) (*types.MigrationResult, error) {
 	updater := newConfigUpdater(f.logger)
-	updater.updateGoVersion(ctx, cfg)
-	updater.updateRunnerSettings(cfg)
-	updater.updateBuildTags(cfg)
-	updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
+	counts.config += updater.updateGoVersion(ctx, cfg)
+	counts.config += updater.updateRunnerSettings(cfg)
+	counts.config += updater.updateBuildTags(cfg)
+	counts.config += updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
 
 	counts.generated = updater.updateGeneratedExclusions(cfg, configPath)
 	counts.generated += updater.updateExclusionRules(cfg)
+	counts.config += updater.updateIssuesSettings(cfg)
 
 	if counts.total() == 0 {
 		return noFixesResult()

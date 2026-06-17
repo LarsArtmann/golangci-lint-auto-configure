@@ -65,8 +65,9 @@ func successResult(counts fixCounts) (*types.MigrationResult, error) {
 	return &types.MigrationResult{
 		FixesApplied: counts.total(),
 		Message: fmt.Sprintf(
-			"Successfully applied %d fixes (%d linters, %d formatters, %d generated, %d deprecated, %d redundant)",
+			"Successfully applied %d fixes (%d linters, %d formatters, %d generated, %d deprecated, %d redundant, %d config)",
 			counts.total(), counts.enable, counts.formatter, counts.generated, counts.deprecation, counts.redundant,
+			counts.config,
 		),
 		NextSteps: []string{
 			"Run 'golangci-lint run --fix' to auto-fix code issues found by the newly enabled linters",

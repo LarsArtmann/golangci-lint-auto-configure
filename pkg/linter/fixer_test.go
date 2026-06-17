@@ -720,4 +720,164 @@ linters:
 `, "custom_path/", "_templ\\.go$", "vendor/")
 		})
 	})
+
+	Context("Issues Block Normalization", func() {
+		It("should add max-issues-per-linter and max-same-issues when issues block is empty", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+  go: "1.26.0"
+  build-tags:
+    - goexperiment.arenas
+    - goexperiment.goroutineleakprofile
+    - goexperiment.jsonv2
+    - goexperiment.runtimesecret
+    - goexperiment.simd
+  allow-parallel-runners: true
+  allow-serial-runners: true
+linters:
+  enable:
+    - gosec
+  exclusions:
+    generated: lax
+    rules:
+      - path: _test\.go
+        linters:
+          - exhaustruct
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - goconst
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - _templ\.go$
+      - \.gen\.go$
+      - vendor/
+issues: {}
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("max-issues-per-linter:"))
+			Expect(content).To(ContainSubstring("max-same-issues:"))
+		})
+
+		It("should not overwrite existing issue limits", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+  go: "1.26.0"
+  build-tags:
+    - goexperiment.arenas
+    - goexperiment.goroutineleakprofile
+    - goexperiment.jsonv2
+    - goexperiment.runtimesecret
+    - goexperiment.simd
+  allow-parallel-runners: true
+  allow-serial-runners: true
+linters:
+  enable:
+    - gosec
+  exclusions:
+    generated: lax
+    rules:
+      - path: _test\.go
+        linters:
+          - exhaustruct
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - goconst
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - _templ\.go$
+      - \.gen\.go$
+      - vendor/
+issues:
+  max-issues-per-linter: 200
+  max-same-issues: 50
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("max-issues-per-linter: 200"))
+			Expect(content).To(ContainSubstring("max-same-issues: 50"))
+		})
+	})
+
+	Context("Settings Injection Without Other Fixes", func() {
+		// These tests verify the P0 silent-drop fix: when a config already has
+		// all exclusion paths, rules, runner settings, and build tags, but is
+		// missing default settings for an enabled linter, the fixer must still
+		// inject and save those settings.
+		fullyPreparedConfig := func(linters ...string) string {
+			linterList := strings.Join(append([]string{"gosec"}, linters...), "\n    - ")
+			return fmt.Sprintf(`version: "2"
+run:
+  timeout: 5m
+  go: "1.26.0"
+  build-tags:
+    - goexperiment.arenas
+    - goexperiment.goroutineleakprofile
+    - goexperiment.jsonv2
+    - goexperiment.runtimesecret
+    - goexperiment.simd
+  allow-parallel-runners: true
+  allow-serial-runners: true
+linters:
+  enable:
+    - %s
+  exclusions:
+    generated: lax
+    rules:
+      - path: _test\.go
+        linters:
+          - exhaustruct
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - goconst
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - _templ\.go$
+      - \.gen\.go$
+      - vendor/
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10
+`, linterList)
+		}
+
+		It("should inject ginkgolinter settings even when no other fixes are needed", func() {
+			content, err := fixAndRead(
+				fixer, testConfig,
+				fullyPreparedConfig("ginkgolinter"),
+				types.LinterPriorityHigh, false,
+			)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("ginkgolinter:"))
+			Expect(content).To(ContainSubstring("forbid-focus-container"))
+		})
+
+		It("should inject testifylint settings even when no other fixes are needed", func() {
+			content, err := fixAndRead(
+				fixer, testConfig,
+				fullyPreparedConfig("testifylint"),
+				types.LinterPriorityHigh, false,
+			)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("testifylint:"))
+			Expect(content).To(ContainSubstring("enable-all"))
+		})
+	})
 })

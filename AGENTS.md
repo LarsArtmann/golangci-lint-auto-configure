@@ -347,6 +347,20 @@ Automatic replacement of deprecated linters:
 - Uses `.golangci.yml` as default path
 - Requires git repository for version control safety
 
+### 10. Config Normalization: All Mutations Are Counted
+
+The fixer's `applyAndSave` function tracks fix counts via `fixCounts` struct. Every
+mutating step MUST increment a counter — otherwise the `counts.total() == 0` guard
+silently discards the entire in-memory config without saving. The `config` field in
+`fixCounts` tracks: Go version, runner settings, build tags, default settings injection,
+and issues block normalization.
+
+### 11. Issues Block Normalization
+
+The fixer injects `issues.max-issues-per-linter: 50` and `issues.max-same-issues: 10`
+when absent (via `updateIssuesSettings`). Without these, golangci-lint defaults to
+`max-same-issues: 3`, which hides duplicate problems in CI output.
+
 ## Working with This Codebase
 
 → See [`docs/references/working-with-codebase.md`](docs/references/working-with-codebase.md) for:
