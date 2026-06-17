@@ -27,18 +27,18 @@ auto-fixer is the primary config author across this ecosystem.
 
 ### 2.1 Structural consistency
 
-| Property                        | Prevalence | Notes                                            |
-| ------------------------------- | ---------- | ------------------------------------------------ |
-| `version: "2"`                  | 100%       | Zero v1 configs remain. Migration feature works. |
-| `run.timeout: 5m`               | 92%        | 11 configs diverge (see gaps).                   |
-| `run.allow-parallel-runners`    | 98%        | Fixer enforces this.                             |
-| `run.allow-serial-runners`      | 98%        | Fixer enforces this.                             |
-| `run.build-tags` (5 goexperiment tags) | 93% | Fixer injects all 5 experiment tags.             |
-| `run.go: 1.26.x`                | ~90%       | Fixer sets local Go version.                     |
-| `output.formats: {}`            | 97%        | Explicit empty formats block.                    |
-| `linters.exclusions.generated: lax` | 93%   | Fixer injects this.                              |
-| `formatters: [gci, goimports, gofumpt, golines]` | 97% | Core formatters.               |
-| `formatters.settings.golines.max-len: 120` | 94% | Fixer injects this default.                    |
+| Property                                         | Prevalence | Notes                                            |
+| ------------------------------------------------ | ---------- | ------------------------------------------------ |
+| `version: "2"`                                   | 100%       | Zero v1 configs remain. Migration feature works. |
+| `run.timeout: 5m`                                | 92%        | 11 configs diverge (see gaps).                   |
+| `run.allow-parallel-runners`                     | 98%        | Fixer enforces this.                             |
+| `run.allow-serial-runners`                       | 98%        | Fixer enforces this.                             |
+| `run.build-tags` (5 goexperiment tags)           | 93%        | Fixer injects all 5 experiment tags.             |
+| `run.go: 1.26.x`                                 | ~90%       | Fixer sets local Go version.                     |
+| `output.formats: {}`                             | 97%        | Explicit empty formats block.                    |
+| `linters.exclusions.generated: lax`              | 93%        | Fixer injects this.                              |
+| `formatters: [gci, goimports, gofumpt, golines]` | 97%        | Core formatters.                                 |
+| `formatters.settings.golines.max-len: 120`       | 94%        | Fixer injects this default.                      |
 
 ### 2.2 Linter enablement — two regimes
 
@@ -67,15 +67,15 @@ unparam, wrapcheck, ginkgolinter, forcetypeassert, cyclop, perfsprint
 These settings appear so consistently they are effectively the house standard — and the
 fixer already encodes them as `DefaultLinterSettings`:
 
-| Linter          | Setting                              | Prevalence |
-| --------------- | ------------------------------------ | ---------- |
-| `exhaustruct`   | `exclude: [os/exec.Cmd]`             | 97%        |
-| `gocritic`      | `disabled-checks: [ifElseChain]`     | 95%        |
-| `cyclop`        | `max-complexity: 12-25`              | 94%        |
-| `gomoddirectives` | `replace-local: true`              | 90%        |
-| `revive`        | disable `exported`, `package-comments` | 89%     |
-| `ireturn`       | `allow: [error, empty, anon, stdlib, generic]` | 88% |
-| `depguard`      | `rules.main.allow: [$gostd, $module]` | 88%      |
+| Linter            | Setting                                        | Prevalence |
+| ----------------- | ---------------------------------------------- | ---------- |
+| `exhaustruct`     | `exclude: [os/exec.Cmd]`                       | 97%        |
+| `gocritic`        | `disabled-checks: [ifElseChain]`               | 95%        |
+| `cyclop`          | `max-complexity: 12-25`                        | 94%        |
+| `gomoddirectives` | `replace-local: true`                          | 90%        |
+| `revive`          | disable `exported`, `package-comments`         | 89%        |
+| `ireturn`         | `allow: [error, empty, anon, stdlib, generic]` | 88%        |
+| `depguard`        | `rules.main.allow: [$gostd, $module]`          | 88%        |
 
 ---
 
@@ -86,12 +86,14 @@ fixer already encodes them as `DefaultLinterSettings`:
 **File:** `pkg/linter/fixer.go:242-263` (`applyAndSave`)
 
 The fixer mutates the config in several places that **never increment `counts`**:
+
 - `updateGoVersion` — sets `run.go`
 - `updateRunnerSettings` — sets `allow-parallel-runners` / `allow-serial-runners`
 - `updateBuildTags` — adds Go experiment tags
 - `injectDefaultSettings` (via `updateConfigFromSets`) — injects linter/formatter defaults
 
 Then at line 261:
+
 ```go
 if counts.total() == 0 {
     return noFixesResult()  // ← discards ALL in-memory mutations without saving
@@ -117,11 +119,11 @@ These are only set by the loader when **creating a brand-new config** (`DefaultM
 
 **Impact (measured):**
 
-| State                          | Configs | Effect                                                        |
-| ------------------------------ | ------- | ------------------------------------------------------------ |
-| `issues: {}` (empty/absent)    | 64 (47%) | Inherits golangci-lint default `max-same-issues: 3` — **hides duplicate issues in CI** |
-| Explicit `max-same-issues` set | 72 (53%) | But values vary wildly: `{10, 5, 15, 50, 20, 0, 3}`          |
-| Explicit `max-issues-per-linter` | 72    | Values vary: `{50, 100, 200, 0}`                             |
+| State                            | Configs  | Effect                                                                                 |
+| -------------------------------- | -------- | -------------------------------------------------------------------------------------- |
+| `issues: {}` (empty/absent)      | 64 (47%) | Inherits golangci-lint default `max-same-issues: 3` — **hides duplicate issues in CI** |
+| Explicit `max-same-issues` set   | 72 (53%) | But values vary wildly: `{10, 5, 15, 50, 20, 0, 3}`                                    |
+| Explicit `max-issues-per-linter` | 72       | Values vary: `{50, 100, 200, 0}`                                                       |
 
 A project with `issues: {}` and a repeated `errcheck` violation will only see **3 of them** in
 CI output — the rest are silently suppressed. This is a real quality blind spot.
@@ -133,23 +135,23 @@ CI output — the rest are silently suppressed. This is a real quality blind spo
 
 Once the P0 bug is fixed, re-running `configure` will heal these:
 
-| Missing setting       | Configs affected | Root cause                     |
-| --------------------- | ---------------- | ------------------------------ |
+| Missing setting       | Configs affected | Root cause                              |
+| --------------------- | ---------------- | --------------------------------------- |
 | `ginkgolinter` config | 108              | P0 bug: settings injected but not saved |
 | `testifylint` config  | 105              | P0 bug: settings injected but not saved |
-| `revive` rules        | 7                | Same                           |
-| `gomoddirectives`     | 7                | Same                           |
-| `gocritic`            | 7                | Same                           |
+| `revive` rules        | 7                | Same                                    |
+| `gomoddirectives`     | 7                | Same                                    |
+| `gocritic`            | 7                | Same                                    |
 
 ### 🟡 P2 — Minor normalization gaps
 
-| Gap                                   | Configs | Notes                                                       |
-| ------------------------------------- | ------- | ---------------------------------------------------------- |
-| `run.timeout != 5m`                   | 11      | Fixer only repairs *invalid* timeouts, not non-standard ones. Consider normalizing. |
-| Missing formatter exclusion paths     | 11      | `_templ.go` not excluded from formatters.                  |
-| `formatters.exclusions.generated != lax` | 9    |                                                            |
-| Missing core formatters               | 4       | A few configs lack `gci`/`gofumpt`/`goimports`.            |
-| Missing `output.formats` block        | 3       |                                                            |
+| Gap                                      | Configs | Notes                                                                               |
+| ---------------------------------------- | ------- | ----------------------------------------------------------------------------------- |
+| `run.timeout != 5m`                      | 11      | Fixer only repairs _invalid_ timeouts, not non-standard ones. Consider normalizing. |
+| Missing formatter exclusion paths        | 11      | `_templ.go` not excluded from formatters.                                           |
+| `formatters.exclusions.generated != lax` | 9       |                                                                                     |
+| Missing core formatters                  | 4       | A few configs lack `gci`/`gofumpt`/`goimports`.                                     |
+| Missing `output.formats` block           | 3       |                                                                                     |
 
 ### 🟢 P3 — Strategic observations (not bugs)
 
@@ -173,6 +175,7 @@ Once the P0 bug is fixed, re-running `configure` will heal these:
 ## 4. Recommended Action Plan (Pareto-ordered)
 
 ### Step 1 — Fix the silent-drop bug (P0, highest leverage)
+
 File: `pkg/linter/fixer.go`
 
 Make `updateGoVersion`, `updateRunnerSettings`, `updateBuildTags`,
@@ -181,6 +184,7 @@ before the `counts.total() == 0` guard. This single fix makes re-running `config
 the 108 stale `ginkgolinter` + 105 stale `testifylint` configs automatically.
 
 ### Step 2 — Add `issues` block normalization (P0)
+
 File: `pkg/linter/fixer_config.go`
 
 Add `updateIssuesSettings(cfg *types.Config) int` that sets
@@ -189,12 +193,14 @@ Add `updateIssuesSettings(cfg *types.Config) int` that sets
 configs that currently hide duplicate CI issues.
 
 ### Step 3 — Normalize `run.timeout` (P2)
+
 File: `pkg/linter/fixer_preflight.go`
 
-Currently `needsDurationFix` only repairs *empty/invalid* timeouts. Consider also offering
+Currently `needsDurationFix` only repairs _empty/invalid_ timeouts. Consider also offering
 a `--normalize` flag (or making it default) that sets non-standard timeouts to `5m`.
 
 ### Step 4 — Consider a `house` preset (P3, strategic)
+
 File: `pkg/constants/presets.go`
 
 Capture the actual 100+ linter "kitchen sink" that most projects converge on, so the

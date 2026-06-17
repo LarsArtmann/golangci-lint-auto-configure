@@ -331,35 +331,23 @@ Automatic replacement of deprecated linters:
 ### 7. go-finding is Nix Flake Input
 
 - `go.mod` has local replace: `replace github.com/larsartmann/go-finding => ../go-finding`
-- For Nix builds, `flake.nix` copies go-finding from a `git+ssh://` flake input into the source tree
-- The `postPatch` hook redirects the replace directive to `./go-finding-vendor`
-- Local dev still uses the `../go-finding` sibling directory directly
-- CI fetches go-finding via SSH from GitHub (private repo)
+- Nix builds copy go-finding from `git+ssh://` flake input; `postPatch` redirects to `./go-finding-vendor`
+- Local dev uses `../go-finding` directly; CI fetches via SSH from GitHub (private repo)
 
 ### 8. Cobra Deprecation
 
-- Previously used deprecated `cobra.ExactValidArgs()` — has been fixed
-- Check current codebase if similar deprecation warnings appear
+Previously used deprecated `cobra.ExactValidArgs()` — has been fixed. Check current codebase if similar warnings appear.
 
 ### 9. Config File Auto-Creation
 
-- `configure` command creates default config if missing
-- Uses `.golangci.yml` as default path
-- Requires git repository for version control safety
+`configure` creates a default `.golangci.yml` if missing. Requires git repository for version control safety.
 
-### 10. Config Normalization: All Mutations Are Counted
+### 10. Fixer Counting & Issues Normalization
 
-The fixer's `applyAndSave` function tracks fix counts via `fixCounts` struct. Every
-mutating step MUST increment a counter — otherwise the `counts.total() == 0` guard
-silently discards the entire in-memory config without saving. The `config` field in
-`fixCounts` tracks: Go version, runner settings, build tags, default settings injection,
-and issues block normalization.
-
-### 11. Issues Block Normalization
-
-The fixer injects `issues.max-issues-per-linter: 50` and `issues.max-same-issues: 10`
-when absent (via `updateIssuesSettings`). Without these, golangci-lint defaults to
-`max-same-issues: 3`, which hides duplicate problems in CI output.
+Every config mutation in `applyAndSave` MUST increment `fixCounts.normalization` — otherwise the
+`counts.total()==0` guard silently discards changes. The fixer injects
+`issues.max-issues-per-linter: 50` and `max-same-issues: 10` when absent, preventing
+golangci-lint's default `max-same-issues: 3` from hiding CI problems.
 
 ## Working with This Codebase
 

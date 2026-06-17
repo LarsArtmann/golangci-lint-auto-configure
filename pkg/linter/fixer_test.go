@@ -818,6 +818,7 @@ issues:
 		// inject and save those settings.
 		fullyPreparedConfig := func(linters ...string) string {
 			linterList := strings.Join(append([]string{"gosec"}, linters...), "\n    - ")
+
 			return fmt.Sprintf(`version: "2"
 run:
   timeout: 5m
@@ -878,6 +879,43 @@ issues:
 			Expect(err).NotTo(HaveOccurred())
 			Expect(content).To(ContainSubstring("testifylint:"))
 			Expect(content).To(ContainSubstring("enable-all"))
+		})
+	})
+
+	Context("Dry-Run Accuracy", func() {
+		It("should count config-level fixes in dry-run mode", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - ginkgolinter
+`
+			writeConfig(testConfig, configContent)
+			result, err := fixer.FixConfig(
+				context.Background(), testConfig, types.LinterPriorityHigh, true,
+			)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.IsSuccess()).To(BeTrue())
+			Expect(result.FixesApplied).To(BeNumerically(">", 0))
+		})
+
+		It("should not modify the file in dry-run mode", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(
+				context.Background(), testConfig, types.LinterPriorityHigh, true,
+			)
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("version: \"2\""))
+			Expect(string(content)).NotTo(ContainSubstring("max-issues-per-linter"))
+			Expect(string(content)).NotTo(ContainSubstring("goexperiment"))
 		})
 	})
 })

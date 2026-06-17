@@ -160,16 +160,16 @@ func (f *Fixer) runPreFlightChecks(
 
 // fixCounts tracks the number of fixes applied by category.
 type fixCounts struct {
-	deprecation int
-	enable      int
-	formatter   int
-	generated   int
-	redundant   int
-	config      int // config-level normalizations: go version, runners, build tags, settings, issues
+	deprecation   int
+	enable        int
+	formatter     int
+	generated     int
+	redundant     int
+	normalization int // config-level normalizations: go version, runners, build tags, settings, issues
 }
 
 func (c fixCounts) total() int {
-	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant + c.config
+	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant + c.normalization
 }
 
 // applyLintersFix processes linter recommendations, applies fixes, and saves the config.
@@ -197,10 +197,6 @@ func (f *Fixer) applyLintersFix(
 		version,
 	)
 
-	if dryRun {
-		return f.dryRunResult(counts)
-	}
-
 	return f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, version, counts)
 }
 
@@ -215,11 +211,12 @@ func (f *Fixer) applyAllFixes(
 	version string,
 ) fixCounts {
 	counts := fixCounts{
-		deprecation: 0,
-		enable:      0,
-		formatter:   0,
-		generated:   0,
-		redundant:   0,
+		deprecation:   0,
+		enable:        0,
+		formatter:     0,
+		generated:     0,
+		redundant:     0,
+		normalization: 0,
 	}
 	handler := newDeprecatedLinterHandler(f.logger, version)
 	linterSet = handler.replaceLinters(linterSet, originalEnabled, dryRun, &counts, cfg)
@@ -235,11 +232,6 @@ func (f *Fixer) applyAllFixes(
 	return counts
 }
 
-// dryRunResult is re-exported from fixer_results.go.
-func (f *Fixer) dryRunResult(counts fixCounts) (*types.MigrationResult, error) {
-	return dryRunResult(counts)
-}
-
 func (f *Fixer) applyAndSave(
 	ctx context.Context,
 	cfg *types.Config,
@@ -251,17 +243,21 @@ func (f *Fixer) applyAndSave(
 	counts fixCounts,
 ) (*types.MigrationResult, error) {
 	updater := newConfigUpdater(f.logger)
-	counts.config += updater.updateGoVersion(ctx, cfg)
-	counts.config += updater.updateRunnerSettings(cfg)
-	counts.config += updater.updateBuildTags(cfg)
-	counts.config += updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
+	counts.normalization += updater.updateGoVersion(ctx, cfg)
+	counts.normalization += updater.updateRunnerSettings(cfg)
+	counts.normalization += updater.updateBuildTags(cfg)
+	counts.normalization += updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
 
 	counts.generated = updater.updateGeneratedExclusions(cfg, configPath)
 	counts.generated += updater.updateExclusionRules(cfg)
-	counts.config += updater.updateIssuesSettings(cfg)
+	counts.normalization += updater.updateIssuesSettings(cfg)
 
 	if counts.total() == 0 {
 		return noFixesResult()
+	}
+
+	if dryRun {
+		return dryRunResult(counts)
 	}
 
 	f.logger.Infof("Applying %d fixes...", counts.total())
