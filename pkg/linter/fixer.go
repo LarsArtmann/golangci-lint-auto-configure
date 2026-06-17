@@ -210,14 +210,8 @@ func (f *Fixer) applyAllFixes(
 	originalEnabled []string,
 	version string,
 ) fixCounts {
-	counts := fixCounts{
-		deprecation:   0,
-		enable:        0,
-		formatter:     0,
-		generated:     0,
-		redundant:     0,
-		normalization: 0,
-	}
+	var counts fixCounts
+
 	handler := newDeprecatedLinterHandler(f.logger, version)
 	linterSet = handler.replaceLinters(linterSet, originalEnabled, dryRun, &counts, cfg)
 	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
@@ -246,6 +240,7 @@ func (f *Fixer) applyAndSave(
 	counts.normalization += updater.updateGoVersion(ctx, cfg)
 	counts.normalization += updater.updateRunnerSettings(cfg)
 	counts.normalization += updater.updateBuildTags(cfg)
+	counts.normalization += updater.updateOutputFormats(cfg)
 	counts.normalization += updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
 
 	counts.generated = updater.updateGeneratedExclusions(cfg, configPath)

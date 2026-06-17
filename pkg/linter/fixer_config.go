@@ -40,7 +40,8 @@ func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config)
 	return 0
 }
 
-// updateRunnerSettings enables parallel and serial runners if not already enabled.
+// updateRunnerSettings enables parallel and serial runners if not already enabled,
+// and ensures issues-exit-code is non-zero so lint failures break CI.
 func (cu *configUpdater) updateRunnerSettings(cfg *types.Config) int {
 	added := 0
 
@@ -56,7 +57,29 @@ func (cu *configUpdater) updateRunnerSettings(cfg *types.Config) int {
 		added++
 	}
 
+	if cfg.Run.IssuesExitCode == 0 {
+		cu.logger.Infof("Setting run.issues-exit-code to 1 (was 0 — lint failures would not break CI)")
+
+		cfg.Run.IssuesExitCode = 1
+		added++
+	}
+
 	return added
+}
+
+// updateOutputFormats ensures output.formats is initialized to an empty map,
+// matching the house standard. Without this, the YAML serialization omits the
+// formats key entirely, which is valid but inconsistent across the ecosystem.
+func (cu *configUpdater) updateOutputFormats(cfg *types.Config) int {
+	if cfg.Output.Formats == nil {
+		cu.logger.Infof("Setting output.formats to empty map")
+
+		cfg.Output.Formats = map[string]any{}
+
+		return 1
+	}
+
+	return 0
 }
 
 // updateBuildTags adds Go experiment tags to the config.

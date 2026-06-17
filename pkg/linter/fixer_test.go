@@ -918,4 +918,68 @@ linters:
 			Expect(string(content)).NotTo(ContainSubstring("goexperiment"))
 		})
 	})
+
+	Context("Issues Exit Code Normalization", func() {
+		It("should set issues-exit-code to 1 when it is 0", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("issues-exit-code: 1"))
+		})
+
+		It("should not overwrite a non-zero issues-exit-code", func() {
+			configContent := `version: "2"
+run:
+  timeout: 5m
+  issues-exit-code: 2
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("issues-exit-code: 2"))
+		})
+	})
+
+	Context("Output Formats Normalization", func() {
+		It("should set output.formats when missing", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("output:"))
+			Expect(content).To(ContainSubstring("formats:"))
+		})
+	})
+
+	Context("Idempotency", func() {
+		It("should report 0 fixes on second run", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			// First run — applies all fixes
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			// Second run — should be a no-op
+			writeConfig(testConfig, content)
+			result, err := fixer.FixConfig(
+				context.Background(), testConfig, types.LinterPriorityHigh, false,
+			)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.FixesApplied).To(Equal(0))
+		})
+	})
 })
