@@ -205,6 +205,69 @@ func indexOr(s, substr string, fallback int) int {
 	return idx
 }
 
+// fullyPreparedConfig builds a "fully prepared" golangci-lint config with all
+// default exclusion paths, rules, runner settings, and build tags pre-populated.
+// It is the shared scaffolding for tests that verify what happens when only one
+// specific piece of the config (e.g. issues limits, default linter settings)
+// is the focus of the test.
+//
+// extraLinters is appended to the always-present `gosec` enable entry.
+// issuesBlock is the full literal YAML for the `issues:` block (key + value),
+// for example `issues: {}` or
+// `issues:\n  max-issues-per-linter: 50\n  max-same-issues: 10`.
+// Use `emptyIssuesBlock` for an empty object and `defaultIssuesBlock` for the
+// fixer-injected defaults.
+func fullyPreparedConfig(issuesBlock string, extraLinters ...string) string {
+	linterList := strings.Join(append([]string{"gosec"}, extraLinters...), "\n    - ")
+
+	return fmt.Sprintf(`version: "2"
+run:
+  timeout: 5m
+  go: "1.26.0"
+  build-tags:
+    - goexperiment.arenas
+    - goexperiment.goroutineleakprofile
+    - goexperiment.jsonv2
+    - goexperiment.runtimesecret
+    - goexperiment.simd
+  allow-parallel-runners: true
+  allow-serial-runners: true
+linters:
+  enable:
+    - %s
+  exclusions:
+    generated: lax
+    rules:
+      - path: _test\.go
+        linters:
+          - exhaustruct
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - goconst
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - _templ\.go$
+      - \.gen\.go$
+      - vendor/
+%s
+`, linterList, issuesBlock)
+}
+
+// emptyIssuesBlock is an empty `issues:` object — used to test the fixer
+// injects default issue limits when none are present.
+const emptyIssuesBlock = `issues: {}`
+
+// defaultIssuesBlock is the issues block produced by the fixer when
+// `issues: {}` or no issues block is present.
+const defaultIssuesBlock = `issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10`
+
 var _ = Describe("Fixer", func() {
 	var (
 		fixer       *linter.Fixer
@@ -505,16 +568,12 @@ linters:
 		})
 
 		It("should inject cyclop defaults when cyclop is enabled", func() {
-			configContent := `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
     - cyclop
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("cyclop:"))
-			Expect(content).To(ContainSubstring("max-complexity"))
+`, "cyclop:", "max-complexity")
 		})
 	})
 
@@ -585,14 +644,11 @@ linters:
 		})
 
 		It("should add .gen.go to default exclusion paths", func() {
-			configContent := `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("\\.gen\\.go$"))
+`, `\.gen\.go$`)
 		})
 	})
 
@@ -674,15 +730,11 @@ linters:
 		})
 
 		It("should add _templ.go$ to formatters exclusions", func() {
-			configContent := `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(content).To(ContainSubstring("vendor/"))
+`, "vendor/")
 		})
 
 		It("should not duplicate already-present default exclusion paths", func() {
@@ -723,88 +775,24 @@ linters:
 
 	Context("Issues Block Normalization", func() {
 		It("should add max-issues-per-linter and max-same-issues when issues block is empty", func() {
-			configContent := `version: "2"
-run:
-  timeout: 5m
-  go: "1.26.0"
-  build-tags:
-    - goexperiment.arenas
-    - goexperiment.goroutineleakprofile
-    - goexperiment.jsonv2
-    - goexperiment.runtimesecret
-    - goexperiment.simd
-  allow-parallel-runners: true
-  allow-serial-runners: true
-linters:
-  enable:
-    - gosec
-  exclusions:
-    generated: lax
-    rules:
-      - path: _test\.go
-        linters:
-          - exhaustruct
-          - testpackage
-          - gochecknoglobals
-          - funlen
-          - cyclop
-          - goconst
-      - path: _test\.go
-        text: unused
-        linters:
-          - unused
-    paths:
-      - _templ\.go$
-      - \.gen\.go$
-      - vendor/
-issues: {}
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			content, err := fixAndRead(
+				fixer, testConfig,
+				fullyPreparedConfig(emptyIssuesBlock),
+				types.LinterPriorityHigh, false,
+			)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(content).To(ContainSubstring("max-issues-per-linter:"))
 			Expect(content).To(ContainSubstring("max-same-issues:"))
 		})
 
 		It("should not overwrite existing issue limits", func() {
-			configContent := `version: "2"
-run:
-  timeout: 5m
-  go: "1.26.0"
-  build-tags:
-    - goexperiment.arenas
-    - goexperiment.goroutineleakprofile
-    - goexperiment.jsonv2
-    - goexperiment.runtimesecret
-    - goexperiment.simd
-  allow-parallel-runners: true
-  allow-serial-runners: true
-linters:
-  enable:
-    - gosec
-  exclusions:
-    generated: lax
-    rules:
-      - path: _test\.go
-        linters:
-          - exhaustruct
-          - testpackage
-          - gochecknoglobals
-          - funlen
-          - cyclop
-          - goconst
-      - path: _test\.go
-        text: unused
-        linters:
-          - unused
-    paths:
-      - _templ\.go$
-      - \.gen\.go$
-      - vendor/
-issues:
+			content, err := fixAndRead(
+				fixer, testConfig,
+				fullyPreparedConfig(`issues:
   max-issues-per-linter: 200
-  max-same-issues: 50
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+  max-same-issues: 50`),
+				types.LinterPriorityHigh, false,
+			)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(content).To(ContainSubstring("max-issues-per-linter: 200"))
 			Expect(content).To(ContainSubstring("max-same-issues: 50"))
@@ -816,70 +804,21 @@ issues:
 		// all exclusion paths, rules, runner settings, and build tags, but is
 		// missing default settings for an enabled linter, the fixer must still
 		// inject and save those settings.
-		fullyPreparedConfig := func(linters ...string) string {
-			linterList := strings.Join(append([]string{"gosec"}, linters...), "\n    - ")
-
-			return fmt.Sprintf(`version: "2"
-run:
-  timeout: 5m
-  go: "1.26.0"
-  build-tags:
-    - goexperiment.arenas
-    - goexperiment.goroutineleakprofile
-    - goexperiment.jsonv2
-    - goexperiment.runtimesecret
-    - goexperiment.simd
-  allow-parallel-runners: true
-  allow-serial-runners: true
-linters:
-  enable:
-    - %s
-  exclusions:
-    generated: lax
-    rules:
-      - path: _test\.go
-        linters:
-          - exhaustruct
-          - testpackage
-          - gochecknoglobals
-          - funlen
-          - cyclop
-          - goconst
-      - path: _test\.go
-        text: unused
-        linters:
-          - unused
-    paths:
-      - _templ\.go$
-      - \.gen\.go$
-      - vendor/
-issues:
-  max-issues-per-linter: 50
-  max-same-issues: 10
-`, linterList)
-		}
-
-		It("should inject ginkgolinter settings even when no other fixes are needed", func() {
-			content, err := fixAndRead(
-				fixer, testConfig,
-				fullyPreparedConfig("ginkgolinter"),
-				types.LinterPriorityHigh, false,
-			)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("ginkgolinter:"))
-			Expect(content).To(ContainSubstring("forbid-focus-container"))
-		})
-
-		It("should inject testifylint settings even when no other fixes are needed", func() {
-			content, err := fixAndRead(
-				fixer, testConfig,
-				fullyPreparedConfig("testifylint"),
-				types.LinterPriorityHigh, false,
-			)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("testifylint:"))
-			Expect(content).To(ContainSubstring("enable-all"))
-		})
+		DescribeTable(
+			"should inject <linter> default settings even when no other fixes are needed",
+			func(linter, expectedKey, expectedSetting string) {
+				content, err := fixAndRead(
+					fixer, testConfig,
+					fullyPreparedConfig(defaultIssuesBlock, linter),
+					types.LinterPriorityHigh, false,
+				)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(content).To(ContainSubstring(expectedKey))
+				Expect(content).To(ContainSubstring(expectedSetting))
+			},
+			Entry("ginkgolinter", "ginkgolinter", "ginkgolinter:", "forbid-focus-container"),
+			Entry("testifylint", "testifylint", "testifylint:", "enable-all"),
+		)
 	})
 
 	Context("Dry-Run Accuracy", func() {
@@ -920,45 +859,46 @@ linters:
 	})
 
 	Context("Issues Exit Code Normalization", func() {
-		It("should set issues-exit-code to 1 when it is 0", func() {
-			configContent := `version: "2"
+		DescribeTable(
+			"should normalize issues-exit-code",
+			func(configContent, expectedSubstring string) {
+				content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(content).To(ContainSubstring(expectedSubstring))
+			},
+			Entry(
+				"set to 1 when missing/zero",
+				`version: "2"
 run:
   timeout: 5m
 linters:
   enable:
     - gosec
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("issues-exit-code: 1"))
-		})
-
-		It("should not overwrite a non-zero issues-exit-code", func() {
-			configContent := `version: "2"
+`,
+				"issues-exit-code: 1",
+			),
+			Entry(
+				"preserve existing non-zero value",
+				`version: "2"
 run:
   timeout: 5m
   issues-exit-code: 2
 linters:
   enable:
     - gosec
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("issues-exit-code: 2"))
-		})
+`,
+				"issues-exit-code: 2",
+			),
+		)
 	})
 
 	Context("Output Formats Normalization", func() {
 		It("should set output.formats when missing", func() {
-			configContent := `version: "2"
+			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
 linters:
   enable:
     - gosec
-`
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("output:"))
-			Expect(content).To(ContainSubstring("formats:"))
+`, "output:", "formats:")
 		})
 	})
 
