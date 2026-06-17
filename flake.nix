@@ -132,7 +132,7 @@
               ];
 
               env = {
-                CGO_ENABLED = "1";
+                CGO_ENABLED = "0";
                 GOWORK = "off";
                 GOPRIVATE = "github.com/LarsArtmann";
                 GOTOOLCHAIN = "local";
