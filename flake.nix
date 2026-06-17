@@ -76,7 +76,7 @@
 
             proxyVendor = true;
 
-            vendorHash = "sha256-iFv8EgDP/Poz2s0DKKddu4W+1w8ugndeiHgJbArtWD8=";
+            vendorHash = "sha256-ZLUWaI1GhU8QAqSm5j3P0JC2m9kWTNLXDozCgC2Ptmw=";
 
             subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -139,6 +139,7 @@
               };
 
               shellHook = ''
+                export PATH="$HOME/go/bin:$PATH"
                 echo "golangci-lint-auto-configure dev shell"
                 echo "  Go:             $(go version)"
                 echo "  golangci-lint:  $(golangci-lint version --short 2>/dev/null || echo 'N/A')"
