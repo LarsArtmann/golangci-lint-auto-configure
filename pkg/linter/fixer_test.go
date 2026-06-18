@@ -526,6 +526,7 @@ linters:
     - gosec
     - depguard
     - ireturn
+    - makezero
 `
 			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
 			Expect(err).NotTo(HaveOccurred())
@@ -533,6 +534,8 @@ linters:
 			Expect(content).To(ContainSubstring("ireturn:"))
 			Expect(content).To(ContainSubstring("generic"))
 			Expect(content).To(ContainSubstring("$gostd"))
+			Expect(content).To(ContainSubstring("makezero:"))
+			Expect(content).To(ContainSubstring("always: true"))
 		})
 
 		It("should inject revive defaults when revive is enabled without settings", func() {
@@ -574,6 +577,36 @@ linters:
     - gosec
     - cyclop
 `, "cyclop:", "max-complexity")
+		})
+
+		It("should inject makezero defaults when makezero is enabled", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - makezero
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("makezero:"))
+			Expect(content).To(ContainSubstring("always: true"))
+		})
+
+		It("should not overwrite existing makezero settings", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - makezero
+  settings:
+    makezero:
+      always: false
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("makezero:"))
+			Expect(content).To(ContainSubstring("always: false"))
+			Expect(content).NotTo(ContainSubstring("always: true"))
 		})
 	})
 

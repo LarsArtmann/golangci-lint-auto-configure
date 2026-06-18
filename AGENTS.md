@@ -349,6 +349,16 @@ Every config mutation in `applyAndSave` MUST increment `fixCounts.normalization`
 `issues.max-issues-per-linter: 50` and `max-same-issues: 10` when absent, preventing
 golangci-lint's default `max-same-issues: 3` from hiding CI problems.
 
+### 11. Auto-Injected Linter Safe Defaults
+
+Linters that break builds or misbehave without explicit config get safe defaults injected by
+`injectDefaultSettings` (`pkg/linter/fixer_config.go`) when enabled and missing settings. The map
+lives in `pkg/constants/config.go` (`DefaultLinterSettings`). Existing user settings are never
+overwritten — injection is idempotent and skipped if meaningful settings already exist.
+
+Linters currently with safe defaults: `depguard`, `ireturn`, `gocritic`, `exhaustruct`, `revive`,
+`varnamelen`, `gomoddirectives`, `cyclop`, `ginkgolinter`, `testifylint`, `makezero` (`always: true`).
+
 ## Working with This Codebase
 
 → See [`docs/references/working-with-codebase.md`](docs/references/working-with-codebase.md) for:

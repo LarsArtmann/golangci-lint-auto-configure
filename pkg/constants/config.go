@@ -121,4 +121,7 @@ var DefaultLinterSettings = map[types.LinterName]any{
 			"go-require",
 		},
 	},
+	"makezero": map[string]any{
+		"always": true,
+	},
 }
