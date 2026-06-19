@@ -8,7 +8,7 @@ require (
 	charm.land/log/v2 v2.0.0
 	github.com/LarsArtmann/gogenfilter/v3 v3.2.0
 	github.com/a-h/templ v0.3.1020
-	github.com/larsartmann/go-finding v0.8.0
+	github.com/larsartmann/go-finding v0.9.1
 	github.com/onsi/ginkgo/v2 v2.31.0
 	github.com/onsi/gomega v1.42.0
 	github.com/pelletier/go-toml/v2 v2.4.0
