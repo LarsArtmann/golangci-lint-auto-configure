@@ -769,8 +769,8 @@
           <div class="hero-badge">Status + Brutal Self-Review</div>
           <h1>makezero Feature &amp; Honest Reflection</h1>
           <p class="hero-subtitle">
-            Auto-inject <code>makezero: { always: true }</code> into golangci-lint
-            configs — shipped, tested, and brutally reviewed for what we missed.
+            Auto-inject <code>makezero: { always: true }</code> into golangci-lint configs —
+            shipped, tested, and brutally reviewed for what we missed.
           </p>
         </div>
 
@@ -804,10 +804,9 @@
               <strong>makezero auto-injection implemented</strong>
               <span>
                 Added <code>"makezero": { always: true }</code> to
-                <code>DefaultLinterSettings</code> in
-                <code>pkg/constants/config.go:124</code>. Now
-                <code>configure --priority medium</code> enables makezero AND
-                injects strict mode automatically.
+                <code>DefaultLinterSettings</code> in <code>pkg/constants/config.go:124</code>. Now
+                <code>configure --priority medium</code> enables makezero AND injects strict mode
+                automatically.
               </span>
             </div>
           </div>
@@ -816,10 +815,8 @@
             <div class="text">
               <strong>3 Ginkgo tests added &amp; passing</strong>
               <span>
-                Injection test, no-overwrite test, and multi-linter
-                simultaneous injection test in
-                <code>pkg/linter/fixer_test.go</code>. All 68 specs in the
-                Analyzer Suite pass.
+                Injection test, no-overwrite test, and multi-linter simultaneous injection test in
+                <code>pkg/linter/fixer_test.go</code>. All 68 specs in the Analyzer Suite pass.
               </span>
             </div>
           </div>
@@ -828,9 +825,9 @@
             <div class="text">
               <strong>Verified against official docs</strong>
               <span>
-                Confirmed <code>linters.settings.makezero.always</code> is the
-                correct v2 field via golangci-lint v2.12.2 source +
-                documentation. Field name unchanged between v1 and v2.
+                Confirmed <code>linters.settings.makezero.always</code> is the correct v2 field via
+                golangci-lint v2.12.2 source + documentation. Field name unchanged between v1 and
+                v2.
               </span>
             </div>
           </div>
@@ -839,9 +836,9 @@
             <div class="text">
               <strong>AGENTS.md memory updated</strong>
               <span>
-                New gotcha #11 documents the entire auto-injected safe-defaults
-                system, listing all 11 linters that have defaults, so future
-                sessions understand the mechanism without re-deriving it.
+                New gotcha #11 documents the entire auto-injected safe-defaults system, listing all
+                11 linters that have defaults, so future sessions understand the mechanism without
+                re-deriving it.
               </span>
             </div>
           </div>
@@ -852,20 +849,18 @@
         <div class="card card-warning">
           <h4>Future-scope linter audit (Task 11)</h4>
           <p>
-            Identified 5 Medium/High linters that would benefit from safe
-            defaults (<code>tagliatelle</code>, <code>goheader</code>,
-            <code>forbidigo</code>, <code>err113</code>,
-            <code>funlen</code>/<code>gocyclo</code> thresholds) — but only
-            <em>listed</em> them in chat. Not added to
-            <code>TODO_LIST.md</code> or implemented.
+            Identified 5 Medium/High linters that would benefit from safe defaults
+            (<code>tagliatelle</code>, <code>goheader</code>, <code>forbidigo</code>,
+            <code>err113</code>, <code>funlen</code>/<code>gocyclo</code> thresholds) — but only
+            <em>listed</em> them in chat. Not added to <code>TODO_LIST.md</code> or implemented.
           </p>
         </div>
         <div class="card card-warning">
           <h4>Verification gates</h4>
           <p>
-            Full test suite (15/15 suites pass), build (exit 0), and lint (exit
-            0, no new issues) all ran successfully. However, 17 pre-existing
-            lint issues in untouched files were noted but not addressed.
+            Full test suite (15/15 suites pass), build (exit 0), and lint (exit 0, no new issues)
+            all ran successfully. However, 17 pre-existing lint issues in untouched files were noted
+            but not addressed.
           </p>
         </div>
 
@@ -874,19 +869,17 @@
         <div class="card">
           <h4>Typed linter settings model</h4>
           <p>
-            <code>DefaultLinterSettings</code> is
-            <code>map[types.LinterName]any</code> and
-            <code>LintersConfig.Settings</code> is
-            <code>map[string]any</code>. No compile-time safety on the shape of
-            settings. See <a href="#improve">improvement section</a>.
+            <code>DefaultLinterSettings</code> is <code>map[types.LinterName]any</code> and
+            <code>LintersConfig.Settings</code> is <code>map[string]any</code>. No compile-time
+            safety on the shape of settings. See <a href="#improve">improvement section</a>.
           </p>
         </div>
         <div class="card">
           <h4>HTML planning report</h4>
           <p>
-            The pareto-planning phase produced only an in-chat table view. The
-            skill prescribes a styled HTML report with a D2 execution graph —
-            never written to <code>docs/planning/</code>.
+            The pareto-planning phase produced only an in-chat table view. The skill prescribes a
+            styled HTML report with a D2 execution graph — never written to
+            <code>docs/planning/</code>.
           </p>
         </div>
 
@@ -896,20 +889,21 @@
         <div class="issue issue-critical">
           <span class="severity severity-critical">Critical</span>
           <h3>Work sat UNCOMMITTED for the entire session</h3>
-          <div class="where">3 files: AGENTS.md, pkg/constants/config.go, pkg/linter/fixer_test.go</div>
+          <div class="where">
+            3 files: AGENTS.md, pkg/constants/config.go, pkg/linter/fixer_test.go
+          </div>
           <p>
-            The user explicitly instructed: <em>"Run git status &amp; git
-            commit after each smallest self-contained change."</em> I completed
-            all 11 planning tasks — edit, 3 tests, AGENTS.md update — and
-            <strong>never committed once</strong>. Three files with 46 insertions
-            sat in the working tree. If the session had died, all work would be
-            untracked. This is the single biggest process failure.
+            The user explicitly instructed:
+            <em>"Run git status &amp; git commit after each smallest self-contained change."</em> I
+            completed all 11 planning tasks — edit, 3 tests, AGENTS.md update — and
+            <strong>never committed once</strong>. Three files with 46 insertions sat in the working
+            tree. If the session had died, all work would be untracked. This is the single biggest
+            process failure.
           </p>
           <div class="callout callout-solution">
             <strong>Fix</strong>
-            Commit immediately with a detailed message, then push. Going
-            forward, commit after every verified logical unit of work, not at
-            the end.
+            Commit immediately with a detailed message, then push. Going forward, commit after every
+            verified logical unit of work, not at the end.
           </div>
         </div>
 
@@ -918,13 +912,11 @@
           <h3>Ad-hoc test instead of table-driven coverage</h3>
           <div class="where">pkg/linter/fixer_test.go</div>
           <p>
-            I added a makezero-specific <code>It</code> block, mirroring the
-            existing ireturn/varnamelen pattern. But there is NO test that
-            guarantees <em>every</em> entry in
-            <code>DefaultLinterSettings</code> has injection coverage. The next
-            person who adds a linter with defaults can silently ship an
-            untested injection. A table-driven test over the map keys would
-            close this gap permanently.
+            I added a makezero-specific <code>It</code> block, mirroring the existing
+            ireturn/varnamelen pattern. But there is NO test that guarantees <em>every</em> entry in
+            <code>DefaultLinterSettings</code> has injection coverage. The next person who adds a
+            linter with defaults can silently ship an untested injection. A table-driven test over
+            the map keys would close this gap permanently.
           </p>
         </div>
 
@@ -935,20 +927,17 @@
           <h4>Pervasive <code>map[string]any</code> weak typing (80 usages)</h4>
           <p>
             The config model uses <code>map[string]any</code> for
-            <code>LintersConfig.Settings</code>,
-            <code>FormattersConfig.Settings</code>,
-            <code>OutputConfig.Formats</code>, and
-            <code>LintersSettingsV1</code>. Every migration and merge does
-            <code>v.(map[string]any)</code> type assertions. This violates the
-            project's own principle: <em>"Strong types over runtime checks —
-            make impossible states unrepresentable."</em>
+            <code>LintersConfig.Settings</code>, <code>FormattersConfig.Settings</code>,
+            <code>OutputConfig.Formats</code>, and <code>LintersSettingsV1</code>. Every migration
+            and merge does <code>v.(map[string]any)</code> type assertions. This violates the
+            project's own principle:
+            <em>"Strong types over runtime checks — make impossible states unrepresentable."</em>
           </p>
           <div class="callout callout-warning">
             <strong>Tradeoff</strong>
-            The settings schema is golangci-lint's external contract — it
-            evolves independently. Typed structs give compile safety but cost
-            maintenance to keep in sync with upstream. This needs a deliberate
-            decision (see <a href="#question">#1 Question</a>).
+            The settings schema is golangci-lint's external contract — it evolves independently.
+            Typed structs give compile safety but cost maintenance to keep in sync with upstream.
+            This needs a deliberate decision (see <a href="#question">#1 Question</a>).
           </div>
         </div>
 
@@ -956,27 +945,25 @@
           <h4>No coverage gate on DefaultLinterSettings</h4>
           <p>
             Nothing enforces that each linter in
-            <code>DefaultLinterSettings</code> has a corresponding injection
-            test. A table-driven test iterating over the map keys would prevent
-            untested defaults from shipping.
+            <code>DefaultLinterSettings</code> has a corresponding injection test. A table-driven
+            test iterating over the map keys would prevent untested defaults from shipping.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>17 pre-existing lint issues unaddressed</h4>
           <p>
-            <code>golangci-lint run</code> reports 17 issues (funlen, nilerr,
-            noctx, staticcheck, wrapcheck) in files this feature didn't touch.
-            Per policy these are out of scope, but they represent tech debt
-            that should be paid down.
+            <code>golangci-lint run</code> reports 17 issues (funlen, nilerr, noctx, staticcheck,
+            wrapcheck) in files this feature didn't touch. Per policy these are out of scope, but
+            they represent tech debt that should be paid down.
           </p>
         </div>
 
         <!-- f) Top 25 Next -->
         <h2 id="next25"><span class="num">06</span>Top 25 Things To Do Next</h2>
-        <p style="color: var(--text-dim); font-size: 0.875rem;">
-          Sorted by <strong>impact &uarr;, effort &darr;</strong> (work vs
-          value). Badges indicate priority.
+        <p style="color: var(--text-dim); font-size: 0.875rem">
+          Sorted by <strong>impact &uarr;, effort &darr;</strong> (work vs value). Badges indicate
+          priority.
         </p>
         <table>
           <thead>
@@ -996,7 +983,10 @@
             </tr>
             <tr>
               <td>2</td>
-              <td>Add table-driven test: every <code>DefaultLinterSettings</code> key has injection coverage</td>
+              <td>
+                Add table-driven test: every <code>DefaultLinterSettings</code> key has injection
+                coverage
+              </td>
               <td><span class="badge badge-critical">Critical</span></td>
               <td>20 min</td>
             </tr>
@@ -1014,13 +1004,18 @@
             </tr>
             <tr>
               <td>5</td>
-              <td>Fix 6 <code>staticcheck SA1019</code> deprecated <code>report.Findings</code> access</td>
+              <td>
+                Fix 6 <code>staticcheck SA1019</code> deprecated <code>report.Findings</code> access
+              </td>
               <td><span class="badge badge-high">High</span></td>
               <td>25 min</td>
             </tr>
             <tr>
               <td>6</td>
-              <td>Fix <code>wrapcheck</code> unwrapped external error in <code>cmd_configure.go:411</code></td>
+              <td>
+                Fix <code>wrapcheck</code> unwrapped external error in
+                <code>cmd_configure.go:411</code>
+              </td>
               <td><span class="badge badge-high">High</span></td>
               <td>5 min</td>
             </tr>
@@ -1032,7 +1027,9 @@
             </tr>
             <tr>
               <td>8</td>
-              <td>Decision: typed linter-settings structs vs <code>map[string]any</code> (see #1 Q)</td>
+              <td>
+                Decision: typed linter-settings structs vs <code>map[string]any</code> (see #1 Q)
+              </td>
               <td><span class="badge badge-high">High</span></td>
               <td>Research</td>
             </tr>
@@ -1044,7 +1041,10 @@
             </tr>
             <tr>
               <td>10</td>
-              <td>Add safe defaults for <code>funlen</code>/<code>gocyclo</code> thresholds (mirror cyclop)</td>
+              <td>
+                Add safe defaults for <code>funlen</code>/<code>gocyclo</code> thresholds (mirror
+                cyclop)
+              </td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>15 min</td>
             </tr>
@@ -1068,7 +1068,9 @@
             </tr>
             <tr>
               <td>14</td>
-              <td>Extract <code>isEmptySettingsValue</code> + injection logic into a typed helper</td>
+              <td>
+                Extract <code>isEmptySettingsValue</code> + injection logic into a typed helper
+              </td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>40 min</td>
             </tr>
@@ -1086,13 +1088,18 @@
             </tr>
             <tr>
               <td>17</td>
-              <td>Consolidate <code>LintersSettingsV1</code> into migration-only package (legacy reduction)</td>
+              <td>
+                Consolidate <code>LintersSettingsV1</code> into migration-only package (legacy
+                reduction)
+              </td>
               <td><span class="badge badge-medium">Medium</span></td>
               <td>45 min</td>
             </tr>
             <tr>
               <td>18</td>
-              <td>Write HTML pareto-planning report to <code>docs/planning/</code> (missed earlier)</td>
+              <td>
+                Write HTML pareto-planning report to <code>docs/planning/</code> (missed earlier)
+              </td>
               <td><span class="badge badge-low">Low</span></td>
               <td>20 min</td>
             </tr>
@@ -1110,13 +1117,18 @@
             </tr>
             <tr>
               <td>21</td>
-              <td>Document the <code>injectDefaultSettings</code> contract in <code>docs/references/</code></td>
+              <td>
+                Document the <code>injectDefaultSettings</code> contract in
+                <code>docs/references/</code>
+              </td>
               <td><span class="badge badge-low">Low</span></td>
               <td>20 min</td>
             </tr>
             <tr>
               <td>22</td>
-              <td>Add integration test: full <code>configure</code> run produces valid v2 config</td>
+              <td>
+                Add integration test: full <code>configure</code> run produces valid v2 config
+              </td>
               <td><span class="badge badge-low">Low</span></td>
               <td>30 min</td>
             </tr>
@@ -1128,7 +1140,10 @@
             </tr>
             <tr>
               <td>24</td>
-              <td>Consider <code>go-faster/yaml</code> over <code>go.yaml.in/yaml/v3</code> (stack alignment)</td>
+              <td>
+                Consider <code>go-faster/yaml</code> over <code>go.yaml.in/yaml/v3</code> (stack
+                alignment)
+              </td>
               <td><span class="badge badge-low">Low</span></td>
               <td>Research</td>
             </tr>
@@ -1146,41 +1161,36 @@
         <div class="card card-problem">
           <h4>Invest in typed linter-settings structs, or keep <code>map[string]any</code>?</h4>
           <p>
-            <code>map[string]any</code> is used <strong>80 times</strong> across
-            the config model. Every migration, merge, and clone does runtime
-            type assertions. Typed structs would give compile safety and kill an
-            entire class of panic risks. <strong>BUT:</strong> the settings
-            schema is golangci-lint's external contract — it adds new linter
-            settings every release. Typed structs mean a maintenance burden:
-            every upstream release could require new struct fields.
+            <code>map[string]any</code> is used <strong>80 times</strong> across the config model.
+            Every migration, merge, and clone does runtime type assertions. Typed structs would give
+            compile safety and kill an entire class of panic risks. <strong>BUT:</strong> the
+            settings schema is golangci-lint's external contract — it adds new linter settings every
+            release. Typed structs mean a maintenance burden: every upstream release could require
+            new struct fields.
           </p>
           <p>
             <strong>Three viable approaches I cannot decide between:</strong>
           </p>
           <ul>
             <li>
-              <strong>A) Full typed structs</strong> — generate from
-              golangci-lint's JSON schema (if one exists). Zero runtime
-              assertions, but a code-gen step and sync risk.
+              <strong>A) Full typed structs</strong> — generate from golangci-lint's JSON schema (if
+              one exists). Zero runtime assertions, but a code-gen step and sync risk.
             </li>
             <li>
-              <strong>B) Hybrid</strong> — keep <code>map[string]any</code> for
-              the general config, but add typed accessors/getters for the
-              linters we inject defaults for (the 11 in
-              <code>DefaultLinterSettings</code>). Bounded scope, real safety
-              where we touch it.
+              <strong>B) Hybrid</strong> — keep <code>map[string]any</code> for the general config,
+              but add typed accessors/getters for the linters we inject defaults for (the 11 in
+              <code>DefaultLinterSettings</code>). Bounded scope, real safety where we touch it.
             </li>
             <li>
-              <strong>C) Status quo</strong> — accept <code>any</code> because
-              the schema is external and dynamic. Add a typed wrapper only if
-              assertion panics become a real problem.
+              <strong>C) Status quo</strong> — accept <code>any</code> because the schema is
+              external and dynamic. Add a typed wrapper only if assertion panics become a real
+              problem.
             </li>
           </ul>
           <div class="callout callout-warning">
-            <strong>My lean: Option B (hybrid)</strong> — it delivers safety
-            exactly where we have the most assertions (migrations + default
-            injection) without committing to tracking every upstream field. But
-            this is your architecture call, not mine.
+            <strong>My lean: Option B (hybrid)</strong> — it delivers safety exactly where we have
+            the most assertions (migrations + default injection) without committing to tracking
+            every upstream field. But this is your architecture call, not mine.
           </div>
         </div>
 
@@ -1191,8 +1201,8 @@
           <div class="migration-content">
             <h4>Commit the uncommitted makezero work</h4>
             <p>
-              Stage all 3 files + this report. Detailed commit message
-              documenting the feature, tests, and AGENTS.md update.
+              Stage all 3 files + this report. Detailed commit message documenting the feature,
+              tests, and AGENTS.md update.
             </p>
           </div>
         </div>
@@ -1212,8 +1222,8 @@
         </div>
 
         <footer class="footer">
-          Generated 2026-06-18 &middot; Verified against source: 15/15 test
-          suites pass, build exit 0, lint exit 0 (0 new issues)
+          Generated 2026-06-18 &middot; Verified against source: 15/15 test suites pass, build exit
+          0, lint exit 0 (0 new issues)
         </footer>
       </main>
     </div>
