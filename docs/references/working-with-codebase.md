@@ -6,7 +6,7 @@
 2. Wire up dependencies in `addSubCommands()` in `internal/cli/commands.go`
 3. Add flags as needed
 4. Write BDD tests in `internal/cli/commands_test.go` or `internal/cli/integration_test.go`
-5. Run `just test` to verify
+5. Run `go test -race ./pkg/... ./internal/...` to verify
 
 ## Modifying Linter Priorities
 
@@ -14,7 +14,7 @@
 2. Update `LinterPriorities` map
 3. Edit `pkg/constants/linter_reasons.go` to update `LinterReasons` map
 4. Consider updating presets in `pkg/constants/presets.go`
-5. Run tests: `just test`
+5. Run tests: `go test -race ./pkg/... ./internal/...`
 
 ## Adding New Linter Data
 
@@ -36,7 +36,7 @@
 1. Enable verbose mode: `--verbose` flag or `logger.SetLevel(log.DebugLevel)`
 2. Check golangci-lint version: `golangci-lint version`
 3. Verify config file exists and is valid: `golangci-lint-auto-configure validate`
-4. Check test coverage: `just coverage-html`
+4. Check test coverage: `go test -coverprofile=coverage.out ./pkg/... ./internal/... && go tool cover -html=coverage.out`
 5. Run specific tests: `ginkgo -r --focus="TestName"`
 
 ## Scripts Directory
@@ -54,9 +54,9 @@
 
 ## Build Artifacts
 
-- `bin/`: Build output (cleaned by `just clean`)
-- `coverage.out`: Coverage profile (from `just test`)
-- `coverage.html`: HTML coverage report (from `just coverage-html`)
+- `bin/`: Build output (cleaned by `rm -rf bin/`)
+- `coverage.out`: Coverage profile (from `go test -coverprofile`)
+- `coverage.html`: HTML coverage report (from `go tool cover -html`)
 - `report.html`: Generated analysis report (from CLI)
 
 ## Common Tasks
@@ -64,23 +64,24 @@
 ### Full Development Workflow
 
 ```bash
-just tidy           # Update dependencies
-just fmt           # Format code
-just test           # Run tests
-just lint           # Run linters
-just build          # Build binary
-just install-local  # Install with version
+go mod tidy                                          # Update dependencies
+nix fmt                                              # Format code (Go, Nix, templ)
+go test -race ./pkg/... ./internal/...               # Run tests
+golangci-lint run --config=.golangci.yml --timeout=5m # Run linters
+nix build                                            # Build binary (preferred)
+# Or: go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 ./bin/golangci-lint-auto-configure --help
 ```
 
 ### Release Preparation
 
 ```bash
-just test           # All tests must pass
-just lint           # All linters must pass
-just coverage-html  # Check coverage
+go test -race ./pkg/... ./internal/...                # All tests must pass
+golangci-lint run --config=.golangci.yml --timeout=5m  # All linters must pass
+# Check coverage:
+go test -coverprofile=coverage.out ./pkg/... ./internal/... && go tool cover -func=coverage.out | grep total
 git tag v0.1.0
-just install-local  # Build with version tag
+nix build                                             # Build with version tag
 ```
 
 ### Adding a New Test
@@ -106,13 +107,13 @@ var _ = Describe("New Feature", func() {
 
 ```bash
 # See what's wrong
-just lint
+golangci-lint run --config=.golangci.yml --timeout=5m
 
 # Fix specific issues manually or use golangci-lint
 golangci-lint run --fix
 
 # Verify fixes
-just test && just lint
+go test -race ./pkg/... ./internal/... && golangci-lint run --config=.golangci.yml --timeout=5m
 ```
 
 ## Troubleshooting
@@ -120,19 +121,19 @@ just test && just lint
 ### Build Failures
 
 1. Check Go version: `go version` (must be 1.26+)
-2. Run `just tidy` to update dependencies
-3. Check for local replace in go.mod (`go-finding => ../go-finding` may need adjustment)
+2. Run `go mod tidy` to update dependencies
+3. For Nix: after go.mod changes, update `vendorHash` in `flake.nix` (run `nix build`, copy the `got:` hash)
 
 ### Test Failures
 
-1. Run `just test` with verbose output: `ginkgo -v ./pkg/...`
-2. Check test coverage: `just coverage-html`
-3. Verify all dependencies installed: `just deps`
+1. Run with verbose output: `ginkgo -v ./pkg/...`
+2. Check test coverage: `go test -coverprofile=coverage.out ./pkg/... ./internal/... && go tool cover -html=coverage.out`
+3. Verify all dependencies installed: `go mod download`
 
 ### Linter Failures
 
 1. Check golangci-lint version: `golangci-lint version` (must be v2.10.1+)
-2. Run `just fmt-check` before `just lint`
+2. Run `nix fmt` (or `treefmt --ci`) to check formatting before linting
 3. Check for deprecated APIs (e.g., cobra.ExactValidArgs)
 
 ### Runtime Issues

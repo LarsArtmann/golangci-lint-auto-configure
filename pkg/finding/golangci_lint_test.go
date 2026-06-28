@@ -169,7 +169,7 @@ func assertLintFinding(
 ) {
 	t.Helper()
 
-	if f.Rule != linter {
+	if f.Rule != finding.RuleName(linter) {
 		t.Errorf("expected rule %q, got %q", linter, f.Rule)
 	}
 

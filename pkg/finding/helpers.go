@@ -37,7 +37,7 @@ func AnalysisFindingsByFile(analysis *types.ConfigAnalysis, version string) (map
 		return nil, fmt.Errorf("build report: %w", err)
 	}
 
-	return finding.GroupByFile(report.Findings), nil
+	return finding.GroupByFile(report.FindingsSnapshot()), nil
 }
 
 // AnalysisFindingsByCategory groups analysis findings by category.
@@ -49,7 +49,7 @@ func AnalysisFindingsByCategory(
 		return nil, fmt.Errorf("build report: %w", err)
 	}
 
-	return finding.GroupByCategory(report.Findings), nil
+	return finding.GroupByCategory(report.FindingsSnapshot()), nil
 }
 
 // SeverityFromHealthSeverity converts a types.HealthSeverity to the corresponding

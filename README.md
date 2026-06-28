@@ -348,17 +348,18 @@ Note: Unlike standard regex, RE2 anchors like `$` are literal — the pattern is
 ## Testing
 
 ```bash
-# Run all tests with coverage
-just test
+# Run all tests with race detection
+
+go test -race ./pkg/... ./internal/...
 
 # Run with verbose output
 ginkgo -v ./...
 
 # Generate and view HTML coverage report
-just coverage-html
+go test -coverprofile=coverage.out ./pkg/... ./internal/... && go tool cover -html=coverage.out
 
 # Check test coverage summary
-just test-coverage
+go test -cover ./pkg/... ./internal/...
 ```
 
 ## Building from Source
@@ -378,8 +379,8 @@ go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 1. Fork the repository
 2. Create a feature branch (`git switch -c feature/amazing-feature`)
 3. Make your changes and add tests
-4. Ensure all tests pass (`just test`)
-5. Run linters (`just lint`)
+4. Ensure all tests pass (`go test -race ./pkg/... ./internal/...`)
+5. Run linters (`golangci-lint run --config=.golangci.yml --timeout=5m`)
 6. Submit a pull request
 
 ## License

@@ -30,8 +30,8 @@ type configFindingParams struct {
 
 func configFinding(params configFindingParams) (finding.Finding, error) {
 	builder := finding.NewBuilder(
-		params.RuleID,
-		constants.ToolName,
+		finding.RuleName(params.RuleID),
+		finding.ToolName(constants.ToolName),
 		params.Message,
 		params.Severity,
 		params.Position,

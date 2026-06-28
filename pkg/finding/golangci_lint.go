@@ -58,8 +58,8 @@ func issueToFinding(issue GolangciLintIssue) (finding.Finding, error) {
 	}
 
 	return buildFinding(finding.NewBuilder(
-		issue.FromLinter,
-		"golangci-lint",
+		finding.RuleName(issue.FromLinter),
+		finding.ToolName("golangci-lint"),
 		issue.Text,
 		severity,
 		pos,

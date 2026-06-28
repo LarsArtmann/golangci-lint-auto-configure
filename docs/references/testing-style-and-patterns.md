@@ -34,10 +34,11 @@ var _ = Describe("Analyzer", func() {
 **Running Tests:**
 
 ```bash
-just test                    # Run all tests (ginkgo -r --cover)
-ginkgo -v ./pkg/...        # Run with verbose output
-ginkgo -r --focus="Name"   # Run specific tests by name
-ginkgo -r --skip="Name"    # Skip specific tests
+go test -race ./pkg/... ./internal/...  # Run all tests (primary)
+ginkgo -r --cover                      # Alternative: ginkgo directly
+ginkgo -v ./pkg/...                    # Run with verbose output
+ginkgo -r --focus="Name"              # Run specific tests by name
+ginkgo -r --skip="Name"              # Skip specific tests
 ```
 
 ### Test Patterns
@@ -51,8 +52,10 @@ ginkgo -r --skip="Name"    # Skip specific tests
 ### Coverage
 
 ```bash
-just coverage-html  # Generate and open HTML coverage report
-just test-coverage  # Show coverage summary in terminal
+# Generate and open HTML coverage report
+go test -coverprofile=coverage.out ./pkg/... ./internal/... && go tool cover -html=coverage.out
+# Show coverage summary in terminal
+go test -cover ./pkg/... ./internal/...
 ```
 
 ## CI/CD Pipeline

@@ -328,8 +328,8 @@ func TestAnalysisToReport(t *testing.T) {
 		t.Errorf("expected version v0.5.0, got %s", report.Tool.Version)
 	}
 
-	if len(report.Findings) != 3 {
-		t.Fatalf("expected 3 findings, got %d", len(report.Findings))
+	if len(report.FindingsSnapshot()) != 3 {
+		t.Fatalf("expected 3 findings, got %d", len(report.FindingsSnapshot()))
 	}
 
 	assertReportSummaryTotal(t, report, 3)
@@ -389,8 +389,8 @@ func TestAnalysisToReportEmpty(t *testing.T) {
 
 	assertReportSummaryTotal(t, report, 0)
 
-	if len(report.Findings) != 0 {
-		t.Errorf("expected 0 findings, got %d", len(report.Findings))
+	if len(report.FindingsSnapshot()) != 0 {
+		t.Errorf("expected 0 findings, got %d", len(report.FindingsSnapshot()))
 	}
 }
 
@@ -412,7 +412,7 @@ func assertFinding(
 ) {
 	t.Helper()
 
-	if f.Rule != expectedRule {
+	if f.Rule != finding.RuleName(expectedRule) {
 		t.Errorf("expected rule %q, got %q", expectedRule, f.Rule)
 	}
 

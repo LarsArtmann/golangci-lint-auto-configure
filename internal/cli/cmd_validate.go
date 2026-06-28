@@ -215,8 +215,8 @@ func healthIssuesToFindings(
 		severity := appfinding.SeverityFromHealthSeverity(issue.Severity)
 
 		findingObj, err := finding.NewBuilder(
-			issue.Rule,
-			constants.ToolName,
+			finding.RuleName(issue.Rule),
+			finding.ToolName(constants.ToolName),
 			issue.Message,
 			severity,
 			pos,

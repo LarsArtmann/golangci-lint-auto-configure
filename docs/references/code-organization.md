@@ -95,7 +95,7 @@ golangci-lint-auto-configure/
 │   └── library.golangci.yml
 ├── reports/                       # Generated linter documentation
 ├── scripts/                       # Utility scripts
-└── justfile                       # Build/test/lint commands (PRIMARY INTERFACE)
+└── flake.nix                      # Build/test/lint via Nix (PRIMARY INTERFACE)
 ```
 
 ### Key Architectural Patterns

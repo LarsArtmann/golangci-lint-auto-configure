@@ -29,8 +29,8 @@ func changeFinding(change diff.Change, configPath string) (finding.Finding, erro
 	rule := changeRule(change.Type)
 
 	builder := finding.NewBuilder(
-		rule,
-		constants.ToolName,
+		finding.RuleName(rule),
+		finding.ToolName(constants.ToolName),
 		change.Description,
 		severity,
 		finding.Position{File: configPath},
