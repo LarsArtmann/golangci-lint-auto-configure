@@ -8,6 +8,7 @@ import (
 
 	"charm.land/fang/v2"
 	"charm.land/log/v2"
+	errorfamily "github.com/larsartmann/go-error-family"
 	clicmd "github.com/larsartmann/golangci-lint-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -241,7 +242,8 @@ func Execute(ctx context.Context) error {
 func Main() {
 	err := Execute(context.Background())
 	if err != nil {
-		slog.Error("CLI execution failed", "error", err)
-		os.Exit(1)
+		family := errorfamily.Classify(err)
+		slog.Error("CLI execution failed", "error", err, "family", family.String())
+		os.Exit(errorfamily.ExitCode(err))
 	}
 }

@@ -50,6 +50,8 @@ github.com/google/pprof v0.0.0-20260604005048-7023385849c0 h1:h1QTMDl6q9wDvDCJVp
 github.com/google/pprof v0.0.0-20260604005048-7023385849c0/go.mod h1:MxpfABSjhmINe3F1It9d+8exIHFvUqtLIRCdOGNXqiI=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
+github.com/larsartmann/go-error-family v0.5.1 h1:rYDNU0sv+6ri0xel6MswIeDT2dRh3q+RSc5uWnAwecg=
+github.com/larsartmann/go-error-family v0.5.1/go.mod h1:JbSRM+qePUMzqr2L28oEeIf7QjWUnwAnUHpUfqp/flg=
 github.com/larsartmann/go-finding v1.0.0 h1:lTIdte48e4KEy8snyu5KlDMsG984Kd50slMaTslaiFI=
 github.com/larsartmann/go-finding v1.0.0/go.mod h1:/1v19zwui5ZXpcB/N5cVagzLGE0eAkyTgXp0c8TvmNw=
 github.com/lucasb-eyer/go-colorful v1.4.0 h1:UtrWVfLdarDgc44HcS7pYloGHJUjHV/4FwW4TvVgFr4=

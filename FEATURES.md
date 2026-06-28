@@ -33,6 +33,13 @@
 | Invalid duration fix                                  | Stable | Fixes empty/invalid timeout values          |
 | Multiple binary detection                             | Stable | Warns if multiple golangci-lint binaries    |
 
+## Error Handling & Exit Codes
+
+| Feature                          | Status | Notes                                                     |
+| -------------------------------- | ------ | --------------------------------------------------------- |
+| Semantic exit codes (BSD sysexits) | Stable | via go-error-family: Rejection(1), Conflict(1), Corruption(65), Infrastructure(69) |
+| Error classification registry     | Stable | All sentinel errors mapped to families in `pkg/errors/classification.go` |
+
 ## Default Settings Injection
 
 | Feature                                                | Status | Notes                              |

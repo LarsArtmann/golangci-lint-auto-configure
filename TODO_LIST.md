@@ -1,15 +1,18 @@
 # golangci-lint-auto-configure — TODO List
 
-**Last Updated:** 2026-06-05
+**Last Updated:** 2026-06-28
 
 ---
 
 ## Critical Priority
 
-- [ ] Increase CLI integration test coverage (currently 9.0%)
+- [ ] Update `flake.nix` vendorHash for go-error-family dependency
+- [ ] Run `nix build` + `nix flake check` to verify full Nix pipeline
 
 ## High Priority
 
+- [ ] Propagate error-family classification to all CLI command handlers
+- [ ] Increase CLI integration test coverage (currently 9.0%)
 - [ ] Increase gogenfilter scanner coverage (currently 63.9%)
 
 ## Medium Priority
@@ -29,10 +32,13 @@
 - [ ] Add `pkg/client` smoke tests (or resolve intent: public API vs internal)
 - [ ] Use `errors.Join` for multi-finding failures (currently returns first error only)
 - [ ] Add `DryRun bool` field on `MigrationResult` (clarify "would fix" vs "did fix")
-- [ ] Migrate justfile → flake.nix apps (per global AGENTS.md preference)
 
 ## Completed
 
+- [x] Fix go-finding v1.0.0 API breakage (branded RuleName/ToolName types, unexported Report.findings)
+- [x] Integrate go-error-family for semantic BSD sysexits exit codes
+- [x] Rewrite AGENTS.md to be lean (~75 lines) with corrected commands (no justfile exists)
+- [x] Remove stale `just` command references from all living docs
 - [x] Trim AGENTS.md from 912 to ≤377 lines (current: 373)
 - [x] Increase migration coverage from 66.8% to 75.5%
 - [x] Fix gofumpt formatting in integration_test.go

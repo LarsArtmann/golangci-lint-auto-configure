@@ -1,0 +1,49 @@
+package apperrors
+
+import (
+	"os/exec"
+
+	errorfamily "github.com/larsartmann/go-error-family"
+)
+
+// Classification mapping rationale:
+//
+// Rejection (exit 1) — user's fault: bad input, missing prerequisite,
+//   invalid config. The user can fix it by changing their input or environment.
+// Conflict (exit 1) — user must resolve: a state conflict (hook already exists)
+//   or a check-mode signal (changes needed). Not an error per se, but non-zero exit.
+// Corruption (exit 65) — data integrity: version output is unparseable, suggesting
+//   a broken golangci-lint installation or corrupted output.
+// Infrastructure (exit 69) — system cannot serve: golangci-lint binary not found.
+
+func init() {
+	errorfamily.RegisterStdlibDefaults(errorfamily.DefaultRegistry)
+
+	errorfamily.RegisterClassifications(map[error]errorfamily.Family{
+		// User-fault errors — bad input, missing prerequisites.
+		ErrNotGitRepository:       errorfamily.Rejection,
+		ErrNotInGitWorkingTree:    errorfamily.Rejection,
+		ErrUnknownPreset:          errorfamily.Rejection,
+		ErrInvalidActivityContext: errorfamily.Rejection,
+		ErrVersionTooOld:          errorfamily.Rejection,
+		ErrConfigValidationFailed: errorfamily.Rejection,
+
+		// State conflicts — user must resolve before proceeding.
+		ErrHookAlreadyExists: errorfamily.Conflict,
+		ErrChangesNeeded:     errorfamily.Conflict,
+
+		// Data integrity — version output is unparseable or malformed.
+		ErrVersionParse:         errorfamily.Corruption,
+		ErrInvalidVersionFormat: errorfamily.Corruption,
+
+		// Infrastructure — golangci-lint binary not found in PATH.
+		exec.ErrNotFound: errorfamily.Infrastructure,
+	})
+}
+
+// ErrorFamily classifies ConfigError as Rejection.
+// Config errors are always user-fault: file not found, parse failure,
+// validation failure. The user must fix their config file.
+func (*ConfigError) ErrorFamily() errorfamily.Family {
+	return errorfamily.Rejection
+}
