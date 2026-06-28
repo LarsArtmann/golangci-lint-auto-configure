@@ -45,6 +45,7 @@ nix develop
 2. **templ requires generation.** `.templ` files compile to Go. The Nix build runs `templ generate` in `preBuild`. For local builds after editing `pkg/report/report.templ`, run `templ generate` manually before `go build`.
 
 3. **vendorHash update after go.mod changes.** `nix build` will fail with a hash mismatch. Procedure:
+
    ```bash
    go mod tidy
    nix build 2>&1 | rg "got:"   # copy the got: sha256
@@ -70,14 +71,14 @@ nix develop
 
 ## Where to Find Detail
 
-| Topic | Location |
-| ----- | -------- |
-| Directory structure & patterns | `docs/references/code-organization.md` |
-| Adding commands/linters, common tasks, troubleshooting | `docs/references/working-with-codebase.md` |
-| BDD testing, code style, CI/CD | `docs/references/testing-style-and-patterns.md` |
-| Error handling patterns | `docs/references/error-handling.md` |
-| gogenfilter & go-finding integration | `docs/references/integrations.md` |
-| User-facing usage | `README.md` |
-| Feature inventory | `FEATURES.md` |
-| Open work | `TODO_LIST.md` |
-| Domain language | `docs/DOMAIN_LANGUAGE.md` |
+| Topic                                                  | Location                                        |
+| ------------------------------------------------------ | ----------------------------------------------- |
+| Directory structure & patterns                         | `docs/references/code-organization.md`          |
+| Adding commands/linters, common tasks, troubleshooting | `docs/references/working-with-codebase.md`      |
+| BDD testing, code style, CI/CD                         | `docs/references/testing-style-and-patterns.md` |
+| Error handling patterns                                | `docs/references/error-handling.md`             |
+| gogenfilter & go-finding integration                   | `docs/references/integrations.md`               |
+| User-facing usage                                      | `README.md`                                     |
+| Feature inventory                                      | `FEATURES.md`                                   |
+| Open work                                              | `TODO_LIST.md`                                  |
+| Domain language                                        | `docs/DOMAIN_LANGUAGE.md`                       |

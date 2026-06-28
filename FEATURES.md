@@ -35,10 +35,10 @@
 
 ## Error Handling & Exit Codes
 
-| Feature                          | Status | Notes                                                     |
-| -------------------------------- | ------ | --------------------------------------------------------- |
+| Feature                            | Status | Notes                                                                              |
+| ---------------------------------- | ------ | ---------------------------------------------------------------------------------- |
 | Semantic exit codes (BSD sysexits) | Stable | via go-error-family: Rejection(1), Conflict(1), Corruption(65), Infrastructure(69) |
-| Error classification registry     | Stable | All sentinel errors mapped to families in `pkg/errors/classification.go` |
+| Error classification registry      | Stable | All sentinel errors mapped to families in `pkg/errors/classification.go`           |
 
 ## Default Settings Injection
 
