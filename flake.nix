@@ -74,9 +74,9 @@
               $GOBIN/templ generate
             '';
 
-            proxyVendor = true;
+            proxyVendor = false;
 
-            vendorHash = "sha256-1foCQuehiNwMhj4bdGTMxiJqL5I8YtYtarTDB/Z83Bs=";
+            vendorHash = lib.fakeHash;
 
             subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -97,8 +97,13 @@
             postPatch = ''
               echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
               echo 'replace github.com/LarsArtmann/gogenfilter/v3 => ${gogenfilterSrc}' >> go.mod
-              export HOME="$TMPDIR"
-              go mod tidy
+              # go mod tidy needs network (fetches transitive deps of replaced modules).
+              # Only the go-modules FOD has network (__noChroot); the sandboxed main
+              # derivation has no DNS resolver, so tidy is skipped there.
+              if [[ "$name" == *go-modules* ]]; then
+                export HOME="$TMPDIR"
+                go mod tidy
+              fi
             '';
 
             meta = with lib; {
