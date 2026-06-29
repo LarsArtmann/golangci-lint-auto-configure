@@ -496,10 +496,10 @@ func applyPreset(
 }
 
 func convertLinterNames(linters []types.LinterName) []string {
-	names := make([]string, len(linters))
+	names := make([]string, 0, len(linters))
 
-	for i, l := range linters {
-		names[i] = string(l)
+	for _, l := range linters {
+		names = append(names, string(l))
 	}
 
 	return names

@@ -14,9 +14,9 @@ func makeStrings(n int) []string {
 
 // makeStringsOffset generates a slice of n strings starting from offset.
 func makeStringsOffset(offset, n int) []string {
-	result := make([]string, n)
+	result := make([]string, 0, n)
 	for i := range n {
-		result[i] = fmt.Sprintf("element_%d", offset+i)
+		result = append(result, fmt.Sprintf("element_%d", offset+i)
 	}
 
 	return result

@@ -41,9 +41,9 @@ var GoExperiments = []types.GoExperiment{
 
 // GoExperimentTags returns the build tags for all Go experiments.
 func GoExperimentTags() []string {
-	tags := make([]string, len(GoExperiments))
-	for i, exp := range GoExperiments {
-		tags[i] = exp.Tag
+	tags := make([]string, 0, len(GoExperiments))
+	for _, exp := range GoExperiments {
+		tags = append(tags, exp.Tag)
 	}
 
 	return tags

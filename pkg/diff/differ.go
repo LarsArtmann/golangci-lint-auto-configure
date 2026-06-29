@@ -233,8 +233,8 @@ func formatChangeHeader(added, removed, modified int) *strings.Builder {
 }
 
 func sortChangesByPath(changes []Change) []Change {
-	sorted := make([]Change, len(changes))
-	copy(sorted, changes)
+	sorted := make([]Change, 0, len(changes))
+	sorted = append(sorted, changes...)
 	sort.Slice(sorted, func(i, j int) bool {
 		return sorted[i].Path < sorted[j].Path
 	})

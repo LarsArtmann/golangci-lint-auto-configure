@@ -62,10 +62,8 @@ func runCommandWithConfig(binaryPath, configContent string, args []string) (stri
 	configPath := filepath.Join(testDir, ".golangci.yml")
 	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
-	cmdArgs := make([]string, len(args)+2)
-	copy(cmdArgs, args)
-	cmdArgs[len(args)] = "--config"
-	cmdArgs[len(args)+1] = configPath
+	cmdArgs := make([]string, 0, len(args)+2)
+	cmdArgs = append(cmdArgs, args..., "--config")
 	cmd := exec.Command(binaryPath, cmdArgs...)
 	output, err := cmd.CombinedOutput()
 

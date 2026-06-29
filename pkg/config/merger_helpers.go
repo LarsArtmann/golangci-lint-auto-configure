@@ -125,8 +125,8 @@ func countDuplicates(primary, secondary []string) int {
 // sortByPriority sorts config paths by golangci-lint search order priority.
 // Lower index = higher priority.
 func sortByPriority(paths []string) []string {
-	sorted := make([]string, len(paths))
-	copy(sorted, paths)
+	sorted := make([]string, 0, len(paths))
+	sorted = append(sorted, paths...)
 
 	sort.Slice(sorted, func(i, j int) bool {
 		iPriority := configFilePriority[filepath.Base(sorted[i])]

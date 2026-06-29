@@ -5,8 +5,8 @@ func cloneSlice[T any](src []T) []T {
 		return nil
 	}
 
-	cp := make([]T, len(src))
-	copy(cp, src)
+	cp := make([]T, 0, len(src))
+	cp = append(cp, src...)
 
 	return cp
 }
@@ -40,9 +40,9 @@ func deepCloneSlice(src []any) []any {
 		return nil
 	}
 
-	cloned := make([]any, len(src))
-	for i, v := range src {
-		cloned[i] = deepCloneAny(v)
+	cloned := make([]any, 0, len(src))
+	for _, v := range src {
+		cloned = append(cloned, deepCloneAny(v))
 	}
 
 	return cloned
@@ -53,15 +53,15 @@ func cloneExclusionRules(src []ExclusionRuleConfig) []ExclusionRuleConfig {
 		return nil
 	}
 
-	cloned := make([]ExclusionRuleConfig, len(src))
-	for i, rule := range src {
-		cloned[i] = ExclusionRuleConfig{
+	cloned := make([]ExclusionRuleConfig, 0, len(src))
+	for _, rule := range src {
+		cloned = append(cloned, ExclusionRuleConfig{
 			Path:       rule.Path,
 			PathExcept: rule.PathExcept,
 			Text:       rule.Text,
 			Source:     rule.Source,
 			Linters:    cloneSlice(rule.Linters),
-		}
+		})
 	}
 
 	return cloned

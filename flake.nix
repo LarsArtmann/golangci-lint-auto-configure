@@ -57,7 +57,6 @@
           golangci-lint-auto-configure = pkgs.buildGoModule {
             pname = "golangci-lint-auto-configure";
             inherit version;
-            allowGoReference = true;
 
             src = lib.fileset.toSource {
               root = ./.;
@@ -94,8 +93,8 @@
             # The replaces redirect private repos to SSH-fetched local sources.
             # go mod tidy needs network (fetches transitive deps of replaced
             # modules); only the go-modules FOD has network via __noChroot.
-            # The sandboxed main derivation instead sets GOFLAGS=-mod=mod so
-            # Go auto-reconciles go.mod from the FOD's proxy cache (no network).
+            # The sandboxed main derivation instead appends -mod=mod so Go
+            # auto-reconciles go.mod from the FOD's proxy cache (no network).
             postPatch = ''
               echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
               echo 'replace github.com/LarsArtmann/gogenfilter/v3 => ${gogenfilterSrc}' >> go.mod
@@ -103,7 +102,9 @@
                 export HOME="$TMPDIR"
                 go mod tidy
               else
-                export GOFLAGS=-mod=mod
+                # Append, don't overwrite — buildGoModule sets -trimpath
+                # in GOFLAGS to prevent GOROOT leaking into the binary.
+                export GOFLAGS+=" -mod=mod"
               fi
             '';
 

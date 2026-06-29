@@ -77,9 +77,9 @@ func (g *JSONGenerator) buildJSONReport(analysis *types.ConfigAnalysis) JSONRepo
 }
 
 func extractLinterNames(linters []types.LinterInfo) []string {
-	names := make([]string, len(linters))
-	for i, linter := range linters {
-		names[i] = string(linter.Name)
+	names := make([]string, 0, len(linters))
+	for _, linter := range linters {
+		names = append(names, string(linter.Name))
 	}
 
 	return names

@@ -367,25 +367,25 @@ func (l *Loader) detectGoVersion(ctx context.Context) string {
 }
 
 func defaultExclusionPaths() []string {
-	paths := make([]string, len(constants.DefaultLinterExclusionPaths))
+	paths := make([]string, 0, len(constants.DefaultLinterExclusionPaths))
 
-	copy(paths, constants.DefaultLinterExclusionPaths)
+	paths = append(paths, constants.DefaultLinterExclusionPaths...)
 
 	return paths
 }
 
 func defaultFormatterExclusionPaths() []string {
-	paths := make([]string, len(constants.DefaultFormatterExclusionPaths))
+	paths := make([]string, 0, len(constants.DefaultFormatterExclusionPaths))
 
-	copy(paths, constants.DefaultFormatterExclusionPaths)
+	paths = append(paths, constants.DefaultFormatterExclusionPaths...)
 
 	return paths
 }
 
 func defaultExclusionRules() []types.ExclusionRuleConfig {
-	rules := make([]types.ExclusionRuleConfig, len(constants.DefaultExclusionRules))
+	rules := make([]types.ExclusionRuleConfig, 0, len(constants.DefaultExclusionRules))
 
-	copy(rules, constants.DefaultExclusionRules)
+	rules = append(rules, constants.DefaultExclusionRules...)
 
 	return rules
 }

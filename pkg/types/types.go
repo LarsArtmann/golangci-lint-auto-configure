@@ -179,9 +179,9 @@ func (a *ConfigAnalysis) TotalRecommendations() int {
 
 // EnabledLinterNames returns just the names of enabled linters.
 func (a *ConfigAnalysis) EnabledLinterNames() []string {
-	names := make([]string, len(a.EnabledLinters))
-	for i, l := range a.EnabledLinters {
-		names[i] = string(l.Name)
+	names := make([]string, 0, len(a.EnabledLinters))
+	for _, l := range a.EnabledLinters {
+		names = append(names, string(l.Name))
 	}
 
 	return names
