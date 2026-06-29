@@ -81,6 +81,7 @@
             env = {
               CGO_ENABLED = 0;
               GOWORK = "off";
+              GOPRIVATE = "github.com/larsartmann,github.com/LarsArtmann";
             };
 
             meta = with lib; {
