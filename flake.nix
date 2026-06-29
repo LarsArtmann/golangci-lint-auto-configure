@@ -15,23 +15,12 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    goFindingSrc = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=master";
-      flake = false;
-    };
-    gogenfilterSrc = {
-      url = "git+ssh://git@github.com/LarsArtmann/gogenfilter?ref=master";
-      flake = false;
-    };
   };
 
   outputs =
     inputs@{
       self,
       flake-parts,
-      goFindingSrc,
-      gogenfilterSrc,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -74,7 +63,7 @@
               $GOBIN/templ generate
             '';
 
-            proxyVendor = false;
+            proxyVendor = true;
 
             vendorHash = lib.fakeHash;
 
@@ -93,18 +82,6 @@
               CGO_ENABLED = 0;
               GOWORK = "off";
             };
-
-            postPatch = ''
-              echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
-              echo 'replace github.com/LarsArtmann/gogenfilter/v3 => ${gogenfilterSrc}' >> go.mod
-              # go mod tidy needs network (fetches transitive deps of replaced modules).
-              # Only the go-modules FOD has network (__noChroot); the sandboxed main
-              # derivation has no DNS resolver, so tidy is skipped there.
-              if [[ "$name" == *go-modules* ]]; then
-                export HOME="$TMPDIR"
-                go mod tidy
-              fi
-            '';
 
             meta = with lib; {
               description = "Automatically configure and optimize golangci-lint configurations";
