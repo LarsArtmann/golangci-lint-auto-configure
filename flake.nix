@@ -26,6 +26,10 @@
       url = "git+ssh://git@github.com/LarsArtmann/gogenfilter?ref=master";
       flake = false;
     };
+    go-nix-helpers = {
+      url = "git+ssh://git@github.com/LarsArtmann/go-nix-helpers?ref=master";
+      flake = false;
+    };
   };
 
   outputs =
@@ -34,6 +38,7 @@
       flake-parts,
       goFindingSrc,
       gogenfilterSrc,
+      go-nix-helpers,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -54,25 +59,42 @@
           buildDate = self.lastModifiedDate or "unknown";
           ldflagsPkg = "github.com/larsartmann/golangci-lint-auto-configure/pkg/version";
 
+          mkPreparedSource = import (go-nix-helpers + "/mkPreparedSource.nix") {
+            inherit pkgs lib;
+            goPkg = pkgs.go_1_26;
+          };
+
+          src = lib.fileset.toSource {
+            root = ./.;
+            fileset = lib.fileset.unions [
+              ./go.mod
+              ./go.sum
+              ./cmd
+              ./pkg
+              ./internal
+              ./scripts
+            ];
+          };
+
+          preparedSrc = mkPreparedSource {
+            name = "golangci-lint-auto-configure";
+            inherit version src;
+            deps = {
+              "github.com/larsartmann/go-finding" = goFindingSrc;
+              "github.com/LarsArtmann/gogenfilter/v3" = gogenfilterSrc;
+            };
+            validatePrivateDeps = false;
+          };
+
           golangci-lint-auto-configure = pkgs.buildGoModule {
             pname = "golangci-lint-auto-configure";
             inherit version;
 
-            src = lib.fileset.toSource {
-              root = ./.;
-              fileset = lib.fileset.unions [
-                ./go.mod
-                ./go.sum
-                ./cmd
-                ./pkg
-                ./internal
-                ./scripts
-              ];
-            };
+            src = preparedSrc;
 
             proxyVendor = true;
 
-            vendorHash = "sha256-1foCQuehiNwMhj4bdGTMxiJqL5I8YtYtarTDB/Z83Bs=";
+            vendorHash = "sha256-qY+lqcpspn28U37WwUcp6gF7yqmkmhNLtINHJNY2ZoQ=";
 
             subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -90,22 +112,15 @@
               GOWORK = "off";
             };
 
-            # The replaces redirect private repos to SSH-fetched local sources.
-            # go mod tidy needs network (fetches transitive deps of replaced
-            # modules); only the go-modules FOD has network via __noChroot.
-            # The sandboxed main derivation instead appends -mod=mod so Go
-            # auto-reconciles go.mod from the FOD's proxy cache (no network).
-            postPatch = ''
-              echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
-              echo 'replace github.com/LarsArtmann/gogenfilter/v3 => ${gogenfilterSrc}' >> go.mod
-              if [[ "$name" == *go-modules* ]]; then
-                export HOME="$TMPDIR"
+            overrideModAttrs = _: {
+              preBuild = ''
+                export HOME=$TMPDIR
                 go mod tidy
-              else
-                # Append, don't overwrite — buildGoModule sets -trimpath
-                # in GOFLAGS to prevent GOROOT leaking into the binary.
-                export GOFLAGS+=" -mod=mod"
-              fi
+              '';
+            };
+
+            preBuild = ''
+              export GOFLAGS+=" -mod=mod"
             '';
 
             meta = with lib; {

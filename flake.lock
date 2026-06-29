@@ -20,6 +20,23 @@
         "type": "github"
       }
     },
+    "go-nix-helpers": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782696609,
+        "narHash": "sha256-WoV2omK2U6TfqmSeGuv8R78g/D8Kz/oz1O4bOxSQcbs=",
+        "ref": "master",
+        "rev": "7fdb95c7be7815beeff83a1d27851b7742ccb7d4",
+        "revCount": 19,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
+      },
+      "original": {
+        "ref": "master",
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
+      }
+    },
     "goFindingSrc": {
       "flake": false,
       "locked": {
@@ -73,6 +90,7 @@
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
+        "go-nix-helpers": "go-nix-helpers",
         "goFindingSrc": "goFindingSrc",
         "gogenfilterSrc": "gogenfilterSrc",
         "nixpkgs": "nixpkgs",
