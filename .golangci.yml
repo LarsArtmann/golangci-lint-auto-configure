@@ -138,6 +138,7 @@ linters:
             - charm.land/lipgloss/v2
             - github.com/larsartmann/go-finding
             - github.com/larsartmann/golangci-lint-auto-configure
+            - github.com/larsartmann/go-error-family
             - github.com/LarsArtmann/gogenfilter/v3
             - github.com/spf13/cobra
             - github.com/stretchr/testify

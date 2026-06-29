@@ -160,7 +160,6 @@
 | Feature                                 | Status | Notes                            |
 | --------------------------------------- | ------ | -------------------------------- |
 | Nix flake build                         | Stable | Reproducible builds              |
-| justfile recipes                        | Stable | Primary build interface          |
 | GitHub Actions CI (Go 1.25/1.26 matrix) | Stable |                                  |
 | Pre-commit hook                         | Stable | golangci-lint, go-test, go-fmt   |
 | Version injection via ldflags           | Stable | version, commit, date, treeState |

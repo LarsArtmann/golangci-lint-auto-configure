@@ -16,6 +16,10 @@ import (
 //   a broken golangci-lint installation or corrupted output.
 // Infrastructure (exit 69) — system cannot serve: golangci-lint binary not found.
 
+// init registers all sentinel errors with their behavioral Families. This
+// follows the go-error-family registration pattern and must run before Main().
+//
+//nolint:gochecknoinits // required by go-error-family registration pattern
 func init() {
 	errorfamily.RegisterStdlibDefaults(errorfamily.DefaultRegistry)
 
