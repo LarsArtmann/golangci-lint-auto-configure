@@ -76,7 +76,7 @@
 
             proxyVendor = true;
 
-            vendorHash = "sha256-ZLUWaI1GhU8QAqSm5j3P0JC2m9kWTNLXDozCgC2Ptmw=";
+            vendorHash = "sha256-1foCQuehiNwMhj4bdGTMxiJqL5I8YtYtarTDB/Z83Bs=";
 
             subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -97,6 +97,8 @@
             postPatch = ''
               echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
               echo 'replace github.com/LarsArtmann/gogenfilter/v3 => ${gogenfilterSrc}' >> go.mod
+              export HOME="$TMPDIR"
+              go mod tidy
             '';
 
             meta = with lib; {

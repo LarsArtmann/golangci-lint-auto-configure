@@ -10,35 +10,35 @@
 
 ## Project Snapshot
 
-| Metric                    | Value                                      |
-| ------------------------- | ------------------------------------------ |
-| Production LOC            | 11,847                                     |
-| Test LOC                  | 8,313                                      |
-| Direct dependencies       | 14 (2 LarsArtmann private)                 |
-| Error construction sites  | 173 (129 `fmt.Errorf`, 43 `errors.New`, 1 `errors.Join`) |
-| `apperrors`/`errorfamily` usage sites | 37                             |
-| Test packages             | 15 (all passing)                           |
-| CLI subcommands           | 7 (configure, analyze, validate, report, migrate, install-hook, completion) |
+| Metric                                | Value                                                                       |
+| ------------------------------------- | --------------------------------------------------------------------------- |
+| Production LOC                        | 11,847                                                                      |
+| Test LOC                              | 8,313                                                                       |
+| Direct dependencies                   | 14 (2 LarsArtmann private)                                                  |
+| Error construction sites              | 173 (129 `fmt.Errorf`, 43 `errors.New`, 1 `errors.Join`)                    |
+| `apperrors`/`errorfamily` usage sites | 37                                                                          |
+| Test packages                         | 15 (all passing)                                                            |
+| CLI subcommands                       | 7 (configure, analyze, validate, report, migrate, install-hook, completion) |
 
 ### Coverage by Package
 
-| Package           | Coverage | Assessment         |
-| ----------------- | -------- | ------------------ |
-| `pkg/errors`      | 96.3%    | Excellent          |
-| `pkg/diff`        | 94.6%    | Excellent          |
-| `pkg/utils`       | 94.6%    | Excellent          |
-| `pkg/linter`      | 83.9%    | Good               |
-| `pkg/constants`   | 80.0%    | Good               |
-| `pkg/finding`     | 77.2%    | Acceptable         |
-| `pkg/migration`   | 75.3%    | Acceptable         |
-| `pkg/report`      | 71.9%    | Needs work         |
-| `pkg/ui`          | 67.7%    | Needs work         |
-| `pkg/detection`   | 67.1%    | Needs work         |
-| `pkg/gogenfilter` | 63.9%    | Needs work         |
-| `pkg/config`      | 63.4%    | Needs work         |
-| `pkg/types`       | 63.2%    | Needs work         |
-| `pkg/version`     | 51.4%    | Poor               |
-| `internal/cli`    | 8.8%     | **Critical gap**   |
+| Package           | Coverage | Assessment       |
+| ----------------- | -------- | ---------------- |
+| `pkg/errors`      | 96.3%    | Excellent        |
+| `pkg/diff`        | 94.6%    | Excellent        |
+| `pkg/utils`       | 94.6%    | Excellent        |
+| `pkg/linter`      | 83.9%    | Good             |
+| `pkg/constants`   | 80.0%    | Good             |
+| `pkg/finding`     | 77.2%    | Acceptable       |
+| `pkg/migration`   | 75.3%    | Acceptable       |
+| `pkg/report`      | 71.9%    | Needs work       |
+| `pkg/ui`          | 67.7%    | Needs work       |
+| `pkg/detection`   | 67.1%    | Needs work       |
+| `pkg/gogenfilter` | 63.9%    | Needs work       |
+| `pkg/config`      | 63.4%    | Needs work       |
+| `pkg/types`       | 63.2%    | Needs work       |
+| `pkg/version`     | 51.4%    | Poor             |
+| `internal/cli`    | 8.8%     | **Critical gap** |
 
 ---
 
@@ -58,19 +58,19 @@
 
 All 11 sentinel errors + stdlib defaults registered with Families:
 
-| Sentinel                    | Family          | Exit Code | Rationale                    |
-| --------------------------- | --------------- | --------- | ---------------------------- |
-| `ErrNotGitRepository`       | Rejection       | 1         | User must be in a git repo   |
-| `ErrNotInGitWorkingTree`    | Rejection       | 1         | User must be in working tree |
-| `ErrUnknownPreset`          | Rejection       | 1         | User passed invalid preset   |
-| `ErrInvalidActivityContext` | Rejection       | 1         | Programming error            |
-| `ErrVersionTooOld`          | Rejection       | 1         | User must upgrade            |
-| `ErrConfigValidationFailed` | Rejection       | 1         | User's config is invalid     |
-| `ErrHookAlreadyExists`      | Conflict        | 1         | State conflict               |
-| `ErrChangesNeeded`          | Conflict        | 1         | Check-mode signal            |
-| `ErrVersionParse`           | Corruption      | 65        | Broken installation output   |
-| `ErrInvalidVersionFormat`   | Corruption      | 65        | Malformed version string     |
-| `exec.ErrNotFound`          | Infrastructure  | 69        | Binary missing from PATH     |
+| Sentinel                    | Family         | Exit Code | Rationale                    |
+| --------------------------- | -------------- | --------- | ---------------------------- |
+| `ErrNotGitRepository`       | Rejection      | 1         | User must be in a git repo   |
+| `ErrNotInGitWorkingTree`    | Rejection      | 1         | User must be in working tree |
+| `ErrUnknownPreset`          | Rejection      | 1         | User passed invalid preset   |
+| `ErrInvalidActivityContext` | Rejection      | 1         | Programming error            |
+| `ErrVersionTooOld`          | Rejection      | 1         | User must upgrade            |
+| `ErrConfigValidationFailed` | Rejection      | 1         | User's config is invalid     |
+| `ErrHookAlreadyExists`      | Conflict       | 1         | State conflict               |
+| `ErrChangesNeeded`          | Conflict       | 1         | Check-mode signal            |
+| `ErrVersionParse`           | Corruption     | 65        | Broken installation output   |
+| `ErrInvalidVersionFormat`   | Corruption     | 65        | Malformed version string     |
+| `exec.ErrNotFound`          | Infrastructure | 69        | Binary missing from PATH     |
 
 Also calls `RegisterStdlibDefaults` for context/sql/os errors.
 
@@ -87,6 +87,7 @@ config errors are always user-fault regardless of the underlying cause.
 **File:** `internal/cli/commands.go` (commit `efdd4d7`)
 
 `Main()` now:
+
 1. Classifies the error via `errorfamily.Classify(err)`
 2. Logs the error with its Family for observability: `slog.Error("CLI execution failed", "error", err, "family", family.String())`
 3. Exits with `errorfamily.ExitCode(err)` instead of hardcoded `os.Exit(1)`
@@ -99,6 +100,7 @@ config errors are always user-fault regardless of the underlying cause.
 **File:** `pkg/errors/classification_test.go` (commit `efdd4d7`)
 
 24 Ginkgo tests covering:
+
 - All 11 sentinel → Family mappings (DescribeTable)
 - All 4 exit code assertions (DescribeTable)
 - Wrapped sentinel chain walking (double-wrapped)
@@ -187,6 +189,7 @@ verify the NEW differentiated codes (65 for Corruption, 69 for Infrastructure).
 **File:** `FEATURES.md:163`
 
 The table says:
+
 ```
 | justfile recipes | Stable | Primary build interface |
 ```
@@ -291,19 +294,21 @@ file without changing content).
 
 **The problem with AnalysisError:** It's used for semantically different failures:
 
-| Scenario                            | Current Classification     | Via What?                |
-| ----------------------------------- | -------------------------- | ------------------------ |
-| golangci-lint not in PATH           | Infrastructure (exit 69)   | `exec.ErrNotFound` sentinel |
-| Version too old                     | Rejection (exit 1)         | `ErrVersionTooOld` sentinel  |
-| Version output unparseable          | Corruption (exit 65)       | `ErrVersionParse` sentinel   |
-| Generic golangci-lint run failure   | Transient (exit 75)        | Default (no sentinel match)  |
-| JSON parse failure of linters list  | Transient (exit 75)        | Default (no sentinel match)  |
+| Scenario                           | Current Classification   | Via What?                   |
+| ---------------------------------- | ------------------------ | --------------------------- |
+| golangci-lint not in PATH          | Infrastructure (exit 69) | `exec.ErrNotFound` sentinel |
+| Version too old                    | Rejection (exit 1)       | `ErrVersionTooOld` sentinel |
+| Version output unparseable         | Corruption (exit 65)     | `ErrVersionParse` sentinel  |
+| Generic golangci-lint run failure  | Transient (exit 75)      | Default (no sentinel match) |
+| JSON parse failure of linters list | Transient (exit 75)      | Default (no sentinel match) |
 
 If I implement `Classified` returning a FIXED family on `AnalysisError`:
+
 - ✅ Deterministic — every AnalysisError classifies the same way
 - ❌ LOSES the sentinel-based differentiation that currently gives us exit 65 for Corruption and exit 69 for Infrastructure
 
 If I DON'T implement it (current state):
+
 - ✅ Cause-chain sentinels give correct fine-grained classification
 - ❌ AnalysisError without a sentinel cause defaults to Transient — is that right?
 
@@ -316,6 +321,7 @@ If I DON'T implement it (current state):
 I lean toward keeping the current approach (no `Classified` on AnalysisError, rely on sentinels + Transient default) because analysis failures are genuinely heterogeneous. But I can't decide without knowing the user's intent for CI/CD consumers: do they RETRY on exit 75, or do they treat all non-zero exits the same?
 
 **What I need from you:** A decision on the adoption strategy. Should we:
+
 - **(A) Stay boundary-only** — exit codes work, sentinels handle known cases, don't touch the 129 `fmt.Errorf` calls
 - **(B) Deep adopt** — migrate `fmt.Errorf` → `errorfamily.Wrap*()` with codes, context, and message templates across all 129 sites
 - **(C) Targeted adopt** — migrate only the ~40 call sites in `pkg/linter/` and `pkg/config/` (the most error-dense packages), leave the rest as-is
@@ -326,11 +332,11 @@ This determines the entire roadmap.
 
 ## Commit History (This Session)
 
-| Commit   | Description                                                            |
-| -------- | --------------------------------------------------------------------- |
+| Commit    | Description                                                           |
+| --------- | --------------------------------------------------------------------- |
 | `efdd4d7` | feat(errors): integrate go-error-family for semantic CLI exit codes   |
 | `0501f54` | fix: repair go-finding v1.0.0 API breakage and restore lean AGENTS.md |
 
 ---
 
-*Generated by Crush — comprehensive status review session.*
+_Generated by Crush — comprehensive status review session._
