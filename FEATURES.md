@@ -147,13 +147,13 @@
 
 ## Error Handling
 
-| Feature                                                      | Status | Notes                  |
-| ------------------------------------------------------------ | ------ | ---------------------- |
-| Custom error types (ConfigError, AnalysisError, ReportError) | Stable | `pkg/errors/errors.go` |
-| Result type (railway-oriented)                               | Stable | `pkg/types/result.go`  |
-| Error wrapping with context (%w)                             | Stable |                        |
-| Structured logging (charmbracelet/log)                       | Stable |                        |
-| Panic-free finding builder                                   | Stable | `pkg/finding/`         |
+| Feature                                                                      | Status | Notes                  |
+| ---------------------------------------------------------------------------- | ------ | ---------------------- |
+| Custom error types (ConfigError, AnalysisError, ReportError, MigrationError) | Stable | `pkg/errors/errors.go` |
+| Result type (railway-oriented)                                               | Stable | `pkg/types/result.go`  |
+| Error wrapping with context (%w)                                             | Stable |                        |
+| Structured logging (charmbracelet/log)                                       | Stable |                        |
+| Panic-free finding builder                                                   | Stable | `pkg/finding/`         |
 
 ## Build & CI
 
@@ -164,4 +164,4 @@
 | Pre-commit hook                         | Stable | golangci-lint, go-test, go-fmt   |
 | Version injection via ldflags           | Stable | version, commit, date, treeState |
 | Auto-tag workflow                       | Stable | Tags on merge to master          |
-| templ generate in Nix build             | Stable | Generated code in pipeline       |
+| Committed templ output (\_templ.go)     | Stable | No build-time generation needed  |

@@ -36,13 +36,13 @@ nix develop
 - **Testing: Ginkgo v2 + Gomega (BDD)** — NOT standard `testing` style. Specs use `Describe`/`Context`/`It` + Gomega matchers. See `docs/references/testing-style-and-patterns.md`.
 - **gogenfilter/v3**: auto-detects generated files to exclude from linting.
 - **go-finding**: unified finding model (SARIF/JSON output).
-- **go-error-family** (`v0.5.1`): structured error classification. Sentinel errors are registered with Families (Rejection/Conflict/Transient/Corruption/Infrastructure) in `pkg/errors/classification.go`. `ConfigError` implements the `Classified` interface (always Rejection). `Main()` uses `errorfamily.ExitCode(err)` for BSD sysexits exit codes instead of hardcoded `os.Exit(1)`.
+- **go-error-family** (`v0.5.1`): structured error classification. Sentinel errors are registered with Families (Rejection/Conflict/Transient/Corruption/Infrastructure) in `pkg/errors/classification.go`. `ConfigError`, `ReportError`, and `MigrationError` implement the `Classified` interface (always Rejection). `AnalysisError` delegates to cause-chain sentinels for fine-grained Families. `Main()` uses `errorfamily.ExitCode(err)` for BSD sysexits exit codes instead of hardcoded `os.Exit(1)`.
 
 ## Critical Gotchas (read these — they bite)
 
 1. **No justfile.** Despite older docs, all `just <cmd>` references are stale. Use Nix/Go directly (see Commands above).
 
-2. **templ requires generation.** `.templ` files compile to Go. The Nix build runs `templ generate` in `preBuild`. For local builds after editing `pkg/report/report.templ`, run `templ generate` manually before `go build`.
+2. **templ output is committed.** `_templ.go` files are generated from `.templ` files and committed to git (un-ignored in `.gitignore`). After editing `pkg/report/report.templ`, run `templ generate` manually before `go build`. The Nix build no longer generates templ output (it uses the committed file directly).
 
 3. **vendorHash update after go.mod changes.** `nix build` will fail with a hash mismatch. Procedure:
 
@@ -53,9 +53,9 @@ nix develop
    nix build                     # rebuild
    ```
 
-4. **go-finding & gogenfilter are private LarsArtmann repos.** `go.mod` uses published versions (no local replace). Nix fetches them via SSH flake inputs and injects `replace` directives in `postPatch` pointing to vendored copies. Local `go build` works with published versions directly.
+4. **go-finding & gogenfilter replace in Nix.** `go.mod` uses published versions. Nix's `postPatch` injects `replace` directives pointing to SSH-fetched local copies (the Go proxy doesn't cache these repos). `go mod tidy` runs ONLY in the go-modules FOD (has network via `__noChroot`); the main derivation sets `GOFLAGS=-mod=mod` to auto-reconcile from the FOD's proxy cache. `allowGoReference = true` is set because Go embeds GOROOT in the binary.
 
-5. **Error classification via go-error-family.** `pkg/errors/classification.go` has an `init()` that registers all sentinel errors with their `errorfamily.Family`. To add a new sentinel: add it to the map in that file. `ConfigError` implements `Classified` → `Rejection` (type-level, checked before sentinels). `AnalysisError` does NOT implement `Classified` — its sentinels in the cause chain (e.g. `ErrVersionTooOld`) handle classification. Exit codes: Rejection/Conflict → 1, Transient → 75, Corruption → 65, Infrastructure → 69.
+5. **Error classification via go-error-family.** `pkg/errors/classification.go` has an `init()` that registers all sentinel errors with their `errorfamily.Family`. To add a new sentinel: add it to the map in that file. `ConfigError`, `ReportError`, and `MigrationError` implement `Classified` → `Rejection` (type-level, checked before sentinels). `AnalysisError` does NOT implement `Classified` — its sentinels in the cause chain (e.g. `ErrVersionTooOld`) handle classification. Exit codes: Rejection/Conflict → 1, Transient → 75, Corruption → 65, Infrastructure → 69.
 
 6. **Fixer normalization counting.** Every config mutation in `applyAndSave` MUST increment `fixCounts.normalization` — otherwise the `counts.total()==0` guard silently discards changes. The fixer also injects `issues.max-issues-per-linter: 50` and `max-same-issues: 10` when absent (prevents golangci-lint's default `max-same-issues: 3` from hiding CI problems).
 
