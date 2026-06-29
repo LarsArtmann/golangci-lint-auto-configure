@@ -63,6 +63,22 @@ var _ = Describe("Error Classification", func() {
 		Expect(errorfamily.Classify(err)).To(Equal(errorfamily.Rejection))
 	})
 
+	It("should classify ReportError as Rejection", func() {
+		err := apperrors.NewReportError("html generation failed", "/out/report.html", stderrors.New("template error"))
+		Expect(errorfamily.Classify(err)).To(Equal(errorfamily.Rejection))
+		Expect(errorfamily.ExitCode(err)).To(Equal(1))
+	})
+
+	It("should classify MigrationError as Rejection", func() {
+		err := apperrors.NewMigrationError(
+			"v1 config invalid",
+			".golangci.yml",
+			stderrors.New("yaml: line 5: bad mapping"),
+		)
+		Expect(errorfamily.Classify(err)).To(Equal(errorfamily.Rejection))
+		Expect(errorfamily.ExitCode(err)).To(Equal(1))
+	})
+
 	It("should classify AnalysisError via sentinel chain", func() {
 		err := apperrors.NewAnalysisError("too old", "", fmt.Errorf("%w: need v2.10+", apperrors.ErrVersionTooOld))
 		Expect(errorfamily.Classify(err)).To(Equal(errorfamily.Rejection))

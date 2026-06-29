@@ -51,3 +51,22 @@ func init() {
 func (*ConfigError) ErrorFamily() errorfamily.Family {
 	return errorfamily.Rejection
 }
+
+// ErrorFamily classifies ReportError as Rejection.
+// Report failures stem from user-provided config paths or output options
+// (invalid format, unwritable directory, missing template variables).
+func (*ReportError) ErrorFamily() errorfamily.Family {
+	return errorfamily.Rejection
+}
+
+// ErrorFamily classifies MigrationError as Rejection.
+// Migration failures are user-fault: unsupported config version, malformed
+// YAML, missing required fields. The user must fix their v1 config.
+func (*MigrationError) ErrorFamily() errorfamily.Family {
+	return errorfamily.Rejection
+}
+
+// AnalysisError does NOT implement Classified — it represents heterogeneous
+// failures (binary-not-found → Infrastructure, version-too-old → Rejection,
+// unparseable-output → Corruption). Its cause-chain sentinels handle
+// fine-grained classification. See classification_test.go for verification.
