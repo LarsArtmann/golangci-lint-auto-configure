@@ -36,14 +36,14 @@ func BenchmarkCompare(b *testing.B) {
 func BenchmarkFormatChanges(b *testing.B) {
 	differ := NewDiffer()
 
-	changes := make([]Change, 50)
-	for i := range changes {
-		changes[i] = Change{
+	changes := make([]Change, 0, 50)
+	for i := range 50 {
+		changes = append(changes, Change{
 			Type:        ChangeTypeAdded,
 			Path:        "linters.enable.linter-" + string(rune('a'+i%26)),
 			NewValue:    "linter-" + string(rune('a'+i%26)),
 			Description: "Enabled linter: linter-" + string(rune('a'+i%26)),
-		}
+		})
 	}
 
 	b.ResetTimer()

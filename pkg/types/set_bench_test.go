@@ -16,7 +16,7 @@ func makeStrings(n int) []string {
 func makeStringsOffset(offset, n int) []string {
 	result := make([]string, 0, n)
 	for i := range n {
-		result = append(result, fmt.Sprintf("element_%d", offset+i)
+		result = append(result, fmt.Sprintf("element_%d", offset+i))
 	}
 
 	return result

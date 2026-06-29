@@ -17,17 +17,18 @@ func TestAnalyzer(t *testing.T) {
 }
 
 var _ = Describe("Analyzer", func() {
-	var analyzer *linter.Analyzer
-
-	// standardTestLinters is a common test dataset used across multiple tests
-	standardTestLinters := []types.LinterRecommendation{
-		{Name: "gosec", Priority: types.LinterPriorityCritical},
-		{Name: "wrapcheck", Priority: types.LinterPriorityHigh},
-		{Name: "misspell", Priority: types.LinterPriorityMedium},
-	}
+	var (
+		analyzer            *linter.Analyzer
+		standardTestLinters []types.LinterRecommendation
+	)
 
 	BeforeEach(func() {
 		analyzer = linter.NewAnalyzer(linter.NewTestLogger())
+		standardTestLinters = []types.LinterRecommendation{
+			{Name: "gosec", Priority: types.LinterPriorityCritical},
+			{Name: "wrapcheck", Priority: types.LinterPriorityHigh},
+			{Name: "misspell", Priority: types.LinterPriorityMedium},
+		}
 	})
 
 	Context("Priority Filtering", func() {

@@ -11,12 +11,12 @@ func BenchmarkCategorizeLinters(b *testing.B) {
 	logger := log.NewWithOptions(ioDiscard{}, log.Options{Level: log.ErrorLevel})
 	analyzer := NewAnalyzer(logger)
 
-	disabled := make([]types.LinterInfo, 100)
-	for i := range disabled {
-		disabled[i] = types.LinterInfo{
+	disabled := make([]types.LinterInfo, 0, 100)
+	for i := range 100 {
+		disabled = append(disabled, types.LinterInfo{
 			Name:        types.LinterName("linter-" + string(rune('a'+i%26))),
 			Description: "Test linter",
-		}
+		})
 	}
 
 	var enabledFormatters []types.FormatterInfo
@@ -32,13 +32,13 @@ func BenchmarkGetLintersByPriority(b *testing.B) {
 	logger := log.NewWithOptions(ioDiscard{}, log.Options{Level: log.ErrorLevel})
 	analyzer := NewAnalyzer(logger)
 
-	recommendations := make([]types.LinterRecommendation, 100)
-	for i := range recommendations {
-		recommendations[i] = types.LinterRecommendation{
+	recommendations := make([]types.LinterRecommendation, 0, 100)
+	for i := range 100 {
+		recommendations = append(recommendations, types.LinterRecommendation{
 			Name:     types.LinterName("linter-" + string(rune('a'+i%26))),
 			Priority: types.LinterPriority(i % 4),
 			Reason:   "Test reason",
-		}
+		})
 	}
 
 	b.ResetTimer()

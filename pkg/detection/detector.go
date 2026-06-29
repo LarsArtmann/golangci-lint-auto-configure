@@ -30,12 +30,13 @@ func closeFile(c io.Closer) {
 func (d *Detector) walkGoFiles(processFile func(*os.File) error) error {
 	walkErr := filepath.Walk(d.rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
+			//nolint:nilerr // intentionally skip inaccessible paths during walk
 			return nil
 		}
 
 		file, err := os.Open(path)
 		if err != nil {
-			return nil
+			return fmt.Errorf("opening file %s: %w", path, err)
 		}
 
 		processErr := processFile(file)

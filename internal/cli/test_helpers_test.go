@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -34,7 +35,14 @@ func writeConfig(configContent string) string {
 func buildBinary() string {
 	binaryPath := filepath.Join(testDir, "golangci-lint-auto-configure")
 	projectRoot, _ := filepath.Abs(filepath.Join("..", ".."))
-	cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/golangci-lint-auto-configure")
+	cmd := exec.CommandContext(
+		context.Background(),
+		"go",
+		"build",
+		"-o",
+		binaryPath,
+		"./cmd/golangci-lint-auto-configure",
+	)
 	cmd.Dir = projectRoot
 
 	cmd.Env = append(
@@ -51,7 +59,7 @@ func buildBinary() string {
 
 // Helper function to initialize a git repo in test directory.
 func initGitRepo() {
-	cmd := exec.Command("git", "init")
+	cmd := exec.CommandContext(context.Background(), "git", "init")
 	cmd.Dir = testDir
 	output, err := cmd.CombinedOutput()
 	Expect(err).NotTo(HaveOccurred(), "Failed to init git repo: "+string(output))
@@ -63,8 +71,9 @@ func runCommandWithConfig(binaryPath, configContent string, args []string) (stri
 	Expect(os.WriteFile(configPath, []byte(configContent), 0o644)).To(Succeed())
 
 	cmdArgs := make([]string, 0, len(args)+2)
-	cmdArgs = append(cmdArgs, args..., "--config")
-	cmd := exec.Command(binaryPath, cmdArgs...)
+	cmdArgs = append(cmdArgs, args...)
+	cmdArgs = append(cmdArgs, "--config", configPath)
+	cmd := exec.CommandContext(context.Background(), binaryPath, cmdArgs...)
 	output, err := cmd.CombinedOutput()
 
 	return string(output), err
@@ -75,7 +84,7 @@ func assertInvalidYAMLRejectedBy(binaryPath, command string) {
 	invalidPath := filepath.Join(testDir, "invalid.yml")
 	Expect(os.WriteFile(invalidPath, []byte("invalid: yaml: content:"), 0o644)).To(Succeed())
 
-	cmd := exec.Command(binaryPath, command, "--config", invalidPath)
+	cmd := exec.CommandContext(context.Background(), binaryPath, command, "--config", invalidPath)
 	_, err := cmd.CombinedOutput()
 
 	Expect(err).To(HaveOccurred())
@@ -83,7 +92,7 @@ func assertInvalidYAMLRejectedBy(binaryPath, command string) {
 
 // Helper function to test that a command help output contains expected text.
 func assertHelpContains(binaryPath, subcommand, expected string) {
-	cmd := exec.Command(binaryPath, subcommand, "--help")
+	cmd := exec.CommandContext(context.Background(), binaryPath, subcommand, "--help")
 	output, err := cmd.CombinedOutput()
 	Expect(err).NotTo(HaveOccurred())
 	Expect(string(output)).To(ContainSubstring(expected))
@@ -92,7 +101,17 @@ func assertHelpContains(binaryPath, subcommand, expected string) {
 // Helper function to generate a report and return its file content.
 func generateReport(binaryPath, configPath, reportExt, format string) string {
 	reportPath := filepath.Join(testDir, "report."+reportExt)
-	cmd := exec.Command(binaryPath, "report", "--config", configPath, "--output", reportPath, "--format", format)
+	cmd := exec.CommandContext(
+		context.Background(),
+		binaryPath,
+		"report",
+		"--config",
+		configPath,
+		"--output",
+		reportPath,
+		"--format",
+		format,
+	)
 	output, err := cmd.CombinedOutput()
 	Expect(err).NotTo(HaveOccurred(), string(output))
 
@@ -113,7 +132,7 @@ func testCommandSuccess(configContent, command, expectedOutput string) {
 // Helper function to test missing config file error.
 func testMissingConfigError(command string) {
 	binaryPath := buildBinary()
-	cmd := exec.Command(binaryPath, command, "--config", "/non/existent/path.yml")
+	cmd := exec.CommandContext(context.Background(), binaryPath, command, "--config", "/non/existent/path.yml")
 	_, err := cmd.CombinedOutput()
 	Expect(err).To(HaveOccurred())
 }

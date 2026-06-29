@@ -247,6 +247,19 @@ func runFixerMode(
 		)
 	}
 
+	return finalizeFixerResult(ctx, logger, analyzer, configLoader, originalCfg, configFile, result, isDryRun, check)
+}
+
+func finalizeFixerResult(
+	ctx context.Context,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configLoader *config.Loader,
+	originalCfg *types.Config,
+	configFile string,
+	result *types.MigrationResult,
+	isDryRun, check bool,
+) error {
 	applyCheckDiff(showDiff, check, configLoader, originalCfg, configFile, logger)
 	displayFixResult(configFile, result)
 	runFmtUnlessDry(ctx, logger, analyzer, configFile, isDryRun)
@@ -408,7 +421,12 @@ func ensureConfigFile(
 
 // ParsePriorityParam converts a priority string to LinterPriority.
 func ParsePriorityParam(priorityParam string) (types.LinterPriority, error) {
-	return types.ParseLinterPriority(priorityParam)
+	priority, err := types.ParseLinterPriority(priorityParam)
+	if err != nil {
+		return 0, fmt.Errorf("parsing linter priority %q: %w", priorityParam, err)
+	}
+
+	return priority, nil
 }
 
 func loadPresetConfig(

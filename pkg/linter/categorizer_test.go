@@ -26,27 +26,27 @@ var (
 )
 
 func newDisabledEntries(names ...string) []disabledLinterEntry {
-	entries := make([]disabledLinterEntry, len(names))
-	for i, name := range names {
-		entries[i] = newDisabledEntry(name, false)
+	entries := make([]disabledLinterEntry, 0, len(names))
+	for _, name := range names {
+		entries = append(entries, newDisabledEntry(name, false))
 	}
 
 	return entries
 }
 
 func extractLinterNames(recommendations []types.LinterRecommendation) []string {
-	names := make([]string, len(recommendations))
-	for i, rec := range recommendations {
-		names[i] = rec.Name.String()
+	names := make([]string, 0, len(recommendations))
+	for _, rec := range recommendations {
+		names = append(names, rec.Name.String())
 	}
 
 	return names
 }
 
 func disabledLintersWith(entries ...disabledLinterEntry) []types.LinterInfo {
-	result := make([]types.LinterInfo, len(entries))
-	for i, e := range entries {
-		result[i] = types.LinterInfo{Name: types.LinterName(e.name), Deprecated: e.deprecated}
+	result := make([]types.LinterInfo, 0, len(entries))
+	for _, e := range entries {
+		result = append(result, types.LinterInfo{Name: types.LinterName(e.name), Deprecated: e.deprecated})
 	}
 
 	return result
