@@ -55,8 +55,6 @@ result-*
 *.db
 # Copy/paste detection report
 /report/jscpd-report.json
-# Add pattern for Templ generated files
-*_templ.go
 
 # >>> buildflow-managed (.gitignore) >>>
 # Auto-managed by buildflow. Edit outside these markers; this block is regenerated on `buildflow --fix`.

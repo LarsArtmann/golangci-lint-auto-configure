@@ -15,12 +15,25 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Private LarsArtmann repos fetched via SSH. The Go module proxy does not
+    # cache these, so we inject replace directives pointing to these sources.
+    goFindingSrc = {
+      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=master";
+      flake = false;
+    };
+    gogenfilterSrc = {
+      url = "git+ssh://git@github.com/LarsArtmann/gogenfilter?ref=master";
+      flake = false;
+    };
   };
 
   outputs =
     inputs@{
       self,
       flake-parts,
+      goFindingSrc,
+      gogenfilterSrc,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -44,6 +57,7 @@
           golangci-lint-auto-configure = pkgs.buildGoModule {
             pname = "golangci-lint-auto-configure";
             inherit version;
+            allowGoReference = true;
 
             src = lib.fileset.toSource {
               root = ./.;
@@ -57,15 +71,9 @@
               ];
             };
 
-            preBuild = ''
-              export GOBIN=$GOPATH/bin
-              go install github.com/a-h/templ/cmd/templ@v0.3.1020
-              $GOBIN/templ generate
-            '';
-
             proxyVendor = true;
 
-            vendorHash = lib.fakeHash;
+            vendorHash = "sha256-1foCQuehiNwMhj4bdGTMxiJqL5I8YtYtarTDB/Z83Bs=";
 
             subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -81,8 +89,23 @@
             env = {
               CGO_ENABLED = 0;
               GOWORK = "off";
-              GOPRIVATE = "github.com/larsartmann,github.com/LarsArtmann";
             };
+
+            # The replaces redirect private repos to SSH-fetched local sources.
+            # go mod tidy needs network (fetches transitive deps of replaced
+            # modules); only the go-modules FOD has network via __noChroot.
+            # The sandboxed main derivation instead sets GOFLAGS=-mod=mod so
+            # Go auto-reconciles go.mod from the FOD's proxy cache (no network).
+            postPatch = ''
+              echo 'replace github.com/larsartmann/go-finding => ${goFindingSrc}' >> go.mod
+              echo 'replace github.com/LarsArtmann/gogenfilter/v3 => ${gogenfilterSrc}' >> go.mod
+              if [[ "$name" == *go-modules* ]]; then
+                export HOME="$TMPDIR"
+                go mod tidy
+              else
+                export GOFLAGS=-mod=mod
+              fi
+            '';
 
             meta = with lib; {
               description = "Automatically configure and optimize golangci-lint configurations";
