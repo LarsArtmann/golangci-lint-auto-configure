@@ -239,6 +239,32 @@ jobs:
         run: golangci-lint run ./...
 ```
 
+## Exit Codes
+
+The CLI uses BSD `sysexits.h` exit codes for CI/CD integration, powered by [go-error-family](https://github.com/larsartmann/go-error-family).
+
+| Code | Constant                  | Meaning        | When                                                                          |
+| ---- | ------------------------- | -------------- | ----------------------------------------------------------------------------- |
+| 0    | `EX_OK`                   | Success        | Command completed successfully                                                |
+| 1    | `EX_USAGE` / `EX_DATAERR` | User error     | Bad input, missing config, invalid version, `--check` detected needed changes |
+| 65   | `EX_DATAERR`              | Corruption     | Unparseable golangci-lint output (broken installation)                        |
+| 69   | `EX_UNAVAILABLE`          | Infrastructure | golangci-lint binary not found in PATH                                        |
+| 75   | `EX_TEMPFAIL`             | Transient      | Temporary failure (retry in CI)                                               |
+
+CI pipelines can branch on these codes:
+
+```bash
+golangci-lint-auto-configure configure --check
+exit_code=$?
+case $exit_code in
+  0)  echo "Config is optimal" ;;
+  1)  echo "Changes needed or user error" ;;
+  65) echo "Corrupted golangci-lint installation" ;;
+  69) echo "golangci-lint not installed" ;;
+  75) echo "Transient failure, retry" ;;
+esac
+```
+
 ## Commands
 
 | Command        | Description                                    |
