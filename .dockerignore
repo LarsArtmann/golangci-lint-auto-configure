@@ -54,3 +54,57 @@ docs/status/
 # Local development files
 .local/
 *.local
+
+# >>> buildflow-managed (.dockerignore) >>>
+# Auto-managed by buildflow. Edit outside these markers; this block is regenerated on `buildflow --fix`.
+
+## Secrets and environment
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+## Ci cd
+.gitlab-ci.yml
+
+## Operating systems
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+## Logs and temporaries
+*.log
+
+## Test artifacts
+*.html
+
+## Go
+vendor/
+go.work
+go.work.sum
+/golangci-lint-auto-configure
+
+## Nix
+result
+result-*
+.envrc
+.direnv/
+
+## Javascript and typescript
+dist/
+build/
+*.tsbuildinfo
+.next/
+.nuxt/
+.docusaurus/
+.eslintcache
+.cache/
+.parcel-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+# <<< buildflow-managed (.dockerignore) <<<

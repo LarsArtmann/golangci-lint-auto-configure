@@ -89,6 +89,12 @@ go.work.sum
 
 ## Javascript and typescript
 *.tsbuildinfo
+.next/
+.nuxt/
+.docusaurus/
+.eslintcache
+.cache/
+.parcel-cache/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
