@@ -94,7 +94,7 @@ func SummaryCard(class string, count int, label string) templ.Component {
 }
 
 // LinterListSection renders a section with a list of linter tags.
-func LinterListSection(title, icon, class string, linters []types.LinterInfo) templ.Component {
+func LinterListSection(title string, icon string, class string, linters []types.LinterInfo) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -190,7 +190,7 @@ func LinterListSection(title, icon, class string, linters []types.LinterInfo) te
 	})
 }
 
-func LinterPrioritySection(analysis *types.ConfigAnalysis, title string, count int, priority types.LinterPriority, emoji, class, badge string) templ.Component {
+func LinterPrioritySection(analysis *types.ConfigAnalysis, title string, count int, priority types.LinterPriority, emoji string, class string, badge string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

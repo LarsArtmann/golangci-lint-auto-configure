@@ -78,6 +78,11 @@ ehthumbs.db
 ## Logs and temporaries
 *.log
 
+## Buildflow artifacts
+audit-log.*
+workflow-audit-log.*
+.buildflow-workflow-baseline.json
+
 ## Test artifacts
 *.html
 

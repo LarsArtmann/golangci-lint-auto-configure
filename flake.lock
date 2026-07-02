@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778716662,
-        "narHash": "sha256-m1Yf0wZ8j1OHjTc2UwHwyQRSnNeSgLJOd7q5Y45hzi4=",
+        "lastModified": 1782949081,
+        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "f7c1a2d347e4c52d5fb8d10cb4d94b5884e546fb",
+        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
         "type": "github"
       },
       "original": {
@@ -57,11 +57,11 @@
     "gogenfilterSrc": {
       "flake": false,
       "locked": {
-        "lastModified": 1782671957,
-        "narHash": "sha256-nJqyJSBBrPuQL9/Ae2Ln5hk5m8/j9CYY6boj3H9U/5M=",
+        "lastModified": 1782949736,
+        "narHash": "sha256-cdwXm9LlZ6J/fcqwEUidl4wnZQizt/0U6nicsEnqt0g=",
         "ref": "master",
-        "rev": "5aa5cd211738d8e71d1cb9886b540a3401f9d06b",
-        "revCount": 689,
+        "rev": "62de20b7a97ef8270c72b52d7e8f9f7c318b80d3",
+        "revCount": 690,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/gogenfilter"
       },
