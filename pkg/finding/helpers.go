@@ -31,7 +31,10 @@ func MergeReports(reports []*finding.Report) *finding.Report {
 }
 
 // AnalysisFindingsByFile groups analysis findings by file path.
-func AnalysisFindingsByFile(analysis *types.ConfigAnalysis, version string) (map[finding.FilePath][]finding.Finding, error) {
+func AnalysisFindingsByFile(
+	analysis *types.ConfigAnalysis,
+	version string,
+) (map[finding.FilePath][]finding.Finding, error) {
 	report, err := AnalysisToReport(analysis, version)
 	if err != nil {
 		return nil, fmt.Errorf("build report: %w", err)

@@ -52,6 +52,7 @@ var _ = Context("check mode combinations", func() {
 
 	It("should restore config after --check --diff", func() {
 		initGitRepo()
+
 		binaryPath := buildBinary()
 		configPath := writeConfig(testConfigContentMinimal)
 

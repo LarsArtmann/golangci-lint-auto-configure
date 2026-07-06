@@ -46,7 +46,7 @@ func FuzzMergeEnableDisable(f *testing.F) {
 }
 
 // TestQuickMergeCommutative verifies that set union is commutative:
-// A ∪ B == B ∪ A
+// A ∪ B == B ∪ A.
 func TestQuickMergeCommutative(t *testing.T) {
 	property := func(a, b []string) bool {
 		setA := types.NewSet(a...)
@@ -55,24 +55,27 @@ func TestQuickMergeCommutative(t *testing.T) {
 		return setA.Union(setB).Equal(setB.Union(setA))
 	}
 
-	if err := quick.Check(property, &quick.Config{MaxCount: 100}); err != nil {
+	err := quick.Check(property, &quick.Config{MaxCount: 100})
+	if err != nil {
 		t.Errorf("union is not commutative: %v", err)
 	}
 }
 
-// TestQuickMergeIdempotent verifies that A ∪ A == A
+// TestQuickMergeIdempotent verifies that A ∪ A == A.
 func TestQuickMergeIdempotent(t *testing.T) {
 	property := func(items []string) bool {
 		set := types.NewSet(items...)
+
 		return set.Union(set).Equal(set)
 	}
 
-	if err := quick.Check(property, &quick.Config{MaxCount: 100}); err != nil {
+	err := quick.Check(property, &quick.Config{MaxCount: 100})
+	if err != nil {
 		t.Errorf("union is not idempotent: %v", err)
 	}
 }
 
-// TestQuickMergeSubset verifies that A ⊆ (A ∪ B) for all B
+// TestQuickMergeSubset verifies that A ⊆ (A ∪ B) for all B.
 func TestQuickMergeSubset(t *testing.T) {
 	property := func(a, b []string) bool {
 		setA := types.NewSet(a...)
@@ -81,7 +84,8 @@ func TestQuickMergeSubset(t *testing.T) {
 		return setA.IsSubset(setA.Union(setB))
 	}
 
-	if err := quick.Check(property, &quick.Config{MaxCount: 100}); err != nil {
+	err := quick.Check(property, &quick.Config{MaxCount: 100})
+	if err != nil {
 		t.Errorf("A is not a subset of A∪B: %v", err)
 	}
 }

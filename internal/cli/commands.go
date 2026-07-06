@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -29,6 +30,7 @@ var (
 	reportFormat string
 	noAutoMerge  bool
 	showDiff     bool
+	jsonErrors   bool
 )
 
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
@@ -223,6 +225,8 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 		BoolVar(&noAutoMerge, "no-auto-merge", false, "Disable automatic merging of multiple config files")
 	rootCmd.PersistentFlags().
 		BoolVar(&showDiff, "diff", false, "Show diff of config changes before applying")
+	rootCmd.PersistentFlags().
+		BoolVar(&jsonErrors, "json-errors", false, "Output errors as JSON to stderr for programmatic consumption")
 }
 
 // Execute runs the CLI using fang for enhanced CLI features.
@@ -243,7 +247,37 @@ func Main() {
 	err := Execute(context.Background())
 	if err != nil {
 		family := errorfamily.Classify(err)
-		slog.Error("CLI execution failed", "error", err, "family", family.String())
-		os.Exit(errorfamily.ExitCode(err))
+		exitCode := errorfamily.ExitCode(err)
+
+		if jsonErrors {
+			outputJSONError(err, family, exitCode)
+		} else {
+			slog.Error("CLI execution failed", "error", err, "family", family.String())
+		}
+
+		os.Exit(exitCode)
 	}
+}
+
+func outputJSONError(err error, family errorfamily.Family, exitCode int) {
+	type jsonError struct {
+		Error    string `json:"Error"`
+		Family   string `json:"Family"`
+		ExitCode int    `json:"ExitCode"`
+	}
+
+	payload := jsonError{
+		Error:    err.Error(),
+		Family:   family.String(),
+		ExitCode: exitCode,
+	}
+
+	data, marshalErr := json.Marshal(payload)
+	if marshalErr != nil {
+		slog.Error("failed to marshal JSON error", "error", marshalErr)
+
+		return
+	}
+
+	fmt.Fprintln(os.Stderr, string(data))
 }
