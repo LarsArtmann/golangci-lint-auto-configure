@@ -10,15 +10,14 @@
 The word "pipeline" means something genuinely different in each project, and they sit in a **layered relationship**:
 
 ```
-   BuildFlow          ← whole-repo DAG orchestrator (top)
-       │ uses go-finding core (Finding/Report), NOT pipeline/
-       ▼
-   go-finding         ← finding model + reusable fix-pipeline LIBRARY (middle)
-       │
-       ▼
-   golangci-lint-     ← single-domain config-mutation pipeline (consumer)
-   auto-configure       uses go-finding core for reporting, NOT pipeline/
+                    go-finding (Finding/Report model + pipeline/ SDK)
+                   ╱        ╱              ╲              ╲
+   go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors
+   (model + pipeline)    auto-configure     (model only)  (model only)
+                         (model only)
 ```
+
+> **Broader ecosystem note:** This report originally compared only three projects. Two sibling reports — `go-structure-linter/docs/pipeline-comparison.md` and `hierarchical-errors/docs/pipeline-comparison.md` — revealed two additional consumers (go-structure-linter, hierarchical-errors) and one **critical correction** documented in [Appendix B](#appendix-b-corrections-from-cross-referencing-sibling-reports). The tables below focus on the original three; the broader five-project picture lives in the appendices.
 
 | Project                                 | What "pipeline" means                                                                     | Topology                                       | Operates on                                       | Scope                       |
 | --------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------- | --------------------------- |
@@ -26,7 +25,7 @@ The word "pipeline" means something genuinely different in each project, and the
 | **go-finding**                          | A reusable `pipeline/` library: `detect → process → triage → apply → verify`              | **Iterative loop** (≤5 iterations), byte-level | Many findings across many files                   | Generic remediation library |
 | **BuildFlow**                           | A build-orchestration **DAG** of ~90 steps with data-flow scheduling                      | **Directed acyclic graph**                     | An entire monorepo (multi-language, multi-module) | Whole-project CI            |
 
-**Critical finding:** Both `golangci-lint-auto-configure` and `BuildFlow` import `github.com/larsartmann/go-finding v1.0.0` for the _finding model_ (`Finding`, `Report`, SARIF/JSON conversion) — but **neither consumes `go-finding/pipeline/`**. Each rolls its own remediation flow. That's the single most important fact in this comparison.
+**Key finding:** `golangci-lint-auto-configure` and `BuildFlow` both import `github.com/larsartmann/go-finding v1.0.0` for the _finding model_ (`Finding`, `Report`, SARIF/JSON conversion) but **neither consumes `go-finding/pipeline/`** — each rolls its own remediation flow. However, **go-structure-linter DOES consume both** the model and the pipeline (see [Appendix B](#appendix-b-corrections-from-cross-referencing-sibling-reports)).
 
 ---
 
@@ -127,16 +126,22 @@ Node _topologies_ vary per tool: `detect→If(hasFindings)→repair`, `diagnose�
 
 ---
 
-## 7. The go-finding relationship — the biggest gap
+## 7. The go-finding relationship — who consumes what
 
-This is worth calling out explicitly because it's a latent architectural decision:
+This is worth calling out explicitly because it's a key architectural decision:
 
 | Consumer                         | Uses go-finding core (`Finding`/`Report`/SARIF)?                                                     | Uses go-finding `pipeline/`?                                |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | **golangci-lint-auto-configure** | Yes — `pkg/finding/` is a thin adapter (severity/category mapping, SARIF/JSON report, diff→findings) | **No** — has its own `fixer.go` linear pipeline             |
 | **BuildFlow**                    | Yes — `gofinding.Finding`/`*gofinding.Report` is the interchange type in `FindingReport`             | **No** — delegates remediation to the DAG/tool capabilities |
+| **go-structure-linter**          | Yes — `types.Issue = finding.Finding` (type alias, zero conversion)                                  | **Yes** — `pipeline.RunDetectOnly` + `RunFixPipeline`       |
+| **hierarchical-errors**          | Yes — `pkg/finding/` bridge via `ViolationToFinding`                                                 | **No** — linear 17-stage static-analysis pipeline           |
 
-So **`go-finding/pipeline/` is a fully-built, fuzzed, conflict-aware remediation engine that neither downstream consumer actually uses.** Our `pkg/linter/fixer.go` and BuildFlow's `execution/` reimplement remediation flows independently. That's either (a) deliberate — our domain is _config mutation_ not _source-byte editing_, so the byte-level edit engine doesn't fit; or (b) an opportunity to consolidate. Given go-finding's pipeline operates on `Finding`s with `BeforeCode`/`AfterCode` byte edits, and our fixer operates on YAML config semantics (enable/disable linters, merge maps), the **domains genuinely don't overlap** — go-finding's pipeline fixes _source code_, our pipeline fixes _config_. The non-use is justified.
+> **Correction (see [Appendix B](#appendix-b-corrections-from-cross-referencing-sibling-reports)):** An earlier version of this report claimed `go-finding/pipeline/` had "zero downstream consumers." That was wrong — it was based on checking only our project and BuildFlow. **go-structure-linter is a genuine consumer** of both the model and the pipeline SDK. The real question is not "does anyone use it?" but "why don't the config/build/error-analysis verticals use it?"
+
+### Why we don't use `go-finding/pipeline/`
+
+go-finding's pipeline operates on `Finding`s with `BeforeCode`/`AfterCode` byte edits — it fixes _source code_. Our fixer operates on YAML config semantics (enable/disable linters, merge maps) — it fixes _config_. The **domains genuinely don't overlap**. The same applies to hierarchical-errors (AST-based error analysis) and BuildFlow (whole-tool orchestration). go-structure-linter is the natural fit because it _does_ produce source-level findings with byte-level fix data. The non-use by the other three verticals is architecturally justified, not an oversight.
 
 ---
 
@@ -169,7 +174,7 @@ So **`go-finding/pipeline/` is a fully-built, fuzzed, conflict-aware remediation
 ## 10. Verdict
 
 - **Ours is the simplest and most focused**: a linear, single-file, idempotent config-mutation pipeline. Correct for its domain. Its sophistication lives in _domain knowledge_ (119 linter priorities, version-gated deprecation, presets) rather than in _orchestration_. Weaknesses: no crash recovery beyond git, no metrics/observability, no fuzzing, manual DI.
-- **go-finding is the most reusable & best-tested**: a generic, fuzz-validated, convergent remediation loop with byte-level conflict detection — but its `pipeline/` package has zero in-repo consumers, raising a "who uses this?" question worth answering before more investment.
+- **go-finding is the most reusable & best-tested**: a generic, fuzz-validated, convergent remediation loop with byte-level conflict detection. Its `pipeline/` package has one confirmed consumer (go-structure-linter) and the model layer is used by all four downstream projects. The question of whether the config/build/error verticals _should_ adopt it is answered: no — domain mismatch (see [Appendix B](#appendix-b-corrections-from-cross-referencing-sibling-reports)).
 - **BuildFlow is the most powerful & complex**: a true DAG orchestrator delegating hard problems (scheduling, retry, DI, audit) to battle-tested libraries, with resume, caching, circuit-breaking, and 10-format audit logging. The clear "top of stack" — and the one where "pipeline" most matches the conventional meaning.
 
 The three are **complementary layers**, not competitors: go-finding defines the interchange + remediation primitive, BuildFlow orchestrates at repo scale, and our tool is a focused vertical that reports through go-finding's model. The healthy move is to keep boundaries clean and resist the temptation to grow our linear fixer into a DAG — that's BuildFlow's job.
@@ -183,3 +188,72 @@ The three are **complementary layers**, not competitors: go-finding defines the 
 3. **Add `govulncheck` to CI** — go-finding and BuildFlow both run it; we don't.
 4. **Do NOT adopt `go-finding/pipeline/`** — the domain mismatch is real (config mutation vs source-byte editing). Our linear pipeline is correct for a single config file.
 5. **Do NOT grow into a DAG** — BuildFlow owns that layer. Our value is focus.
+
+---
+
+## Appendix A: Broader ecosystem — five projects at a glance
+
+After cross-referencing `go-structure-linter/docs/pipeline-comparison.md` and `hierarchical-errors/docs/pipeline-comparison.md`, the full ecosystem picture is:
+
+```
+                    go-finding (Finding/Report model + pipeline/ SDK)
+                   ╱        ╱              ╲              ╲
+   go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors
+   (model + pipeline)    auto-configure     (model only)  (model only)
+                         (model only)
+```
+
+| Project                          | Pipeline model  | Stages | Uses go-finding model? | Uses go-finding pipeline/? | Unique strength                                        |
+| -------------------------------- | --------------- | ------ | ---------------------- | -------------------------- | ------------------------------------------------------ |
+| **go-finding**                   | Iterative loop  | 5      | — (is the foundation)  | — (is the foundation)      | Byte-level fix engine, SARIF round-trip, 23 fuzz       |
+| **golangci-lint-auto-configure** | Linear          | 7      | Yes                    | No                         | 119 linter priorities, version-gated deprecation       |
+| **BuildFlow**                    | DAG             | 14     | Yes                    | No                         | 90+ providers, data-flow edges, resume, healing        |
+| **go-structure-linter**          | Adapter over GF | ~3     | Yes (type alias)       | **Yes**                    | 65 structure rules, two-path fix (safe vs raw)         |
+| **hierarchical-errors**          | Linear          | 17     | Yes                    | No                         | Error hierarchy graphs, 10 runtime plugins, 11 formats |
+
+### Dimensions the original three-project comparison missed
+
+These came to light only after reading the sibling reports:
+
+| Dimension                 | Details                                                                                                                                                                                                                                |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Runtime plugin system** | hierarchical-errors is the **only** project with a runtime plugin system — 10 lifecycle hooks (pre-analysis → post-output), auto-init builtins, `--disable-plugins`. All others are compile-time only.                                 |
+| **Watch mode**            | hierarchical-errors and BuildFlow both have `--watch` (file watcher, 500ms debounce, mutex overlap prevention). Neither ours nor go-finding has this.                                                                                  |
+| **Caching as a spectrum** | Not binary. hierarchical-errors sits in the middle: otter file cache (max 1000 files/50MB) + LRU package cache (100 entries/500MB) + RelationshipTracker adjacency maps. Between our "none" and BuildFlow's SQLite.                    |
+| **Output format breadth** | hierarchical-errors has **11 formats** (tree, json, html, full, hierarchy, dot, mermaid, agent, sarif, go-finding-sarif, go-finding-json) — including DOT graphviz and Mermaid diagrams. go-finding has 6, BuildFlow has 6, we have 4. |
+| **Plugin safety split**   | go-structure-linter has two fix paths: `FixService` (safe: backup + validate + automatic restore) vs `RunFixPipeline` (raw, no safety — SDK only). Worth studying as a pattern.                                                        |
+| **Build-mode durations**  | BuildFlow: full ~5-10min, fast ~5-30sec, pre-commit ~5-10sec, dev ~5-30sec, lightning ~1-2sec. Concrete numbers missing from the original report.                                                                                      |
+
+---
+
+## Appendix B: Corrections from cross-referencing sibling reports
+
+This appendix documents factual errors in the original version of this report, discovered after reading `go-structure-linter/docs/pipeline-comparison.md` and `hierarchical-errors/docs/pipeline-comparison.md`.
+
+### B1. CRITICAL: "go-finding/pipeline/ has zero consumers" — FALSE
+
+**Original claim (Section 7):** "go-finding/pipeline/ is a fully-built, fuzzed, conflict-aware remediation engine that neither downstream consumer actually uses."
+
+**Reality:** **go-structure-linter is a genuine consumer** of both the model and the pipeline SDK:
+
+- `pipeline.RunDetectOnly(ctx, path, opts, factory)` — detect-only mode with `MaxIterations=1`
+- `RunFixPipeline()` / `FixWithPipeline()` — SDK fix path via `ApplyFixesFromTriage`
+- `types.Issue = finding.Finding` — type alias, zero conversion
+
+The original research only checked our `go.mod` and BuildFlow's `go.mod` for `go-finding/pipeline` imports. go-structure-linter was not in scope. The corrected consumer table is in [Section 7](#7-the-go-finding-relationship--who-consumes-what) above.
+
+**Impact on conclusions:** The "who uses this?" investment question is answered — go-structure-linter uses it. The real question is narrower: "why don't the config/build/error verticals use it?" — and the answer is domain mismatch (config mutation vs source-byte editing vs AST analysis vs tool orchestration).
+
+### B2. The ecosystem diagram was incomplete
+
+The original three-node diagram omitted go-structure-linter and hierarchical-errors. The corrected five-node diagram is in [Appendix A](#appendix-a-broader-ecosystem--five-projects-at-a-glance).
+
+### B3. Missing dimensions
+
+The original report missed runtime plugins (hierarchical-errors), watch mode (hierarchical-errors + BuildFlow), the caching middle tier (hierarchical-errors' otter/LRU), and output-format breadth (hierarchical-errors' 11 formats). These are documented in [Appendix A](#appendix-a-broader-ecosystem--five-projects-at-a-glance).
+
+### B4. What the original report got right (unchanged)
+
+- **The domain-mismatch analysis** remains valid: go-finding/pipeline/ fixes _source bytes_ (`BeforeCode`/`AfterCode`); our fixer fixes _config semantics_. That's why we don't use it.
+- **The CI/CD maturity comparison** with concrete job counts, coverage thresholds, and fuzz targets — both sibling reports omit CI entirely.
+- **The "keep boundaries clean" recommendation** — reinforced by go-structure-linter's successful adapter pattern.
