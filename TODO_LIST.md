@@ -1,35 +1,40 @@
 # golangci-lint-auto-configure — TODO List
 
-**Last Updated:** 2026-06-29
+**Last Updated:** 2026-07-06
 
 ---
 
 ## High Priority
 
-- [ ] Increase CLI integration test coverage (currently ~9%)
+- [ ] Increase CLI integration test coverage (currently ~9% — integration tests exec the binary, which doesn't count toward go coverage)
 - [ ] Increase gogenfilter scanner coverage (currently 63.9%)
-- [ ] Add exit-code integration tests for full `Main()` → `os.Exit()` path
+- [ ] Add exit-code integration tests for Infrastructure (69) and Corruption (65) paths
 
 ## Medium Priority
 
-- [ ] Add `--check` mode integration tests (exit codes, flag combinations)
-- [ ] Add `--diff` flag integration tests
-- [ ] Fix `--diff` + `--check` interaction (diff shows nothing in check mode)
-- [ ] Add `LinterMinVersions` validation test (ensure all entries exist in `LinterPriorities`)
-- [ ] Validate `reference` preset against `LinterPriorities`
-- [ ] Add `testifylint` default settings
 - [ ] Adopt `HandleError` at CLI boundary (replaces slog — separate decision)
-- [ ] Add `--json` error output flag (`errorfamily.Error.JSON()`)
+- [ ] Refactor `showDiff` from package-level variable to parameter (code smell)
+- [ ] Add `--diff` integration tests for addition/removal formatting
 
 ## Low Priority
 
-- [ ] Add `Config.Clone()` method (replace JSON marshal/unmarshal hack)
-- [ ] Add `pkg/client` smoke tests (or resolve intent: public API vs internal)
-- [ ] Add `DryRun bool` field on `MigrationResult` (clarify "would fix" vs "did fix")
 - [ ] Register domain message templates when adopting `errorfamily.New()` constructors
 
 ## Completed
 
+- [x] Upgrade go-finding v1.0.0 → v1.1.0 (branded FilePath types, Position.Line validation)
+- [x] Fix `--diff` + `--check` interaction (was running fmt on restored config)
+- [x] Add govulncheck security scanning to CI
+- [x] Add per-package coverage threshold gate to CI (scripts/coverage-check.sh)
+- [x] Add fuzz + property tests for Set operations (commutative, idempotent, subset)
+- [x] Add `--json-errors` flag for structured JSON error output
+- [x] Add exit-code integration tests (exit 0, exit 75 Transient, JSON output)
+- [x] Add pkg/client smoke tests (New, LoadConfig, ValidateConfig, SaveConfig, SimpleFix)
+- [x] Add `Config.Clone()` method (replace JSON marshal/unmarshal hack)
+- [x] Add `DryRun bool` field on `MigrationResult`
+- [x] Add `LinterMinVersions` validation test (ensure all entries exist in `LinterPriorities`)
+- [x] Validate `reference` preset against `LinterPriorities`
+- [x] Add `testifylint` default settings
 - [x] Fix nix build: remove preBuild (commit \_templ.go), conditional go mod tidy in FOD only
 - [x] Update `flake.nix` vendorHash for go-error-family dependency
 - [x] Run `nix build` + `nix flake check` to verify full Nix pipeline
