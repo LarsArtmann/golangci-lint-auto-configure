@@ -14,7 +14,7 @@ TOTAL=$(go tool cover -func=coverage.out | grep '^total:' | awk '{print $NF}' | 
 
 echo "Coverage: ${TOTAL}% (minimum: ${MIN}%)"
 
-if (( $(echo "${TOTAL} < ${MIN}" | bc -l) )); then
+if awk "BEGIN {exit !(${TOTAL} < ${MIN})}"; then
 	echo "❌ Coverage ${TOTAL}% is below minimum ${MIN}%"
 	exit 1
 fi
