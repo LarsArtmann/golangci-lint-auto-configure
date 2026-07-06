@@ -121,7 +121,9 @@ func testStandardCommandContext(tempDir, command string) {
 func TestIntegration(t *testing.T) {
 	// Skip if binary doesn't exist
 	if _, err := os.Stat("../../../bin/golangci-lint-auto-configure"); os.IsNotExist(err) {
-		t.Skip("CLI binary not found, run 'go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure' first")
+		t.Skip(
+			"CLI binary not found, run 'go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure' first",
+		)
 	}
 
 	RegisterFailHandler(Fail)
