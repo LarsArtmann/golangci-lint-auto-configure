@@ -2,10 +2,10 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 
 	"charm.land/fang/v2"
 	"charm.land/log/v2"
@@ -25,6 +25,7 @@ var (
 	configPath   string
 	dryRun       bool
 	verbose      bool
+	quiet        bool
 	outputReport string
 	priority     string
 	reportFormat string
@@ -181,12 +182,27 @@ actionable recommendations to improve your Go code quality.`,
 		Verbose:    verbose,
 	}
 
+	rootCmd.PersistentPreRun = makeLogLevelConfigurer(logger)
+
 	addSubCommands(rootCmd, logger, analyzer, configLoader, migrateFlags)
 	registerGlobalFlags(rootCmd)
 
 	rootCmd.SetVersionTemplate(version.Get().Full() + "\n")
 
 	return rootCmd
+}
+
+// makeLogLevelConfigurer returns a PersistentPreRun that adjusts the logger level
+// based on --quiet and --verbose flags.
+func makeLogLevelConfigurer(logger *log.Logger) func(*cobra.Command, []string) {
+	return func(_ *cobra.Command, _ []string) {
+		switch {
+		case quiet:
+			logger.SetLevel(log.ErrorLevel)
+		case verbose:
+			logger.SetLevel(log.DebugLevel)
+		}
+	}
 }
 
 func addSubCommands(
@@ -224,6 +240,8 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().
 		BoolVar(&noAutoMerge, "no-auto-merge", false, "Disable automatic merging of multiple config files")
 	rootCmd.PersistentFlags().
+		BoolVar(&quiet, "quiet", false, "Suppress all output except errors (useful for CI)")
+	rootCmd.PersistentFlags().
 		BoolVar(&showDiff, "diff", false, "Show diff of config changes before applying")
 	rootCmd.PersistentFlags().
 		BoolVar(&jsonErrors, "json-errors", false, "Output errors as JSON to stderr for programmatic consumption")
@@ -260,19 +278,10 @@ func Main() {
 }
 
 func outputJSONError(err error, family errorfamily.Family, exitCode int) {
-	type jsonError struct {
-		Error    string `json:"Error"`
-		Family   string `json:"Family"`
-		ExitCode int    `json:"ExitCode"`
-	}
+	classified := errorfamily.Wrap(err, family, "cli.execution_failed", err.Error()).
+		WithContext("exit_code", strconv.Itoa(exitCode))
 
-	payload := jsonError{
-		Error:    err.Error(),
-		Family:   family.String(),
-		ExitCode: exitCode,
-	}
-
-	data, marshalErr := json.Marshal(payload)
+	data, marshalErr := classified.JSON()
 	if marshalErr != nil {
 		slog.Error("failed to marshal JSON error", "error", marshalErr)
 

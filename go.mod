@@ -9,7 +9,7 @@ require (
 	github.com/LarsArtmann/gogenfilter/v3 v3.2.0
 	github.com/a-h/templ v0.3.1020
 	github.com/larsartmann/go-error-family v0.6.1
-	github.com/larsartmann/go-finding v1.1.0
+	github.com/larsartmann/go-finding v1.2.0
 	github.com/onsi/ginkgo/v2 v2.31.0
 	github.com/onsi/gomega v1.42.0
 	github.com/pelletier/go-toml/v2 v2.4.3

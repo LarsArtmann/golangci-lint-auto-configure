@@ -46,8 +46,8 @@ var _ = Context("exit codes", func() {
 		Expect(err).To(HaveOccurred())
 
 		outputStr := string(output)
-		Expect(outputStr).To(ContainSubstring(`"Error"`))
-		Expect(outputStr).To(ContainSubstring(`"Family"`))
-		Expect(outputStr).To(ContainSubstring(`"ExitCode"`))
+		Expect(outputStr).To(ContainSubstring(`"message"`))
+		Expect(outputStr).To(ContainSubstring(`"family"`))
+		Expect(outputStr).To(ContainSubstring(`"exit_code"`))
 	})
 })

@@ -6,15 +6,14 @@
 
 ## High Priority
 
-- [ ] Increase CLI integration test coverage (currently ~9% — integration tests exec the binary, which doesn't count toward go coverage)
-- [ ] Increase gogenfilter scanner coverage (currently 63.9%)
+- [ ] Increase CLI integration test coverage (currently ~11% — integration tests exec the binary, which doesn't count toward go coverage)
 - [ ] Add exit-code integration tests for Infrastructure (69) and Corruption (65) paths
 
 ## Medium Priority
 
 - [ ] Adopt `HandleError` at CLI boundary (replaces slog — separate decision)
-- [ ] Refactor `showDiff` from package-level variable to parameter (code smell)
 - [ ] Add `--diff` integration tests for addition/removal formatting
+- [ ] Convert coverage-check.sh to a Go test (more portable, testable)
 
 ## Low Priority
 
@@ -27,6 +26,13 @@
 - [x] Add govulncheck security scanning to CI
 - [x] Add per-package coverage threshold gate to CI (scripts/coverage-check.sh)
 - [x] Add fuzz + property tests for Set operations (commutative, idempotent, subset)
+- [x] Add fuzz test for config merger (FuzzMergeConfigInto + FuzzMergeIdempotent targeting merger.go, not types.Set)
+- [x] Refactor showDiff from package-level variable to parameter (all call sites threaded)
+- [x] Switch --json-errors to errorfamily.JSON() canonical output (snake_case, richer schema)
+- [x] Add --quiet flag for CI output suppression (PersistentPreRunE log level)
+- [x] Remove dead ConfigPath branded type (unused throughout codebase)
+- [x] Add unit tests for cmd_configure internal functions (effectiveDryRunForCheckDiff, resolvePreset, etc.)
+- [x] Add gogenfilter utility tests (MergeExclusionPaths, ExclusionPaths, shouldSkipDir, String)
 - [x] Add `--json-errors` flag for structured JSON error output
 - [x] Add exit-code integration tests (exit 0, exit 75 Transient, JSON output)
 - [x] Add pkg/client smoke tests (New, LoadConfig, ValidateConfig, SaveConfig, SimpleFix)

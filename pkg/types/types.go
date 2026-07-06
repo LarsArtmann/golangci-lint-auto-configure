@@ -109,18 +109,6 @@ func (ln LinterName) String() string {
 	return string(ln)
 }
 
-// ConfigPath is a strongly-typed configuration file path.
-type ConfigPath string
-
-func (cp ConfigPath) String() string {
-	return string(cp)
-}
-
-// IsValid returns true if the config path is not empty.
-func (cp ConfigPath) IsValid() bool {
-	return cp != ""
-}
-
 // LinterReplacement represents a replacement for a deprecated linter.
 type LinterReplacement struct {
 	Replacement LinterName

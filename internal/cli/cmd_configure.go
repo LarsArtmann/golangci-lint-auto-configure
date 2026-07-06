@@ -77,6 +77,7 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 				preset,
 				detect,
 				check,
+				showDiff,
 			)
 		},
 		WithLong(configureLong),
@@ -104,31 +105,36 @@ func runDetectOrConfigure(
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
 	preset string,
-	detect bool,
-	check bool,
+	detect,
+	check,
+	showDiff bool,
 ) error {
-	selectedPreset := preset
-
-	if detect {
-		detector := detection.NewDetector(".")
-		projectType := detector.Detect()
-		selectedPreset = projectType.Preset()
-
-		logger.Infof("🔍 Detected project type: %s", projectType.String())
-		logger.Infof("📋 Selected preset: %s", selectedPreset)
-	}
-
 	return runConfigure(
 		cmd.Context(),
 		logger,
 		analyzer,
 		configLoader,
 		priority,
-		selectedPreset,
+		resolvePreset(preset, detect, logger),
 		check || dryRun,
 		configPath,
 		check,
+		showDiff,
 	)
+}
+
+func resolvePreset(preset string, detect bool, logger *log.Logger) string {
+	if !detect {
+		return preset
+	}
+
+	detector := detection.NewDetector(".")
+	projectType := detector.Detect()
+
+	logger.Infof("🔍 Detected project type: %s", projectType.String())
+	logger.Infof("📋 Selected preset: %s", projectType.Preset())
+
+	return projectType.Preset()
 }
 
 func prepareConfigFile(
@@ -165,25 +171,20 @@ func runConfigure(
 	isDryRun bool,
 	configPath string,
 	check bool,
+	showDiff bool,
 ) error {
-	if verbose {
-		logger.SetLevel(log.DebugLevel)
-	}
-
 	configFile, err := prepareConfigFile(ctx, configPath, configLoader, logger)
 	if err != nil {
-		return fmt.Errorf(
-			"prepare config failed (priority=%s, preset=%s, dryRun=%t): %w",
-			priorityParam,
-			preset,
-			isDryRun,
-			err,
-		)
+		return fmt.Errorf("prepare config failed (priority=%s, preset=%s, dryRun=%t): %w",
+			priorityParam, preset, isDryRun, err)
 	}
 
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
-	return runPresetOrFixer(ctx, logger, analyzer, configLoader, configFile, priorityParam, preset, isDryRun, check)
+	return runPresetOrFixer(
+		ctx, logger, analyzer, configLoader,
+		configFile, priorityParam, preset, isDryRun, check, showDiff,
+	)
 }
 
 func runPresetOrFixer(
@@ -192,13 +193,14 @@ func runPresetOrFixer(
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
 	configFile, priorityParam, preset string,
-	isDryRun, check bool,
+	isDryRun, check,
+	showDiff bool,
 ) error {
 	if preset != "" {
 		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, preset, isDryRun)
 	}
 
-	return runFixerMode(ctx, logger, analyzer, configLoader, configFile, priorityParam, isDryRun, check)
+	return runFixerMode(ctx, logger, analyzer, configLoader, configFile, priorityParam, isDryRun, check, showDiff)
 }
 
 func handlePresetMode(
@@ -226,8 +228,9 @@ func runFixerMode(
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
 	configFile, priorityParam string,
-	isDryRun bool,
-	check bool,
+	isDryRun,
+	check,
+	showDiff bool,
 ) error {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
 
@@ -237,7 +240,7 @@ func runFixerMode(
 	}
 
 	originalCfg := captureOriginalConfig(showDiff, configLoader, configFile, logger)
-	effectiveDryRun := effectiveDryRunForCheckDiff(isDryRun, check, originalCfg)
+	effectiveDryRun := effectiveDryRunForCheckDiff(isDryRun, check, showDiff, originalCfg)
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, effectiveDryRun)
 	if err != nil {
@@ -247,7 +250,8 @@ func runFixerMode(
 		)
 	}
 
-	return finalizeFixerResult(ctx, logger, analyzer, configLoader, originalCfg, configFile, result, isDryRun, check)
+	return finalizeFixerResult(ctx, logger, analyzer, configLoader,
+		originalCfg, configFile, result, isDryRun, check, showDiff)
 }
 
 func finalizeFixerResult(
@@ -258,7 +262,8 @@ func finalizeFixerResult(
 	originalCfg *types.Config,
 	configFile string,
 	result *types.MigrationResult,
-	isDryRun, check bool,
+	isDryRun, check,
+	showDiff bool,
 ) error {
 	applyCheckDiff(showDiff, check, configLoader, originalCfg, configFile, logger)
 	displayFixResult(configFile, result)
@@ -272,7 +277,7 @@ func finalizeFixerResult(
 	return handleCheckMode(check, result, logger)
 }
 
-func effectiveDryRunForCheckDiff(isDryRun, check bool, originalCfg *types.Config) bool {
+func effectiveDryRunForCheckDiff(isDryRun, check, showDiff bool, originalCfg *types.Config) bool {
 	if check && showDiff && originalCfg != nil {
 		return false
 	}

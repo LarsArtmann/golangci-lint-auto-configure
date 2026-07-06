@@ -3,89 +3,115 @@ package config
 import (
 	"strings"
 	"testing"
-	"testing/quick"
 
+	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-// FuzzMergeEnableDisable verifies that merging linter enable/disable sets
-// never panics and always produces deterministic results.
-func FuzzMergeEnableDisable(f *testing.F) {
+func testMerger() *Merger {
+	return &Merger{
+		logger: log.NewWithOptions(nil, log.Options{Level: log.FatalLevel}),
+		fs:     osFS{},
+	}
+}
+
+// FuzzMergeConfigInto verifies that merging two configs never panics and
+// always preserves primary linters while absorbing secondary ones.
+func FuzzMergeConfigInto(f *testing.F) {
+	f.Add("gosec,errcheck", "govet,gosec")
+	f.Add("", "gosec,errcheck")
+	f.Add("gosec,errcheck", "")
+	f.Add("gosec,gosec,errcheck", "gosec,dupl")
+	f.Add("errcheck", "gosec,errcheck,govet")
+
+	f.Fuzz(func(t *testing.T, primaryLinters, secondaryLinters string) {
+		defer func() {
+			if r := recover(); r != nil {
+				t.Fatalf("mergeConfigInto panicked: %v", r)
+			}
+		}()
+
+		primary := configFromLinters(primaryLinters)
+		secondary := configFromLinters(secondaryLinters)
+
+		originalPrimary := types.NewSet(primary.Linters.Enable...)
+
+		cm := testMerger()
+		cm.mergeConfigInto(primary, secondary)
+
+		merged := types.NewSet(primary.Linters.Enable...)
+
+		for _, linter := range types.ToSortedSlice(originalPrimary) {
+			if !merged.Contains(linter) {
+				t.Errorf("primary linter %q lost after merge", linter)
+			}
+		}
+
+		for _, linter := range parseLinters(secondaryLinters) {
+			if !merged.Contains(linter) {
+				t.Errorf("secondary linter %q not absorbed", linter)
+			}
+		}
+	})
+}
+
+// FuzzMergeIdempotent verifies that merging the same secondary config twice
+// produces the same result as merging once (merge is idempotent).
+func FuzzMergeIdempotent(f *testing.F) {
 	f.Add("gosec,errcheck", "govet,gosec")
 	f.Add("", "gosec")
-	f.Add("gosec,gosec,errcheck", "gosec")
+	f.Add("errcheck", "errcheck")
 
-	f.Fuzz(func(t *testing.T, primaryStr, secondaryStr string) {
+	f.Fuzz(func(t *testing.T, primaryLinters, secondaryLinters string) {
 		defer func() {
 			if r := recover(); r != nil {
 				t.Fatalf("merge panicked: %v", r)
 			}
 		}()
 
-		var primaryItems, secondaryItems []string
+		cfg1 := configFromLinters(primaryLinters)
+		cfg2 := configFromLinters(primaryLinters)
+		secondary := configFromLinters(secondaryLinters)
 
-		if primaryStr != "" {
-			primaryItems = strings.Split(primaryStr, ",")
-		}
+		cm := testMerger()
+		cm.mergeConfigInto(cfg1, secondary)
+		cm.mergeConfigInto(cfg1, secondary)
 
-		if secondaryStr != "" {
-			secondaryItems = strings.Split(secondaryStr, ",")
-		}
+		cm.mergeConfigInto(cfg2, secondary)
 
-		primary := types.NewSet(primaryItems...)
-		secondary := types.NewSet(secondaryItems...)
+		set1 := types.NewSet(cfg1.Linters.Enable...)
+		set2 := types.NewSet(cfg2.Linters.Enable...)
 
-		merged := primary.Union(secondary)
-
-		for _, linter := range types.ToSortedSlice(primary) {
-			if !merged.Contains(linter) {
-				t.Errorf("merged set missing primary linter %q", linter)
-			}
+		if !set1.Equal(set2) {
+			t.Errorf("merge is not idempotent: once=%v, twice=%v",
+				types.ToSortedSlice(set1), types.ToSortedSlice(set2))
 		}
 	})
 }
 
-// TestQuickMergeCommutative verifies that set union is commutative:
-// A ∪ B == B ∪ A.
-func TestQuickMergeCommutative(t *testing.T) {
-	property := func(a, b []string) bool {
-		setA := types.NewSet(a...)
-		setB := types.NewSet(b...)
-
-		return setA.Union(setB).Equal(setB.Union(setA))
-	}
-
-	err := quick.Check(property, &quick.Config{MaxCount: 100})
-	if err != nil {
-		t.Errorf("union is not commutative: %v", err)
+func configFromLinters(linters string) *Config {
+	return &Config{
+		Linters: types.LintersConfig{
+			Enable: parseLinters(linters),
+		},
 	}
 }
 
-// TestQuickMergeIdempotent verifies that A ∪ A == A.
-func TestQuickMergeIdempotent(t *testing.T) {
-	property := func(items []string) bool {
-		set := types.NewSet(items...)
-
-		return set.Union(set).Equal(set)
+func parseLinters(s string) []string {
+	if s == "" {
+		return nil
 	}
 
-	err := quick.Check(property, &quick.Config{MaxCount: 100})
-	if err != nil {
-		t.Errorf("union is not idempotent: %v", err)
-	}
-}
+	parts := strings.Split(s, ",")
 
-// TestQuickMergeSubset verifies that A ⊆ (A ∪ B) for all B.
-func TestQuickMergeSubset(t *testing.T) {
-	property := func(a, b []string) bool {
-		setA := types.NewSet(a...)
-		setB := types.NewSet(b...)
+	var result []string
 
-		return setA.IsSubset(setA.Union(setB))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			result = append(result, p)
+		}
 	}
 
-	err := quick.Check(property, &quick.Config{MaxCount: 100})
-	if err != nil {
-		t.Errorf("A is not a subset of A∪B: %v", err)
-	}
+	return result
 }
