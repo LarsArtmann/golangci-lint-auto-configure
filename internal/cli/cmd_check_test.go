@@ -49,4 +49,27 @@ var _ = Context("check mode combinations", func() {
 		initGitRepo()
 		configureThenCheck(buildBinary(), writeConfig(testConfigContentMinimal), "preset", "minimal")
 	})
+
+	It("should restore config after --check --diff", func() {
+		initGitRepo()
+		binaryPath := buildBinary()
+		configPath := writeConfig(testConfigContentMinimal)
+
+		_, err := exec.Command(
+			binaryPath,
+			"configure",
+			"--config", configPath,
+			"--priority", "high",
+			"--check",
+			"--diff",
+		).CombinedOutput()
+
+		Expect(err).To(HaveOccurred(), "--check with fixes needed should exit non-zero")
+
+		content, _ := os.ReadFile(configPath)
+		Expect(string(content)).To(ContainSubstring("errcheck"),
+			"config must retain original linters after --check --diff")
+		Expect(string(content)).To(ContainSubstring("version:"),
+			"config must still be valid YAML after --check --diff")
+	})
 })

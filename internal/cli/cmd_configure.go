@@ -262,7 +262,11 @@ func finalizeFixerResult(
 ) error {
 	applyCheckDiff(showDiff, check, configLoader, originalCfg, configFile, logger)
 	displayFixResult(configFile, result)
-	runFmtUnlessDry(ctx, logger, analyzer, configFile, isDryRun)
+
+	if !check {
+		runFmtUnlessDry(ctx, logger, analyzer, configFile, isDryRun)
+	}
+
 	logNextSteps(logger, result.NextSteps)
 
 	return handleCheckMode(check, result, logger)
