@@ -244,7 +244,7 @@ func TestValidationErrorsToFindings(t *testing.T) {
 
 	assertPositionLine(t, findings, 0, 5, "expected line %d, got %d")
 
-	assertPositionLine(t, findings, 1, 0, "expected line %d for no-line error, got %d")
+	assertPositionLine(t, findings, 1, 1, "expected line %d for no-line error (defaults to 1), got %d")
 }
 
 func TestErrorsToFindings(t *testing.T) {

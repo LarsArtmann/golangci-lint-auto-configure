@@ -33,7 +33,7 @@ func changeFinding(change diff.Change, configPath string) (finding.Finding, erro
 		finding.ToolName(constants.ToolName),
 		change.Description,
 		severity,
-		finding.Position{File: configPath},
+		configPosition(configPath, 0),
 	).
 		WithCategory(finding.CategoryConfiguration).
 		WithSuggestion(change.Description)
@@ -91,7 +91,7 @@ func MigrationResultToFindings(
 		return nil, nil
 	}
 
-	pos := finding.Position{File: configPath}
+	pos := configPosition(configPath, 0)
 
 	found, err := configFinding(configFindingParams{
 		RuleID:     RuleIDConfigFix,

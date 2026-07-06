@@ -52,7 +52,7 @@ func issueToFinding(issue GolangciLintIssue) (finding.Finding, error) {
 	severity := golangciLintSeverityToFinding(issue.Severity)
 	category := linterNameToCategory(issue.FromLinter)
 	pos := finding.Position{
-		File:   issue.Pos.Filename,
+		File:   finding.FilePath(issue.Pos.Filename),
 		Line:   issue.Pos.Line,
 		Column: issue.Pos.Column,
 	}

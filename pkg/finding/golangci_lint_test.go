@@ -177,7 +177,7 @@ func assertLintFinding(
 		t.Errorf("expected message %q, got %q", message, f.Message)
 	}
 
-	if f.Position.File != file {
+	if string(f.Position.File) != file {
 		t.Errorf("expected file %q, got %q", file, f.Position.File)
 	}
 

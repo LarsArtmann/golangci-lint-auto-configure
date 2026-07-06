@@ -18,6 +18,16 @@ func buildFinding(b *finding.Builder) (finding.Finding, error) {
 	return f, nil
 }
 
+// configPosition creates a finding.Position for a config-level finding.
+// go-finding v1.1.0 requires Line > 0; config-level findings use Line: 1.
+func configPosition(path string, line int) finding.Position {
+	if line <= 0 {
+		line = 1
+	}
+
+	return finding.Position{File: finding.FilePath(path), Line: line}
+}
+
 type configFindingParams struct {
 	RuleID     string
 	Message    string

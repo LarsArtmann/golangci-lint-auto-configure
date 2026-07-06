@@ -210,7 +210,7 @@ func healthIssuesToFindings(
 	result := make([]finding.Finding, 0, len(health.Issues))
 
 	for _, issue := range health.Issues {
-		pos := finding.Position{File: configFile}
+		pos := finding.Position{File: finding.FilePath(configFile), Line: 1}
 
 		severity := appfinding.SeverityFromHealthSeverity(issue.Severity)
 
