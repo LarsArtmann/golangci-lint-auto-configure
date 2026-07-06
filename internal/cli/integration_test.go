@@ -4,6 +4,7 @@ package cli_test
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -120,7 +121,7 @@ func testStandardCommandContext(tempDir, command string) {
 func TestIntegration(t *testing.T) {
 	// Skip if binary doesn't exist
 	if _, err := os.Stat("../../../bin/golangci-lint-auto-configure"); os.IsNotExist(err) {
-		t.Skip("CLI binary not found, run 'just build' first")
+		t.Skip("CLI binary not found, run 'go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure' first")
 	}
 
 	RegisterFailHandler(Fail)
@@ -259,6 +260,25 @@ var _ = Describe("CLI Integration", func() {
 			analyzeWithFormat("json", "recommendations")
 		})
 
+		It("should emit PascalCase JSON keys", func() {
+			configPath := writeMinimalTestConfig(tempDir)
+			output, err := runCLI("analyze", "--config", configPath, "--format", "json")
+			Expect(err).NotTo(HaveOccurred())
+
+			var raw map[string]any
+			Expect(json.Unmarshal(output, &raw)).To(Succeed())
+
+			Expect(raw).To(HaveKey("ConfigPath"))
+			Expect(raw).To(HaveKey("EnabledLinters"))
+			Expect(raw).To(HaveKey("DisabledLinters"))
+			Expect(raw).To(HaveKey("CriticalCount"))
+			Expect(raw).To(HaveKey("HighValueCount"))
+
+			Expect(raw).NotTo(HaveKey("config_path"))
+			Expect(raw).NotTo(HaveKey("enabled_linters"))
+			Expect(raw).NotTo(HaveKey("critical_count"))
+		})
+
 		It("should analyze with SARIF output", func() {
 			analyzeWithFormat("sarif", "$schema")
 		})
@@ -294,6 +314,27 @@ var _ = Describe("CLI Integration", func() {
 
 			_, err = os.Stat(reportPath)
 			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should emit PascalCase JSON keys in report file", func() {
+			configPath := writeMinimalTestConfig(tempDir)
+
+			reportPath := filepath.Join(tempDir, "report.json")
+			_, err := runCLI("report", "--config", configPath, "--format", "json", "--output", reportPath)
+			Expect(err).NotTo(HaveOccurred())
+
+			data, readErr := os.ReadFile(reportPath)
+			Expect(readErr).NotTo(HaveOccurred())
+
+			var raw map[string]any
+			Expect(json.Unmarshal(data, &raw)).To(Succeed())
+
+			Expect(raw).To(HaveKey("ConfigPath"))
+			Expect(raw).To(HaveKey("Summary"))
+			Expect(raw).To(HaveKey("EnabledLinters"))
+
+			Expect(raw).NotTo(HaveKey("config_path"))
+			Expect(raw).NotTo(HaveKey("enabled_linters"))
 		})
 	})
 

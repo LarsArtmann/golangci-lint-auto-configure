@@ -128,6 +128,7 @@ func resolveAnalyzeConfig(configLoader *config.Loader, _ string) (string, error)
 func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) error {
 	switch format {
 	case formatJSON:
+		//nolint:musttag // intentionally tag-free: PascalCase via Go field names
 		data, err := json.MarshalIndent(analysis, "", "  ")
 		if err != nil {
 			return fmt.Errorf(

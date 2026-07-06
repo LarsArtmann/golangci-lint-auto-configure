@@ -69,6 +69,16 @@ nix develop
 
 11. **Versioning is self-initializing.** `pkg/version/` reads ldflags with `runtime/debug.ReadBuildInfo()` fallback. `cli.Version` self-inits — no manual setup. All build targets (Nix, CI) inject via ldflags.
 
+12. **Struct tag case policy.** Enforced by **tagliatelle** in `.golangci.yml` (`json: pascal`, `yaml: kebab`, `toml: kebab`). Three type families:
+
+    | Family                                                                                                                                                                 | `json`/`cbor`                                               | `yaml`/`toml`           | Why                                                       |
+    | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------- | --------------------------------------------------------- |
+    | **Report types** (`pkg/types/types.go`: `ConfigAnalysis`, `LinterInfo`, …; `pkg/report/json_report_generator.go`: `JSONReport`; `pkg/config/merger.go`: `MergeResult`) | **PascalCase** — tags stripped, Go field names pass through | n/a (no yaml/toml tags) | Zero-tag-cost: Go-native, no browser consumers            |
+    | **Config types** (`pkg/types/config_types.go`: `Config`, `RunConfig`, `LintersConfig`, …)                                                                              | **kebab**                                                   | **kebab** (locked)      | Round-trips `.golangci.yml` schema; one struct = one case |
+    | **External format types** (`LinterList`, `golangciLintOutput`, `golangciLintVersion`, `GolangciLintIssue`)                                                             | **as-is** (matches golangci-lint wire format)               | n/a                     | Must match external JSON shape; tagliatelle-excluded      |
+
+    **musttag linter:** `Marshal`/`Unmarshal` of tag-free report structs need `//nolint:musttag`. Test files are excluded from musttag in `.golangci.yml`.
+
 ## Where to Find Detail
 
 | Topic                                                  | Location                                        |

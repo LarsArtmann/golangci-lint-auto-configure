@@ -23,19 +23,19 @@ func NewJSONGenerator(logger *log.Logger) *JSONGenerator {
 
 // JSONReport represents the structure of the JSON report output.
 type JSONReport struct {
-	ConfigPath      string                       `json:"configPath"`
-	Summary         JSONSummary                  `json:"summary"`
-	Recommendations []types.LinterRecommendation `json:"recommendations"`
-	EnabledLinters  []string                     `json:"enabledLinters"`
-	DisabledLinters []string                     `json:"disabledLinters"`
+	ConfigPath      string
+	Summary         JSONSummary
+	Recommendations []types.LinterRecommendation
+	EnabledLinters  []string
+	DisabledLinters []string
 }
 
 // JSONSummary contains summary statistics.
 type JSONSummary struct {
-	TotalLinters         int `json:"totalLinters"`
-	EnabledCount         int `json:"enabledCount"`
-	DisabledCount        int `json:"disabledCount"`
-	RecommendationsCount int `json:"recommendationsCount"`
+	TotalLinters         int
+	EnabledCount         int
+	DisabledCount        int
+	RecommendationsCount int
 }
 
 // GenerateJSONReport creates a JSON report from the analysis.
@@ -44,6 +44,7 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 
 	jsonReport := g.buildJSONReport(analysis)
 
+	//nolint:musttag // intentionally tag-free: PascalCase via Go field names
 	jsonData, err := json.MarshalIndent(jsonReport, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal JSON report (outputPath=%s): %w", outputPath, err)

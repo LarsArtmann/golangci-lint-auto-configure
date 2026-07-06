@@ -78,28 +78,28 @@ func (p FormatterPriority) String() string {
 
 // GoExperiment represents a Go runtime experiment that exposes new standard library packages.
 type GoExperiment struct {
-	Tag         string `json:"tag"`
-	Package     string `json:"package"`
-	Description string `json:"description"`
+	Tag         string
+	Package     string
+	Description string
 }
 
 // LinterInfo contains information about a golangci-lint linter.
 type LinterInfo struct {
-	Name        LinterName `json:"name"`
-	Description string     `json:"description"`
-	Groups      []string   `json:"groups,omitempty"`
-	Fast        bool       `json:"fast,omitempty"`
-	AutoFix     bool       `json:"autoFix,omitempty"`
-	Deprecated  bool       `json:"deprecated"`
-	Since       string     `json:"since"`
-	OriginalURL string     `json:"originalURL"`
+	Name        LinterName
+	Description string
+	Groups      []string `json:",omitempty"`
+	Fast        bool     `json:",omitempty"`
+	AutoFix     bool     `json:",omitempty"`
+	Deprecated  bool
+	Since       string
+	OriginalURL string
 }
 
 // LinterRecommendation represents a linter with its priority and reason.
 type LinterRecommendation struct {
-	Name     LinterName     `json:"name"`
-	Priority LinterPriority `json:"priority"`
-	Reason   string         `json:"reason"`
+	Name     LinterName
+	Priority LinterPriority
+	Reason   string
 }
 
 // LinterName is a strongly-typed linter name to prevent typos.
@@ -123,15 +123,15 @@ func (cp ConfigPath) IsValid() bool {
 
 // LinterReplacement represents a replacement for a deprecated linter.
 type LinterReplacement struct {
-	Replacement LinterName `json:"replacement"`
-	Reason      string     `json:"reason"`
-	MinVersion  string     `json:"minVersion,omitempty"` // Minimum golangci-lint version where the replacement exists
+	Replacement LinterName
+	Reason      string
+	MinVersion  string `json:",omitempty"` // Minimum golangci-lint version where the replacement exists
 }
 
 // LinterToFormatter represents a linter that is superseded by a formatter.
 type LinterToFormatter struct {
-	Formatter FormatterName `json:"formatter"`
-	Reason    string        `json:"reason"`
+	Formatter FormatterName
+	Reason    string
 }
 
 // FormatterName is a strongly-typed formatter name to prevent typos.
@@ -143,33 +143,33 @@ func (fn FormatterName) String() string {
 
 // FormatterInfo contains information about a golangci-lint formatter.
 type FormatterInfo struct {
-	Name        FormatterName `json:"name"`
-	Description string        `json:"description"`
-	AutoFix     bool          `json:"autoFix,omitempty"`
+	Name        FormatterName
+	Description string
+	AutoFix     bool `json:",omitempty"`
 }
 
 // FormatterRecommendation represents a formatter with its priority and reason.
 type FormatterRecommendation struct {
-	Name     FormatterName     `json:"name"`
-	Priority FormatterPriority `json:"priority"`
-	Reason   string            `json:"reason"`
+	Name     FormatterName
+	Priority FormatterPriority
+	Reason   string
 }
 
 // ConfigAnalysis represents the analysis results of a golangci-lint configuration.
 type ConfigAnalysis struct {
-	ConfigPath               string                    `json:"config_path"`
-	EnabledLinters           []LinterInfo              `json:"enabled_linters"`
-	DisabledLinters          []LinterInfo              `json:"disabled_linters"`
-	EnabledFormatters        []FormatterInfo           `json:"enabled_formatters"`
-	DisabledFormatters       []FormatterInfo           `json:"disabled_formatters"`
-	LinterRecommendations    []LinterRecommendation    `json:"linter_recommendations"`
-	FormatterRecommendations []FormatterRecommendation `json:"formatter_recommendations"`
-	DeprecatedLinters        []LinterInfo              `json:"deprecated_linters"`
-	CriticalCount            int                       `json:"critical_count"`
-	HighValueCount           int                       `json:"high_value_count"`
-	MediumValueCount         int                       `json:"medium_value_count"`
-	OptionalCount            int                       `json:"optional_count"`
-	DeprecatedCount          int                       `json:"deprecated_count"`
+	ConfigPath               string
+	EnabledLinters           []LinterInfo
+	DisabledLinters          []LinterInfo
+	EnabledFormatters        []FormatterInfo
+	DisabledFormatters       []FormatterInfo
+	LinterRecommendations    []LinterRecommendation
+	FormatterRecommendations []FormatterRecommendation
+	DeprecatedLinters        []LinterInfo
+	CriticalCount            int
+	HighValueCount           int
+	MediumValueCount         int
+	OptionalCount            int
+	DeprecatedCount          int
 }
 
 // TotalRecommendations returns the total number of linter + formatter recommendations.
@@ -189,11 +189,11 @@ func (a *ConfigAnalysis) EnabledLinterNames() []string {
 
 // MigrationResult represents the result of a configuration migration.
 type MigrationResult struct {
-	FixesApplied int      `json:"fixes_applied"`
-	Message      string   `json:"message"`
-	NextSteps    []string `json:"next_steps,omitempty"`
-	Error        error    `json:"-"`       // Error is not serialized to JSON
-	DryRun       bool     `json:"dry_run"` // DryRun indicates changes were previewed, not applied
+	FixesApplied int
+	Message      string
+	NextSteps    []string `json:",omitempty"`
+	Error        error    `json:"-"` // Error is not serialized to JSON
+	DryRun       bool
 }
 
 // IsSuccess returns true if the migration was successful.
@@ -208,9 +208,9 @@ func (m *MigrationResult) IsFailure() bool {
 
 // ValidationError represents a configuration validation error.
 type ValidationError struct {
-	Field   string `json:"field"`
-	Message string `json:"message"`
-	Line    int    `json:"line,omitempty"`
+	Field   string
+	Message string
+	Line    int `json:",omitempty"`
 }
 
 func (e ValidationError) Error() string {
@@ -223,8 +223,8 @@ func (e ValidationError) Error() string {
 
 // ValidationResult represents the result of configuration validation.
 type ValidationResult struct {
-	Valid  bool              `json:"valid"`
-	Errors []ValidationError `json:"errors,omitempty"`
+	Valid  bool
+	Errors []ValidationError `json:",omitempty"`
 }
 
 // --- Interfaces for Testability ---
@@ -242,92 +242,6 @@ type ConfigLoader interface {
 	CreateDefaultConfig(ctx context.Context) *Config
 }
 
-// Config represents a golangci-lint configuration file.
-type Config struct {
-	Version           string           `json:"version"    toml:"version"              yaml:"version"`
-	Run               RunConfig        `json:"run"        toml:"run"                  yaml:"run"`
-	Output            OutputConfig     `json:"output"     toml:"output"               yaml:"output"`
-	Linters           LintersConfig    `json:"linters"    toml:"linters"              yaml:"linters"`
-	Formatters        FormattersConfig `json:"formatters" toml:"formatters,omitempty" yaml:"formatters,omitempty"`
-	Issues            IssuesConfig     `json:"issues"     toml:"issues"               yaml:"issues"`
-	LintersSettingsV1 map[string]any   `json:"-"          toml:"-"                    yaml:"linters-settings,omitempty"`
-}
-
-type RunConfig struct {
-	Timeout              string   `json:"timeout"                         toml:"timeout"                         yaml:"timeout"`
-	Go                   string   `json:"go"                              toml:"go"                              yaml:"go"`
-	BuildTags            []string `json:"build-tags"                      toml:"build-tags"                      yaml:"build-tags"`
-	ModulesDownloadMode  string   `json:"modules-download-mode,omitempty" toml:"modules-download-mode,omitempty" yaml:"modules-download-mode,omitempty"`
-	AllowParallelRunners bool     `json:"allow-parallel-runners"          toml:"allow-parallel-runners"          yaml:"allow-parallel-runners"`
-	AllowSerialRunners   bool     `json:"allow-serial-runners"            toml:"allow-serial-runners"            yaml:"allow-serial-runners"`
-	IssuesExitCode       int      `json:"issues-exit-code,omitempty"      toml:"issues-exit-code,omitempty"      yaml:"issues-exit-code,omitempty"`
-	Tests                bool     `json:"tests,omitempty"                 toml:"tests,omitempty"                 yaml:"tests,omitempty"`
-	Concurrency          int      `json:"concurrency,omitempty"           toml:"concurrency,omitempty"           yaml:"concurrency,omitempty"`
-	RelativePathMode     string   `json:"relative-path-mode,omitempty"    toml:"relative-path-mode,omitempty"    yaml:"relative-path-mode,omitempty"`
-}
-
-type OutputConfig struct {
-	Formats    map[string]any `json:"formats"               toml:"formats"               yaml:"formats"`
-	PathPrefix string         `json:"path-prefix,omitempty" toml:"path-prefix,omitempty" yaml:"path-prefix,omitempty"`
-	PathMode   string         `json:"path-mode,omitempty"   toml:"path-mode,omitempty"   yaml:"path-mode,omitempty"`
-	SortOrder  []string       `json:"sort-order,omitempty"  toml:"sort-order,omitempty"  yaml:"sort-order,omitempty"`
-	ShowStats  bool           `json:"show-stats,omitempty"  toml:"show-stats,omitempty"  yaml:"show-stats,omitempty"`
-}
-
-type LintersConfig struct {
-	Enable     []string                `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
-	Disable    []string                `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
-	Default    string                  `json:"default,omitempty"  toml:"default,omitempty"    yaml:"default,omitempty"`
-	Settings   map[string]any          `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
-	Exclusions LintersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
-}
-
-type LintersExclusionsConfig struct {
-	Generated   string                `json:"generated,omitempty"    toml:"generated,omitempty"    yaml:"generated,omitempty"`
-	WarnUnused  bool                  `json:"warn-unused,omitempty"  toml:"warn-unused,omitempty"  yaml:"warn-unused,omitempty"`
-	Presets     []string              `json:"presets,omitempty"      toml:"presets,omitempty"      yaml:"presets,omitempty"`
-	Rules       []ExclusionRuleConfig `json:"rules,omitempty"        toml:"rules,omitempty"        yaml:"rules,omitempty"`
-	Paths       []string              `json:"paths,omitempty"        toml:"paths,omitempty"        yaml:"paths,omitempty"`
-	PathsExcept []string              `json:"paths-except,omitempty" toml:"paths-except,omitempty" yaml:"paths-except,omitempty"`
-}
-
-type ExclusionRuleConfig struct {
-	Path       string   `json:"path,omitempty"        toml:"path,omitempty"        yaml:"path,omitempty"`
-	PathExcept string   `json:"path-except,omitempty" toml:"path-except,omitempty" yaml:"path-except,omitempty"`
-	Text       string   `json:"text,omitempty"        toml:"text,omitempty"        yaml:"text,omitempty"`
-	Source     string   `json:"source,omitempty"      toml:"source,omitempty"      yaml:"source,omitempty"`
-	Linters    []string `json:"linters,omitempty"     toml:"linters,omitempty"     yaml:"linters,omitempty"`
-}
-
-func (r ExclusionRuleConfig) RuleKey() string {
-	return r.Path + "|" + r.Text + "|" + r.Source
-}
-
-type IssuesConfig struct {
-	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitempty" toml:"max-issues-per-linter,omitempty" yaml:"max-issues-per-linter,omitempty"`
-	MaxSameIssues      int    `json:"max-same-issues,omitempty"       toml:"max-same-issues,omitempty"       yaml:"max-same-issues,omitempty"`
-	NewFromRev         string `json:"new-from-rev,omitempty"          toml:"new-from-rev,omitempty"          yaml:"new-from-rev,omitempty"`
-	NewFromPatch       string `json:"new-from-patch,omitempty"        toml:"new-from-patch,omitempty"        yaml:"new-from-patch,omitempty"`
-	New                bool   `json:"new,omitempty"                   toml:"new,omitempty"                   yaml:"new,omitempty"`
-	NewFromMergeBase   string `json:"new-from-merge-base,omitempty"   toml:"new-from-merge-base,omitempty"   yaml:"new-from-merge-base,omitempty"`
-	WholeFiles         bool   `json:"whole-files,omitempty"           toml:"whole-files,omitempty"           yaml:"whole-files,omitempty"`
-	Fix                bool   `json:"fix,omitempty"                   toml:"fix,omitempty"                   yaml:"fix,omitempty"`
-	UniqByLine         bool   `json:"uniq-by-line,omitempty"          toml:"uniq-by-line,omitempty"          yaml:"uniq-by-line,omitempty"`
-}
-
-type FormattersConfig struct {
-	Enable     []string                   `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
-	Disable    []string                   `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
-	Settings   map[string]any             `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
-	Exclusions FormattersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
-}
-
-type FormattersExclusionsConfig struct {
-	Generated  string   `json:"generated,omitempty"   toml:"generated,omitempty"   yaml:"generated,omitempty"`
-	WarnUnused bool     `json:"warn-unused,omitempty" toml:"warn-unused,omitempty" yaml:"warn-unused,omitempty"`
-	Paths      []string `json:"paths,omitempty"       toml:"paths,omitempty"       yaml:"paths,omitempty"`
-}
-
 // LinterAnalyzer defines the interface for analyzing golangci-lint configurations.
 type LinterAnalyzer interface {
 	AnalyzeConfig(ctx context.Context, configPath string) (*ConfigAnalysis, error)
@@ -336,11 +250,4 @@ type LinterAnalyzer interface {
 	GetDetectedVersion() string
 	GetSummary(analysis *ConfigAnalysis) string
 	GetLintersByPriority(recommendations []LinterRecommendation, priority LinterPriority) []LinterRecommendation
-}
-
-// InitLintersSettings initializes the Linters.Settings map if nil.
-func InitLintersSettings(cfg *LintersConfig) {
-	if cfg.Settings == nil {
-		cfg.Settings = make(map[string]any)
-	}
 }

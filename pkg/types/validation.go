@@ -119,16 +119,16 @@ func (s HealthSeverity) String() string {
 
 // HealthIssue represents a structural health issue found in a config.
 type HealthIssue struct {
-	Severity   HealthSeverity `json:"severity"`
-	Rule       string         `json:"rule"`
-	Message    string         `json:"message"`
-	Field      string         `json:"field"`
-	Suggestion string         `json:"suggestion,omitempty"`
+	Severity   HealthSeverity
+	Rule       string
+	Message    string
+	Field      string
+	Suggestion string `json:",omitempty"`
 }
 
 // ConfigHealth represents the structural health assessment of a config.
 type ConfigHealth struct {
-	Issues []HealthIssue `json:"issues"`
+	Issues []HealthIssue
 }
 
 // IsHealthy returns true if no critical or warning issues were found.

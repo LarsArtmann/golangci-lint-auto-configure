@@ -19,9 +19,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `pkg/version` package with runtime/debug.ReadBuildInfo() fallback
 - Auto-tag workflow for automated releases on merge to master
 - Multiple golangci-lint binary detection with version warnings
+- Integration tests verifying PascalCase JSON output for `analyze` and `report` commands
+- Serialization tests (`pkg/types/json_tags_test.go`) for PascalCase report types and kebab-case config types
 
 ### Changed
 
+- **BREAKING:** `analyze --format json` and `report --format json` now emit **PascalCase** JSON keys (e.g. `ConfigPath`, `EnabledLinters`) instead of snake_case/camelCase. Go's native field names are the zero-tag-cost default.
+- Struct tag case policy enforced by tagliatelle: report types use PascalCase (tag-free), config types use kebab-case (round-trip `.golangci.yml` schema), external-format types excluded
+- Config types extracted from `pkg/types/types.go` into `pkg/types/config_types.go` for precise tagliatelle enforcement
 - `cli.Version` is now self-initializing from `version.Get().Short()` (single source of truth)
 - Test runner uses `go run github.com/onsi/ginkgo/v2/ginkgo` to ensure version matches go.mod
 - Nix devShell installs ginkgo from go.mod instead of nixpkgs

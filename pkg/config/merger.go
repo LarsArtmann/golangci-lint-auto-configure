@@ -30,15 +30,15 @@ func NewMerger(logger *log.Logger) *Merger {
 
 // MergeResult represents the result of a merge operation.
 type MergeResult struct {
-	PrimaryConfig    string            `json:"primary_config"`
-	MergedConfigs    []string          `json:"merged_configs"`
-	RemovedConfigs   []string          `json:"removed_configs,omitempty"`
-	BackedUpConfigs  map[string]string `json:"backed_up_configs,omitempty"`
-	ChangesApplied   int               `json:"changes_applied"`
-	MergedLinters    []string          `json:"merged_linters,omitempty"`
-	MergedFormatters []string          `json:"merged_formatters,omitempty"`
-	Success          bool              `json:"success"`
-	Error            error             `json:"-"`
+	PrimaryConfig    string
+	MergedConfigs    []string
+	RemovedConfigs   []string          `json:",omitempty"`
+	BackedUpConfigs  map[string]string `json:",omitempty"`
+	ChangesApplied   int
+	MergedLinters    []string `json:",omitempty"`
+	MergedFormatters []string `json:",omitempty"`
+	Success          bool
+	Error            error `json:"-"`
 }
 
 // IsSuccess returns true if the merge was successful.

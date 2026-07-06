@@ -196,8 +196,9 @@ linters:
     tagliatelle:
       case:
         rules:
-          json: snake
+          json: pascal
           yaml: kebab
+          toml: kebab
     testifylint:
       disable:
         - go-require
@@ -239,7 +240,7 @@ linters:
       - path: _test\.go
         linters:
           - gosec
-      - path: pkg/types/types\.go
+      - path: pkg/types/config_types\.go
         linters:
           - tagliatelle
       - path: pkg/finding/golangci_lint\.go
@@ -272,7 +273,7 @@ linters:
       - path: pkg/linter/fixer\.go
         linters:
           - gocognit
-      - path: pkg/types/types\.go
+      - path: pkg/types/config_types\.go
         linters:
           - tagalign
       - path: pkg/config/loader\.go
@@ -293,7 +294,10 @@ linters:
         linters:
           - tagliatelle
           - wrapcheck
-      - path: pkg/report/json_report_generator\.go
+      - path: pkg/config/loader\.go
+        linters:
+          - tagliatelle
+      - path: pkg/linter/analyzer\.go
         linters:
           - tagliatelle
       - path: internal/cli/cmd/
@@ -419,6 +423,7 @@ linters:
       - path: _test\.go
         linters:
           - goconst
+          - musttag
       - path: pkg/types/types\.go|pkg/types/validation\.go|pkg/detection/patterns\.go|pkg/finding/categories\.go|pkg/migration/rules\.go
         linters:
           - goconst

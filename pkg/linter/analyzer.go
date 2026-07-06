@@ -209,6 +209,7 @@ func (a *Analyzer) parseLintersOutput(ctx context.Context, configPath string) (*
 	}
 
 	var output golangciLintOutput
+	//nolint:musttag // external format: golangci-lint wire JSON
 	if err := json.Unmarshal(lintOutput, &output); err != nil {
 		return nil, apperrors.NewAnalysisError("failed to parse golangci-lint linters JSON output", "", err)
 	}
@@ -225,6 +226,7 @@ func (a *Analyzer) parseFormattersOutput(ctx context.Context, configPath string)
 	}
 
 	var output golangciLintFormattersOutput
+	//nolint:musttag // external format: golangci-lint wire JSON
 	if err := json.Unmarshal(formatOutput, &output); err != nil {
 		a.logger.Debugf("Failed to parse formatters JSON, skipping: %v", err)
 
