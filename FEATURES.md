@@ -19,19 +19,19 @@
 
 ## Auto-Configuration Features
 
-| Feature                                               | Status | Notes                                       |
-| ----------------------------------------------------- | ------ | ------------------------------------------- |
-| 119 linter priorities (Critical/High/Medium/Optional) | Stable | `pkg/constants/linter_priorities.go`        |
-| Linter reasons (human-readable)                       | Stable | `pkg/constants/linter_reasons.go`           |
-| Priority-based filtering (`--priority`)               | Stable | configure command                           |
-| Dry-run mode (`--dry-run`)                            | Stable | Shows what would change                     |
-| CI check mode (`--check`)                             | Stable | Exit 0 if optimal, exit 1 if changes needed |
-| Diff preview (`--diff`)                               | Stable | Shows config diff before applying (threaded as parameter, not global var)   |
-| Deprecated linter auto-replacement                    | Stable | wsl→wsl_v5, gomodguard→gomodguard_v2, etc.  |
-| Version-gated deprecation                             | Stable | gomodguard_v2 requires v2.12.0+             |
-| Typecheck linter removal                              | Stable | Removes from enable/disable lists           |
-| Invalid duration fix                                  | Stable | Fixes empty/invalid timeout values          |
-| Multiple binary detection                             | Stable | Warns if multiple golangci-lint binaries    |
+| Feature                                               | Status | Notes                                                                     |
+| ----------------------------------------------------- | ------ | ------------------------------------------------------------------------- |
+| 119 linter priorities (Critical/High/Medium/Optional) | Stable | `pkg/constants/linter_priorities.go`                                      |
+| Linter reasons (human-readable)                       | Stable | `pkg/constants/linter_reasons.go`                                         |
+| Priority-based filtering (`--priority`)               | Stable | configure command                                                         |
+| Dry-run mode (`--dry-run`)                            | Stable | Shows what would change                                                   |
+| CI check mode (`--check`)                             | Stable | Exit 0 if optimal, exit 1 if changes needed                               |
+| Diff preview (`--diff`)                               | Stable | Shows config diff before applying (threaded as parameter, not global var) |
+| Deprecated linter auto-replacement                    | Stable | wsl→wsl_v5, gomodguard→gomodguard_v2, etc.                                |
+| Version-gated deprecation                             | Stable | gomodguard_v2 requires v2.12.0+                                           |
+| Typecheck linter removal                              | Stable | Removes from enable/disable lists                                         |
+| Invalid duration fix                                  | Stable | Fixes empty/invalid timeout values                                        |
+| Multiple binary detection                             | Stable | Warns if multiple golangci-lint binaries                                  |
 
 ## Error Handling & Exit Codes
 
@@ -39,8 +39,8 @@
 | ---------------------------------- | ------ | ---------------------------------------------------------------------------------- |
 | Semantic exit codes (BSD sysexits) | Stable | via go-error-family: Rejection(1), Conflict(1), Corruption(65), Infrastructure(69) |
 | Error classification registry      | Stable | All sentinel errors mapped to families in `pkg/errors/classification.go`           |
-| `--json-errors` flag               | Stable | Structured JSON via errorfamily.JSON() (snake_case keys matching SARIF ecosystem)    |
-| `--quiet` flag                    | Stable | Suppresses all output except errors (for CI pipelines)                              |
+| `--json-errors` flag               | Stable | Structured JSON via errorfamily.JSON() (snake_case keys matching SARIF ecosystem)  |
+| `--quiet` flag                     | Stable | Suppresses all output except errors (for CI pipelines)                             |
 | `--check` mode                     | Stable | Exit 0 if optimal, exit 1 if changes needed (no fmt side-effects)                  |
 
 ## Default Settings Injection
