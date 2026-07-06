@@ -39,8 +39,8 @@
 | ---------------------------------- | ------ | ---------------------------------------------------------------------------------- |
 | Semantic exit codes (BSD sysexits) | Stable | via go-error-family: Rejection(1), Conflict(1), Corruption(65), Infrastructure(69) |
 | Error classification registry      | Stable | All sentinel errors mapped to families in `pkg/errors/classification.go`           |
-| `--json-errors` flag               | Stable | Structured JSON error output to stderr for CI/CD consumers                        |
-| `--check` mode                     | Stable | Exit 0 if optimal, exit 1 if changes needed (no fmt side-effects)                 |
+| `--json-errors` flag               | Stable | Structured JSON error output to stderr for CI/CD consumers                         |
+| `--check` mode                     | Stable | Exit 0 if optimal, exit 1 if changes needed (no fmt side-effects)                  |
 
 ## Default Settings Injection
 
@@ -159,15 +159,15 @@
 
 ## Build & CI
 
-| Feature                                 | Status | Notes                            |
-| --------------------------------------- | ------ | -------------------------------- |
-| Nix flake build                         | Stable | Reproducible builds              |
-| GitHub Actions CI (Go 1.25/1.26 matrix) | Stable |                                  |
-| Pre-commit hook                         | Stable | golangci-lint, go-test, go-fmt   |
-| Version injection via ldflags           | Stable | version, commit, date, treeState |
-| Auto-tag workflow                       | Stable | Tags on merge to master          |
-| Committed templ output (\_templ.go)     | Stable | No build-time generation needed  |
-| Govulncheck security scanning          | Stable | CI job runs govulncheck ./...    |
-| Coverage threshold gate                | Stable | scripts/coverage-check.sh (60%)  |
-| Fuzz + property tests                  | Stable | Set algebra invariants (commutative, idempotent, subset) |
-| `--json-errors` flag                   | Stable | JSON error output for CI/CD      |
+| Feature                                 | Status | Notes                                                    |
+| --------------------------------------- | ------ | -------------------------------------------------------- |
+| Nix flake build                         | Stable | Reproducible builds                                      |
+| GitHub Actions CI (Go 1.25/1.26 matrix) | Stable |                                                          |
+| Pre-commit hook                         | Stable | golangci-lint, go-test, go-fmt                           |
+| Version injection via ldflags           | Stable | version, commit, date, treeState                         |
+| Auto-tag workflow                       | Stable | Tags on merge to master                                  |
+| Committed templ output (\_templ.go)     | Stable | No build-time generation needed                          |
+| Govulncheck security scanning           | Stable | CI job runs govulncheck ./...                            |
+| Coverage threshold gate                 | Stable | scripts/coverage-check.sh (60%)                          |
+| Fuzz + property tests                   | Stable | Set algebra invariants (commutative, idempotent, subset) |
+| `--json-errors` flag                    | Stable | JSON error output for CI/CD                              |
