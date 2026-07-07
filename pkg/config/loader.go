@@ -224,7 +224,7 @@ func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string {
 	}
 
 	// Return default path if no config found
-	return filepath.Join(startDir, ".golangci.yml")
+	return filepath.Join(startDir, constants.DefaultConfigFileNames[0])
 }
 
 // LinterList represents the JSON output from golangci-lint linters command.

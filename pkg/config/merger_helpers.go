@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -139,11 +140,14 @@ func sortByPriority(paths []string) []string {
 }
 
 // configFilePriority defines the priority for each config filename.
-var configFilePriority = map[string]int{
-	".golangci.yml":  ConfigPriorityYML,
-	".golangci.yaml": ConfigPriorityYAML,
-	".golangci.toml": ConfigPriorityTOML,
-	".golangci.json": ConfigPriorityJSON,
+// The keys mirror constants.DefaultConfigFileNames — kept in sync via the init below.
+var configFilePriority = map[string]int{}
+
+func init() {
+	priorities := []int{ConfigPriorityYML, ConfigPriorityYAML, ConfigPriorityTOML, ConfigPriorityJSON}
+	for i, name := range constants.DefaultConfigFileNames {
+		configFilePriority[name] = priorities[i]
+	}
 }
 
 // createBackup creates a backup of the given config file.
