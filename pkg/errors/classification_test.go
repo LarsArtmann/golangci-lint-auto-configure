@@ -10,6 +10,7 @@ import (
 
 	errorfamily "github.com/larsartmann/go-error-family"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -26,6 +27,16 @@ var _ = Describe("Error Classification", func() {
 		Entry("ErrInvalidActivityContext", apperrors.ErrInvalidActivityContext, errorfamily.Rejection),
 		Entry("ErrVersionTooOld", apperrors.ErrVersionTooOld, errorfamily.Rejection),
 		Entry("ErrConfigValidationFailed", apperrors.ErrConfigValidationFailed, errorfamily.Rejection),
+		Entry("ErrNoConfigFiles", apperrors.ErrNoConfigFiles, errorfamily.Rejection),
+		Entry("types.ErrConfigNil", types.ErrConfigNil, errorfamily.Rejection),
+		Entry("types.ErrVersionRequired", types.ErrVersionRequired, errorfamily.Rejection),
+		Entry("types.ErrVersionInvalid", types.ErrVersionInvalid, errorfamily.Rejection),
+		Entry("types.ErrTimeoutRequired", types.ErrTimeoutRequired, errorfamily.Rejection),
+		Entry("types.ErrIssuesExitCode", types.ErrIssuesExitCode, errorfamily.Rejection),
+		Entry("types.ErrConcurrency", types.ErrConcurrency, errorfamily.Rejection),
+		Entry("types.ErrMaxIssues", types.ErrMaxIssues, errorfamily.Rejection),
+		Entry("types.ErrMaxSameIssues", types.ErrMaxSameIssues, errorfamily.Rejection),
+		Entry("types.ErrInvalidLinterPriority", types.ErrInvalidLinterPriority, errorfamily.Rejection),
 		Entry("ErrHookAlreadyExists", apperrors.ErrHookAlreadyExists, errorfamily.Conflict),
 		Entry("ErrChangesNeeded", apperrors.ErrChangesNeeded, errorfamily.Conflict),
 		Entry("ErrVersionParse", apperrors.ErrVersionParse, errorfamily.Corruption),

@@ -4,6 +4,7 @@ import (
 	"os/exec"
 
 	errorfamily "github.com/larsartmann/go-error-family"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // Classification mapping rationale:
@@ -31,6 +32,20 @@ func init() {
 		ErrInvalidActivityContext: errorfamily.Rejection,
 		ErrVersionTooOld:          errorfamily.Rejection,
 		ErrConfigValidationFailed: errorfamily.Rejection,
+		ErrNoConfigFiles:          errorfamily.Rejection,
+
+		// Config validation sentinels — all user-fault.
+		types.ErrConfigNil:       errorfamily.Rejection,
+		types.ErrVersionRequired: errorfamily.Rejection,
+		types.ErrVersionInvalid:  errorfamily.Rejection,
+		types.ErrTimeoutRequired: errorfamily.Rejection,
+		types.ErrIssuesExitCode:  errorfamily.Rejection,
+		types.ErrConcurrency:     errorfamily.Rejection,
+		types.ErrMaxIssues:       errorfamily.Rejection,
+		types.ErrMaxSameIssues:   errorfamily.Rejection,
+
+		// Linter priority parse errors — user-fault.
+		types.ErrInvalidLinterPriority: errorfamily.Rejection,
 
 		// State conflicts — user must resolve before proceeding.
 		ErrHookAlreadyExists: errorfamily.Conflict,

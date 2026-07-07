@@ -1,18 +1,20 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
 	"charm.land/log/v2"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 )
 
 // Backup file permission (read/write for owner only).
 const backupFilePermission = os.FileMode(0o600)
 
-// ErrNoConfigFiles is returned when no config files are provided to merge.
-var ErrNoConfigFiles = errors.New("no config files to merge")
+// ErrNoConfigFiles is re-exported from pkg/errors for backward compatibility.
+//
+// Deprecated: use apperrors.ErrNoConfigFiles instead.
+var ErrNoConfigFiles = apperrors.ErrNoConfigFiles
 
 // Merger handles merging multiple golangci-lint configuration files.
 type Merger struct {
