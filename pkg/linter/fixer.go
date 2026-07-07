@@ -128,8 +128,6 @@ func (f *Fixer) checkDryRunEarlyReturns(
 	return nil, false
 }
 
-// analysisError is re-exported from fixer_results.go for backward compatibility.
-
 // runPreFlightChecks runs all pre-flight fixes and returns whether invalid durations were found.
 func (f *Fixer) runPreFlightChecks(
 	cfg *types.Config,
