@@ -6,6 +6,9 @@ import (
 )
 
 const (
+	// ConfigVersionV2 is the golangci-lint v2 config schema version.
+	ConfigVersionV2 = "2"
+
 	RuleDuplicateLinter       = "duplicate-linter"
 	RuleEnableDisableOverlap  = "enable-disable-overlap"
 	RuleMissingCriticalLinter = "missing-critical-linter"
@@ -47,8 +50,8 @@ func validateVersion(cfg *Config) error {
 		return ErrVersionRequired
 	}
 
-	if cfg.Version != "2" {
-		return fmt.Errorf("config validation failed: version must be 2, got %q: %w", cfg.Version, ErrVersionInvalid)
+	if cfg.Version != ConfigVersionV2 {
+		return fmt.Errorf("config validation failed: version must be %s, got %q: %w", ConfigVersionV2, cfg.Version, ErrVersionInvalid)
 	}
 
 	return nil

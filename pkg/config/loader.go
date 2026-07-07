@@ -307,7 +307,7 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 
 func newDefaultConfig(allLinters []string, goVersion string) *Config {
 	return &Config{
-		Version: "2",
+		Version: types.ConfigVersionV2,
 		Run: RunConfig{
 			Timeout:        "5m",
 			Go:             goVersion,
