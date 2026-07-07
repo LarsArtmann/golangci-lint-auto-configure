@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"golang.org/x/sync/errgroup"
@@ -57,14 +58,14 @@ type golangciLintFormattersOutput struct {
 // FindBinary finds the golangci-lint binary in PATH.
 // It warns if multiple golangci-lint binaries are found in different PATH entries.
 func (a *Analyzer) FindBinary(_ context.Context) error {
-	path, err := exec.LookPath("golangci-lint")
+	path, err := exec.LookPath(constants.GolangciLintBinaryName)
 	if err != nil {
 		return apperrors.NewAnalysisError("golangci-lint not found in PATH", "", err)
 	}
 
 	a.golangciLintPath = path
 
-	if allPaths := lookupAll("golangci-lint"); len(allPaths) > 1 {
+	if allPaths := lookupAll(constants.GolangciLintBinaryName); len(allPaths) > 1 {
 		a.logger.Warnf(
 			"Multiple golangci-lint binaries found in PATH (%s); "+
 				"using %s — consider removing duplicates to avoid ambiguity",

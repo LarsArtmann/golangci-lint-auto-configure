@@ -262,7 +262,7 @@ func runSchemaValidation(cmd *cobra.Command, configFile string, logger *log.Logg
 
 	verifyCmd := exec.CommandContext(
 		cmd.Context(),
-		"golangci-lint",
+		constants.GolangciLintBinaryName,
 		"config",
 		"verify",
 		"--config",

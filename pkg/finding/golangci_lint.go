@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	finding "github.com/larsartmann/go-finding"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 )
 
 // GolangciLintIssue represents a single issue from golangci-lint JSON output.
@@ -59,7 +60,7 @@ func issueToFinding(issue GolangciLintIssue) (finding.Finding, error) {
 
 	return buildFinding(finding.NewBuilder(
 		finding.RuleName(issue.FromLinter),
-		finding.ToolName("golangci-lint"),
+		finding.ToolName(constants.GolangciLintBinaryName),
 		issue.Text,
 		severity,
 		pos,

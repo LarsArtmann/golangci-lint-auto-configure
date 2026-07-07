@@ -8,6 +8,10 @@ const DefaultTimeout = "5m"
 // ToolName is the canonical name of this tool, used for reports, findings, and CLI identity.
 const ToolName = "golangci-lint-auto-configure"
 
+// GolangciLintBinaryName is the binary name of the external golangci-lint tool
+// invoked for version checks, linter discovery, and formatting.
+const GolangciLintBinaryName = "golangci-lint"
+
 // DefaultConfigFileNames is a list of default golangci-lint config file names.
 var DefaultConfigFileNames = []string{
 	".golangci.yml",

@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"os/exec"
 	"time"
+
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 )
 
 // Validator is an interface for configuration validation.
@@ -23,7 +25,7 @@ const ValidationTimeout = 30 * time.Second
 type DefaultValidator struct{}
 
 func (v DefaultValidator) ValidateConfig(migrator *Migrator) error {
-	golangciLintPath, err := exec.LookPath("golangci-lint")
+	golangciLintPath, err := exec.LookPath(constants.GolangciLintBinaryName)
 	if err != nil {
 		return fmt.Errorf("golangci-lint not found: %w", err)
 	}

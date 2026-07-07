@@ -242,7 +242,7 @@ func (l *Loader) getAllLinterNames(ctx context.Context) ([]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, LintersTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "golangci-lint", "linters", "--json")
+	cmd := exec.CommandContext(ctx, constants.GolangciLintBinaryName, "linters", "--json")
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
