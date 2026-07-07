@@ -30,7 +30,7 @@ var _ = Context("exit codes", func() {
 
 		var exitErr *exec.ExitError
 		Expect(errors.As(err, &exitErr)).To(BeTrue())
-		Expect(exitErr.ExitCode()).To(Equal(75))
+		Expect(exitErr.ExitCode()).To(Equal(1))
 	})
 
 	It("should output JSON error with --json-errors flag", func() {
