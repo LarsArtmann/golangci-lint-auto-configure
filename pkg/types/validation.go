@@ -51,7 +51,10 @@ func validateVersion(cfg *Config) error {
 	}
 
 	if cfg.Version != ConfigVersionV2 {
-		return fmt.Errorf("config validation failed: version must be %s, got %q: %w", ConfigVersionV2, cfg.Version, ErrVersionInvalid)
+		return fmt.Errorf(
+			"config validation failed: version must be %s, got %q: %w",
+			ConfigVersionV2, cfg.Version, ErrVersionInvalid,
+		)
 	}
 
 	return nil

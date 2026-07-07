@@ -140,14 +140,18 @@ func sortByPriority(paths []string) []string {
 }
 
 // configFilePriority defines the priority for each config filename.
-// The keys mirror constants.DefaultConfigFileNames — kept in sync via the init below.
-var configFilePriority = map[string]int{}
+// Built from constants.DefaultConfigFileNames to avoid duplicating the filenames.
+var configFilePriority = buildConfigFilePriority()
 
-func init() {
+func buildConfigFilePriority() map[string]int {
 	priorities := []int{ConfigPriorityYML, ConfigPriorityYAML, ConfigPriorityTOML, ConfigPriorityJSON}
+
+	m := make(map[string]int, len(constants.DefaultConfigFileNames))
 	for i, name := range constants.DefaultConfigFileNames {
-		configFilePriority[name] = priorities[i]
+		m[name] = priorities[i]
 	}
+
+	return m
 }
 
 // createBackup creates a backup of the given config file.
