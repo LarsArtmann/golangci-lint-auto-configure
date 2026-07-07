@@ -14,6 +14,9 @@ type JSONGenerator struct {
 	logger *log.Logger
 }
 
+// jsonFilePerm restricts report output to owner-only read/write.
+const jsonFilePerm = 0o600
+
 // NewJSONGenerator creates a new JSON report generator.
 func NewJSONGenerator(logger *log.Logger) *JSONGenerator {
 	return &JSONGenerator{
@@ -50,7 +53,7 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 		return fmt.Errorf("failed to marshal JSON report (outputPath=%s): %w", outputPath, err)
 	}
 
-	if writeErr := os.WriteFile(outputPath, jsonData, 0o644); writeErr != nil {
+	if writeErr := os.WriteFile(outputPath, jsonData, jsonFilePerm); writeErr != nil {
 		return fmt.Errorf("failed to write JSON report (outputPath=%s): %w", outputPath, writeErr)
 	}
 
