@@ -2,10 +2,10 @@ package report
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 
 	"charm.land/log/v2"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -50,11 +50,13 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 	//nolint:musttag // intentionally tag-free: PascalCase via Go field names
 	jsonData, err := json.MarshalIndent(jsonReport, "", "  ")
 	if err != nil {
-		return fmt.Errorf("failed to marshal JSON report (outputPath=%s): %w", outputPath, err)
+		return errorfamily.WrapCorruptionf(err, "report.json_marshal",
+			"failed to marshal JSON report (outputPath=%s)", outputPath)
 	}
 
 	if writeErr := os.WriteFile(outputPath, jsonData, jsonFilePerm); writeErr != nil {
-		return fmt.Errorf("failed to write JSON report (outputPath=%s): %w", outputPath, writeErr)
+		return errorfamily.WrapRejectionf(writeErr, "report.json_write",
+			"failed to write JSON report (outputPath=%s)", outputPath)
 	}
 
 	g.logger.Infof("JSON report generated successfully: %s", outputPath)

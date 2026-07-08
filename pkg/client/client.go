@@ -4,10 +4,10 @@ package client
 
 import (
 	"context"
-	"fmt"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
@@ -68,7 +68,7 @@ func New(opts Options) *Client {
 func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error) {
 	result, err := c.analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to analyze config: %w", err)
+		return nil, apperrors.WrapClassified(err, "client.analyze", "failed to analyze config")
 	}
 
 	return result, nil
@@ -87,7 +87,7 @@ func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.C
 func (c *Client) LoadConfig(configPath string) (*config.Config, error) {
 	cfg, err := c.configLoader.LoadConfig(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load config: %w", err)
+		return nil, apperrors.WrapClassified(err, "client.load_config", "failed to load config")
 	}
 
 	return cfg, nil
@@ -129,7 +129,8 @@ func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string {
 func (c *Client) SaveConfig(cfg *config.Config, path string) error {
 	err := c.configLoader.SaveConfig(cfg, path)
 	if err != nil {
-		return fmt.Errorf("failed to save config (path=%s): %w", path, err)
+		return apperrors.WrapClassifiedf(err, "client.save_config",
+			"failed to save config (path=%s)", path)
 	}
 
 	return nil
@@ -166,7 +167,8 @@ func (c *Client) FixConfig(ctx context.Context, configPath string, opts FixOptio
 
 	result, err := c.fixer.FixConfig(ctx, configPath, opts.Priority, opts.DryRun)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fix config (priority=%d, dryRun=%t): %w", opts.Priority, opts.DryRun, err)
+		return nil, apperrors.WrapClassifiedf(err, "client.fix_config",
+			"failed to fix config (priority=%d, dryRun=%t)", opts.Priority, opts.DryRun)
 	}
 
 	return result, nil
@@ -194,7 +196,8 @@ func SimpleFix(ctx context.Context, opts Options, configPath string, dryRun bool
 		DryRun:   dryRun,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("fix failed (dryRun=%t, verbose=%t): %w", dryRun, opts.Verbose, err)
+		return nil, apperrors.WrapClassifiedf(err, "client.fix_failed",
+			"fix failed (dryRun=%t, verbose=%t)", dryRun, opts.Verbose)
 	}
 
 	if opts.Verbose {
@@ -220,7 +223,8 @@ func SimpleAnalyze(ctx context.Context, opts Options, configPath string) (string
 
 	analysis, err := clientObj.AnalyzeConfig(ctx, configPath)
 	if err != nil {
-		return "", fmt.Errorf("analysis failed (verbose=%t): %w", opts.Verbose, err)
+		return "", apperrors.WrapClassifiedf(err, "client.analysis_failed",
+			"analysis failed (verbose=%t)", opts.Verbose)
 	}
 
 	if opts.Verbose {

@@ -2,11 +2,11 @@ package cli
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"os/exec"
 
 	"charm.land/log/v2"
+	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -51,14 +51,14 @@ func runValidate(
 
 	configFile, err := resolveValidateConfig(cmd, configLoader, logger, skipGolangciLint)
 	if err != nil {
-		return fmt.Errorf("resolve config: %w", err)
+		return apperrors.WrapClassified(err, "validate.resolve_config", "resolve config")
 	}
 
 	logger.Infof("Validating configuration: %s", configFile)
 
 	err = validateConfig(configLoader, logger, configFile, skipGolangciLint)
 	if err != nil {
-		return fmt.Errorf("validate config: %w", err)
+		return apperrors.WrapClassified(err, "validate.config", "validate config")
 	}
 
 	if skipGolangciLint {
@@ -87,7 +87,7 @@ func validateConfig(
 ) error {
 	err := validateLoadedConfig(configLoader, logger, configFile)
 	if err != nil {
-		return fmt.Errorf("validate loaded config: %w", err)
+		return apperrors.WrapClassified(err, "validate.loaded_config", "validate loaded config")
 	}
 
 	return nil
@@ -138,13 +138,9 @@ func checkConfigHealth(cfg *types.Config, logger *log.Logger, configFile string)
 
 	logHealthIssues(logger, health)
 
-	return fmt.Errorf(
-		"%w: %d health issues (%d critical, %d warning)",
-		apperrors.ErrConfigValidationFailed,
-		len(health.Issues),
-		len(health.CriticalIssues()),
-		len(health.WarningIssues()),
-	)
+	return errorfamily.WrapRejectionf(apperrors.ErrConfigValidationFailed, "validate.health",
+		"%d health issues (%d critical, %d warning)",
+		len(health.Issues), len(health.CriticalIssues()), len(health.WarningIssues()))
 }
 
 func logHealthIssues(logger *log.Logger, health *types.ConfigHealth) {
@@ -184,19 +180,22 @@ func outputHealthSARIF(health *types.ConfigHealth, configFile string, logger *lo
 
 	sarif, err := report.ToSARIF()
 	if err != nil {
-		return fmt.Errorf("failed to generate SARIF: %w", err)
+		return errorfamily.WrapCorruption(err, "validate.sarif_health",
+			"failed to generate SARIF")
 	}
 
 	var raw json.RawMessage = sarif
 
 	pretty, err := json.MarshalIndent(raw, "", "  ")
 	if err != nil {
-		return fmt.Errorf("failed to format SARIF: %w", err)
+		return errorfamily.WrapCorruption(err, "validate.sarif_format_health",
+			"failed to format SARIF")
 	}
 
 	_, err = os.Stdout.Write(pretty)
 	if err != nil {
-		return fmt.Errorf("failed to write SARIF output: %w", err)
+		return errorfamily.WrapRejection(err, "validate.sarif_write_health",
+			"failed to write SARIF output")
 	}
 
 	return nil
@@ -240,7 +239,7 @@ func healthIssuesToFindings(
 func logAndFailLoad(logger *log.Logger, err error) error {
 	logger.Errorf("❌ Failed to load configuration")
 
-	return fmt.Errorf("failed to load config: %w", err)
+	return apperrors.WrapClassified(err, "validate.load_config", "failed to load config")
 }
 
 func logAndFailValidation(logger *log.Logger, validationErrors []error) error {
@@ -250,11 +249,8 @@ func logAndFailValidation(logger *log.Logger, validationErrors []error) error {
 		logger.Errorf("  - %v", e)
 	}
 
-	return fmt.Errorf(
-		"%w: %d validation errors",
-		apperrors.ErrConfigValidationFailed,
-		len(validationErrors),
-	)
+	return errorfamily.WrapRejectionf(apperrors.ErrConfigValidationFailed, "validate.internal",
+		"%d validation errors", len(validationErrors))
 }
 
 func runSchemaValidation(cmd *cobra.Command, configFile string, logger *log.Logger) error {
@@ -274,7 +270,8 @@ func runSchemaValidation(cmd *cobra.Command, configFile string, logger *log.Logg
 		logger.Errorf("❌ Schema validation failed:")
 		logger.Errorf("%s", string(output))
 
-		return fmt.Errorf("golangci-lint config verify failed: %w", err)
+		return apperrors.WrapClassified(err, "validate.schema_verify",
+			"golangci-lint config verify failed")
 	}
 
 	if len(output) > 0 {
@@ -295,7 +292,8 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 
 	findings, err := appfinding.ErrorsToFindings(errors, configFile)
 	if err != nil {
-		return fmt.Errorf("failed to convert errors to findings: %w", err)
+		return apperrors.WrapClassified(err, "validate.errors_to_findings",
+			"failed to convert errors to findings")
 	}
 
 	report.AddFindings(findings)
@@ -303,19 +301,22 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 
 	sarif, sarifErr := report.ToSARIF()
 	if sarifErr != nil {
-		return fmt.Errorf("failed to generate SARIF: %w", sarifErr)
+		return errorfamily.WrapCorruptionf(sarifErr, "validate.sarif",
+			"failed to generate SARIF")
 	}
 
 	var raw json.RawMessage = sarif
 
 	pretty, prettyErr := json.MarshalIndent(raw, "", "  ")
 	if prettyErr != nil {
-		return fmt.Errorf("failed to format SARIF: %w", prettyErr)
+		return errorfamily.WrapCorruptionf(prettyErr, "validate.sarif_format",
+			"failed to format SARIF")
 	}
 
 	_, writeErr := os.Stdout.Write(pretty)
 	if writeErr != nil {
-		return fmt.Errorf("failed to write SARIF output: %w", writeErr)
+		return errorfamily.WrapRejectionf(writeErr, "validate.sarif_write",
+			"failed to write SARIF output")
 	}
 
 	return nil

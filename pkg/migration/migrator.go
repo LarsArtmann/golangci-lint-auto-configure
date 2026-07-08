@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
 
@@ -81,13 +82,13 @@ func (m *Migrator) SetNoEmojis(noEmojis bool) {
 func (m *Migrator) MigrateToV2() (bool, int, error) {
 	cfg, err := LoadConfig(m.configPath)
 	if err != nil {
-		return false, 0, fmt.Errorf("failed to load config: %w", err)
+		return false, 0, apperrors.WrapClassified(err, "migration.load_config", "failed to load config")
 	}
 
 	if !m.dryRun {
 		err = m.checkGitRepository()
 		if err != nil {
-			return false, 0, fmt.Errorf("git check failed: %w", err)
+			return false, 0, apperrors.WrapClassified(err, "migration.git_check", "git check failed")
 		}
 	}
 
@@ -167,15 +168,14 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 
 	err = SaveConfig(cfg, m.configPath)
 	if err != nil {
-		return false, fixesApplied, fmt.Errorf("failed to save migrated config: %w (use git checkout to restore)", err)
+		return false, fixesApplied, apperrors.WrapClassifiedf(err, "migration.save",
+			"failed to save migrated config (use git checkout to restore)")
 	}
 
 	err = m.validateConfig()
 	if err != nil {
-		return false, fixesApplied, fmt.Errorf(
-			"validation failed after migration: %w (use git checkout to restore)",
-			err,
-		)
+		return false, fixesApplied, apperrors.WrapClassifiedf(err, "migration.validate",
+			"validation failed after migration (use git checkout to restore)")
 	}
 
 	if m.verbose {

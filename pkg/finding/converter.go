@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -75,7 +76,8 @@ func RecommendationsToFindings(
 			Suggestion: fmt.Sprintf("Enable %s in linters.enable section", rec.Name),
 		})
 		if err != nil {
-			return nil, fmt.Errorf("build finding for linter %s: %w", rec.Name, err)
+			return nil, errorfamily.WrapCorruptionf(err, "converter.linter_finding",
+				"build finding for linter %s", rec.Name)
 		}
 
 		result = append(result, found)
@@ -102,7 +104,8 @@ func FormatterRecommendationsToFindings(
 			Suggestion: fmt.Sprintf("Enable %s in formatters.enable section", rec.Name),
 		})
 		if err != nil {
-			return nil, fmt.Errorf("build finding for formatter %s: %w", rec.Name, err)
+			return nil, errorfamily.WrapCorruptionf(err, "converter.formatter_finding",
+				"build finding for formatter %s", rec.Name)
 		}
 
 		result = append(result, found)
@@ -166,7 +169,8 @@ func ValidationErrorsToFindings(
 			Suggestion: fmt.Sprintf("Fix field %s: %s", verr.Field, verr.Message),
 		})
 		if err != nil {
-			return nil, fmt.Errorf("build finding for validation error %s: %w", verr.Field, err)
+			return nil, errorfamily.WrapCorruptionf(err, "converter.validation_finding",
+				"build finding for validation error %s", verr.Field)
 		}
 
 		result = append(result, found)
@@ -190,7 +194,8 @@ func ErrorsToFindings(errors []error, configPath string) ([]finding.Finding, err
 			Suggestion: "",
 		})
 		if buildErr != nil {
-			return nil, fmt.Errorf("build finding for error %q: %w", err.Error(), buildErr)
+			return nil, errorfamily.WrapCorruptionf(buildErr, "converter.error_finding",
+				"build finding for error %q", err.Error())
 		}
 
 		result = append(result, found)
@@ -222,21 +227,24 @@ func collectAnalysisFindings(report *finding.Report, analysis *types.ConfigAnaly
 
 	recs, err := RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)
 	if err != nil {
-		errs = append(errs, fmt.Errorf("convert recommendations: %w", err))
+		errs = append(errs, errorfamily.WrapCorruption(err, "converter.recommendations",
+			"convert recommendations"))
 	}
 
 	report.AddFindings(recs)
 
 	fmtRecs, err := FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath)
 	if err != nil {
-		errs = append(errs, fmt.Errorf("convert formatter recommendations: %w", err))
+		errs = append(errs, errorfamily.WrapCorruption(err, "converter.formatter_recommendations",
+			"convert formatter recommendations"))
 	}
 
 	report.AddFindings(fmtRecs)
 
 	depRecs, err := DeprecatedLintersToFindings(analysis.DeprecatedLinters, analysis.ConfigPath)
 	if err != nil {
-		errs = append(errs, fmt.Errorf("convert deprecated linters: %w", err))
+		errs = append(errs, errorfamily.WrapCorruption(err, "converter.deprecated",
+			"convert deprecated linters"))
 	}
 
 	report.AddFindings(depRecs)
@@ -248,12 +256,13 @@ func collectAnalysisFindings(report *finding.Report, analysis *types.ConfigAnaly
 func AnalysisToSARIF(analysis *types.ConfigAnalysis, version string) ([]byte, error) {
 	report, err := AnalysisToReport(analysis, version)
 	if err != nil {
-		return nil, fmt.Errorf("build report: %w", err)
+		return nil, errorfamily.WrapCorruption(err, "converter.build_report", "build report")
 	}
 
 	sarif, err := report.ToSARIF()
 	if err != nil {
-		return nil, fmt.Errorf("generate SARIF (version=%s): %w", version, err)
+		return nil, errorfamily.WrapCorruptionf(err, "converter.sarif",
+			"generate SARIF (version=%s)", version)
 	}
 
 	return sarif, nil

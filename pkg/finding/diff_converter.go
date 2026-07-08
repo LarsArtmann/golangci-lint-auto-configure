@@ -3,6 +3,7 @@ package finding
 import (
 	"fmt"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/diff"
@@ -46,12 +47,13 @@ func changeFinding(change diff.Change, configPath string) (finding.Finding, erro
 		builder = builder.WithAfterCode(change.NewValue)
 	}
 
-	f, err := buildFinding(builder)
+	found, err := buildFinding(builder)
 	if err != nil {
-		return finding.Finding{}, fmt.Errorf("build finding for change %s: %w", change.Path, err)
+		return finding.Finding{}, errorfamily.WrapCorruptionf(err, "diff_converter.change",
+			"build finding for change %s", change.Path)
 	}
 
-	return f, nil
+	return found, nil
 }
 
 func changeSeverity(t diff.ChangeType) finding.Severity {
@@ -103,7 +105,8 @@ func MigrationResultToFindings(
 		Suggestion: fmt.Sprintf("%d fixes applied", fixesApplied),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("build migration result finding: %w", err)
+		return nil, errorfamily.WrapCorruption(err, "diff_converter.migration_result",
+			"build migration result finding")
 	}
 
 	return []finding.Finding{found}, nil

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -88,7 +87,7 @@ func runInstallHook(logger *log.Logger) error {
 	}
 
 	if err := os.WriteFile(hookPath, []byte(preCommitHookContent), 0o755); err != nil {
-		return fmt.Errorf("failed to write hook: %w", err)
+		return apperrors.WrapClassified(err, "hook.write", "failed to write hook")
 	}
 
 	logger.Infof("✅ Pre-commit hook installed at %s", hookPath)

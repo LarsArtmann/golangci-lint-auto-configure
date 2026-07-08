@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"golang.org/x/mod/semver"
@@ -29,7 +30,8 @@ func (a *Analyzer) validateVersion(version string) error {
 		return apperrors.NewAnalysisError(
 			"invalid golangci-lint version format",
 			"",
-			fmt.Errorf("%w: %s", apperrors.ErrInvalidVersionFormat, version),
+			errorfamily.WrapCorruptionf(apperrors.ErrInvalidVersionFormat, "version.invalid_format",
+				"version %s", version),
 		)
 	}
 
@@ -38,11 +40,9 @@ func (a *Analyzer) validateVersion(version string) error {
 		return apperrors.NewAnalysisError(
 			fmt.Sprintf("golangci-lint version %s is too old", version),
 			"",
-			fmt.Errorf(
-				"%w: minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
-				apperrors.ErrVersionTooOld,
-				minVersion,
-			),
+			errorfamily.WrapRejectionf(apperrors.ErrVersionTooOld, "version.too_old",
+				"minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
+				minVersion),
 		)
 	}
 
@@ -88,7 +88,8 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 		return apperrors.NewAnalysisError(
 			"could not parse golangci-lint version from JSON",
 			"",
-			fmt.Errorf("%w: %s", apperrors.ErrVersionParse, string(output)),
+			errorfamily.WrapCorruptionf(apperrors.ErrVersionParse, "version.parse_json",
+				"output: %s", string(output)),
 		)
 	}
 
@@ -102,7 +103,8 @@ func (a *Analyzer) runVersionCommandWithRetry(ctx context.Context, args ...strin
 		return output, apperrors.NewAnalysisError(
 			"version check command failed",
 			"",
-			fmt.Errorf("command %v failed: %w", args, err),
+			apperrors.WrapClassifiedf(err, "version.command_failed",
+				"command %v failed", args),
 		)
 	}
 
@@ -126,7 +128,8 @@ func (a *Analyzer) checkVersionText(ctx context.Context) error {
 		return apperrors.NewAnalysisError(
 			"could not parse golangci-lint version from output",
 			"",
-			fmt.Errorf("%w: %s", apperrors.ErrVersionParse, outputStr),
+			errorfamily.WrapCorruptionf(apperrors.ErrVersionParse, "version.parse_text",
+				"output: %s", outputStr),
 		)
 	}
 

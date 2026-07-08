@@ -2,9 +2,9 @@ package finding
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 )
@@ -32,18 +32,20 @@ func ParseGolangciLintJSON(data []byte) ([]finding.Finding, error) {
 
 	err := json.Unmarshal(data, &output)
 	if err != nil {
-		return nil, fmt.Errorf("parse golangci-lint JSON: %w", err)
+		return nil, errorfamily.WrapCorruption(err, "golangci_lint.parse_json",
+			"parse golangci-lint JSON")
 	}
 
 	findings := make([]finding.Finding, 0, len(output.Issues))
 
 	for _, issue := range output.Issues {
-		f, err := issueToFinding(issue)
+		converted, err := issueToFinding(issue)
 		if err != nil {
-			return nil, fmt.Errorf("convert issue from %s: %w", issue.FromLinter, err)
+			return nil, errorfamily.WrapCorruptionf(err, "golangci_lint.convert_issue",
+				"convert issue from %s", issue.FromLinter)
 		}
 
-		findings = append(findings, f)
+		findings = append(findings, converted)
 	}
 
 	return findings, nil

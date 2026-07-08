@@ -13,6 +13,7 @@ import (
 	clicmd "github.com/larsartmann/golangci-lint-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/version"
 	"github.com/spf13/cobra"
@@ -59,7 +60,8 @@ func resolveConfig(
 ) (string, error) {
 	configFile, err := resolveConfigPath(ctx, configLoader, logger, configPath, dryRun)
 	if err != nil {
-		return "", fmt.Errorf("%s: %w", errorPrefix, err)
+		return "", apperrors.WrapClassifiedf(err, "cli.resolve_config_path",
+			"%s", errorPrefix)
 	}
 
 	return configFile, nil
@@ -254,7 +256,7 @@ func Execute(ctx context.Context) error {
 
 	err := fang.Execute(ctx, rootCmd, fang.WithVersion(Version))
 	if err != nil {
-		return fmt.Errorf("failed to execute command: %w", err)
+		return apperrors.WrapClassified(err, "cli.execute", "failed to execute command")
 	}
 
 	return nil

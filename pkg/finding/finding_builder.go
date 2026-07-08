@@ -1,8 +1,7 @@
 package finding
 
 import (
-	"fmt"
-
+	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 )
@@ -10,12 +9,13 @@ import (
 // buildFinding is a helper that builds a Finding from a Builder, returning an error
 // instead of panicking on invalid builder state.
 func buildFinding(b *finding.Builder) (finding.Finding, error) {
-	f, err := b.Build()
+	found, err := b.Build()
 	if err != nil {
-		return finding.Finding{}, fmt.Errorf("finding builder error: %w", err)
+		return finding.Finding{}, errorfamily.WrapCorruption(err, "finding.builder",
+			"finding builder error")
 	}
 
-	return f, nil
+	return found, nil
 }
 
 // configPosition creates a finding.Position for a config-level finding.
@@ -61,10 +61,11 @@ func configFinding(params configFindingParams) (finding.Finding, error) {
 		builder = builder.WithSuggestion(params.Suggestion)
 	}
 
-	f, err := builder.Build()
+	found, err := builder.Build()
 	if err != nil {
-		return finding.Finding{}, fmt.Errorf("build finding for %s: %w", params.RuleID, err)
+		return finding.Finding{}, errorfamily.WrapCorruptionf(err, "finding.build",
+			"build finding for %s", params.RuleID)
 	}
 
-	return f, nil
+	return found, nil
 }

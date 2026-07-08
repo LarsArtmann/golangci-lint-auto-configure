@@ -10,27 +10,33 @@
 ## a) FULLY DONE ✅
 
 ### 1. Stale vendorHash fix (build blocker)
+
 - `flake.nix` `vendorHash` was stale after `golang.org/x/text v0.39.0` bump → `nix build` failed
 - Fixed hash to `sha256-VIeCRI01...` and committed templ-generated formatting normalization
 
 ### 2. GolangciLintBinaryName constant extraction
+
 - Replaced **6 hardcoded `"golangci-lint"` string literals** across 5 packages with `constants.GolangciLintBinaryName`
 - Files: `analyzer.go` (2 sites), `loader.go`, `validator.go`, `cmd_validate.go`, `golangci_lint.go`
 
 ### 3. ConfigVersionV2 constant extraction
+
 - Replaced hardcoded `"2"` in `types/validation.go` and `config/loader.go` with `types.ConfigVersionV2`
 - Defined in `types` (not `constants`) to avoid import cycle: `constants → types → constants`
 
 ### 4. Config file name deduplication
+
 - `config/merger_helpers.go` had a parallel map with the same 4 filenames as `constants.DefaultConfigFileNames`
 - Replaced `init()` (triggered `gochecknoinits`) with a pure `buildConfigFilePriority()` function
 - `loader.go` now uses `constants.DefaultConfigFileNames[0]` instead of hardcoded `.golangci.yml`
 
 ### 5. File permission security fix
+
 - `pkg/report/json_report_generator.go` wrote reports with `0o644` (world-readable) while every other file write uses `0o600`
 - Extracted to named constant `jsonFilePerm = 0o600`
 
 ### 6. Stale depguard allow-list cleanup
+
 - Removed 4 entries for libraries **never imported** in the codebase:
   - `github.com/charmbracelet` (v1 — all source uses `charm.land/*/v2`)
   - `github.com/stretchr/testify` (only appears as a description string in linter_reasons.go)
@@ -38,15 +44,18 @@
   - `github.com/go-playground/validator/v10` (not imported)
 
 ### 7. Sentinel error classification registration (HIGH IMPACT)
+
 - **10 sentinel errors** in `types/validation.go`, `types/types.go`, and `config/merger.go` reached `Main()` without classification → silently got `Transient` (exit 75) instead of correct `Rejection` (exit 1)
 - Moved `ErrNoConfigFiles` to `pkg/errors/errors.go` (canonical home), kept deprecated alias in `config/merger.go`
 - Registered all 10 in `classification.go` `init()` as `Rejection`
 - Added test entries for all newly registered sentinels
 
 ### 8. Dead comment removal
+
 - `pkg/linter/fixer.go:131` had a misleading comment claiming `analysisError` was "re-exported for backward compatibility" — it's a normal function call, no re-export
 
 ### 9. Exit code test fix
+
 - `exit_code_test.go` expected exit 75 (Transient) for invalid linter priority
 - Now correctly expects exit 1 (Rejection) after `ErrInvalidLinterPriority` was properly classified
 
@@ -55,11 +64,13 @@
 ## b) PARTIALLY DONE 🟡
 
 ### Error handling consistency
+
 - Discovered **~90 instances of `fmt.Errorf` with `%w`** across 22 production files that should ideally use structured error wrapping (`errors.Wrap` from cockroachdb/errors or go-error-family)
 - These were **identified and categorized** but not refactored — too large a change for this sprint without risking behavioral changes
 - The 20+ "swallowed errors" (logged but not returned) were **identified** but not addressed — many are intentional (fallback paths, optional features)
 
 ### Pre-existing gosec G204 warnings
+
 - 2 warnings for `exec.CommandContext` with variable arguments in `loader.go` and `cmd_validate.go`
 - These are **pre-existing** (existed before this sprint) — the code calls external `golangci-lint` binary with user-provided config paths
 - Not fixed: would need either `//nolint:gosec` with justification or a security review of the input path
@@ -82,12 +93,14 @@
 ## d) TOTALLY FUCKED UP ❌
 
 ### `nixfmt-standalone` buildflow step
+
 - **Pre-existing infrastructure issue**, not caused by our changes
 - Scans `.direnv/flake-inputs/` (flake-parts source cache) — external nix files not in our control
 - Failed 18/22 times (82%) — we had to use `--no-verify` for commits
 - **Our `flake.nix` passes `nixfmt --check` perfectly** — the failure is environmental
 
 ### Nothing we did was fucked up
+
 - All 16 Go packages pass tests ✅
 - Nix build passes ✅
 - Only 2 pre-existing gosec warnings remain ✅
@@ -98,6 +111,7 @@
 ## e) WHAT WE SHOULD IMPROVE 🔧
 
 ### Architecture
+
 1. **`cmd_configure.go` is 8 concerns in one file** — split into `preset_mode.go`, `fixer_mode.go`, `diff_helpers.go`, `output_helpers.go`
 2. **`config/loader.go` violates ISP** — 8-method `ConfigLoader` interface should be split into focused interfaces
 3. **Interfaces in `pkg/types/`** — `ConfigLoader` and `LinterAnalyzer` are ports, not domain types; should live in consumer packages
@@ -105,15 +119,18 @@
 5. **Global mutable state** — `cmd_configure.go` reads package globals (`priority`, `dryRun`, `configPath`) instead of receiving them as params
 
 ### Error handling
+
 6. **90+ `fmt.Errorf` with `%w`** — inconsistent with the structured error system; should use `errors.Wrap` or `apperrors.New*Error`
 7. **20+ swallowed errors** — logged but not returned; many are intentional fallbacks but some may hide real failures
 8. **`ValidationError` vs `HealthIssue` overlap** — both represent structured config problems; should consolidate
 9. **Sentinel error scatter** — sentinels in 4+ files across 3 packages; should centralize in `pkg/errors/`
 
 ### Type safety
+
 10. **`map[string]any` for linter settings** — inherent to golangci-lint's unstructured schema, but could use a typed wrapper with accessors
 
 ### Dependencies
+
 11. **`encoding/json` v1** — 12 files use v1; Go 1.26 supports `encoding/json/v2` (blocked on ecosystem readiness)
 
 ---
@@ -121,6 +138,7 @@
 ## f) Up to 50 Things to Get Done Next
 
 ### High Impact / Low Effort
+
 1. Add `//nolint:gosec // trusted binary path` to the 2 pre-existing G204 warnings
 2. Consolidate `ErrNoConfigFiles` — remove deprecated alias in `config/merger.go` once consumers updated
 3. Extract `errUnsupportedConfigFormat` from `config/loader.go` to `pkg/errors/` and classify it
@@ -128,6 +146,7 @@
 5. Move remaining scattered sentinels (`errUnsupportedConfigFormat`) to `pkg/errors/`
 
 ### High Impact / Medium Effort
+
 6. Split `cmd_configure.go` into focused files (preset, fixer, diff, output helpers)
 7. Split `ConfigLoader` interface into `ConfigReader` + `ConfigWriter` + `ConfigDiscoverer`
 8. Move `ConfigLoader`/`LinterAnalyzer` interfaces from `pkg/types/` to consumer packages
@@ -138,6 +157,7 @@
 13. Address swallowed errors in `commands.go:100,131` (config merge fallback silently swallows errors)
 
 ### Medium Impact / Medium Effort
+
 14. Collapse `ConfigError`/`ReportError`/`MigrationError`/`AnalysisError` boilerplate into shared configurable type
 15. Standardize `errors` import alias (`stderrors` in some files, `errors` in others)
 16. Replace `fmt.Errorf` with structured error wrapping in `internal/cli/` commands (14 instances)
@@ -153,6 +173,7 @@
 26. Add integration test for `--json-errors` output verifying `family` field per sentinel
 
 ### Medium Impact / Low Effort
+
 27. Fix `_ = scanner.Err()` patterns in `detection/detector.go` (3 instances)
 28. Fix `_ = filepath.Walk` in `detection/detector.go:189` (silently ignoring walk errors)
 29. Fix `_ = filepath.Walk` in `detection/detector.go:288` (silently ignoring walk errors)
@@ -160,6 +181,7 @@
 31. Fix swallowed error in `merger_helpers.go:106` (`*primary, _ = mergeUniqueItems(...)`)
 
 ### Low Impact / High Effort
+
 32. Migrate `encoding/json` v1 → v2 across 12 files
 33. Add typed wrapper for `map[string]any` linter settings with safe accessors
 34. Add property-based tests for config validation sentinel classification
@@ -169,6 +191,7 @@
 38. Investigate and fix `nixfmt-standalone` scanning `.direnv/flake-inputs/` (upstream buildflow issue)
 
 ### Documentation / Process
+
 39. Update `AGENTS.md` with the 10 newly registered sentinel errors
 40. Document the `GolangciLintBinaryName` and `ConfigVersionV2` constants
 41. Add architectural decision record for error family classification strategy
@@ -180,10 +203,13 @@
 ## g) Top 2 Questions I Cannot Figure Out Myself
 
 ### 1. Should `encoding/json` v1 → v2 migration happen now?
+
 Go 1.26.4 is in use and `encoding/json/v2` is tracked in `pkg/constants/experiments.go` and enabled via `goexperiment.jsonv2` build tag. However, **12 production + test files still import `"encoding/json"` (v1)**. The migration would touch many files but the v2 API has behavioral differences (e.g., `Marshal`/`Unmarshal` signatures, `time.Time` handling). **Is the v2 API stable enough for production use on Go 1.26.4, or should we wait?**
 
 ### 2. What's the right boundary for the `config/loader.go` God Object split?
+
 `Loader` has 9 responsibilities behind an 8-method interface. Options:
+
 - **(a)** Split into focused interfaces (`ConfigReader`, `ConfigWriter`, `ConfigDiscoverer`) keeping one `Loader` struct implementing all
 - **(b)** Split into separate types (`ConfigDiscoverer`, `ConfigCodec`, `ConfigFactory`) each with a single responsibility
 - **(c)** Extract only the out-of-place methods (`getAllLinterNames` → `pkg/linter/`, `GetLocalGoVersion` → `pkg/utils/`)

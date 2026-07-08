@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	gogenfilter "github.com/LarsArtmann/gogenfilter/v3"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -50,17 +51,20 @@ type ScanResult struct {
 func ScanProject(fsys fs.FS, projectDir string) (*ScanResult, error) {
 	opts, err := gogenfilter.WithFilterOptions(gogenfilter.FilterAll)
 	if err != nil {
-		return nil, fmt.Errorf("configure gogenfilter options (projectDir=%s): %w", projectDir, err)
+		return nil, errorfamily.WrapTransientf(err, "scanner.configure",
+			"configure gogenfilter options (projectDir=%s)", projectDir)
 	}
 
 	filter, err := gogenfilter.NewFilter(opts, gogenfilter.WithFS(fsys))
 	if err != nil {
-		return nil, fmt.Errorf("create gogenfilter (projectDir=%s): %w", projectDir, err)
+		return nil, errorfamily.WrapTransientf(err, "scanner.create_filter",
+			"create gogenfilter (projectDir=%s)", projectDir)
 	}
 
 	goFiles, err := collectGoFiles(fsys)
 	if err != nil {
-		return nil, fmt.Errorf("collect Go files (projectDir=%s): %w", projectDir, err)
+		return nil, errorfamily.WrapTransientf(err, "scanner.collect_files",
+			"collect Go files (projectDir=%s)", projectDir)
 	}
 
 	detectedByGenerator := make(map[string][]string)
@@ -108,7 +112,8 @@ func collectGoFiles(fsys fs.FS) ([]string, error) {
 
 	err := fs.WalkDir(fsys, ".", func(path string, dirEntry fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("walking directory %s: %w", path, err)
+			return errorfamily.WrapTransientf(err, "scanner.walk_entry",
+				"walking directory %s", path)
 		}
 
 		if !dirEntry.IsDir() {
@@ -126,7 +131,7 @@ func collectGoFiles(fsys fs.FS) ([]string, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to walk filesystem: %w", err)
+		return nil, errorfamily.WrapTransient(err, "scanner.walk_failed", "failed to walk filesystem")
 	}
 
 	return goFiles, nil

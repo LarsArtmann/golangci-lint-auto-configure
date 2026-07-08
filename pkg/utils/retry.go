@@ -3,8 +3,9 @@ package utils
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
+
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 type Config struct {
@@ -52,12 +53,8 @@ func WithRetry(
 			select {
 			case <-time.After(backoff):
 			case <-ctx.Done():
-				return nil, fmt.Errorf(
-					"%s retry interrupted (lastErr=%w): %w",
-					name,
-					lastErr,
-					ctx.Err(),
-				)
+				return nil, errorfamily.WrapTransientf(ctx.Err(), "retry.interrupted",
+					"%s retry interrupted (lastError=%s)", name, lastErr)
 			}
 
 			backoff *= 2
@@ -66,13 +63,15 @@ func WithRetry(
 		}
 
 		if attempt >= config.MaxRetries {
-			return output, fmt.Errorf("%s failed after %d retries: %w", name, config.MaxRetries, lastErr)
+			return output, errorfamily.WrapTransientf(lastErr, "retry.exhausted",
+				"%s failed after %d retries", name, config.MaxRetries)
 		}
 
 		return output, err
 	}
 
-	return nil, fmt.Errorf("%s failed after %d retries: %w", name, config.MaxRetries, lastErr)
+	return nil, errorfamily.WrapTransientf(lastErr, "retry.exhausted",
+		"%s failed after %d retries", name, config.MaxRetries)
 }
 
 func IsContextCanceled(err error) bool {

@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"fmt"
-
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/migration"
 	"github.com/spf13/cobra"
 )
@@ -62,12 +61,9 @@ func runMigrate(
 
 	configFile, err := resolveMigrateConfig(cmd, configLoader, flags, verbose)
 	if err != nil {
-		return fmt.Errorf(
-			"resolve migrate config failed (configPath=%q, verbose=%t): %w",
-			flags.ConfigPath,
-			verbose,
-			err,
-		)
+		return apperrors.WrapClassifiedf(err, "migrate.resolve_config",
+			"resolve migrate config failed (configPath=%q, verbose=%t)",
+			flags.ConfigPath, verbose)
 	}
 
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
@@ -88,10 +84,9 @@ func resolveMigrateConfig(
 
 		configFile, err = configLoader.FindConfigFile(".")
 		if err != nil {
-			return "", fmt.Errorf(
-				"no config file found (configPath=%q, verbose=%t): %w",
-				flags.ConfigPath, verbose, err,
-			)
+			return "", apperrors.WrapClassifiedf(err, "migrate.find_config",
+				"no config file found (configPath=%q, verbose=%t)",
+				flags.ConfigPath, verbose)
 		}
 	}
 
@@ -108,14 +103,9 @@ func executeMigration(
 ) error {
 	oldConfig, err := loadConfigForMigration(logger, configLoader, configFile)
 	if err != nil {
-		return fmt.Errorf(
-			"load config failed (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t): %w",
-			configFile,
-			dryRun,
-			skipValidation,
-			verbose,
-			err,
-		)
+		return apperrors.WrapClassifiedf(err, "migrate.load_config",
+			"load config failed (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t)",
+			configFile, dryRun, skipValidation, verbose)
 	}
 
 	if isAlreadyV2(oldConfig) {
@@ -136,7 +126,8 @@ func loadConfigForMigration(
 
 	oldConfig, err := configLoader.LoadConfig(configFile)
 	if err != nil {
-		return nil, fmt.Errorf("could not load config %s: %w", configFile, err)
+		return nil, apperrors.WrapClassifiedf(err, "migrate.load_for_migration",
+			"could not load config %s", configFile)
 	}
 
 	return oldConfig, nil
@@ -155,12 +146,13 @@ func runMigrator(
 ) error {
 	migrator, err := createMigrator(configFile, dryRun, skipValidation, verbose, logger)
 	if err != nil {
-		return fmt.Errorf("create migrator failed: %w", err)
+		return apperrors.WrapClassified(err, "migrate.create_migrator",
+			"create migrator failed")
 	}
 
 	success, fixesApplied, err := migrator.MigrateToV2()
 	if err != nil {
-		return fmt.Errorf("migration failed: %w", err)
+		return apperrors.WrapClassified(err, "migrate.migrate", "migration failed")
 	}
 
 	showMigrationResult(logger, configLoader, configFile, oldConfig, success, fixesApplied, dryRun)
@@ -175,14 +167,9 @@ func createMigrator(
 ) (*migration.Migrator, error) {
 	migrator, err := migration.NewMigrator(configFile, verbose)
 	if err != nil {
-		return nil, fmt.Errorf(
-			"failed to create migrator (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t): %w",
-			configFile,
-			dryRun,
-			skipValidation,
-			verbose,
-			err,
-		)
+		return nil, apperrors.WrapClassifiedf(err, "migrate.create_migrator",
+			"failed to create migrator (configFile=%s, dryRun=%t, skipValidation=%t, verbose=%t)",
+			configFile, dryRun, skipValidation, verbose)
 	}
 
 	migrator.SetDryRun(dryRun)

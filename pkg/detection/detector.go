@@ -2,12 +2,13 @@ package detection
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 type ProjectType int
@@ -36,7 +37,8 @@ func (d *Detector) walkGoFiles(processFile func(*os.File) error) error {
 
 		file, err := os.Open(path)
 		if err != nil {
-			return fmt.Errorf("opening file %s: %w", path, err)
+			return errorfamily.WrapTransientf(err, "detector.open_file",
+				"opening file %s", path)
 		}
 
 		processErr := processFile(file)
@@ -45,7 +47,8 @@ func (d *Detector) walkGoFiles(processFile func(*os.File) error) error {
 		return processErr
 	})
 	if walkErr != nil {
-		return fmt.Errorf("walking directory %s: %w", d.rootDir, walkErr)
+		return errorfamily.WrapTransientf(walkErr, "detector.walk_dir",
+			"walking directory %s", d.rootDir)
 	}
 
 	return nil
@@ -266,7 +269,7 @@ func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 
 	file, err := os.Open(goModPath)
 	if err != nil {
-		return "", nil, fmt.Errorf("open go.mod: %w", err)
+		return "", nil, errorfamily.WrapTransient(err, "detector.open_gomod", "open go.mod")
 	}
 
 	defer closeFile(file)
@@ -276,7 +279,7 @@ func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 
 	err = scanner.Err()
 	if err != nil {
-		return "", nil, fmt.Errorf("scan go.mod: %w", err)
+		return "", nil, errorfamily.WrapTransient(err, "detector.scan_gomod", "scan go.mod")
 	}
 
 	return info.modulePath, info.imports, nil
@@ -376,7 +379,7 @@ func (d *Detector) hasSwaggoInCode() (bool, error) {
 		return d.scanFileForSwaggo(file, &found)
 	})
 	if walkErr != nil {
-		return false, fmt.Errorf("walk directory: %w", walkErr)
+		return false, errorfamily.WrapTransient(walkErr, "detector.walk_failed", "walk directory")
 	}
 
 	return found, nil

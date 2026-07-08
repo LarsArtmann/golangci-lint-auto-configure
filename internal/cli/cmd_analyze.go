@@ -9,6 +9,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -79,7 +80,8 @@ func runAnalysisWithSpinner(
 	fmt.Fprintf(os.Stdout, "\r\033[K")
 
 	if err != nil {
-		return nil, fmt.Errorf("analyze config failed (configFile=%s): %w", configFile, err)
+		return nil, apperrors.WrapClassifiedf(err, "analyze.config",
+			"analyze config failed (configFile=%s)", configFile)
 	}
 
 	return analysis, nil
@@ -96,14 +98,14 @@ func runAnalyze(
 
 	configFile, err := resolveAnalyzeConfig(configLoader, format)
 	if err != nil {
-		return fmt.Errorf("resolve config: %w", err)
+		return apperrors.WrapClassified(err, "analyze.resolve_config", "resolve config")
 	}
 
 	logger.Infof("Analyzing configuration: %s", configFile)
 
 	analysis, err := runAnalysisWithSpinner(cmd.Context(), analyzer, configFile)
 	if err != nil {
-		return fmt.Errorf("analyze config: %w", err)
+		return apperrors.WrapClassified(err, "analyze.config_analyze", "analyze config")
 	}
 
 	return outputAnalysis(analysis, format, configFile)
@@ -116,7 +118,7 @@ func resolveAnalyzeConfig(configLoader *config.Loader, _ string) (string, error)
 
 		configFile, err = configLoader.FindConfigFile(".")
 		if err != nil {
-			return "", fmt.Errorf("find config: %w", err)
+			return "", apperrors.WrapClassified(err, "analyze.find_config", "find config")
 		}
 	}
 
@@ -131,11 +133,8 @@ func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) e
 		//nolint:musttag // intentionally tag-free: PascalCase via Go field names
 		data, err := json.MarshalIndent(analysis, "", "  ")
 		if err != nil {
-			return fmt.Errorf(
-				"failed to marshal analysis to JSON (format=%s): %w",
-				format,
-				err,
-			)
+			return apperrors.WrapClassifiedf(err, "analyze.marshal_json",
+				"failed to marshal analysis to JSON (format=%s)", format)
 		}
 
 		fmt.Fprintln(os.Stdout, string(data))
@@ -155,7 +154,7 @@ func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) e
 func outputSARIF(analysis *types.ConfigAnalysis) error {
 	sarif, err := appfinding.AnalysisToSARIF(analysis, Version)
 	if err != nil {
-		return fmt.Errorf("failed to generate SARIF: %w", err)
+		return apperrors.WrapClassified(err, "analyze.sarif", "failed to generate SARIF")
 	}
 
 	fmt.Fprintln(os.Stdout, string(sarif))
@@ -164,14 +163,16 @@ func outputSARIF(analysis *types.ConfigAnalysis) error {
 }
 
 func outputFindingJSON(analysis *types.ConfigAnalysis) error {
-	r, err := appfinding.AnalysisToReport(analysis, Version)
+	report, err := appfinding.AnalysisToReport(analysis, Version)
 	if err != nil {
-		return fmt.Errorf("failed to generate finding report: %w", err)
+		return apperrors.WrapClassified(err, "analyze.finding_report",
+			"failed to generate finding report")
 	}
 
-	data, err := r.PrettyJSON()
+	data, err := report.PrettyJSON()
 	if err != nil {
-		return fmt.Errorf("failed to generate finding JSON: %w", err)
+		return apperrors.WrapClassified(err, "analyze.finding_json",
+			"failed to generate finding JSON")
 	}
 
 	fmt.Fprintln(os.Stdout, data)

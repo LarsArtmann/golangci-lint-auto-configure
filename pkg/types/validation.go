@@ -3,6 +3,8 @@ package types
 import (
 	"errors"
 	"fmt"
+
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 const (
@@ -51,10 +53,8 @@ func validateVersion(cfg *Config) error {
 	}
 
 	if cfg.Version != ConfigVersionV2 {
-		return fmt.Errorf(
-			"config validation failed: version must be %s, got %q: %w",
-			ConfigVersionV2, cfg.Version, ErrVersionInvalid,
-		)
+		return errorfamily.WrapRejectionf(ErrVersionInvalid, "config.validation.version",
+			"version must be %s, got %q", ConfigVersionV2, cfg.Version)
 	}
 
 	return nil
@@ -66,17 +66,13 @@ func validateRun(cfg *Config) error {
 	}
 
 	if cfg.Run.IssuesExitCode < 0 || cfg.Run.IssuesExitCode > 255 {
-		return fmt.Errorf(
-			"config validation failed: run.issues-exit-code must be 0-255, got %d: %w",
-			cfg.Run.IssuesExitCode, ErrIssuesExitCode,
-		)
+		return errorfamily.WrapRejectionf(ErrIssuesExitCode, "config.validation.issues_exit_code",
+			"run.issues-exit-code must be 0-255, got %d", cfg.Run.IssuesExitCode)
 	}
 
 	if cfg.Run.Concurrency < 0 {
-		return fmt.Errorf(
-			"config validation failed: run.concurrency must be >= 0, got %d: %w",
-			cfg.Run.Concurrency, ErrConcurrency,
-		)
+		return errorfamily.WrapRejectionf(ErrConcurrency, "config.validation.concurrency",
+			"run.concurrency must be >= 0, got %d", cfg.Run.Concurrency)
 	}
 
 	return nil
@@ -84,18 +80,13 @@ func validateRun(cfg *Config) error {
 
 func validateIssues(cfg *Config) error {
 	if cfg.Issues.MaxIssuesPerLinter < 0 {
-		return fmt.Errorf(
-			"config validation failed: issues.max-issues-per-linter must be >= 0, got %d: %w",
-			cfg.Issues.MaxIssuesPerLinter, ErrMaxIssues,
-		)
+		return errorfamily.WrapRejectionf(ErrMaxIssues, "config.validation.max_issues_per_linter",
+			"issues.max-issues-per-linter must be >= 0, got %d", cfg.Issues.MaxIssuesPerLinter)
 	}
 
 	if cfg.Issues.MaxSameIssues < 0 {
-		return fmt.Errorf(
-			"config validation failed: issues.max-same-issues must be >= 0, got %d: %w",
-			cfg.Issues.MaxSameIssues,
-			ErrMaxSameIssues,
-		)
+		return errorfamily.WrapRejectionf(ErrMaxSameIssues, "config.validation.max_same_issues",
+			"issues.max-same-issues must be >= 0, got %d", cfg.Issues.MaxSameIssues)
 	}
 
 	return nil

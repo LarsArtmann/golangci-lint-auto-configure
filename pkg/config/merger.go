@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"charm.land/log/v2"
@@ -61,7 +60,8 @@ func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, err
 
 		config, err := loader.LoadConfig(configPaths[0])
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to load primary config: %w", err)
+			return nil, nil, apperrors.WrapClassified(err, "config.load_primary",
+				"failed to load primary config")
 		}
 
 		return config, &MergeResult{
@@ -89,7 +89,8 @@ func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, err
 
 	primaryConfig, err := loader.LoadConfig(primaryPath)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to load primary config %s: %w", primaryPath, err)
+		return nil, nil, apperrors.WrapClassifiedf(err, "config.load_primary",
+			"failed to load primary config %s", primaryPath)
 	}
 
 	result := &MergeResult{
@@ -188,7 +189,8 @@ func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSe
 	// Save merged config to primary file
 	err := loader.SaveConfig(config, result.PrimaryConfig)
 	if err != nil {
-		return fmt.Errorf("failed to save merged config to %s: %w", result.PrimaryConfig, err)
+		return apperrors.WrapClassifiedf(err, "config.save_merged",
+			"failed to save merged config to %s", result.PrimaryConfig)
 	}
 
 	cm.logger.Infof("Saved merged config to %s", result.PrimaryConfig)

@@ -3,6 +3,8 @@ package apperrors
 import (
 	stderrors "errors"
 	"fmt"
+
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // Static sentinel errors for use with stderrors.Is.
@@ -137,4 +139,28 @@ func IsMigrationError(err error) bool {
 	var migrationErr *MigrationError
 
 	return stderrors.As(err, &migrationErr)
+}
+
+// WrapClassified wraps an error with a code and message, preserving the cause
+// chain's behavioral family. This is the right choice when the wrapped error's
+// family should be determined by its cause (e.g., exec.ErrNotFound → Infrastructure,
+// validation sentinel → Rejection) rather than the wrap site itself.
+//
+// For errors where the family is always the same regardless of cause, prefer the
+// explicit errorfamily.WrapRejection/WrapTransient/etc constructors instead.
+func WrapClassified(err error, code, message string) *errorfamily.Error {
+	if err == nil {
+		return nil
+	}
+
+	return errorfamily.Wrap(err, errorfamily.Classify(err), code, message)
+}
+
+// WrapClassifiedf is the formatted variant of WrapClassified.
+func WrapClassifiedf(err error, code, format string, args ...any) *errorfamily.Error {
+	if err == nil {
+		return nil
+	}
+
+	return errorfamily.Wrap(err, errorfamily.Classify(err), code, fmt.Sprintf(format, args...))
 }

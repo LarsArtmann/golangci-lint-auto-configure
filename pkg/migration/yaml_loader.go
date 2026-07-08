@@ -5,9 +5,10 @@ package migration
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 
+	errorfamily "github.com/larsartmann/go-error-family"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"go.yaml.in/yaml/v3"
 )
 
@@ -17,7 +18,8 @@ const permOwnerOnly = 0o600 // rw-------
 func LoadConfig(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read config file %s: %w", path, err)
+		return nil, apperrors.WrapClassifiedf(err, "migration.read_config",
+			"failed to read config file %s", path)
 	}
 
 	var config Config
@@ -27,7 +29,8 @@ func LoadConfig(path string) (*Config, error) {
 
 	err = decoder.Decode(&config)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse YAML %s: %w", path, err)
+		return nil, errorfamily.WrapRejectionf(err, "migration.parse_yaml",
+			"failed to parse YAML %s", path)
 	}
 
 	return &config, nil
@@ -43,12 +46,14 @@ func SaveConfig(config *Config, path string) error {
 
 	err := encoder.Encode(config)
 	if err != nil {
-		return fmt.Errorf("failed to encode YAML %s: %w", path, err)
+		return errorfamily.WrapCorruptionf(err, "migration.encode_yaml",
+			"failed to encode YAML %s", path)
 	}
 
 	err = os.WriteFile(path, buf.Bytes(), permOwnerOnly)
 	if err != nil {
-		return fmt.Errorf("failed to write config file %s: %w", path, err)
+		return apperrors.WrapClassifiedf(err, "migration.write_config",
+			"failed to write config file %s", path)
 	}
 
 	return nil

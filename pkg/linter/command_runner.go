@@ -51,7 +51,8 @@ func (a *Analyzer) runWithRetry(
 
 	output, err := utils.WithRetry(ctx, config, name, shouldRetry, operation)
 	if err != nil {
-		return output, fmt.Errorf("running %s with retry: %w", name, err)
+		return output, apperrors.WrapClassifiedf(err, "linter.retry",
+			"running %s with retry", name)
 	}
 
 	return output, nil
@@ -90,7 +91,8 @@ func (a *Analyzer) runFormattersCommand(ctx context.Context, configPath string) 
 func (a *Analyzer) RunFmtCommand(ctx context.Context, configPath string) error {
 	_, err := a.runCommandWithRetry(ctx, "fmt", "fmt", "--config", configPath)
 	if err != nil {
-		return fmt.Errorf("golangci-lint fmt failed: %w", err)
+		return apperrors.WrapClassified(err, "linter.fmt_failed",
+			"golangci-lint fmt failed")
 	}
 
 	return nil

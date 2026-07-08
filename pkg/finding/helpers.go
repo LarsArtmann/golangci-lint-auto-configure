@@ -1,8 +1,7 @@
 package finding
 
 import (
-	"fmt"
-
+	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
@@ -37,7 +36,7 @@ func AnalysisFindingsByFile(
 ) (map[finding.FilePath][]finding.Finding, error) {
 	report, err := AnalysisToReport(analysis, version)
 	if err != nil {
-		return nil, fmt.Errorf("build report: %w", err)
+		return nil, errorfamily.WrapCorruption(err, "report.build_by_file", "build report")
 	}
 
 	return finding.GroupByFile(report.FindingsSnapshot()), nil
@@ -49,7 +48,7 @@ func AnalysisFindingsByCategory(
 ) (map[finding.Category][]finding.Finding, error) {
 	report, err := AnalysisToReport(analysis, version)
 	if err != nil {
-		return nil, fmt.Errorf("build report: %w", err)
+		return nil, errorfamily.WrapCorruption(err, "report.build_by_category", "build report")
 	}
 
 	return finding.GroupByCategory(report.FindingsSnapshot()), nil
@@ -74,7 +73,7 @@ func SeverityFromHealthSeverity(sev types.HealthSeverity) finding.Severity {
 func AutoFixableFindings(analysis *types.ConfigAnalysis, version string) ([]finding.Finding, error) {
 	report, err := AnalysisToReport(analysis, version)
 	if err != nil {
-		return nil, fmt.Errorf("build report: %w", err)
+		return nil, errorfamily.WrapCorruption(err, "report.build_autofixable", "build report")
 	}
 
 	return report.ByFixStrategy(finding.FixStrategyDirect), nil

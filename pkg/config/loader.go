@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"maps"
 	"os"
 	"os/exec"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"charm.land/log/v2"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -152,7 +152,8 @@ func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
 
 		return decoder.Decode(config)
 	default:
-		return fmt.Errorf("%w: %s", errUnsupportedConfigFormat, format)
+		return errorfamily.WrapRejectionf(errUnsupportedConfigFormat, "config.unsupported_format",
+			"format %s", format)
 	}
 }
 
@@ -246,15 +247,14 @@ func (l *Loader) getAllLinterNames(ctx context.Context) ([]string, error) {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to run golangci-lint linters: %w", err)
+		return nil, apperrors.WrapClassified(err, "config.linters_run",
+			"failed to run golangci-lint linters")
 	}
 
 	var linterList LinterList
 	if err := json.Unmarshal(output, &linterList); err != nil {
-		return nil, fmt.Errorf(
-			"failed to parse golangci-lint linters output (linterList=%v, output=%s): %w",
-			linterList, output, err,
-		)
+		return nil, errorfamily.WrapCorruptionf(err, "config.linters_parse",
+			"failed to parse golangci-lint linters output (output=%s)", output)
 	}
 
 	// Extract all enabled linter names

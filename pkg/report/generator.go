@@ -2,10 +2,10 @@ package report
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"charm.land/log/v2"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -31,7 +31,8 @@ func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAn
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
-		return fmt.Errorf("failed to create output file (outputPath=%s): %w", outputPath, err)
+		return errorfamily.WrapRejectionf(err, "report.create_output",
+			"failed to create output file (outputPath=%s)", outputPath)
 	}
 
 	defer func() { _ = outputFile.Close() }()
@@ -39,7 +40,8 @@ func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAn
 	//nolint:contextcheck // Context comes from caller; templ.Render receives it correctly
 	err = Report(data).Render(ctx, outputFile)
 	if err != nil {
-		return fmt.Errorf("failed to render report (outputPath=%s): %w", outputPath, err)
+		return errorfamily.WrapCorruptionf(err, "report.render",
+			"failed to render report (outputPath=%s)", outputPath)
 	}
 
 	g.logger.Infof("Report generated successfully: %s", outputPath)

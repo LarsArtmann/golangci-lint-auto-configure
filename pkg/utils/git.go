@@ -4,10 +4,10 @@ package utils
 
 import (
 	"context"
-	"fmt"
 	"os/exec"
 	"time"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 )
 
@@ -37,12 +37,14 @@ func CheckGitRepo(ctx context.Context, dir string) error {
 
 	output, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("not a git repository (dir=%s): %w", dir, apperrors.ErrNotGitRepository)
+		return errorfamily.WrapRejectionf(apperrors.ErrNotGitRepository, "git.not_repository",
+			"not a git repository (dir=%s)", dir)
 	}
 
 	// Git returns "true" with a newline when inside a work tree
 	if len(output) == 0 || output[0] != 't' {
-		return fmt.Errorf("not in git working tree (dir=%s): %w", dir, apperrors.ErrNotInGitWorkingTree)
+		return errorfamily.WrapRejectionf(apperrors.ErrNotInGitWorkingTree, "git.not_work_tree",
+			"not in git working tree (dir=%s)", dir)
 	}
 
 	return nil

@@ -1,11 +1,11 @@
 package config
 
 import (
-	"fmt"
 	"path/filepath"
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -158,14 +158,16 @@ func buildConfigFilePriority() map[string]int {
 func createBackup(fileSystem FS, path string) (string, error) {
 	data, err := fileSystem.ReadFile(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to read config %s for backup: %w", path, err)
+		return "", apperrors.WrapClassifiedf(err, "config.backup_read",
+			"failed to read config %s for backup", path)
 	}
 
 	backupPath := path + ".merge-backup"
 
 	err = fileSystem.WriteFile(backupPath, data, backupFilePermission)
 	if err != nil {
-		return "", fmt.Errorf("failed to write backup %s: %w", backupPath, err)
+		return "", apperrors.WrapClassifiedf(err, "config.backup_write",
+			"failed to write backup %s", backupPath)
 	}
 
 	return backupPath, nil

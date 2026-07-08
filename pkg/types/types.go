@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 // ErrInvalidLinterPriority indicates an unrecognized linter priority value.
@@ -47,9 +49,8 @@ func ParseLinterPriority(input string) (LinterPriority, error) {
 	case "optional":
 		return LinterPriorityOptional, nil
 	default:
-		return LinterPriorityOptional, fmt.Errorf(
-			"%w: %q",
-			ErrInvalidLinterPriority, input,
+		return LinterPriorityOptional, errorfamily.WrapRejectionf(
+			ErrInvalidLinterPriority, "linter.priority.invalid", "%q", input,
 		)
 	}
 }

@@ -6,11 +6,12 @@ package migration
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"os/exec"
 	"time"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 )
 
 // Validator is an interface for configuration validation.
@@ -27,7 +28,8 @@ type DefaultValidator struct{}
 func (v DefaultValidator) ValidateConfig(migrator *Migrator) error {
 	golangciLintPath, err := exec.LookPath(constants.GolangciLintBinaryName)
 	if err != nil {
-		return fmt.Errorf("golangci-lint not found: %w", err)
+		return apperrors.WrapClassified(err, "migration.find_binary",
+			"golangci-lint not found")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), ValidationTimeout)
@@ -41,7 +43,9 @@ func (v DefaultValidator) ValidateConfig(migrator *Migrator) error {
 
 	err = cmd.Run()
 	if err != nil {
-		return fmt.Errorf("config validation failed: %w\nOutput: %s", err, stderr.String())
+		return errorfamily.WrapRejection(err, "migration.validate_config",
+			"config validation failed").
+			WithContext("output", stderr.String())
 	}
 
 	if migrator.verbose {

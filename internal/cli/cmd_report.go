@@ -2,11 +2,11 @@ package cli
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/report"
@@ -36,12 +36,12 @@ func runReport(
 
 	configFile, err := resolveReportConfig(cmd, configLoader, logger)
 	if err != nil {
-		return fmt.Errorf("resolve config: %w", err)
+		return apperrors.WrapClassified(err, "report.resolve_config", "resolve config")
 	}
 
 	analysis, err := analyzeConfig(logger, cmd, analyzer, configFile)
 	if err != nil {
-		return fmt.Errorf("analyze config: %w", err)
+		return apperrors.WrapClassified(err, "report.analyze", "analyze config")
 	}
 
 	return writeReport(cmd.Context(), analysis, logger, configFile)
@@ -91,12 +91,9 @@ func analyzeConfig(
 
 	analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
 	if err != nil {
-		return nil, fmt.Errorf(
-			"failed to analyze config (configPath=%s, reportFormat=%s): %w",
-			configFile,
-			reportFormat,
-			err,
-		)
+		return nil, apperrors.WrapClassifiedf(err, "report.analyze_config",
+			"failed to analyze config (configPath=%s, reportFormat=%s)",
+			configFile, reportFormat)
 	}
 
 	return analysis, nil
@@ -126,12 +123,9 @@ func writeJSONReport(
 
 	err := gen.GenerateJSONReport(analysis, outputPath)
 	if err != nil {
-		return fmt.Errorf(
-			"failed to generate JSON report (configPath=%s, outputPath=%s): %w",
-			configFile,
-			outputPath,
-			err,
-		)
+		return apperrors.WrapClassifiedf(err, "report.json",
+			"failed to generate JSON report (configPath=%s, outputPath=%s)",
+			configFile, outputPath)
 	}
 
 	return nil
@@ -140,13 +134,9 @@ func writeJSONReport(
 func writeReportFile(outputPath, configFile, label string, data []byte) error {
 	writeErr := os.WriteFile(outputPath, data, filePermOwnerOnly)
 	if writeErr != nil {
-		return fmt.Errorf(
-			"failed to write %s report (configPath=%s, outputPath=%s): %w",
-			label,
-			configFile,
-			outputPath,
-			writeErr,
-		)
+		return apperrors.WrapClassifiedf(writeErr, "report.write_file",
+			"failed to write %s report (configPath=%s, outputPath=%s)",
+			label, configFile, outputPath)
 	}
 
 	return nil
@@ -158,12 +148,9 @@ func writeSARIFReport(
 ) error {
 	sarif, err := appfinding.AnalysisToSARIF(analysis, Version)
 	if err != nil {
-		return fmt.Errorf(
-			"failed to generate SARIF report (configPath=%s, outputPath=%s): %w",
-			configFile,
-			outputPath,
-			err,
-		)
+		return apperrors.WrapClassifiedf(err, "report.sarif",
+			"failed to generate SARIF report (configPath=%s, outputPath=%s)",
+			configFile, outputPath)
 	}
 
 	return writeReportFile(outputPath, configFile, "SARIF", sarif)
@@ -175,20 +162,14 @@ func writeFindingJSONReport(
 ) error {
 	report, err := appfinding.AnalysisToReport(analysis, Version)
 	if err != nil {
-		return fmt.Errorf(
-			"failed to generate finding report (configPath=%s): %w",
-			configFile,
-			err,
-		)
+		return apperrors.WrapClassifiedf(err, "report.finding",
+			"failed to generate finding report (configPath=%s)", configFile)
 	}
 
 	data, err := report.PrettyJSON()
 	if err != nil {
-		return fmt.Errorf(
-			"failed to generate finding JSON report (configPath=%s): %w",
-			configFile,
-			err,
-		)
+		return apperrors.WrapClassifiedf(err, "report.finding_json",
+			"failed to generate finding JSON report (configPath=%s)", configFile)
 	}
 
 	return writeReportFile(outputPath, configFile, "finding JSON", []byte(data))
@@ -204,12 +185,9 @@ func writeHTMLReport(
 
 	err := gen.GenerateReport(ctx, analysis, outputPath)
 	if err != nil {
-		return fmt.Errorf(
-			"failed to generate HTML report (configPath=%s, outputPath=%s): %w",
-			configFile,
-			outputPath,
-			err,
-		)
+		return apperrors.WrapClassifiedf(err, "report.html",
+			"failed to generate HTML report (configPath=%s, outputPath=%s)",
+			configFile, outputPath)
 	}
 
 	return nil
