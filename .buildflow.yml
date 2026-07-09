@@ -1,0 +1,50 @@
+# BuildFlow Configuration
+# See: https://github.com/larsartmann/buildflow
+
+build_mode: full
+
+max_concurrency: 4
+
+max_file_size: 350 # lines
+dupl_threshold: 30 # tokens
+
+todo_min_severity: info
+
+exclude:
+  - vendor
+  - .git
+  - node_modules
+  - .next
+  - .turbo
+  - .nuxt
+  - .svelte-kit
+  - dist
+  - target
+  - testdata
+  - .golden
+  - generated.go
+  - "*.pb.go"
+  - "*.gen.go"
+  - _templ.go
+  - __snapshots__
+  - reports/
+  - flake.lock
+  - package-lock.json
+  - yarn.lock
+  - pnpm-lock.yaml
+  - Cargo.lock
+  - composer.lock
+  - poetry.lock
+  - Gemfile.lock
+  - mix.lock
+  - .direnv
+
+# nixfmt-standalone runs raw `nixfmt .` which scans .direnv/ flake-inputs cache
+# (third-party .nix files). Use nix-fmt (treefmt) instead, which respects excludes.
+skip_steps:
+  - nixfmt-standalone
+
+auto_fix: false
+
+verbose: false
+log_level: info
