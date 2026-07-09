@@ -9,7 +9,7 @@ package linter
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"fmt"
 	"os"
 	"os/exec"
@@ -45,14 +45,14 @@ func (a *Analyzer) GetDetectedVersion() string {
 }
 
 type golangciLintOutput struct {
-	Enabled  []types.LinterInfo `json:"enabled"`
-	Disabled []types.LinterInfo `json:"disabled"`
+	Enabled  []types.LinterInfo `json:"Enabled"`
+	Disabled []types.LinterInfo `json:"Disabled"`
 }
 
 // golangciLintFormattersOutput represents JSON output from golangci-lint formatters command.
 type golangciLintFormattersOutput struct {
-	Enabled  []types.FormatterInfo `json:"enabled"`
-	Disabled []types.FormatterInfo `json:"disabled"`
+	Enabled  []types.FormatterInfo `json:"Enabled"`
+	Disabled []types.FormatterInfo `json:"Disabled"`
 }
 
 // FindBinary finds the golangci-lint binary in PATH.

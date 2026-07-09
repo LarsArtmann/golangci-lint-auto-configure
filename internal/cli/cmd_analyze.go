@@ -2,12 +2,13 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"fmt"
 	"os"
 	"time"
 
 	"charm.land/log/v2"
+	"encoding/json/jsontext"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
@@ -131,7 +132,7 @@ func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) e
 	switch format {
 	case formatJSON:
 		//nolint:musttag // intentionally tag-free: PascalCase via Go field names
-		data, err := json.MarshalIndent(analysis, "", "  ")
+		data, err := json.Marshal(analysis, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 		if err != nil {
 			return apperrors.WrapClassifiedf(err, "analyze.marshal_json",
 				"failed to marshal analysis to JSON (format=%s)", format)

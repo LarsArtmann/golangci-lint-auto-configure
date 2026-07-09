@@ -239,6 +239,9 @@ linters:
       - path: pkg/types/config_types\.go
         linters:
           - tagliatelle
+      - path: pkg/types/types\.go
+        linters:
+          - tagliatelle
       - path: pkg/finding/golangci_lint\.go
         linters:
           - tagliatelle

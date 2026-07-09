@@ -1,11 +1,12 @@
 package cli
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"os"
 	"os/exec"
 
 	"charm.land/log/v2"
+	"encoding/json/jsontext"
 	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
@@ -184,9 +185,9 @@ func outputHealthSARIF(health *types.ConfigHealth, configFile string, logger *lo
 			"failed to generate SARIF")
 	}
 
-	var raw json.RawMessage = sarif
+	var raw jsontext.Value = sarif
 
-	pretty, err := json.MarshalIndent(raw, "", "  ")
+	pretty, err := json.Marshal(raw, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 	if err != nil {
 		return errorfamily.WrapCorruption(err, "validate.sarif_format_health",
 			"failed to format SARIF")
@@ -305,9 +306,9 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 			"failed to generate SARIF")
 	}
 
-	var raw json.RawMessage = sarif
+	var raw jsontext.Value = sarif
 
-	pretty, prettyErr := json.MarshalIndent(raw, "", "  ")
+	pretty, prettyErr := json.Marshal(raw, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 	if prettyErr != nil {
 		return errorfamily.WrapCorruptionf(prettyErr, "validate.sarif_format",
 			"failed to format SARIF")

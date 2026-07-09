@@ -10,11 +10,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
 
-// isParallelRunningError checks if the error output indicates a parallel golangci-lint is running.
-func isParallelRunningError(output string) bool {
-	return strings.Contains(output, "parallel golangci-lint is running")
-}
-
 // executeCommand creates an exec.Cmd with the given arguments.
 func (a *Analyzer) executeCommand(ctx context.Context, args ...string) *exec.Cmd {
 	return exec.CommandContext(ctx, a.golangciLintPath, args...)
@@ -46,7 +41,7 @@ func (a *Analyzer) runWithRetry(
 	config := utils.DefaultConfig()
 
 	shouldRetry := func(_ error, output string) bool {
-		return isParallelRunningError(strings.TrimSpace(output))
+		return strings.Contains(strings.TrimSpace(output), "parallel golangci-lint is running")
 	}
 
 	output, err := utils.WithRetry(ctx, config, name, shouldRetry, operation)

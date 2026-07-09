@@ -3,7 +3,7 @@ package config
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"maps"
 	"os"
@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"charm.land/log/v2"
+	"encoding/json/jsontext"
 	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
@@ -232,10 +233,10 @@ func (l *Loader) FindOrGetDefaultConfigPath(startDir string) string {
 type LinterList struct {
 	Enabled []struct {
 		Name string `json:"name"`
-	} `json:"enabled"`
+	} `json:"Enabled"`
 	Disabled []struct {
 		Name string `json:"name"`
-	} `json:"disabled"`
+	} `json:"Disabled"`
 }
 
 // getAllLinterNames fetches all available linter names from golangci-lint.
@@ -396,7 +397,7 @@ func marshalConfig(config *Config, format ConfigFormat) ([]byte, error) {
 	case ConfigFormatTOML:
 		return toml.Marshal(config)
 	case ConfigFormatJSON:
-		return json.MarshalIndent(config, "", "  ")
+		return json.Marshal(config, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 	case ConfigFormatYAML:
 		return yaml.Marshal(config)
 	default:
