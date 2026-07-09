@@ -46,7 +46,7 @@ nix develop
 
 2. **templ output is committed.** `_templ.go` files are generated from `.templ` files and committed to git (un-ignored in `.gitignore`). After editing `pkg/report/report.templ`, run `templ generate` manually before `go build`. The Nix build no longer generates templ output (it uses the committed file directly).
 
-3. **vendorHash update after go.mod changes.** `nix build` will fail with a hash mismatch. Procedure:
+3. **vendorHash update after go.mod changes.** `nix build` will fail with a hash mismatch. Procedure (run inside `nix develop` or export `GOEXPERIMENT=jsonv2` first — the code imports `encoding/json/v2` which won't compile without it):
 
    ```bash
    go mod tidy
@@ -55,7 +55,7 @@ nix develop
    nix build                     # rebuild
    ```
 
-4. **go-finding & gogenfilter replace in Nix.** `go.mod` uses published versions. Nix's `postPatch` injects `replace` directives pointing to SSH-fetched local copies (the Go proxy doesn't cache these repos). `go mod tidy` runs ONLY in the go-modules FOD (has network via `__noChroot`); the main derivation sets `GOFLAGS=-mod=mod` to auto-reconcile from the FOD's proxy cache. `allowGoReference = true` is set because Go embeds GOROOT in the binary. Config-level findings use `Line: 1` (go-finding v1.1.0 requires `Position.Line > 0`).
+4. **go-finding & gogenfilter replace in Nix.** `go.mod` uses published versions. Nix's `mkPreparedSource` (from go-nix-helpers) injects `replace` directives pointing to SSH-fetched local copies (the Go proxy doesn't cache these repos). `go mod tidy` runs ONLY in the go-modules FOD (has network via `__noChroot`); the main derivation sets `GOFLAGS=-mod=mod` to auto-reconcile from the FOD's proxy cache. Config-level findings use `Line: 1` (go-finding v1.1.0 requires `Position.Line > 0`).
 
 5. **Error classification via go-error-family.** `pkg/errors/classification.go` has an `init()` that registers all sentinel errors with their `errorfamily.Family`. To add a new sentinel: add it to the map in that file. `ConfigError`, `ReportError`, and `MigrationError` implement `Classified` → `Rejection` (type-level, checked before sentinels). `AnalysisError` does NOT implement `Classified` — its sentinels in the cause chain (e.g. `ErrVersionTooOld`) handle classification. Exit codes: Rejection/Conflict → 1, Transient → 75, Corruption → 65, Infrastructure → 69. `--json-errors` outputs via `errorfamily.Wrap().JSON()` (snake_case canonical schema with family/code/message/context/retryable).
 
@@ -81,6 +81,8 @@ nix develop
 
     **musttag linter:** `Marshal`/`Unmarshal` of tag-free report structs need `//nolint:musttag`. Test files are excluded from musttag in `.golangci.yml`.
 
+13. **`.buildflow.yml` skips nixfmt-standalone.** `nixfmt-standalone` runs raw `nixfmt .` which ignores buildflow's exclude patterns and scans `.direnv/flake-inputs/` (symlinked third-party nix caches). It fails ~88% of the time. The `nix-fmt` step (treefmt) handles Nix formatting correctly and respects excludes. GitHub Actions workflows set `GOEXPERIMENT: jsonv2` at the job level for all Go-compiling jobs (`test-and-build`, `lint`, `govulncheck`, `release`).
+
 ## Where to Find Detail
 
 | Topic                                                  | Location                                        |
@@ -89,6 +91,7 @@ nix develop
 | Adding commands/linters, common tasks, troubleshooting | `docs/references/working-with-codebase.md`      |
 | BDD testing, code style, CI/CD                         | `docs/references/testing-style-and-patterns.md` |
 | Error handling patterns                                | `docs/references/error-handling.md`             |
+| json/v2 migration & behavioral changes                 | `docs/references/json-v2.md`                    |
 | gogenfilter & go-finding integration                   | `docs/references/integrations.md`               |
 | User-facing usage                                      | `README.md`                                     |
 | Feature inventory                                      | `FEATURES.md`                                   |

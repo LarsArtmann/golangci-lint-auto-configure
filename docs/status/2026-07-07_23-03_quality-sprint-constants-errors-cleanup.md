@@ -84,7 +84,7 @@
 - Consolidating `ValidationError` and `HealthIssue` overlapping types
 - Moving `ConfigLoader`/`LinterAnalyzer` interfaces out of `pkg/types/` into a `ports` package
 - Removing type alias indirection in `config/loader.go` (10 `type X = types.X` re-exports)
-- Migrating `encoding/json` v1 → v2 (12 files, blocked on Go 1.26 stdlib availability)
+- ~~Migrating `encoding/json` v1 → v2~~ ✅ **DONE** (see `docs/status/2026-07-09_07-09_json-v2-complete-buildflow-green.md`)
 - Collapsing `ConfigError`/`AnalysisError`/`ReportError`/`MigrationError` boilerplate into shared `domainError`
 - Addressing the 20+ swallowed errors (logged-but-not-returned patterns)
 
@@ -131,7 +131,7 @@
 
 ### Dependencies
 
-11. **`encoding/json` v1** — 12 files use v1; Go 1.26 supports `encoding/json/v2` (blocked on ecosystem readiness)
+11. **`encoding/json` v1** → ~~12 files use v1~~ ✅ **Fully migrated to v2** with `GOEXPERIMENT=jsonv2` enabled in flake.nix + CI workflows. Wire-format decoupling structs handle json/v2 case-sensitivity.
 
 ---
 
@@ -182,7 +182,7 @@
 
 ### Low Impact / High Effort
 
-32. Migrate `encoding/json` v1 → v2 across 12 files
+32. ~~Migrate `encoding/json` v1 → v2 across 12 files~~ ✅ **DONE**
 33. Add typed wrapper for `map[string]any` linter settings with safe accessors
 34. Add property-based tests for config validation sentinel classification
 35. Add snapshot tests for JSON report output format
@@ -202,9 +202,9 @@
 
 ## g) Top 2 Questions I Cannot Figure Out Myself
 
-### 1. Should `encoding/json` v1 → v2 migration happen now?
+### 1. ~~Should `encoding/json` v1 → v2 migration happen now?~~ ✅ ANSWERED
 
-Go 1.26.4 is in use and `encoding/json/v2` is tracked in `pkg/constants/experiments.go` and enabled via `goexperiment.jsonv2` build tag. However, **12 production + test files still import `"encoding/json"` (v1)**. The migration would touch many files but the v2 API has behavioral differences (e.g., `Marshal`/`Unmarshal` signatures, `time.Time` handling). **Is the v2 API stable enough for production use on Go 1.26.4, or should we wait?**
+**Yes — migration is complete.** All 12 files migrated to `encoding/json/v2` + `encoding/json/jsontext`. `GOEXPERIMENT=jsonv2` is set in flake.nix (package build, devShell, CI shell) and all GitHub Actions workflows. Wire-format decoupling structs in `analyzer.go` handle json/v2's case-sensitivity. See `docs/references/json-v2.md` for behavioral changes and `docs/status/2026-07-09_07-09_json-v2-complete-buildflow-green.md` for the full migration report.
 
 ### 2. What's the right boundary for the `config/loader.go` God Object split?
 

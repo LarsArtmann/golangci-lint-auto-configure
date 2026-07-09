@@ -170,6 +170,7 @@
                 echo "  Go:             $(go version)"
                 echo "  golangci-lint:  $(golangci-lint version --short 2>/dev/null || echo 'N/A')"
                 echo "  templ:          $(templ version 2>/dev/null || echo 'N/A')"
+                echo "  GOEXPERIMENT:   $GOEXPERIMENT"
               '';
             };
 

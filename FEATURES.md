@@ -1,7 +1,7 @@
 # golangci-lint-auto-configure — Feature Audit
 
 **Version:** v0.2.0+ (unreleased changes)
-**Last Audited:** 2026-07-06
+**Last Audited:** 2026-07-09
 
 ---
 
@@ -160,15 +160,16 @@
 
 ## Build & CI
 
-| Feature                                 | Status | Notes                                                    |
-| --------------------------------------- | ------ | -------------------------------------------------------- |
-| Nix flake build                         | Stable | Reproducible builds                                      |
-| GitHub Actions CI (Go 1.25/1.26 matrix) | Stable |                                                          |
-| Pre-commit hook                         | Stable | golangci-lint, go-test, go-fmt                           |
-| Version injection via ldflags           | Stable | version, commit, date, treeState                         |
-| Auto-tag workflow                       | Stable | Tags on merge to master                                  |
-| Committed templ output (\_templ.go)     | Stable | No build-time generation needed                          |
-| Govulncheck security scanning           | Stable | CI job runs govulncheck ./...                            |
-| Coverage threshold gate                 | Stable | scripts/coverage-check.sh (60%)                          |
-| Fuzz + property tests                   | Stable | Set algebra invariants (commutative, idempotent, subset) |
-| `--json-errors` flag                    | Stable | JSON error output for CI/CD                              |
+| Feature                                 | Status | Notes                                                               |
+| --------------------------------------- | ------ | ------------------------------------------------------------------- |
+| Nix flake build                         | Stable | Reproducible builds                                                 |
+| GitHub Actions CI (Go 1.25/1.26 matrix) | Stable |                                                                     |
+| Pre-commit hook                         | Stable | golangci-lint, go-test, go-fmt                                      |
+| Version injection via ldflags           | Stable | version, commit, date, treeState                                    |
+| Auto-tag workflow                       | Stable | Tags on merge to master                                             |
+| Committed templ output (\_templ.go)     | Stable | No build-time generation needed                                     |
+| Govulncheck security scanning           | Stable | CI job runs govulncheck ./...                                       |
+| Coverage threshold gate                 | Stable | scripts/coverage-check.sh (60%)                                     |
+| Fuzz + property tests                   | Stable | Set algebra invariants (commutative, idempotent, subset)            |
+| `--json-errors` flag                    | Stable | JSON error output for CI/CD                                         |
+| `encoding/json/v2` migration            | Stable | All files migrated; GOEXPERIMENT=jsonv2 in flake.nix + CI workflows |

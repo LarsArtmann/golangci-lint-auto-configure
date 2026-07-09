@@ -86,3 +86,18 @@ Linters are mapped to go-finding categories: security, correctness, performance,
 ```
 replace github.com/larsartmann/go-finding => ../go-finding
 ```
+
+## JSON Wire-Format Decoupling
+
+golangci-lint's JSON output mixes casing conventions: capitalized wrapper keys (`"Enabled"`, `"Disabled"`) but lowercase field keys (`"name"`, `"autoFix"`). Since `encoding/json/v2` is case-sensitive (unlike v1), Report types (`LinterInfo`, `FormatterInfo`) cannot parse these directly — they're tag-free (PascalCase) per the struct tag policy.
+
+**Solution:** Dedicated wire-format structs in `pkg/linter/analyzer.go` match golangci-lint's exact JSON shape. After parsing, `toLinterInfo()` / `toFormatterInfo()` convert to Report types.
+
+| Wire struct              | JSON tags match                      | Converts to           |
+| ------------------------ | ------------------------------------ | --------------------- |
+| `golangciLinterEntry`    | `linterHelp` (help_linters.go)       | `types.LinterInfo`    |
+| `golangciFormatterEntry` | `formatterHelp` (help_formatters.go) | `types.FormatterInfo` |
+| `golangciLintVersion`    | `BuildInfo` (version.go)             | version comparison    |
+| `GolangciLintIssue`      | `result.Issue` (issue.go)            | `finding.Finding`     |
+
+See `docs/references/json-v2.md` for full details on the migration and behavioral changes.

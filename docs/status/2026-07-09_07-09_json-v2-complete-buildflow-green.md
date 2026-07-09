@@ -1,8 +1,9 @@
 # Status: json/v2 Migration Completion + BuildFlow 44/44 Green
 
-**Date:** 2026-07-09 07:09
+**Date:** 2026-07-09 07:09 (updated 07:09 — follow-up CI + documentation session)
 **Session scope:** Fix all BuildFlow failures, enable json/v2 end-to-end, verify all build systems
 **Commits this session:** f38ff5e, cfcb0df, 06d81a0 (on top of a8ff465)
+**Follow-up work:** CI workflows + all documentation (#12-17, #27-33) — uncommitted
 **Untracked:** `.buildflow.yml` (new)
 **BuildFlow:** 44/44 ✅ | **nix flake check:** all passed ✅ | **Tests:** 16/16 packages ✅
 
@@ -31,6 +32,20 @@ Commit a8ff465 migrated `encoding/json` v1→v2 but left the project broken: no 
 | **`.buildflow.yml` created**                        | untracked                    | Added `skip_steps: [nixfmt-standalone]` (86-88% failure rate scanning `.direnv/` cache), full default exclude list + `.direnv`                                                                                                                                                                              |
 | **Previous status report**                          | docs/status/2026-07-09_06-29 | Written mid-session                                                                                                                                                                                                                                                                                         |
 
+### Follow-up session (CI + Documentation)
+
+| Item                               | File(s) changed                           | Details                                                                                                                                                                                       |
+| ---------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GOEXPERIMENT in GitHub Actions** | `.github/workflows/ci.yml`, `release.yml` | Added `env: GOEXPERIMENT: jsonv2` to `test-and-build`, `lint`, `govulncheck`, and `release` jobs                                                                                              |
+| **GOEXPERIMENT in shellHook echo** | `flake.nix`                               | Added `echo "  GOEXPERIMENT:   $GOEXPERIMENT"` to devShell shellHook for developer visibility                                                                                                 |
+| **AGENTS.md gotchas updated**      | `AGENTS.md`                               | New gotcha #13 (`.buildflow.yml` skip rationale + CI GOEXPERIMENT), updated #3 (vendorHash + GOEXPERIMENT), fixed #4 (removed stale `allowGoReference = true`), added json-v2.md to ref table |
+| **TODO_LIST.md updated**           | `TODO_LIST.md`                            | Added json/v2 migration to Completed section                                                                                                                                                  |
+| **FEATURES.md updated**            | `FEATURES.md`                             | Added `encoding/json/v2` migration row to Build & CI table                                                                                                                                    |
+| **Quality-sprint status updated**  | `docs/status/2026-07-07_23-03_*.md`       | Marked json/v2 question #1 as answered; updated items #11, #32, NOT STARTED section                                                                                                           |
+| **CONTRIBUTING.md rewritten**      | `CONTRIBUTING.md`                         | Added GOEXPERIMENT prerequisites, Nix dev shell + manual setup, common commands                                                                                                               |
+| **json/v2 reference doc created**  | `docs/references/json-v2.md`              | New file: GOEXPERIMENT config table, v1→v2 behavioral changes (case-sensitivity, nil slices, []byte, API), wire-format decoupling pattern                                                     |
+| **integrations.md updated**        | `docs/references/integrations.md`         | Added JSON wire-format decoupling section with wire→Report conversion table                                                                                                                   |
+
 ---
 
 ## b) PARTIALLY DONE ⚠️
@@ -49,9 +64,7 @@ Commit a8ff465 migrated `encoding/json` v1→v2 but left the project broken: no 
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
 | **Commit `.buildflow.yml`**                      | User hasn't said "commit"                                                                                     |
 | **Remove `/tmp/jsontest*.go`**                   | Cosmetic cleanup, not requested                                                                               |
-| **GitHub Actions / CI verification**             | No `.github/workflows/` checked — CI may need GOEXPERIMENT too                                                |
 | **Dedicated unit tests for wire-format structs** | `golangciLinterEntry`/`golangciFormatterEntry` parsing is only covered indirectly via fixer integration tests |
-| **TODO_LIST.md / FEATURES.md updates**           | json/v2 "blocked on ecosystem readiness" status item may need updating                                        |
 
 ---
 
@@ -110,12 +123,12 @@ Commit a8ff465 migrated `encoding/json` v1→v2 but left the project broken: no 
 
 ### Build / CI
 
-12. **Check GitHub Actions workflows for GOEXPERIMENT** — search for `.github/workflows/*.yml`
-13. **Add `GOEXPERIMENT=jsonv2` to any CI workflows** — GitHub Actions, GitLab CI, etc.
-14. **Add `.buildflow.yml` to AGENTS.md gotchas** — document the nixfmt-standalone skip and why
-15. **Consider adding `GOEXPERIMENT` to the devShell `shellHook` echo** — show it alongside Go/golangci-lint/templ versions
-16. **Verify `allowGoReference = true` doesn't conflict with GOEXPERIMENT** — embedded GOROOT behavior
-17. **Document the vendorHash update procedure including GOEXPERIMENT** — update AGENTS.md gotcha #3
+12. ~~**Check GitHub Actions workflows for GOEXPERIMENT**~~ ✅ DONE — checked all 3 workflow files
+13. ~~**Add `GOEXPERIMENT=jsonv2` to any CI workflows**~~ ✅ DONE — added to `ci.yml` (test-and-build, lint, govulncheck) + `release.yml`
+14. ~~**Add `.buildflow.yml` to AGENTS.md gotchas**~~ ✅ DONE — new gotcha #13
+15. ~~**Consider adding `GOEXPERIMENT` to the devShell `shellHook` echo**~~ ✅ DONE — added to shellHook
+16. ~~**Verify `allowGoReference = true` doesn't conflict with GOEXPERIMENT**~~ ✅ DONE — `allowGoReference` was already removed (2026-06-29); no conflict. Updated AGENTS.md gotcha #4 to remove stale reference.
+17. ~~**Document the vendorHash update procedure including GOEXPERIMENT**~~ ✅ DONE — updated AGENTS.md gotcha #3
 
 ### Code Quality
 
@@ -131,13 +144,13 @@ Commit a8ff465 migrated `encoding/json` v1→v2 but left the project broken: no 
 
 ### Documentation
 
-27. **Update TODO_LIST.md** — remove or update json/v2 "blocked on ecosystem readiness" item
-28. **Update FEATURES.md** — json/v2 migration is complete and working
-29. **Update `docs/status/2026-07-07_23-03_quality-sprint`** — the json/v2 question is now answered
-30. **Add CONTRIBUTING.md note about GOEXPERIMENT** — new contributors need to know
-31. **Document json/v2 behavioral changes** — nil slices → `[]` not `null`, `[]byte` → base64, case-sensitive matching
-32. **Update `docs/references/integrations.md`** — document wire-format decoupling pattern
-33. **Document the `.buildflow.yml` rationale** — why nixfmt-standalone is skipped
+27. ~~**Update TODO_LIST.md**~~ ✅ DONE — json/v2 migration added to Completed section
+28. ~~**Update FEATURES.md**~~ ✅ DONE — json/v2 migration row added to Build & CI table
+29. ~~**Update `docs/status/2026-07-07_23-03_quality-sprint`**~~ ✅ DONE — json/v2 question marked answered
+30. ~~**Add CONTRIBUTING.md note about GOEXPERIMENT**~~ ✅ DONE — full rewrite with GOEXPERIMENT prerequisites
+31. ~~**Document json/v2 behavioral changes**~~ ✅ DONE — new `docs/references/json-v2.md`
+32. ~~**Update `docs/references/integrations.md`**~~ ✅ DONE — added wire-format decoupling section
+33. ~~**Document the `.buildflow.yml` rationale**~~ ✅ DONE — AGENTS.md gotcha #13 + `.buildflow.yml` comments
 
 ### Architecture / Future-Proofing
 
@@ -151,7 +164,7 @@ Commit a8ff465 migrated `encoding/json` v1→v2 but left the project broken: no 
 
 ### Nix
 
-41. **Add GOEXPERIMENT to shellHook echo** — visibility for developers
+41. ~~**Add GOEXPERIMENT to shellHook echo**~~ ✅ DONE — visibility for developers
 42. **Consider a `checks.jsonv2` explicit check** — verify build works with the experiment
 43. **Review `treefmt` programs** — ensure gofumpt/goimports work with json/v2 code
 44. **Pin Go version that supports jsonv2** — ensure 1.26+ always
