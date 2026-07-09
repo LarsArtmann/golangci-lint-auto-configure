@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"context"
+	"encoding/json/jsontext"
 	"encoding/json/v2"
 	"errors"
 	"maps"
@@ -13,7 +14,6 @@ import (
 	"time"
 
 	"charm.land/log/v2"
-	"encoding/json/jsontext"
 	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"

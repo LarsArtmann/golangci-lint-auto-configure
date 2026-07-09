@@ -1,12 +1,12 @@
 package cli
 
 import (
+	"encoding/json/jsontext"
 	"encoding/json/v2"
 	"os"
 	"os/exec"
 
 	"charm.land/log/v2"
-	"encoding/json/jsontext"
 	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
