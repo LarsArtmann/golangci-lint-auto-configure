@@ -33,6 +33,8 @@ nix develop
 ## Tech Stack (non-obvious points)
 
 - **Go 1.26**, Cobra CLI, charm.land log/lipgloss/fang, templ HTML reports, `go.yaml.in/yaml/v3`.
+- **`GOEXPERIMENT=jsonv2` is required.** The codebase uses `encoding/json/v2` + `encoding/json/jsontext` (experimental stdlib in Go 1.26). The flake devShell, package build, and CI shell all set `GOEXPERIMENT=jsonv2` in `env`. Without it, `go build`/`go test` fail with "build constraints exclude all Go files in encoding/json/v2". buildflow auto-enables it for its own processes; when running `go` commands directly outside the devShell, export it manually.
+- **json/v2 wire-format decoupling.** golangci-lint's JSON output uses **capitalized wrapper keys** (`"Enabled"`, `"Disabled"`) but **lowercase field keys** (`"name"`, `"description"`, `"autoFix"`). json/v2 is case-sensitive (unlike v1). Report types (`LinterInfo`, `FormatterInfo` in `pkg/types/types.go`) are tag-free (PascalCase for JSON reports). Dedicated wire-format structs in `pkg/linter/analyzer.go` (`golangciLinterEntry`, `golangciFormatterEntry`) match golangci-lint's wire format and convert to Report types after parsing.
 - **Testing: Ginkgo v2 + Gomega (BDD)** — NOT standard `testing` style. Specs use `Describe`/`Context`/`It` + Gomega matchers. See `docs/references/testing-style-and-patterns.md`.
 - **gogenfilter/v3**: auto-detects generated files to exclude from linting.
 - **go-finding**: unified finding model (SARIF/JSON output).

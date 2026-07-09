@@ -94,7 +94,7 @@
 
             proxyVendor = true;
 
-            vendorHash = "sha256-VIeCRI01Ckq5SVqBQBhoSQgZlYBOyStPwpKQmc7Hfno=";
+            vendorHash = "sha256-RgWyYJ4BF7n2lkzFYyXNcJQJkW1RRqEcBkxayFT1RoM=";
 
             subPackages = [ "cmd/golangci-lint-auto-configure" ];
 
@@ -110,6 +110,7 @@
             env = {
               CGO_ENABLED = 0;
               GOWORK = "off";
+              GOEXPERIMENT = "jsonv2";
             };
 
             overrideModAttrs = _: {
@@ -160,6 +161,7 @@
                 GOWORK = "off";
                 GOPRIVATE = "github.com/LarsArtmann";
                 GOTOOLCHAIN = "local";
+                GOEXPERIMENT = "jsonv2";
               };
 
               shellHook = ''
@@ -178,6 +180,7 @@
                 templ
               ];
               GOPRIVATE = "github.com/LarsArtmann";
+              GOEXPERIMENT = "jsonv2";
             };
           };
 

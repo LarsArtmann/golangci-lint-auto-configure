@@ -86,14 +86,14 @@ type GoExperiment struct {
 
 // LinterInfo contains information about a golangci-lint linter.
 type LinterInfo struct {
-	Name        LinterName `json:"name"`
-	Description string     `json:"description"`
-	Groups      []string   `json:"groups,omitempty"`
-	Fast        bool       `json:"fast,omitempty"`
-	AutoFix     bool       `json:"autoFix,omitempty"`
-	Deprecated  bool       `json:"deprecated"`
-	Since       string     `json:"since"`
-	OriginalURL string     `json:"originalURL"`
+	Name        LinterName
+	Description string
+	Groups      []string `json:",omitempty"`
+	Fast        bool     `json:",omitempty"`
+	AutoFix     bool     `json:",omitempty"`
+	Deprecated  bool
+	Since       string
+	OriginalURL string
 }
 
 // LinterRecommendation represents a linter with its priority and reason.
@@ -132,9 +132,9 @@ func (fn FormatterName) String() string {
 
 // FormatterInfo contains information about a golangci-lint formatter.
 type FormatterInfo struct {
-	Name        FormatterName `json:"name"`
-	Description string        `json:"description"`
-	AutoFix     bool          `json:"autoFix,omitempty"`
+	Name        FormatterName
+	Description string
+	AutoFix     bool `json:",omitempty"`
 }
 
 // FormatterRecommendation represents a formatter with its priority and reason.

@@ -44,15 +44,58 @@ func (a *Analyzer) GetDetectedVersion() string {
 	return a.detectedVersion
 }
 
+// golangciLinterEntry matches the JSON wire format of golangci-lint's linterHelp struct.
+// golangci-lint uses lowercase JSON keys for linter fields but capitalized keys for the
+// Enabled/Disabled wrapper. This is decoupled from types.LinterInfo (a Report type with
+// PascalCase json) to avoid conflicting tag requirements.
+type golangciLinterEntry struct {
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Groups      []string `json:"groups,omitempty"`
+	Fast        bool     `json:"fast,omitempty"`
+	AutoFix     bool     `json:"autoFix,omitempty"`
+	Deprecated  bool     `json:"deprecated"`
+	Since       string   `json:"since"`
+	OriginalURL string   `json:"originalURL"`
+}
+
+func (e golangciLinterEntry) toLinterInfo() types.LinterInfo {
+	return types.LinterInfo{
+		Name:        types.LinterName(e.Name),
+		Description: e.Description,
+		Groups:      e.Groups,
+		Fast:        e.Fast,
+		AutoFix:     e.AutoFix,
+		Deprecated:  e.Deprecated,
+		Since:       e.Since,
+		OriginalURL: e.OriginalURL,
+	}
+}
+
 type golangciLintOutput struct {
-	Enabled  []types.LinterInfo `json:"Enabled"`
-	Disabled []types.LinterInfo `json:"Disabled"`
+	Enabled  []golangciLinterEntry `json:"Enabled"`
+	Disabled []golangciLinterEntry `json:"Disabled"`
+}
+
+// golangciFormatterEntry matches the JSON wire format of golangci-lint's formatterHelp struct.
+type golangciFormatterEntry struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	AutoFix     bool   `json:"autoFix,omitempty"`
+}
+
+func (e golangciFormatterEntry) toFormatterInfo() types.FormatterInfo {
+	return types.FormatterInfo{
+		Name:        types.FormatterName(e.Name),
+		Description: e.Description,
+		AutoFix:     e.AutoFix,
+	}
 }
 
 // golangciLintFormattersOutput represents JSON output from golangci-lint formatters command.
 type golangciLintFormattersOutput struct {
-	Enabled  []types.FormatterInfo `json:"Enabled"`
-	Disabled []types.FormatterInfo `json:"Disabled"`
+	Enabled  []golangciFormatterEntry `json:"Enabled"`
+	Disabled []golangciFormatterEntry `json:"Disabled"`
 }
 
 // FindBinary finds the golangci-lint binary in PATH.
@@ -133,20 +176,43 @@ func (a *Analyzer) buildAnalysis(
 	linterOutput *golangciLintOutput,
 	formatterOutput *golangciLintFormattersOutput,
 ) *types.ConfigAnalysis {
+	enabledLinters := convertLinters(linterOutput.Enabled)
+	disabledLinters := convertLinters(linterOutput.Disabled)
+	enabledFormatters := convertFormatters(formatterOutput.Enabled)
+	disabledFormatters := convertFormatters(formatterOutput.Disabled)
+
 	analysis := &types.ConfigAnalysis{
 		ConfigPath:               configPath,
-		EnabledLinters:           linterOutput.Enabled,
-		DisabledLinters:          linterOutput.Disabled,
-		EnabledFormatters:        formatterOutput.Enabled,
-		DisabledFormatters:       formatterOutput.Disabled,
-		LinterRecommendations:    a.CategorizeLinters(linterOutput.Disabled, formatterOutput.Enabled),
-		FormatterRecommendations: a.categorizeFormatters(formatterOutput.Disabled),
+		EnabledLinters:           enabledLinters,
+		DisabledLinters:          disabledLinters,
+		EnabledFormatters:        enabledFormatters,
+		DisabledFormatters:       disabledFormatters,
+		LinterRecommendations:    a.CategorizeLinters(disabledLinters, enabledFormatters),
+		FormatterRecommendations: a.categorizeFormatters(disabledFormatters),
 	}
 
 	a.calculateDeprecatedLinters(analysis)
 	a.calculateRecommendationCounts(analysis)
 
 	return analysis
+}
+
+func convertLinters(entries []golangciLinterEntry) []types.LinterInfo {
+	result := make([]types.LinterInfo, 0, len(entries))
+	for _, e := range entries {
+		result = append(result, e.toLinterInfo())
+	}
+
+	return result
+}
+
+func convertFormatters(entries []golangciFormatterEntry) []types.FormatterInfo {
+	result := make([]types.FormatterInfo, 0, len(entries))
+	for _, e := range entries {
+		result = append(result, e.toFormatterInfo())
+	}
+
+	return result
 }
 
 // GetLintersByPriority returns recommendations filtered by priority.
@@ -232,8 +298,8 @@ func (a *Analyzer) parseFormattersOutput(ctx context.Context, configPath string)
 		a.logger.Debugf("Failed to parse formatters JSON, skipping: %v", err)
 
 		output = golangciLintFormattersOutput{
-			Enabled:  []types.FormatterInfo{},
-			Disabled: []types.FormatterInfo{},
+			Enabled:  []golangciFormatterEntry{},
+			Disabled: []golangciFormatterEntry{},
 		}
 	}
 
