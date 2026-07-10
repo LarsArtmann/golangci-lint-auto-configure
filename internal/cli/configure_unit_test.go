@@ -178,3 +178,122 @@ func TestRestoreOriginalConfig(t *testing.T) {
 		t.Errorf("expected restored version 'modified-v2', got %q", restored.Version)
 	}
 }
+
+func TestBackupConfigFile_NotExist_NoOp(t *testing.T) {
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, ".golangci.yml")
+
+	err := backupConfigFile(silentLogger(), configPath)
+	if err != nil {
+		t.Errorf("backupConfigFile() on nonexistent file should return nil, got %v", err)
+	}
+
+	backupPath := configPath + ".bak"
+
+	_, statErr := os.Stat(backupPath)
+	if !os.IsNotExist(statErr) {
+		t.Error("backupConfigFile() should not create backup for nonexistent config")
+	}
+}
+
+func TestBackupConfigFile_CreatesBackup(t *testing.T) {
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, ".golangci.yml")
+	content := []byte(`version: "2"`)
+
+	err := os.WriteFile(configPath, content, 0o644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = backupConfigFile(silentLogger(), configPath)
+	if err != nil {
+		t.Fatalf("backupConfigFile() error = %v", err)
+	}
+
+	backupPath := configPath + ".bak"
+
+	backupData, err := os.ReadFile(backupPath)
+	if err != nil {
+		t.Fatalf("backup file not created or unreadable: %v", err)
+	}
+
+	if string(backupData) != string(content) {
+		t.Errorf(
+			"backup content mismatch: got %q, want %q",
+			string(backupData),
+			string(content),
+		)
+	}
+}
+
+func TestBackupConfigFile_OverwritesExistingBackup(t *testing.T) {
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, ".golangci.yml")
+	backupPath := configPath + ".bak"
+
+	err := os.WriteFile(configPath, []byte(`version: "2"`), 0o644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = os.WriteFile(backupPath, []byte(`old stale content`), 0o644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = backupConfigFile(silentLogger(), configPath)
+	if err != nil {
+		t.Fatalf("backupConfigFile() error = %v", err)
+	}
+
+	backupData, err := os.ReadFile(backupPath)
+	if err != nil {
+		t.Fatalf("backup file unreadable: %v", err)
+	}
+
+	if string(backupData) == "old stale content" {
+		t.Error("backupConfigFile() did not overwrite stale backup")
+	}
+
+	if string(backupData) != `version: "2"` {
+		t.Errorf("backup content mismatch after overwrite: got %q", string(backupData))
+	}
+}
+
+func TestBackupConfigFile_ReadError(t *testing.T) {
+	dir := t.TempDir()
+
+	configPath := filepath.Join(dir, "subdir")
+
+	err := os.Mkdir(configPath, 0o755)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = backupConfigFile(silentLogger(), configPath)
+	if err == nil {
+		t.Error("backupConfigFile() on directory should return read error, got nil")
+	}
+}
+
+func TestBackupConfigFile_WriteError(t *testing.T) {
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, ".golangci.yml")
+	backupPath := configPath + ".bak"
+
+	err := os.WriteFile(configPath, []byte(`version: "2"`), 0o644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = os.Mkdir(backupPath, 0o755)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = backupConfigFile(silentLogger(), configPath)
+	if err == nil {
+		t.Error("backupConfigFile() should fail when .bak is a directory, got nil")
+	}
+}
