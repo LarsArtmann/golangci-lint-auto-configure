@@ -47,12 +47,13 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 	},
 }
 
-// DisabledLinters is a set of linters that should never be recommended or enabled.
-// These linters are explicitly excluded from configuration by the tool.
-//
-// noinlineerr conflicts with formatters (e.g. gofumpt, goimports) that reformat
-// error handling expressions, causing noisy churn and contradictory findings.
-var DisabledLinters = types.NewSet[types.LinterName]("funcorder", "noinlineerr")
+// DisabledLinters maps linter names that should never be recommended or enabled
+// to the reason for disabling them. These linters are explicitly excluded from
+// configuration by the tool.
+var DisabledLinters = map[types.LinterName]string{
+	"funcorder":   "provides minimal value and can be confusing for users",
+	"noinlineerr": "conflicts with formatters (gofumpt, goimports) that reformat error handling expressions, causing noisy churn and contradictory findings",
+}
 
 // RedundantLinters maps linter names that are superseded by formatters.
 var RedundantLinters = map[types.LinterName]types.LinterToFormatter{

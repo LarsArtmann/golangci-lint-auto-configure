@@ -7,6 +7,8 @@
 //   - All priorities have corresponding reasons
 //   - All enabled linters in .golangci.yml exist in priorities
 //   - All formatters are consistent
+//   - DisabledLinters entries must not appear in priorities or reasons
+//   - DisabledLinters entries must have non-empty reason strings
 //
 // Run with: go run scripts/validate_linter_data.go
 package main
@@ -86,6 +88,37 @@ func main() {
 	}
 	fmt.Println()
 
+	// Check 5: DisabledLinters must not appear in priorities or reasons
+	fmt.Println("📋 Check 5: DisabledLinters must not appear in LinterPriorities or LinterReasons")
+	disabledInPrioritiesOrReasons := checkDisabledLintersConsistency()
+	if len(disabledInPrioritiesOrReasons) > 0 {
+		exitCode = 1
+		fmt.Printf(
+			"   ❌ FAIL: %d disabled linters found in priorities or reasons:\n",
+			len(disabledInPrioritiesOrReasons),
+		)
+		for _, linter := range disabledInPrioritiesOrReasons {
+			fmt.Printf("      - %s\n", linter)
+		}
+	} else {
+		fmt.Printf("   ✅ PASS: All %d disabled linters are absent from priorities and reasons\n", len(constants.DisabledLinters))
+	}
+	fmt.Println()
+
+	// Check 6: DisabledLinters must have non-empty reason strings
+	fmt.Println("📋 Check 6: DisabledLinters must have non-empty reason strings")
+	emptyReasons := checkDisabledLinterReasons()
+	if len(emptyReasons) > 0 {
+		exitCode = 1
+		fmt.Printf("   ❌ FAIL: %d disabled linters have empty reasons:\n", len(emptyReasons))
+		for _, linter := range emptyReasons {
+			fmt.Printf("      - %s\n", linter)
+		}
+	} else {
+		fmt.Printf("   ✅ PASS: All %d disabled linters have non-empty reasons\n", len(constants.DisabledLinters))
+	}
+	fmt.Println()
+
 	// Summary
 	fmt.Println("═══════════════════════════════════════════════════════════")
 	if exitCode == 0 {
@@ -140,4 +173,30 @@ func checkOrphanFormatterPriorities() []types.FormatterName {
 	}
 	sortSlice(orphan)
 	return orphan
+}
+
+func checkDisabledLintersConsistency() []types.LinterName {
+	var violations []types.LinterName
+	for linter := range constants.DisabledLinters {
+		if _, ok := constants.LinterPriorities[linter]; ok {
+			violations = append(violations, linter)
+			continue
+		}
+		if _, ok := constants.LinterReasons[linter]; ok {
+			violations = append(violations, linter)
+		}
+	}
+	sortSlice(violations)
+	return violations
+}
+
+func checkDisabledLinterReasons() []types.LinterName {
+	var empty []types.LinterName
+	for linter, reason := range constants.DisabledLinters {
+		if reason == "" {
+			empty = append(empty, linter)
+		}
+	}
+	sortSlice(empty)
+	return empty
 }

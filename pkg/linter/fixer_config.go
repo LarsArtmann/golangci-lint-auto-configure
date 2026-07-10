@@ -241,13 +241,15 @@ func updateConfigFromSets(
 	linterSet types.Set[string],
 	formatterSet types.Set[string],
 	formatterManager *FormatterManager,
+	logger *log.Logger,
 ) int {
 	enabledLinters := types.ToSortedSlice(linterSet)
 
 	disabledLintersList := make([]string, 0)
 	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter string) bool {
-		if constants.DisabledLinters.Contains(types.LinterName(linter)) {
+		if reason, ok := constants.DisabledLinters[types.LinterName(linter)]; ok {
 			disabledLintersList = append(disabledLintersList, linter)
+			logger.Debugf("Moving disabled linter to disable list: %s (%s)", linter, reason)
 
 			return true
 		}

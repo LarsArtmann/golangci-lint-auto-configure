@@ -71,4 +71,11 @@ var _ = Describe("DisabledLinters", func() {
 				To(BeFalse(), "DisabledLinters contains %q which also has a LinterReasons entry — disabled linters must never be recommended", linter)
 		}
 	})
+
+	It("should have a non-empty reason for every entry", func() {
+		for linter, reason := range constants.DisabledLinters {
+			Expect(reason).
+				ToNot(BeEmpty(), "DisabledLinters contains %q with an empty reason — every disabled linter must explain why it is disabled", linter)
+		}
+	})
 })

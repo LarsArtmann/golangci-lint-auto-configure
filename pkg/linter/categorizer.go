@@ -37,8 +37,8 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 		return true
 	}
 
-	if constants.DisabledLinters.Contains(linter.Name) {
-		a.logger.Debugf("Skipping explicitly disabled linter in analysis: %s", linter.Name)
+	if reason, ok := constants.DisabledLinters[linter.Name]; ok {
+		a.logger.Debugf("Skipping disabled linter in analysis: %s (%s)", linter.Name, reason)
 
 		return true
 	}

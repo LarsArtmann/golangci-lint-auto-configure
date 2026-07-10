@@ -239,7 +239,7 @@ func (f *Fixer) applyAndSave(
 	counts.normalization += updater.updateRunnerSettings(cfg)
 	counts.normalization += updater.updateBuildTags(cfg)
 	counts.normalization += updater.updateOutputFormats(cfg)
-	counts.normalization += updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager)
+	counts.normalization += updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager, f.logger)
 
 	counts.generated = updater.updateGeneratedExclusions(cfg, configPath)
 	counts.generated += updater.updateExclusionRules(cfg)
