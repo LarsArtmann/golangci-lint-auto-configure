@@ -3,13 +3,17 @@ package types
 // Config represents a golangci-lint configuration file.
 // All field tags use kebab-case to match the golangci-lint schema for round-trip safety.
 type Config struct {
-	Version           string           `json:"version"    toml:"version"              yaml:"version"`
-	Run               RunConfig        `json:"run"        toml:"run"                  yaml:"run"`
-	Output            OutputConfig     `json:"output"     toml:"output"               yaml:"output"`
-	Linters           LintersConfig    `json:"linters"    toml:"linters"              yaml:"linters"`
-	Formatters        FormattersConfig `json:"formatters" toml:"formatters,omitempty" yaml:"formatters,omitempty"`
-	Issues            IssuesConfig     `json:"issues"     toml:"issues"               yaml:"issues"`
-	LintersSettingsV1 map[string]any   `json:"-"          toml:"-"                    yaml:"linters-settings,omitempty"`
+	Version    string           `json:"version"    toml:"version"              yaml:"version"`
+	Run        RunConfig        `json:"run"        toml:"run"                  yaml:"run"`
+	Output     OutputConfig     `json:"output"     toml:"output"               yaml:"output"`
+	Linters    LintersConfig    `json:"linters"    toml:"linters"              yaml:"linters"`
+	Formatters FormattersConfig `json:"formatters" toml:"formatters,omitempty" yaml:"formatters,omitempty"`
+	Issues     IssuesConfig     `json:"issues"     toml:"issues"               yaml:"issues"`
+
+	// LintersSettingsV1 preserves legacy v1 linters-settings for migration.
+	// Intentionally untyped: v1 configs contain arbitrary keys from removed/renamed linters.
+	// Typed defaults for known linters live in pkg/constants/linter_settings.go.
+	LintersSettingsV1 map[string]any `json:"-" toml:"-" yaml:"linters-settings,omitempty"`
 }
 
 type RunConfig struct {
@@ -26,6 +30,9 @@ type RunConfig struct {
 }
 
 type OutputConfig struct {
+	// Formats is intentionally map[string]any for round-trip safety.
+	// Values are typically {"path": "stdout"} but must accept arbitrary user YAML.
+	// Clone (clone.go) and merge (merger_output.go) recursively handle nested any values.
 	Formats    map[string]any `json:"formats"               toml:"formats"               yaml:"formats"`
 	PathPrefix string         `json:"path-prefix,omitempty" toml:"path-prefix,omitempty" yaml:"path-prefix,omitempty"`
 	PathMode   string         `json:"path-mode,omitempty"   toml:"path-mode,omitempty"   yaml:"path-mode,omitempty"`

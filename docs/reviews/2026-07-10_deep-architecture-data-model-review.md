@@ -522,3 +522,16 @@ The fixer auto-injects Go experiment build tags (`goexperiment.arenas`, `goexper
 | **Maintainability**    | 8/10  | Static data is easy to update; staleness is the risk      |
 
 **Bottom line:** The architecture is excellent. The data accuracy gaps against upstream are the primary concern — they're easy to fix but currently mean the tool silently misses linters and misclassifies removed ones. Adding cross-map integrity tests would prevent future regressions of this class.
+
+---
+
+## Resolution Status (Updated 2026-07-10)
+
+| Priority | Items                                                           | Status                                                                                                |
+| -------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **P0**   | clickhouselint, exportloopref, gofmt/gci removal, validVersions | **DONE**                                                                                              |
+| **P1**   | Missing v1 removed linters, alternative names                   | **DONE**                                                                                              |
+| **P2**   | Cross-map integrity tests, empty Replacement handling           | **DONE**                                                                                              |
+| **P3.1** | Typed linter/formatter settings (SettingsConverter)             | **DONE** — `pkg/constants/linter_settings.go`                                                         |
+| **P3.2** | configChangeRecorder closure-based counting                     | **DONE** — `pkg/linter/fixer_recorder.go`, applied consistently in `applyAllFixes` and `applyAndSave` |
+| **P3.3** | Format preset (minimal linters + core formatters)               | **DONE** — `pkg/constants/presets.go`, `PresetFormatters` map                                         |

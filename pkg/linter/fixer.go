@@ -170,22 +170,6 @@ func (c fixCounts) total() int {
 	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant + c.normalization
 }
 
-// configChangeRecorder ensures every config mutation in applyAndSave is counted.
-// Mutations are passed as closures so the recorder controls both execution and counting,
-// preventing the footgun where a mutation runs but its count is not incremented
-// (which would cause the total()==0 guard to silently discard all changes).
-type configChangeRecorder struct {
-	counts fixCounts
-}
-
-func (r *configChangeRecorder) normalize(fn func() int) {
-	r.counts.normalization += fn()
-}
-
-func (r *configChangeRecorder) generated(fn func() int) {
-	r.counts.generated += fn()
-}
-
 // applyLintersFix processes linter recommendations, applies fixes, and saves the config.
 func (f *Fixer) applyLintersFix(
 	ctx context.Context,
@@ -224,20 +208,29 @@ func (f *Fixer) applyAllFixes(
 	originalEnabled []string,
 	version string,
 ) fixCounts {
-	var counts fixCounts
+	var rec configChangeRecorder
 
 	handler := newDeprecatedLinterHandler(f.logger, version)
-	linterSet = handler.replaceLinters(linterSet, originalEnabled, dryRun, &counts, cfg)
-	counts.formatter += f.formatterManager.EnableCoreFormatters(formatterSet, dryRun)
-	counts.formatter += f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun)
-	counts.formatter += f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun)
-	counts.redundant += f.formatterManager.RemoveRedundantLinters(linterSet, formatterSet, dryRun)
-	counts.redundant += f.formatterManager.RemoveRedundantGofmt(formatterSet, dryRun)
-	counts.enable = f.enableRecommendedLinters(
-		linterSet, f.configLoader.GetLintersDisabled(cfg), analysis, priority, dryRun,
-	)
 
-	return counts
+	rec.deprecation(func() int {
+		var count int
+
+		linterSet, count = handler.replaceLinters(linterSet, originalEnabled, dryRun, cfg)
+
+		return count
+	})
+	rec.formatter(func() int { return f.formatterManager.EnableCoreFormatters(formatterSet, dryRun) })
+	rec.formatter(func() int { return f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun) })
+	rec.formatter(func() int { return f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun) })
+	rec.redundant(func() int { return f.formatterManager.RemoveRedundantLinters(linterSet, formatterSet, dryRun) })
+	rec.redundant(func() int { return f.formatterManager.RemoveRedundantGofmt(formatterSet, dryRun) })
+	rec.enable(func() int {
+		return f.enableRecommendedLinters(
+			linterSet, f.configLoader.GetLintersDisabled(cfg), analysis, priority, dryRun,
+		)
+	})
+
+	return rec.counts
 }
 
 func (f *Fixer) applyAndSave(

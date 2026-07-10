@@ -101,7 +101,10 @@ func main() {
 			fmt.Printf("      - %s\n", linter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: All %d disabled linters are absent from priorities and reasons\n", len(constants.DisabledLinters))
+		fmt.Printf(
+			"   ✅ PASS: All %d disabled linters are absent from priorities and reasons\n",
+			len(constants.DisabledLinters),
+		)
 	}
 	fmt.Println()
 

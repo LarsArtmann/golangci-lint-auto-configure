@@ -157,3 +157,14 @@ graph TD
 2. **Never break the build** — tests must pass after every task
 3. **Don't verschlimmbesser** — only fix identified issues, don't refactor unrelated code
 4. **gomodguard is intentionally in both DeprecatedLinters AND LinterPriorities** — it's version-gated (deprecated only since v2.12.0). The integrity test for "DeprecatedLinters ∉ LinterPriorities" must exclude version-gated entries.
+
+---
+
+## Completion Status (Updated 2026-07-10)
+
+All P0-P2 tasks are **COMPLETE**. P3 tasks (originally out of scope) have also been completed:
+
+- **P0** (3 fixes): clickhouselint added, exportloopref→deprecated, validVersions fixed
+- **P1** (2 fixes): 5 removed linters added, 7 alternative-name entries added
+- **P2** (3 fixes): cross-map integrity tests added, empty Replacement handling, remaining tests
+- **P3** (3 improvements): Typed settings structs, configChangeRecorder, format preset

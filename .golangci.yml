@@ -413,7 +413,7 @@ linters:
       - path: pkg/constants/linter_priorities\.go|pkg/constants/linter_reasons\.go
         linters:
           - misspell
-      - path: pkg/constants/linter_priorities\.go|pkg/constants/linter_reasons\.go|pkg/constants/presets\.go|pkg/constants/formatter_data\.go|pkg/constants/rules\.go|pkg/constants/config\.go
+      - path: pkg/constants/linter_priorities\.go|pkg/constants/linter_reasons\.go|pkg/constants/presets\.go|pkg/constants/formatter_data\.go|pkg/constants/rules\.go|pkg/constants/config\.go|pkg/constants/linter_settings\.go|pkg/constants/version\.go
         linters:
           - goconst
       - path: _test\.go

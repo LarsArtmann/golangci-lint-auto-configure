@@ -141,6 +141,7 @@ golangci-lint-auto-configure configure --preset minimal      # Essential only
 golangci-lint-auto-configure configure --preset standard     # Balanced (default behavior)
 golangci-lint-auto-configure configure --preset strict       # Maximum coverage
 golangci-lint-auto-configure configure --preset reference    # All critical + high linters
+golangci-lint-auto-configure configure --preset format       # Core formatters + essential linters
 
 # Auto-detect project type and apply appropriate preset
 golangci-lint-auto-configure configure --detect
@@ -279,19 +280,19 @@ esac
 
 ## Flags
 
-| Flag              | Description                                                                |
-| ----------------- | -------------------------------------------------------------------------- |
-| `-c, --config`    | Path to golangci-lint config file                                          |
-| `-d, --dry-run`   | Show what would be done without making changes                             |
-| `--check`         | CI mode: exit 1 if changes needed, 0 if optimal                            |
-| `--diff`          | Show diff of config changes before applying                                |
-| `--priority`      | Minimum priority level (critical, high, medium, optional)                  |
-| `--preset`        | Use a preset (minimal, standard, strict, security, performance, reference) |
-| `--detect`        | Auto-detect project type and select appropriate preset                     |
-| `-v, --verbose`   | Enable verbose output                                                      |
-| `--format`        | Output format (html, json, sarif, finding)                                 |
-| `--output`        | Output path for report file                                                |
-| `--no-auto-merge` | Disable automatic merging of multiple config files                         |
+| Flag              | Description                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| `-c, --config`    | Path to golangci-lint config file                                                  |
+| `-d, --dry-run`   | Show what would be done without making changes                                     |
+| `--check`         | CI mode: exit 1 if changes needed, 0 if optimal                                    |
+| `--diff`          | Show diff of config changes before applying                                        |
+| `--priority`      | Minimum priority level (critical, high, medium, optional)                          |
+| `--preset`        | Use a preset (minimal, standard, strict, security, performance, reference, format) |
+| `--detect`        | Auto-detect project type and select appropriate preset                             |
+| `-v, --verbose`   | Enable verbose output                                                              |
+| `--format`        | Output format (html, json, sarif, finding)                                         |
+| `--output`        | Output path for report file                                                        |
+| `--no-auto-merge` | Disable automatic merging of multiple config files                                 |
 
 ## Project-Specific Examples
 

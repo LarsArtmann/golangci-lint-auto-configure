@@ -19,39 +19,40 @@ func newDeprecatedLinterHandler(logger *log.Logger, version string) *deprecatedL
 }
 
 // replaceLinters replaces deprecated linters with their successors in the linter set.
+// Returns the updated set and the number of replacements applied.
 func (h *deprecatedLinterHandler) replaceLinters(
 	linterSet types.Set[string],
 	enabledLinters []string,
 	dryRun bool,
-	counts *fixCounts,
 	cfg *types.Config,
-) types.Set[string] {
+) (types.Set[string], int) {
+	count := 0
+
 	for _, linter := range enabledLinters {
-		h.replaceOne(linterSet, linter, dryRun, counts, cfg)
+		count += h.replaceOne(linterSet, linter, dryRun, cfg)
 	}
 
-	return linterSet
+	return linterSet, count
 }
 
 func (h *deprecatedLinterHandler) replaceOne(
 	linterSet types.Set[string],
 	linter string,
 	dryRun bool,
-	counts *fixCounts,
 	cfg *types.Config,
-) {
+) int {
 	replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
 	if !isDeprecated {
-		return
+		return 0
 	}
 
 	if !h.replacementAvailable(replacement) {
 		h.logSkip(linter, replacement)
 
-		return
+		return 0
 	}
 
-	h.applyReplacement(linterSet, linter, replacement, dryRun, counts, cfg)
+	return h.applyReplacement(linterSet, linter, replacement, dryRun, cfg)
 }
 
 func (h *deprecatedLinterHandler) applyReplacement(
@@ -59,23 +60,20 @@ func (h *deprecatedLinterHandler) applyReplacement(
 	linter string,
 	replacement types.LinterReplacement,
 	dryRun bool,
-	counts *fixCounts,
 	cfg *types.Config,
-) {
-	counts.deprecation++
-
+) int {
 	linterSet.Delete(linter)
 
 	if replacement.Replacement == "" {
 		h.logRemove(linter, replacement, dryRun)
 
-		return
+		return 1
 	}
 
 	if linterSet.Contains(string(replacement.Replacement)) {
 		h.logKeep(linter, replacement.Replacement, dryRun)
 
-		return
+		return 1
 	}
 
 	h.logReplace(linter, replacement, dryRun)
@@ -84,6 +82,8 @@ func (h *deprecatedLinterHandler) applyReplacement(
 		linterSet.Add(string(replacement.Replacement))
 		h.migrateSettings(cfg, linter, string(replacement.Replacement))
 	}
+
+	return 1
 }
 
 func (h *deprecatedLinterHandler) logSkip(linter string, replacement types.LinterReplacement) {

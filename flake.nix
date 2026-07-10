@@ -54,7 +54,7 @@
           ...
         }:
         let
-          version = "0.2.0";
+          version = self.rev or self.dirtyRev or "dev";
           commit = self.rev or "none";
           buildDate = self.lastModifiedDate or "unknown";
           ldflagsPkg = "github.com/larsartmann/golangci-lint-auto-configure/pkg/version";
@@ -94,7 +94,7 @@
 
             proxyVendor = true;
 
-            vendorHash = "sha256-RgWyYJ4BF7n2lkzFYyXNcJQJkW1RRqEcBkxayFT1RoM=";
+            vendorHash = "sha256-XLckeSqONjQS0TQGuVTCkyDhrxKXx3gIRlgpGIbtXqw=";
 
             subPackages = [ "cmd/golangci-lint-auto-configure" ];
 

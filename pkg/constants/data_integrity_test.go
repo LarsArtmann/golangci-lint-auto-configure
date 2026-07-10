@@ -227,4 +227,90 @@ var _ = Describe("Format preset", func() {
 	It("should be listed in ValidPresets", func() {
 		Expect(constants.ValidPresets).To(ContainSubstring("format"))
 	})
+
+	It("should have formatters in canonical order matching FormatterOrder", func() {
+		formatters := constants.PresetFormatters["format"]
+		Expect(formatters).To(HaveLen(3))
+
+		for i, f := range formatters {
+			expected := constants.FormatterOrder[i]
+			Expect(string(f)).To(Equal(expected),
+				"format preset formatter at index %d: got %s, want %s", i, f, expected)
+		}
+	})
+})
+
+var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
+	It("ireturn should produce correct allow list", func() {
+		m := constants.DefaultLinterSettings["ireturn"].ToMap()
+		allow, ok := m["allow"]
+		Expect(ok).To(BeTrue(), "ireturn settings missing allow key")
+		allowSlice, ok := allow.([]any)
+		Expect(ok).To(BeTrue(), "ireturn allow is not []any")
+		Expect(allowSlice).To(HaveLen(5))
+	})
+
+	It("gocritic should produce disabled-checks list", func() {
+		m := constants.DefaultLinterSettings["gocritic"].ToMap()
+		checks, ok := m["disabled-checks"]
+		Expect(ok).To(BeTrue(), "gocritic settings missing disabled-checks key")
+		checksSlice, ok := checks.([]any)
+		Expect(ok).To(BeTrue(), "gocritic disabled-checks is not []any")
+		Expect(checksSlice).To(ContainElement(ContainSubstring("ifElseChain")))
+	})
+
+	It("exhaustruct should produce exclude list", func() {
+		m := constants.DefaultLinterSettings["exhaustruct"].ToMap()
+		exclude, ok := m["exclude"]
+		Expect(ok).To(BeTrue(), "exhaustruct settings missing exclude key")
+		excludeSlice, ok := exclude.([]any)
+		Expect(ok).To(BeTrue(), "exhaustruct exclude is not []any")
+		Expect(excludeSlice).To(ContainElement(ContainSubstring("os/exec.Cmd")))
+	})
+
+	It("revive should produce rules with disabled entries", func() {
+		m := constants.DefaultLinterSettings["revive"].ToMap()
+		rules, ok := m["rules"]
+		Expect(ok).To(BeTrue(), "revive settings missing rules key")
+		rulesSlice, ok := rules.([]any)
+		Expect(ok).To(BeTrue(), "revive rules is not []any")
+		Expect(rulesSlice).To(HaveLen(2))
+	})
+
+	It("varnamelen should produce ignore flags and names", func() {
+		m := constants.DefaultLinterSettings["varnamelen"].ToMap()
+		Expect(m["ignore-map-index-ok"]).To(BeTrue())
+		Expect(m["ignore-type-assert-ok"]).To(BeTrue())
+		names, ok := m["ignore-names"]
+		Expect(ok).To(BeTrue())
+		namesSlice, ok := names.([]any)
+		Expect(ok).To(BeTrue())
+		Expect(namesSlice).To(HaveLen(11))
+	})
+
+	It("gomoddirectives should produce replace-local bool", func() {
+		m := constants.DefaultLinterSettings["gomoddirectives"].ToMap()
+		Expect(m["replace-local"]).To(BeTrue())
+	})
+
+	It("ginkgolinter should produce forbid flags", func() {
+		m := constants.DefaultLinterSettings["ginkgolinter"].ToMap()
+		Expect(m["forbid-focus-container"]).To(BeTrue())
+		Expect(m["forbid-spec-pollution"]).To(BeTrue())
+	})
+
+	It("testifylint should produce enable-all and disable list", func() {
+		m := constants.DefaultLinterSettings["testifylint"].ToMap()
+		Expect(m["enable-all"]).To(BeTrue())
+		disable, ok := m["disable"]
+		Expect(ok).To(BeTrue())
+		disableSlice, ok := disable.([]any)
+		Expect(ok).To(BeTrue())
+		Expect(disableSlice).To(ContainElement(ContainSubstring("go-require")))
+	})
+
+	It("makezero should produce always bool", func() {
+		m := constants.DefaultLinterSettings["makezero"].ToMap()
+		Expect(m["always"]).To(BeTrue())
+	})
 })

@@ -142,3 +142,28 @@ go test -race ./pkg/... ./internal/... && golangci-lint run --config=.golangci.y
 2. Check binary path: `which golangci-lint-auto-configure`
 3. Verify config file exists: `ls .golangci.yml`
 4. Check version info: `./bin/golangci-lint-auto-configure --help`
+
+### configChangeRecorder Pattern
+
+The `configChangeRecorder` (`pkg/linter/fixer_recorder.go`) wraps config mutations in closures to ensure every mutation is counted:
+
+```go
+rec := configChangeRecorder{}
+rec.normalize(func() int { return updater.updateGoVersion(ctx, cfg) })
+// rec.counts.normalization is automatically incremented
+```
+
+- **Why:** The `total()==0` guard in `applyAndSave` silently discards all changes if no counts are recorded. The recorder makes it structurally impossible to run a mutation without incrementing its counter.
+- **Coverage:** Used consistently in both `applyAllFixes` (linter/formatter enablement, deprecation handling) and `applyAndSave` (config normalizations, generated exclusions).
+- **Methods:** `deprecation()`, `enable()`, `formatter()`, `generated()`, `normalize()`, `redundant()` — one per `fixCounts` field.
+
+### SettingsConverter Pattern
+
+Typed settings structs in `pkg/constants/linter_settings.go` provide compile-time safety for default linter settings keys and value types. Each struct implements `ToMap() map[string]any` via YAML round-trip. The consumer (`fixer_config.go`) calls `.ToMap()` at the injection point.
+
+To add a new linter with default settings:
+
+1. Add a typed struct with `yaml:` tags in `linter_settings.go`
+2. Add a `ToMap()` method
+3. Add a compile-time check: `var _ SettingsConverter = YourSettings{}`
+4. Add an entry to `DefaultLinterSettings` map

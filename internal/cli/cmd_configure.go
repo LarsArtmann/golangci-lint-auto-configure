@@ -38,6 +38,8 @@ Or use --preset for predefined linter sets:
   - strict: Maximum linting (CI/CD, strict quality)
   - security: Security-focused only
   - performance: Performance optimization only
+  - reference: All critical + high priority linters
+  - format: Core formatters + essential linters
 
 Or use --detect to automatically select a preset based on project type:`
 
@@ -93,7 +95,7 @@ func addConfigureFlags(cmd *cobra.Command, preset *string, detect, check *bool) 
 	cmd.Flags().
 		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
-		StringVar(preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance)")
+		StringVar(preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance, reference, format)")
 	cmd.Flags().
 		BoolVar(detect, "detect", false, "Auto-detect project type and select appropriate preset")
 	cmd.Flags().
@@ -465,7 +467,7 @@ func loadPresetConfig(
 			preset, constants.ValidPresets, dryRun)
 	}
 
-	return cfg, convertLinterNames(linters), nil
+	return cfg, convertNames(linters), nil
 }
 
 func savePresetConfig(
@@ -479,7 +481,7 @@ func savePresetConfig(
 	cfg.Linters.Disable = []string{}
 
 	if formatters, ok := constants.PresetFormatters[preset]; ok {
-		cfg.Formatters.Enable = convertFormatterNames(formatters)
+		cfg.Formatters.Enable = convertNames(formatters)
 		logger.Infof("Enabling %d formatters from preset: %v", len(formatters), formatters)
 	}
 
@@ -520,27 +522,43 @@ func applyPreset(
 		return nil
 	}
 
+	if err := backupConfigFile(logger, configFile); err != nil {
+		return apperrors.WrapClassifiedf(err, "configure.backup",
+			"failed to backup config before preset application (file=%s)", configFile)
+	}
+
 	return savePresetConfig(logger, configLoader, cfg, configFile, preset, linterNames)
 }
 
-func convertLinterNames(linters []types.LinterName) []string {
-	names := make([]string, 0, len(linters))
+func convertNames[T ~string](names []T) []string {
+	result := make([]string, 0, len(names))
 
-	for _, l := range linters {
-		names = append(names, string(l))
+	for _, n := range names {
+		result = append(result, string(n))
 	}
 
-	return names
+	return result
 }
 
-func convertFormatterNames(formatters []types.FormatterName) []string {
-	names := make([]string, 0, len(formatters))
-
-	for _, f := range formatters {
-		names = append(names, string(f))
+func backupConfigFile(logger *log.Logger, configFile string) error {
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		return nil
 	}
 
-	return names
+	data, err := os.ReadFile(configFile)
+	if err != nil {
+		return fmt.Errorf("read config for backup: %w", err)
+	}
+
+	backupPath := configFile + ".bak"
+
+	if err := os.WriteFile(backupPath, data, 0o600); err != nil { //nolint:gosec,mnd
+		return fmt.Errorf("write backup file: %w", err)
+	}
+
+	logger.Infof("Backed up %s to %s", configFile, backupPath)
+
+	return nil
 }
 
 func logDryRunPreset(logger *log.Logger, preset string, linterNames []string) {

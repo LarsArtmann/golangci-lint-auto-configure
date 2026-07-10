@@ -7,15 +7,16 @@
 
 ## CLI Commands
 
-| Feature          | Command        | Status | Notes                                                      |
-| ---------------- | -------------- | ------ | ---------------------------------------------------------- |
-| Auto-configure   | `configure`    | Stable | Enables recommended linters, applies fixes                 |
-| Analyze config   | `analyze`      | Stable | Reports missing/extra linters, supports SARIF/finding JSON |
-| Validate config  | `validate`     | Stable | Checks YAML validity, supports SARIF output                |
-| Generate report  | `report`       | Stable | HTML, JSON, SARIF, finding report formats                  |
-| Migrate v1→v2    | `migrate`      | Stable | Migrates v1 configs to v2 format                           |
-| Install hook     | `install-hook` | Stable | Installs git pre-commit hook                               |
-| Shell completion | `completion`   | Stable | bash, zsh, fish, powershell                                |
+| Feature          | Command        | Status | Notes                                                       |
+| ---------------- | -------------- | ------ | ----------------------------------------------------------- |
+| Auto-configure   | `configure`    | Stable | Enables recommended linters, applies fixes, backs up config |
+| List presets     | `presets`      | Stable | Lists all presets with descriptions                         |
+| Analyze config   | `analyze`      | Stable | Reports missing/extra linters, supports SARIF/finding JSON  |
+| Validate config  | `validate`     | Stable | Checks YAML validity, supports SARIF output                 |
+| Generate report  | `report`       | Stable | HTML, JSON, SARIF, finding report formats                   |
+| Migrate v1→v2    | `migrate`      | Stable | Migrates v1 configs to v2 format                            |
+| Install hook     | `install-hook` | Stable | Installs git pre-commit hook                                |
+| Shell completion | `completion`   | Stable | bash, zsh, fish, powershell                                 |
 
 ## Auto-Configuration Features
 
@@ -45,18 +46,19 @@
 
 ## Default Settings Injection
 
-| Feature                                                | Status | Notes                              |
-| ------------------------------------------------------ | ------ | ---------------------------------- |
-| depguard defaults ($gostd, $module)                    | Stable | Prevents deny-all default          |
-| ireturn defaults (error, empty, anon, stdlib, generic) | Stable | Reasonable interface return policy |
-| gocritic defaults (ifElseChain disabled)               | Stable | Removes noisy checks               |
-| exhaustruct defaults (os/exec.Cmd excluded)            | Stable | Common struct exemption            |
-| revive defaults (exported, package-comments disabled)  | Stable | Noisy without config               |
-| varnamelen defaults (short names, ignore flags)        | Stable | Common short variable exemptions   |
-| gomoddirectives defaults (replace-local: true)         | Stable | Local dev support                  |
-| cyclop defaults (max-complexity: 12)                   | Stable | Reasonable complexity threshold    |
-| golines formatter defaults (max-len: 120)              | Stable | When enabled via lll replacement   |
-| output.formats initialization                          | Stable | Empty map to prevent nil issues    |
+| Feature                                                | Status | Notes                                                     |
+| ------------------------------------------------------ | ------ | --------------------------------------------------------- |
+| Typed settings structs (SettingsConverter interface)   | Stable | Compile-time safety in `pkg/constants/linter_settings.go` |
+| depguard defaults ($gostd, $module)                    | Stable | Prevents deny-all default                                 |
+| ireturn defaults (error, empty, anon, stdlib, generic) | Stable | Reasonable interface return policy                        |
+| gocritic defaults (ifElseChain disabled)               | Stable | Removes noisy checks                                      |
+| exhaustruct defaults (os/exec.Cmd excluded)            | Stable | Common struct exemption                                   |
+| revive defaults (exported, package-comments disabled)  | Stable | Noisy without config                                      |
+| varnamelen defaults (short names, ignore flags)        | Stable | Common short variable exemptions                          |
+| gomoddirectives defaults (replace-local: true)         | Stable | Local dev support                                         |
+| cyclop defaults (max-complexity: 12)                   | Stable | Reasonable complexity threshold                           |
+| golines formatter defaults (max-len: 120)              | Stable | When enabled via lll replacement                          |
+| output.formats initialization                          | Stable | Empty map to prevent nil issues                           |
 
 ## Exclusion Automation
 
@@ -73,15 +75,16 @@
 
 ## Presets
 
-| Feature                                                 | Status | Notes                            |
-| ------------------------------------------------------- | ------ | -------------------------------- |
-| `minimal` preset (5 linters)                            | Stable | Essential only, fastest          |
-| `standard` preset (8 linters)                           | Stable | Good balance for most projects   |
-| `strict` preset (17 linters)                            | Stable | Maximum linting for CI/CD        |
-| `security` preset                                       | Stable | Security-focused only            |
-| `performance` preset                                    | Stable | Performance optimization         |
-| `reference` preset (60+ linters)                        | Stable | All critical + high priority     |
-| Auto-detect project type and select preset (`--detect`) | Stable | CLI, web, library, API, monorepo |
+| Feature                                                 | Status | Notes                               |
+| ------------------------------------------------------- | ------ | ----------------------------------- |
+| `minimal` preset (5 linters)                            | Stable | Essential only, fastest             |
+| `standard` preset (8 linters)                           | Stable | Good balance for most projects      |
+| `strict` preset (17 linters)                            | Stable | Maximum linting for CI/CD           |
+| `security` preset                                       | Stable | Security-focused only               |
+| `performance` preset                                    | Stable | Performance optimization            |
+| `reference` preset (60+ linters)                        | Stable | All critical + high priority        |
+| `format` preset (5 linters + 3 formatters)              | Stable | Core formatters + essential linters |
+| Auto-detect project type and select preset (`--detect`) | Stable | CLI, web, library, API, monorepo    |
 
 ## Formatter Management
 

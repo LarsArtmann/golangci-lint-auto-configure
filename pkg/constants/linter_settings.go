@@ -21,12 +21,30 @@ func settingsToMap(v any) map[string]any {
 	}
 
 	var m map[string]any
-	if err := yaml.Unmarshal(data, &m); err != nil {
+
+	err = yaml.Unmarshal(data, &m)
+	if err != nil {
 		panic(err)
 	}
 
 	return m
 }
+
+// --- Compile-time interface compliance checks ---.
+var (
+	_ SettingsConverter = DepguardSettings{}
+	_ SettingsConverter = IreturnSettings{}
+	_ SettingsConverter = GocriticSettings{}
+	_ SettingsConverter = ExhaustructSettings{}
+	_ SettingsConverter = ReviveSettings{}
+	_ SettingsConverter = VarnamelenSettings{}
+	_ SettingsConverter = GomoddirectivesSettings{}
+	_ SettingsConverter = CyclopSettings{}
+	_ SettingsConverter = GinkgolinterSettings{}
+	_ SettingsConverter = TestifylintSettings{}
+	_ SettingsConverter = MakezeroSettings{}
+	_ SettingsConverter = GolinesFormatterSettings{}
+)
 
 // --- Linter Settings Structs ---
 // Each struct provides compile-time safety for the settings keys and value types.
@@ -119,7 +137,7 @@ type GolinesFormatterSettings struct {
 
 func (s GolinesFormatterSettings) ToMap() map[string]any { return settingsToMap(s) }
 
-// TypedDefaultLinterSettings provides compile-time-safe default settings for linters
+// DefaultLinterSettings provides compile-time-safe default settings for linters
 // that require configuration to work correctly when auto-enabled.
 // Without these defaults, some linters break builds (e.g. depguard denies everything by default).
 var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
@@ -175,7 +193,7 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 	},
 }
 
-// TypedDefaultFormatterSettings provides compile-time-safe default settings for formatters
+// DefaultFormatterSettings provides compile-time-safe default settings for formatters
 // that require configuration. Injected only when the formatter is enabled and no settings exist.
 var DefaultFormatterSettings = map[types.FormatterName]SettingsConverter{
 	"golines": GolinesFormatterSettings{

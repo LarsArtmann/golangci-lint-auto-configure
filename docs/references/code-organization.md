@@ -126,6 +126,7 @@ All major components implement interfaces defined in `pkg/types/types.go`:
 - `pkg/constants/` (multiple files) contains all linter metadata:
   - `linter_priorities.go`: Priority levels (119 linters)
   - `linter_reasons.go`: Human-readable reasons
+  - `linter_settings.go`: Typed default settings structs with `SettingsConverter` interface
   - `formatter_data.go`: Formatter priorities and reasons
   - `presets.go`: Pre-defined configurations
   - `rules.go`: Deprecated/redundant linter rules (`DeprecatedLinters`)
@@ -137,3 +138,13 @@ All major components implement interfaces defined in `pkg/types/types.go`:
 - `pkg/finding/` provides unified data model for static analysis results
 - SARIF 2.1.0 output for CI/CD integration
 - Priority-to-severity mapping (Critical→critical, High→error, etc.)
+
+**6. Typed Settings Pattern (SettingsConverter)**
+
+- `pkg/constants/linter_settings.go` defines typed Go structs for each linter/formatter that has default settings
+- Each struct implements `SettingsConverter` interface with `ToMap() map[string]any`
+- `ToMap()` converts via YAML marshal/unmarshal round-trip (handles kebab-case tag conversion)
+- `DefaultLinterSettings` and `DefaultFormatterSettings` are `map[Name]SettingsConverter`
+- `fixer_config.go` calls `.ToMap()` at injection point to populate runtime config
+- Compile-time checks (`var _ SettingsConverter = DepguardSettings{}`) ensure compliance
+- Runtime config types (`LintersConfig.Settings`) remain `map[string]any` for round-trip safety

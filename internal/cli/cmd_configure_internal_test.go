@@ -3,12 +3,14 @@ package cli
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	"go.yaml.in/yaml/v3"
 )
 
 // mockPresetConfigLoader is a mock implementation of presetConfigLoader for testing.
@@ -300,9 +302,9 @@ func TestDisplayFixResult(t *testing.T) {
 	})
 }
 
-func TestConvertLinterNames(t *testing.T) {
+func TestConvertNames(t *testing.T) {
 	input := []types.LinterName{"gosec", "errcheck"}
-	result := convertLinterNames(input)
+	result := convertNames(input)
 
 	if len(result) != 2 {
 		t.Fatalf("expected 2, got %d", len(result))
@@ -310,5 +312,31 @@ func TestConvertLinterNames(t *testing.T) {
 
 	if result[0] != "gosec" {
 		t.Errorf("expected gosec, got %s", result[0])
+	}
+}
+
+func TestApplyPreset_FormatYAMLIntegration(t *testing.T) {
+	mock := &mockPresetConfigLoader{}
+	logger := newTestLogger()
+
+	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", "format", false)
+	if err != nil {
+		t.Fatalf("applyPreset(\"format\") error = %v, want nil", err)
+	}
+
+	if mock.savedCfg == nil {
+		t.Fatal("applyPreset(\"format\") did not save config")
+	}
+
+	data, err := yaml.Marshal(mock.savedCfg)
+	if err != nil {
+		t.Fatalf("failed to marshal saved config: %v", err)
+	}
+
+	yamlStr := string(data)
+	for _, expected := range []string{"gci", "goimports", "gofumpt"} {
+		if !strings.Contains(yamlStr, expected) {
+			t.Errorf("YAML output missing formatter %q in:\n%s", expected, yamlStr)
+		}
 	}
 }

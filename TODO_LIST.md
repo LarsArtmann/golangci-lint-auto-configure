@@ -1,6 +1,6 @@
 # golangci-lint-auto-configure — TODO List
 
-**Last Updated:** 2026-07-09
+**Last Updated:** 2026-07-10
 
 ---
 
@@ -59,3 +59,9 @@
 - [x] Add `reference` preset (60+ critical + high priority linters)
 - [x] Add `--check` mode for CI (exit 0 if optimal, exit 1 if changes needed)
 - [x] Add `--diff` flag to show config changes before applying
+- [x] P0: Add clickhouselint, move exportloopref to deprecated, fix validVersions
+- [x] P1: Add missing v1 removed linters and alternative names
+- [x] P2: Add cross-map data integrity tests
+- [x] P3.1: Typed linter/formatter settings structs with SettingsConverter interface
+- [x] P3.2: configChangeRecorder closure-based mutation counting
+- [x] P3.3: Add format preset (minimal linters + core formatters)

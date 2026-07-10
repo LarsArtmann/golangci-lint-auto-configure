@@ -222,6 +222,7 @@ func addSubCommands(
 		clicmd.NewMigrateCommand(logger, configLoader, migrateFlags),
 		newValidateCommand(builder),
 		newReportCommand(builder),
+		newPresetsCommand(builder),
 		clicmd.NewCompletionCommand(),
 		clicmd.NewInstallHookCommand(logger),
 	)

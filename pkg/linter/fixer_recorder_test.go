@@ -79,3 +79,37 @@ func TestConfigChangeRecorder_ExecutesMutation(t *testing.T) {
 		t.Error("normalize did not execute the mutation closure")
 	}
 }
+
+func TestConfigChangeRecorder_ZeroReturnDoesNotInflate(t *testing.T) {
+	rec := configChangeRecorder{}
+
+	rec.normalize(func() int { return 0 })
+	rec.normalize(func() int { return 0 })
+	rec.generated(func() int { return 0 })
+	rec.deprecation(func() int { return 0 })
+	rec.enable(func() int { return 0 })
+	rec.formatter(func() int { return 0 })
+	rec.redundant(func() int { return 0 })
+
+	if rec.counts.total() != 0 {
+		t.Errorf("total() = %d, want 0 (zero-return mutations should not inflate counts)",
+			rec.counts.total())
+	}
+}
+
+func TestConfigChangeRecorder_AllCountTypes(t *testing.T) {
+	rec := configChangeRecorder{}
+
+	rec.deprecation(func() int { return 1 })
+	rec.enable(func() int { return 2 })
+	rec.formatter(func() int { return 3 })
+	rec.generated(func() int { return 4 })
+	rec.normalize(func() int { return 5 })
+	rec.redundant(func() int { return 6 })
+
+	expected := 1 + 2 + 3 + 4 + 5 + 6
+
+	if rec.counts.total() != expected {
+		t.Errorf("total() = %d, want %d", rec.counts.total(), expected)
+	}
+}
