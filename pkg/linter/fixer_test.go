@@ -463,6 +463,25 @@ linters:
 		})
 	})
 
+	Context("Disabled Linters", func() {
+		It("should move noinlineerr from enable to disable", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - noinlineerr
+`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Enable).NotTo(ContainElement("noinlineerr"))
+			Expect(parsed.Linters.Disable).To(ContainElement("noinlineerr"))
+		})
+	})
+
 	Context("Default Linter Settings", func() {
 		It("should inject depguard defaults when depguard is enabled without settings", func() {
 			fixHighPriorityAndContain(fixer, testConfig, `version: "2"

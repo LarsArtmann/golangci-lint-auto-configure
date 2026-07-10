@@ -54,3 +54,21 @@ var _ = Describe("Reference preset", func() {
 		}
 	})
 })
+
+var _ = Describe("DisabledLinters", func() {
+	It("should not have entries in LinterPriorities", func() {
+		for linter := range constants.DisabledLinters {
+			_, exists := constants.LinterPriorities[linter]
+			Expect(exists).
+				To(BeFalse(), "DisabledLinters contains %q which also has a LinterPriorities entry — disabled linters must never be recommended", linter)
+		}
+	})
+
+	It("should not have entries in LinterReasons", func() {
+		for linter := range constants.DisabledLinters {
+			_, exists := constants.LinterReasons[linter]
+			Expect(exists).
+				To(BeFalse(), "DisabledLinters contains %q which also has a LinterReasons entry — disabled linters must never be recommended", linter)
+		}
+	})
+})

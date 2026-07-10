@@ -23,6 +23,7 @@ var (
 	linterSetLllOnly      = newDisabledEntries("lll")
 	linterSetLllDeadcode  = append(newDisabledEntries("lll"), newDisabledEntry("deadcode", true))
 	linterSetLllFuncorder = newDisabledEntries("lll", "funcorder")
+	linterSetLllNoinline  = newDisabledEntries("lll", "noinlineerr")
 )
 
 func newDisabledEntries(names ...string) []disabledLinterEntry {
@@ -120,6 +121,17 @@ var _ = Describe("CategorizeLinters", func() {
 
 			Expect(names).To(ContainElement("lll"))
 			Expect(names).NotTo(ContainElement("funcorder"))
+		})
+
+		It("should skip noinlineerr as conflicting with formatters", func() {
+			disabledLinters := disabledLintersWith(linterSetLllNoinline...)
+
+			enabledFormatters := []types.FormatterInfo{}
+
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, enabledFormatters))
+
+			Expect(names).To(ContainElement("lll"))
+			Expect(names).NotTo(ContainElement("noinlineerr"))
 		})
 	})
 })

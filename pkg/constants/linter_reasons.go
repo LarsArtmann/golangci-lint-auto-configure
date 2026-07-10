@@ -116,7 +116,6 @@ var LinterReasons = map[types.LinterName]string{
 	"inamedparam":               "Reports interfaces with unnamed method parameters",
 	"iotamixing":                "Checks if iotas are used in const blocks with other non-iota declarations",
 	"modernize":                 "Suggests simplifications using modern Go language and library features",
-	"noinlineerr":               "Disallows inline error handling",
 	"nosprintfhostport":         "Checks for misuse of Sprintf to construct host with port in URL",
 	"tagalign":                  "Check that struct tags are well aligned",
 	"testableexamples":          "Checks if examples are testable (have expected output)",

@@ -115,7 +115,6 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"inamedparam":               types.LinterPriorityMedium,
 	"iotamixing":                types.LinterPriorityMedium,
 	"modernize":                 types.LinterPriorityMedium,
-	"noinlineerr":               types.LinterPriorityMedium,
 	"nosprintfhostport":         types.LinterPriorityMedium,
 	"tagalign":                  types.LinterPriorityMedium,
 	"testableexamples":          types.LinterPriorityMedium,
