@@ -13,14 +13,14 @@ This project is a **well-architected** Go CLI that auto-configures golangci-lint
 
 However, there are **critical data accuracy gaps** against the upstream golangci-lint v2.12.2: missing linters, incorrectly categorized entries, stale version whitelists, and a few data model weaknesses that should be addressed. The project tracks 113 of 114 upstream linters — one is missing entirely, and several removed-in-v2 linters are treated as active.
 
-| Category | Findings | Severity |
-|----------|----------|----------|
-| Linter coverage gaps | 1 missing, 1 miscategorized, 6 missing deprecation entries | **High** |
-| Formatter-as-linter confusion | 2 entries in wrong map | Medium |
-| Stale migration version whitelist | v2.11/v2.12 not recognized | Medium |
-| Settings type safety | `map[string]any` throughout | Low (architectural debt) |
-| Architecture quality | Excellent | — |
-| Data model quality | Good with room for improvement | — |
+| Category                          | Findings                                                   | Severity                 |
+| --------------------------------- | ---------------------------------------------------------- | ------------------------ |
+| Linter coverage gaps              | 1 missing, 1 miscategorized, 6 missing deprecation entries | **High**                 |
+| Formatter-as-linter confusion     | 2 entries in wrong map                                     | Medium                   |
+| Stale migration version whitelist | v2.11/v2.12 not recognized                                 | Medium                   |
+| Settings type safety              | `map[string]any` throughout                                | Low (architectural debt) |
+| Architecture quality              | Excellent                                                  | —                        |
+| Data model quality                | Good with room for improvement                             | —                        |
 
 ---
 
@@ -43,6 +43,7 @@ The upstream documents **114 linters** (including 2 deprecated: `gomodguard`, `w
 **Impact:** Users running `configure` with golangci-lint v2.12.0+ will never be recommended `clickhouselint`, even if they use ClickHouse. The linter will silently fall through to `LinterPriorityOptional` with a generic reason.
 
 **Recommended fix:**
+
 - Add to `LinterPriorities` as `LinterPriorityMedium` (specialized database linter)
 - Add to `LinterReasons`: `"Opinionated best practices for ClickHouse client"`
 - Add to `LinterMinVersions`: `"v2.12.0"`
@@ -60,6 +61,7 @@ It is **NOT** in `DeprecatedLinters`, so no replacement is offered. Users who ha
 **Impact:** Users with `exportloopref` in their config get no deprecation warning or auto-fix. The linter doesn't exist in v2, so golangci-lint itself will error.
 
 **Recommended fix:**
+
 - Remove from `LinterPriorities` and `LinterReasons`
 - Add to `DeprecatedLinters`:
   ```go
@@ -75,26 +77,26 @@ The `DeprecatedLinters` map (`rules.go`) correctly handles: `wsl`, `deadcode`, `
 
 **Missing entries** (all removed in v2):
 
-| Removed Linter | Replacement | Notes |
-|----------------|-------------|-------|
-| `exportloopref` | `copyloopvar` | **Most impactful** — users may still have this |
-| `golint` | `revive` | Common in old configs |
-| `scopelint` | `copyloopvar` | Predecessor of exportloopref |
-| `tenv` | `usetesting` | Test environment linter |
-| `ifshort` | _(none)_ | No direct replacement; just remove |
-| `execinquery` | _(none)_ | SQL-related; `unqueryvet` is the spiritual successor |
+| Removed Linter  | Replacement   | Notes                                                |
+| --------------- | ------------- | ---------------------------------------------------- |
+| `exportloopref` | `copyloopvar` | **Most impactful** — users may still have this       |
+| `golint`        | `revive`      | Common in old configs                                |
+| `scopelint`     | `copyloopvar` | Predecessor of exportloopref                         |
+| `tenv`          | `usetesting`  | Test environment linter                              |
+| `ifshort`       | _(none)_      | No direct replacement; just remove                   |
+| `execinquery`   | _(none)_      | SQL-related; `unqueryvet` is the spiritual successor |
 
 **Missing v1 alternative names** (renamed in v2, old names no longer valid):
 
-| Old Name | Current Name |
-|----------|-------------|
-| `gas` | `gosec` |
-| `goerr113` | `err113` |
-| `gomnd` | `mnd` |
-| `logrlint` | `loggercheck` |
+| Old Name    | Current Name  |
+| ----------- | ------------- |
+| `gas`       | `gosec`       |
+| `goerr113`  | `err113`      |
+| `gomnd`     | `mnd`         |
+| `logrlint`  | `loggercheck` |
 | `megacheck` | `staticcheck` |
-| `vet` | `govet` |
-| `vetshadow` | `govet` |
+| `vet`       | `govet`       |
+| `vetshadow` | `govet`       |
 
 **Impact:** Users migrating from v1 configs with these linters get no guidance. The migration command handles some of this, but the fixer/analyzer won't catch them.
 
@@ -121,14 +123,14 @@ This project's `FormatterInfo` map tracks all 6. ✅ **Complete coverage.**
 
 ### 2.2 Formatter Priorities
 
-| Formatter | Project Priority | Assessment |
-|-----------|-----------------|------------|
-| `gofumpt` | High | ✅ Correct — strictest formatter, superset of gofmt |
-| `golines` | High | ✅ Correct — fixes long lines, high value |
-| `gofmt` | Medium | ⚠️ Should be Low — superseded by gofumpt (already in `RedundantFormatters`) |
-| `goimports` | Medium | ✅ Correct |
-| `gci` | Medium | ✅ Correct — import organization |
-| `swaggo` | Low | ✅ Correct — specialized for Swagger projects |
+| Formatter   | Project Priority | Assessment                                                                  |
+| ----------- | ---------------- | --------------------------------------------------------------------------- |
+| `gofumpt`   | High             | ✅ Correct — strictest formatter, superset of gofmt                         |
+| `golines`   | High             | ✅ Correct — fixes long lines, high value                                   |
+| `gofmt`     | Medium           | ⚠️ Should be Low — superseded by gofumpt (already in `RedundantFormatters`) |
+| `goimports` | Medium           | ✅ Correct                                                                  |
+| `gci`       | Medium           | ✅ Correct — import organization                                            |
+| `swaggo`    | Low              | ✅ Correct — specialized for Swagger projects                               |
 
 ### 2.3 Formatter Settings Coverage
 
@@ -143,25 +145,30 @@ The upstream documents settings for 5 of 6 formatters (swaggo has none). This pr
 ### 3.1 Strengths
 
 #### Strong Typing for Names
+
 ```go
 type LinterName string     // Prevents typos, enables compile-time checking
 type FormatterName string  // Same for formatters
 ```
+
 These types are used consistently throughout constants, preventing the most common data integrity bug class (typos in linter names).
 
 #### Config Type Tag Strategy
+
 The three-family tag policy is well-designed:
 
-| Family | JSON | YAML/TOML | Rationale |
-|--------|------|-----------|-----------|
-| Report types | PascalCase (tag-free) | n/a | Go-native, zero tag cost |
-| Config types | kebab | kebab | Round-trips `.golangci.yml` schema |
-| Wire-format types | as-is (matches upstream) | n/a | External JSON compatibility |
+| Family            | JSON                     | YAML/TOML | Rationale                          |
+| ----------------- | ------------------------ | --------- | ---------------------------------- |
+| Report types      | PascalCase (tag-free)    | n/a       | Go-native, zero tag cost           |
+| Config types      | kebab                    | kebab     | Round-trips `.golangci.yml` schema |
+| Wire-format types | as-is (matches upstream) | n/a       | External JSON compatibility        |
 
 #### Wire-Format Decoupling
+
 `golangciLinterEntry` and `golangciFormatterEntry` in `analyzer.go` are dedicated structs that match golangci-lint's JSON wire format, with conversion methods to domain types. This correctly handles the quirky wire format (capitalized wrapper keys `"Enabled"`/`"Disabled"` but lowercase field keys `"name"`, `"autoFix"`).
 
 #### Generic Set Type
+
 `types.Set[T]` provides type-safe set operations for linter/formatter management, used throughout the fixer pipeline.
 
 ### 3.2 Weaknesses
@@ -180,6 +187,7 @@ type FormattersConfig struct {
 ```
 
 And in constants:
+
 ```go
 var DefaultLinterSettings = map[types.LinterName]any{
     "depguard": map[string]any{
@@ -194,6 +202,7 @@ var DefaultLinterSettings = map[types.LinterName]any{
 ```
 
 **Problems:**
+
 1. **No compile-time safety** — typos in setting keys (`"max-complexity"` vs `"max_complexity"`) are silent bugs
 2. **No validation** — invalid values (e.g., `max-complexity: -1` for cyclop) are accepted
 3. **No IDE autocomplete** — consumers can't discover available settings
@@ -331,11 +340,13 @@ FixConfig
 ### 4.4 Migration System — Functional but Stale
 
 The migration system handles v1→v2 transformation with rule-based property moves. It's well-structured with:
+
 - `MigrationRules` struct for configurable mappings
 - Separate functions for each migration step
 - Post-migration validation via `golangci-lint config verify`
 
 **Issue: Stale version whitelist.** The `validVersions()` function hardcodes:
+
 ```go
 return types.NewSet("2", "2.8", "2.8.0", "2.9", "2.9.0", "2.10", "2.10.0", "2.10.1")
 ```
@@ -343,6 +354,7 @@ return types.NewSet("2", "2.8", "2.8.0", "2.9", "2.9.0", "2.10", "2.10.0", "2.10
 This is missing `"2.11"`, `"2.11.0"`, `"2.12"`, `"2.12.0"`, `"2.12.1"`, `"2.12.2"`. When `migrateVersion()` encounters `version: "2.12"` in a config, it won't find it in the valid set and will reset it to `"2"`. While `"2"` is the canonical value, the migrator shouldn't treat `"2.12"` as invalid — it should recognize it as a valid v2 version.
 
 **Recommended fix:** Replace the whitelist with prefix matching:
+
 ```go
 func (r *MigrationRules) IsValidVersion(version string) bool {
     return version == "2" || strings.HasPrefix(version, "2.")
@@ -352,6 +364,7 @@ func (r *MigrationRules) IsValidVersion(version string) bool {
 ### 4.5 Error Handling — Mature
 
 The `go-error-family` integration provides:
+
 - Sentinel error registration with Families (Rejection/Conflict/Transient/Corruption/Infrastructure)
 - `ConfigError`, `ReportError`, `MigrationError` → always Rejection (type-level)
 - `AnalysisError` → delegates to cause-chain sentinels
@@ -363,6 +376,7 @@ The `go-error-family` integration provides:
 ### 4.6 Version Checking — Robust
 
 The version checker:
+
 - Tries JSON output first, falls back to text parsing
 - Retries on "parallel golangci-lint is running" errors
 - Enforces minimum version (`v2.10.1`)
@@ -377,27 +391,27 @@ The version checker:
 
 ### 5.1 Linter Defaults — Mostly Sound
 
-| Linter | Default | Upstream Default | Assessment |
-|--------|---------|-----------------|------------|
-| `depguard` | allow `$gostd`, `$module` | deny all non-stdlib | ✅ Correct — prevents build breakage |
-| `ireturn` | allow standard interfaces | allow `anon, error, empty, stdlib` | ✅ Correct — matches upstream defaults |
-| `gocritic` | disable `ifElseChain` | all stable checks enabled | ✅ Reasonable — `ifElseChain` is noisy |
-| `exhaustruct` | exclude `os/exec.Cmd` | no exclusions | ✅ Good — `exec.Cmd` has many optional fields |
-| `revive` | disable `exported`, `package-comments` | no rules | ✅ Good — these are extremely noisy |
-| `varnamelen` | ignore common short names | no ignores | ✅ Excellent — prevents noise |
-| `gomoddirectives` | `replace-local: true` | `replace-local: false` | ⚠️ More permissive than upstream |
-| `cyclop` | `max-complexity: 12` | `max-complexity: 10` | ⚠️ Slightly more lenient |
-| `ginkgolinter` | forbid focus + spec pollution | all `false` | ✅ Good — catches test pollution |
-| `testifylint` | enable-all except `go-require` | no defaults | ✅ Good — `go-require` is noisy for HTTP handlers |
-| `makezero` | `always: true` | `always: false` | ⚠️ Strict — may surprise users |
+| Linter            | Default                                | Upstream Default                   | Assessment                                        |
+| ----------------- | -------------------------------------- | ---------------------------------- | ------------------------------------------------- |
+| `depguard`        | allow `$gostd`, `$module`              | deny all non-stdlib                | ✅ Correct — prevents build breakage              |
+| `ireturn`         | allow standard interfaces              | allow `anon, error, empty, stdlib` | ✅ Correct — matches upstream defaults            |
+| `gocritic`        | disable `ifElseChain`                  | all stable checks enabled          | ✅ Reasonable — `ifElseChain` is noisy            |
+| `exhaustruct`     | exclude `os/exec.Cmd`                  | no exclusions                      | ✅ Good — `exec.Cmd` has many optional fields     |
+| `revive`          | disable `exported`, `package-comments` | no rules                           | ✅ Good — these are extremely noisy               |
+| `varnamelen`      | ignore common short names              | no ignores                         | ✅ Excellent — prevents noise                     |
+| `gomoddirectives` | `replace-local: true`                  | `replace-local: false`             | ⚠️ More permissive than upstream                  |
+| `cyclop`          | `max-complexity: 12`                   | `max-complexity: 10`               | ⚠️ Slightly more lenient                          |
+| `ginkgolinter`    | forbid focus + spec pollution          | all `false`                        | ✅ Good — catches test pollution                  |
+| `testifylint`     | enable-all except `go-require`         | no defaults                        | ✅ Good — `go-require` is noisy for HTTP handlers |
+| `makezero`        | `always: true`                         | `always: false`                    | ⚠️ Strict — may surprise users                    |
 
 ### 5.2 Missing Defaults Worth Considering
 
-| Linter | Suggested Default | Rationale |
-|--------|-------------------|-----------|
-| `wrapcheck` | `report-internal-errors: false` | Prevents noise from internal error returns |
-| `funlen` | `lines: 80` (upstream default: 60) | More realistic for modern Go code |
-| `mnd` | `ignored-files: ["cmd/.*"]` | CLI files legitimately have magic numbers |
+| Linter      | Suggested Default                  | Rationale                                  |
+| ----------- | ---------------------------------- | ------------------------------------------ |
+| `wrapcheck` | `report-internal-errors: false`    | Prevents noise from internal error returns |
+| `funlen`    | `lines: 80` (upstream default: 60) | More realistic for modern Go code          |
+| `mnd`       | `ignored-files: ["cmd/.*"]`        | CLI files legitimately have magic numbers  |
 
 **Counter-argument:** Conservative defaults are safer. Adding more defaults increases the risk of overriding user intent. The current approach of only defaulting linters that **break builds without configuration** (depguard, ireturn) is defensible.
 
@@ -407,14 +421,14 @@ The version checker:
 
 ### 6.1 Preset Coverage
 
-| Preset | Linter Count | Assessment |
-|--------|-------------|------------|
-| `minimal` | 5 | ✅ Correct — core safety linters |
-| `standard` | 8 | ✅ Good balance for most projects |
-| `strict` | 17 | ✅ Good for CI/CD quality enforcement |
-| `security` | 1 | ⚠️ Only `gosec` — could add `gocritic` with security tags |
-| `performance` | 4 | ✅ Good — `ineffassign`, `prealloc`, `unconvert`, `perfsprint` |
-| `reference` | 62 | ✅ All critical + high priority (verified by data integrity test) |
+| Preset        | Linter Count | Assessment                                                        |
+| ------------- | ------------ | ----------------------------------------------------------------- |
+| `minimal`     | 5            | ✅ Correct — core safety linters                                  |
+| `standard`    | 8            | ✅ Good balance for most projects                                 |
+| `strict`      | 17           | ✅ Good for CI/CD quality enforcement                             |
+| `security`    | 1            | ⚠️ Only `gosec` — could add `gocritic` with security tags         |
+| `performance` | 4            | ✅ Good — `ineffassign`, `prealloc`, `unconvert`, `perfsprint`    |
+| `reference`   | 62           | ✅ All critical + high priority (verified by data integrity test) |
 
 ### 6.2 Missing Preset Opportunity
 
@@ -427,6 +441,7 @@ No preset includes **formatters**. A `format` preset that enables `gci`, `gofump
 ### 7.1 Existing Integrity Tests
 
 The `data_integrity_test.go` enforces:
+
 - `LinterMinVersions` entries exist in `LinterPriorities` ✅
 - `reference` preset only contains linters from `LinterPriorities` ✅
 - `reference` preset contains ALL critical + high priority linters ✅
@@ -435,14 +450,14 @@ The `data_integrity_test.go` enforces:
 
 ### 7.2 Missing Integrity Tests
 
-| Test | What It Would Catch |
-|------|---------------------|
-| `LinterPriorities` ⊆ `LinterReasons` | Linters with priority but no reason |
-| `LinterReasons` ⊆ `LinterPriorities` | Reasons for linters not in priorities |
-| `DeprecatedLinters` ∉ `LinterPriorities` | Deprecated linters that can still be recommended |
-| `FormatterPriorities` ⊆ `FormatterReasons` | Formatters with priority but no reason |
-| `LinterPriorities` ∩ `FormatterInfo` = ∅ | Formatters incorrectly in linter maps (would catch gofmt/gci) |
-| `DeprecatedLinters` values exist in `LinterPriorities` or upstream | Replacement targets are valid linters |
+| Test                                                               | What It Would Catch                                           |
+| ------------------------------------------------------------------ | ------------------------------------------------------------- |
+| `LinterPriorities` ⊆ `LinterReasons`                               | Linters with priority but no reason                           |
+| `LinterReasons` ⊆ `LinterPriorities`                               | Reasons for linters not in priorities                         |
+| `DeprecatedLinters` ∉ `LinterPriorities`                           | Deprecated linters that can still be recommended              |
+| `FormatterPriorities` ⊆ `FormatterReasons`                         | Formatters with priority but no reason                        |
+| `LinterPriorities` ∩ `FormatterInfo` = ∅                           | Formatters incorrectly in linter maps (would catch gofmt/gci) |
+| `DeprecatedLinters` values exist in `LinterPriorities` or upstream | Replacement targets are valid linters                         |
 
 The **last test** would have caught the `gofmt`/`gci`-in-linter-priorities issue automatically.
 
@@ -496,14 +511,14 @@ The fixer auto-injects Go experiment build tags (`goexperiment.arenas`, `goexper
 
 ## 10. Overall Assessment
 
-| Dimension | Score | Notes |
-|-----------|-------|-------|
-| **Architecture** | 9/10 | Clean separation, good interfaces, testable |
-| **Data Models** | 7/10 | Strong typing for names; `map[string]any` is the weakness |
-| **Linter Coverage** | 6/10 | 1 missing, 1 miscategorized, 6+ missing deprecations |
-| **Formatter Coverage** | 9/10 | All 6 tracked, priorities sensible |
-| **Error Handling** | 9/10 | go-error-family integration, BSD exit codes |
-| **Testing** | 8/10 | BDD specs, data integrity tests; missing cross-map checks |
-| **Maintainability** | 8/10 | Static data is easy to update; staleness is the risk |
+| Dimension              | Score | Notes                                                     |
+| ---------------------- | ----- | --------------------------------------------------------- |
+| **Architecture**       | 9/10  | Clean separation, good interfaces, testable               |
+| **Data Models**        | 7/10  | Strong typing for names; `map[string]any` is the weakness |
+| **Linter Coverage**    | 6/10  | 1 missing, 1 miscategorized, 6+ missing deprecations      |
+| **Formatter Coverage** | 9/10  | All 6 tracked, priorities sensible                        |
+| **Error Handling**     | 9/10  | go-error-family integration, BSD exit codes               |
+| **Testing**            | 8/10  | BDD specs, data integrity tests; missing cross-map checks |
+| **Maintainability**    | 8/10  | Static data is easy to update; staleness is the risk      |
 
 **Bottom line:** The architecture is excellent. The data accuracy gaps against upstream are the primary concern — they're easy to fix but currently mean the tool silently misses linters and misclassifies removed ones. Adding cross-map integrity tests would prevent future regressions of this class.
