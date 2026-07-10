@@ -316,7 +316,10 @@ var _ = Describe("MigrationRules", func() {
 			Expect(rules).NotTo(BeNil())
 			Expect(rules.IsValidVersion("2")).To(BeTrue())
 			Expect(rules.IsValidVersion("2.8")).To(BeTrue())
+			Expect(rules.IsValidVersion("2.12")).To(BeTrue())
+			Expect(rules.IsValidVersion("2.12.2")).To(BeTrue())
 			Expect(rules.IsValidVersion("1")).To(BeFalse())
+			Expect(rules.IsValidVersion("1.57")).To(BeFalse())
 		})
 
 		It("should return deprecated properties for known linters", func() {

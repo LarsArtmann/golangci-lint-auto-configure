@@ -45,6 +45,64 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 		Reason:      "gomodguard is deprecated since golangci-lint v2.12.0, use gomodguard_v2 instead",
 		MinVersion:  "v2.12.0",
 	},
+
+	// Removed in golangci-lint v2 — have replacements
+	"exportloopref": {
+		Replacement: "copyloopvar",
+		Reason:      "exportloopref was removed in golangci-lint v2 (Go 1.22 fixed loop variable semantics), use copyloopvar instead",
+	},
+	"golint": {
+		Replacement: "revive",
+		Reason:      "golint was removed in golangci-lint v2, use revive instead",
+	},
+	"scopelint": {
+		Replacement: "copyloopvar",
+		Reason:      "scopelint was removed in golangci-lint v2, use copyloopvar instead",
+	},
+	"tenv": {
+		Replacement: "usetesting",
+		Reason:      "tenv was removed in golangci-lint v2, use usetesting instead",
+	},
+
+	// Removed in golangci-lint v2 — no direct replacement
+	"ifshort": {
+		Replacement: "",
+		Reason:      "ifshort was removed in golangci-lint v2 with no direct replacement",
+	},
+	"execinquery": {
+		Replacement: "",
+		Reason:      "execinquery was removed in golangci-lint v2 with no direct replacement",
+	},
+
+	// v1 alternative names (renamed before v2)
+	"gas": {
+		Replacement: "gosec",
+		Reason:      "gas was renamed to gosec",
+	},
+	"goerr113": {
+		Replacement: "err113",
+		Reason:      "goerr113 was renamed to err113",
+	},
+	"gomnd": {
+		Replacement: "mnd",
+		Reason:      "gomnd was renamed to mnd",
+	},
+	"logrlint": {
+		Replacement: "loggercheck",
+		Reason:      "logrlint was renamed to loggercheck",
+	},
+	"megacheck": {
+		Replacement: "staticcheck",
+		Reason:      "megacheck was renamed to staticcheck",
+	},
+	"vet": {
+		Replacement: "govet",
+		Reason:      "vet was renamed to govet",
+	},
+	"vetshadow": {
+		Replacement: "govet",
+		Reason:      "vetshadow was merged into govet",
+	},
 }
 
 // DisabledLinters maps linter names that should never be recommended or enabled

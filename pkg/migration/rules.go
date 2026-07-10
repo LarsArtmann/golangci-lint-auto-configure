@@ -4,6 +4,8 @@
 package migration
 
 import (
+	"strings"
+
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -11,7 +13,6 @@ import (
 //
 
 type MigrationRules struct {
-	ValidVersions                 types.Set[string]
 	RemovedLinterSettings         map[string][]string
 	ModernizeDisableMappings      map[string]string
 	SloglintKeyNamingCaseMappings map[string]string
@@ -22,17 +23,12 @@ type MigrationRules struct {
 // DefaultRules returns a MigrationRules populated with the default golangci-lint v2 rules.
 func DefaultRules() *MigrationRules {
 	return &MigrationRules{
-		ValidVersions:                 validVersions(),
 		RemovedLinterSettings:         removedLinterSettings(),
 		ModernizeDisableMappings:      modernizeDisableMappings(),
 		SloglintKeyNamingCaseMappings: sloglintKeyNamingCaseMappings(),
 		GocriticSettingsToRemove:      gocriticSettingsToRemove(),
 		LintersWithoutSettings:        lintersWithoutSettings(),
 	}
-}
-
-func validVersions() types.Set[string] {
-	return types.NewSet("2", "2.8", "2.8.0", "2.9", "2.9.0", "2.10", "2.10.0", "2.10.1")
 }
 
 func removedLinterSettings() map[string][]string {
@@ -119,7 +115,7 @@ func sloglintKeyNamingCaseMappings() map[string]string {
 
 // IsValidVersion returns true if the given version string is valid for v2.
 func (r *MigrationRules) IsValidVersion(version string) bool {
-	return r.ValidVersions.Contains(version)
+	return version == "2" || strings.HasPrefix(version, "2.")
 }
 
 // GetDeprecatedProperties returns the deprecated properties for a given linter.

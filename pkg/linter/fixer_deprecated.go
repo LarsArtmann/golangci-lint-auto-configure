@@ -66,6 +66,12 @@ func (h *deprecatedLinterHandler) applyReplacement(
 
 	linterSet.Delete(linter)
 
+	if replacement.Replacement == "" {
+		h.logRemove(linter, replacement, dryRun)
+
+		return
+	}
+
 	if linterSet.Contains(string(replacement.Replacement)) {
 		h.logKeep(linter, replacement.Replacement, dryRun)
 
@@ -115,6 +121,15 @@ func (h *deprecatedLinterHandler) logKeep(linter string, replacement types.Linte
 	} else {
 		h.logger.Debugf("Removing deprecated %s (keeping existing %s)", linter, replacement)
 	}
+}
+
+func (h *deprecatedLinterHandler) logRemove(linter string, replacement types.LinterReplacement, dryRun bool) {
+	prefix := ""
+	if dryRun {
+		prefix = "[DRY-RUN] Would "
+	}
+
+	h.logger.Infof("%sremove deprecated linter: %s (%s)", prefix, linter, replacement.Reason)
 }
 
 func (h *deprecatedLinterHandler) logReplace(linter string, replacement types.LinterReplacement, dryRun bool) {

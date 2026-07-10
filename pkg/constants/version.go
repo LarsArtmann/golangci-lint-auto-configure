@@ -17,5 +17,6 @@ const ExpectedGolangCILintVersion = "v2.12.2"
 // that supports them. Linters not in this map are available in all versions.
 // Used to skip recommendations for linters not yet available in the installed version.
 var LinterMinVersions = map[types.LinterName]string{
-	"gomodguard_v2": "v2.12.0", //nolint:goconst // linter name used across maps
+	"gomodguard_v2":  "v2.12.0", //nolint:goconst // linter name used across maps
+	"clickhouselint": "v2.12.0",
 }

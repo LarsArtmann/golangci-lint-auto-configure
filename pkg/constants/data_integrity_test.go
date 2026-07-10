@@ -79,3 +79,74 @@ var _ = Describe("DisabledLinters", func() {
 		}
 	})
 })
+
+var _ = Describe("LinterPriorities and LinterReasons consistency", func() {
+	It("should have exactly the same keys in LinterPriorities and LinterReasons", func() {
+		for linter := range constants.LinterPriorities {
+			_, exists := constants.LinterReasons[linter]
+			Expect(exists).
+				To(BeTrue(), "LinterPriorities contains %q which is missing from LinterReasons", linter)
+		}
+
+		for linter := range constants.LinterReasons {
+			_, exists := constants.LinterPriorities[linter]
+			Expect(exists).
+				To(BeTrue(), "LinterReasons contains %q which is missing from LinterPriorities", linter)
+		}
+	})
+})
+
+var _ = Describe("Linter and formatter separation", func() {
+	It("should not have any formatter names in LinterPriorities", func() {
+		for formatter := range constants.FormatterInfo {
+			_, exists := constants.LinterPriorities[types.LinterName(formatter)]
+			Expect(exists).
+				To(BeFalse(), "Formatter %q is incorrectly listed in LinterPriorities — formatters must not appear in linter maps", formatter)
+		}
+	})
+
+	It("should not have any formatter names in LinterReasons", func() {
+		for formatter := range constants.FormatterInfo {
+			_, exists := constants.LinterReasons[types.LinterName(formatter)]
+			Expect(exists).
+				To(BeFalse(), "Formatter %q is incorrectly listed in LinterReasons — formatters must not appear in linter maps", formatter)
+		}
+	})
+})
+
+var _ = Describe("DeprecatedLinters", func() {
+	It("should have a non-empty reason for every entry", func() {
+		for linter, replacement := range constants.DeprecatedLinters {
+			Expect(replacement.Reason).
+				ToNot(BeEmpty(), "DeprecatedLinters contains %q with an empty reason", linter)
+		}
+	})
+
+	It("should have non-empty replacement targets that exist in LinterPriorities", func() {
+		for linter, replacement := range constants.DeprecatedLinters {
+			if replacement.Replacement == "" {
+				continue
+			}
+
+			_, exists := constants.LinterPriorities[replacement.Replacement]
+			Expect(exists).
+				To(BeTrue(), "DeprecatedLinters[%q] replacement %q is missing from LinterPriorities", linter, replacement.Replacement)
+		}
+	})
+})
+
+var _ = Describe("FormatterPriorities and FormatterReasons consistency", func() {
+	It("should have exactly the same keys in FormatterPriorities and FormatterReasons", func() {
+		for formatter := range constants.FormatterPriorities {
+			_, exists := constants.FormatterReasons[formatter]
+			Expect(exists).
+				To(BeTrue(), "FormatterPriorities contains %q which is missing from FormatterReasons", formatter)
+		}
+
+		for formatter := range constants.FormatterReasons {
+			_, exists := constants.FormatterPriorities[formatter]
+			Expect(exists).
+				To(BeTrue(), "FormatterReasons contains %q which is missing from FormatterPriorities", formatter)
+		}
+	})
+})

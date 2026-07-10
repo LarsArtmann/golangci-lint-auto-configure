@@ -74,15 +74,12 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"godot":                     types.LinterPriorityMedium,
 	"godox":                     types.LinterPriorityMedium,
 	"goheader":                  types.LinterPriorityMedium,
-	"gofmt":                     types.LinterPriorityMedium,
-	"gci":                       types.LinterPriorityMedium,
 	"varnamelen":                types.LinterPriorityMedium,
 	"whitespace":                types.LinterPriorityMedium,
 	"wsl_v5":                    types.LinterPriorityMedium,
 	"grouper":                   types.LinterPriorityMedium,
 	"dogsled":                   types.LinterPriorityMedium,
 	"makezero":                  types.LinterPriorityMedium,
-	"exportloopref":             types.LinterPriorityMedium,
 	"asciicheck":                types.LinterPriorityMedium,
 	"bidichk":                   types.LinterPriorityMedium,
 	"containedctx":              types.LinterPriorityMedium,
@@ -122,6 +119,7 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"zerologlint":               types.LinterPriorityHigh,
 	"arangolint":                types.LinterPriorityMedium,
 	"embeddedstructfieldcheck":  types.LinterPriorityMedium,
+	"clickhouselint":            types.LinterPriorityMedium,
 
 	// All other linters default to Optional
 }
