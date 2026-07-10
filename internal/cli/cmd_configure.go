@@ -478,6 +478,11 @@ func savePresetConfig(
 	cfg.Linters.Enable = linterNames
 	cfg.Linters.Disable = []string{}
 
+	if formatters, ok := constants.PresetFormatters[preset]; ok {
+		cfg.Formatters.Enable = convertFormatterNames(formatters)
+		logger.Infof("Enabling %d formatters from preset: %v", len(formatters), formatters)
+	}
+
 	generatedCount := linter.ApplyGeneratedExclusions(logger, cfg, configFile)
 	if generatedCount > 0 {
 		logger.Infof("Added %d generated file exclusions", generatedCount)
@@ -528,10 +533,28 @@ func convertLinterNames(linters []types.LinterName) []string {
 	return names
 }
 
+func convertFormatterNames(formatters []types.FormatterName) []string {
+	names := make([]string, 0, len(formatters))
+
+	for _, f := range formatters {
+		names = append(names, string(f))
+	}
+
+	return names
+}
+
 func logDryRunPreset(logger *log.Logger, preset string, linterNames []string) {
 	logger.Infof("[DRY-RUN] Would apply preset %s with %d linters:", preset, len(linterNames))
 
 	for _, l := range linterNames {
 		logger.Infof("  - %s", l)
+	}
+
+	if formatters, ok := constants.PresetFormatters[preset]; ok {
+		logger.Infof("[DRY-RUN] Would also enable %d formatters:", len(formatters))
+
+		for _, f := range formatters {
+			logger.Infof("  - %s", f)
+		}
 	}
 }

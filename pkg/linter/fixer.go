@@ -170,6 +170,22 @@ func (c fixCounts) total() int {
 	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant + c.normalization
 }
 
+// configChangeRecorder ensures every config mutation in applyAndSave is counted.
+// Mutations are passed as closures so the recorder controls both execution and counting,
+// preventing the footgun where a mutation runs but its count is not incremented
+// (which would cause the total()==0 guard to silently discard all changes).
+type configChangeRecorder struct {
+	counts fixCounts
+}
+
+func (r *configChangeRecorder) normalize(fn func() int) {
+	r.counts.normalization += fn()
+}
+
+func (r *configChangeRecorder) generated(fn func() int) {
+	r.counts.generated += fn()
+}
+
 // applyLintersFix processes linter recommendations, applies fixes, and saves the config.
 func (f *Fixer) applyLintersFix(
 	ctx context.Context,
@@ -235,15 +251,22 @@ func (f *Fixer) applyAndSave(
 	counts fixCounts,
 ) (*types.MigrationResult, error) {
 	updater := newConfigUpdater(f.logger)
-	counts.normalization += updater.updateGoVersion(ctx, cfg)
-	counts.normalization += updater.updateRunnerSettings(cfg)
-	counts.normalization += updater.updateBuildTags(cfg)
-	counts.normalization += updater.updateOutputFormats(cfg)
-	counts.normalization += updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager, f.logger)
 
-	counts.generated = updater.updateGeneratedExclusions(cfg, configPath)
-	counts.generated += updater.updateExclusionRules(cfg)
-	counts.normalization += updater.updateIssuesSettings(cfg)
+	rec := configChangeRecorder{counts: counts}
+	rec.normalize(func() int { return updater.updateGoVersion(ctx, cfg) })
+	rec.normalize(func() int { return updater.updateRunnerSettings(cfg) })
+	rec.normalize(func() int { return updater.updateBuildTags(cfg) })
+	rec.normalize(func() int { return updater.updateOutputFormats(cfg) })
+	rec.normalize(func() int {
+		return updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager, f.logger)
+	})
+
+	rec.generated(func() int { return updater.updateGeneratedExclusions(cfg, configPath) })
+	rec.generated(func() int { return updater.updateExclusionRules(cfg) })
+
+	rec.normalize(func() int { return updater.updateIssuesSettings(cfg) })
+
+	counts = rec.counts
 
 	if counts.total() == 0 {
 		return noFixesResult()

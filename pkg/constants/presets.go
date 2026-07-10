@@ -3,7 +3,7 @@ package constants
 import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 
 // ValidPresets lists all valid preset names.
-const ValidPresets = "minimal, standard, strict, security, performance, reference"
+const ValidPresets = "minimal, standard, strict, security, performance, reference, format"
 
 // PresetLinters defines linter sets for different configuration presets.
 var PresetLinters = map[string][]types.LinterName{
@@ -45,6 +45,15 @@ var PresetLinters = map[string][]types.LinterName{
 		"perfsprint", "protogetter", "usetesting", "recvcheck", "nilnesserr",
 		"zerologlint", "paralleltest",
 	},
+	"format": {
+		"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
+	},
+}
+
+// PresetFormatters defines formatter sets for presets that include formatters.
+// Currently only the "format" preset enables formatters explicitly.
+var PresetFormatters = map[string][]types.FormatterName{
+	"format": {"gci", "gofumpt", "goimports"},
 }
 
 // PresetDescriptions explains what each preset is for.
@@ -55,4 +64,5 @@ var PresetDescriptions = map[string]string{
 	"security":    "Security-focused linters only",
 	"performance": "Performance optimization linters",
 	"reference":   "All critical + high priority linters (recommended starting point)",
+	"format":      "Core formatters + essential linters (5 linters, 3 formatters) - Code formatting setup",
 }

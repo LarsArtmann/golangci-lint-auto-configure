@@ -150,3 +150,81 @@ var _ = Describe("FormatterPriorities and FormatterReasons consistency", func() 
 		}
 	})
 })
+
+var _ = Describe("DefaultLinterSettings", func() {
+	It("should produce non-empty ToMap output for every entry", func() {
+		for linter, settings := range constants.DefaultLinterSettings {
+			m := settings.ToMap()
+			Expect(m).
+				ToNot(BeEmpty(), "DefaultLinterSettings[%q].ToMap() returned empty map", linter)
+		}
+	})
+
+	It("should have cyclop max-complexity as int in ToMap output", func() {
+		m := constants.DefaultLinterSettings["cyclop"].ToMap()
+		maxComplexity, ok := m["max-complexity"]
+		Expect(ok).To(BeTrue(), "cyclop settings missing max-complexity key")
+		Expect(maxComplexity).To(Equal(12))
+	})
+
+	It("should have depguard rules with allow list in ToMap output", func() {
+		m := constants.DefaultLinterSettings["depguard"].ToMap()
+		rules, ok := m["rules"]
+		Expect(ok).To(BeTrue(), "depguard settings missing rules key")
+
+		rulesMap, ok := rules.(map[string]any)
+		Expect(ok).To(BeTrue(), "depguard rules is not a map[string]any")
+
+		mainRule, ok := rulesMap["main"]
+		Expect(ok).To(BeTrue(), "depguard rules missing 'main' entry")
+
+		mainMap, ok := mainRule.(map[string]any)
+		Expect(ok).To(BeTrue(), "depguard main rule is not a map[string]any")
+
+		allow, ok := mainMap["allow"]
+		Expect(ok).To(BeTrue(), "depguard main rule missing allow key")
+		Expect(allow).ToNot(BeEmpty())
+	})
+})
+
+var _ = Describe("DefaultFormatterSettings", func() {
+	It("should produce non-empty ToMap output for every entry", func() {
+		for formatter, settings := range constants.DefaultFormatterSettings {
+			m := settings.ToMap()
+			Expect(m).
+				ToNot(BeEmpty(), "DefaultFormatterSettings[%q].ToMap() returned empty map", formatter)
+		}
+	})
+
+	It("should have golines max-len as int in ToMap output", func() {
+		m := constants.DefaultFormatterSettings["golines"].ToMap()
+		maxLen, ok := m["max-len"]
+		Expect(ok).To(BeTrue(), "golines settings missing max-len key")
+		Expect(maxLen).To(Equal(120))
+	})
+})
+
+var _ = Describe("Format preset", func() {
+	It("should exist in PresetLinters", func() {
+		_, ok := constants.PresetLinters["format"]
+		Expect(ok).To(BeTrue(), "format preset missing from PresetLinters")
+	})
+
+	It("should exist in PresetFormatters with core formatters", func() {
+		formatters, ok := constants.PresetFormatters["format"]
+		Expect(ok).To(BeTrue(), "format preset missing from PresetFormatters")
+		Expect(formatters).To(ContainElement(types.FormatterName("gci")))
+		Expect(formatters).To(ContainElement(types.FormatterName("gofumpt")))
+		Expect(formatters).To(ContainElement(types.FormatterName("goimports")))
+	})
+
+	It("should exist in PresetDescriptions", func() {
+		desc, ok := constants.PresetDescriptions["format"]
+		Expect(ok).To(BeTrue(), "format preset missing from PresetDescriptions")
+		Expect(desc).ToNot(BeEmpty())
+	})
+
+	It("should be listed in ValidPresets", func() {
+		Expect(constants.ValidPresets).To(ContainSubstring("format"))
+	})
+})

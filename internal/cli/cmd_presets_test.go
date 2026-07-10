@@ -38,6 +38,7 @@ var _ = Context("configure presets", func() {
 		Entry("reference preset", "reference"),
 		Entry("minimal preset", "minimal"),
 		Entry("standard preset", "standard"),
+		Entry("format preset", "format"),
 	)
 
 	It("should apply security preset with only gosec", func() {

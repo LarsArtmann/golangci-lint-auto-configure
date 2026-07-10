@@ -294,7 +294,7 @@ func injectDefaultSettings(cfg *types.Config, enabledLinters []string) int {
 			continue
 		}
 
-		cfg.Linters.Settings[linterName] = defaults
+		cfg.Linters.Settings[linterName] = defaults.ToMap()
 		injected++
 	}
 
@@ -334,7 +334,7 @@ func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []strin
 			continue
 		}
 
-		cfg.Formatters.Settings[formatterName] = defaults
+		cfg.Formatters.Settings[formatterName] = defaults.ToMap()
 		injected++
 	}
 

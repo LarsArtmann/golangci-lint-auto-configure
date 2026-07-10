@@ -186,7 +186,7 @@ func TestApplyPreset_SaveError(t *testing.T) {
 }
 
 func TestApplyPreset_AllPresets(t *testing.T) {
-	presets := []string{"minimal", "standard", "strict", "security", "performance"}
+	presets := []string{"minimal", "standard", "strict", "security", "performance", "reference", "format"}
 
 	for _, preset := range presets {
 		t.Run(preset, func(t *testing.T) {
@@ -210,6 +210,43 @@ func TestApplyPreset_AllPresets(t *testing.T) {
 				t.Errorf("applyPreset(%q) enabled no linters", preset)
 			}
 		})
+	}
+}
+
+func TestApplyPreset_FormatEnablesFormatters(t *testing.T) {
+	mock := &mockPresetConfigLoader{}
+	logger := newTestLogger()
+
+	err := applyPreset(
+		context.Background(),
+		logger,
+		mock,
+		"/test/config.yml",
+		"format",
+		false,
+	)
+	if err != nil {
+		t.Fatalf("applyPreset(\"format\") error = %v, want nil", err)
+	}
+
+	if mock.savedCfg == nil {
+		t.Fatal("applyPreset(\"format\") did not save config")
+	}
+
+	expectedFormatters := []string{"gci", "gofumpt", "goimports"}
+	if len(mock.savedCfg.Formatters.Enable) != len(expectedFormatters) {
+		t.Fatalf("expected %d formatters, got %d", len(expectedFormatters), len(mock.savedCfg.Formatters.Enable))
+	}
+
+	formatterSet := make(map[string]bool)
+	for _, f := range mock.savedCfg.Formatters.Enable {
+		formatterSet[f] = true
+	}
+
+	for _, expected := range expectedFormatters {
+		if !formatterSet[expected] {
+			t.Errorf("expected formatter %q not found in enabled formatters", expected)
+		}
 	}
 }
 
