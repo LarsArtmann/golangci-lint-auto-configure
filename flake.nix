@@ -128,7 +128,12 @@
               description = "Automatically configure and optimize golangci-lint configurations";
               homepage = "https://github.com/LarsArtmann/golangci-lint-auto-configure";
               license = licenses.mit;
-              maintainers = [ maintainers.larsartmann ];
+              maintainers = [
+                {
+                  name = "Lars Artmann";
+                  github = "LarsArtmann";
+                }
+              ];
               mainProgram = "golangci-lint-auto-configure";
               platforms = platforms.unix;
             };
