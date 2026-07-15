@@ -88,24 +88,24 @@ A routine fix for `ireturn` generics false positives snowballed into a comprehen
 
 - **Status:** ~60 issues remaining from `golangci-lint run`
 - **Breakdown:**
-  | Linter | Count | Category |
-  |--------|-------|----------|
-  | varnamelen | 12 | Variable naming |
-  | exhaustruct | 9 | Struct field exhaustiveness |
-  | tagliatelle | 8 | Tag naming conventions |
-  | funlen | 8 | Function length |
-  | wsl_v5 | 4 | Whitespace style |
-  | gosec | 3 | Security |
-  | noinlineerr | 3 | Error handling |
-  | gci | 2 | Import ordering |
-  | wrapcheck | 2 | Error wrapping |
-  | testpackage | 2 | Test package naming |
-  | gochecknoglobals | 2 | Global variables |
-  | forbidigo | 1 | Forbidden functions |
-  | nlreturn | 1 | Newline returns |
-  | revive | 1 | Various |
-  | prealloc | 1 | Preallocation |
-  | err113 | 1 | Dynamic errors |
+  | Linter           | Count | Category                    |
+  | ---------------- | ----- | --------------------------- |
+  | varnamelen       | 12    | Variable naming             |
+  | exhaustruct      | 9     | Struct field exhaustiveness |
+  | tagliatelle      | 8     | Tag naming conventions      |
+  | funlen           | 8     | Function length             |
+  | wsl_v5           | 4     | Whitespace style            |
+  | gosec            | 3     | Security                    |
+  | noinlineerr      | 3     | Error handling              |
+  | gci              | 2     | Import ordering             |
+  | wrapcheck        | 2     | Error wrapping              |
+  | testpackage      | 2     | Test package naming         |
+  | gochecknoglobals | 2     | Global variables            |
+  | forbidigo        | 1     | Forbidden functions         |
+  | nlreturn         | 1     | Newline returns             |
+  | revive           | 1     | Various                     |
+  | prealloc         | 1     | Preallocation               |
+  | err113           | 1     | Dynamic errors              |
 - Many are in test files (exempted by exclusion rules but some slip through)
 
 ---

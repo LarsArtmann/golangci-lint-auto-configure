@@ -48,12 +48,13 @@
 **Problem:** `lll` was recommended even when `golines` was enabled, causing confusing output.
 
 **Commits:**
-| Hash | Description |
-|------|-------------|
+
+| Hash    | Description                                                          |
+| ------- | -------------------------------------------------------------------- |
 | a006833 | fix(linter): skip recommending lll when golines formatter is enabled |
-| e106cda | refactor(linter): improve RedundantLinters type safety |
+| e106cda | refactor(linter): improve RedundantLinters type safety               |
 | 95454eb | test(linter): add tests for CategorizeLinters with redundant linters |
-| 0425546 | docs(planning): update status in lll bugfix plan |
+| 0425546 | docs(planning): update status in lll bugfix plan                     |
 
 **Changes:**
 

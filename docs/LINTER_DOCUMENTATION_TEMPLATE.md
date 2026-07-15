@@ -36,8 +36,9 @@
 ### ✅ Enable For:
 
 **Project Types:**
-| Project Type | Priority | Justification |
-|--------------|----------|----------------|
+
+| Project Type    | Priority               | Justification   |
+| --------------- | ---------------------- | --------------- |
 | [Project types] | [CRITICAL/HIGH/MEDIUM] | [Why important] |
 
 **Specific Scenarios:**
@@ -83,7 +84,7 @@ version: "2"
 
 linters:
   settings:
-    {{LINTER_NAME}}:
+    { { LINTER_NAME } }:
       # Option 1
       # Type: [type]
       # Default: [default value]

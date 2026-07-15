@@ -29,14 +29,15 @@ The session delivered real code quality improvements: the `showDiff` package-var
 | 12  | **Docs updated**                          | FEATURES.md (--quiet, errorfamily JSON), TODO_LIST.md (8 items marked complete), AGENTS.md (gotcha #5 updated).                                                                                                                               |
 
 **Verification:**
-| Check | Result |
-|-------|--------|
-| `go build ./...` | PASS |
-| `go test -race` (17 packages) | PASS |
-| `golangci-lint run` | 0 issues |
-| `nix flake check` | all checks passed |
-| CLI coverage | 12.8% (was 9.1%) |
-| Fuzz tests | 65K+ execs, no panics |
+
+| Check                         | Result                |
+| ----------------------------- | --------------------- |
+| `go build ./...`              | PASS                  |
+| `go test -race` (17 packages) | PASS                  |
+| `golangci-lint run`           | 0 issues              |
+| `nix flake check`             | all checks passed     |
+| CLI coverage                  | 12.8% (was 9.1%)      |
+| Fuzz tests                    | 65K+ execs, no panics |
 
 ---
 

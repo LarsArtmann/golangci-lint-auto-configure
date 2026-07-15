@@ -21,11 +21,12 @@
 - `7cd4d3b` — Removed all dead code from `Fixer`, cleaned imports
 
 **Result:**
-| File | Lines | Role |
-|---|---|---|
-| `pkg/linter/fixer.go` | 497 | Core fixer orchestrator (down from 625) |
-| `pkg/linter/fixer_formatters.go` | 181 | `FormatterManager` — all formatter operations |
-| `pkg/linter/fixer_preflight.go` | 271 | Pre-flight validation checks |
+
+| File                             | Lines | Role                                          |
+| -------------------------------- | ----- | --------------------------------------------- |
+| `pkg/linter/fixer.go`            | 497   | Core fixer orchestrator (down from 625)       |
+| `pkg/linter/fixer_formatters.go` | 181   | `FormatterManager` — all formatter operations |
+| `pkg/linter/fixer_preflight.go`  | 271   | Pre-flight validation checks                  |
 
 **Architecture:**
 
@@ -85,13 +86,14 @@
 **Target:** No file over 350 lines.
 
 **Current state of files over 350 lines:**
-| File | Lines | Status |
-|---|---|---|
-| `pkg/linter/fixer.go` | 497 | Down from 625, still needs further decomposition |
-| `pkg/report/report_templ.go` | 494 | Generated code (templ), not actionable |
-| `pkg/detection/detector.go` | 416 | Could extract pattern matching or cache logic |
-| `pkg/config/loader.go` | 413 | Could split validation from I/O |
-| `internal/cli/commands_test.go` | 391 | Large test file, lower priority |
+
+| File                            | Lines | Status                                           |
+| ------------------------------- | ----- | ------------------------------------------------ |
+| `pkg/linter/fixer.go`           | 497   | Down from 625, still needs further decomposition |
+| `pkg/report/report_templ.go`    | 494   | Generated code (templ), not actionable           |
+| `pkg/detection/detector.go`     | 416   | Could extract pattern matching or cache logic    |
+| `pkg/config/loader.go`          | 413   | Could split validation from I/O                  |
+| `internal/cli/commands_test.go` | 391   | Large test file, lower priority                  |
 
 **Progress:** `fixer.go` reduced by 128 lines (20%). Further extraction targets identified but not started.
 

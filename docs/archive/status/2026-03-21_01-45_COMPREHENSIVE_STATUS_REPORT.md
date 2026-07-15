@@ -23,17 +23,18 @@ The codebase is in good shape with recent improvements to deprecated linter hand
 - **File:** `pkg/linter/command_runner.go` (+16 lines)
 
 **Implemented deprecated linter replacements:**
-| Deprecated Linter | Replacement | Reason |
-|-------------------|-------------|--------|
-| `wsl` | `wsl_v5` | Deprecated since golangci-lint v2.2.0 |
-| `deadcode` | `staticcheck` | Removed in golangci-lint v2 |
-| `varcheck` | `staticcheck` | Removed in golangci-lint v2 |
-| `structcheck` | `staticcheck` | Removed in golangci-lint v2 |
-| `gosimple` | `staticcheck` | Removed in golangci-lint v2 |
-| `exhaustivestruct` | `exhaustive` | Renamed in golangci-lint v2 |
-| `interfacer` | `staticcheck` | Removed in golangci-lint v2 |
-| `maligned` | `govet` | Removed in golangci-lint v2 |
-| `nosnakecase` | `revive` | Removed in golangci-lint v2 |
+
+| Deprecated Linter  | Replacement   | Reason                                |
+| ------------------ | ------------- | ------------------------------------- |
+| `wsl`              | `wsl_v5`      | Deprecated since golangci-lint v2.2.0 |
+| `deadcode`         | `staticcheck` | Removed in golangci-lint v2           |
+| `varcheck`         | `staticcheck` | Removed in golangci-lint v2           |
+| `structcheck`      | `staticcheck` | Removed in golangci-lint v2           |
+| `gosimple`         | `staticcheck` | Removed in golangci-lint v2           |
+| `exhaustivestruct` | `exhaustive`  | Renamed in golangci-lint v2           |
+| `interfacer`       | `staticcheck` | Removed in golangci-lint v2           |
+| `maligned`         | `govet`       | Removed in golangci-lint v2           |
+| `nosnakecase`      | `revive`      | Removed in golangci-lint v2           |
 
 **Key Features:**
 

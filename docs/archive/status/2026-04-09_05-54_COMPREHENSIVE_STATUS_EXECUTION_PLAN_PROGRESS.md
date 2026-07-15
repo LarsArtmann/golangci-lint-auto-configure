@@ -85,15 +85,16 @@ Successfully completed Phase 1 Quick Wins from the Execution Plan created in the
 **Status:** IN PROGRESS - 4/7 Commands Migrated
 
 **Current State:**
-| Command | Status | Uses CommandBuilder |
-|---------|--------|---------------------|
-| analyze | ✅ | Yes |
-| configure | ✅ | Yes |
-| report | ✅ | Yes |
-| validate | ✅ | Yes |
-| migrate | ❌ | No (uses traditional pattern) |
-| completion | ❌ | No (uses traditional pattern) |
-| install-hook | ❌ | No (uses traditional pattern) |
+
+| Command      | Status | Uses CommandBuilder           |
+| ------------ | ------ | ----------------------------- |
+| analyze      | ✅     | Yes                           |
+| configure    | ✅     | Yes                           |
+| report       | ✅     | Yes                           |
+| validate     | ✅     | Yes                           |
+| migrate      | ❌     | No (uses traditional pattern) |
+| completion   | ❌     | No (uses traditional pattern) |
+| install-hook | ❌     | No (uses traditional pattern) |
 
 **Analysis:**
 

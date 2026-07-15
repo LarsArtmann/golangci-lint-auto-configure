@@ -22,7 +22,7 @@
 ## Completed
 
 - [x] Migrate encoding/json v1 → v2 across all files (GOEXPERIMENT=jsonv2 enabled in flake.nix, CI workflows; wire-format decoupling structs added)
-- [x] Upgrade go-finding v1.0.0 → v1.1.0 (branded FilePath types, Position.Line validation)
+- [x] Upgrade go-finding v1.0.0 → v1.2.0 (branded FilePath types, Position.Line validation)
 - [x] Fix `--diff` + `--check` interaction (was running fmt on restored config)
 - [x] Add govulncheck security scanning to CI
 - [x] Add per-package coverage threshold gate to CI (scripts/coverage-check.sh)

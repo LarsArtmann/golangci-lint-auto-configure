@@ -38,7 +38,7 @@ nix develop
 - **Testing: Ginkgo v2 + Gomega (BDD)** — NOT standard `testing` style. Specs use `Describe`/`Context`/`It` + Gomega matchers. See `docs/references/testing-style-and-patterns.md`.
 - **gogenfilter/v3**: auto-detects generated files to exclude from linting.
 - **go-finding**: unified finding model (SARIF/JSON output).
-- **go-error-family** (`v0.5.1`): structured error classification. Sentinel errors are registered with Families (Rejection/Conflict/Transient/Corruption/Infrastructure) in `pkg/errors/classification.go`. `ConfigError`, `ReportError`, and `MigrationError` implement the `Classified` interface (always Rejection). `AnalysisError` delegates to cause-chain sentinels for fine-grained Families. `Main()` uses `errorfamily.ExitCode(err)` for BSD sysexits exit codes instead of hardcoded `os.Exit(1)`.
+- **go-error-family** (`v0.7.0`): structured error classification. Sentinel errors are registered with Families (Rejection/Conflict/Transient/Corruption/Infrastructure) in `pkg/errors/classification.go`. `ConfigError`, `ReportError`, and `MigrationError` implement the `Classified` interface (always Rejection). `AnalysisError` delegates to cause-chain sentinels for fine-grained Families. `Main()` uses `errorfamily.ExitCode(err)` for BSD sysexits exit codes instead of hardcoded `os.Exit(1)`.
 
 ## Critical Gotchas (read these — they bite)
 
@@ -55,7 +55,7 @@ nix develop
    nix build                     # rebuild
    ```
 
-4. **go-finding & gogenfilter replace in Nix.** `go.mod` uses published versions. Nix's `mkPreparedSource` (from go-nix-helpers) injects `replace` directives pointing to SSH-fetched local copies (the Go proxy doesn't cache these repos). `go mod tidy` runs ONLY in the go-modules FOD (has network via `__noChroot`); the main derivation sets `GOFLAGS=-mod=mod` to auto-reconcile from the FOD's proxy cache. Config-level findings use `Line: 1` (go-finding v1.1.0 requires `Position.Line > 0`).
+4. **go-finding & gogenfilter replace in Nix.** `go.mod` uses published versions. Nix's `mkPreparedSource` (from go-nix-helpers) injects `replace` directives pointing to SSH-fetched local copies (the Go proxy doesn't cache these repos). `go mod tidy` runs ONLY in the go-modules FOD (has network via `__noChroot`); the main derivation sets `GOFLAGS=-mod=mod` to auto-reconcile from the FOD's proxy cache. Config-level findings use `Line: 1` (go-finding requires `Position.Line > 0`).
 
 5. **Error classification via go-error-family.** `pkg/errors/classification.go` has an `init()` that registers all sentinel errors with their `errorfamily.Family`. To add a new sentinel: add it to the map in that file. `ConfigError`, `ReportError`, and `MigrationError` implement `Classified` → `Rejection` (type-level, checked before sentinels). `AnalysisError` does NOT implement `Classified` — its sentinels in the cause chain (e.g. `ErrVersionTooOld`) handle classification. Exit codes: Rejection/Conflict → 1, Transient → 75, Corruption → 65, Infrastructure → 69. `--json-errors` outputs via `errorfamily.Wrap().JSON()` (snake_case canonical schema with family/code/message/context/retryable).
 
