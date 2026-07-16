@@ -37,6 +37,7 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 		golangciLintPath: "",
 		logger:           logger,
 		detectedVersion:  "",
+		projectRoot:      "",
 	}
 }
 

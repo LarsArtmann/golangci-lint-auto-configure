@@ -48,23 +48,37 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 		return true
 	}
 
-	if mapping, isRedundant := constants.RedundantLinters[linter.Name]; isRedundant {
-		if formatterSet.Contains(mapping.Formatter) {
-			a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, mapping.Reason)
-
-			return true
-		}
+	if a.isLinterRedundant(linter, formatterSet) {
+		return true
 	}
 
-	if tech, isSpecific := constants.ProjectSpecificLinters[linter.Name]; isSpecific {
-		if !a.hasTechnology(tech) {
-			a.logger.Debugf("Skipping project-specific linter: %s (project does not use %s)", linter.Name, tech)
-
-			return true
-		}
+	if a.isLinterProjectSpecific(linter) {
+		return true
 	}
 
 	return false
+}
+
+func (a *Analyzer) isLinterRedundant(linter types.LinterInfo, formatterSet types.Set[types.FormatterName]) bool {
+	mapping, isRedundant := constants.RedundantLinters[linter.Name]
+	if !isRedundant || !formatterSet.Contains(mapping.Formatter) {
+		return false
+	}
+
+	a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, mapping.Reason)
+
+	return true
+}
+
+func (a *Analyzer) isLinterProjectSpecific(linter types.LinterInfo) bool {
+	tech, isSpecific := constants.ProjectSpecificLinters[linter.Name]
+	if !isSpecific || a.hasTechnology(tech) {
+		return false
+	}
+
+	a.logger.Debugf("Skipping project-specific linter: %s (project does not use %s)", linter.Name, tech)
+
+	return true
 }
 
 func (a *Analyzer) isLinterBelowMinVersion(linter types.LinterInfo) bool {
@@ -121,23 +135,25 @@ func (a *Analyzer) CategorizeFormatters(
 			continue
 		}
 
-		name := formatter.Name
-		rec := types.FormatterRecommendation{
-			Name:   name,
-			Reason: a.getFormatterReason(name),
-		}
-
-		// Get priority from constants, default to Low if not found
-		if priority, ok := constants.FormatterPriorities[name]; ok {
-			rec.Priority = priority
-		} else {
-			rec.Priority = types.FormatterPriorityLow
-		}
-
-		recommendations = append(recommendations, rec)
+		recommendations = append(recommendations, a.makeFormatterRecommendation(formatter.Name))
 	}
 
 	return recommendations
+}
+
+func (a *Analyzer) makeFormatterRecommendation(name types.FormatterName) types.FormatterRecommendation {
+	rec := types.FormatterRecommendation{
+		Name:   name,
+		Reason: a.getFormatterReason(name),
+	}
+
+	if priority, ok := constants.FormatterPriorities[name]; ok {
+		rec.Priority = priority
+	} else {
+		rec.Priority = types.FormatterPriorityLow
+	}
+
+	return rec
 }
 
 // shouldSkipFormatter returns true if a disabled formatter should not be
