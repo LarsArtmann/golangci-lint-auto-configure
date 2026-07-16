@@ -4,15 +4,15 @@
 >
 > Most items from this report's "NOT STARTED" and "Next 25 things" sections have since been completed:
 >
-> | Item | Status | Details |
-> |------|--------|---------|
-> | Split types.go → report + config files | ✅ Done | `pkg/types/config_types.go` created; tagliatelle exclusion moved |
-> | Remove tagliatelle exclusion for types.go | ✅ Done | Report types now PascalCase-enforced without file-level exclusion |
-> | CHANGELOG.md entry for breaking JSON key change | ✅ Done | BREAKING note in `[Unreleased] > Changed` |
-> | Integration tests for PascalCase JSON output | ✅ Done | `internal/cli/integration_test.go` — asserts ConfigPath, EnabledLinters, etc. |
-> | Property-based test for JSON round-trip | ❌ Not done | Current unit tests cover key shape, not full round-trip |
-> | CBOR support | ❌ Not done | No CBOR library in project; policy-only decision |
-> | Document tag case policy in README.md | ❌ Not done | Documented in AGENTS.md gotcha #12 only |
+> | Item                                            | Status      | Details                                                                       |
+> | ----------------------------------------------- | ----------- | ----------------------------------------------------------------------------- |
+> | Split types.go → report + config files          | ✅ Done     | `pkg/types/config_types.go` created; tagliatelle exclusion moved              |
+> | Remove tagliatelle exclusion for types.go       | ✅ Done     | Report types now PascalCase-enforced without file-level exclusion             |
+> | CHANGELOG.md entry for breaking JSON key change | ✅ Done     | BREAKING note in `[Unreleased] > Changed`                                     |
+> | Integration tests for PascalCase JSON output    | ✅ Done     | `internal/cli/integration_test.go` — asserts ConfigPath, EnabledLinters, etc. |
+> | Property-based test for JSON round-trip         | ❌ Not done | Current unit tests cover key shape, not full round-trip                       |
+> | CBOR support                                    | ❌ Not done | No CBOR library in project; policy-only decision                              |
+> | Document tag case policy in README.md           | ❌ Not done | Documented in AGENTS.md gotcha #12 only                                       |
 >
 > This migration is fully complete and verified. Current open items: `TODO_LIST.md`.
 

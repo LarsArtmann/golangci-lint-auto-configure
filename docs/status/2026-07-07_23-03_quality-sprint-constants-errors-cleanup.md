@@ -4,21 +4,21 @@
 >
 > Items from this report's "50 things to do next" have the following status:
 >
-> | Item | Status | Details |
-> |------|--------|---------|
-> | Consolidate ErrNoConfigFiles (remove deprecated alias) | ⚠️ Partial | Moved to `pkg/errors/errors.go`; deprecated alias in merger.go still exists |
-> | Extract errUnsupportedConfigFormat to pkg/errors/ | ❌ Not done | Still in config/loader.go |
-> | Split cmd_configure.go (541 lines, 8 concerns) | ❌ Not done | File still large |
-> | Split ConfigLoader God Object (8-method interface) | ❌ Not done | Interface unchanged |
-> | Move interfaces from pkg/types/ to consumer packages | ❌ Not done | ConfigLoader/LinterAnalyzer still in types/ |
-> | Remove 10 type aliases in config/loader.go | ❌ Not done | Re-exports still present |
-> | Consolidate ValidationError + HealthIssue | ❌ Not done | Overlapping types unchanged |
-> | encoding/json v1 → v2 | ✅ Done | Full migration with GOEXPERIMENT=jsonv2 |
-> | Replace fmt.Errorf with structured errors | ✅ Done | All 131 calls migrated to errorfamily.Wrap* (commit a8ff465) |
-> | Register os.ErrNotExist as Rejection | ❌ Not done | I/O errors still default to Transient |
-> | Swallowed errors audit (20+ sites) | ❌ Not done | Identified but not addressed |
-> | gosec G204 nolints | ❌ Still open | loader.go + cmd_validate.go |
-> | Document error classification in AGENTS.md | ✅ Done | Gotcha #5 |
+> | Item                                                   | Status        | Details                                                                     |
+> | ------------------------------------------------------ | ------------- | --------------------------------------------------------------------------- |
+> | Consolidate ErrNoConfigFiles (remove deprecated alias) | ⚠️ Partial    | Moved to `pkg/errors/errors.go`; deprecated alias in merger.go still exists |
+> | Extract errUnsupportedConfigFormat to pkg/errors/      | ❌ Not done   | Still in config/loader.go                                                   |
+> | Split cmd_configure.go (541 lines, 8 concerns)         | ❌ Not done   | File still large                                                            |
+> | Split ConfigLoader God Object (8-method interface)     | ❌ Not done   | Interface unchanged                                                         |
+> | Move interfaces from pkg/types/ to consumer packages   | ❌ Not done   | ConfigLoader/LinterAnalyzer still in types/                                 |
+> | Remove 10 type aliases in config/loader.go             | ❌ Not done   | Re-exports still present                                                    |
+> | Consolidate ValidationError + HealthIssue              | ❌ Not done   | Overlapping types unchanged                                                 |
+> | encoding/json v1 → v2                                  | ✅ Done       | Full migration with GOEXPERIMENT=jsonv2                                     |
+> | Replace fmt.Errorf with structured errors              | ✅ Done       | All 131 calls migrated to errorfamily.Wrap* (commit a8ff465)                |
+> | Register os.ErrNotExist as Rejection                   | ❌ Not done   | I/O errors still default to Transient                                       |
+> | Swallowed errors audit (20+ sites)                     | ❌ Not done   | Identified but not addressed                                                |
+> | gosec G204 nolints                                     | ❌ Still open | loader.go + cmd_validate.go                                                 |
+> | Document error classification in AGENTS.md             | ✅ Done       | Gotcha #5                                                                   |
 >
 > The fmt.Errorf → go-error-family migration (item #6 in "WHAT WE SHOULD IMPROVE") is fully done, resolving the largest item. Structural refactors (split files, split interfaces) remain open. Current open items: `TODO_LIST.md`.
 

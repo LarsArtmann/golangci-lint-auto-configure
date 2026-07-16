@@ -4,15 +4,15 @@
 >
 > The go-finding version mismatch (the session's main discovery) is fully resolved:
 >
-> | Item | Status | Details |
-> |------|--------|---------|
-> | go-finding upgrade | ✅ Done | Now at v1.2.0 (this session reverted to v1.0.0; later session properly upgraded) |
-> | nix fmt passes | ✅ Done | treefmt formatting verified |
-> | nix flake check passes | ✅ Done | All 3 checks (format, build, race) pass |
-> | PascalCase migration fully complete | ✅ Done | All report types tag-free, enforced by tagliatelle |
-> | Git add before nix build | ✅ Documented | Lessons learned from this session are captured in AGENTS.md |
-> | examples/*.golangci.yml tagliatelle alignment | ❌ Not done | Still `json: snake` — deliberate (examples for downstream projects) |
-> | flake.lock drift check in CI | ❌ Not done |
+> | Item                                          | Status        | Details                                                                          |
+> | --------------------------------------------- | ------------- | -------------------------------------------------------------------------------- |
+> | go-finding upgrade                            | ✅ Done       | Now at v1.2.0 (this session reverted to v1.0.0; later session properly upgraded) |
+> | nix fmt passes                                | ✅ Done       | treefmt formatting verified                                                      |
+> | nix flake check passes                        | ✅ Done       | All 3 checks (format, build, race) pass                                          |
+> | PascalCase migration fully complete           | ✅ Done       | All report types tag-free, enforced by tagliatelle                               |
+> | Git add before nix build                      | ✅ Documented | Lessons learned from this session are captured in AGENTS.md                      |
+> | examples/*.golangci.yml tagliatelle alignment | ❌ Not done   | Still `json: snake` — deliberate (examples for downstream projects)              |
+> | flake.lock drift check in CI                  | ❌ Not done   |
 >
 > This session's key insight — "when Nix bumps a dependency, adopt the new version fully, don't fight it" — became the project's go-finding upgrade strategy. Current open items: `TODO_LIST.md`.
 

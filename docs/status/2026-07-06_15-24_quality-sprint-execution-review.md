@@ -4,21 +4,21 @@
 >
 > Items from this report's "25 things to do next" have the following status:
 >
-> | # | Item | Status | Details |
-> |---|------|--------|---------|
-> | 1 | Commit all changes | ✅ Done | All work committed across multiple commits |
-> | 2 | Fix ParsePriorityParam classification | ✅ Done | `ErrInvalidLinterPriority` registered as Rejection in classification.go |
-> | 3 | --diff integration tests | ❌ Not done | User-facing diff output still untested |
-> | 4 | --check integration tests | ⚠️ Partial | 1 of 4 planned tests exists |
-> | 5 | Exit-code test: Infrastructure (69) | ❌ Not done | golangci-lint-not-in-PATH path untested |
-> | 6 | Scanner detection tests | ❌ Not done | gogenfilter coverage still ~63.9% |
-> | 7 | Fix nixfmt-standalone | ✅ Done | `.buildflow.yml` skips it; nix-fmt (treefmt) handles Nix formatting |
-> | 8 | Result type for CLI commands | ❌ Not done | Commands still return `error` only |
-> | 9 | Convert coverage-check.sh to Go test | ❌ Not done | Still bash + awk |
-> | 10 | SARIF schema validation test | ❌ Not done |
-> | 11 | Adopt HandleError at CLI boundary | ❌ Not done | Still uses slog.Error |
-> | 12 | HTML snapshot test for templ | ❌ Not done |
-> | 13 | Document errorfamily timestamp non-determinism | ❌ Not done |
+> | #   | Item                                           | Status      | Details                                                                 |
+> | --- | ---------------------------------------------- | ----------- | ----------------------------------------------------------------------- |
+> | 1   | Commit all changes                             | ✅ Done     | All work committed across multiple commits                              |
+> | 2   | Fix ParsePriorityParam classification          | ✅ Done     | `ErrInvalidLinterPriority` registered as Rejection in classification.go |
+> | 3   | --diff integration tests                       | ❌ Not done | User-facing diff output still untested                                  |
+> | 4   | --check integration tests                      | ⚠️ Partial  | 1 of 4 planned tests exists                                             |
+> | 5   | Exit-code test: Infrastructure (69)            | ❌ Not done | golangci-lint-not-in-PATH path untested                                 |
+> | 6   | Scanner detection tests                        | ❌ Not done | gogenfilter coverage still ~63.9%                                       |
+> | 7   | Fix nixfmt-standalone                          | ✅ Done     | `.buildflow.yml` skips it; nix-fmt (treefmt) handles Nix formatting     |
+> | 8   | Result type for CLI commands                   | ❌ Not done | Commands still return `error` only                                      |
+> | 9   | Convert coverage-check.sh to Go test           | ❌ Not done | Still bash + awk                                                        |
+> | 10  | SARIF schema validation test                   | ❌ Not done |
+> | 11  | Adopt HandleError at CLI boundary              | ❌ Not done | Still uses slog.Error                                                   |
+> | 12  | HTML snapshot test for templ                   | ❌ Not done |
+> | 13  | Document errorfamily timestamp non-determinism | ❌ Not done |
 >
 > The `errorfamily.Classify()` default-to-Transient question (#g1) was partially resolved: `ErrInvalidLinterPriority` was explicitly registered as Rejection. The default classification for truly unknown errors remains Transient. Current open items: `TODO_LIST.md`.
 
