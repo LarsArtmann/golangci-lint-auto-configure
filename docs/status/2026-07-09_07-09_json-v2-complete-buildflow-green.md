@@ -1,5 +1,25 @@
 # Status: json/v2 Migration Completion + BuildFlow 44/44 Green
 
+> **🔄 RETROACTIVE UPDATE — 2026-07-16**
+>
+> Since this report, the following loose ends have been resolved:
+>
+> | Item | Status | Details |
+> |------|--------|---------|
+> | `.buildflow.yml` committed | ✅ Done | Tracked in git |
+> | Temp debug files (/tmp/jsontest*.go) | ✅ Done | Cleaned up |
+> | GOEXPERIMENT in GitHub Actions | ✅ Done | ci.yml (test-and-build, lint, govulncheck) + release.yml |
+> | GOEXPERIMENT in shellHook echo | ✅ Done | Visible in devShell banner |
+> | CONTRIBUTING.md rewritten | ✅ Done | GOEXPERIMENT prerequisites + setup |
+> | `docs/references/json-v2.md` created | ✅ Done | Full reference doc |
+> | integrations.md wire-format section | ✅ Done | Wire→Report conversion table |
+> | FEATURES.md json/v2 row | ✅ Done | Added to Build & CI table |
+> | Dedicated wire-format unit tests | ❌ Not done | `golangciLinterEntry`/`golangciFormatterEntry` still only indirectly tested |
+> | gosec G204 nolints | ❌ Still open | loader.go + cmd_validate.go |
+> | Convert helpers to generics | ❌ Not done | `convertLinters`/`convertFormatters` still duplicated |
+>
+> This migration is fully complete and verified — BuildFlow 44/44, nix flake check passes, all 16 test packages green. Current open items: `TODO_LIST.md`.
+
 **Date:** 2026-07-09 07:09 (updated 07:09 — follow-up CI + documentation session)
 **Session scope:** Fix all BuildFlow failures, enable json/v2 end-to-end, verify all build systems
 **Commits this session:** f38ff5e, cfcb0df, 06d81a0 (on top of a8ff465)

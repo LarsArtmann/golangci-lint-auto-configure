@@ -1,5 +1,25 @@
 # Status: PascalCase JSON Migration — Brutal Self-Review
 
+> **🔄 RETROACTIVE UPDATE — 2026-07-16**
+>
+> Items from this report's "Next 25 things" have the following status:
+>
+> | Item | Status | Details |
+> |------|--------|---------|
+> | Revert slog keys in examples/api-usage | ✅ Done | Reverted back to snake_case |
+> | Run nix fmt (treefmt) | ✅ Done | 0 changes needed — all formatted |
+> | Run nix flake check | ✅ Done | All checks pass |
+> | Integration test: PascalCase JSON for analyze | ✅ Done | `integration_test.go` asserts ConfigPath, EnabledLinters |
+> | Integration test: PascalCase JSON for report | ✅ Done | Same file, report command tested |
+> | Split types.go → report_types.go + config_types.go | ✅ Done | `pkg/types/config_types.go` created |
+> | Remove tagliatelle exclusion for types.go | ✅ Done | Report types now enforced without exclusion |
+> | CHANGELOG.md entry | ✅ Done | BREAKING note added |
+> | Narrow _test.go musttag exclusion | ❌ Not done | Broad exclusion still in place |
+> | CBOR support | ❌ Not done | No CBOR library |
+> | Document tag case policy in README.md | ❌ Not done | In AGENTS.md gotcha #12 only |
+>
+> The slog key scope-creep mistake (#d1) was fixed. All high-priority items from this report are complete. Current open items: `TODO_LIST.md`.
+
 **Date:** 2026-07-06 06:21
 **Previous report:** `docs/status/2026-07-06_05-54_json-pascalcase-tag-migration.md`
 **Session scope:** Migrate all report types to PascalCase JSON keys (tag-free), enforce via tagliatelle, test, document.
