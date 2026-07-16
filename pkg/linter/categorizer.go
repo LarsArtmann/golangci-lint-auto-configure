@@ -2,6 +2,7 @@ package linter
 
 import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"golang.org/x/mod/semver"
 )
@@ -55,6 +56,14 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 		}
 	}
 
+	if tech, isSpecific := constants.ProjectSpecificLinters[linter.Name]; isSpecific {
+		if !a.hasTechnology(tech) {
+			a.logger.Debugf("Skipping project-specific linter: %s (project does not use %s)", linter.Name, tech)
+
+			return true
+		}
+	}
+
 	return false
 }
 
@@ -91,11 +100,27 @@ func (a *Analyzer) makeLinterRecommendation(linter types.LinterInfo) types.Linte
 	return rec
 }
 
-// categorizeFormatters categorizes disabled formatters by priority.
-func (a *Analyzer) categorizeFormatters(disabledFormatters []types.FormatterInfo) []types.FormatterRecommendation {
+// CategorizeFormatters categorizes disabled formatters by priority, skipping
+// formatters that are redundant (superseded by an enabled formatter) or
+// project-specific (only useful when the project uses the corresponding technology).
+// exported for testing.
+func (a *Analyzer) CategorizeFormatters(
+	disabledFormatters []types.FormatterInfo,
+	enabledFormatters []types.FormatterInfo,
+) []types.FormatterRecommendation {
+	enabledSet := types.NewSet[types.FormatterName]()
+
+	for _, formatter := range enabledFormatters {
+		enabledSet.Add(formatter.Name)
+	}
+
 	recommendations := make([]types.FormatterRecommendation, 0, len(disabledFormatters))
 
 	for _, formatter := range disabledFormatters {
+		if a.shouldSkipFormatter(formatter.Name, enabledSet) {
+			continue
+		}
+
 		name := formatter.Name
 		rec := types.FormatterRecommendation{
 			Name:   name,
@@ -113,6 +138,60 @@ func (a *Analyzer) categorizeFormatters(disabledFormatters []types.FormatterInfo
 	}
 
 	return recommendations
+}
+
+// shouldSkipFormatter returns true if a disabled formatter should not be
+// recommended because it is redundant with an enabled formatter or because
+// the project does not use the formatter's target technology.
+func (a *Analyzer) shouldSkipFormatter(
+	name types.FormatterName,
+	enabledSet types.Set[types.FormatterName],
+) bool {
+	if superset, isRedundant := constants.RedundantFormatters[name]; isRedundant {
+		if enabledSet.Contains(superset) {
+			a.logger.Debugf("Skipping redundant formatter: %s (superseded by %s)", name, superset)
+
+			return true
+		}
+	}
+
+	if tech, isSpecific := constants.ProjectSpecificFormatters[name]; isSpecific {
+		if !a.hasTechnology(tech) {
+			a.logger.Debugf("Skipping project-specific formatter: %s (project does not use %s)", name, tech)
+
+			return true
+		}
+	}
+
+	return false
+}
+
+// hasTechnology checks if the project uses a given technology (swaggo,
+// clickhouse, arangodb, etc.) by delegating to the detection package.
+// Returns true when the technology cannot be determined (fail-open)
+// to avoid suppressing valid recommendations.
+func (a *Analyzer) hasTechnology(tech string) bool {
+	if a.projectRoot == "" {
+		return true
+	}
+
+	detector := detection.NewDetector(a.projectRoot)
+
+	switch tech {
+	case "swaggo":
+		result, err := detector.HasSwaggo()
+		if err != nil {
+			return true
+		}
+
+		return result
+	case "clickhouse":
+		return detector.HasClickHouse()
+	case "arangodb":
+		return detector.HasArangoDB()
+	default:
+		return true
+	}
 }
 
 // getFormatterReason returns the human-readable reason for a formatter recommendation.

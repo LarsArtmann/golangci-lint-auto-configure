@@ -32,9 +32,27 @@ var CoreFormatters = []string{"gci", "gofumpt", "goimports"}
 // FormatterOrder defines the canonical ordering of formatters in config output.
 var FormatterOrder = []string{"gci", "goimports", "gofumpt", "golines", "swaggo"}
 
-// RedundantFormatters are formatters that are superseded by other formatters.
-var RedundantFormatters = map[types.FormatterName]string{
-	"gofmt": "redundant when gofumpt is enabled",
+// RedundantFormatters maps formatters that are superseded by another formatter.
+// The key is the redundant formatter, the value is its superset.
+// When the superset is enabled, the redundant formatter is not recommended.
+// This mirrors the RedundantLinters pattern for linters.
+var RedundantFormatters = map[types.FormatterName]types.FormatterName{
+	"gofmt": "gofumpt",
+}
+
+// ProjectSpecificFormatters maps formatters that should only be recommended
+// when the project actually uses the corresponding technology.
+// The value is the technology key used by the analyzer's hasTechnology check.
+var ProjectSpecificFormatters = map[types.FormatterName]string{
+	"swaggo": "swaggo",
+}
+
+// ProjectSpecificLinters maps linters that should only be recommended
+// when the project actually uses the corresponding technology.
+// The value is the technology key used by the analyzer's hasTechnology check.
+var ProjectSpecificLinters = map[types.LinterName]string{
+	"clickhouselint": "clickhouse",
+	"arangolint":     "arangodb",
 }
 
 // DefaultLinterExclusionPaths are exclusion paths always injected into linters.exclusions.paths

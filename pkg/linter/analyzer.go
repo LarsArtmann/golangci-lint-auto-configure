@@ -28,6 +28,7 @@ type Analyzer struct {
 	golangciLintPath string
 	logger           *log.Logger
 	detectedVersion  string
+	projectRoot      string
 }
 
 // NewAnalyzer creates a new linter analyzer.
@@ -176,6 +177,8 @@ func (a *Analyzer) buildAnalysis(
 	linterOutput *golangciLintOutput,
 	formatterOutput *golangciLintFormattersOutput,
 ) *types.ConfigAnalysis {
+	a.projectRoot = filepath.Dir(configPath)
+
 	enabledLinters := convertLinters(linterOutput.Enabled)
 	disabledLinters := convertLinters(linterOutput.Disabled)
 	enabledFormatters := convertFormatters(formatterOutput.Enabled)
@@ -188,7 +191,7 @@ func (a *Analyzer) buildAnalysis(
 		EnabledFormatters:        enabledFormatters,
 		DisabledFormatters:       disabledFormatters,
 		LinterRecommendations:    a.CategorizeLinters(disabledLinters, enabledFormatters),
-		FormatterRecommendations: a.categorizeFormatters(disabledFormatters),
+		FormatterRecommendations: a.CategorizeFormatters(disabledFormatters, enabledFormatters),
 	}
 
 	a.calculateDeprecatedLinters(analysis)

@@ -136,6 +136,38 @@ func (d *Detector) HasSwaggo() (bool, error) {
 	return d.hasSwaggoInCode()
 }
 
+// HasClickHouse returns true if the project imports a ClickHouse driver.
+func (d *Detector) HasClickHouse() bool {
+	_, imports, err := d.analyzeGoModWithError()
+	if err != nil {
+		return false
+	}
+
+	return hasAnyImport(imports, ClickHouseImports)
+}
+
+// HasArangoDB returns true if the project imports an ArangoDB driver.
+func (d *Detector) HasArangoDB() bool {
+	_, imports, err := d.analyzeGoModWithError()
+	if err != nil {
+		return false
+	}
+
+	return hasAnyImport(imports, ArangoDBImports)
+}
+
+func hasAnyImport(imports, targets []string) bool {
+	for _, imp := range imports {
+		for _, target := range targets {
+			if strings.Contains(imp, target) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (d *Detector) hasSwaggoConfigFile() bool {
 	swaggoConfigFiles := []string{
 		"swag.yml",

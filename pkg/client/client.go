@@ -192,7 +192,7 @@ func SimpleFix(ctx context.Context, opts Options, configPath string, dryRun bool
 	}
 
 	result, err := clientObj.FixConfig(ctx, configPath, FixOptions{
-		Priority: types.LinterPriorityHigh,
+		Priority: types.LinterPriorityMedium,
 		DryRun:   dryRun,
 	})
 	if err != nil {

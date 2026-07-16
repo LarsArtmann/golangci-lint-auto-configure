@@ -143,6 +143,80 @@ func TestGetRecommendedLinters(t *testing.T) {
 	}
 }
 
+func TestDetector_HasClickHouse(t *testing.T) {
+	t.Parallel()
+
+	t.Run("detects ClickHouse driver in go.mod", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		err := writeGoMod(dir, "github.com/ClickHouse/clickhouse-go/v2 v2.20.0")
+		if err != nil {
+			t.Fatalf("Setup failed: %v", err)
+		}
+
+		if !detectionpkg.NewDetector(dir).HasClickHouse() {
+			t.Error("HasClickHouse() = false, want true")
+		}
+	})
+
+	t.Run("returns false for non-ClickHouse project", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		err := writeGoMod(dir, "github.com/gin-gonic/gin v1.9.0")
+		if err != nil {
+			t.Fatalf("Setup failed: %v", err)
+		}
+
+		if detectionpkg.NewDetector(dir).HasClickHouse() {
+			t.Error("HasClickHouse() = true, want false")
+		}
+	})
+
+	t.Run("returns false when go.mod is missing", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+
+		if detectionpkg.NewDetector(dir).HasClickHouse() {
+			t.Error("HasClickHouse() = true, want false")
+		}
+	})
+}
+
+func TestDetector_HasArangoDB(t *testing.T) {
+	t.Parallel()
+
+	t.Run("detects ArangoDB driver in go.mod", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		err := writeGoMod(dir, "github.com/arangodb/go-driver v1.6.0")
+		if err != nil {
+			t.Fatalf("Setup failed: %v", err)
+		}
+
+		if !detectionpkg.NewDetector(dir).HasArangoDB() {
+			t.Error("HasArangoDB() = false, want true")
+		}
+	})
+
+	t.Run("returns false for non-ArangoDB project", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		err := writeGoMod(dir, "github.com/gin-gonic/gin v1.9.0")
+		if err != nil {
+			t.Fatalf("Setup failed: %v", err)
+		}
+
+		if detectionpkg.NewDetector(dir).HasArangoDB() {
+			t.Error("HasArangoDB() = true, want false")
+		}
+	})
+}
+
 func allProjectTypes() []detectionpkg.ProjectType {
 	return []detectionpkg.ProjectType{
 		detectionpkg.ProjectTypeCLI,

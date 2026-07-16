@@ -44,6 +44,15 @@ func extractLinterNames(recommendations []types.LinterRecommendation) []string {
 	return names
 }
 
+func extractFormatterNames(recommendations []types.FormatterRecommendation) []string {
+	names := make([]string, 0, len(recommendations))
+	for _, rec := range recommendations {
+		names = append(names, rec.Name.String())
+	}
+
+	return names
+}
+
 func disabledLintersWith(entries ...disabledLinterEntry) []types.LinterInfo {
 	result := make([]types.LinterInfo, 0, len(entries))
 	for _, e := range entries {
@@ -98,6 +107,20 @@ var _ = Describe("CategorizeLinters", func() {
 		})
 	})
 
+	Context("Project-Specific Linter Detection", func() {
+		It("should skip clickhouselint when projectRoot is empty (fail-open)", func() {
+			disabledLinters := []types.LinterInfo{
+				{Name: "clickhouselint"},
+				{Name: "misspell"},
+			}
+
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
+
+			Expect(names).To(ContainElement("clickhouselint"))
+			Expect(names).To(ContainElement("misspell"))
+		})
+	})
+
 	Context("Deprecated Linter Handling", func() {
 		It("should skip deprecated linters", func() {
 			disabledLinters := disabledLintersWith(linterSetLllDeadcode...)
@@ -132,6 +155,84 @@ var _ = Describe("CategorizeLinters", func() {
 
 			Expect(names).To(ContainElement("lll"))
 			Expect(names).NotTo(ContainElement("noinlineerr"))
+		})
+	})
+})
+
+var _ = Describe("CategorizeFormatters", func() {
+	var analyzer *linter.Analyzer
+
+	BeforeEach(func() {
+		analyzer = linter.NewAnalyzer(linter.NewTestLogger())
+	})
+
+	Context("Redundant Formatter Detection", func() {
+		It("should NOT recommend gofmt when gofumpt is enabled", func() {
+			disabledFormatters := []types.FormatterInfo{
+				{Name: "gofmt"},
+			}
+
+			enabledFormatters := []types.FormatterInfo{
+				{Name: "gofumpt"},
+			}
+
+			recs := analyzer.CategorizeFormatters(disabledFormatters, enabledFormatters)
+
+			names := extractFormatterNames(recs)
+			Expect(names).NotTo(ContainElement("gofmt"))
+		})
+
+		It("should recommend gofmt when gofumpt is NOT enabled", func() {
+			disabledFormatters := []types.FormatterInfo{
+				{Name: "gofmt"},
+			}
+
+			recs := analyzer.CategorizeFormatters(disabledFormatters, []types.FormatterInfo{})
+
+			names := extractFormatterNames(recs)
+			Expect(names).To(ContainElement("gofmt"))
+		})
+
+		It("should recommend non-redundant formatters regardless", func() {
+			disabledFormatters := []types.FormatterInfo{
+				{Name: "gci"},
+				{Name: "goimports"},
+				{Name: "gofmt"},
+			}
+
+			enabledFormatters := []types.FormatterInfo{
+				{Name: "gofumpt"},
+			}
+
+			recs := analyzer.CategorizeFormatters(disabledFormatters, enabledFormatters)
+
+			names := extractFormatterNames(recs)
+			Expect(names).To(ContainElement("gci"))
+			Expect(names).To(ContainElement("goimports"))
+			Expect(names).NotTo(ContainElement("gofmt"))
+		})
+	})
+
+	Context("Project-Specific Formatter Detection", func() {
+		It("should skip swaggo when projectRoot is empty (fail-open)", func() {
+			disabledFormatters := []types.FormatterInfo{
+				{Name: "swaggo"},
+				{Name: "gci"},
+			}
+
+			recs := analyzer.CategorizeFormatters(disabledFormatters, []types.FormatterInfo{})
+
+			names := extractFormatterNames(recs)
+			Expect(names).To(ContainElement("swaggo"))
+			Expect(names).To(ContainElement("gci"))
+		})
+	})
+
+	Context("Empty Input", func() {
+		It("should return empty recommendations for no disabled formatters", func() {
+			recs := analyzer.CategorizeFormatters([]types.FormatterInfo{}, []types.FormatterInfo{})
+
+			Expect(recs).To(BeEmpty())
 		})
 	})
 })

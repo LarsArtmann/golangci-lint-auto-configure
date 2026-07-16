@@ -44,6 +44,17 @@ var SwaggoImports = []string{
 	"github.com/swaggo/files",
 }
 
+// ClickHouseImports contains ClickHouse driver import paths.
+var ClickHouseImports = []string{
+	"github.com/ClickHouse/clickhouse-go",
+	"github.com/mailru/go-clickhouse",
+}
+
+// ArangoDBImports contains ArangoDB driver import paths.
+var ArangoDBImports = []string{
+	"github.com/arangodb/go-driver",
+}
+
 // SwaggoPatterns contains swaggo annotation patterns to search for in code.
 var SwaggoPatterns = []string{
 	"@Summary",
