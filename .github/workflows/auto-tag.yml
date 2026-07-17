@@ -3,13 +3,10 @@ name: Auto-tag on version change
 on:
   push:
     branches: [master, main]
-    paths-ignore:
-    - '**/*.md'
-    - docs/**
-    - LICENSE
-    - .gitignore
-    - '**/*.svg'
-    - '**/*.png'
+    paths:
+    - flake.nix
+    - package.nix
+    - nix/packages/default.nix
   workflow_dispatch:
 
 permissions:
