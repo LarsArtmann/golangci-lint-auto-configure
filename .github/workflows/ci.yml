@@ -3,8 +3,22 @@ name: Go CI/CD
 on:
   push:
     branches: [master, main, develop]
+    paths-ignore:
+    - '**/*.md'
+    - docs/**
+    - LICENSE
+    - .gitignore
+    - '**/*.svg'
+    - '**/*.png'
   pull_request:
     branches: [master, main, develop]
+    paths-ignore:
+    - '**/*.md'
+    - docs/**
+    - LICENSE
+    - .gitignore
+    - '**/*.svg'
+    - '**/*.png'
 
 permissions:
   contents: read
@@ -22,59 +36,60 @@ jobs:
       CGO_ENABLED: 1
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Go ${{ matrix.go-version }}
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go-version }}
-          cache: true
-          cache-dependency-path: go.sum
+    - name: Set up Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+        cache: true
+        cache-dependency-path: go.sum
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ matrix.go-version }}-
-            ${{ runner.os }}-go-
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ matrix.go-version }}-
+          ${{ runner.os }}-go-
 
-      - name: Install dependencies
-        run: go mod download
+    - name: Install dependencies
+      run: go mod download
 
-      - name: Build verification
-        run: |
-          go build -v ./...
-          echo "✓ Build successful on Go ${{ matrix.go-version }}"
+    - name: Build verification
+      run: |
+        go build -v ./...
+        echo "✓ Build successful on Go ${{ matrix.go-version }}"
 
-      - name: Run tests
-        run: go test -v -race ./pkg/... ./internal/...
+    - name: Run tests
+      run: go test -v -race ./pkg/... ./internal/...
 
-      - name: Test with coverage
-        run: |
-          go test -v -coverprofile=coverage.out -covermode=atomic ./pkg/... ./internal/...
-          echo "Coverage per package:"
-          go test ./pkg/... ./internal/... -cover 2>&1 | grep coverage:
-          echo ""
-          echo "Overall coverage:"
-          go tool cover -func=coverage.out | grep total | awk '{print "  " $3 " of statements covered"}'
+    - name: Test with coverage
+      run: |
+        go test -v -coverprofile=coverage.out -covermode=atomic ./pkg/... ./internal/...
+        echo "Coverage per package:"
+        go test ./pkg/... ./internal/... -cover 2>&1 | grep coverage:
+        echo ""
+        echo "Overall coverage:"
+        go tool cover -func=coverage.out | grep total | awk '{print "  " $3 " of statements covered"}'
 
-      - name: Coverage threshold gate
-        run: bash scripts/coverage-check.sh 60
+    - name: Coverage threshold gate
+      run: bash scripts/coverage-check.sh 60
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          file: ./coverage.out
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-          verbose: true
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        file: ./coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        verbose: true
 
+    timeout-minutes: 15
   lint:
     name: Lint with golangci-lint
     runs-on: ubuntu-latest
@@ -82,66 +97,68 @@ jobs:
       GOEXPERIMENT: jsonv2
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.26"
-          cache: true
-          cache-dependency-path: go.sum
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.26"
+        cache: true
+        cache-dependency-path: go.sum
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-lint-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-lint-
-            ${{ runner.os }}-go-
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-lint-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-lint-
+          ${{ runner.os }}-go-
 
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: v2.12.2
-          args: --config=.golangci.yml --timeout=5m
-          working-directory: .
-          skip-cache: false
-          skip-save-cache: false
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: v2.12.2
+        args: --config=.golangci.yml --timeout=5m
+        working-directory: .
+        skip-cache: false
+        skip-save-cache: false
 
-      - name: Build verification (lint job)
-        run: |
-          go build -v ./...
-          echo "✓ Build verification successful"
+    - name: Build verification (lint job)
+      run: |
+        go build -v ./...
+        echo "✓ Build verification successful"
 
+    timeout-minutes: 15
   nix:
     name: Nix Flake Check
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@main
 
-      - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@main
+    - name: Cache Nix store
+      uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - name: Check flake
-        run: nix flake check --no-build
+    - name: Check flake
+      run: nix flake check --no-build
 
-      - name: Build with Nix
-        run: nix build
+    - name: Build with Nix
+      run: nix build
         # Note: requires SSH deploy key for go-finding private repo
         # Configure in Settings > Secrets > SSH_DEPLOY_KEY
 
-      - name: Verify binary
-        run: ./result/bin/golangci-lint-auto-configure --version
+    - name: Verify binary
+      run: ./result/bin/golangci-lint-auto-configure --version
 
+    timeout-minutes: 15
   govulncheck:
     name: Security scan (govulncheck)
     runs-on: ubuntu-latest
@@ -149,22 +166,23 @@ jobs:
       GOEXPERIMENT: jsonv2
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.26"
-          cache: true
-          cache-dependency-path: go.sum
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.26"
+        cache: true
+        cache-dependency-path: go.sum
 
-      - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+    - name: Install govulncheck
+      run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
-      - name: Run govulncheck
-        run: govulncheck ./...
+    - name: Run govulncheck
+      run: govulncheck ./...
 
+    timeout-minutes: 15
   summary:
     name: Workflow Summary
     runs-on: ubuntu-latest
@@ -172,18 +190,22 @@ jobs:
     if: always()
 
     steps:
-      - name: Generate summary
-        run: |
-          echo "## 🎯 Go CI/CD Workflow Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Tests on Go 1.26" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Race condition detection enabled" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Coverage report uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Quality Checks" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ golangci-lint with comprehensive ruleset" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Build verification on all Go versions" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Module caching for faster builds" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✨ All checks completed successfully!" >> $GITHUB_STEP_SUMMARY
+    - name: Generate summary
+      run: |
+        echo "## 🎯 Go CI/CD Workflow Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Tests on Go 1.26" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Race condition detection enabled" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Coverage report uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Quality Checks" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ golangci-lint with comprehensive ruleset" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Build verification on all Go versions" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Module caching for faster builds" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✨ All checks completed successfully!" >> $GITHUB_STEP_SUMMARY
+    timeout-minutes: 15
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
