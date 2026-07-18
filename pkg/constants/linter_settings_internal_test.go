@@ -26,10 +26,11 @@ func BenchmarkSettingsToMap_WithSlices(b *testing.B) {
 	}
 }
 
-func BenchmarkSettingsToMap_WithNestedMaps(b *testing.B) {
-	s := DepguardSettings{
-		Rules: map[string]DepguardRule{
-			"main": {Allow: []string{"$gostd", "$module"}},
+func BenchmarkSettingsToMap_WithNestedStructs(b *testing.B) {
+	s := ReviveSettings{
+		Rules: []ReviveRule{
+			{Disabled: true, Name: "exported"},
+			{Disabled: true, Name: "package-comments"},
 		},
 	}
 

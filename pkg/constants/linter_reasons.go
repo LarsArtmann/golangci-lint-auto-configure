@@ -84,7 +84,6 @@ var LinterReasons = map[types.LinterName]string{
 	"bidichk":                   "Checks for dangerous unicode character sequences",
 	"containedctx":              "Detects struct contained context.Context field",
 	"decorder":                  "Check declaration order and count of types, constants, variables and functions",
-	"depguard":                  "Checks if package imports are in list of acceptable packages",
 	"forbidigo":                 "Forbids identifiers",
 	"godoclint":                 "Checks Golang's documentation practice (godoc)",
 	"gomoddirectives":           "Manage the use of replace, retract, and excludes directives in go.mod",

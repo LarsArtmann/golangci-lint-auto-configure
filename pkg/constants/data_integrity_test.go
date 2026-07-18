@@ -166,25 +166,6 @@ var _ = Describe("DefaultLinterSettings", func() {
 		Expect(ok).To(BeTrue(), "cyclop settings missing max-complexity key")
 		Expect(maxComplexity).To(Equal(12))
 	})
-
-	It("should have depguard rules with allow list in ToMap output", func() {
-		m := constants.DefaultLinterSettings["depguard"].ToMap()
-		rules, ok := m["rules"]
-		Expect(ok).To(BeTrue(), "depguard settings missing rules key")
-
-		rulesMap, ok := rules.(map[string]any)
-		Expect(ok).To(BeTrue(), "depguard rules is not a map[string]any")
-
-		mainRule, ok := rulesMap["main"]
-		Expect(ok).To(BeTrue(), "depguard rules missing 'main' entry")
-
-		mainMap, ok := mainRule.(map[string]any)
-		Expect(ok).To(BeTrue(), "depguard main rule is not a map[string]any")
-
-		allow, ok := mainMap["allow"]
-		Expect(ok).To(BeTrue(), "depguard main rule missing allow key")
-		Expect(allow).ToNot(BeEmpty())
-	})
 })
 
 var _ = Describe("DefaultFormatterSettings", func() {

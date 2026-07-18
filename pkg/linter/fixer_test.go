@@ -480,33 +480,26 @@ linters:
 			Expect(parsed.Linters.Enable).NotTo(ContainElement("noinlineerr"))
 			Expect(parsed.Linters.Disable).To(ContainElement("noinlineerr"))
 		})
-	})
 
-	Context("Default Linter Settings", func() {
-		It("should inject depguard defaults when depguard is enabled without settings", func() {
-			fixHighPriorityAndContain(fixer, testConfig, `version: "2"
-linters:
-  enable:
-    - gosec
-    - depguard
-`, "depguard:", "$gostd", "$module")
-		})
-
-		It("should inject depguard defaults when depguard has empty settings in optional mode", func() {
+		It("should move depguard from enable to disable", func() {
 			configContent := `version: "2"
 linters:
   enable:
     - gosec
-  settings:
-    depguard:
+    - depguard
 `
-			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityOptional, false)
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, false)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("depguard:"))
-			Expect(content).To(ContainSubstring("$gostd"))
-			Expect(content).To(ContainSubstring("$module"))
-		})
 
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Enable).NotTo(ContainElement("depguard"))
+			Expect(parsed.Linters.Disable).To(ContainElement("depguard"))
+		})
+	})
+
+	Context("Default Linter Settings", func() {
 		It("should inject ireturn defaults when ireturn is enabled without settings", func() {
 			configContent := `version: "2"
 linters:
@@ -543,16 +536,13 @@ linters:
 linters:
   enable:
     - gosec
-    - depguard
     - ireturn
     - makezero
 `
 			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("depguard:"))
 			Expect(content).To(ContainSubstring("ireturn:"))
 			Expect(content).To(ContainSubstring("generic"))
-			Expect(content).To(ContainSubstring("$gostd"))
 			Expect(content).To(ContainSubstring("makezero:"))
 			Expect(content).To(ContainSubstring("always: true"))
 		})

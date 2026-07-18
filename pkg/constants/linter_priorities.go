@@ -84,7 +84,6 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"bidichk":                   types.LinterPriorityMedium,
 	"containedctx":              types.LinterPriorityMedium,
 	"decorder":                  types.LinterPriorityMedium,
-	"depguard":                  types.LinterPriorityMedium,
 	"forbidigo":                 types.LinterPriorityMedium,
 	"godoclint":                 types.LinterPriorityMedium,
 	"gomoddirectives":           types.LinterPriorityMedium,

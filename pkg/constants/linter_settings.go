@@ -32,7 +32,6 @@ func settingsToMap(v any) map[string]any {
 
 // --- Compile-time interface compliance checks ---.
 var (
-	_ SettingsConverter = DepguardSettings{}
 	_ SettingsConverter = IreturnSettings{}
 	_ SettingsConverter = GocriticSettings{}
 	_ SettingsConverter = ExhaustructSettings{}
@@ -49,16 +48,6 @@ var (
 // --- Linter Settings Structs ---
 // Each struct provides compile-time safety for the settings keys and value types.
 // YAML tags use kebab-case to match golangci-lint's config schema.
-
-type DepguardSettings struct {
-	Rules map[string]DepguardRule `yaml:"rules"`
-}
-
-type DepguardRule struct {
-	Allow []string `yaml:"allow"`
-}
-
-func (s DepguardSettings) ToMap() map[string]any { return settingsToMap(s) }
 
 type IreturnSettings struct {
 	Allow []string `yaml:"allow"`
@@ -139,15 +128,8 @@ func (s GolinesFormatterSettings) ToMap() map[string]any { return settingsToMap(
 
 // DefaultLinterSettings provides compile-time-safe default settings for linters
 // that require configuration to work correctly when auto-enabled.
-// Without these defaults, some linters break builds (e.g. depguard denies everything by default).
+// Without these defaults, some linters break builds (e.g. ireturn denies common interfaces by default).
 var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
-	"depguard": DepguardSettings{
-		Rules: map[string]DepguardRule{
-			"main": {
-				Allow: []string{"$gostd", "$module"},
-			},
-		},
-	},
 	"ireturn": IreturnSettings{
 		Allow: []string{"error", "empty", "anon", "stdlib", "generic"},
 	},
