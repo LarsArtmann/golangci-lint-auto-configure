@@ -86,12 +86,11 @@ func validateConfig(
 	configFile string,
 	_ bool,
 ) error {
-	err := validateLoadedConfig(configLoader, logger, configFile)
-	if err != nil {
-		return apperrors.WrapClassified(err, "validate.loaded_config", "validate loaded config")
-	}
-
-	return nil
+	return apperrors.WrapClassified(
+		validateLoadedConfig(configLoader, logger, configFile),
+		"validate.loaded_config",
+		"validate loaded config",
+	)
 }
 
 func validateLoadedConfig(

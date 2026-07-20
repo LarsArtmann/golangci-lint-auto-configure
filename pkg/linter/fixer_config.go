@@ -245,10 +245,14 @@ func updateConfigFromSets(
 ) int {
 	enabledLinters := types.ToSortedSlice(linterSet)
 
-	disabledLintersList := make([]string, 0)
+	// Preserve the user's disable list. Previously this was rebuilt from scratch,
+	// silently dropping every linter the user had committed to linters.disable and
+	// making the disabledSet guard in enableRecommendedLinters useless on the next run.
+	disabledSet := types.NewSet(cfg.Linters.Disable...)
+
 	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter string) bool {
 		if reason, ok := constants.DisabledLinters[types.LinterName(linter)]; ok {
-			disabledLintersList = append(disabledLintersList, linter)
+			disabledSet.Add(linter)
 			logger.Debugf("Moving disabled linter to disable list: %s (%s)", linter, reason)
 
 			return true
@@ -257,22 +261,52 @@ func updateConfigFromSets(
 		return false
 	})
 
+	// Remove contradictions: a linter that ends up enabled must not also be disabled.
+	for _, linter := range enabledLinters {
+		disabledSet.Delete(linter)
+	}
+
+	disabledLintersList := types.ToSortedSlice(disabledSet)
+
 	cfg.Linters.Enable = enabledLinters
 	cfg.Linters.Disable = disabledLintersList
 
-	settingsInjected := 0
+	settingsChanges := 0
 
 	if formatterSet.Len() > 0 {
 		cfg.Formatters.Enable = formatterManager.ToOrderedSlice(formatterSet)
 	}
 
-	settingsInjected += injectDefaultSettings(cfg, enabledLinters)
+	settingsChanges += injectDefaultSettings(cfg, enabledLinters)
+	settingsChanges += pruneDisabledLinterSettings(cfg, disabledLintersList, logger)
 
 	if formatterSet.Len() > 0 {
-		settingsInjected += injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable)
+		settingsChanges += injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable)
 	}
 
-	return settingsInjected
+	return settingsChanges
+}
+
+// pruneDisabledLinterSettings removes settings blocks for linters that are in the
+// disable list. These blocks are orphaned (the linter is disabled, so its settings
+// have no effect) and previously caused confusion by implying the linter was active.
+func pruneDisabledLinterSettings(cfg *types.Config, disabledLinters []string, logger *log.Logger) int {
+	if len(cfg.Linters.Settings) == 0 || len(disabledLinters) == 0 {
+		return 0
+	}
+
+	pruned := 0
+
+	for _, linter := range disabledLinters {
+		if _, exists := cfg.Linters.Settings[linter]; exists {
+			delete(cfg.Linters.Settings, linter)
+			logger.Debugf("Pruned orphaned settings for disabled linter: %s", linter)
+
+			pruned++
+		}
+	}
+
+	return pruned
 }
 
 // injectDefaultSettings injects safe default settings for linters that require

@@ -123,24 +123,22 @@ func (h *deprecatedLinterHandler) logKeep(linter string, replacement types.Linte
 	}
 }
 
-func (h *deprecatedLinterHandler) logRemove(linter string, replacement types.LinterReplacement, dryRun bool) {
-	prefix := ""
+func dryRunActionPrefix(dryRun bool) string {
 	if dryRun {
-		prefix = "[DRY-RUN] Would "
+		return "[DRY-RUN] Would "
 	}
 
-	h.logger.Infof("%sremove deprecated linter: %s (%s)", prefix, linter, replacement.Reason)
+	return ""
+}
+
+func (h *deprecatedLinterHandler) logRemove(linter string, replacement types.LinterReplacement, dryRun bool) {
+	h.logger.Infof("%sremove deprecated linter: %s (%s)", dryRunActionPrefix(dryRun), linter, replacement.Reason)
 }
 
 func (h *deprecatedLinterHandler) logReplace(linter string, replacement types.LinterReplacement, dryRun bool) {
-	prefix := ""
-	if dryRun {
-		prefix = "[DRY-RUN] Would "
-	}
-
 	h.logger.Infof(
 		"%sreplace deprecated linter: %s -> %s (%s)",
-		prefix,
+		dryRunActionPrefix(dryRun),
 		linter,
 		replacement.Replacement,
 		replacement.Reason,

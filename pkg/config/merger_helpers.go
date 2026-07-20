@@ -82,10 +82,13 @@ func mergeUniqueItems(primary, secondary []string) ([]string, int) {
 	changes := 0
 
 	for _, item := range secondary {
-		if !primarySet.Contains(item) {
-			primary = append(primary, item)
-			changes++
+		if primarySet.Contains(item) {
+			continue
 		}
+
+		primary = append(primary, item)
+		primarySet.Add(item)
+		changes++
 	}
 
 	return primary, changes
@@ -104,23 +107,10 @@ func mergePaths(primary *[]string, secondary []string) int {
 		return 0
 	}
 
-	*primary, _ = mergeUniqueItems(*primary, secondary)
+	var changes int
+	*primary, changes = mergeUniqueItems(*primary, secondary)
 
-	return len(secondary) - countDuplicates(*primary, secondary)
-}
-
-// countDuplicates returns the number of items in secondary that already exist in primary.
-func countDuplicates(primary, secondary []string) int {
-	primarySet := types.NewSet(primary...)
-	duplicates := 0
-
-	for _, item := range secondary {
-		if primarySet.Contains(item) {
-			duplicates++
-		}
-	}
-
-	return duplicates
+	return changes
 }
 
 // sortByPriority sorts config paths by golangci-lint search order priority.

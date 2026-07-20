@@ -134,6 +134,12 @@ func main() {
 	os.Exit(exitCode)
 }
 
+func sorted[T types.LinterName | types.FormatterName](items []T) []T {
+	sortSlice(items)
+
+	return items
+}
+
 func checkMissingReasons() []types.LinterName {
 	var missing []types.LinterName
 	for linter := range constants.LinterPriorities {
@@ -141,8 +147,8 @@ func checkMissingReasons() []types.LinterName {
 			missing = append(missing, linter)
 		}
 	}
-	sortSlice(missing)
-	return missing
+
+	return sorted(missing)
 }
 
 func checkOrphanReasons() []types.LinterName {
@@ -152,8 +158,8 @@ func checkOrphanReasons() []types.LinterName {
 			orphan = append(orphan, linter)
 		}
 	}
-	sortSlice(orphan)
-	return orphan
+
+	return sorted(orphan)
 }
 
 func checkFormatterPriorities() []types.FormatterName {
@@ -163,8 +169,8 @@ func checkFormatterPriorities() []types.FormatterName {
 			missing = append(missing, formatter)
 		}
 	}
-	sortSlice(missing)
-	return missing
+
+	return sorted(missing)
 }
 
 func checkOrphanFormatterPriorities() []types.FormatterName {
@@ -174,8 +180,8 @@ func checkOrphanFormatterPriorities() []types.FormatterName {
 			orphan = append(orphan, formatter)
 		}
 	}
-	sortSlice(orphan)
-	return orphan
+
+	return sorted(orphan)
 }
 
 func checkDisabledLintersConsistency() []types.LinterName {
@@ -189,8 +195,8 @@ func checkDisabledLintersConsistency() []types.LinterName {
 			violations = append(violations, linter)
 		}
 	}
-	sortSlice(violations)
-	return violations
+
+	return sorted(violations)
 }
 
 func checkDisabledLinterReasons() []types.LinterName {
@@ -200,6 +206,6 @@ func checkDisabledLinterReasons() []types.LinterName {
 			empty = append(empty, linter)
 		}
 	}
-	sortSlice(empty)
-	return empty
+
+	return sorted(empty)
 }

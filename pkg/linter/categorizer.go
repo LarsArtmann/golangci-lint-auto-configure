@@ -7,16 +7,22 @@ import (
 	"golang.org/x/mod/semver"
 )
 
+func formatterNameSet(formatters []types.FormatterInfo) types.Set[types.FormatterName] {
+	formatterSet := types.NewSet[types.FormatterName]()
+	for _, formatter := range formatters {
+		formatterSet.Add(formatter.Name)
+	}
+
+	return formatterSet
+}
+
 // CategorizeLinters categorizes disabled linters by priority.
 // exported for testing.
 func (a *Analyzer) CategorizeLinters(
 	disabledLinters []types.LinterInfo,
 	enabledFormatters []types.FormatterInfo,
 ) []types.LinterRecommendation {
-	enabledFormatterSet := types.NewSet[types.FormatterName]()
-	for _, formatter := range enabledFormatters {
-		enabledFormatterSet.Add(formatter.Name)
-	}
+	enabledFormatterSet := formatterNameSet(enabledFormatters)
 
 	var recommendations []types.LinterRecommendation
 
@@ -122,11 +128,7 @@ func (a *Analyzer) CategorizeFormatters(
 	disabledFormatters []types.FormatterInfo,
 	enabledFormatters []types.FormatterInfo,
 ) []types.FormatterRecommendation {
-	enabledSet := types.NewSet[types.FormatterName]()
-
-	for _, formatter := range enabledFormatters {
-		enabledSet.Add(formatter.Name)
-	}
+	enabledSet := formatterNameSet(enabledFormatters)
 
 	recommendations := make([]types.FormatterRecommendation, 0, len(disabledFormatters))
 

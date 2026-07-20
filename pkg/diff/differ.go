@@ -145,33 +145,31 @@ func (d *Differ) compareListChanges(oldItems, newItems []string, pathPrefix, ent
 	return changes
 }
 
-func (d *Differ) makeAddedChange(pathPrefix, subKey, entityName, item string) Change {
-	action := "Enabled"
+func changeAction(subKey, enabledAction, disabledAction string) string {
 	if subKey == "disable" {
-		action = "Disabled"
+		return disabledAction
 	}
 
+	return enabledAction
+}
+
+func (d *Differ) makeAddedChange(pathPrefix, subKey, entityName, item string) Change {
 	return Change{
 		Type:        ChangeTypeAdded,
 		Path:        fmt.Sprintf("%s.%s.%s", pathPrefix, subKey, item),
 		OldValue:    "",
 		NewValue:    item,
-		Description: fmt.Sprintf("%s %s: %s", action, entityName, item),
+		Description: fmt.Sprintf("%s %s: %s", changeAction(subKey, "Enabled", "Disabled"), entityName, item),
 	}
 }
 
 func (d *Differ) makeRemovedChange(pathPrefix, subKey, entityName, item string) Change {
-	action := "Disabled"
-	if subKey == "disable" {
-		action = "Re-enabled"
-	}
-
 	return Change{
 		Type:        ChangeTypeRemoved,
 		Path:        fmt.Sprintf("%s.%s.%s", pathPrefix, subKey, item),
 		OldValue:    item,
 		NewValue:    "",
-		Description: fmt.Sprintf("%s %s: %s", action, entityName, item),
+		Description: fmt.Sprintf("%s %s: %s", changeAction(subKey, "Disabled", "Re-enabled"), entityName, item),
 	}
 }
 
@@ -194,13 +192,41 @@ func (d *Differ) compareEnableDisable(
 	return changes
 }
 
-// FormatChanges formats changes as a human-readable string.
-func (d *Differ) FormatChanges(changes []Change) string {
+func changeCounts(changes []Change) (int, int, int, bool) {
 	if len(changes) == 0 {
-		return "No changes detected"
+		return 0, 0, 0, false
 	}
 
 	added, removed, modified := countChangesByType(changes)
+
+	return added, removed, modified, true
+}
+
+func changesOrEmpty(changes []Change, emptyMessage string) (int, int, int, string) {
+	added, removed, modified, hasChanges := changeCounts(changes)
+	if !hasChanges {
+		return 0, 0, 0, emptyMessage
+	}
+
+	return added, removed, modified, ""
+}
+
+func changesOrMessage(changes []Change, emptyMessage string) (int, int, int, *string) {
+	added, removed, modified, emptyResult := changesOrEmpty(changes, emptyMessage)
+	if emptyResult != "" {
+		return 0, 0, 0, &emptyResult
+	}
+
+	return added, removed, modified, nil
+}
+
+// FormatChanges formats changes as a human-readable string.
+func (d *Differ) FormatChanges(changes []Change) string {
+	added, removed, modified, emptyResult := changesOrMessage(changes, "No changes detected")
+	if emptyResult != nil {
+		return *emptyResult
+	}
+
 	builder := formatChangeHeader(added, removed, modified)
 	sortedChanges := sortChangesByPath(changes)
 
@@ -262,11 +288,11 @@ func formatChangeDetails(builderStr string, sortedChanges []Change) string {
 
 // GetSummary returns a brief summary of changes.
 func (d *Differ) GetSummary(changes []Change) string {
-	if len(changes) == 0 {
-		return "No changes"
+	added, removed, modified, emptyResult := changesOrMessage(changes, "No changes")
+	if emptyResult != nil {
+		return *emptyResult
 	}
 
-	added, removed, modified := countChangesByType(changes)
 	parts := buildSummaryParts(added, removed, modified)
 
 	return strings.Join(parts, ", ")

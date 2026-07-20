@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -13,6 +14,7 @@ type Fixer struct {
 	analyzer         types.LinterAnalyzer
 	logger           *log.Logger
 	formatterManager *FormatterManager
+	ledger           audit.Recorder
 }
 
 // NewFixer creates a new fixer.
@@ -22,7 +24,18 @@ func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader ty
 		analyzer:         analyzer,
 		logger:           logger,
 		formatterManager: NewFormatterManager(logger),
+		ledger:           audit.NoopRecorder{},
 	}
+}
+
+// SetLedger sets the audit recorder used to log every config change the fixer makes.
+// If recorder is nil, the fixer falls back to a NoopRecorder (no recording).
+func (f *Fixer) SetLedger(recorder audit.Recorder) {
+	if recorder == nil {
+		recorder = audit.NoopRecorder{}
+	}
+
+	f.ledger = recorder
 }
 
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
@@ -181,6 +194,8 @@ func (f *Fixer) applyLintersFix(
 	originalEnabled []string,
 	version string,
 ) (*types.MigrationResult, error) {
+	before := snapshotLinterState(cfg)
+
 	linterSet := types.NewSet(cfg.Linters.Enable...)
 	formatterSet := types.NewSet(cfg.Formatters.Enable...)
 	counts := f.applyAllFixes(
@@ -195,7 +210,17 @@ func (f *Fixer) applyLintersFix(
 		version,
 	)
 
-	return f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, version, counts)
+	result, err := f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, version, counts)
+	if err != nil {
+		return result, err
+	}
+
+	// Only record changes that were actually persisted to disk (skip dry-runs and no-op runs).
+	if !dryRun && result.IsSuccess() {
+		f.recordConfigChanges(before, cfg)
+	}
+
+	return result, nil
 }
 
 func (f *Fixer) applyAllFixes(

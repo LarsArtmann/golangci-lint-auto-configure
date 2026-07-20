@@ -157,6 +157,7 @@ linters:
         - charm.land/log/v2.Options
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/types.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
+        - github.com/larsartmann/golangci-lint-auto-configure/pkg/audit.*
         - github.com/larsartmann/go-finding.Position
         - github.com/larsartmann/go-finding.ToolInfo
     funlen:
@@ -242,6 +243,11 @@ linters:
       - path: pkg/finding/golangci_lint\.go
         linters:
           - tagliatelle
+      - path: pkg/audit/
+        linters:
+          - tagliatelle
+          - noinlineerr
+          - makezero
       - path: pkg/detection/detector\.go
         linters:
           - gosec

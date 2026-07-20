@@ -238,6 +238,7 @@ func runFixerMode(
 	showDiff bool,
 ) error {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
+	fixer.SetLedger(newRunLedger(ctx, logger, configFile))
 
 	linterPriority, err := ParsePriorityParam(priorityParam)
 	if err != nil {

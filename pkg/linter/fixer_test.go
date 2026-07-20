@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -268,6 +269,44 @@ const defaultIssuesBlock = `issues:
   max-issues-per-linter: 50
   max-same-issues: 10`
 
+// recordedAction captures one ledger Record call for test assertions.
+type recordedAction struct {
+	action audit.Action
+	linter string
+	reason string
+}
+
+// captureRecorder is a test fake for audit.Recorder that collects all Record calls.
+type captureRecorder struct {
+	actions []recordedAction
+}
+
+func (c *captureRecorder) Record(action audit.Action, linter, reason string) {
+	c.actions = append(c.actions, recordedAction{action: action, linter: linter, reason: reason})
+}
+
+func (c *captureRecorder) hasAction(action audit.Action, linter string) bool {
+	for _, a := range c.actions {
+		if a.action == action && a.linter == linter {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c *captureRecorder) countByAction(action audit.Action) int {
+	count := 0
+
+	for _, a := range c.actions {
+		if a.action == action {
+			count++
+		}
+	}
+
+	return count
+}
+
 var _ = Describe("Fixer", func() {
 	var (
 		fixer       *linter.Fixer
@@ -496,6 +535,189 @@ linters:
 			Expect(err).NotTo(HaveOccurred())
 			Expect(parsed.Linters.Enable).NotTo(ContainElement("depguard"))
 			Expect(parsed.Linters.Disable).To(ContainElement("depguard"))
+		})
+	})
+
+	Context("User-Disabled Linters", func() {
+		It("should preserve the user's disable list across a configure run", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  disable:
+    - mnd
+    - varnamelen`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Disable).To(ContainElement("mnd"))
+			Expect(parsed.Linters.Disable).To(ContainElement("varnamelen"))
+		})
+
+		It("should not re-add a recommended linter that is in the disable list", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  disable:
+    - ireturn`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Enable).NotTo(ContainElement("ireturn"))
+			Expect(parsed.Linters.Disable).To(ContainElement("ireturn"))
+		})
+
+		It("should preserve the disable list across repeated runs (idempotency)", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  disable:
+    - mnd
+    - tagalign
+    - varnamelen`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			afterFirst, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			afterSecond, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(afterSecond.Linters.Disable).To(ContainElements("mnd", "tagalign", "varnamelen"))
+			Expect(afterSecond.Linters.Enable).NotTo(ContainElement("mnd"))
+			Expect(afterSecond.Linters.Disable).To(Equal(afterFirst.Linters.Disable))
+		})
+
+		It("should prune orphaned settings blocks for disabled linters", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  disable:
+    - mnd
+  settings:
+    mnd:
+      checks:
+        - argument
+        - case
+    gosec:
+      excludes:
+        - G104`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Settings).NotTo(HaveKey("mnd"))
+			Expect(parsed.Linters.Settings).To(HaveKey("gosec"))
+		})
+
+		It("should resolve a linter present in both enable and disable", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - mnd
+  disable:
+    - mnd`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Enable).To(ContainElement("mnd"))
+			Expect(parsed.Linters.Disable).NotTo(ContainElement("mnd"))
+		})
+	})
+
+	Context("Audit Ledger Recording", func() {
+		It("records added-to-enable entries when recommenders add linters", func() {
+			recorder := &captureRecorder{}
+			fixer.SetLedger(recorder)
+
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			writeConfig(testConfig, configContent)
+			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.IsSuccess()).To(BeTrue())
+
+			Expect(recorder.countByAction(audit.ActionAddedToEnable)).To(BeNumerically(">", 0))
+		})
+
+		It("records moved-to-disable and removed-from-enable when a tool-disabled linter is enabled", func() {
+			recorder := &captureRecorder{}
+			fixer.SetLedger(recorder)
+
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - noinlineerr
+`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(recorder.hasAction(audit.ActionMovedToDisable, "noinlineerr")).To(BeTrue())
+			Expect(recorder.hasAction(audit.ActionRemovedFromEnable, "noinlineerr")).To(BeTrue())
+		})
+
+		It("records pruned-settings when an orphaned settings block is removed", func() {
+			recorder := &captureRecorder{}
+			fixer.SetLedger(recorder)
+
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  disable:
+    - mnd
+  settings:
+    mnd:
+      checks:
+        - argument
+`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(recorder.hasAction(audit.ActionPrunedSettings, "mnd")).To(BeTrue())
+		})
+
+		It("does not record anything in dry-run mode", func() {
+			recorder := &captureRecorder{}
+			fixer.SetLedger(recorder)
+
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - noinlineerr
+`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, true)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(recorder.actions).To(BeEmpty())
 		})
 	})
 
