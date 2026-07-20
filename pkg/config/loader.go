@@ -244,6 +244,7 @@ func (l *Loader) getAllLinterNames(ctx context.Context) ([]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, LintersTimeout)
 	defer cancel()
 
+	//nolint:gosec // binary name is a constant, not user input
 	cmd := exec.CommandContext(ctx, constants.GolangciLintBinaryName, "linters", "--json")
 
 	output, err := cmd.CombinedOutput()

@@ -5,6 +5,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/policy"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -15,6 +16,7 @@ type Fixer struct {
 	logger           *log.Logger
 	formatterManager *FormatterManager
 	ledger           audit.Recorder
+	pol              *policy.Policy
 }
 
 // NewFixer creates a new fixer.
@@ -25,6 +27,7 @@ func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader ty
 		logger:           logger,
 		formatterManager: NewFormatterManager(logger),
 		ledger:           audit.NoopRecorder{},
+		pol:              nil,
 	}
 }
 
@@ -196,6 +199,8 @@ func (f *Fixer) applyLintersFix(
 ) (*types.MigrationResult, error) {
 	before := snapshotLinterState(cfg)
 
+	f.loadPolicy(configPath)
+
 	linterSet := types.NewSet(cfg.Linters.Enable...)
 	formatterSet := types.NewSet(cfg.Formatters.Enable...)
 	counts := f.applyAllFixes(
@@ -278,6 +283,10 @@ func (f *Fixer) applyAndSave(
 	rec.normalize(func() int {
 		return updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager, f.logger)
 	})
+
+	if f.pol != nil && !dryRun {
+		rec.normalize(func() int { return f.enforceDisableReasons(cfg) })
+	}
 
 	rec.generated(func() int { return updater.updateGeneratedExclusions(cfg, configPath) })
 	rec.generated(func() int { return updater.updateExclusionRules(cfg) })

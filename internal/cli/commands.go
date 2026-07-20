@@ -33,6 +33,7 @@ var (
 	noAutoMerge  bool
 	showDiff     bool
 	jsonErrors   bool
+	noAudit      bool
 )
 
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
@@ -223,6 +224,7 @@ func addSubCommands(
 		newValidateCommand(builder),
 		newReportCommand(builder),
 		newPresetsCommand(builder),
+		newAuditCommand(builder),
 		clicmd.NewCompletionCommand(),
 		clicmd.NewInstallHookCommand(logger),
 	)

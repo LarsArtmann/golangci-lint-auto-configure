@@ -158,6 +158,7 @@ linters:
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/types.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/audit.*
+        - github.com/larsartmann/golangci-lint-auto-configure/pkg/policy.*
         - github.com/larsartmann/go-finding.Position
         - github.com/larsartmann/go-finding.ToolInfo
     funlen:

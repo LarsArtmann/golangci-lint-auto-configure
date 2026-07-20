@@ -85,6 +85,9 @@ func (a *Analyzer) runFormattersCommand(ctx context.Context, configPath string) 
 // RunFmtCommand runs `golangci-lint fmt` to format Go source files.
 func (a *Analyzer) RunFmtCommand(ctx context.Context, configPath string) error {
 	_, err := a.runCommandWithRetry(ctx, "fmt", "fmt", "--config", configPath)
+	if err == nil {
+		return nil
+	}
 
 	return apperrors.WrapClassified(err, "linter.fmt_failed", "golangci-lint fmt failed")
 }

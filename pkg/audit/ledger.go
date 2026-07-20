@@ -47,6 +47,10 @@ const (
 	ActionPrunedSettings     Action = "pruned-settings"
 	// ActionReEnabled records that an unjustified disable was undone (Pillar C enforcement).
 	ActionReEnabled Action = "re-enabled"
+	// ActionFormatterAddedToEnable records a formatter (e.g. gofmt, goimports) being enabled.
+	ActionFormatterAddedToEnable Action = "formatter-added-to-enable"
+	// ActionFormatterRemovedFromEnable records a formatter being removed from the enable list.
+	ActionFormatterRemovedFromEnable Action = "formatter-removed-from-enable"
 )
 
 // Entry is a single audit record, serialized as one JSONL line.
@@ -262,4 +266,99 @@ func parseEntry(line string) (Entry, bool) {
 	}
 
 	return entry, true
+}
+
+const (
+	retentionDays = 90
+	hoursPerDay   = 24
+)
+
+// DefaultRetention returns the default retention period for ledger entries.
+// Entries older than this are purged at the start of each run.
+func DefaultRetention() time.Duration {
+	return time.Duration(retentionDays) * hoursPerDay * time.Hour
+}
+
+// PurgeOlder removes entries older than maxAge from the ledger file and returns
+// the number of entries removed. If no entries are older than maxAge, the file
+// is left untouched.
+func PurgeOlder(path string, maxAge time.Duration) (int, error) {
+	entries, err := ReadAll(path)
+	if err != nil {
+		return 0, err
+	}
+
+	cutoff := time.Now().UTC().Add(-maxAge)
+	kept := make([]Entry, 0, len(entries))
+	purgedCount := 0
+
+	for _, entry := range entries {
+		if entry.Timestamp.Before(cutoff) {
+			purgedCount++
+
+			continue
+		}
+
+		kept = append(kept, entry)
+	}
+
+	if purgedCount == 0 {
+		return 0, nil
+	}
+
+	return purgedCount, rewriteLedger(path, kept)
+}
+
+// Clear truncates the ledger file at path to zero bytes.
+func Clear(path string) error {
+	file, err := os.OpenFile(path, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, filePermissions)
+	if err != nil {
+		return fmt.Errorf("clear audit ledger %q: %w", path, err)
+	}
+
+	defer file.Close()
+
+	return nil
+}
+
+// PurgeRetention removes entries older than maxAge from this ledger's file.
+// Best-effort: failures are logged, never returned to the caller.
+func (l *Ledger) PurgeRetention(maxAge time.Duration) {
+	if l == nil || !l.enabled {
+		return
+	}
+
+	purgedCount, err := PurgeOlder(l.path, maxAge)
+	if err != nil {
+		l.logger.Warnf("Audit ledger: retention purge failed: %v", err)
+
+		return
+	}
+
+	if purgedCount > 0 {
+		l.logger.Debugf("Audit ledger: purged %d entries older than %s", purgedCount, maxAge)
+	}
+}
+
+// rewriteLedger rewrites the entire ledger file with the given entries.
+// Used by PurgeOlder to compact the file after removing stale entries.
+func rewriteLedger(path string, entries []Entry) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("rewrite audit ledger %q: %w", path, err)
+	}
+	defer file.Close()
+
+	for _, entry := range entries {
+		line, err := json.Marshal(entry)
+		if err != nil {
+			continue
+		}
+
+		if _, err := file.Write(append(line, '\n')); err != nil {
+			return fmt.Errorf("write audit ledger %q: %w", path, err)
+		}
+	}
+
+	return nil
 }

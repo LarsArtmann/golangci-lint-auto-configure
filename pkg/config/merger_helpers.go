@@ -88,6 +88,7 @@ func mergeUniqueItems(primary, secondary []string) ([]string, int) {
 
 		primary = append(primary, item)
 		primarySet.Add(item)
+
 		changes++
 	}
 
@@ -108,6 +109,7 @@ func mergePaths(primary *[]string, secondary []string) int {
 	}
 
 	var changes int
+
 	*primary, changes = mergeUniqueItems(*primary, secondary)
 
 	return changes

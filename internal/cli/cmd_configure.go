@@ -100,6 +100,8 @@ func addConfigureFlags(cmd *cobra.Command, preset *string, detect, check *bool) 
 		BoolVar(detect, "detect", false, "Auto-detect project type and select appropriate preset")
 	cmd.Flags().
 		BoolVar(check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
+	cmd.Flags().
+		BoolVar(&noAudit, "no-audit", false, "Skip writing to the audit ledger (also: "+auditEnvVar+" env var)")
 }
 
 func runDetectOrConfigure(

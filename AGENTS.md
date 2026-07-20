@@ -39,6 +39,8 @@ nix develop
 - **gogenfilter/v3**: auto-detects generated files to exclude from linting.
 - **go-finding**: unified finding model (SARIF/JSON output).
 - **go-error-family** (`v0.7.0`): structured error classification. Sentinel errors are registered with Families (Rejection/Conflict/Transient/Corruption/Infrastructure) in `pkg/errors/classification.go`. `ConfigError`, `ReportError`, and `MigrationError` implement the `Classified` interface (always Rejection). `AnalysisError` delegates to cause-chain sentinels for fine-grained Families. `Main()` uses `errorfamily.ExitCode(err)` for BSD sysexits exit codes instead of hardcoded `os.Exit(1)`.
+- **Audit ledger** (`pkg/audit/`): append-only JSONL ledger in the OS cache dir (`~/.cache/golangci-lint-auto-configure/audit.jsonl`) that records every config mutation (linter enable/disable, formatter changes, settings pruning, re-enables). 90-day retention purge runs at the start of each configure run. Queried via the `audit` CLI subcommand (`--json`, `--since`, `--linter`, `--clear`). Disable with `--no-audit` flag or `GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT` env var.
+- **Policy enforcement** (`pkg/policy/`): disable-reason sidecar file (`.golangci-lint-auto-configure.yml`) that justifies intentional linter disables. When a sidecar exists, the fixer re-enables linters in `linters.disable` that lack a justification entry (anti-gaming enforcement). Tool-level disabled linters (`constants.DisabledLinters`) are always exempt. When no sidecar exists, all disables are respected (backward compatible).
 
 ## Critical Gotchas (read these — they bite)
 
@@ -82,6 +84,12 @@ nix develop
     **musttag linter:** `Marshal`/`Unmarshal` of tag-free report structs need `//nolint:musttag`. Test files are excluded from musttag in `.golangci.yml`.
 
 13. **`.buildflow.yml` skips nixfmt-standalone.** `nixfmt-standalone` runs raw `nixfmt .` which ignores buildflow's exclude patterns and scans `.direnv/flake-inputs/` (symlinked third-party nix caches). It fails ~88% of the time. The `nix-fmt` step (treefmt) handles Nix formatting correctly and respects excludes. GitHub Actions workflows set `GOEXPERIMENT: jsonv2` at the job level for all Go-compiling jobs (`test-and-build`, `lint`, `govulncheck`, `release`).
+
+14. **`WrapClassified` returns `*errorfamily.Error`, not `error`.** Callers that pass a potentially-nil error MUST check for nil first (`if err == nil { return nil }`) before calling `WrapClassified`/`WrapClassifiedf`. Otherwise, nil `*errorfamily.Error` gets boxed into a non-nil `error` interface (the typed-nil interface pitfall), causing the caller's error check to always be true. Two bugs from this were fixed: `RunFmtCommand` always reported failure, and `validate` never reported success. The return type was kept as `*errorfamily.Error` (intentional) so callers can access classified methods.
+
+15. **Disable-reason enforcement is opt-in via sidecar.** When `.golangci-lint-auto-configure.yml` exists next to `.golangci.yml`, the fixer re-enables any linter in `linters.disable` that lacks a justification entry in the sidecar. Without a sidecar, all disables are respected. This prevents AI agents from silently disabling linters to game the lint gate. Tool-level disabled linters (`constants.DisabledLinters`: funcorder, noinlineerr, depguard) are always exempt from enforcement.
+
+16. **Audit ledger is best-effort and lives outside the git tree.** The JSONL ledger at `~/.cache/golangci-lint-auto-configure/audit.jsonl` records every config mutation. Failures to write are logged but never block the configure run. Dry runs never emit entries. Query with the `audit` subcommand; purge with `--clear` or automatically via 90-day retention.
 
 ## Where to Find Detail
 

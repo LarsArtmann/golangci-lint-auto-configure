@@ -148,6 +148,12 @@ func IsMigrationError(err error) bool {
 //
 // For errors where the family is always the same regardless of cause, prefer the
 // explicit errorfamily.WrapRejection/WrapTransient/etc constructors instead.
+//
+// Note: Callers that may pass a nil error MUST check for nil before calling this
+// function and return nil themselves. Returning WrapClassified(nilErr, ...) through
+// an error-typed function triggers the typed-nil interface pitfall (the nil
+// *errorfamily.Error becomes a non-nil error interface). The concrete return type
+// is intentional so callers that need the classified methods can access them.
 func WrapClassified(err error, code, message string) *errorfamily.Error {
 	if err == nil {
 		return nil

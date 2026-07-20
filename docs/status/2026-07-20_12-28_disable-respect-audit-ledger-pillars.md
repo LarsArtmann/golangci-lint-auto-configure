@@ -13,12 +13,12 @@
 
 **Root cause fixed:** `updateConfigFromSets` (`pkg/linter/fixer_config.go`) was rebuilding `linters.disable` from scratch on every run, silently dropping every user-disabled linter. The existing `disabledSet` guard in `enableRecommendedLinters` was therefore useless on the next run, so recommended linters got re-added forever.
 
-| Change | File | Status |
-|---|---|---|
-| Preserve + dedup + sort the user's `linters.disable` list | `pkg/linter/fixer_config.go:246-271` | ✅ done |
-| Remove contradictions (linter in both enable + disable → enable wins, drop from disable) | `pkg/linter/fixer_config.go:265-267` | ✅ done |
-| Prune orphaned `settings.<linter>` blocks for disabled linters | `pkg/linter/fixer_config.go:283-301` (`pruneDisabledLinterSettings`) | ✅ done |
-| 5 Ginkgo regression tests (preserve, no-re-add, idempotency, prune orphan, contradiction) | `pkg/linter/fixer_test.go` ("User-Disabled Linters" context) | ✅ done, all pass |
+| Change                                                                                    | File                                                                 | Status            |
+| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------- |
+| Preserve + dedup + sort the user's `linters.disable` list                                 | `pkg/linter/fixer_config.go:246-271`                                 | ✅ done           |
+| Remove contradictions (linter in both enable + disable → enable wins, drop from disable)  | `pkg/linter/fixer_config.go:265-267`                                 | ✅ done           |
+| Prune orphaned `settings.<linter>` blocks for disabled linters                            | `pkg/linter/fixer_config.go:283-301` (`pruneDisabledLinterSettings`) | ✅ done           |
+| 5 Ginkgo regression tests (preserve, no-re-add, idempotency, prune orphan, contradiction) | `pkg/linter/fixer_test.go` ("User-Disabled Linters" context)         | ✅ done, all pass |
 
 **Verified:** `go test ./pkg/linter/...` → 84 specs pass. `golangci-lint run ./pkg/linter/...` → 0 issues. Existing `noinlineerr`/`depguard`/`typecheck` tests still pass (no regressions).
 
@@ -26,26 +26,26 @@
 
 **Built:** `pkg/audit/ledger.go` — append-only JSONL ledger in the OS cache dir (`~/.cache/golangci-lint-auto-configure/audit.jsonl`), mirroring BuildFlow's persistence model.
 
-| Feature | Detail | Status |
-|---|---|---|
-| Append-only JSONL writer | One `Entry` per line, best-effort (failures logged, never returned) | ✅ |
-| `RunContext` (run_id + repo_hash + repo_path + git_head) | Stamped on every entry; `NewRunID()` = `YYYYMMDD-HHMMSS-<8hex>`; `RepoHashOf()` = first 16 hex of SHA-256 of abs repo path | ✅ |
-| `Recorder` interface + `NoopRecorder` | Allows injecting fakes in tests; fixer degrades to noop by default | ✅ |
-| `ReadAll(path)` with malformed-line skipping | Crash-resilient (mirrors BuildFlow's SQLite loader) | ✅ |
-| Graceful degradation | Empty path / unwritable dir → disabled ledger, silent no-op | ✅ |
-| 13 Ginkgo tests | Append order, run-context stamping, append-only across calls, noop degradation, Recorder interface, malformed-line skip, missing-file error, run-id uniqueness, repo-hash determinism, default path resolution | ✅ all pass |
-| Lint config exclusions | `.golangci.yml` updated: `pkg/audit/` excluded from tagliatelle (snake_case wire format is by design), noinlineerr, makezero; `pkg/audit.*` added to exhaustruct exclude | ✅ |
+| Feature                                                  | Detail                                                                                                                                                                                                         | Status      |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Append-only JSONL writer                                 | One `Entry` per line, best-effort (failures logged, never returned)                                                                                                                                            | ✅          |
+| `RunContext` (run_id + repo_hash + repo_path + git_head) | Stamped on every entry; `NewRunID()` = `YYYYMMDD-HHMMSS-<8hex>`; `RepoHashOf()` = first 16 hex of SHA-256 of abs repo path                                                                                     | ✅          |
+| `Recorder` interface + `NoopRecorder`                    | Allows injecting fakes in tests; fixer degrades to noop by default                                                                                                                                             | ✅          |
+| `ReadAll(path)` with malformed-line skipping             | Crash-resilient (mirrors BuildFlow's SQLite loader)                                                                                                                                                            | ✅          |
+| Graceful degradation                                     | Empty path / unwritable dir → disabled ledger, silent no-op                                                                                                                                                    | ✅          |
+| 13 Ginkgo tests                                          | Append order, run-context stamping, append-only across calls, noop degradation, Recorder interface, malformed-line skip, missing-file error, run-id uniqueness, repo-hash determinism, default path resolution | ✅ all pass |
+| Lint config exclusions                                   | `.golangci.yml` updated: `pkg/audit/` excluded from tagliatelle (snake_case wire format is by design), noinlineerr, makezero; `pkg/audit.*` added to exhaustruct exclude                                       | ✅          |
 
 ### Pillar B — Fixer → ledger wiring (done, tested, lint-clean)
 
-| Change | File | Status |
-|---|---|---|
-| `Fixer.SetLedger(recorder)` method + `ledger audit.Recorder` field | `pkg/linter/fixer.go:11-39` | ✅ |
-| `linterSnapshot` + `snapshotLinterState` (captures enable/disable/settings-keys before) | `pkg/linter/fixer_audit.go` | ✅ |
-| `recordConfigChanges` diffs before/after, records: added-to-enable, removed-from-enable, moved-to-disable, removed-from-disable, pruned-settings | `pkg/linter/fixer_audit.go` | ✅ |
-| Recording only on persisted (non-dry-run, successful) runs | `pkg/linter/fixer.go:209-211` | ✅ |
-| 4 Ginkgo tests (capture recorder fake, added/moved/pruned/dry-run-noop) | `pkg/linter/fixer_test.go` ("Audit Ledger Recording") | ✅ all pass |
-| `utils.GitHead(ctx, dir)` helper for traceability | `pkg/utils/git.go` | ✅ |
+| Change                                                                                                                                           | File                                                  | Status      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- | ----------- |
+| `Fixer.SetLedger(recorder)` method + `ledger audit.Recorder` field                                                                               | `pkg/linter/fixer.go:11-39`                           | ✅          |
+| `linterSnapshot` + `snapshotLinterState` (captures enable/disable/settings-keys before)                                                          | `pkg/linter/fixer_audit.go`                           | ✅          |
+| `recordConfigChanges` diffs before/after, records: added-to-enable, removed-from-enable, moved-to-disable, removed-from-disable, pruned-settings | `pkg/linter/fixer_audit.go`                           | ✅          |
+| Recording only on persisted (non-dry-run, successful) runs                                                                                       | `pkg/linter/fixer.go:209-211`                         | ✅          |
+| 4 Ginkgo tests (capture recorder fake, added/moved/pruned/dry-run-noop)                                                                          | `pkg/linter/fixer_test.go` ("Audit Ledger Recording") | ✅ all pass |
+| `utils.GitHead(ctx, dir)` helper for traceability                                                                                                | `pkg/utils/git.go`                                    | ✅          |
 
 ---
 
@@ -54,12 +54,14 @@
 ### Pillar B — CLI wiring (STARTED BUT LEFT BROKEN)
 
 I edited `internal/cli/cmd_configure.go` to:
+
 - Import `pkg/audit` and `pkg/utils`
 - Call `fixer.SetLedger(newRunLedger(ctx, logger, configFile))` in `runFixerMode`
 
 **But I never defined `newRunLedger`.** The CLI does not compile. This is the single biggest open item.
 
 **Not done within Pillar B:**
+
 - `audit` CLI subcommand (query: `--json`, `--since`, `--linter`, `--clear`)
 - `--no-audit` flag / `GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT` env var to disable the ledger
 - Ledger retention/rotation (BuildFlow has 90-day purge; I have none)
@@ -71,32 +73,32 @@ I edited `internal/cli/cmd_configure.go` to:
 
 ### Pillar C — Anti-gaming enforcement (entire pillar)
 
-| Planned item | Status |
-|---|---|
+| Planned item                                                                                                                                                                            | Status         |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
 | Reason sidecar `.golangci-lint-auto-configure.yml` (schema: `disable-reasons:` map) — because golangci-lint v2 `disable` is strictly `string[]`, reasons cannot live in `.golangci.yml` | ❌ not started |
-| Sidecar loader package | ❌ |
-| Re-enable enforcement: linter in `disable` with no sidecar reason (and not in `constants.DisabledLinters`) → re-enable it + record `ActionReEnabled` | ❌ |
-| Runtime cost analysis: run each disabled linter, count findings, record `findings_hidden` in the audit entry | ❌ |
-| go-finding export of config changes (SARIF/JSON) via existing `--output`/`--format` | ❌ |
+| Sidecar loader package                                                                                                                                                                  | ❌             |
+| Re-enable enforcement: linter in `disable` with no sidecar reason (and not in `constants.DisabledLinters`) → re-enable it + record `ActionReEnabled`                                    | ❌             |
+| Runtime cost analysis: run each disabled linter, count findings, record `findings_hidden` in the audit entry                                                                            | ❌             |
+| go-finding export of config changes (SARIF/JSON) via existing `--output`/`--format`                                                                                                     | ❌             |
 
 ### Escape hatch (user chose "flag + env var")
 
-| Planned item | Status |
-|---|---|
-| `--no-add-linters` flag on configure | ❌ |
-| `GOLANGCI_LINT_AUTO_CONFIGURE_NO_ADD_LINTERS` env var | ❌ |
-| Thread the flag through to `enableRecommendedLinters` (no-op when set) | ❌ |
+| Planned item                                                           | Status |
+| ---------------------------------------------------------------------- | ------ |
+| `--no-add-linters` flag on configure                                   | ❌     |
+| `GOLANGCI_LINT_AUTO_CONFIGURE_NO_ADD_LINTERS` env var                  | ❌     |
+| Thread the flag through to `enableRecommendedLinters` (no-op when set) | ❌     |
 
 ### Docs
 
-| Planned item | Status |
-|---|---|
-| README: "How to permanently disable a linter" workflow | ❌ |
-| README: "Audit trail" section | ❌ |
-| README: "Escape hatch" section | ❌ |
-| AGENTS.md: audit package, ledger, sidecar, updated Critical Gotchas | ❌ |
-| Move feedback doc `docs/feedback/new/` → `docs/feedback/resolved/` | ❌ |
-| FEATURES.md / TODO_LIST.md updates | ❌ |
+| Planned item                                                        | Status |
+| ------------------------------------------------------------------- | ------ |
+| README: "How to permanently disable a linter" workflow              | ❌     |
+| README: "Audit trail" section                                       | ❌     |
+| README: "Escape hatch" section                                      | ❌     |
+| AGENTS.md: audit package, ledger, sidecar, updated Critical Gotchas | ❌     |
+| Move feedback doc `docs/feedback/new/` → `docs/feedback/resolved/`  | ❌     |
+| FEATURES.md / TODO_LIST.md updates                                  | ❌     |
 
 ---
 
@@ -128,11 +130,13 @@ I edited `internal/cli/cmd_configure.go` to:
 ## f) Up to 50 things to get done next
 
 ### Fix the build (BLOCKER)
+
 1. Define `newRunLedger(ctx, logger, configFile)` helper in `internal/cli/` — resolve repo path from configFile parent dir, build `audit.RunContext`, return `*audit.Ledger`
 2. Run `go build ./...` to confirm the CLI compiles
 3. Run full lint on `internal/cli/...`
 
 ### Pillar B completion
+
 4. Add `audit` CLI subcommand with `--json`, `--since`, `--linter`, `--clear` flags
 5. Implement `--since` duration parsing (e.g. `24h`, `7d`) for the audit command
 6. Implement `--linter` filter for the audit command
@@ -152,6 +156,7 @@ I edited `internal/cli/cmd_configure.go` to:
 20. Add `--audit-path` flag to override the default ledger location
 
 ### Pillar C — reason sidecar
+
 21. Design the `.golangci-lint-auto-configure.yml` schema (`disable-reasons: { <linter>: <reason> }`)
 22. Create `pkg/policy/` (or `pkg/reasons/`) loader package
 23. Decide: freeform reasons vs categorized reasons (see question 1)
@@ -164,6 +169,7 @@ I edited `internal/cli/cmd_configure.go` to:
 30. Add a `disable-reasons init` helper command to scaffold the sidecar
 
 ### Pillar C — runtime cost analysis
+
 31. Implement per-disabled-linter findings count (run golangci-lint with the linter enabled, count issues)
 32. Decide: run on every `configure` or only on `analyze` (see question 2)
 33. Cache the findings count to avoid re-running on every commit
@@ -171,17 +177,20 @@ I edited `internal/cli/cmd_configure.go` to:
 35. Surface `findings_hidden` in the `analyze` command's disabled-linter report
 
 ### Pillar C — go-finding export
+
 36. Convert ledger entries to `go-finding` Finding structs
 37. Wire into the existing `--output`/`--format` (sarif/json/html) pipeline
 38. Test the SARIF output renders correctly in GitHub Code Scanning
 
 ### Escape hatch
+
 39. Add `--no-add-linters` flag to configure
 40. Add `GOLANGCI_LINT_AUTO_CONFIGURE_NO_ADD_LINTERS` env var
 41. Thread through to `enableRecommendedLinters` (becomes a no-op)
 42. Tests: with flag, no linters are added; without flag, normal behavior
 
 ### Docs
+
 43. README: "How to permanently disable a linter" (linters.disable + sidecar reason)
 44. README: "Audit trail" (ledger location, `audit` command)
 45. README: "Escape hatch" (--no-add-linters, --no-audit)
@@ -191,6 +200,7 @@ I edited `internal/cli/cmd_configure.go` to:
 49. Update TODO_LIST.md
 
 ### Validation
+
 50. Run `go test -race ./pkg/... ./internal/...`, `nix build`, `nix flake check`; update vendorHash if go.mod changed
 
 ---

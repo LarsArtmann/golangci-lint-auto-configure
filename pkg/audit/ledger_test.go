@@ -1,9 +1,11 @@
 package audit_test
 
 import (
+	"encoding/json/v2"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
@@ -171,5 +173,139 @@ var _ = Describe("DefaultLedgerPath", func() {
 
 		Expect(filepath.Base(path)).To(Equal("audit.jsonl"))
 		Expect(path).To(ContainSubstring("golangci-lint-auto-configure"))
+	})
+})
+
+var _ = Describe("PurgeOlder", func() {
+	var (
+		tmpDir string
+		path   string
+	)
+
+	BeforeEach(func() {
+		var err error
+
+		tmpDir, err = os.MkdirTemp("", "audit-purge-test")
+		Expect(err).NotTo(HaveOccurred())
+
+		path = filepath.Join(tmpDir, "audit.jsonl")
+	})
+
+	AfterEach(func() {
+		_ = os.RemoveAll(tmpDir)
+	})
+
+	writeTestEntries := func(entries ...audit.Entry) {
+		lines := make([]string, 0, len(entries))
+
+		for _, entry := range entries {
+			data, err := json.Marshal(entry)
+			Expect(err).NotTo(HaveOccurred())
+
+			lines = append(lines, string(data))
+		}
+
+		Expect(os.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o600)).To(Succeed())
+	}
+
+	It("removes entries older than the cutoff and keeps recent ones", func() {
+		old := time.Now().UTC().Add(-100 * 24 * time.Hour)
+		recent := time.Now().UTC().Add(-1 * time.Hour)
+
+		writeTestEntries(
+			audit.Entry{
+				Timestamp: old, RunID: "r", RepoHash: "h",
+				RepoPath: "/r", Linter: "old1", Action: "added-to-enable",
+			},
+			audit.Entry{
+				Timestamp: old, RunID: "r", RepoHash: "h",
+				RepoPath: "/r", Linter: "old2", Action: "added-to-enable",
+			},
+			audit.Entry{
+				Timestamp: recent, RunID: "r", RepoHash: "h",
+				RepoPath: "/r", Linter: "new", Action: "added-to-enable",
+			},
+		)
+
+		purged, err := audit.PurgeOlder(path, 90*24*time.Hour)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(purged).To(Equal(2))
+
+		entries, err := audit.ReadAll(path)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(entries).To(HaveLen(1))
+		Expect(entries[0].Linter).To(Equal("new"))
+	})
+
+	It("returns zero purged when all entries are recent", func() {
+		recent := time.Now().UTC().Add(-1 * time.Hour)
+
+		writeTestEntries(
+			audit.Entry{
+				Timestamp: recent, RunID: "r", RepoHash: "h",
+				RepoPath: "/r", Linter: "a", Action: "added-to-enable",
+			},
+		)
+
+		purged, err := audit.PurgeOlder(path, 90*24*time.Hour)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(purged).To(Equal(0))
+	})
+
+	It("returns an error when the file does not exist", func() {
+		_, err := audit.PurgeOlder(filepath.Join(tmpDir, "missing.jsonl"), time.Hour)
+		Expect(err).To(HaveOccurred())
+	})
+})
+
+var _ = Describe("Clear", func() {
+	var (
+		tmpDir string
+		path   string
+	)
+
+	BeforeEach(func() {
+		var err error
+
+		tmpDir, err = os.MkdirTemp("", "audit-clear-test")
+		Expect(err).NotTo(HaveOccurred())
+
+		path = filepath.Join(tmpDir, "audit.jsonl")
+	})
+
+	AfterEach(func() {
+		_ = os.RemoveAll(tmpDir)
+	})
+
+	It("truncates a non-empty ledger to zero entries", func() {
+		runCtx := audit.RunContext{RunID: "r", RepoHash: "h", RepoPath: "/r"}
+		ledger := audit.NewLedger(newTestLogger(), runCtx, path)
+		ledger.Record(audit.ActionAddedToEnable, "gosec", "test")
+
+		entries, err := audit.ReadAll(path)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(entries).To(HaveLen(1))
+
+		Expect(audit.Clear(path)).To(Succeed())
+
+		entries, err = audit.ReadAll(path)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(entries).To(BeEmpty())
+	})
+
+	It("succeeds even when the file does not exist yet", func() {
+		Expect(audit.Clear(path)).To(Succeed())
+
+		info, err := os.Stat(path)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(info.Size()).To(BeZero())
+	})
+})
+
+var _ = Describe("DefaultRetention", func() {
+	It("returns a duration of approximately 90 days", func() {
+		retention := audit.DefaultRetention()
+		Expect(retention).To(BeNumerically(">", 89*24*time.Hour))
+		Expect(retention).To(BeNumerically("<", 91*24*time.Hour))
 	})
 })

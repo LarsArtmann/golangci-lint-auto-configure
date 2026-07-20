@@ -86,8 +86,13 @@ func validateConfig(
 	configFile string,
 	_ bool,
 ) error {
+	err := validateLoadedConfig(configLoader, logger, configFile)
+	if err == nil {
+		return nil
+	}
+
 	return apperrors.WrapClassified(
-		validateLoadedConfig(configLoader, logger, configFile),
+		err,
 		"validate.loaded_config",
 		"validate loaded config",
 	)
@@ -256,7 +261,7 @@ func logAndFailValidation(logger *log.Logger, validationErrors []error) error {
 func runSchemaValidation(cmd *cobra.Command, configFile string, logger *log.Logger) error {
 	logger.Infof("Running golangci-lint schema validation...")
 
-	verifyCmd := exec.CommandContext(
+	verifyCmd := exec.CommandContext( //nolint:gosec // configFile is resolved and validated by config loader before reaching this point
 		cmd.Context(),
 		constants.GolangciLintBinaryName,
 		"config",

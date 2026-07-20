@@ -170,6 +170,54 @@ The tool automatically detects and replaces deprecated linters with their recomm
 - Git provides full history and rollback capabilities
 - Idempotent - safe to run multiple times
 
+### Audit Trail
+
+Every config change is recorded in an append-only audit ledger at
+`~/.cache/golangci-lint-auto-configure/audit.jsonl` (outside the git tree,
+tamper-resistant across branch switches). Review what automated runs changed:
+
+```bash
+# Show recent config changes in a table
+golangci-lint-auto-configure audit
+
+# Filter by linter or time
+golangci-lint-auto-configure audit --linter mnd --since 7d
+
+# JSON output for scripts
+golangci-lint-auto-configure audit --json
+
+# Clear the ledger
+golangci-lint-auto-configure audit --clear
+```
+
+Entries older than 90 days are automatically purged. Disable the ledger with
+`--no-audit` or `GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT=1`.
+
+### Disable-Reason Enforcement (Anti-Gaming)
+
+To prevent AI agents from silently disabling linters to claim "0 findings,"
+create a `.golangci-lint-auto-configure.yml` sidecar file next to your
+`.golangci.yml`. When this file exists, the tool enforces that every linter in
+`linters.disable` has a justification entry — unjustified disables are
+re-enabled automatically.
+
+```yaml
+# .golangci-lint-auto-configure.yml
+disabled:
+  mnd:
+    reason: "false-positives in file permissions like 0o644 and display widths"
+    category: false-positives
+  varnamelen:
+    reason: "idiomatic short names like tc, r, wg, mu are standard Go"
+    category: convention
+```
+
+Categories: `false-positives`, `superseded`, `convention`, `performance`, `other`.
+
+Without a sidecar file, all disables are respected (backward compatible). Commit
+the sidecar to git so the team shares a baseline — agents must add entries to
+justify new disables, which is visible in code review.
+
 ### Validate Configuration
 
 Check if your config is valid:
@@ -273,6 +321,7 @@ esac
 | `analyze`      | Analyze configuration and show recommendations |
 | `validate`     | Validate existing configuration                |
 | `report`       | Generate JSON/HTML/SARIF report                |
+| `audit`        | Show the audit trail of config changes         |
 | `migrate`      | Migrate configuration from v1 to v2 schema     |
 | `install-hook` | Install pre-commit hook for git                |
 | `completion`   | Generate shell completion script               |
@@ -292,6 +341,7 @@ esac
 | `--format`        | Output format (html, json, sarif, finding)                                         |
 | `--output`        | Output path for report file                                                        |
 | `--no-auto-merge` | Disable automatic merging of multiple config files                                 |
+| `--no-audit`      | Skip writing to the audit ledger                                                   |
 
 ## Project-Specific Examples
 
