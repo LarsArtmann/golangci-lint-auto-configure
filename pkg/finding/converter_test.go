@@ -1,7 +1,8 @@
 package finding
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"testing"
 
@@ -357,7 +358,7 @@ func TestAnalysisToSARIF(t *testing.T) {
 		t.Fatalf("AnalysisToSARIF failed: %v", err)
 	}
 
-	var sarif map[string]json.RawMessage
+	var sarif map[string]jsontext.Value
 
 	err = json.Unmarshal(sarifJSON, &sarif)
 	if err != nil {

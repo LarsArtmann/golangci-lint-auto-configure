@@ -1,7 +1,8 @@
 package finding
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"testing"
 
 	finding "github.com/larsartmann/go-finding"
@@ -144,7 +145,7 @@ func TestParseGolangciLintJSONRoundTrip(t *testing.T) {
 		t.Fatalf("ToSARIF failed: %v", sarifErr)
 	}
 
-	var sarifMap map[string]json.RawMessage
+	var sarifMap map[string]jsontext.Value
 
 	jsonErr := json.Unmarshal(sarif, &sarifMap)
 	if jsonErr != nil {

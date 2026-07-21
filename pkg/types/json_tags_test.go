@@ -1,7 +1,7 @@
 package types_test
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
