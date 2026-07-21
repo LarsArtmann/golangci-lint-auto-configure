@@ -56,6 +56,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Eliminated Ginkgo CLI/library version mismatch warning (nixpkgs v2.28.1 vs go.mod v2.28.3)
 - Eliminated version split brain (3 sources of truth reduced to 1)
 - go-finding API compatibility: `Merge` → `Combine`
+- Optional boolean report fields (`LinterInfo.Fast`, `LinterInfo.AutoFix`, `FormatterInfo.AutoFix`) now omit `false` again under `encoding/json/v2` by using `omitzero` instead of `omitempty` (v2 no longer treats `false`/`0` as empty)
 
 ### Removed
 

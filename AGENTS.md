@@ -91,6 +91,8 @@ nix develop
 
 16. **Audit ledger is best-effort and lives outside the git tree.** The JSONL ledger at `~/.cache/golangci-lint-auto-configure/audit.jsonl` records every config mutation. Failures to write are logged but never block the configure run. Dry runs never emit entries. Query with the `audit` subcommand; purge with `--clear` or automatically via 90-day retention.
 
+17. **json/v2 `omitempty` no longer omits `false`/`0`.** Under `encoding/json/v1`, `omitempty` dropped false bools, zero ints, and empty strings. Under `encoding/json/v2` it only omits nil pointers/interfaces and empty slices/maps/arrays/strings. To omit Go zero values (false, 0, ""), use **`omitzero`** instead. Report types (`LinterInfo.Fast`, `LinterInfo.AutoFix`, `FormatterInfo.AutoFix` in `pkg/types/types.go`) use `omitzero` for exactly this reason. Known latent follow-up: `pkg/types/config_types.go` still uses `bool`/`int + omitempty` on its `json:` tags — these emit `false`/`0` in **JSON-format** config output (`marshalConfig`, `pkg/config/loader.go`) but YAML output (the default) is unaffected. See `docs/references/json-v2.md`.
+
 ## Where to Find Detail
 
 | Topic                                                  | Location                                        |
