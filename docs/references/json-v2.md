@@ -43,6 +43,22 @@ json/v1 matched struct fields **case-insensitively** by default. json/v2 is **ca
 
 json/v2 marshals nil slices as `[]` instead of `null`. This is generally safer for JSON API consumers, but is a behavioral change to be aware of.
 
+### `omitempty` no longer omits `false` bools or `0` numbers
+
+This is the **most common source of json/v2 test failures.** json/v1 treated `false` (bool) and `0` (number) as "empty" for `omitempty`. json/v2 does NOT — under v2, `omitempty` only omits: nil pointers/interfaces, and empty slices/maps/arrays/strings.
+
+To omit a zero-valued bool or number under json/v2, use `omitzero` instead:
+
+```go
+// v1: false was omitted (worked)
+Fast bool `json:",omitempty"`
+
+// v2: false is NOT omitted by omitempty — use omitzero to restore v1 behavior
+Fast bool `json:",omitzero"`
+```
+
+`omitzero` omits any field equal to its Go type's zero value (`false`, `0`, `""`, nil, empty slices). Report-type bool fields in `pkg/types/types.go` (`LinterInfo.Fast`, `LinterInfo.AutoFix`, `FormatterInfo.AutoFix`) and wire-format structs in `pkg/linter/analyzer.go` use `omitzero` for this reason. Config YAML types (`config_types.go`, `migration/config_types.go`) are unaffected — they use `go.yaml.in/yaml/v3`, where `omitempty` still omits false bools.
+
 ### `[]byte` marshals as base64
 
 json/v2 marshals `[]byte` as base64-encoded strings (same as v1, but v2 does NOT allow `null` for `[]byte` fields during unmarshal).

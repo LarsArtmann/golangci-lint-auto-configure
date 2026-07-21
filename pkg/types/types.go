@@ -89,8 +89,8 @@ type LinterInfo struct {
 	Name        LinterName
 	Description string
 	Groups      []string `json:",omitempty"`
-	Fast        bool     `json:",omitempty"`
-	AutoFix     bool     `json:",omitempty"`
+	Fast        bool     `json:",omitzero"`
+	AutoFix     bool     `json:",omitzero"`
 	Deprecated  bool
 	Since       string
 	OriginalURL string
@@ -134,7 +134,7 @@ func (fn FormatterName) String() string {
 type FormatterInfo struct {
 	Name        FormatterName
 	Description string
-	AutoFix     bool `json:",omitempty"`
+	AutoFix     bool `json:",omitzero"`
 }
 
 // FormatterRecommendation represents a formatter with its priority and reason.

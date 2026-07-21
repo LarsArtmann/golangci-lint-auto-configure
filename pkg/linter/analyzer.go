@@ -54,8 +54,8 @@ type golangciLinterEntry struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Groups      []string `json:"groups,omitempty"`
-	Fast        bool     `json:"fast,omitempty"`
-	AutoFix     bool     `json:"autoFix,omitempty"`
+	Fast        bool     `json:"fast,omitzero"`
+	AutoFix     bool     `json:"autoFix,omitzero"`
 	Deprecated  bool     `json:"deprecated"`
 	Since       string   `json:"since"`
 	OriginalURL string   `json:"originalURL"`
@@ -83,7 +83,7 @@ type golangciLintOutput struct {
 type golangciFormatterEntry struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	AutoFix     bool   `json:"autoFix,omitempty"`
+	AutoFix     bool   `json:"autoFix,omitzero"`
 }
 
 func (e golangciFormatterEntry) toFormatterInfo() types.FormatterInfo {
