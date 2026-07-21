@@ -278,7 +278,7 @@ func TestHandleCheckMode(t *testing.T) {
 		logger := newTestLogger()
 
 		err := handleCheckMode(true, &types.MigrationResult{FixesApplied: 3}, logger)
-		if !errors.Is(err, apperrors.ErrChangesNeeded) {
+		if !errors.Is(err, apperrors.ErrChangesNeeded) { //nolint:legacyerrors // sentinel value match
 			t.Errorf("expected ErrChangesNeeded, got %v", err)
 		}
 	})

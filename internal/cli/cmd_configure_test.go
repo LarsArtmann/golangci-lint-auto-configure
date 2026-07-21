@@ -142,9 +142,7 @@ linters:
 
 		Expect(err).To(HaveOccurred())
 
-		var exitErr *exec.ExitError
-
-		ok := errors.As(err, &exitErr)
+		exitErr, ok := errors.AsType[*exec.ExitError](err)
 		Expect(ok).To(BeTrue())
 		Expect(exitErr.ExitCode()).To(Equal(1))
 	})

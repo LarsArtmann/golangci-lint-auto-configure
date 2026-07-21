@@ -28,8 +28,8 @@ var _ = Context("exit codes", func() {
 		err := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "invalid-priority").Run()
 		Expect(err).To(HaveOccurred())
 
-		var exitErr *exec.ExitError
-		Expect(errors.As(err, &exitErr)).To(BeTrue())
+		exitErr, ok := errors.AsType[*exec.ExitError](err)
+		Expect(ok).To(BeTrue())
 		Expect(exitErr.ExitCode()).To(Equal(1))
 	})
 

@@ -1,25 +1,25 @@
 package apperrors
 
 import (
-	stderrors "errors"
+	"errors"
 	"fmt"
 
 	errorfamily "github.com/larsartmann/go-error-family"
 )
 
-// Static sentinel errors for use with stderrors.Is.
+// Static sentinel errors for use with errors.Is.
 var (
-	ErrNotGitRepository       = stderrors.New("not a git repository (no .git directory found)")
-	ErrNotInGitWorkingTree    = stderrors.New("not inside git working tree")
-	ErrHookAlreadyExists      = stderrors.New("hook already exists")
-	ErrUnknownPreset          = stderrors.New("unknown preset")
-	ErrInvalidActivityContext = stderrors.New("invalid activity context type")
-	ErrVersionParse           = stderrors.New("could not parse version from output")
-	ErrInvalidVersionFormat   = stderrors.New("invalid version format")
-	ErrVersionTooOld          = stderrors.New("version is too old")
-	ErrConfigValidationFailed = stderrors.New("configuration validation failed")
-	ErrChangesNeeded          = stderrors.New("configuration changes needed")
-	ErrNoConfigFiles          = stderrors.New("no config files to merge")
+	ErrNotGitRepository       = errors.New("not a git repository (no .git directory found)")
+	ErrNotInGitWorkingTree    = errors.New("not inside git working tree")
+	ErrHookAlreadyExists      = errors.New("hook already exists")
+	ErrUnknownPreset          = errors.New("unknown preset")
+	ErrInvalidActivityContext = errors.New("invalid activity context type")
+	ErrVersionParse           = errors.New("could not parse version from output")
+	ErrInvalidVersionFormat   = errors.New("invalid version format")
+	ErrVersionTooOld          = errors.New("version is too old")
+	ErrConfigValidationFailed = errors.New("configuration validation failed")
+	ErrChangesNeeded          = errors.New("configuration changes needed")
+	ErrNoConfigFiles          = errors.New("no config files to merge")
 )
 
 // domainError provides shared Error() and Unwrap() for domain-specific error types.
@@ -61,9 +61,9 @@ func NewConfigError(msg, path string, err error) *ConfigError {
 
 // IsConfigError checks if an error is a ConfigError.
 func IsConfigError(err error) bool {
-	var cfgErr *ConfigError
+	_, ok := errors.AsType[*ConfigError](err)
 
-	return stderrors.As(err, &cfgErr)
+	return ok
 }
 
 // AnalysisError represents an error during configuration analysis.
@@ -86,9 +86,9 @@ func NewAnalysisError(msg, file string, err error) *AnalysisError {
 
 // IsAnalysisError checks if an error is an AnalysisError.
 func IsAnalysisError(err error) bool {
-	var analysisErr *AnalysisError
+	_, ok := errors.AsType[*AnalysisError](err)
 
-	return stderrors.As(err, &analysisErr)
+	return ok
 }
 
 // ReportError represents an error during report generation.
@@ -111,9 +111,9 @@ func NewReportError(msg, path string, err error) *ReportError {
 
 // IsReportError checks if an error is a ReportError.
 func IsReportError(err error) bool {
-	var reportErr *ReportError
+	_, ok := errors.AsType[*ReportError](err)
 
-	return stderrors.As(err, &reportErr)
+	return ok
 }
 
 // MigrationError represents an error during configuration migration.
@@ -136,9 +136,9 @@ func NewMigrationError(msg, config string, err error) *MigrationError {
 
 // IsMigrationError checks if an error is a MigrationError.
 func IsMigrationError(err error) bool {
-	var migrationErr *MigrationError
+	_, ok := errors.AsType[*MigrationError](err)
 
-	return stderrors.As(err, &migrationErr)
+	return ok
 }
 
 // WrapClassified wraps an error with a code and message, preserving the cause

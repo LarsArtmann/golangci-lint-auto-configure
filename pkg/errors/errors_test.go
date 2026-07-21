@@ -33,7 +33,7 @@ var _ = Describe("Sentinel Errors", func() {
 
 	It("should be comparable with errors.Is", func() {
 		wrapped := fmt.Errorf("wrapped: %w", apperrors.ErrNotGitRepository)
-		Expect(stderrors.Is(wrapped, apperrors.ErrNotGitRepository)).To(BeTrue())
+		Expect(stderrors.Is(wrapped, apperrors.ErrNotGitRepository)).To(BeTrue()) //nolint:legacyerrors // sentinel value match
 	})
 })
 
@@ -153,11 +153,11 @@ var _ = Describe("Error Chaining", func() {
 
 		// The chain is: wrapped -> configErr -> cause
 		// So errors.Is should find cause through the chain
-		Expect(stderrors.Is(wrapped, cause)).To(BeTrue())
+		Expect(stderrors.Is(wrapped, cause)).To(BeTrue()) //nolint:legacyerrors // sentinel value match
 		Expect(apperrors.IsConfigError(wrapped)).To(BeTrue())
 
-		var cfgErr *apperrors.ConfigError
-		Expect(stderrors.As(wrapped, &cfgErr)).To(BeTrue())
+		cfgErr, ok := stderrors.AsType[*apperrors.ConfigError](wrapped)
+		Expect(ok).To(BeTrue())
 		Expect(cfgErr.Path).To(Equal("/path"))
 	})
 
