@@ -58,6 +58,29 @@ func FormatterPriorityToSeverity(p types.FormatterPriority) finding.Severity {
 	}
 }
 
+// filterLinterRecommendationsByPriority returns only recommendations whose
+// Priority is at or below maxPriority. This aligns detection with the repairer's
+// enableRecommendedLinters filter (which skips rec.Priority > threshold),
+// preventing detect→repair loops where unfixable findings persist forever.
+func filterLinterRecommendationsByPriority(
+	recommendations []types.LinterRecommendation,
+	maxPriority types.LinterPriority,
+) []types.LinterRecommendation {
+	if maxPriority >= types.LinterPriorityOptional {
+		return recommendations
+	}
+
+	filtered := make([]types.LinterRecommendation, 0, len(recommendations))
+
+	for _, rec := range recommendations {
+		if rec.Priority <= maxPriority {
+			filtered = append(filtered, rec)
+		}
+	}
+
+	return filtered
+}
+
 // RecommendationsToFindings converts LinterRecommendations to Findings.
 func RecommendationsToFindings(
 	recommendations []types.LinterRecommendation,

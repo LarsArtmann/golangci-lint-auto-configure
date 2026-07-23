@@ -88,3 +88,55 @@ linters:
 		t.Error("expected at least one finding, got 0")
 	}
 }
+
+func TestConfigAnalysisDetectorWithPrioritySuppressesFindings(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, ".golangci.yml")
+	configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - errcheck
+`
+
+	err := os.WriteFile(configPath, []byte(configContent), 0o644)
+	if err != nil {
+		t.Fatalf("failed to write test config: %v", err)
+	}
+
+	logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+	analyzer := linter.NewAnalyzer(logger)
+
+	allFindings, err := NewConfigAnalysisDetector(analyzer, configPath, "v1.0.0").
+		Detect(context.Background())
+	if err != nil {
+		t.Fatalf("Detect without priority filter failed: %v", err)
+	}
+
+	criticalFindings, err := NewConfigAnalysisDetector(analyzer, configPath, "v1.0.0").
+		WithPriority(types.LinterPriorityCritical).
+		Detect(context.Background())
+	if err != nil {
+		t.Fatalf("Detect with Critical priority failed: %v", err)
+	}
+
+	if len(allFindings) <= len(criticalFindings) {
+		t.Fatalf(
+			"unfiltered should have MORE findings than critical-filtered: all=%d, critical=%d",
+			len(allFindings), len(criticalFindings),
+		)
+	}
+}
+
+func TestConfigAnalysisDetectorWithPriorityReturnsSelfForChaining(t *testing.T) {
+	logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+	analyzer := linter.NewAnalyzer(logger)
+
+	detector := NewConfigAnalysisDetector(analyzer, ".golangci.yml", "v1.0.0")
+	returned := detector.WithPriority(types.LinterPriorityHigh)
+
+	if returned != detector {
+		t.Error("WithPriority should return the same detector instance for chaining")
+	}
+}

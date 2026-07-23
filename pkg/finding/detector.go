@@ -18,15 +18,33 @@ type ConfigAnalysisDetector struct {
 	analyzer   *linter.Analyzer
 	configPath string
 	version    string
+	priority   types.LinterPriority
 }
 
 // NewConfigAnalysisDetector creates a detector that analyzes golangci-lint configuration.
+// The detector reports findings for all recommendations regardless of priority
+// (equivalent to LinterPriorityOptional). Use WithPriority to align detection
+// with a repairer's priority threshold, preventing detect→repair loops where
+// the detector reports findings the repairer intentionally won't fix.
 func NewConfigAnalysisDetector(analyzer *linter.Analyzer, configPath, version string) *ConfigAnalysisDetector {
 	return &ConfigAnalysisDetector{
 		analyzer:   analyzer,
 		configPath: configPath,
 		version:    version,
+		priority:   types.LinterPriorityOptional,
 	}
+}
+
+// WithPriority sets the maximum priority for linter recommendations reported
+// as findings. Recommendations with Priority > maxPriority are suppressed,
+// aligning detection with a repairer that only fixes recommendations at or
+// below the same threshold. This prevents detect→repair loops where findings
+// the repairer intentionally skips reappear on every re-detect.
+// Returns the detector for chaining.
+func (d *ConfigAnalysisDetector) WithPriority(maxPriority types.LinterPriority) *ConfigAnalysisDetector {
+	d.priority = maxPriority
+
+	return d
 }
 
 // Name returns the detector name.
@@ -44,8 +62,10 @@ func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding,
 
 	findings := make([]finding.Finding, 0, initialFindingsCapacity)
 
+	filteredLinterRecs := filterLinterRecommendationsByPriority(analysis.LinterRecommendations, d.priority)
+
 	err = appendDetectorFindings(&findings, analysis.ConfigPath, "detector.convert_recommendations",
-		RecommendationsToFindings, analysis.LinterRecommendations)
+		RecommendationsToFindings, filteredLinterRecs)
 	if err != nil {
 		return nil, err
 	}

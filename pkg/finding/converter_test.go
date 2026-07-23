@@ -92,6 +92,64 @@ func TestLinterCategory(t *testing.T) {
 	}
 }
 
+func TestFilterLinterRecommendationsByPriority_AllReturnedWhenOptionalThreshold(t *testing.T) {
+	recs := []types.LinterRecommendation{
+		{Name: "gosec", Priority: types.LinterPriorityCritical},
+		{Name: "funlen", Priority: types.LinterPriorityHigh},
+		{Name: "ireturn", Priority: types.LinterPriorityMedium},
+		{Name: "unknown", Priority: types.LinterPriorityOptional},
+	}
+
+	filtered := filterLinterRecommendationsByPriority(recs, types.LinterPriorityOptional)
+	if len(filtered) != len(recs) {
+		t.Fatalf("Optional threshold should return all %d recs, got %d", len(recs), len(filtered))
+	}
+}
+
+func TestFilterLinterRecommendationsByPriority_MediumSuppressesOptional(t *testing.T) {
+	recs := []types.LinterRecommendation{
+		{Name: "gosec", Priority: types.LinterPriorityCritical},
+		{Name: "funlen", Priority: types.LinterPriorityHigh},
+		{Name: "ireturn", Priority: types.LinterPriorityMedium},
+		{Name: "unknown", Priority: types.LinterPriorityOptional},
+	}
+
+	filtered := filterLinterRecommendationsByPriority(recs, types.LinterPriorityMedium)
+	if len(filtered) != 3 {
+		t.Fatalf("Medium threshold should return Critical+High+Medium (3), got %d", len(filtered))
+	}
+
+	for _, r := range filtered {
+		if r.Priority == types.LinterPriorityOptional {
+			t.Errorf("Optional recommendation %q should have been filtered out", r.Name)
+		}
+	}
+}
+
+func TestFilterLinterRecommendationsByPriority_CriticalOnly(t *testing.T) {
+	recs := []types.LinterRecommendation{
+		{Name: "gosec", Priority: types.LinterPriorityCritical},
+		{Name: "funlen", Priority: types.LinterPriorityHigh},
+		{Name: "ireturn", Priority: types.LinterPriorityMedium},
+	}
+
+	filtered := filterLinterRecommendationsByPriority(recs, types.LinterPriorityCritical)
+	if len(filtered) != 1 {
+		t.Fatalf("Critical threshold should return 1, got %d", len(filtered))
+	}
+
+	if filtered[0].Name != "gosec" {
+		t.Errorf("expected gosec, got %q", filtered[0].Name)
+	}
+}
+
+func TestFilterLinterRecommendationsByPriority_Empty(t *testing.T) {
+	filtered := filterLinterRecommendationsByPriority(nil, types.LinterPriorityMedium)
+	if len(filtered) != 0 {
+		t.Fatalf("expected 0 findings for nil input, got %d", len(filtered))
+	}
+}
+
 func TestRecommendationsToFindings(t *testing.T) {
 	recommendations := []types.LinterRecommendation{
 		{Name: "gosec", Priority: types.LinterPriorityCritical, Reason: "Security scanner"},

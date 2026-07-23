@@ -33,7 +33,10 @@ var _ = Describe("Sentinel Errors", func() {
 
 	It("should be comparable with errors.Is", func() {
 		wrapped := fmt.Errorf("wrapped: %w", apperrors.ErrNotGitRepository)
-		Expect(stderrors.Is(wrapped, apperrors.ErrNotGitRepository)).To(BeTrue()) //nolint:legacyerrors // sentinel value match
+		Expect(
+			stderrors.Is(wrapped, apperrors.ErrNotGitRepository),
+		).To(BeTrue())
+		//nolint:legacyerrors // sentinel value match
 	})
 })
 
