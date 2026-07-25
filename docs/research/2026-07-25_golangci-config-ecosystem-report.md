@@ -8,29 +8,32 @@
 
 ## 1. Headline numbers
 
-| Metric | Value |
-|---|---|
-| Total `.golangci.*` files found | **576** |
-| First-party project configs (no `vendor/`, no backups) | **160** |
-| Vendored (third-party) configs under `vendor/` | ~416 |
-| Text mentions of `.golangci.{yml,yaml}` in docs/code | **2 030 files** (mostly `docs/status/*` reports + `AGENTS.md`) |
-| Policy sidecars (`.golangci-lint-auto-configure.yml`) | **0** |
-| Total `//nolint:` directives in non-test Go code | **5 201** |
+| Metric                                                 | Value                                                          |
+| ------------------------------------------------------ | -------------------------------------------------------------- |
+| Total `.golangci.*` files found                        | **576**                                                        |
+| First-party project configs (no `vendor/`, no backups) | **160**                                                        |
+| Vendored (third-party) configs under `vendor/`         | ~416                                                           |
+| Text mentions of `.golangci.{yml,yaml}` in docs/code   | **2 030 files** (mostly `docs/status/*` reports + `AGENTS.md`) |
+| Policy sidecars (`.golangci-lint-auto-configure.yml`)  | **0**                                                          |
+| Total `//nolint:` directives in non-test Go code       | **5 201**                                                      |
 
 ---
 
 ## 2. How they are used
 
 ### 2.1 Format adoption: v2 is effectively universal
+
 - **159 / 160 first-party configs are golangci-lint v2** (`version: "2"`) — **99.4 %**.
 - The **single v1 holdout** is `archived/website-holger-hahn/.golangci.yml` (a dead project). There are **zero live v1 configs**.
 - Takeaway: the v1→v2 migration is **complete** across this ecosystem. Any tooling that still defaults to emitting v1 is stale.
 
 ### 2.2 Opt-in model, not presets
+
 - `linters.default`: **`none` in 95.6 %** (153), `standard` 5, `all` 2.
 - Nobody relies on golangci-lint's built-in presets. Every project lists its linters explicitly under `linters.enable`.
 
 ### 2.3 The configs are overwhelmingly machine-generated
+
 This is the single strongest signal. The fingerprints line up exactly with what `golangci-lint-auto-configure` emits:
 
 - **88 configs share the byte-identical `enable` list of 109 linters.** No human hand-tunes 109 linters identically 88 times.
@@ -40,6 +43,7 @@ This is the single strongest signal. The fingerprints line up exactly with what 
 - `BuildFlow/flake.nix` literally pulls `golangci-lint-auto-configure` in as a flake input (`v0.5.0`) and rewires `tools/go.mod` — direct confirmation of the generation path.
 
 ### 2.4 The "house style" stack
+
 Consistent across ~150 projects:
 
 ```yaml
@@ -70,10 +74,12 @@ issues:
 ```
 
 ### 2.5 Size & divergence
+
 - Median config = **256 lines**; mean 303; max **1 568** (`auto-deduplicate`, inflated by a ~460-line `settings` block + 83 exclusion rules); min **9** (`cqrs-htmx/examples` — a deliberate minimal `{govet, staticcheck, unused}` config).
 - Configs diverge mainly through **project-specific `exhaustruct.exclude` lists**, **`varnamelen.ignore-names`** (e.g. `[err, ok, tt, t, i, m, g]`), and **`linters.exclusions.rules`**.
 
 ### 2.6 How they are invoked
+
 - **50 / 50 `flake.nix` lint steps** run `golangci-lint run ./...` (the `lint` output / `nix fmt`-adjacent check).
 - Version is pinned per-flake (no shared lock across projects).
 - `output.formats` is **unset in 100 %** — everyone uses the default text output via CLI, never a configured reporter.
@@ -85,25 +91,26 @@ issues:
 
 The strongest, least-opinionated evidence is the **`//nolint` directive density** — i.e. how often the code author (mostly AI-assisted sessions) suppresses a linter relative to how widely it is enabled. **Friction ratio = nolint-count ÷ enable-count.** Higher = more pain per adoption.
 
-| Linter | enabled in | `//nolint` | friction | verdict |
-|---|---:|---:|---:|---|
-| `exhaustruct` | 146 | **952** | 6.5 | **Most-hated.** Forces exhaustive struct literals on every `http.Server{}`, `Cmd{}`, etc. AI emits floods of `//nolint:exhaustruct`. |
-| `gochecknoglobals` | 153 | **773** | 5.1 | Fights standard Go patterns (package-level registries, sentinels, `var ErrX = …`). Constantly suppressed. |
-| `gosec` | 154 | **589** | 3.8 | Security linter with many false positives (hardcoded creds, weak crypto on test fixtures). Heavily nolinted. |
-| `errcheck` | 143 | **443** | 3.1 | Legit but noisy on `defer x.Close()`, `fmt.Fprint`, ignored returns. |
-| `wrapcheck` | 150 | 265 | 1.8 | Demands every returned error be wrapped; tedious in glue code. |
-| `ireturn` | 136 | 171 | 1.3 | "Don't return interfaces" — conflicts with common Go API design. |
-| `recvcheck` | 148 | 147 | 0.99 | Receiver type-naming nits. |
-| `contextcheck` | 149 | 139 | 0.93 | Misfires on context plumbing in handlers. |
-| `exhaustive` | 154 | 129 | 0.84 | Exhaustive switch/enums — noisy on intentionally-default switches. |
-| `funlen` | 151 | 126 | 0.83 | Function length; fights table-driven tests and long constructors. |
-| `forbidigo` | 138 | 111 | 0.80 | Forbidden identifiers (e.g. `fmt.Println`) — suppressed in main/scripts. |
+| Linter             | enabled in | `//nolint` | friction | verdict                                                                                                                              |
+| ------------------ | ---------: | ---------: | -------: | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `exhaustruct`      |        146 |    **952** |      6.5 | **Most-hated.** Forces exhaustive struct literals on every `http.Server{}`, `Cmd{}`, etc. AI emits floods of `//nolint:exhaustruct`. |
+| `gochecknoglobals` |        153 |    **773** |      5.1 | Fights standard Go patterns (package-level registries, sentinels, `var ErrX = …`). Constantly suppressed.                            |
+| `gosec`            |        154 |    **589** |      3.8 | Security linter with many false positives (hardcoded creds, weak crypto on test fixtures). Heavily nolinted.                         |
+| `errcheck`         |        143 |    **443** |      3.1 | Legit but noisy on `defer x.Close()`, `fmt.Fprint`, ignored returns.                                                                 |
+| `wrapcheck`        |        150 |        265 |      1.8 | Demands every returned error be wrapped; tedious in glue code.                                                                       |
+| `ireturn`          |        136 |        171 |      1.3 | "Don't return interfaces" — conflicts with common Go API design.                                                                     |
+| `recvcheck`        |        148 |        147 |     0.99 | Receiver type-naming nits.                                                                                                           |
+| `contextcheck`     |        149 |        139 |     0.93 | Misfires on context plumbing in handlers.                                                                                            |
+| `exhaustive`       |        154 |        129 |     0.84 | Exhaustive switch/enums — noisy on intentionally-default switches.                                                                   |
+| `funlen`           |        151 |        126 |     0.83 | Function length; fights table-driven tests and long constructors.                                                                    |
+| `forbidigo`        |        138 |        111 |     0.80 | Forbidden identifiers (e.g. `fmt.Println`) — suppressed in main/scripts.                                                             |
 
 > Small-sample artifact: `lll` shows friction 20.0 because it is enabled in only 1 config but accrued 20 nolints there — not ecosystem-wide. Exclude it from general conclusions.
 
 **Pattern:** the linters AI models rebel against are the **style/boilerplate-enforcing** ones (`exhaustruct`, `gochecknoglobals`, `ireturn`, `recvcheck`, `wrapcheck`) and the **high-false-positive** ones (`gosec`). They don't resist linters that catch real defects.
 
 ### Side effects AI models produce under these linters
+
 1. **Suppress-spam:** `//nolint:exhaustruct` on nearly every struct literal in glue code (952 occurrences).
 2. **Global-var gymnastics:** moving package-level vars into `init()` or `var _ = …` tricks to appease `gochecknoglobals`.
 3. **Wrap-everything noise:** `wrapcheck` pressure produces shallow `fmt.Errorf("…: %w", err)` chains that add no information.
