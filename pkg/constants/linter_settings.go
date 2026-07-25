@@ -46,6 +46,7 @@ var (
 	_ SettingsConverter = MndSettings{}
 	_ SettingsConverter = GosecSettings{}
 	_ SettingsConverter = ErrcheckSettings{}
+	_ SettingsConverter = WrapcheckSettings{}
 	_ SettingsConverter = GolinesFormatterSettings{}
 )
 
@@ -146,6 +147,12 @@ type ErrcheckSettings struct {
 }
 
 func (s ErrcheckSettings) ToMap() map[string]any { return settingsToMap(s) }
+
+type WrapcheckSettings struct {
+	IgnoreSigs []string `yaml:"ignore-sigs"`
+}
+
+func (s WrapcheckSettings) ToMap() map[string]any { return settingsToMap(s) }
 
 // --- Formatter Settings Structs ---
 
@@ -250,6 +257,19 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 			"fmt.Println",
 			"(*strings.Builder).WriteString",
 			"(*bytes.Buffer).WriteString",
+		},
+	},
+	"wrapcheck": WrapcheckSettings{
+		IgnoreSigs: []string{
+			".Errorf(",
+			"errors.New(",
+			"errors.Unwrap(",
+			"errors.Join(",
+			".Wrap(",
+			".Wrapf(",
+			".WithMessage(",
+			".WithMessagef(",
+			".WithStack(",
 		},
 	},
 }
