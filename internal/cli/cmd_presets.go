@@ -32,10 +32,10 @@ func newPresetsCommand(builder *CommandBuilder) *cobra.Command {
 }
 
 type presetEntry struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Linters     []string `json:"linters"`
-	Formatters  []string `json:"formatters"`
+	Name        string   `json:"Name"`
+	Description string   `json:"Description"`
+	Linters     []string `json:"Linters"`
+	Formatters  []string `json:"Formatters"`
 }
 
 func outputPresetsJSON() error {
@@ -50,29 +50,10 @@ func outputPresetsJSON() error {
 	entries := make([]presetEntry, 0, len(presetNames))
 
 	for _, name := range presetNames {
-		linters := constants.PresetLinters[name]
-		linterStrs := make([]string, len(linters))
-		for i, l := range linters {
-			linterStrs[i] = string(l)
-		}
-
-		formatterStrs := []string{}
-		if formatters, ok := constants.PresetFormatters[name]; ok {
-			formatterStrs = make([]string, len(formatters))
-			for i, f := range formatters {
-				formatterStrs[i] = string(f)
-			}
-		}
-
-		entries = append(entries, presetEntry{
-			Name:        name,
-			Description: constants.PresetDescriptions[name],
-			Linters:     linterStrs,
-			Formatters:  formatterStrs,
-		})
+		entries = append(entries, buildPresetEntry(name))
 	}
 
-	output := map[string]any{"presets": entries}
+	output := map[string]any{"Presets": entries}
 
 	data, err := json.Marshal(output)
 	if err != nil {
@@ -82,6 +63,30 @@ func outputPresetsJSON() error {
 	fmt.Fprintln(os.Stdout, string(data))
 
 	return nil
+}
+
+func buildPresetEntry(name string) presetEntry {
+	linters := constants.PresetLinters[name]
+
+	linterStrs := make([]string, 0, len(linters))
+	for _, l := range linters {
+		linterStrs = append(linterStrs, string(l))
+	}
+
+	formatterStrs := []string{}
+	if formatters, ok := constants.PresetFormatters[name]; ok {
+		formatterStrs = make([]string, 0, len(formatters))
+		for _, f := range formatters {
+			formatterStrs = append(formatterStrs, string(f))
+		}
+	}
+
+	return presetEntry{
+		Name:        name,
+		Description: constants.PresetDescriptions[name],
+		Linters:     linterStrs,
+		Formatters:  formatterStrs,
+	}
 }
 
 func runListPresets(logger *log.Logger) error {
