@@ -469,3 +469,5 @@ formatters:
 issues:
   max-issues-per-linter: 100
   max-same-issues: 15
+  exclude-dirs:
+    - cmd/generate-settings # code generation tool — parses external JSON schema

@@ -8,6 +8,8 @@
 // The output file has a `//go:build generate` constraint so it does not participate
 // in normal compilation — it exists as a reference for hand-maintaining the curated
 // structs in linter_settings.go.
+//
+//nolint:all // dev tool — parses external JSON with lowercase schema keys
 package main
 
 import (
