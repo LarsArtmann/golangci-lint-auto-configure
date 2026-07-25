@@ -241,17 +241,49 @@ func (r ValidationResult) ToHealthIssues() []HealthIssue {
 
 // --- Interfaces for Testability ---
 
-// ConfigLoader defines the composite interface for loading, saving, discovering,
-// validating, inspecting, and creating golangci-lint configurations.
-type ConfigLoader interface {
+// ConfigReader loads a configuration from disk.
+type ConfigReader interface {
 	LoadConfig(path string) (*Config, error)
+}
+
+// ConfigWriter saves a configuration to disk.
+type ConfigWriter interface {
+	SaveConfig(config *Config, path string) error
+}
+
+// ConfigDiscoverer finds configuration files in the filesystem.
+type ConfigDiscoverer interface {
 	FindConfigFile(startDir string) (string, error)
 	FindOrGetDefaultConfigPath(startDir string) string
-	SaveConfig(config *Config, path string) error
+}
+
+// ConfigValidator validates a configuration's structure.
+type ConfigValidator interface {
 	ValidateConfig(config *Config) []error
+}
+
+// ConfigInspector reads linter state from a configuration.
+type ConfigInspector interface {
 	GetLintersEnabled(config *Config) []string
 	GetLintersDisabled(config *Config) []string
+}
+
+// ConfigCreator creates a default configuration.
+type ConfigCreator interface {
 	CreateDefaultConfig(ctx context.Context) *Config
+}
+
+// ConfigLoader defines the composite interface for loading, saving, discovering,
+// validating, inspecting, and creating golangci-lint configurations. Consumers
+// should depend on the narrowest sub-interface they need (ConfigReader,
+// ConfigWriter, etc.) rather than this composite when possible.
+type ConfigLoader interface {
+	ConfigReader
+	ConfigWriter
+	ConfigDiscoverer
+	ConfigValidator
+	ConfigInspector
+	ConfigCreator
 }
 
 // LinterAnalyzer defines the interface for analyzing golangci-lint configurations.

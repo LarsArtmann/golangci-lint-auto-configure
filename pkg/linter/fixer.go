@@ -9,9 +9,17 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
+// fixerConfigLoader is the narrowest interface the Fixer needs: load, save,
+// and inspect linter state. This is a subset of types.ConfigLoader.
+type fixerConfigLoader interface {
+	types.ConfigReader
+	types.ConfigWriter
+	types.ConfigInspector
+}
+
 // Fixer provides functionality to fix golangci-lint configurations.
 type Fixer struct {
-	configLoader     types.ConfigLoader
+	configLoader     fixerConfigLoader
 	analyzer         types.LinterAnalyzer
 	logger           *log.Logger
 	formatterManager *FormatterManager
@@ -20,7 +28,7 @@ type Fixer struct {
 }
 
 // NewFixer creates a new fixer.
-func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader types.ConfigLoader) *Fixer {
+func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader fixerConfigLoader) *Fixer {
 	return &Fixer{
 		configLoader:     configLoader,
 		analyzer:         analyzer,
