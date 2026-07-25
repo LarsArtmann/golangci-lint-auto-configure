@@ -35,15 +35,15 @@ Unchecked type assertions in test code are an intentional pattern: panicking on 
 
 ## b) PARTIALLY DONE / FORGOTTEN
 
-### 1. FEATURES.md is now stale — DOCUMENTATION DRIFT
+### 1. ~~FEATURES.md is now stale — DOCUMENTATION DRIFT~~ → RESOLVED
 
-**This is the main miss.** `FEATURES.md:69` reads:
+> **Resolution (2026-07-25):** FEATURES.md line 80 now correctly reads "7 linters for `_test.go`" with `forcetypeassert` in the enumeration. Fixed during the docs-health pass (commit in batch `9ff74db`→`7c02302`). The claim below is preserved for historical context.
+
+**Original claim (now resolved):** `FEATURES.md:69` read:
 
 > `| Default test exclusion rules (6 linters for _test.go) | Stable | exhaustruct, testpackage, gochecknoglobals, funlen, cyclop, goconst |`
 
-It now lists 6 linters and names them explicitly. After my change it's 7 linters and the enumeration is incomplete. **This was not updated.** The AGENTS.md explicitly warns: "Documentation drift" is a quality gate failure.
-
-**Fix needed:** Update line 69 to say "7 linters" and add `forcetypeassert` to the enumeration.
+It listed 6 linters and named them explicitly. After the forcetypeassert change it's 7 linters and the enumeration was incomplete. This was not updated at the time of writing. **The AGENTS.md explicitly warns: "Documentation drift" is a quality gate failure.** The fix was applied in the subsequent docs-health session.
 
 ### 2. Did NOT run `golangci-lint run`
 
@@ -67,7 +67,7 @@ The project uses Ginkgo BDD specs and values test coverage. No existing test ass
 
 ## c) NOT STARTED
 
-- FEATURES.md update (see above)
+- ~~FEATURES.md update~~ ✅ Done (docs-health pass, 2026-07-25)
 - BDD test for the new exclusion behavior
 - `golangci-lint run` validation
 - `nix fmt` / `nix flake check` validation
