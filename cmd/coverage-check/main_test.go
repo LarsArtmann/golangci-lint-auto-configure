@@ -13,9 +13,10 @@ func TestCoverageCheck(t *testing.T) {
 }
 
 var _ = Describe("parseTotalPercentage", func() {
-	DescribeTable("parses the total line from go tool cover output",
+	DescribeTable(
+		"parses the total line from go tool cover output",
 		func(output string, expected float64) {
-			percent, err := ParseTotalPercentage(output)
+			percent, err := parseTotalPercentage(output)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(percent).To(Equal(expected))
 		},
@@ -27,9 +28,10 @@ var _ = Describe("parseTotalPercentage", func() {
 		Entry("trailing newline absent", "total:\t\t(stats)\t42.0%", 42.0),
 	)
 
-	DescribeTable("returns an error for invalid output",
+	DescribeTable(
+		"returns an error for invalid output",
 		func(output string, expectedErr string) {
-			_, err := ParseTotalPercentage(output)
+			_, err := parseTotalPercentage(output)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(expectedErr))
 		},
@@ -40,7 +42,7 @@ var _ = Describe("parseTotalPercentage", func() {
 
 	It("handles output with only per-file lines (no total)", func() {
 		output := "github.com/foo/bar/a.go:10: FuncA\t75.0%\ngithub.com/foo/bar/b.go:5: FuncB\t80.0%\n"
-		_, err := ParseTotalPercentage(output)
+		_, err := parseTotalPercentage(output)
 		Expect(err).To(MatchError(ContainSubstring("no total line")))
 	})
 })
