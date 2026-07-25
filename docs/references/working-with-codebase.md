@@ -41,10 +41,10 @@
 
 ## Scripts Directory
 
-- `pre-commit-hook.sh`: Git pre-commit hook script (also installed by CLI command)
-- `validate_linter_doc.sh`: Validate linter documentation
-- `verify_linter_count.sh`: Verify linter count matches expectations
-- `validate_linter_data.go`: Integrity validator for linter constants (`//go:build ignore`)
+- `pre-commit-hook.sh`: Git pre-commit hook script (also installed by CLI `install-hook` command)
+- `validate_linter_data.go`: Integrity validator for linter constants (`//go:build ignore`, run manually via `go run scripts/validate_linter_data.go`). Complements the Go data integrity tests in `pkg/constants/`.
+- `validate_linter_doc.sh`: Manual utility — validates a single linter documentation file in `reports/` meets quality standards
+- `verify_linter_count.sh`: Manual utility — verifies linter count in `reports/` matches golangci-lint CLI output
 
 > **Note:** `scripts/coverage-check.sh` was replaced by `cmd/coverage-check/main.go` (portable Go program, tested via BDD specs). CI uses `go run ./cmd/coverage-check`.
 
