@@ -166,6 +166,14 @@ var _ = Describe("DefaultLinterSettings", func() {
 		Expect(ok).To(BeTrue(), "cyclop settings missing max-complexity key")
 		Expect(maxComplexity).To(Equal(12))
 	})
+
+	It("should only reference linters that exist in LinterPriorities", func() {
+		for linter := range constants.DefaultLinterSettings {
+			_, exists := constants.LinterPriorities[linter]
+			Expect(exists).
+				To(BeTrue(), "DefaultLinterSettings has entry for %q which is missing from LinterPriorities — orphaned settings are dead code", linter)
+		}
+	})
 })
 
 var _ = Describe("DefaultFormatterSettings", func() {
@@ -182,6 +190,14 @@ var _ = Describe("DefaultFormatterSettings", func() {
 		maxLen, ok := m["max-len"]
 		Expect(ok).To(BeTrue(), "golines settings missing max-len key")
 		Expect(maxLen).To(Equal(120))
+	})
+
+	It("should only reference formatters that exist in FormatterPriorities", func() {
+		for formatter := range constants.DefaultFormatterSettings {
+			_, exists := constants.FormatterPriorities[formatter]
+			Expect(exists).
+				To(BeTrue(), "DefaultFormatterSettings has entry for %q which is missing from FormatterPriorities — orphaned settings are dead code", formatter)
+		}
 	})
 })
 
