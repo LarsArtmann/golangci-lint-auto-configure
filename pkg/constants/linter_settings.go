@@ -42,6 +42,8 @@ var (
 	_ SettingsConverter = GinkgolinterSettings{}
 	_ SettingsConverter = TestifylintSettings{}
 	_ SettingsConverter = MakezeroSettings{}
+	_ SettingsConverter = FunlenSettings{}
+	_ SettingsConverter = MndSettings{}
 	_ SettingsConverter = GolinesFormatterSettings{}
 )
 
@@ -118,6 +120,19 @@ type MakezeroSettings struct {
 
 func (s MakezeroSettings) ToMap() map[string]any { return settingsToMap(s) }
 
+type FunlenSettings struct {
+	Lines      int `yaml:"lines"`
+	Statements int `yaml:"statements"`
+}
+
+func (s FunlenSettings) ToMap() map[string]any { return settingsToMap(s) }
+
+type MndSettings struct {
+	IgnoredNumbers []string `yaml:"ignored-numbers"`
+}
+
+func (s MndSettings) ToMap() map[string]any { return settingsToMap(s) }
+
 // --- Formatter Settings Structs ---
 
 type GolinesFormatterSettings struct {
@@ -172,6 +187,13 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 	},
 	"makezero": MakezeroSettings{
 		Always: true,
+	},
+	"funlen": FunlenSettings{
+		Lines:      60, //nolint:mnd // intentional default matching golangci-lint upstream
+		Statements: 40, //nolint:mnd // intentional default matching golangci-lint upstream
+	},
+	"mnd": MndSettings{
+		IgnoredNumbers: []string{"0", "1", "2", "100"},
 	},
 }
 

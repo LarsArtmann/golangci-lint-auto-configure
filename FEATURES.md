@@ -9,17 +9,17 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## CLI Commands
 
-| Feature          | Command        | Status               | Notes                                                                                          |
-| ---------------- | -------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
-| Auto-configure   | `configure`    | FULLY_FUNCTIONAL     | Enables recommended linters, applies fixes, backs up config                                    |
-| List presets     | `presets`      | FULLY_FUNCTIONAL     | Lists all presets with descriptions                                                            |
-| Analyze config   | `analyze`      | FULLY_FUNCTIONAL     | Reports missing/extra linters, supports SARIF/finding JSON                                     |
-| Validate config  | `validate`     | FULLY_FUNCTIONAL     | Checks YAML validity, supports SARIF output                                                    |
-| Generate report  | `report`       | FULLY_FUNCTIONAL     | HTML, JSON, SARIF, finding report formats                                                      |
-| Migrate v1→v2    | `migrate`      | FULLY_FUNCTIONAL     | Migrates v1 configs to v2 format                                                               |
-| Query audit log  | `audit`        | FULLY_FUNCTIONAL     | Query config-mutation ledger (`--json`, `--since`, `--linter`, `--clear`); tested in `cmd_audit_test.go` |
-| Install hook     | `install-hook` | FULLY_FUNCTIONAL     | Installs git pre-commit hook                                                                   |
-| Shell completion | `completion`   | FULLY_FUNCTIONAL     | bash, zsh, fish, powershell                                                                    |
+| Feature          | Command        | Status           | Notes                                                                                                    |
+| ---------------- | -------------- | ---------------- | -------------------------------------------------------------------------------------------------------- |
+| Auto-configure   | `configure`    | FULLY_FUNCTIONAL | Enables recommended linters, applies fixes, backs up config                                              |
+| List presets     | `presets`      | FULLY_FUNCTIONAL | Lists all presets with descriptions                                                                      |
+| Analyze config   | `analyze`      | FULLY_FUNCTIONAL | Reports missing/extra linters, supports SARIF/finding JSON                                               |
+| Validate config  | `validate`     | FULLY_FUNCTIONAL | Checks YAML validity, supports SARIF output                                                              |
+| Generate report  | `report`       | FULLY_FUNCTIONAL | HTML, JSON, SARIF, finding report formats                                                                |
+| Migrate v1→v2    | `migrate`      | FULLY_FUNCTIONAL | Migrates v1 configs to v2 format                                                                         |
+| Query audit log  | `audit`        | FULLY_FUNCTIONAL | Query config-mutation ledger (`--json`, `--since`, `--linter`, `--clear`); tested in `cmd_audit_test.go` |
+| Install hook     | `install-hook` | FULLY_FUNCTIONAL | Installs git pre-commit hook                                                                             |
+| Shell completion | `completion`   | FULLY_FUNCTIONAL | bash, zsh, fish, powershell                                                                              |
 
 ## Auto-Configuration Features
 
@@ -38,22 +38,22 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## Disable-Respect & Audit Policy
 
-| Feature                              | Status               | Notes                                                                                                                  |
-| ------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Preserve user `linters.disable`      | FULLY_FUNCTIONAL     | `repair`/`configure` never re-adds a disabled linter; orphaned settings pruned (`fixer_config.go`)                     |
-| Audit ledger (config-mutation JSONL) | FULLY_FUNCTIONAL     | Append-only `~/.cache/.../audit.jsonl`; 90-day retention; tested in `ledger_test.go`                       |
-| Disable-reason sidecar enforcement   | FULLY_FUNCTIONAL     | `.golangci-lint-auto-configure.yml` justifies disables (anti-gaming); `pkg/linter/fixer_enforce.go` + `fixer_enforce_test.go` |
-| Tool-level disabled linters exempt   | FULLY_FUNCTIONAL     | `constants.DisabledLinters`: funcorder, noinlineerr, depguard (`pkg/constants/rules.go`)                               |
+| Feature                              | Status           | Notes                                                                                                                         |
+| ------------------------------------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Preserve user `linters.disable`      | FULLY_FUNCTIONAL | `repair`/`configure` never re-adds a disabled linter; orphaned settings pruned (`fixer_config.go`)                            |
+| Audit ledger (config-mutation JSONL) | FULLY_FUNCTIONAL | Append-only `~/.cache/.../audit.jsonl`; 90-day retention; tested in `ledger_test.go`                                          |
+| Disable-reason sidecar enforcement   | FULLY_FUNCTIONAL | `.golangci-lint-auto-configure.yml` justifies disables (anti-gaming); `pkg/linter/fixer_enforce.go` + `fixer_enforce_test.go` |
+| Tool-level disabled linters exempt   | FULLY_FUNCTIONAL | `constants.DisabledLinters`: funcorder, noinlineerr, depguard (`pkg/constants/rules.go`)                                      |
 
 ## Error Handling & Exit Codes
 
-| Feature                            | Status               | Notes                                                                                                      |
-| ---------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Semantic exit codes (BSD sysexits) | FULLY_FUNCTIONAL     | via go-error-family: Rejection(1), Conflict(1), Corruption(65), Infrastructure(69)                         |
-| Error classification registry      | FULLY_FUNCTIONAL     | All sentinel errors mapped to families in `pkg/errors/classification.go`                                   |
-| `--json-errors` flag               | FULLY_FUNCTIONAL     | Structured JSON via errorfamily.JSON() (snake_case keys matching SARIF ecosystem)                          |
-| `--quiet` flag                     | FULLY_FUNCTIONAL     | Suppresses all output except errors (for CI pipelines)                                                     |
-| Exit-code test coverage            | FULLY_FUNCTIONAL     | Exit 0, 1 (Rejection), 65 (Corruption), 69 (Infrastructure) tested in `exit_code_test.go`                    |
+| Feature                            | Status           | Notes                                                                                     |
+| ---------------------------------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| Semantic exit codes (BSD sysexits) | FULLY_FUNCTIONAL | via go-error-family: Rejection(1), Conflict(1), Corruption(65), Infrastructure(69)        |
+| Error classification registry      | FULLY_FUNCTIONAL | All sentinel errors mapped to families in `pkg/errors/classification.go`                  |
+| `--json-errors` flag               | FULLY_FUNCTIONAL | Structured JSON via errorfamily.JSON() (snake_case keys matching SARIF ecosystem)         |
+| `--quiet` flag                     | FULLY_FUNCTIONAL | Suppresses all output except errors (for CI pipelines)                                    |
+| Exit-code test coverage            | FULLY_FUNCTIONAL | Exit 0, 1 (Rejection), 65 (Corruption), 69 (Infrastructure) tested in `exit_code_test.go` |
 
 ## Default Settings Injection
 

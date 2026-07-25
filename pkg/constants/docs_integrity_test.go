@@ -64,7 +64,8 @@ var _ = Describe("FEATURES.md documentation integrity", func() {
 		content = readFeaturesMD()
 	})
 
-	DescribeTable("preset linter count should match pkg/constants/presets.go",
+	DescribeTable(
+		"preset linter count should match pkg/constants/presets.go",
 		func(preset string) {
 			documented := extractPresetCount(content, preset)
 			actual := len(constants.PresetLinters[preset])

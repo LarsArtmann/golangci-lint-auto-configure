@@ -4,28 +4,16 @@ This document captures key architectural decisions made during the development o
 
 ## ADR-001: Railway-Oriented Programming with Result Types
 
-**Status:** Accepted  
+**Status:** Superseded — the `samber/mo` Result types were removed in favor of standard Go error returns. Kept as a historical record of the experiment.
 **Date:** 2026-03-26
 
 ### Context
 
-The codebase uses railway-oriented programming (ROP) patterns for handling operations that can fail. This pattern allows for clean composition of operations that may fail at any point.
+The codebase initially explored railway-oriented programming (ROP) patterns for handling operations that can fail.
 
 ### Decision
 
-We use the `samber/mo` library which provides `Result[T]` types that wrap successful values or errors. Helper functions in `pkg/types/result.go` create typed result aliases:
-
-```go
-type MigrationResultType = mo.Result[*MigrationResult]
-type ConfigResult = mo.Result[*Config]
-```
-
-Success and error helpers:
-
-```go
-func OkMigration(result *MigrationResult) MigrationResultType
-func ErrMigration(err error) MigrationResultType
-```
+We used the `samber/mo` library which provided `Result[T]` types that wrap successful values or errors. Helper functions in `pkg/types/result.go` created typed result aliases.
 
 ### Consequences
 
@@ -33,13 +21,13 @@ func ErrMigration(err error) MigrationResultType
 
 - Explicit error handling at each step
 - Composable operations
-- No nil pointer dereference panics
-- Clear success/failure paths
 
 **Negative:**
 
 - Additional verbosity in calling code
 - Learning curve for contributors unfamiliar with ROP
+
+**Superseded by:** Standard Go `(value, error)` returns — simpler, more idiomatic, and what every Go developer expects. The ROP experiment added complexity without enough benefit to justify the non-standard pattern.
 
 ---
 
@@ -58,9 +46,10 @@ Changed `MigrationResult` to have an `Error error` field with helper methods:
 
 ```go
 type MigrationResult struct {
-    FixesApplied int      `json:"fixes_applied"`
-    Message      string   `json:"message"`
-    NextSteps    []string `json:"next_steps,omitempty"`
+    FixesApplied int      // tag-free: PascalCase in JSON via json/v2
+    Message      string
+    NextSteps    []string `json:",omitempty"`
+    DryRun       bool
     Error        error    `json:"-"` // Not serialized to JSON
 }
 
@@ -200,9 +189,9 @@ func IsReportError(err error) bool
 
 ---
 
-## ADR-005: Afero Filesystem Abstraction
+## ADR-005: Filesystem Abstraction for Testability
 
-**Status:** Accepted  
+**Status:** Accepted — updated from original Afero-based design to a simpler custom interface.
 **Date:** 2026-03-26
 
 ### Context
@@ -211,22 +200,29 @@ Configuration loading and saving requires file system operations. Testing file s
 
 ### Decision
 
-Use `spf13/afero` for filesystem operations:
+Use a minimal `FS` interface (defined in `pkg/config/loader.go`) instead of a third-party filesystem library:
 
 ```go
+type FS interface {
+    ReadFile(name string) ([]byte, error)
+    WriteFile(name string, data []byte, perm os.FileMode) error
+    Stat(name string) (os.FileInfo, error)
+    MkdirAll(path string, perm os.FileMode) error
+}
+
 type Loader struct {
     logger *log.Logger
-    fs     afero.Fs
+    fs     FS
 }
 
 func NewLoader(logger *log.Logger) *Loader {
     return &Loader{
         logger: logger,
-        fs:     afero.NewOsFs(),
+        fs:     osFS{},
     }
 }
 
-func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader {
+func NewLoaderWithFS(logger *log.Logger, fs FS) *Loader {
     return &Loader{
         logger: logger,
         fs:     fs,
@@ -238,14 +234,13 @@ func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader {
 
 **Positive:**
 
-- Testable with in-memory filesystems (afero.MemMapFs)
-- Consistent filesystem abstraction
-- Easy to mock for unit tests
+- Testable with mock implementations of the `FS` interface
+- No third-party dependency — keeps the dependency tree small
+- Clear, minimal contract for what filesystem operations are needed
 
 **Negative:**
 
-- Additional dependency
-- Slight performance overhead vs direct os calls
+- Custom interface must be maintained if new fs operations are needed
 
 ---
 
@@ -263,7 +258,7 @@ Long-running operations (like fetching linter lists) should be cancellable.
 Use `context.Context` for operations that may be long-running or need cancellation:
 
 ```go
-func (l *Loader) GetAllLinterNames(ctx context.Context) ([]string, error)
+func (l *Loader) getAllLinterNames(ctx context.Context) ([]string, error)
 func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config
 func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool
 ```
@@ -341,9 +336,10 @@ Use `spf13/cobra` for CLI framework:
 ```go
 cmd := &cobra.Command{
     Use:   "configure",
-    Short: "Auto-configure golangci-lint",
+    Short: "Automatically configure and optimize golangci-lint",
     RunE: func(cmd *cobra.Command, _ []string) error {
-        return runConfigure(cmd.Context(), logger, analyzer, configLoader, priority, preset, dryRun, configPath)
+        return runConfigure(cmd.Context(), logger, analyzer, configLoader,
+            priority, preset, dryRun, configPath, check, showDiff)
     },
 }
 ```
@@ -365,28 +361,22 @@ cmd := &cobra.Command{
 
 ## Future Considerations
 
-### Potential Split of fixer.go
+### Fixer Module Split
 
-The `fixer.go` file is ~470 lines and handles multiple responsibilities:
+The fixer has already been split into focused files:
 
-- Version fixing
-- Deprecated linter handling
-- Dry-run calculations
-- Actual config application
+- `fixer.go` — core orchestration
+- `fixer_deprecated.go` — deprecated linter handling
+- `fixer_config.go` — default settings injection
+- `fixer_enforce.go` — disable-reason sidecar enforcement
+- `fixer_formatters.go` — formatter management
+- `fixer_preflight.go` — pre-flight normalization
+- `fixer_recorder.go` — change counting/recording
+- `fixer_results.go` — result aggregation
+- `fixer_audit.go` — audit ledger integration
 
-Future refactoring could extract:
+Further refinement could extract version-fixing and dry-run logic into their own files if `fixer.go` grows again.
 
-- `fixer_version.go` - version field fixing
-- `fixer_deprecated.go` - deprecated linter handling
-- `fixer_dryrun.go` - dry-run calculations
-- `fixer_apply.go` - actual application logic
+### Generic Result Types
 
-### Generic ConfigResult Types
-
-The codebase already uses `samber/mo` Result types. Further abstraction could use Go 1.18+ generics to reduce boilerplate:
-
-```go
-type ConfigResult[T any] = mo.Result[T]
-```
-
-However, the current approach with typed aliases provides sufficient type safety without complexity.
+The codebase uses standard Go `(value, error)` returns. If a structured Result type becomes beneficial for carrying warnings/counts alongside errors, a project-specific `Result[T]` type (not `samber/mo`) could be introduced — see TODO_LIST.md for the proposal.

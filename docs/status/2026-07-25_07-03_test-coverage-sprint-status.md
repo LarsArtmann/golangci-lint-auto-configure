@@ -10,18 +10,18 @@
 
 The `fixer_enforce.go` file had **zero** tests. This is the security-critical anti-gaming code path that re-enables linters disabled without justification in the policy sidecar. All 14 tests pass:
 
-| Test | What it covers |
-|------|---------------|
-| `TestIsToolLevelDisabled` (6 sub-tests) | funcorder/noinlineerr/depguard are tool-level exempt; regular linters are not |
-| `TestLoadPolicy_NoSidecar` | No sidecar → nil policy (backward compatible) |
-| `TestLoadPolicy_WithSidecar` | Valid sidecar → policy loaded, justifications parsed |
-| `TestLoadPolicy_MalformedSidecar` | Malformed YAML → nil policy + warning (not fatal) |
-| `TestEnforceDisableReasons_NoPolicy` | nil policy → no-op (returns 0) |
-| `TestEnforceDisableReasons_ReEnablesUnjustified` | Unjustified linter re-enabled, justified stays disabled, audit recorded |
-| `TestEnforceDisableReasons_ToolLevelExempt` | Tool-level disabled linters (funcorder) never re-enabled |
-| `TestEnforceDisableReasons_AllJustified` | All justified → 0 re-enables, disable list unchanged |
-| `TestEnforceDisableReasons_EmptyDisable` | Empty disable list → 0 re-enables |
-| `TestTryReEnableLinter` (3 sub-tests) | Re-enables unjustified, keeps tool-level, keeps justified |
+| Test                                             | What it covers                                                                |
+| ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `TestIsToolLevelDisabled` (6 sub-tests)          | funcorder/noinlineerr/depguard are tool-level exempt; regular linters are not |
+| `TestLoadPolicy_NoSidecar`                       | No sidecar → nil policy (backward compatible)                                 |
+| `TestLoadPolicy_WithSidecar`                     | Valid sidecar → policy loaded, justifications parsed                          |
+| `TestLoadPolicy_MalformedSidecar`                | Malformed YAML → nil policy + warning (not fatal)                             |
+| `TestEnforceDisableReasons_NoPolicy`             | nil policy → no-op (returns 0)                                                |
+| `TestEnforceDisableReasons_ReEnablesUnjustified` | Unjustified linter re-enabled, justified stays disabled, audit recorded       |
+| `TestEnforceDisableReasons_ToolLevelExempt`      | Tool-level disabled linters (funcorder) never re-enabled                      |
+| `TestEnforceDisableReasons_AllJustified`         | All justified → 0 re-enables, disable list unchanged                          |
+| `TestEnforceDisableReasons_EmptyDisable`         | Empty disable list → 0 re-enables                                             |
+| `TestTryReEnableLinter` (3 sub-tests)            | Re-enables unjustified, keeps tool-level, keeps justified                     |
 
 Style: standard `testing` (white-box `package linter` for private field access).
 
@@ -29,18 +29,18 @@ Style: standard `testing` (white-box `package linter` for private field access).
 
 The `cmd_audit.go` file had **zero** tests. All internal functions now covered:
 
-| Area | Tests |
-|------|-------|
-| `parseSinceDuration` | 8 sub-tests (empty, hours, days, minutes, composite, invalid) |
-| `shortRunID` | 3 sub-tests (full truncation, short passthrough, two-part passthrough) |
-| `entryMatchesFilters` | 6 sub-tests (no filter, linter match/mismatch, cutoff, zero cutoff) |
-| `filterAuditEntries` | 4 sub-tests (no filter, linter filter, since filter, invalid duration) |
-| `outputEntries` | 3 tests (empty, table output, JSON output with stdout capture + JSON round-trip parse) |
-| `displayAuditEntries` | 2 tests (missing ledger graceful nil, reads + filters) |
-| `clearAuditLedger` | 1 test (truncates to zero) |
-| `auditDisabled` | 3 sub-tests (default, flag, env var) |
-| `newRunLedger` | 2 tests (disabled → NoopRecorder, enabled → *Ledger) |
-| `runAuditCommand` | 1 test (clear via top-level orchestrator) |
+| Area                  | Tests                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------- |
+| `parseSinceDuration`  | 8 sub-tests (empty, hours, days, minutes, composite, invalid)                          |
+| `shortRunID`          | 3 sub-tests (full truncation, short passthrough, two-part passthrough)                 |
+| `entryMatchesFilters` | 6 sub-tests (no filter, linter match/mismatch, cutoff, zero cutoff)                    |
+| `filterAuditEntries`  | 4 sub-tests (no filter, linter filter, since filter, invalid duration)                 |
+| `outputEntries`       | 3 tests (empty, table output, JSON output with stdout capture + JSON round-trip parse) |
+| `displayAuditEntries` | 2 tests (missing ledger graceful nil, reads + filters)                                 |
+| `clearAuditLedger`    | 1 test (truncates to zero)                                                             |
+| `auditDisabled`       | 3 sub-tests (default, flag, env var)                                                   |
+| `newRunLedger`        | 2 tests (disabled → NoopRecorder, enabled → *Ledger)                                   |
+| `runAuditCommand`     | 1 test (clear via top-level orchestrator)                                              |
 
 Style: standard `testing` (white-box `package cli` for private function access).
 
@@ -48,10 +48,10 @@ Style: standard `testing` (white-box `package cli` for private function access).
 
 Previously only covered exit 0 (success) and exit 1 (invalid priority / Rejection). Added:
 
-| Test | Exit Code | Family | How triggered |
-|------|-----------|--------|---------------|
-| Infrastructure — binary not found | **69** | Infrastructure | Strip golangci-lint from PATH via `pathWithoutGolangciLint()` |
-| Corruption — unparseable version | **65** | Corruption | Fake `golangci-lint` script emitting garbage output |
+| Test                              | Exit Code | Family         | How triggered                                                 |
+| --------------------------------- | --------- | -------------- | ------------------------------------------------------------- |
+| Infrastructure — binary not found | **69**    | Infrastructure | Strip golangci-lint from PATH via `pathWithoutGolangciLint()` |
+| Corruption — unparseable version  | **65**    | Corruption     | Fake `golangci-lint` script emitting garbage output           |
 
 Helpers added: `pathWithoutGolangciLint()`, `isExecutableOnPath()`, `envWithPATH()`, `writeFakeGolangciLint()`.
 
@@ -69,15 +69,15 @@ Added Gotcha #18 documenting the `os.IsNotExist` vs `errors.Is` unwrap trap, wit
 
 ### Verification
 
-| Check | Result |
-|-------|--------|
-| `go test ./pkg/... ./internal/...` (19 packages) | **ALL PASS** |
-| `golangci-lint run ./...` | **0 issues** |
-| `go build ./...` | **OK** |
-| `gofmt -l` (changed files) | **Clean** |
-| `gofumpt -l` (changed files) | **Clean** |
-| Coverage `internal/cli` | ~11% → **27.9%** |
-| Coverage `pkg/linter` | **85.9%** |
+| Check                                            | Result           |
+| ------------------------------------------------ | ---------------- |
+| `go test ./pkg/... ./internal/...` (19 packages) | **ALL PASS**     |
+| `golangci-lint run ./...`                        | **0 issues**     |
+| `go build ./...`                                 | **OK**           |
+| `gofmt -l` (changed files)                       | **Clean**        |
+| `gofumpt -l` (changed files)                     | **Clean**        |
+| Coverage `internal/cli`                          | ~11% → **27.9%** |
+| Coverage `pkg/linter`                            | **85.9%**        |
 
 ---
 
@@ -133,6 +133,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 ## f) Up to 50 Things We Should Get Done Next
 
 ### High Impact (coverage & safety)
+
 1. Add end-to-end policy enforcement test through `FixConfig` with a real sidecar file (verify wiring, not just isolated methods)
 2. Add white-box unit tests for `cmd_validate.go` (version verify, config verify flows)
 3. Add white-box unit tests for `cmd_analyze.go` (analysis output formatting, JSON/table)
@@ -145,6 +146,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 10. Add audit subcommand binary integration tests (`audit --json`, `audit --since`, `audit --linter`, `audit --clear`)
 
 ### Test Quality
+
 11. Refactor `buildBinary()` into a `BeforeSuite`-cached build to cut CLI test suite from ~40s to ~5s
 12. Investigate wsl_v5 LSP vs CLI discrepancy — determine which is authoritative
 13. Consolidate `enforceRecorder` and `captureRecorder` into a shared test helper (possibly in a testutil package)
@@ -157,6 +159,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 20. Add test for `runAuditCommand` with `--since` filter (verify duration parsing through orchestrator)
 
 ### Policy & Enforcement
+
 21. Add test for policy enforcement in dry-run mode (should be skipped — verify no re-enables)
 22. Add test for sidecar with empty `disabled:` map (policy present, no justifications → all re-enabled)
 23. Add test for sidecar with invalid `category` value (graceful handling)
@@ -164,6 +167,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 25. Add test verifying enforcement respects tool-level disabled even when sidecar justifies them (anti-gaming: user can't justify tool-level disables)
 
 ### Audit Ledger
+
 26. Add test for audit ledger integration with `FixConfig` — verify entries written on actual config mutation
 27. Add test for 90-day retention purge triggering correctly
 28. Add test for concurrent writes to the audit ledger (mutex correctness)
@@ -171,6 +175,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 30. Add test for `audit.Clear` on non-existent file (creates empty file)
 
 ### Error Handling
+
 31. Add test for `AnalysisError` cause-chain classification (binary-not-found → Infrastructure, version-too-old → Rejection)
 32. Add test for `--json-errors` output with Infrastructure and Corruption families (verify JSON schema)
 33. Add test for `WrapClassified` with nil error (typed-nil pitfall guard)
@@ -178,6 +183,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 35. Add test for `MigrationError` always classified as Rejection regardless of cause
 
 ### Code Quality
+
 36. Run full test suite with `-race` in the Nix devShell (CGO enabled)
 37. Add `nix flake check` run to verify Nix formatting and build
 38. Verify `vendorHash` is still correct after the session (no go.mod changes, but good practice)
@@ -185,6 +191,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 40. Add benchmark tests for `filterAuditEntries` with large ledgers (1000+ entries)
 
 ### Documentation
+
 41. Update `FEATURES.md` to reflect test coverage improvements
 42. Update `TODO_LIST.md` — mark the three high-priority test tasks as done
 43. Add the `os.IsNotExist` gotcha to `docs/references/error-handling.md`
@@ -192,6 +199,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 45. Document the build-once test optimization opportunity in `TODO_LIST.md`
 
 ### Future Hardening
+
 46. Add fuzzing tests for `parseSinceDuration` (arbitrary string inputs)
 47. Add fuzzing tests for `shortRunID` (arbitrary run ID strings)
 48. Add fuzzing tests for `parseEntry` in `pkg/audit/ledger.go` (arbitrary JSONL lines)
