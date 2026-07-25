@@ -21,7 +21,7 @@ func NewFormatterManager(logger *log.Logger) *FormatterManager {
 	return &FormatterManager{logger: logger}
 }
 
-// EnableCoreFormatters enables the core formatters: gci, gofumpt, goimports.
+// EnableCoreFormatters enables the core formatters: gci, goimports, gofumpt, golines.
 func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[string], dryRun bool) int {
 	coreFormatters := constants.CoreFormatters
 	count := 0

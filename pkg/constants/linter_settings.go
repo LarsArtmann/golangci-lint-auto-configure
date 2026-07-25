@@ -228,7 +228,6 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 	},
 	"gosec": GosecSettings{
 		Excludes: []string{
-			"G104", // unhandled errors: redundant with errcheck, lower signal
 			"G304", // file path via variable: near-universal false positive for config/file loaders
 			"G115", // integer overflow conversion: noisy on legitimate casts
 		},

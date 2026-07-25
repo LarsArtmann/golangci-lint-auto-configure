@@ -40,6 +40,7 @@ Or use --preset for predefined linter sets:
   - performance: Performance optimization only
   - reference: All critical + high priority linters
   - format: Core formatters + essential linters
+  - house: Validated winning formatter stack (4 formatters)
 
 Or use --detect to automatically select a preset based on project type:`
 
@@ -97,7 +98,7 @@ func addConfigureFlags(cmd *cobra.Command, preset *string, detect, check *bool) 
 	cmd.Flags().
 		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
-		StringVar(preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance, reference, format)")
+		StringVar(preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance, reference, format, house)")
 	cmd.Flags().
 		BoolVar(detect, "detect", false, "Auto-detect project type and select appropriate preset")
 	cmd.Flags().

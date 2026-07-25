@@ -247,6 +247,14 @@ linters:
           - funlen
           - cyclop
           - goconst
+          - forcetypeassert
+          - gosec
+          - errcheck
+          - wrapcheck
+          - ireturn
+          - recvcheck
+          - contextcheck
+          - exhaustive
       - path: _test\.go
         text: unused
         linters:
