@@ -275,19 +275,25 @@ func Execute(ctx context.Context) error {
 
 // Main is the entry point.
 func Main() {
-	err := Execute(context.Background())
-	if err != nil {
-		family := errorfamily.Classify(err)
-		exitCode := errorfamily.ExitCode(err)
-
-		if jsonErrors {
-			outputJSONError(err, family, exitCode)
-		} else {
-			slog.Error("CLI execution failed", "error", err, "family", family.String())
-		}
-
-		os.Exit(exitCode)
+	if err := Execute(context.Background()); err != nil {
+		os.Exit(HandleError(err))
 	}
+}
+
+// HandleError classifies an error, outputs it in the appropriate format
+// (JSON via --json-errors, or structured slog), and returns the BSD sysexits
+// exit code. Called at the CLI boundary for all unhandled errors.
+func HandleError(err error) int {
+	family := errorfamily.Classify(err)
+	exitCode := errorfamily.ExitCode(err)
+
+	if jsonErrors {
+		outputJSONError(err, family, exitCode)
+	} else {
+		slog.Error("CLI execution failed", "error", err, "family", family.String())
+	}
+
+	return exitCode
 }
 
 func outputJSONError(err error, family errorfamily.Family, exitCode int) {
