@@ -336,7 +336,11 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 		excludesSlice, ok := excludes.([]any)
 		Expect(ok).To(BeTrue(), "gosec excludes is not []any")
 		Expect(excludesSlice).To(ContainElement(Equal("G304")))
-		Expect(excludesSlice).To(ContainElement(Equal("G104")))
+		Expect(excludesSlice).To(ContainElement(Equal("G115")))
+		// G104 (unhandled errors) is intentionally NOT excluded here —
+		// errcheck's exclude-functions handles known-benign unhandled errors
+		// surgically, while gosec catches security-relevant ones.
+		Expect(excludesSlice).ToNot(ContainElement(Equal("G104")))
 	})
 
 	It("errcheck should produce exclude-functions list", func() {

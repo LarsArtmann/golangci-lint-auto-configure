@@ -203,6 +203,11 @@ Entries older than 90 days are automatically purged. Disable the ledger with
 
 ### Disable-Reason Enforcement (Anti-Gaming)
 
+> **Note:** This feature has **0 adoption** across 160 audited sibling projects and is
+> no longer actively promoted. It remains fully functional (backward compatible).
+> For friction reduction, the preferred mechanism is `--pragmatic` (drops the 5
+> highest-noise linters from the enable set). See `ROADMAP.md` for details.
+
 To prevent AI agents from silently disabling linters to claim "0 findings,"
 create a `.golangci-lint-auto-configure.yml` sidecar file next to your
 `.golangci.yml`. When this file exists, the tool enforces that every linter in

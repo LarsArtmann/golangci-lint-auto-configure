@@ -874,7 +874,8 @@ linters:
 			Expect(err).NotTo(HaveOccurred())
 			Expect(content).To(ContainSubstring("gosec:"))
 			Expect(content).To(ContainSubstring("G304"))
-			Expect(content).To(ContainSubstring("G104"))
+			Expect(content).To(ContainSubstring("G115"))
+			Expect(content).ToNot(ContainSubstring("G104"))
 		})
 
 		It("should inject errcheck exclude-functions when errcheck is enabled without settings", func() {

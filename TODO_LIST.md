@@ -12,8 +12,6 @@ Short- and mid-term actionable work. Completed items live in `CHANGELOG.md`; lon
 | ------------------------------------------------------------------------------------------ | ---------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------- |
 | Split `cmd_configure.go` (581 lines, 8+ concerns) into focused files                       | High — largest SRP violation in the codebase         | 3–4h   | `internal/cli/cmd_configure.go` is 581 lines; fixer was already split, configure was not |
 | Extend docs-integrity test to cover ALL hardcoded counts in FEATURES.md (not just presets) | High — prevents all documentation drift              | 1h     | `pkg/constants/docs_integrity_test.go` infrastructure exists; only preset counts covered |
-| Add a separate `golangci-lint run` (no `--fix`) CI step                                    | Medium-High — catches issues BuildFlow `--fix` hides | 30min  | No `golangci-lint run` step in `.github/workflows/ci.yml`                                |
-| Reconcile funlen defaults: code injects 60/40, project config uses 30/20                   | Medium — values mismatch between tool and self       | 30min  | `pkg/constants/linter_settings.go` FunlenSettings vs `.golangci.yml` funlen config       |
 
 ## Medium Priority
 
