@@ -21,11 +21,16 @@ var _ = Describe("run (integration)", func() {
 		profilePath = filepath.Join(workDir, "coverage.out")
 
 		origDir, _ = os.Getwd()
+
 		Expect(os.Chdir(workDir)).To(Succeed())
 		DeferCleanup(func() { _ = os.Chdir(origDir) })
 
 		// Create a minimal Go module with two functions, only one tested.
-		Expect(os.WriteFile(filepath.Join(workDir, "go.mod"), []byte("module testcov\n\ngo 1.21\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(
+			filepath.Join(workDir, "go.mod"),
+			[]byte("module testcov\n\ngo 1.21\n"),
+			0o644,
+		)).To(Succeed())
 
 		Expect(os.WriteFile(filepath.Join(workDir, "cov.go"), []byte(`package testcov
 
