@@ -24,6 +24,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.LinterInfo
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -37,6 +38,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.LinterInfo
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -50,6 +52,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.FormatterInfo
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -63,6 +66,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.LinterRecommendation
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -76,6 +80,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.FormatterRecommendation
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -89,6 +94,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.LinterReplacement
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -102,6 +108,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.ValidationError
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -114,6 +121,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.ValidationError
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -128,6 +136,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.MigrationResult
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -143,6 +152,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.ValidationResult
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt).To(Equal(original))
@@ -166,6 +176,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			}
 			data, err := json.Marshal(original)
 			Expect(err).NotTo(HaveOccurred())
+
 			var rt types.ConfigAnalysis
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
 			Expect(rt.ConfigPath).To(Equal(original.ConfigPath))
@@ -191,12 +202,13 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 
 			var rt types.MigrationResult
 			Expect(json.Unmarshal(data, &rt)).To(Succeed())
-			Expect(rt.Error).To(BeNil())
+			Expect(rt.Error).ToNot(HaveOccurred())
 		})
 	})
 
 	Describe("Priority enum round-trips as integer", func() {
-		DescribeTable("preserves priority values",
+		DescribeTable(
+			"preserves priority values",
 			func(priority types.LinterPriority) {
 				rec := types.LinterRecommendation{
 					Name:     "test",

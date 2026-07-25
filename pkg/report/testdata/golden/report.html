@@ -1,0 +1,91 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>golangci-lint Configuration Report</title><style>
+				* { margin: 0; padding: 0; box-sizing: border-box; }
+				body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+				.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+				
+				/* Header */
+				.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+				.header h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+				.header p { opacity: 0.9; font-size: 0.95rem; }
+				
+				/* Summary Grid */
+				.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+				.summary-card { background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; transition: transform 0.2s; }
+				.summary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+				.summary-card .number { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+				.summary-card .label { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+				.summary-card.critical .number { color: #dc3545; }
+				.summary-card.high .number { color: #fd7e14; }
+				.summary-card.medium .number { color: #ffc107; }
+				.summary-card.optional .number { color: #17a2b8; }
+				.summary-card.enabled .number { color: #28a745; }
+				.summary-card.disabled .number { color: #6c757d; }
+				
+				/* Progress Bars */
+				.progress-container { margin-bottom: 2rem; }
+				.progress-item { display: flex; align-items: center; margin-bottom: 1rem; }
+				.progress-label { width: 120px; font-size: 0.85rem; color: #666; }
+				.progress-bar { flex: 1; height: 24px; background: #e9ecef; border-radius: 12px; overflow: hidden; margin: 0 1rem; }
+				.progress-fill { height: 100%; border-radius: 12px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 0.75rem; color: white; font-weight: 600; }
+				.progress-fill.critical { background: linear-gradient(90deg, #dc3545, #ff6b7a); }
+				.progress-fill.high { background: linear-gradient(90deg, #fd7e14, #ffb366); }
+				.progress-fill.medium { background: linear-gradient(90deg, #ffc107, #ffe066); color: #333; }
+				.progress-fill.optional { background: linear-gradient(90deg, #17a2b8, #4dd0e8); }
+				.progress-value { width: 50px; text-align: right; font-weight: 600; }
+				
+				/* Sections */
+				.section { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+				.section h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+				.section h2 .count { background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.85rem; }
+				
+				/* Linter Grid */
+				.linter-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+				.linter-card { padding: 1rem; border-radius: 8px; border-left: 4px solid; background: #f8f9fa; }
+				.linter-card.critical { border-left-color: #dc3545; background: #fff5f5; }
+				.linter-card.high { border-left-color: #fd7e14; background: #fff8f0; }
+				.linter-card.medium { border-left-color: #ffc107; background: #fffbf0; }
+				.linter-card.optional { border-left-color: #17a2b8; background: #f0fbfd; }
+				.linter-card .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.5rem; }
+				.linter-card.critical .badge { background: #dc3545; color: white; }
+				.linter-card.high .badge { background: #fd7e14; color: white; }
+				.linter-card.medium .badge { background: #ffc107; color: #212529; }
+				.linter-card.optional .badge { background: #17a2b8; color: white; }
+				.linter-card h4 { color: #333; margin-bottom: 0.5rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.95rem; }
+				.linter-card p { color: #666; font-size: 0.85rem; line-height: 1.4; }
+				
+				/* Linter Lists */
+				.linter-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+				.linter-tag { padding: 0.3rem 0.75rem; border-radius: 16px; font-size: 0.8rem; font-family: 'Monaco', 'Menlo', monospace; }
+				.linter-tag.enabled { background: #d4edda; color: #155724; }
+				.linter-tag.disabled { background: #f8d7da; color: #721c24; }
+				
+				/* Success Message */
+				.success-message { background: linear-gradient(135deg, #28a745, #34ce57); color: white; padding: 2rem; border-radius: 12px; text-align: center; }
+				.success-message h2 { color: white; border: none; margin-bottom: 0.5rem; }
+				.success-message p { opacity: 0.9; }
+				
+				/* Dark mode support */
+				@media (prefers-color-scheme: dark) {
+					body { background: #1a1a2e; color: #eaeaea; }
+					.summary-card { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+					.summary-card .label { color: #a0a0a0; }
+					.section { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+					.section h2 { color: #eaeaea; }
+					.progress-bar { background: #2d2d44; }
+					.linter-card { background: #1a1a2e; }
+					.linter-card h4 { color: #eaeaea; }
+					.linter-card p { color: #a0a0a0; }
+					.linter-card.critical { background: #3d1f1f; }
+					.linter-card.high { background: #3d2814; }
+					.linter-card.medium { background: #3d3414; }
+					.linter-card.optional { background: #142d33; }
+					.linter-tag.enabled { background: #1e4620; color: #a8daa8; }
+					.linter-tag.disabled { background: #4a1c1c; color: #f5a8a8; }
+				}
+				
+				/* Responsive */
+				@media (max-width: 600px) {
+					.summary-grid { grid-template-columns: repeat(2, 1fr); }
+					.linter-grid { grid-template-columns: 1fr; }
+				}
+			</style></head><body><div class="container"><div class="header"><h1>🔍 golangci-lint Configuration Report</h1><p>Analysis of .golangci.yml</p></div><div class="summary-grid"><div class="summary-card critical"><div class="number">1</div><div class="label">Critical</div></div><div class="summary-card high"><div class="number">1</div><div class="label">High Priority</div></div><div class="summary-card medium"><div class="number">0</div><div class="label">Medium Priority</div></div><div class="summary-card optional"><div class="number">0</div><div class="label">Optional</div></div><div class="summary-card enabled"><div class="number">2</div><div class="label">Enabled</div></div><div class="summary-card disabled"><div class="number">1</div><div class="label">Disabled</div></div></div><div class="progress-container"><div class="progress-item"><span class="progress-label">Coverage</span><div class="progress-bar"><div class="progress-fill critical" style="width:100%;">100%</div></div><span class="progress-value"></span></div></div><div class="section"><h2>🚨 Critical Linters <span class="count">1</span></h2><div class="linter-grid"><div class="linter-card critical"><span class="badge">CRITICAL</span><h4>gosec</h4><p>Inspects source code for security problems</p></div></div></div> <div class="section"><h2>⚠️ High Priority Linters <span class="count">1</span></h2><div class="linter-grid"><div class="linter-card high"><span class="badge">HIGH</span><h4>funlen</h4><p>Detect long functions</p></div></div></div> <div class="section"><h2>ℹ️ Medium Priority Linters <span class="count">0</span></h2><div class="linter-grid"></div></div> <div class="section"><h2>💡 Optional Linters <span class="count">0</span></h2><div class="linter-grid"></div></div><div class="section"><h2>✓ Enabled Linters</h2><div class="linter-list"><span class="linter-tag enabled">govet</span><span class="linter-tag enabled">errcheck</span></div></div><div class="section"><h2>✗ Disabled Linters</h2><div class="linter-list"><span class="linter-tag disabled">gosec</span></div></div></div></body></html>
