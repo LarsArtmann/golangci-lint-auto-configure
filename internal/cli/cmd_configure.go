@@ -72,6 +72,8 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 		"configure",
 		"Auto-configure golangci-lint (default command)",
 		func(cmd *cobra.Command, _ []string) error {
+			builder.Analyzer().SetPragmatic(pragmatic)
+
 			return runDetectOrConfigure(
 				cmd,
 				builder.Logger(),
@@ -102,6 +104,8 @@ func addConfigureFlags(cmd *cobra.Command, preset *string, detect, check *bool) 
 		BoolVar(check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
 	cmd.Flags().
 		BoolVar(&noAudit, "no-audit", false, "Skip writing to the audit ledger (also: "+auditEnvVar+" env var)")
+	cmd.Flags().
+		BoolVar(&pragmatic, "pragmatic", false, "Drop the 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from the enable set")
 }
 
 func runDetectOrConfigure(

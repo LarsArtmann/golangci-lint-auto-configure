@@ -408,3 +408,20 @@ var _ = Describe("DefaultExclusionRules", func() {
 		}
 	})
 })
+
+var _ = Describe("PragmaticNoiseLinters", func() {
+	It("should have a non-empty reason for every entry", func() {
+		for linter, reason := range constants.PragmaticNoiseLinters {
+			Expect(reason).
+				ToNot(BeEmpty(), "PragmaticNoiseLinters contains %q with an empty reason", linter)
+		}
+	})
+
+	It("should be disjoint from DisabledLinters", func() {
+		for linter := range constants.PragmaticNoiseLinters {
+			_, disabled := constants.DisabledLinters[linter]
+			Expect(disabled).
+				To(BeFalse(), "PragmaticNoiseLinters contains %q which is also in DisabledLinters — already permanently disabled", linter)
+		}
+	})
+})

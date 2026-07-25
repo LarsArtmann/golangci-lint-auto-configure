@@ -157,6 +157,38 @@ var _ = Describe("CategorizeLinters", func() {
 			Expect(names).NotTo(ContainElement("noinlineerr"))
 		})
 	})
+
+	Context("Pragmatic Mode", func() {
+		noiseLinterEntries := newDisabledEntries(
+			"exhaustruct", "gochecknoglobals", "wrapcheck", "ireturn", "funlen", "misspell",
+		)
+
+		It("should skip the 5 noise linters when pragmatic is enabled", func() {
+			analyzer.SetPragmatic(true)
+
+			disabledLinters := disabledLintersWith(noiseLinterEntries...)
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
+
+			Expect(names).To(ContainElement("misspell"))
+			Expect(names).NotTo(ContainElement("exhaustruct"))
+			Expect(names).NotTo(ContainElement("gochecknoglobals"))
+			Expect(names).NotTo(ContainElement("wrapcheck"))
+			Expect(names).NotTo(ContainElement("ireturn"))
+			Expect(names).NotTo(ContainElement("funlen"))
+		})
+
+		It("should keep all noise linters when pragmatic is disabled (default)", func() {
+			disabledLinters := disabledLintersWith(noiseLinterEntries...)
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
+
+			Expect(names).To(ContainElement("exhaustruct"))
+			Expect(names).To(ContainElement("gochecknoglobals"))
+			Expect(names).To(ContainElement("wrapcheck"))
+			Expect(names).To(ContainElement("ireturn"))
+			Expect(names).To(ContainElement("funlen"))
+			Expect(names).To(ContainElement("misspell"))
+		})
+	})
 })
 
 var _ = Describe("CategorizeFormatters", func() {

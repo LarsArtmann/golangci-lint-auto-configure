@@ -34,6 +34,7 @@ var (
 	showDiff     bool
 	jsonErrors   bool
 	noAudit      bool
+	pragmatic    bool
 )
 
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
