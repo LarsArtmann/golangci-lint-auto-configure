@@ -1,3 +1,12 @@
+// HTML report golden snapshot test.
+//
+// Workflow: when you change pkg/report/report.templ, the golden file will
+// fail to match. To regenerate it:
+//
+//	UPDATE_GOLDEN=1 go test ./pkg/report/...
+//
+// Then review the diff in the committed golden file (testdata/golden/report.html)
+// to ensure the change is intentional before committing.
 package report_test
 
 import (

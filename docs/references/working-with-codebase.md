@@ -44,6 +44,21 @@
 - `pre-commit-hook.sh`: Git pre-commit hook script (also installed by CLI command)
 - `validate_linter_doc.sh`: Validate linter documentation
 - `verify_linter_count.sh`: Verify linter count matches expectations
+- `validate_linter_data.go`: Integrity validator for linter constants (`//go:build ignore`)
+
+> **Note:** `scripts/coverage-check.sh` was replaced by `cmd/coverage-check/main.go` (portable Go program, tested via BDD specs). CI uses `go run ./cmd/coverage-check`.
+
+## Golden Snapshot Tests
+
+The HTML report test (`pkg/report/golden_test.go`) compares rendered output against a committed golden file (`pkg/report/testdata/golden/report.html`).
+
+When you change `pkg/report/report.templ`, the golden test will fail. To regenerate:
+
+```bash
+UPDATE_GOLDEN=1 go test ./pkg/report/...
+```
+
+Review the diff in the committed golden file before committing to ensure the change is intentional.
 
 ## Documentation
 

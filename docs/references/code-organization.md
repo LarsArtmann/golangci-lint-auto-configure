@@ -5,8 +5,10 @@
 ```
 golangci-lint-auto-configure/
 ├── cmd/
-│   └── golangci-lint-auto-configure/
-│       └── main.go                    # Entry point, sets version via ldflags
+│   ├── golangci-lint-auto-configure/
+│   │   └── main.go                    # Entry point, sets version via ldflags
+│   └── coverage-check/
+│       └── main.go                    # Coverage threshold gate (used by CI)
 ├── pkg/
 │   ├── types/                        # Core type definitions and interfaces
 │   │   ├── types.go                  # Main types: LinterPriority, Config, LinterInfo, etc.
