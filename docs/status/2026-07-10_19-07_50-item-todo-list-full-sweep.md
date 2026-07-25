@@ -250,3 +250,16 @@ I can't decide this because it depends on the user's branching strategy and whet
 ### 2. Should the `backupConfigFile` feature be behind a `--backup` flag or always-on?
 
 I implemented config backup as always-on before preset application. But some users may not want `.bak` files created in their repository (especially in CI/CD contexts where the config is regenerated each run). The alternative is making it opt-in with `--backup`. This is a product decision I can't make unilaterally — it affects user experience and backward compatibility.
+
+---
+
+## Resolution (2026-07-25)
+
+Several "open" items in this report are done:
+
+- **gosec G204 nolints** (§e#7 / §f#13): ✅ `//nolint:gosec` added (commit `8d10df5`).
+- **No test for `presets` command** (§e#1 / §f#6): ✅ `cmd_presets_test.go` + `cmd_presets_internal_test.go` exist.
+- **No test for `backupConfigFile`** (§e#2 / §f#7): ✅ 5 backup tests added (commit `8dd98da`).
+- **`--diff` / `--check` integration tests**: ✅ `cmd_diff_test.go` (`b1bde9c`) + `cmd_check_test.go` (`7bf1e2e`, all 4 planned cases).
+
+**Still genuinely open:** `--preset` combination support (§b 44); `--detect` for the format preset (§b 47); CLI coverage still ~11%. See `TODO_LIST.md`.

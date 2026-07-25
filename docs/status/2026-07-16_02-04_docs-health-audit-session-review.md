@@ -214,3 +214,12 @@ Commit `77f9fdb` included 21 files: 6 that I changed (doc fixes) + 15 that were 
 ### 3. Should the 11 July 2026 status reports be consolidated, or kept as-is?
 
 The reports cover overlapping topics (PascalCase migration in 4 reports, json/v2 in 3, go-error-family in 2). Each has a "next steps" section with heavy overlap. Now that they have retroactive banners showing current status, they're less misleading — but the duplication remains. **Should I consolidate the open items into TODO_LIST.md and ROADMAP.md, then archive the reports to `docs/archive/status/`? Or are the reports valuable as historical session records that should stay in `docs/status/`?**
+
+---
+
+## Resolution (2026-07-25)
+
+- **gosec G204 nolints** (item #20, flagged open across 5+ reports): ✅ done — `//nolint:gosec` at loader.go:247, cmd_validate.go:264, analyzer.go:325 (commit `8d10df5`).
+- **"Cut v0.3.0 release"** (item #46): ✅ overtaken — v0.3.0, v0.4.0, and v0.5.0 have all been tagged.
+- **FEATURES.md still uses "Stable" not the status vocabulary** + **ROADMAP.md missing** (§c): being fixed in the current docs-health pass (this session).
+- The July reports were **kept** in `docs/status/` as historical records; their open items are consolidated into `TODO_LIST.md` / `ROADMAP.md` (not archived).

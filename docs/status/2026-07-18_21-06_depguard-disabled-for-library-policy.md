@@ -178,3 +178,9 @@ pkg/linter/fixer_test.go                       ±32
 ## Bottom line
 
 The **code** change is correct, complete, tested, and verified. The **repo-wide consistency** follow-through was not done: FEATURES.md lies, the dogfood config contradicts the new policy, an example showcases a now-disabled linter, and a code-organization doc references a deleted type. None of that is catastrophic, but all of it is the kind of drift the project's own docs-health standards exist to prevent. I should have run `rg -i depguard` across the whole tree before declaring done.
+
+---
+
+## Resolution (2026-07-25)
+
+The depguard disable **shipped** — commit `2a59e8a` ("disable depguard linter everywhere, superseded by library-policy"). `depguard` is in `constants.DisabledLinters` with its reason string. The repo-wide drift flagged here was subsequently swept: FEATURES.md reflects the policy, and AGENTS.md gotcha #15 documents the disable-reason enforcement. No uncommitted residue remains.

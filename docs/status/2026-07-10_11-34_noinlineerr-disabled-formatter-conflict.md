@@ -206,3 +206,16 @@ Nothing. No regressions, no broken tests, no data loss. The one test failure dur
 | `pkg/linter/categorizer_test.go`       | New `linterSetLllNoinline` var + noinlineerr skip test       | +12        |
 | `pkg/linter/fixer_test.go`             | New "Disabled Linters" Context with fixer test               | +19        |
 | **Total**                              |                                                              | **+53/-3** |
+
+---
+
+## Resolution (2026-07-25)
+
+The follow-ups flagged here were resolved by the next session (`2026-07-10_14-13_DISABLED-LINTERS-REASON-UPGRADE.md`):
+
+- **DisabledLinters reason map** (the "Set has no reason" gap): ✅ upgraded `Set` → `map[LinterName]string` (commit `31df177`); reason strings now surface in fixer/categorizer logs.
+- **`scripts/validate_linter_data.go` invariant** (item f#5): ✅ added — enforces non-empty reasons + no-priority/reason-for-disabled checks.
+- **gosec G204 nolints** (items e#5/f#9): ✅ `//nolint:gosec` added (commit `8d10df5`).
+- **AGENTS.md #10** (DisabledLinters is static data): ✅ documented.
+
+**Still open:** dry-run logging inconsistency; `funcorder` test gap. See `TODO_LIST.md`.

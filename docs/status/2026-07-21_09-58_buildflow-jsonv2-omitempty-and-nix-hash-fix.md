@@ -164,3 +164,15 @@ docs/references/json-v2.md | +20 lines (omitempty-vs-omitzero subsection)
 2. **Do you want this committed, and if so as one commit or split** (fix vs docs vs the questionable analyzer.go hunk)? The working tree currently has all three bundled; I won't commit without your call.
 
 3. **Should the `config_types.go` / `migration/config_types.go` JSON tags be treated as load-bearing or vestigial?** I can grep for json marshaling call sites, but I can't determine _intent_ — whether those `json:` tags exist because config types are (or will be) serialized to JSON somewhere I haven't found, or whether they're leftover from a pre-YAML era. This decides whether items #6–#9 in the next-steps list are real bugs or non-issues.
+
+---
+
+## Resolution (2026-07-25)
+
+All three open questions were answered by the immediate follow-up report `2026-07-21_10-38_omitempty-verification-and-self-critique.md`:
+
+- **Q1 (revert analyzer.go?):** kept — parse-only, behavioral no-op, adds consistency across json-tagged bools.
+- **Q2 (commit?):** committed — the omitzero fix is in `5f4d6b1`; CHANGELOG + AGENTS.md gotcha #17 recorded in `3fec218`.
+- **Q3 (config_types.go json tags):** confirmed a **latent, non-load-bearing** follow-up — those tags only affect JSON-format config output, not the YAML default. Documented in AGENTS.md gotcha #17.
+
+`nix flake check` was subsequently run and passes.

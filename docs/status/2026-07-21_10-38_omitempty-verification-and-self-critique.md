@@ -205,3 +205,13 @@ I identified this as the biggest gap in section d. I could do it right now — i
 | Lint           | `golangci-lint run ./...`                | 0 issues          |
 
 **All gates green. The omitzero fix is verified and documented. The remaining work is the broader bug-class audit and the config_types.go design decision.**
+
+---
+
+## Resolution (2026-07-25)
+
+- **"Uncommitted doc changes"** (CHANGELOG + AGENTS.md, §c#1): ✅ committed in `3fec218`.
+- **config_types.go `bool`/`int` + `omitempty` audit (§d / Q1):** remains a **known latent follow-up**, not load-bearing — those JSON tags only affect JSON-format config output; the YAML default is unaffected. Tracked in AGENTS.md gotcha #17.
+- **Un-audited type families** (audit.Entry, JSONReport, ConfigAnalysis, HealthIssue): not load-bearing — report types are tag-free by design; audit entries are JSONL-local.
+
+The omitzero fix itself (`5f4d6b1`) is verified and all gates remain green.
