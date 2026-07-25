@@ -83,6 +83,13 @@ var DefaultExclusionRules = []types.ExclusionRuleConfig{
 			"cyclop",
 			"goconst",
 			"forcetypeassert",
+			"gosec",
+			"errcheck",
+			"wrapcheck",
+			"ireturn",
+			"recvcheck",
+			"contextcheck",
+			"exhaustive",
 		},
 	},
 	{

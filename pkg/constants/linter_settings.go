@@ -44,6 +44,8 @@ var (
 	_ SettingsConverter = MakezeroSettings{}
 	_ SettingsConverter = FunlenSettings{}
 	_ SettingsConverter = MndSettings{}
+	_ SettingsConverter = GosecSettings{}
+	_ SettingsConverter = ErrcheckSettings{}
 	_ SettingsConverter = GolinesFormatterSettings{}
 )
 
@@ -133,6 +135,18 @@ type MndSettings struct {
 
 func (s MndSettings) ToMap() map[string]any { return settingsToMap(s) }
 
+type GosecSettings struct {
+	Excludes []string `yaml:"excludes"`
+}
+
+func (s GosecSettings) ToMap() map[string]any { return settingsToMap(s) }
+
+type ErrcheckSettings struct {
+	ExcludeFunctions []string `yaml:"exclude-functions"`
+}
+
+func (s ErrcheckSettings) ToMap() map[string]any { return settingsToMap(s) }
+
 // --- Formatter Settings Structs ---
 
 type GolinesFormatterSettings struct {
@@ -206,11 +220,38 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 		Always: true,
 	},
 	"funlen": FunlenSettings{
-		Lines:      60, //nolint:mnd // intentional default matching golangci-lint upstream
-		Statements: 40, //nolint:mnd // intentional default matching golangci-lint upstream
+		Lines:      200, //nolint:mnd // house style (dominant override across sibling projects); diverges from golangci-lint upstream default
+		Statements: 100, //nolint:mnd // house style; diverges from golangci-lint upstream default
 	},
 	"mnd": MndSettings{
 		IgnoredNumbers: []string{"0", "1", "2", "100"},
+	},
+	"gosec": GosecSettings{
+		Excludes: []string{
+			"G104", // unhandled errors: redundant with errcheck, lower signal
+			"G304", // file path via variable: near-universal false positive for config/file loaders
+			"G115", // integer overflow conversion: noisy on legitimate casts
+		},
+	},
+	"errcheck": ErrcheckSettings{
+		ExcludeFunctions: []string{
+			"(*os.File).Close",
+			"(io.Closer).Close",
+			"(*sql.DB).Close",
+			"(*sql.Rows).Close",
+			"(*sql.Stmt).Close",
+			"(net.Conn).Close",
+			"(*net.TCPConn).Close",
+			"(*net.UDPConn).Close",
+			"fmt.Fprint",
+			"fmt.Fprintf",
+			"fmt.Fprintln",
+			"fmt.Print",
+			"fmt.Printf",
+			"fmt.Println",
+			"(*strings.Builder).WriteString",
+			"(*bytes.Buffer).WriteString",
+		},
 	},
 }
 
