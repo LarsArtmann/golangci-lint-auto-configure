@@ -445,6 +445,11 @@ func (l *Loader) ValidateConfig(config *Config) []error {
 		errs = append(errs, apperrors.NewConfigError("struct validation failed", "", err))
 	}
 
+	// Settings key validation — soft warnings for unknown keys
+	for _, warning := range ValidateSettingsKeys(config) {
+		l.logger.Warnf("⚠️  %s", warning)
+	}
+
 	// Additional business logic validation
 	if len(config.Linters.Enable) == 0 && len(config.Linters.Disable) == 0 && config.Linters.Default == "" {
 		l.logger.Debugf("No linter configuration specified, using defaults")
