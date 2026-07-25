@@ -75,7 +75,7 @@ var DefaultFormatterExclusionPaths = []string{
 var DefaultExclusionRules = []types.ExclusionRuleConfig{
 	{
 		Path:    `_test\.go`,
-		Linters: []string{"exhaustruct", "testpackage", "gochecknoglobals", "funlen", "cyclop", "goconst"},
+		Linters: []string{"exhaustruct", "testpackage", "gochecknoglobals", "funlen", "cyclop", "goconst", "forcetypeassert"},
 	},
 	{
 		Path:    `_test\.go`,

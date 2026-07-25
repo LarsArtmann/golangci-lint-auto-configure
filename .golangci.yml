@@ -234,6 +234,7 @@ linters:
           - testpackage
           - funlen
           - varnamelen
+          - forcetypeassert
       - path: internal/cli|examples/|cmd/|pkg/config/
         linters:
           - depguard
