@@ -24,6 +24,12 @@ type presetConfigLoader interface {
 	SaveConfig(config *types.Config, path string) error
 }
 
+// detectedExtraFormatters holds format-specific formatters detected by --detect
+// (e.g., swaggo when Swagger annotations are found). Populated by resolvePreset.
+//
+//nolint:gochecknoglobals // populated by detection, read by savePresetConfig
+var detectedExtraFormatters []string
+
 const configureLong = `Automatically configures golangci-lint by enabling recommended linters.
 
 Use --priority to filter which linters to enable (default: optional):
@@ -134,11 +140,24 @@ func runDetectOrConfigure(
 }
 
 func resolvePreset(preset string, detect bool, logger *log.Logger) string {
+	detectedExtraFormatters = nil
+
 	if !detect {
 		return preset
 	}
 
 	detector := detection.NewDetector(".")
+
+	if preset == "format" {
+		if hasSwaggo, err := detector.HasSwaggo(); err == nil && hasSwaggo {
+			detectedExtraFormatters = []string{"swaggo"}
+
+			logger.Infof("🔍 Detected swaggo usage — adding swaggo formatter to format preset")
+		}
+
+		return preset
+	}
+
 	projectType := detector.Detect()
 
 	logger.Infof("🔍 Detected project type: %s", projectType.String())
@@ -488,10 +507,7 @@ func savePresetConfig(
 	cfg.Linters.Enable = linterNames
 	cfg.Linters.Disable = []string{}
 
-	if formatters, ok := constants.PresetFormatters[preset]; ok {
-		cfg.Formatters.Enable = convertNames(formatters)
-		logger.Infof("Enabling %d formatters from preset: %v", len(formatters), formatters)
-	}
+	applyPresetFormatters(logger, cfg, preset)
 
 	generatedCount := linter.ApplyGeneratedExclusions(logger, cfg, configFile)
 	if generatedCount > 0 {
@@ -507,6 +523,19 @@ func savePresetConfig(
 	logger.Infof("✅ Applied preset %s with %d linters", preset, len(linterNames))
 
 	return nil
+}
+
+func applyPresetFormatters(logger *log.Logger, cfg *types.Config, preset string) {
+	formatters, ok := constants.PresetFormatters[preset]
+	if !ok {
+		return
+	}
+
+	formatterNames := convertNames(formatters)
+	formatterNames = append(formatterNames, detectedExtraFormatters...)
+	cfg.Formatters.Enable = formatterNames
+
+	logger.Infof("Enabling %d formatters from preset: %v", len(formatterNames), formatterNames)
 }
 
 // applyPreset applies a preset linter configuration.
