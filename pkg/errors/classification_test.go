@@ -6,6 +6,7 @@ package apperrors_test
 import (
 	stderrors "errors"
 	"fmt"
+	"os"
 	"os/exec"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -42,6 +43,8 @@ var _ = Describe("Error Classification", func() {
 		Entry("ErrVersionParse", apperrors.ErrVersionParse, errorfamily.Corruption),
 		Entry("ErrInvalidVersionFormat", apperrors.ErrInvalidVersionFormat, errorfamily.Corruption),
 		Entry("exec.ErrNotFound", exec.ErrNotFound, errorfamily.Infrastructure),
+		Entry("os.ErrNotExist", os.ErrNotExist, errorfamily.Rejection),
+		Entry("os.ErrPermission", os.ErrPermission, errorfamily.Rejection),
 	)
 
 	DescribeTable(

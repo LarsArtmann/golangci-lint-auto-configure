@@ -35,8 +35,8 @@ Objects with identity and lifecycle.
 | ---------------- | ----------------------------------------------------------------------- | --------------------------------------------- |
 | Config           | A parsed golangci-lint configuration (v1 or v2 schema)                  | `pkg/types/config_types.go` — the core domain |
 | ConfigAnalysis   | Full analysis result: enabled/disabled linters, recommendations, counts | `pkg/types/types.go`                          |
-| MigrationResult  | Outcome of a v1→v2 migration: dry-run flag, changed sections            | `pkg/types/types.go`                          |
-| ValidationResult | Outcome of config validation: valid flag, errors, warnings              | `pkg/types/types.go`                          |
+| MigrationResult  | Outcome of a v1→v2 migration: fixes applied count, message, next steps   | `pkg/types/types.go`                          |
+| ValidationResult | Outcome of config validation: valid flag, errors                        | `pkg/types/types.go`                          |
 | ConfigHealth     | Health-check result with severity-scored issues                         | `pkg/types/validation.go`                     |
 
 ## Value Objects
@@ -48,12 +48,12 @@ Immutable objects defined by attributes.
 | LinterPriority       | An int enum: Critical (0), High (1), Medium (2), Optional (3)       | `pkg/types/types.go` — branded type |
 | LinterName           | A branded string type for linter names (prevents string confusion)  | `pkg/types/types.go`                |
 | FormatterName        | A branded string type for formatter names                           | `pkg/types/types.go`                |
-| LinterRecommendation | A value: linter name, priority, reason, whether enabled             | Output of analysis, input to fixer  |
-| LinterReplacement    | A deprecated linter and its recommended successor                   | `pkg/constants/rules.go`            |
+| LinterRecommendation | A value: linter name, priority, reason                             | Output of analysis, input to fixer  |
+| LinterReplacement    | A deprecated linter and its recommended successor                   | `pkg/types/types.go`                |
 | HealthIssue          | A single config health problem with severity and message            | `pkg/types/validation.go`           |
 | HealthSeverity       | Severity level for health issues (Critical, Warning, Info)          | `pkg/types/validation.go`           |
 | GoExperiment         | A Go build experiment (arenas, jsonv2, etc.) to inject as build tag | `pkg/types/types.go`                |
-| Change               | A single diff change (addition or removal of a config line)         | `pkg/diff/differ.go`                |
+| Change               | A single diff change (addition, removal, or modification of a config line) | `pkg/diff/differ.go`                |
 | GolangciLintIssue    | A single issue from `golangci-lint run --out-format json` output    | `pkg/finding/golangci_lint.go`      |
 | Set[T]               | A generic set with full algebra (union, intersection, difference)   | `pkg/types/set.go`                  |
 
@@ -67,6 +67,7 @@ Actions the system can perform.
 | analyze      | Analyze config and report missing/extra linters (no changes) | Read-only command      |
 | validate     | Check config validity (YAML, schema, health)                 | Read-only command      |
 | report       | Generate HTML/JSON/SARIF/finding report                      | Output command         |
+| audit        | Query the config-mutation audit ledger                       | Query command          |
 | migrate      | Convert v1 config to v2 schema                               | Transformation command |
 | install-hook | Install git pre-commit hook                                  | Setup command          |
 | presets      | List all available presets with descriptions                 | Informational command  |
@@ -86,6 +87,8 @@ Subsystems with distinct vocabulary.
 | Detection      | Auto-detecting project type (CLI, Web, Library, API, Monorepo)           | `pkg/detection/`      |
 | Reporting      | Generating HTML/JSON/SARIF/finding output                                | `pkg/report/`         |
 | Error Handling | Structured error classification with BSD sysexits exit codes             | `pkg/errors/`         |
+| Audit Trail    | Append-only JSONL ledger recording every config mutation                | `pkg/audit/`           |
+| Policy         | Disable-reason sidecar enforcement (anti-gaming)                        | `pkg/policy/`          |
 | Linter Data    | Static constants: priorities, reasons, presets, deprecated mappings      | `pkg/constants/`      |
 
 ---
