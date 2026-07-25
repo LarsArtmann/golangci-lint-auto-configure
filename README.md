@@ -355,6 +355,10 @@ The `examples/` directory contains optimized configurations for different projec
 
 ## Linter Priorities
 
+The tool classifies 100+ linters into four priority levels. Below is a curated
+highlight of the most important ones. Run `golangci-lint-auto-configure analyze`
+to see the full classification for your project.
+
 ### Critical (Always Enable)
 
 Security and correctness linters that should never be disabled:
@@ -363,7 +367,15 @@ Security and correctness linters that should never be disabled:
 - `errcheck` - Unchecked error detection
 - `staticcheck` - Advanced static analysis
 - `govet` - Go vet suspicious constructs
-- `ineffassign` - Detects unused assignments
+- `musttag` - Enforces struct tags for JSON/XML/YAML marshaling
+- `noctx` - Detects functions that don't use context
+- `sloglint` - Structured logging best practices
+
+<details><summary>All 11 Critical linters</summary>
+
+`loggercheck`, `gosec`, `errcheck`, `staticcheck`, `govet`, `errchkjson`, `musttag`, `sloglint`, `nilerr`, `noctx`, `paralleltest`
+
+</details>
 
 ### High Value (Recommended)
 
@@ -372,16 +384,33 @@ Quality and maintainability linters:
 - `errorlint` - Error handling patterns
 - `exhaustive` - Enum exhaustiveness checks
 - `wrapcheck` - Error wrapping validation
+- `ineffassign` - Detects unused assignments
 - `forcetypeassert` - Detects forced type assertions
+- `revive` - Fast, configurable, extensible linter
+- `misspell` - Typos detection
+- `gocyclo` - Cyclomatic complexity
+
+<details><summary>All 50+ High value linters</summary>
+
+`wrapcheck`, `errorlint`, `prealloc`, `unconvert`, `ineffassign`, `gocyclo`, `funlen`, `cyclop`, `gocognit`, `maintidx`, `exhaustive`, `exhaustruct`, `goconst`, `misspell`, `revive`, `nolintlint`, `forcetypeassert`, `gocritic`, `unused`, `bodyclose`, `contextcheck`, `dupl`, `durationcheck`, `errname`, `gochecknoglobals`, `gochecknoinits`, `gosmopolitan`, `interfacebloat`, `nestif`, `nilnil`, `nakedret`, `predeclared`, `reassign`, `rowserrcheck`, `spancheck`, `sqlclosecheck`, `testifylint`, `thelper`, `unparam`, `wastedassign`, `copyloopvar`, `ginkgolinter`, `gochecksumtype`, `intrange`, `mirror`, `perfsprint`, `protogetter`, `usetesting`, `recvcheck`, `nilnesserr`, `zerologlint`
+
+</details>
 
 ### Medium Value (Optional)
 
 Style and consistency linters:
 
-- `gocyclo` - Cyclomatic complexity
-- `misspell` - Typos detection
-- `revive` - Fast, configurable linter
 - `varnamelen` - Variable name length rules
+- `tagliatelle` - Struct tag style enforcement
+- `mnd` - Magic number detector
+- `usestdlibvars` - Detects stdlib variable usage
+- `nonamedreturns` - Enforces named returns policy
+
+<details><summary>All 50+ Medium value linters</summary>
+
+`dupword`, `godot`, `godox`, `goheader`, `varnamelen`, `whitespace`, `wsl_v5`, `grouper`, `dogsled`, `makezero`, `asciicheck`, `bidichk`, `containedctx`, `decorder`, `forbidigo`, `godoclint`, `gomoddirectives`, `gomodguard`, `gomodguard_v2`, `ireturn`, `lll`, `mnd`, `nlreturn`, `nonamedreturns`, `promlinter`, `tagliatelle`, `testpackage`, `tparallel`, `unqueryvet`, `usestdlibvars`, `asasalint`, `canonicalheader`, `err113`, `exptostd`, `fatcontext`, `gocheckcompilerdirectives`, `goprintffuncname`, `iface`, `inamedparam`, `iotamixing`, `modernize`, `nosprintfhostport`, `tagalign`, `testableexamples`, `importas`, `arangolint`, `embeddedstructfieldcheck`, `clickhouselint`
+
+</details>
 
 ## Exclusion Patterns
 

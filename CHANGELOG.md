@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `audit` subcommand to query the config-mutation ledger (`--json`, `--since`, `--linter`, `--clear`)
 - Audit ledger: append-only JSONL record of every config mutation in the OS cache dir, with 90-day retention purge
 - Disable-reason policy enforcement via an opt-in `.golangci-lint-auto-configure.yml` sidecar (anti-gaming: re-enables linters in `linters.disable` that lack a justification entry)
+- Detection findings now aligned with the repairer's priority threshold, preventing lower-priority linters from surfacing as critical findings
 
 ### Changed
 
