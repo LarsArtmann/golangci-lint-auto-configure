@@ -97,7 +97,7 @@ nix develop
 
 19. **`--pragmatic` flag drops noise linters from the dynamic enable set.** When `--pragmatic` is passed to `configure`, the 5 highest-friction linters (`exhaustruct`, `gochecknoglobals`, `wrapcheck`, `ireturn`, `funlen` — defined in `PragmaticNoiseLinters` in `pkg/constants/rules.go`) are skipped by `shouldSkipLinter` (`pkg/linter/categorizer.go`). Off by default; default behavior is byte-identical. `gochecknoglobals` has **no config knobs** in golangci-lint v2, so `--pragmatic` is the only way to opt out without manually disabling it.
 
-20. **`house` formatter preset locks the validated formatter quadruple.** `PresetFormatters["house"]` = `{gci, goimports, gofumpt, golines}` — the winning stack across 128/160 sibling projects. `CoreFormatters` (`config.go:30`) still has only `{gci, gofumpt, goimports}` (missing `golines`) — the preset is the canonical source.
+20. **`house` formatter preset and `CoreFormatters` both lock the validated formatter quadruple.** `PresetFormatters["house"]` and `CoreFormatters` (`config.go:30`) are both `{gci, goimports, gofumpt, golines}` — the winning stack across 128/160 sibling projects. `CoreFormatters` is the runtime default for non-preset configure runs; `house` is the preset that composes it with `minimalLinters`.
 
 ## Where to Find Detail
 

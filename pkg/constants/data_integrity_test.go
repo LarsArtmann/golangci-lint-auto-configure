@@ -429,3 +429,29 @@ var _ = Describe("PragmaticNoiseLinters", func() {
 		}
 	})
 })
+
+var _ = Describe("CoreFormatters alignment", func() {
+	It("should contain exactly the validated formatter quadruple", func() {
+		Expect(constants.CoreFormatters).
+			To(Equal([]string{"gci", "goimports", "gofumpt", "golines"}))
+	})
+
+	It("should match the house preset formatters", func() {
+		houseFormatters := constants.PresetFormatters["house"]
+
+		coreSet := make(map[string]struct{}, len(constants.CoreFormatters))
+		for _, f := range constants.CoreFormatters {
+			coreSet[f] = struct{}{}
+		}
+
+		for _, f := range houseFormatters {
+			_, ok := coreSet[string(f)]
+			Expect(ok).
+				To(BeTrue(), "house preset formatter %q is missing from CoreFormatters", f)
+		}
+
+		Expect(houseFormatters).
+			To(HaveLen(len(constants.CoreFormatters)),
+				"house preset and CoreFormatters should have the same number of formatters")
+	})
+})

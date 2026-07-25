@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - `--pragmatic` flag: drops the 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from the dynamic enable set
-- `GosecSettings` typed struct with curated excludes (G104, G304, G115) — reduces gosec false-positive friction by 25%+
+- `GosecSettings` typed struct with curated excludes (G304, G115) — reduces gosec false-positive friction while preserving unhandled-error detection (errcheck handles known-benign cases surgically)
 - `ErrcheckSettings` typed struct with curated `exclude-functions` (`Close`, `fmt.Fprint*`, Builder writes) — reduces errcheck friction by 20%+
 - `forcetypeassert` added to the default `_test.go` exclusion rules
 - `gosec`, `errcheck`, `wrapcheck`, `ireturn`, `recvcheck`, `contextcheck`, `exhaustive` added to default `_test.go` exclusion rules
@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - `funlen` default thresholds changed from `60/40` to `200/100` (house style — dominant override across 160 sibling projects; diverges from golangci-lint upstream)
+- `CoreFormatters` expanded from 3 to 4 formatters (`gci`, `goimports`, `gofumpt`, `golines`) — now matches the `house` preset's validated winning stack
 - golangci-lint configuration and linter constants updated
 - Nix flake configuration and module dependencies updated
 

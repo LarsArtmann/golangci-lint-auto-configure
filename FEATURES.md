@@ -72,7 +72,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | funlen defaults (lines: 200, statements: 100)            | FULLY_FUNCTIONAL | House style; dominant override across 160 projects; diverges from upstream                                                                                      |
 | mnd defaults (ignored-numbers: 0, 1, 2, 100)             | FULLY_FUNCTIONAL | Reduces magic-number noise for common values                                                                                                                    |
 | golines formatter defaults (max-len: 120)                | FULLY_FUNCTIONAL | When enabled via lll replacement                                                                                                                                |
-| gosec defaults (G104, G304, G115 excluded)               | FULLY_FUNCTIONAL | Curated excludes for common false-positive security findings                                                                                                    |
+| gosec defaults (G304, G115 excluded)                      | FULLY_FUNCTIONAL | Curated excludes for common false-positive security findings                                                                                                    |
 | errcheck defaults (exclude-functions for Close, Fprint*) | FULLY_FUNCTIONAL | Curated exclude-functions reducing defer/fmt noise                                                                                                              |
 | output.formats initialization                            | FULLY_FUNCTIONAL | Empty map to prevent nil issues                                                                                                                                 |
 
