@@ -99,6 +99,7 @@ var _ = Describe("FEATURES.md documentation integrity", func() {
 		// The count must match len(DefaultExclusionRules[0].Linters)
 		pattern := regexp.MustCompile(`(\d+) linters for \\?_test\.go`)
 		match := pattern.FindStringSubmatch(content)
+
 		if match == nil {
 			Skip("test exclusion count not documented in FEATURES.md")
 		}
