@@ -28,23 +28,37 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
 - **`LinterMinVersions` accuracy audit** — cross-check `since` values against
   upstream golangci-lint release notes.
 - **`DeprecatedLinters` target audit** — verify every replacement points to a
-  linter that exists in the current golangci-lint v2.
+  linter that exists in the current golangci-lint v2. (Partially covered:
+  `data_integrity_test.go` checks existence in `LinterPriorities`, but not
+  accuracy against upstream.)
 
-### 3. Test depth & CI robustness
-
-- **Property-based JSON round-trip tests** — fuzz/property tests asserting
-  report types survive a marshal → unmarshal cycle with no field loss.
-- **HTML report snapshot/golden tests** — guard against silent templ regressions.
-- **CGO / `-race` in CI** — enable the race detector in the canonical CI gate.
-- **golangci-lint version pinning in CI** — match the devShell version exactly.
-
-### 4. UX & preset ergonomics
+### 3. UX & preset ergonomics
 
 - **Preset composition** — `format` duplicates `minimal`'s linter list; support
   composing presets (`format = minimal + formatters`, `--preset a --preset b`).
 - **`--detect` for the format preset** — auto-enable `swaggo` when Swagger is
   detected, mirroring the existing project-type detection.
 - **`reference+format` combined preset** — for projects that want everything.
+- **`--backup` flag decision** — always-on backup vs opt-in (product decision).
+
+### 4. Build automation & CI maturity
+
+- **CHANGELOG automation** — adopt `git-cliff` or similar to auto-generate
+  version sections from conventional commits at tag time. Eliminates the class
+  of "missing CHANGELOG entry" problems.
+- **Auto-commit hook improvement** — the auto-commit daemon mixes file types
+  into generic "docs:" commits. Either scope it to file-type-specific messages
+  or make it refuse unexpected file types.
+- **Status report lifecycle** — 100+ status reports in `docs/status/` and
+  `docs/archive/status/` are accumulating. Establish a convention: archive
+  quarterly, or keep only the latest N per month.
+
+### 5. Error handling governance
+
+- **Swallowed-error audit** — 20+ sites identified in prior reports where errors
+  are logged but not propagated. Systematic audit + fix pass.
+- **Error-code governance registry** — ~40 ad-hoc exit/error codes exist across
+  CLI commands with no central registry or test. Build a governance table.
 
 ---
 

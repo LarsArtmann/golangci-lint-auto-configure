@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint/main/schema/markdownlint-config-schema.json",
+  "config": {
+    "default": true,
+    "html": {
+      "allowed_elements": ["details", "summary"]
+    },
+    "line-length": false,
+    "no-duplicate-heading": {
+      "siblings_only": true
+    },
+    "no-bare-urls": false,
+    "first-line-heading": false,
+    "no-inline-html": false,
+    "no-trailing-spaces": {
+      "br_spaces": 0
+    },
+    "blanks-around-fences": true,
+    "blanks-around-lists": true,
+    "blanks-around-headings": true
+  },
+  "globs": ["**/*.md"],
+  "ignores": [
+    "docs/status/**",
+    "docs/archive/**",
+    "vendor/**",
+    ".direnv/**",
+    "node_modules/**",
+    "CHANGELOG.md"
+  ]
+}

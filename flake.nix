@@ -160,6 +160,7 @@
                 gotools
                 nixfmt
                 gcc
+                markdownlint-cli2
               ];
 
               env = {

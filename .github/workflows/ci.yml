@@ -26,11 +26,8 @@ permissions:
 
 jobs:
   test-and-build:
-    name: Test Go ${{ matrix.go-version }}
+    name: Test and Build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version: ["1.26"]
     env:
       GOEXPERIMENT: jsonv2
       CGO_ENABLED: 1
@@ -39,10 +36,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go ${{ matrix.go-version }}
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version-file: go.mod
           cache: true
           cache-dependency-path: go.sum
 
@@ -52,9 +49,9 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-test-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ matrix.go-version }}-
+            ${{ runner.os }}-go-test-
             ${{ runner.os }}-go-
 
       - name: Install dependencies
@@ -63,7 +60,7 @@ jobs:
       - name: Build verification
         run: |
           go build -v ./...
-          echo "✓ Build successful on Go ${{ matrix.go-version }}"
+          echo "✓ Build successful"
 
       - name: Run tests
         run: go test -v -race ./pkg/... ./internal/...
@@ -147,6 +144,16 @@ jobs:
       - name: Cache Nix store
         uses: DeterminateSystems/magic-nix-cache-action@main
 
+      - name: Check flake.lock is up to date
+        run: |
+          nix flake lock
+          if git diff --exit-code flake.lock; then
+            echo "✓ flake.lock is up to date"
+          else
+            echo "✗ flake.lock is stale — run 'nix flake lock' locally and commit"
+            exit 1
+          fi
+
       - name: Check flake
         run: nix flake check --no-build
 
@@ -202,7 +209,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Quality Checks" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ golangci-lint with comprehensive ruleset" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Build verification on all Go versions" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Build verification" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Module caching for faster builds" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✨ All checks completed successfully!" >> $GITHUB_STEP_SUMMARY
