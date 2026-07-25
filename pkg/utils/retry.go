@@ -79,6 +79,6 @@ func IsContextCanceled(err error) bool {
 		return false
 	}
 
-	//nolint:legacyerrors // errors.Is is correct here: context.Canceled and context.DeadlineExceeded are sentinel values, not types
+	// errors.Is is correct here: context.Canceled and context.DeadlineExceeded are sentinel values, not types
 	return errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded)
 }
