@@ -51,7 +51,7 @@ go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto
 ### Without Nix
 
 - **Go**: 1.26+
-- **golangci-lint**: v2.10.1+ (tool checks version automatically)
+- **golangci-lint**: v2.10.1+ minimum (v2.12.2+ recommended; tool warns if below recommended)
 - **Git**: Must run inside a git repository (for version control)
 - **ginkgo**: For running tests (`go install github.com/onsi/ginkgo/v2/ginkgo@latest`)
 - **templ**: For report template generation (`go install github.com/a-h/templ/cmd/templ@latest`)
@@ -78,15 +78,23 @@ golangci-lint-auto-configure analyze --verbose
 ```
 INFO Analyzing configuration: .golangci.yml
 
-🚨 2 CRITICAL linter(s) are disabled (should ALWAYS be enabled):
-  - musttag: Enforces struct tags for JSON/XML/YAML marshaling
-  - noctx: Check whether function uses a non-inherited context
+━━ golangci-lint Configuration ━━
 
-⚠️  1 HIGH VALUE linter(s) are disabled:
-  - exhaustruct: Check if all struct fields are initialized
+  Config: .golangci.yml
 
-Summary: Found 16 disabled linters
+✓ All recommended linters are already enabled
+━━ Summary ━━
+
+  Critical:        CRITICAL  0
+  High Priority:   HIGH      0
+  Medium Priority: MEDIUM    0
+  Optional:        OPTIONAL  0
+  Enabled:         ✓ 109
+  Disabled:        ✗ 5
 ```
+
+When issues are found, the summary shows disabled linters grouped by priority with explanations.
+(Actual output includes color coding via lipgloss.)
 
 ### SARIF Output (GitHub Code Scanning)
 
@@ -278,7 +286,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version-file: go.mod
       - name: Install golangci-lint-auto-configure
         run: go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
       - name: Check config is optimal
@@ -496,4 +504,3 @@ MIT License - see LICENSE file for details
 
 - [golangci-lint](https://github.com/golangci/golangci-lint) - The Go linters aggregator
 - [go-finding](https://github.com/LarsArtmann/go-finding) - Unified finding model and SARIF output for static analysis tools
-- [universal-workflow](https://github.com/LarsArtmann/universal-workflow) - Workflow orchestration

@@ -295,3 +295,51 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 		Expect(m["always"]).To(BeTrue())
 	})
 })
+
+var _ = Describe("DefaultExclusionRules", func() {
+	It("should reference linters that exist in LinterPriorities", func() {
+		for _, rule := range constants.DefaultExclusionRules {
+			for _, linter := range rule.Linters {
+				_, exists := constants.LinterPriorities[types.LinterName(linter)]
+				Expect(exists).
+					To(BeTrue(), "DefaultExclusionRules references %q which is missing from LinterPriorities", linter)
+			}
+		}
+	})
+
+	It("should not include any tool-level disabled linters", func() {
+		for _, rule := range constants.DefaultExclusionRules {
+			for _, linter := range rule.Linters {
+				_, disabled := constants.DisabledLinters[types.LinterName(linter)]
+				Expect(disabled).
+					To(BeFalse(), "DefaultExclusionRules includes %q which is in DisabledLinters — excluded linters should be active", linter)
+			}
+		}
+	})
+
+	It("should not have duplicate linter names within a single rule", func() {
+		for i, rule := range constants.DefaultExclusionRules {
+			seen := make(map[string]bool, len(rule.Linters))
+
+			for _, linter := range rule.Linters {
+				Expect(seen[linter]).
+					To(BeFalse(), "DefaultExclusionRules[%d] has duplicate linter %q", i, linter)
+				seen[linter] = true
+			}
+		}
+	})
+
+	It("should have a non-empty path pattern for every rule", func() {
+		for i, rule := range constants.DefaultExclusionRules {
+			Expect(rule.Path).
+				ToNot(BeEmpty(), "DefaultExclusionRules[%d] has an empty path pattern", i)
+		}
+	})
+
+	It("should have at least one linter per rule", func() {
+		for i, rule := range constants.DefaultExclusionRules {
+			Expect(rule.Linters).
+				ToNot(BeEmpty(), "DefaultExclusionRules[%d] has no linters", i)
+		}
+	})
+})
