@@ -72,31 +72,29 @@ var SwaggoPatterns = []string{
 	"swagger",
 }
 
+// coreLinters are the essential linters recommended for every project type.
+// This matches the minimalLinters set from pkg/constants/presets.go.
+var coreLinters = []string{
+	"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
+}
+
+// withCore returns a new slice containing coreLinters followed by extra.
+// Each call produces an independent slice to avoid shared backing arrays.
+func withCore(extra ...string) []string {
+	result := make([]string, 0, len(coreLinters)+len(extra))
+	result = append(result, coreLinters...)
+
+	return append(result, extra...)
+}
+
 // RecommendedLinters maps project types to their recommended linters.
 var RecommendedLinters = map[ProjectType][]string{
-	ProjectTypeCLI: {
-		"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-		"wrapcheck", "errorlint", "gocritic", "nolintlint",
-	},
-	ProjectTypeLibrary: {
-		"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-		"wrapcheck", "errorlint", "gocritic", "musttag",
-	},
-	ProjectTypeWeb: {
-		"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-		"noctx", "bodyclose", "wrapcheck", "errorlint",
-	},
-	ProjectTypeAPI: {
-		"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-		"noctx", "bodyclose", "wrapcheck", "errorlint", "musttag",
-	},
-	ProjectTypeMonorepo: {
-		"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-		"gocritic", "errorlint",
-	},
-	ProjectTypeUnknown: {
-		"gosec", "errcheck", "staticcheck", "govet", "ineffassign",
-	},
+	ProjectTypeCLI:      withCore("wrapcheck", "errorlint", "gocritic", "nolintlint"),
+	ProjectTypeLibrary:  withCore("wrapcheck", "errorlint", "gocritic", "musttag"),
+	ProjectTypeWeb:      withCore("noctx", "bodyclose", "wrapcheck", "errorlint"),
+	ProjectTypeAPI:      withCore("noctx", "bodyclose", "wrapcheck", "errorlint", "musttag"),
+	ProjectTypeMonorepo: withCore("gocritic", "errorlint"),
+	ProjectTypeUnknown:  withCore(),
 }
 
 // GetRecommendedLinters returns recommended linters for a project type.
