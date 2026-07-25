@@ -330,6 +330,7 @@ esac
 | `validate`     | Validate existing configuration                |
 | `report`       | Generate JSON/HTML/SARIF report                |
 | `audit`        | Show the audit trail of config changes         |
+| `presets`      | List all available configuration presets       |
 | `migrate`      | Migrate configuration from v1 to v2 schema     |
 | `install-hook` | Install pre-commit hook for git                |
 | `completion`   | Generate shell completion script               |

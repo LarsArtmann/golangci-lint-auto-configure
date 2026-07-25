@@ -61,7 +61,7 @@ var PresetFormatters = map[string][]types.FormatterName{
 var PresetDescriptions = map[string]string{
 	"minimal":     "Essential linters only (5 linters) - Fastest, minimal false positives",
 	"standard":    "Recommended for most projects (8 linters) - Good balance",
-	"strict":      "Maximum linting (17 linters) - CI/CD, strict code quality",
+	"strict":      "Maximum linting (20 linters) - CI/CD, strict code quality",
 	"security":    "Security-focused linters only",
 	"performance": "Performance optimization linters",
 	"reference":   "All critical + high priority linters (recommended starting point)",
