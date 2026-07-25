@@ -356,6 +356,7 @@ esac
 | `--output`        | Output path for report file                                                        |
 | `--no-auto-merge` | Disable automatic merging of multiple config files                                 |
 | `--no-audit`      | Skip writing to the audit ledger                                                   |
+| `--no-color`      | Disable colored output (also honored via NO_COLOR env var)                         |
 
 ## Project-Specific Examples
 

@@ -33,6 +33,7 @@ var (
 	noAutoMerge  bool
 	showDiff     bool
 	jsonErrors   bool
+	noColor      bool
 	noAudit      bool
 	pragmatic    bool
 )
@@ -200,6 +201,10 @@ actionable recommendations to improve your Go code quality.`,
 // based on --quiet and --verbose flags.
 func makeLogLevelConfigurer(logger *log.Logger) func(*cobra.Command, []string) {
 	return func(_ *cobra.Command, _ []string) {
+		if noColor {
+			_ = os.Setenv("NO_COLOR", "1")
+		}
+
 		switch {
 		case quiet:
 			logger.SetLevel(log.ErrorLevel)
@@ -251,6 +256,8 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 		BoolVar(&showDiff, "diff", false, "Show diff of config changes before applying")
 	rootCmd.PersistentFlags().
 		BoolVar(&jsonErrors, "json-errors", false, "Output errors as JSON to stderr for programmatic consumption")
+	rootCmd.PersistentFlags().
+		BoolVar(&noColor, "no-color", false, "Disable colored output (also honored via NO_COLOR env var)")
 }
 
 // Execute runs the CLI using fang for enhanced CLI features.
