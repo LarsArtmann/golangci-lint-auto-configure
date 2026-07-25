@@ -99,6 +99,12 @@ nix develop
 
 20. **`house` formatter preset and `CoreFormatters` both lock the validated formatter quadruple.** `PresetFormatters["house"]` and `CoreFormatters` (`config.go:30`) are both `{gci, goimports, gofumpt, golines}` — the winning stack across 128/160 sibling projects. `CoreFormatters` is the runtime default for non-preset configure runs; `house` is the preset that composes it with `minimalLinters`.
 
+21. **Golden snapshot test for HTML reports.** `pkg/report/golden_test.go` compares rendered HTML against a committed golden file (`pkg/report/testdata/golden/report.html`). When you change `pkg/report/report.templ`, the test will fail. Regenerate with `UPDATE_GOLDEN=1 go test ./pkg/report/...`, then review the diff before committing. The golden file is committed to git (not gitignored).
+
+22. **Coverage threshold gate is a Go program, not a bash script.** `cmd/coverage-check/main.go` replaces the old `scripts/coverage-check.sh`. CI runs it via `go run ./cmd/coverage-check -min=60 -profile=coverage.out`. It has BDD tests (`cmd/coverage-check/main_test.go`) for the `parseTotalPercentage` parsing logic. The old bash script was deleted — do not recreate it.
+
+23. **Markdown linting is a separate CI workflow.** `.github/workflows/markdown-lint.yml` runs `markdownlint-cli2-action` on `.md` files (excluding `docs/status/`, `docs/archive/`, `vendor/`, `CHANGELOG.md`). Config lives in `.markdownlint-cli2.jsonc` (allows `<details>`/`<summary>` HTML, disables line-length/bare-URLs rules). The main CI workflow (`ci.yml`) has `paths-ignore: **/*.md`, so markdown changes don't trigger Go CI.
+
 ## Where to Find Detail
 
 | Topic                                                  | Location                                        |
