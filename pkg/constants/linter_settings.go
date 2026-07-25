@@ -1,3 +1,5 @@
+//go:generate go run ../../cmd/generate-settings -schema=./schema/golangci-lint.jsonschema.json -output=./linter_settings_generated.go
+
 package constants
 
 import (
