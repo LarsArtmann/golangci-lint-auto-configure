@@ -96,7 +96,6 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | `reference` preset (60+ linters)                        | FULLY_FUNCTIONAL | All critical + high priority        |
 | `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters |
 | Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo    |
-| Preset combination (`--preset a --preset b`)            | PLANNED          | Currently single preset only        |
 
 ## Formatter Management
 
