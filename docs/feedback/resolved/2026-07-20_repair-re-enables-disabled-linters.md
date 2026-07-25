@@ -213,3 +213,17 @@ linter in a way that survives `repair`.
 _This feedback was generated during a Pareto execution plan session where
 the lint gate fight consumed approximately 40 minutes of debugging time
 across tasks T5, T6, and T7._
+
+---
+
+## Resolution (2026-07-25)
+
+**FIXED — option (b) shipped.** `repair`/`configure` now respects `linters.disable` and never re-adds a disabled linter to `enable`.
+
+- **Root cause fixed:** `updateConfigFromSets` (`pkg/linter/fixer_config.go`) rebuilt `linters.disable` from scratch on every run, dropping every user-disabled linter. It now preserves, dedups, and sorts the existing `disable` list. Commits `193b6b1` (preserve + audit) and `8d10df5` (policy enforcement + ledger).
+- **Orphaned settings pruned:** when a linter is disabled, its `settings.<linter>` block is removed too (so re-enabling later starts clean) — `pruneDisabledLinterSettings` in `fixer_config.go`.
+- **Anti-gaming (Pillar C):** a `.golangci-lint-auto-configure.yml` sidecar can justify intentional disables; without one, all disables are still respected (backward compatible). Tool-level disabled linters (`constants.DisabledLinters`) are always exempt.
+- **Audit ledger:** every config mutation is recorded to `~/.cache/golangci-lint-auto-configure/audit.jsonl` (query via the `audit` subcommand; disable with `--no-audit`).
+- **Documented:** AGENTS.md gotcha #15 ("Disable-reason enforcement is opt-in via sidecar").
+
+**Not implemented:** option (c) `--no-add-linters` (superseded by the disable-respect + sidecar design, which makes it unnecessary). Options (a)/(d) were overtaken by the (b) implementation.

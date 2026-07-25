@@ -3,7 +3,7 @@
 > **Date:** 2026-07-20 12:28
 > **Session driver:** Feedback `docs/feedback/new/2026-07-20_repair-re-enables-disabled-linters.md`
 > **Branch:** master
-> **Verdict:** Pillar A done & green. Pillar B partially done — **CLI is currently broken** (does not compile). Pillar C not started.
+> **Verdict:** ~~Pillar A done & green. Pillar B partially done — CLI is currently broken (does not compile). Pillar C not started.~~ **RESOLVED (2026-07-20, commit `8d10df5`):** Build fixed the same day; all three pillars shipped (disable-respect, audit ledger, policy enforcement). See the completion report `2026-07-20_22-57_disable-respect-audit-ledger-enforcement-completion.md`.
 
 ---
 

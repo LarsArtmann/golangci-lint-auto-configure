@@ -81,7 +81,7 @@ This is actually correct — runtime config must accept arbitrary user input. Bu
 
 ## d) TOTALLY FUCKED UP
 
-### 16 New Lint Issues Introduced (CRITICAL)
+### ~~16 New Lint Issues Introduced (CRITICAL)~~ — resolved (all 16 fixed; see Resolution below)
 
 Running `golangci-lint run ./pkg/constants/...` reveals **16 issues** I introduced:
 
