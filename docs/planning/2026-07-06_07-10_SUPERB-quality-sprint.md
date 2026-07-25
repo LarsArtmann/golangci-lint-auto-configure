@@ -4,26 +4,26 @@
 >
 > Sprint execution status as of 2026-07-16. Of the 18 medium-granularity tasks:
 >
-> | Task                              | Status      | Details                                                                                |
-> | --------------------------------- | ----------- | -------------------------------------------------------------------------------------- |
-> | T1: go-finding upgrade            | ✅ Done     | Now at v1.2.0 (exceeded v1.1.0 target)                                                 |
-> | T2: --diff + --check bug          | ✅ Done     | Commit c0fef0c                                                                         |
-> | T3: govulncheck CI                | ✅ Done     | CI job added                                                                           |
-> | T4: Coverage threshold            | ✅ Done     | scripts/coverage-check.sh (60%)                                                        |
-> | T5: Fuzz tests for merger         | ✅ Done     | FuzzMergeConfigInto + FuzzMergeIdempotent                                              |
-> | T6: Exit-code tests               | ⚠️ Partial  | Exit 0 and 75 tested; Infrastructure (69) and Corruption (65) still missing            |
+> | Task                              | Status            | Details                                                                                       |
+> | --------------------------------- | ----------------- | --------------------------------------------------------------------------------------------- |
+> | T1: go-finding upgrade            | ✅ Done           | Now at v1.2.0 (exceeded v1.1.0 target)                                                        |
+> | T2: --diff + --check bug          | ✅ Done           | Commit c0fef0c                                                                                |
+> | T3: govulncheck CI                | ✅ Done           | CI job added                                                                                  |
+> | T4: Coverage threshold            | ✅ Done           | scripts/coverage-check.sh (60%)                                                               |
+> | T5: Fuzz tests for merger         | ✅ Done           | FuzzMergeConfigInto + FuzzMergeIdempotent                                                     |
+> | T6: Exit-code tests               | ⚠️ Partial        | Exit 0 and 75 tested; Infrastructure (69) and Corruption (65) still missing                   |
 > | T7: --check mode tests            | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases (optimal→0, dry-run, --preset, --diff restore) |
-> | T8: --diff integration tests      | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal                          |
-> | T9: CLI coverage boost            | ⚠️ Partial  | ~11-13% (target was 25%+) — integration tests exec binary, don't count toward coverage |
-> | T10: Config.Clone()               | ✅ Done     | `pkg/types/clone.go` — 10 Clone methods                                                |
-> | T11: --json-errors flag           | ✅ Done     | Uses `errorfamily.JSON()` canonical output                                             |
-> | T12: LinterMinVersions validation | ✅ Done     | Data integrity tests added                                                             |
-> | T13: gogenfilter coverage         | ❌ Not done | Still ~63.9%                                                                           |
-> | T14: HandleError at CLI boundary  | ❌ Not done | Still uses slog.Error                                                                  |
-> | T15: DryRun on MigrationResult    | ✅ Done     | Field added                                                                            |
-> | T16: pkg/client smoke tests       | ✅ Done     | 0% → 53.2% coverage                                                                    |
-> | T17: TODO/FEATURES update         | ✅ Done     | Both kept current                                                                      |
-> | T18: Final verify                 | ✅ Done     | Build + test + lint + nix all green                                                    |
+> | T8: --diff integration tests      | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal                                  |
+> | T9: CLI coverage boost            | ⚠️ Partial        | ~11-13% (target was 25%+) — integration tests exec binary, don't count toward coverage        |
+> | T10: Config.Clone()               | ✅ Done           | `pkg/types/clone.go` — 10 Clone methods                                                       |
+> | T11: --json-errors flag           | ✅ Done           | Uses `errorfamily.JSON()` canonical output                                                    |
+> | T12: LinterMinVersions validation | ✅ Done           | Data integrity tests added                                                                    |
+> | T13: gogenfilter coverage         | ❌ Not done       | Still ~63.9%                                                                                  |
+> | T14: HandleError at CLI boundary  | ❌ Not done       | Still uses slog.Error                                                                         |
+> | T15: DryRun on MigrationResult    | ✅ Done           | Field added                                                                                   |
+> | T16: pkg/client smoke tests       | ✅ Done           | 0% → 53.2% coverage                                                                           |
+> | T17: TODO/FEATURES update         | ✅ Done           | Both kept current                                                                             |
+> | T18: Final verify                 | ✅ Done           | Build + test + lint + nix all green                                                           |
 >
 > Additional work completed beyond this plan: encoding/json v2 migration, go-error-family structured errors (131 fmt.Errorf → Wrap*), BSD sysexits exit codes, sentinel classification registry, presets command, DisabledLinters as map[LinterName]string. Current open items: `TODO_LIST.md`.
 

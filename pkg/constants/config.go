@@ -74,8 +74,16 @@ var DefaultFormatterExclusionPaths = []string{
 // These suppress linters that are noisy or inappropriate in test files.
 var DefaultExclusionRules = []types.ExclusionRuleConfig{
 	{
-		Path:    `_test\.go`,
-		Linters: []string{"exhaustruct", "testpackage", "gochecknoglobals", "funlen", "cyclop", "goconst", "forcetypeassert"},
+		Path: `_test\.go`,
+		Linters: []string{
+			"exhaustruct",
+			"testpackage",
+			"gochecknoglobals",
+			"funlen",
+			"cyclop",
+			"goconst",
+			"forcetypeassert",
+		},
 	},
 	{
 		Path:    `_test\.go`,

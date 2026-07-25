@@ -4,19 +4,19 @@
 >
 > Since this report, the following loose ends have been resolved:
 >
-> | Item                                 | Status        | Details                                                                     |
-> | ------------------------------------ | ------------- | --------------------------------------------------------------------------- |
-> | `.buildflow.yml` committed           | ✅ Done       | Tracked in git                                                              |
-> | Temp debug files (/tmp/jsontest*.go) | ✅ Done       | Cleaned up                                                                  |
-> | GOEXPERIMENT in GitHub Actions       | ✅ Done       | ci.yml (test-and-build, lint, govulncheck) + release.yml                    |
-> | GOEXPERIMENT in shellHook echo       | ✅ Done       | Visible in devShell banner                                                  |
-> | CONTRIBUTING.md rewritten            | ✅ Done       | GOEXPERIMENT prerequisites + setup                                          |
-> | `docs/references/json-v2.md` created | ✅ Done       | Full reference doc                                                          |
-> | integrations.md wire-format section  | ✅ Done       | Wire→Report conversion table                                                |
-> | FEATURES.md json/v2 row              | ✅ Done       | Added to Build & CI table                                                   |
-> | Dedicated wire-format unit tests     | ❌ Not done   | `golangciLinterEntry`/`golangciFormatterEntry` still only indirectly tested |
+> | Item                                 | Status            | Details                                                                       |
+> | ------------------------------------ | ----------------- | ----------------------------------------------------------------------------- |
+> | `.buildflow.yml` committed           | ✅ Done           | Tracked in git                                                                |
+> | Temp debug files (/tmp/jsontest*.go) | ✅ Done           | Cleaned up                                                                    |
+> | GOEXPERIMENT in GitHub Actions       | ✅ Done           | ci.yml (test-and-build, lint, govulncheck) + release.yml                      |
+> | GOEXPERIMENT in shellHook echo       | ✅ Done           | Visible in devShell banner                                                    |
+> | CONTRIBUTING.md rewritten            | ✅ Done           | GOEXPERIMENT prerequisites + setup                                            |
+> | `docs/references/json-v2.md` created | ✅ Done           | Full reference doc                                                            |
+> | integrations.md wire-format section  | ✅ Done           | Wire→Report conversion table                                                  |
+> | FEATURES.md json/v2 row              | ✅ Done           | Added to Build & CI table                                                     |
+> | Dedicated wire-format unit tests     | ❌ Not done       | `golangciLinterEntry`/`golangciFormatterEntry` still only indirectly tested   |
 > | gosec G204 nolints                   | ✅ Done (8d10df5) | `//nolint:gosec` added at loader.go:247, cmd_validate.go:264, analyzer.go:325 |
-> | Convert helpers to generics          | ❌ Not done   | `convertLinters`/`convertFormatters` still duplicated                       |
+> | Convert helpers to generics          | ❌ Not done       | `convertLinters`/`convertFormatters` still duplicated                         |
 >
 > This migration is fully complete and verified — BuildFlow 44/44, nix flake check passes, all 16 test packages green. Current open items: `TODO_LIST.md`.
 

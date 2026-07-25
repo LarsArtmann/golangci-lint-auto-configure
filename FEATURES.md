@@ -9,80 +9,80 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## CLI Commands
 
-| Feature          | Command        | Status              | Notes                                                       |
-| ---------------- | -------------- | ------------------- | ----------------------------------------------------------- |
-| Auto-configure   | `configure`    | FULLY_FUNCTIONAL    | Enables recommended linters, applies fixes, backs up config |
-| List presets     | `presets`      | FULLY_FUNCTIONAL    | Lists all presets with descriptions                         |
-| Analyze config   | `analyze`      | FULLY_FUNCTIONAL    | Reports missing/extra linters, supports SARIF/finding JSON  |
-| Validate config  | `validate`     | FULLY_FUNCTIONAL    | Checks YAML validity, supports SARIF output                 |
-| Generate report  | `report`       | FULLY_FUNCTIONAL    | HTML, JSON, SARIF, finding report formats                   |
-| Migrate v1→v2    | `migrate`      | FULLY_FUNCTIONAL    | Migrates v1 configs to v2 format                            |
+| Feature          | Command        | Status               | Notes                                                                                          |
+| ---------------- | -------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
+| Auto-configure   | `configure`    | FULLY_FUNCTIONAL     | Enables recommended linters, applies fixes, backs up config                                    |
+| List presets     | `presets`      | FULLY_FUNCTIONAL     | Lists all presets with descriptions                                                            |
+| Analyze config   | `analyze`      | FULLY_FUNCTIONAL     | Reports missing/extra linters, supports SARIF/finding JSON                                     |
+| Validate config  | `validate`     | FULLY_FUNCTIONAL     | Checks YAML validity, supports SARIF output                                                    |
+| Generate report  | `report`       | FULLY_FUNCTIONAL     | HTML, JSON, SARIF, finding report formats                                                      |
+| Migrate v1→v2    | `migrate`      | FULLY_FUNCTIONAL     | Migrates v1 configs to v2 format                                                               |
 | Query audit log  | `audit`        | PARTIALLY_FUNCTIONAL | Query config-mutation ledger (`--json`, `--since`, `--linter`, `--clear`); **zero unit tests** |
-| Install hook     | `install-hook` | FULLY_FUNCTIONAL    | Installs git pre-commit hook                                |
-| Shell completion | `completion`   | FULLY_FUNCTIONAL    | bash, zsh, fish, powershell                                 |
+| Install hook     | `install-hook` | FULLY_FUNCTIONAL     | Installs git pre-commit hook                                                                   |
+| Shell completion | `completion`   | FULLY_FUNCTIONAL     | bash, zsh, fish, powershell                                                                    |
 
 ## Auto-Configuration Features
 
-| Feature                                               | Status           | Notes                                                                     |
-| ----------------------------------------------------- | ---------------- | ------------------------------------------------------------------------- |
+| Feature                                                | Status           | Notes                                                                     |
+| ------------------------------------------------------ | ---------------- | ------------------------------------------------------------------------- |
 | Linter priority system (Critical/High/Medium/Optional) | FULLY_FUNCTIONAL | `pkg/constants/linter_priorities.go` + `linter_reasons.go`                |
-| Priority-based filtering (`--priority`)               | FULLY_FUNCTIONAL | configure command                                                         |
-| Dry-run mode (`--dry-run`)                            | FULLY_FUNCTIONAL | Shows what would change                                                   |
-| CI check mode (`--check`)                             | FULLY_FUNCTIONAL | Exit 0 if optimal, exit 1 if changes needed                               |
-| Diff preview (`--diff`)                               | FULLY_FUNCTIONAL | Shows config diff before applying (threaded as parameter, not global var) |
-| Deprecated linter auto-replacement                    | FULLY_FUNCTIONAL | wsl→wsl_v5, gomodguard→gomodguard_v2, etc.                                |
-| Version-gated deprecation                             | FULLY_FUNCTIONAL | gomodguard_v2 requires v2.12.0+                                           |
-| Typecheck linter removal                              | FULLY_FUNCTIONAL | Removes from enable/disable lists                                         |
-| Invalid duration fix                                  | FULLY_FUNCTIONAL | Fixes empty/invalid timeout values                                        |
-| Multiple binary detection                             | FULLY_FUNCTIONAL | Warns if multiple golangci-lint binaries                                  |
+| Priority-based filtering (`--priority`)                | FULLY_FUNCTIONAL | configure command                                                         |
+| Dry-run mode (`--dry-run`)                             | FULLY_FUNCTIONAL | Shows what would change                                                   |
+| CI check mode (`--check`)                              | FULLY_FUNCTIONAL | Exit 0 if optimal, exit 1 if changes needed                               |
+| Diff preview (`--diff`)                                | FULLY_FUNCTIONAL | Shows config diff before applying (threaded as parameter, not global var) |
+| Deprecated linter auto-replacement                     | FULLY_FUNCTIONAL | wsl→wsl_v5, gomodguard→gomodguard_v2, etc.                                |
+| Version-gated deprecation                              | FULLY_FUNCTIONAL | gomodguard_v2 requires v2.12.0+                                           |
+| Typecheck linter removal                               | FULLY_FUNCTIONAL | Removes from enable/disable lists                                         |
+| Invalid duration fix                                   | FULLY_FUNCTIONAL | Fixes empty/invalid timeout values                                        |
+| Multiple binary detection                              | FULLY_FUNCTIONAL | Warns if multiple golangci-lint binaries                                  |
 
 ## Disable-Respect & Audit Policy
 
-| Feature                                          | Status              | Notes                                                                                          |
-| ------------------------------------------------ | ------------------- | ---------------------------------------------------------------------------------------------- |
-| Preserve user `linters.disable`                 | FULLY_FUNCTIONAL    | `repair`/`configure` never re-adds a disabled linter; orphaned settings pruned (`fixer_config.go`) |
-| Audit ledger (config-mutation JSONL)            | PARTIALLY_FUNCTIONAL | Append-only `~/.cache/.../audit.jsonl`; 90-day retention; **no tests around ledger write paths** |
-| Disable-reason sidecar enforcement              | PARTIALLY_FUNCTIONAL | `.golangci-lint-auto-configure.yml` justifies disables (anti-gaming); `pkg/linter/fixer_enforce.go` **has zero tests** |
-| Tool-level disabled linters exempt              | FULLY_FUNCTIONAL    | `constants.DisabledLinters`: funcorder, noinlineerr, depguard (`pkg/constants/rules.go`)        |
+| Feature                              | Status               | Notes                                                                                                                  |
+| ------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Preserve user `linters.disable`      | FULLY_FUNCTIONAL     | `repair`/`configure` never re-adds a disabled linter; orphaned settings pruned (`fixer_config.go`)                     |
+| Audit ledger (config-mutation JSONL) | PARTIALLY_FUNCTIONAL | Append-only `~/.cache/.../audit.jsonl`; 90-day retention; **no tests around ledger write paths**                       |
+| Disable-reason sidecar enforcement   | PARTIALLY_FUNCTIONAL | `.golangci-lint-auto-configure.yml` justifies disables (anti-gaming); `pkg/linter/fixer_enforce.go` **has zero tests** |
+| Tool-level disabled linters exempt   | FULLY_FUNCTIONAL     | `constants.DisabledLinters`: funcorder, noinlineerr, depguard (`pkg/constants/rules.go`)                               |
 
 ## Error Handling & Exit Codes
 
-| Feature                            | Status              | Notes                                                                              |
-| ---------------------------------- | ------------------- | ---------------------------------------------------------------------------------- |
-| Semantic exit codes (BSD sysexits) | FULLY_FUNCTIONAL    | via go-error-family: Rejection(1), Conflict(1), Corruption(65), Infrastructure(69) |
-| Error classification registry      | FULLY_FUNCTIONAL    | All sentinel errors mapped to families in `pkg/errors/classification.go`           |
-| `--json-errors` flag               | FULLY_FUNCTIONAL    | Structured JSON via errorfamily.JSON() (snake_case keys matching SARIF ecosystem)  |
-| `--quiet` flag                     | FULLY_FUNCTIONAL    | Suppresses all output except errors (for CI pipelines)                             |
+| Feature                            | Status               | Notes                                                                                                      |
+| ---------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Semantic exit codes (BSD sysexits) | FULLY_FUNCTIONAL     | via go-error-family: Rejection(1), Conflict(1), Corruption(65), Infrastructure(69)                         |
+| Error classification registry      | FULLY_FUNCTIONAL     | All sentinel errors mapped to families in `pkg/errors/classification.go`                                   |
+| `--json-errors` flag               | FULLY_FUNCTIONAL     | Structured JSON via errorfamily.JSON() (snake_case keys matching SARIF ecosystem)                          |
+| `--quiet` flag                     | FULLY_FUNCTIONAL     | Suppresses all output except errors (for CI pipelines)                                                     |
 | Exit-code test coverage            | PARTIALLY_FUNCTIONAL | Exit 0 + exit 1 (invalid priority) + JSON tested; Infrastructure (69) & Corruption (65) paths **untested** |
 
 ## Default Settings Injection
 
-| Feature                                                | Status           | Notes                                                     |
-| ------------------------------------------------------ | ---------------- | --------------------------------------------------------- |
-| Typed settings structs (SettingsConverter interface)   | FULLY_FUNCTIONAL | Compile-time safety in `pkg/constants/linter_settings.go` |
+| Feature                                                | Status           | Notes                                                                      |
+| ------------------------------------------------------ | ---------------- | -------------------------------------------------------------------------- |
+| Typed settings structs (SettingsConverter interface)   | FULLY_FUNCTIONAL | Compile-time safety in `pkg/constants/linter_settings.go`                  |
 | depguard defaults ($gostd, $module)                    | FULLY_FUNCTIONAL | Prevents deny-all default (depguard now tool-disabled; kept for reference) |
-| ireturn defaults (error, empty, anon, stdlib, generic) | FULLY_FUNCTIONAL | Reasonable interface return policy                        |
-| gocritic defaults (ifElseChain disabled)               | FULLY_FUNCTIONAL | Removes noisy checks                                      |
-| exhaustruct defaults (os/exec.Cmd excluded)            | FULLY_FUNCTIONAL | Common struct exemption                                   |
-| revive defaults (exported, package-comments disabled)  | FULLY_FUNCTIONAL | Noisy without config                                      |
-| varnamelen defaults (short names, ignore flags)        | FULLY_FUNCTIONAL | Common short variable exemptions                          |
-| gomoddirectives defaults (replace-local: true)         | FULLY_FUNCTIONAL | Local dev support                                         |
-| cyclop defaults (max-complexity: 12)                   | FULLY_FUNCTIONAL | Reasonable complexity threshold                           |
-| golines formatter defaults (max-len: 120)              | FULLY_FUNCTIONAL | When enabled via lll replacement                          |
-| output.formats initialization                          | FULLY_FUNCTIONAL | Empty map to prevent nil issues                           |
+| ireturn defaults (error, empty, anon, stdlib, generic) | FULLY_FUNCTIONAL | Reasonable interface return policy                                         |
+| gocritic defaults (ifElseChain disabled)               | FULLY_FUNCTIONAL | Removes noisy checks                                                       |
+| exhaustruct defaults (os/exec.Cmd excluded)            | FULLY_FUNCTIONAL | Common struct exemption                                                    |
+| revive defaults (exported, package-comments disabled)  | FULLY_FUNCTIONAL | Noisy without config                                                       |
+| varnamelen defaults (short names, ignore flags)        | FULLY_FUNCTIONAL | Common short variable exemptions                                           |
+| gomoddirectives defaults (replace-local: true)         | FULLY_FUNCTIONAL | Local dev support                                                          |
+| cyclop defaults (max-complexity: 12)                   | FULLY_FUNCTIONAL | Reasonable complexity threshold                                            |
+| golines formatter defaults (max-len: 120)              | FULLY_FUNCTIONAL | When enabled via lll replacement                                           |
+| output.formats initialization                          | FULLY_FUNCTIONAL | Empty map to prevent nil issues                                            |
 
 ## Exclusion Automation
 
-| Feature                                                         | Status           | Notes                                                                     |
-| --------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------- |
-| Default linter exclusion paths (\_templ.go$, .gen.go$, vendor/) | FULLY_FUNCTIONAL | Always injected                                                           |
-| Default formatter exclusion paths (\_templ.go$)                 | FULLY_FUNCTIONAL | Always injected                                                           |
+| Feature                                                         | Status           | Notes                                                                                |
+| --------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------ |
+| Default linter exclusion paths (\_templ.go$, .gen.go$, vendor/) | FULLY_FUNCTIONAL | Always injected                                                                      |
+| Default formatter exclusion paths (\_templ.go$)                 | FULLY_FUNCTIONAL | Always injected                                                                      |
 | Default test exclusion rules (7 linters for \_test.go)          | FULLY_FUNCTIONAL | exhaustruct, testpackage, gochecknoglobals, funlen, cyclop, goconst, forcetypeassert |
-| Default unused text exclusion for test files                    | FULLY_FUNCTIONAL | Suppresses unused false positives in tests                                |
-| `generated: lax` auto-set                                       | FULLY_FUNCTIONAL | Both linters and formatters                                               |
-| gogenfilter dynamic scan                                        | FULLY_FUNCTIONAL | Detects templ, protobuf, wire, moq, mockgen, stringer, sqlc, oapi-codegen |
-| gogenfilter/v3 two-phase detection                              | FULLY_FUNCTIONAL | Filename first, content second                                            |
-| Deduplication of exclusion paths                                | FULLY_FUNCTIONAL | MergeExclusionPaths                                                       |
+| Default unused text exclusion for test files                    | FULLY_FUNCTIONAL | Suppresses unused false positives in tests                                           |
+| `generated: lax` auto-set                                       | FULLY_FUNCTIONAL | Both linters and formatters                                                          |
+| gogenfilter dynamic scan                                        | FULLY_FUNCTIONAL | Detects templ, protobuf, wire, moq, mockgen, stringer, sqlc, oapi-codegen            |
+| gogenfilter/v3 two-phase detection                              | FULLY_FUNCTIONAL | Filename first, content second                                                       |
+| Deduplication of exclusion paths                                | FULLY_FUNCTIONAL | MergeExclusionPaths                                                                  |
 
 ## Presets
 

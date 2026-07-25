@@ -4,23 +4,23 @@
 >
 > Items from this report's "25 things to do next" have the following status:
 >
-> | #   | Item                                           | Status      | Details                                                                                |
-> | --- | ---------------------------------------------- | ----------- | -------------------------------------------------------------------------------------- |
-> | 1   | Fix showDiff package variable → parameter      | ✅ Done     | Threaded through 7 functions; ADR-005 written                                          |
-> | 2   | Fuzz test for pkg/config/merger.go             | ✅ Done     | FuzzMergeConfigInto + FuzzMergeIdempotent                                              |
-> | 3   | Unit tests for cmd_configure.go                | ⚠️ Partial  | `internal/cli/configure_unit_test.go` added (10 tests); CLI coverage ~13% (target 30%) |
-> | 4   | Fix nixfmt-standalone in devShell              | ✅ Done     | `.buildflow.yml` skips it                                                              |
-> | 5   | --diff integration tests                       | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal                          |
-> | 6   | --check mode tests                             | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases                                       |
-> | 7   | Branded type for configPath                    | ❌ Not done | Still stringly-typed                                                                   |
-> | 8   | gogenfilter coverage 63.9% → 80%               | ❌ Not done | Still ~63.9%                                                                           |
-> | 9   | Result type for CLI commands                   | ❌ Not done | Commands return `error` only                                                           |
-> | 10  | --json-errors: snake_case                      | ✅ Done     | Switched to `errorfamily.JSON()` canonical snake_case                                  |
-> | 11  | Convert coverage-check.sh to Go test           | ❌ Not done |
-> | 12  | HandleError at CLI boundary                    | ❌ Not done |
-> | 13  | Rewrite Pareto plan as HTML                    | ❌ Not done | Left as Markdown                                                                       |
-> | 14  | AGENTS.md gotcha cleanup                       | ✅ Done     | Multiple gotchas updated across sessions                                               |
-> | 15  | go-error-family Error.JSON() for --json-errors | ✅ Done     | `classified.JSON()` used in commands.go                                                |
+> | #   | Item                                           | Status            | Details                                                                                |
+> | --- | ---------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------- |
+> | 1   | Fix showDiff package variable → parameter      | ✅ Done           | Threaded through 7 functions; ADR-005 written                                          |
+> | 2   | Fuzz test for pkg/config/merger.go             | ✅ Done           | FuzzMergeConfigInto + FuzzMergeIdempotent                                              |
+> | 3   | Unit tests for cmd_configure.go                | ⚠️ Partial        | `internal/cli/configure_unit_test.go` added (10 tests); CLI coverage ~13% (target 30%) |
+> | 4   | Fix nixfmt-standalone in devShell              | ✅ Done           | `.buildflow.yml` skips it                                                              |
+> | 5   | --diff integration tests                       | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal                           |
+> | 6   | --check mode tests                             | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases                                         |
+> | 7   | Branded type for configPath                    | ❌ Not done       | Still stringly-typed                                                                   |
+> | 8   | gogenfilter coverage 63.9% → 80%               | ❌ Not done       | Still ~63.9%                                                                           |
+> | 9   | Result type for CLI commands                   | ❌ Not done       | Commands return `error` only                                                           |
+> | 10  | --json-errors: snake_case                      | ✅ Done           | Switched to `errorfamily.JSON()` canonical snake_case                                  |
+> | 11  | Convert coverage-check.sh to Go test           | ❌ Not done       |
+> | 12  | HandleError at CLI boundary                    | ❌ Not done       |
+> | 13  | Rewrite Pareto plan as HTML                    | ❌ Not done       | Left as Markdown                                                                       |
+> | 14  | AGENTS.md gotcha cleanup                       | ✅ Done           | Multiple gotchas updated across sessions                                               |
+> | 15  | go-error-family Error.JSON() for --json-errors | ✅ Done           | `classified.JSON()` used in commands.go                                                |
 >
 > The nixfmt-standalone issue (#g1, root cause of all --no-verify bypasses) is resolved via `.buildflow.yml` skip. Current open items: `TODO_LIST.md`.
 

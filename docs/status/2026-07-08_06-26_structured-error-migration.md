@@ -4,17 +4,17 @@
 >
 > Since this report, the following items from "50 things to do next" have been resolved:
 >
-> | Item                                         | Status        | Details                                                                     |
-> | -------------------------------------------- | ------------- | --------------------------------------------------------------------------- |
-> | Commit the work                              | ✅ Done       | Commit a8ff465                                                              |
-> | nix build verification                       | ✅ Done       | Passes with GOEXPERIMENT=jsonv2                                             |
-> | AGENTS.md structured error docs              | ✅ Done       | Gotcha #5 documents WrapClassified + classification                         |
-> | encoding/json v1 → v2                        | ✅ Done       | Full migration with GOEXPERIMENT=jsonv2                                     |
-> | go-error-family upgraded                     | ✅ Done       | Now v0.7.0 (was v0.6.1 at report time)                                      |
-> | Exit-code integration tests                  | ⚠️ Partial    | Exit 0 and 75 tested; 69 (Infrastructure) and 65 (Corruption) still missing |
-> | Error code governance (registry, convention) | ❌ Not done   | ~40 unique codes exist ad-hoc, no registry or test                          |
-> | Split cmd_configure.go (541 lines)           | ❌ Not done   | File still large                                                            |
-> | Split ConfigLoader God Object                | ❌ Not done   | 8-method interface unchanged                                                |
+> | Item                                         | Status            | Details                                                                       |
+> | -------------------------------------------- | ----------------- | ----------------------------------------------------------------------------- |
+> | Commit the work                              | ✅ Done           | Commit a8ff465                                                                |
+> | nix build verification                       | ✅ Done           | Passes with GOEXPERIMENT=jsonv2                                               |
+> | AGENTS.md structured error docs              | ✅ Done           | Gotcha #5 documents WrapClassified + classification                           |
+> | encoding/json v1 → v2                        | ✅ Done           | Full migration with GOEXPERIMENT=jsonv2                                       |
+> | go-error-family upgraded                     | ✅ Done           | Now v0.7.0 (was v0.6.1 at report time)                                        |
+> | Exit-code integration tests                  | ⚠️ Partial        | Exit 0 and 75 tested; 69 (Infrastructure) and 65 (Corruption) still missing   |
+> | Error code governance (registry, convention) | ❌ Not done       | ~40 unique codes exist ad-hoc, no registry or test                            |
+> | Split cmd_configure.go (541 lines)           | ❌ Not done       | File still large                                                              |
+> | Split ConfigLoader God Object                | ❌ Not done       | 8-method interface unchanged                                                  |
 > | gosec G204 nolints                           | ✅ Done (8d10df5) | `//nolint:gosec` added at loader.go:247, cmd_validate.go:264, analyzer.go:325 |
 >
 > The `[family:code]` prefix question (#g1) remains a design decision. Current open items: `TODO_LIST.md`.

@@ -232,12 +232,12 @@ BuildFlow's golangci-lint step runs `--fix`, and when the command exits with sta
 
 The alarming items in sections **c) NOT STARTED** and **d) TOTALLY FUCKED UP** are all resolved. The "16 CRITICAL lint issues" were fixed and the doc-update gaps closed in the sessions immediately following this report.
 
-| Claim in this report | Reality now | Evidence |
-| -------------------- | ----------- | -------- |
-| §d 13 `goconst` + 2 `godoclint` stale comments + 1 `noinlineerr` (CRITICAL) | All fixed | `TypedDefault*` comments gone; `settingsToMap` uses plain `err :=` (`pkg/constants/linter_settings.go:18`); project lint is clean |
-| §c `FEATURES.md` not updated (format preset) | Done | `FEATURES.md` Presets table lists `format` |
-| §c `TODO_LIST.md` P3 items not marked completed | Done | P3.1/P3.2/P3.3 logged in `CHANGELOG.md` `[Unreleased]` |
-| §c `format` preset CLI help text | Done | `--preset` help lists `format` (`internal/cli/cmd_configure.go:98`) |
-| §c integration test for format preset YAML output | Done | covered by `cmd_presets_test.go` / `cmd_configure` tests |
+| Claim in this report                                                        | Reality now | Evidence                                                                                                                          |
+| --------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| §d 13 `goconst` + 2 `godoclint` stale comments + 1 `noinlineerr` (CRITICAL) | All fixed   | `TypedDefault*` comments gone; `settingsToMap` uses plain `err :=` (`pkg/constants/linter_settings.go:18`); project lint is clean |
+| §c `FEATURES.md` not updated (format preset)                                | Done        | `FEATURES.md` Presets table lists `format`                                                                                        |
+| §c `TODO_LIST.md` P3 items not marked completed                             | Done        | P3.1/P3.2/P3.3 logged in `CHANGELOG.md` `[Unreleased]`                                                                            |
+| §c `format` preset CLI help text                                            | Done        | `--preset` help lists `format` (`internal/cli/cmd_configure.go:98`)                                                               |
+| §c integration test for format preset YAML output                           | Done        | covered by `cmd_presets_test.go` / `cmd_configure` tests                                                                          |
 
 **Still open (genuinely):** §b recorder-consistency in `applyAllFixes` (design decision); §f items 14–18 (preset composition, `reference+format`); §f 25–26 (separate `golangci-lint run` CI step); §f 34–38 (type `OutputConfig.Formats`, schema validation). These remain in `TODO_LIST.md` / `ROADMAP.md`.

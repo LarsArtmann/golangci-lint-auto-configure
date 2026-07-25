@@ -4,18 +4,18 @@
 >
 > Most items from this report's "NOT STARTED" and "50 things" sections have since been completed:
 >
-> | Item                                                  | Status        | Details                                                                    |
-> | ----------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
-> | Commit all changes                                    | ✅ Done       | Commits f38ff5e, cfcb0df, 06d81a0                                          |
-> | GOEXPERIMENT in CI workflows                          | ✅ Done       | Added to ci.yml (test-and-build, lint, govulncheck) + release.yml          |
-> | `checks.race` GOEXPERIMENT inheritance                | ✅ Verified   | `nix flake check` passes — `old.env // {}` merge inherits GOEXPERIMENT     |
-> | `.buildflow.yml` skip nixfmt-standalone               | ✅ Done       | Committed; BuildFlow 44/44 green                                           |
-> | CONTRIBUTING.md with GOEXPERIMENT                     | ✅ Done       | Full rewrite with prerequisites                                            |
-> | `docs/references/json-v2.md`                          | ✅ Done       | New reference doc created                                                  |
-> | `docs/references/integrations.md` wire-format section | ✅ Done       | Wire→Report conversion table added                                         |
-> | FEATURES.md json/v2 migration row                     | ✅ Done       | Added to Build & CI table                                                  |
-> | TODO_LIST.md json/v2 item                             | ✅ Done       | Added to Completed section                                                 |
-> | GOEXPERIMENT in shellHook echo                        | ✅ Done       | Visible in devShell banner                                                 |
+> | Item                                                  | Status            | Details                                                                       |
+> | ----------------------------------------------------- | ----------------- | ----------------------------------------------------------------------------- |
+> | Commit all changes                                    | ✅ Done           | Commits f38ff5e, cfcb0df, 06d81a0                                             |
+> | GOEXPERIMENT in CI workflows                          | ✅ Done           | Added to ci.yml (test-and-build, lint, govulncheck) + release.yml             |
+> | `checks.race` GOEXPERIMENT inheritance                | ✅ Verified       | `nix flake check` passes — `old.env // {}` merge inherits GOEXPERIMENT        |
+> | `.buildflow.yml` skip nixfmt-standalone               | ✅ Done           | Committed; BuildFlow 44/44 green                                              |
+> | CONTRIBUTING.md with GOEXPERIMENT                     | ✅ Done           | Full rewrite with prerequisites                                               |
+> | `docs/references/json-v2.md`                          | ✅ Done           | New reference doc created                                                     |
+> | `docs/references/integrations.md` wire-format section | ✅ Done           | Wire→Report conversion table added                                            |
+> | FEATURES.md json/v2 migration row                     | ✅ Done           | Added to Build & CI table                                                     |
+> | TODO_LIST.md json/v2 item                             | ✅ Done           | Added to Completed section                                                    |
+> | GOEXPERIMENT in shellHook echo                        | ✅ Done           | Visible in devShell banner                                                    |
 > | gosec G204 nolints                                    | ✅ Done (8d10df5) | `//nolint:gosec` added at loader.go:247, cmd_validate.go:264, analyzer.go:325 |
 >
 > See `docs/status/2026-07-09_07-09_json-v2-complete-buildflow-green.md` for the follow-up session that resolved most items. Current status: `TODO_LIST.md`.
