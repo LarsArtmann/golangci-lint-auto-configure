@@ -10,9 +10,12 @@ golangci-lint-auto-configure/
 ├── pkg/
 │   ├── types/                        # Core type definitions and interfaces
 │   │   ├── types.go                  # Main types: LinterPriority, Config, LinterInfo, etc.
-│   │   └── result.go                # Result types
+│   │   ├── config_types.go           # Config structs for .golangci.yml schema
+│   │   ├── validation.go             # ValidationResult, HealthIssue, HealthSeverity
+│   │   ├── clone.go                  # Deep-copy for Config (prevents aliasing)
+│   │   └── set.go                    # Generic Set[T] with full algebra
 │   ├── constants/
-│   │   ├── linter_priorities.go  # Linter priorities (119 entries)
+│   │   ├── linter_priorities.go  # Linter priorities (110 entries)
 │   │   ├── linter_reasons.go     # Human-readable explanations
 │   │   ├── formatter_data.go     # Formatter priorities and reasons
 │   │   ├── presets.go            # Pre-defined linter configurations
@@ -59,7 +62,9 @@ golangci-lint-auto-configure/
 │   │   ├── yaml_loader.go          # Load/Save YAML configs
 │   │   └── testdata/               # Test fixtures for migration
 │   ├── errors/
-│   │   └── errors.go              # Custom error types (package: apperrors)
+│   │   ├── errors.go              # Custom error types (package: apperrors)
+│   │   ├── classification.go     # go-error-family Family registration + Classified interface
+│   │   └── doc.go                # Package documentation
 │   ├── version/
 │   │   └── version.go             # Structured version info with runtime/debug fallback
 ├── internal/
@@ -124,7 +129,7 @@ All major components implement interfaces defined in `pkg/types/types.go`:
 **4. Data-Driven Configuration**
 
 - `pkg/constants/` (multiple files) contains all linter metadata:
-  - `linter_priorities.go`: Priority levels (119 linters)
+  - `linter_priorities.go`: Priority levels (110 linters)
   - `linter_reasons.go`: Human-readable reasons
   - `linter_settings.go`: Typed default settings structs with `SettingsConverter` interface
   - `formatter_data.go`: Formatter priorities and reasons

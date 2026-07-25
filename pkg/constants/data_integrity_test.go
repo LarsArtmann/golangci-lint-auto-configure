@@ -294,6 +294,23 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 		m := constants.DefaultLinterSettings["makezero"].ToMap()
 		Expect(m["always"]).To(BeTrue())
 	})
+
+	It("funlen should produce lines and statements thresholds", func() {
+		m := constants.DefaultLinterSettings["funlen"].ToMap()
+		Expect(m["lines"]).To(Equal(60))
+		Expect(m["statements"]).To(Equal(40))
+	})
+
+	It("mnd should produce ignored-numbers list", func() {
+		m := constants.DefaultLinterSettings["mnd"].ToMap()
+		numbers, ok := m["ignored-numbers"]
+		Expect(ok).To(BeTrue(), "mnd settings missing ignored-numbers key")
+
+		numbersSlice, ok := numbers.([]any)
+		Expect(ok).To(BeTrue(), "mnd ignored-numbers is not []any")
+		Expect(numbersSlice).To(ContainElement(Equal("0")))
+		Expect(numbersSlice).To(ContainElement(Equal("1")))
+	})
 })
 
 var _ = Describe("DefaultExclusionRules", func() {
