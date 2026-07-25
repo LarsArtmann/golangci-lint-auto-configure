@@ -75,7 +75,7 @@ jobs:
           go tool cover -func=coverage.out | grep total | awk '{print "  " $3 " of statements covered"}'
 
       - name: Coverage threshold gate
-        run: bash scripts/coverage-check.sh 60
+        run: go run ./cmd/coverage-check -min=60 -profile=coverage.out
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
