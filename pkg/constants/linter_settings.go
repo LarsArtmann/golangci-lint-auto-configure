@@ -221,7 +221,7 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 	},
 	"funlen": FunlenSettings{
 		Lines:      200, //nolint:mnd // house style (dominant override across sibling projects); diverges from golangci-lint upstream default
-		Statements: 100, //nolint:mnd // house style; diverges from golangci-lint upstream default
+		Statements: 100,
 	},
 	"mnd": MndSettings{
 		IgnoredNumbers: []string{"0", "1", "2", "100"},

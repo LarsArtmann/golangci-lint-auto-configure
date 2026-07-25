@@ -265,10 +265,12 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 			"sync.WaitGroup", "bytes.Buffer", "time.Ticker", "time.Timer",
 			"os/exec.Cmd",
 		}
+
 		excludeStrings := make([]string, 0, len(excludeSlice))
 		for _, e := range excludeSlice {
 			excludeStrings = append(excludeStrings, e.(string))
 		}
+
 		for _, r := range required {
 			Expect(excludeStrings).To(ContainElement(r),
 				"exhaustruct exclude must contain canonical stdlib struct %q", r)

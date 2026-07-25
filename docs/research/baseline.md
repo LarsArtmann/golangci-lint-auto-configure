@@ -5,18 +5,18 @@ This is the **before** snapshot. C18 will regenerate 5 sample configs with the n
 
 ## Per-linter friction (sorted by friction = nolint ÷ enabled)
 
-| linter              | enabled | nolint | friction | verdict |
-| ------------------- | ------: | -----: | -------: | ------- |
-| exhaustruct         |     146 |    954 |     6.53 | HATED   |
-| gochecknoglobals    |     153 |    773 |     5.05 | HATED   |
-| gosec               |     154 |    590 |     3.83 | HATED   |
-| errcheck            |     143 |    443 |     3.10 | HATED   |
-| wrapcheck           |     150 |    264 |     1.76 | HATED   |
-| ireturn             |     136 |    171 |     1.26 | HATED   |
-| recvcheck           |     148 |    147 |     0.99 | HATED   |
-| contextcheck        |     149 |    139 |     0.93 | HATED   |
-| exhaustive          |     154 |    129 |     0.84 | HATED   |
-| funlen              |     151 |    126 |     0.83 | HATED   |
+| linter           | enabled | nolint | friction | verdict |
+| ---------------- | ------: | -----: | -------: | ------- |
+| exhaustruct      |     146 |    954 |     6.53 | HATED   |
+| gochecknoglobals |     153 |    773 |     5.05 | HATED   |
+| gosec            |     154 |    590 |     3.83 | HATED   |
+| errcheck         |     143 |    443 |     3.10 | HATED   |
+| wrapcheck        |     150 |    264 |     1.76 | HATED   |
+| ireturn          |     136 |    171 |     1.26 | HATED   |
+| recvcheck        |     148 |    147 |     0.99 | HATED   |
+| contextcheck     |     149 |    139 |     0.93 | HATED   |
+| exhaustive       |     154 |    129 |     0.84 | HATED   |
+| funlen           |     151 |    126 |     0.83 | HATED   |
 
 ## Targets this plan addresses (DoD quantitative gates)
 

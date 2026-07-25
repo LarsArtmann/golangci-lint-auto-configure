@@ -186,7 +186,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Auto-tag workflow                   | FULLY_FUNCTIONAL | Tags on merge to master                                             |
 | Committed templ output (\_templ.go) | FULLY_FUNCTIONAL | No build-time generation needed                                     |
 | Govulncheck security scanning       | FULLY_FUNCTIONAL | CI job runs govulncheck ./...                                       |
-| Coverage threshold gate             | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 60% threshold)                       |
+| Coverage threshold gate             | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 60% threshold)                      |
 | Fuzz + property tests               | FULLY_FUNCTIONAL | Set algebra invariants (commutative, idempotent, subset)            |
 | `--json-errors` flag                | FULLY_FUNCTIONAL | JSON error output for CI/CD                                         |
 | `encoding/json/v2` migration        | FULLY_FUNCTIONAL | All files migrated; GOEXPERIMENT=jsonv2 in flake.nix + CI workflows |
