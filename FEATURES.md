@@ -93,7 +93,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | `strict` preset (20 linters)                            | FULLY_FUNCTIONAL | Maximum linting for CI/CD           |
 | `security` preset                                       | FULLY_FUNCTIONAL | Security-focused only               |
 | `performance` preset                                    | FULLY_FUNCTIONAL | Performance optimization            |
-| `reference` preset (62 linters)                        | FULLY_FUNCTIONAL | All critical + high priority        |
+| `reference` preset (62 linters)                         | FULLY_FUNCTIONAL | All critical + high priority        |
 | `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters |
 | Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo    |
 

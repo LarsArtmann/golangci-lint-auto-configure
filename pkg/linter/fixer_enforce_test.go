@@ -3,6 +3,7 @@ package linter
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
@@ -325,11 +326,5 @@ func TestTryReEnableLinter(t *testing.T) {
 }
 
 func sliceHas(slice []string, want string) bool {
-	for _, s := range slice {
-		if s == want {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(slice, want)
 }

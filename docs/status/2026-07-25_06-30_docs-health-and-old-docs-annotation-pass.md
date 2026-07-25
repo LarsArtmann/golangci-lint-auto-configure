@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-25 06:30 CEST
 **Session scope:** Execute both the `update-old-docs` and `docs-health` skills across the project: annotate 27 historical `2026-07-*` files, then rebuild `TODO_LIST.md`, `FEATURES.md`, `CHANGELOG.md`, and create `ROADMAP.md`.
-**Skill trigger:** User requested "READ ALL **/2026-07-* files! Then do the update-old-docs, docs-health SKILLs! PROPERLY!"
+**Skill trigger:** User requested "READ ALL *_/2026-07-_ files! Then do the update-old-docs, docs-health SKILLs! PROPERLY!"
 
 ---
 
@@ -14,19 +14,19 @@ Read every one of the 27 `2026-07-*` files across `docs/status/`, `docs/planning
 
 **Per-file classification (the plan):**
 
-| Decision | Count | Files |
-|----------|-------|-------|
-| **ANNOTATE (applied)** | 17 | see breakdown below |
-| **SKIP (already adequate)** | 9 | 07-06 PascalCase reports (3), 07-06 research, 07-10 review + planning (2), 07-10 reason-upgrade status, 07-25 forcetypeassert |
-| **LEAVE ALONE (genuinely still open)** | 1 | 07-20_22-57 completion report — "zero tests" claims for audit/enforce verified STILL TRUE (no test files exist) |
+| Decision                               | Count | Files                                                                                                                         |
+| -------------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **ANNOTATE (applied)**                 | 17    | see breakdown below                                                                                                           |
+| **SKIP (already adequate)**            | 9     | 07-06 PascalCase reports (3), 07-06 research, 07-10 review + planning (2), 07-10 reason-upgrade status, 07-25 forcetypeassert |
+| **LEAVE ALONE (genuinely still open)** | 1     | 07-20_22-57 completion report — "zero tests" claims for audit/enforce verified STILL TRUE (no test files exist)               |
 
 **17 annotations applied, broken down by type:**
 
-| Annotation type | Count | Examples |
-|-----------------|-------|----------|
-| Banner-row correction (inline) | 7 | gosec G204 "❌ Still open" → "✅ Done (8d10df5)" (4 files); `--diff`/`--check` tests "❌ Not done"/"⚠️ Partial" → "✅ Done" (3 files, 6 rows) |
-| Resolution appendix (end-of-file) | 8 | feedback/resolved repair-re-enables (no note → full resolution); depguard-disabled; 09-58 buildflow; 10-38 omitzero; noinlineerr; 50-item sweep; docs-health-audit; P3 architecture |
-| Inline verdict correction | 2 | "CLI is currently broken" → RESOLVED; "Status: In Progress" → DONE |
+| Annotation type                   | Count | Examples                                                                                                                                                                            |
+| --------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Banner-row correction (inline)    | 7     | gosec G204 "❌ Still open" → "✅ Done (8d10df5)" (4 files); `--diff`/`--check` tests "❌ Not done"/"⚠️ Partial" → "✅ Done" (3 files, 6 rows)                                       |
+| Resolution appendix (end-of-file) | 8     | feedback/resolved repair-re-enables (no note → full resolution); depguard-disabled; 09-58 buildflow; 10-38 omitzero; noinlineerr; 50-item sweep; docs-health-audit; P3 architecture |
+| Inline verdict correction         | 2     | "CLI is currently broken" → RESOLVED; "Status: In Progress" → DONE                                                                                                                  |
 
 Every annotation cites a **commit hash** or specific file:line evidence, and each survives the "so what?" test (a reader landing on the old file learns what shipped and what remains). Verified idempotency: no file received a duplicate `## Resolution (2026-07-25)` section.
 
@@ -34,12 +34,12 @@ Every annotation cites a **commit hash** or specific file:line evidence, and eac
 
 ### 2. docs-health — all 4 living docs rebuilt/created
 
-| Doc | State before | Action | Key changes |
-|-----|-------------|--------|-------------|
-| `CHANGELOG.md` | Only `[Unreleased]` + v0.1.0/v0.2.0 (3 tagged releases undocumented) | **Rebuilt** | Added **v0.3.0, v0.4.0, v0.5.0** reconstructed from `git log v0.2.0..v0.5.0`; moved 46 `[Unreleased]` entries into correct version sections; slimmed `[Unreleased]` to post-v0.5.0 work only |
-| `TODO_LIST.md` | 67 lines, 46-line "Completed" trophy section (structural decay) | **Rebuilt** | Deleted trophy section entirely; every remaining item verified against code; removed stale `--diff` test item (tests now exist); added security-critical **audit/enforce zero-test gap** |
-| `FEATURES.md` | 100+ rows all marked "Stable" (wrong vocabulary); version "v0.2.0+"; missing audit/policy features | **Rebuilt** | Converted all to proper status vocabulary (102 FULLY_FUNCTIONAL, 5 PARTIALLY_FUNCTIONAL); version → v0.5.0+; added **`audit` subcommand** + **disable-reason/audit-ledger** feature tables; fixed test-exclusion linter count (7, was 6) |
-| `ROADMAP.md` | Did not exist | **Created** | 4 themes (type safety, validation, test depth, preset ergonomics), explicit non-goals |
+| Doc            | State before                                                                                       | Action      | Key changes                                                                                                                                                                                                                              |
+| -------------- | -------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CHANGELOG.md` | Only `[Unreleased]` + v0.1.0/v0.2.0 (3 tagged releases undocumented)                               | **Rebuilt** | Added **v0.3.0, v0.4.0, v0.5.0** reconstructed from `git log v0.2.0..v0.5.0`; moved 46 `[Unreleased]` entries into correct version sections; slimmed `[Unreleased]` to post-v0.5.0 work only                                             |
+| `TODO_LIST.md` | 67 lines, 46-line "Completed" trophy section (structural decay)                                    | **Rebuilt** | Deleted trophy section entirely; every remaining item verified against code; removed stale `--diff` test item (tests now exist); added security-critical **audit/enforce zero-test gap**                                                 |
+| `FEATURES.md`  | 100+ rows all marked "Stable" (wrong vocabulary); version "v0.2.0+"; missing audit/policy features | **Rebuilt** | Converted all to proper status vocabulary (102 FULLY_FUNCTIONAL, 5 PARTIALLY_FUNCTIONAL); version → v0.5.0+; added **`audit` subcommand** + **disable-reason/audit-ledger** feature tables; fixed test-exclusion linter count (7, was 6) |
+| `ROADMAP.md`   | Did not exist                                                                                      | **Created** | 4 themes (type safety, validation, test depth, preset ergonomics), explicit non-goals                                                                                                                                                    |
 
 ### 3. Cross-file consistency verified
 
@@ -214,13 +214,13 @@ Rewriting requires `git rebase` (history rewrite) + force-push. The project's sa
 
 The `e3a96c8` commit (auto-committed by the hook) swept up these changes from pre-existing working-tree state:
 
-| File | Change | Source |
-|------|--------|--------|
-| `go.mod` | Go version `1.26.4` → `1.26.5` | Commit `0741626 chore(deps): update Go module dependencies and Nix flake inputs` |
-| `.golangci.yml` | Go version bump + `noinlineerr` removed from `linters.disable` | `noinlineerr` is handled at the tool level via `DisabledLinters` (`pkg/constants/rules.go:111`); the project's own `.golangci.yml` no longer needs to list it |
-| `flake.lock` | go-finding rev bumped (1015→1016), gogenfilter rev bumped (767→778) | Dependency updates from `0741626` |
-| `pkg/constants/config.go` | Test exclusion array reformatted to multiline (same content) | `7b25e4c refactor(lint): update golangci-lint configuration and constants` |
-| `report_templ.go` | Not found in any diff | Likely a transient state from templ generate; not present in the committed tree |
+| File                      | Change                                                              | Source                                                                                                                                                        |
+| ------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `go.mod`                  | Go version `1.26.4` → `1.26.5`                                      | Commit `0741626 chore(deps): update Go module dependencies and Nix flake inputs`                                                                              |
+| `.golangci.yml`           | Go version bump + `noinlineerr` removed from `linters.disable`      | `noinlineerr` is handled at the tool level via `DisabledLinters` (`pkg/constants/rules.go:111`); the project's own `.golangci.yml` no longer needs to list it |
+| `flake.lock`              | go-finding rev bumped (1015→1016), gogenfilter rev bumped (767→778) | Dependency updates from `0741626`                                                                                                                             |
+| `pkg/constants/config.go` | Test exclusion array reformatted to multiline (same content)        | `7b25e4c refactor(lint): update golangci-lint configuration and constants`                                                                                    |
+| `report_templ.go`         | Not found in any diff                                               | Likely a transient state from templ generate; not present in the committed tree                                                                               |
 
 These are all expected infrastructure/tooling updates that were already in progress before the docs session. **No action needed.**
 
@@ -234,9 +234,9 @@ Per-tag-diff verification completed:
 
 ### Additional fixes applied in this follow-up session
 
-| # | Gap from report | Fix |
-|---|-----------------|-----|
-| 1 | §d.3: 05-40 forcetypeassert report left unannotated | Corrected stale "FEATURES.md not updated" claim → marked RESOLVED with strikethrough |
-| 2 | §b.2: README.md not audited | Fixed Linter Priorities section: `ineffassign` moved Critical→High, `gocyclo`/`misspell`/`revive` moved Medium→High; added collapsible `<details>` with full lists; added curated-highlight note |
-| 3 | §c: `nix flake check` not run | Running now (see below) |
-| 4 | §e.5: FEATURES.md hardcoded counts | Fixed `strict` preset count (17→20), `reference` count ("60+"→62); added verification note pointing to `pkg/constants/presets.go` |
+| #   | Gap from report                                     | Fix                                                                                                                                                                                              |
+| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | §d.3: 05-40 forcetypeassert report left unannotated | Corrected stale "FEATURES.md not updated" claim → marked RESOLVED with strikethrough                                                                                                             |
+| 2   | §b.2: README.md not audited                         | Fixed Linter Priorities section: `ineffassign` moved Critical→High, `gocyclo`/`misspell`/`revive` moved Medium→High; added collapsible `<details>` with full lists; added curated-highlight note |
+| 3   | §c: `nix flake check` not run                       | Running now (see below)                                                                                                                                                                          |
+| 4   | §e.5: FEATURES.md hardcoded counts                  | Fixed `strict` preset count (17→20), `reference` count ("60+"→62); added verification note pointing to `pkg/constants/presets.go`                                                                |

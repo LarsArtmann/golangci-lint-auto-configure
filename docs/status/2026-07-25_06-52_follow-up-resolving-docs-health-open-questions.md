@@ -10,11 +10,11 @@
 
 ### 1. Resolved all 3 open questions from the 06-30 report
 
-| Q | Question | Resolution |
-|---|----------|------------|
-| Q1 | Should the 5 auto-commit messages be squashed/reworded? | **LEFT AS-IS.** History rewrite requires `git rebase` + force-push, which the safety rules prohibit without explicit user approval. Content is correct; only messages are generic. |
-| Q2 | Are the `go.mod` / `.golangci.yml` / `report_templ.go` changes expected? | **INVESTIGATED AND EXPLAINED.** The `e3a96c8` commit swept up pre-existing working-tree state from dependency updates (Go 1.26.4→1.26.5, flake.lock go-finding/gogenfilter rev bumps, `noinlineerr` removed from `linters.disable` because it's tool-level disabled via `DisabledLinters`, and `config.go` array reformatted). `report_templ.go` was never found in any diff — likely a transient templ-generate state. All expected. |
-| Q3 | Is CHANGELOG v0.3.0/v0.4.0/v0.5.0 precision acceptable? | **VERIFIED ACCURATE** via per-tag-diff. v0.4.0 (2 commits) maps 1:1. v0.5.0 (14 commits) had 1 missing entry — added. v0.3.0 (170 commits) spot-checked against all key claims. |
+| Q   | Question                                                                 | Resolution                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| --- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q1  | Should the 5 auto-commit messages be squashed/reworded?                  | **LEFT AS-IS.** History rewrite requires `git rebase` + force-push, which the safety rules prohibit without explicit user approval. Content is correct; only messages are generic.                                                                                                                                                                                                                                                    |
+| Q2  | Are the `go.mod` / `.golangci.yml` / `report_templ.go` changes expected? | **INVESTIGATED AND EXPLAINED.** The `e3a96c8` commit swept up pre-existing working-tree state from dependency updates (Go 1.26.4→1.26.5, flake.lock go-finding/gogenfilter rev bumps, `noinlineerr` removed from `linters.disable` because it's tool-level disabled via `DisabledLinters`, and `config.go` array reformatted). `report_templ.go` was never found in any diff — likely a transient templ-generate state. All expected. |
+| Q3  | Is CHANGELOG v0.3.0/v0.4.0/v0.5.0 precision acceptable?                  | **VERIFIED ACCURATE** via per-tag-diff. v0.4.0 (2 commits) maps 1:1. v0.5.0 (14 commits) had 1 missing entry — added. v0.3.0 (170 commits) spot-checked against all key claims.                                                                                                                                                                                                                                                       |
 
 ### 2. Fixed stale claim in the 05-40 forcetypeassert report
 
@@ -24,12 +24,12 @@
 
 The README's "Linter Priorities" section had **significant drift** — 4 linters in wrong tiers:
 
-| Linter | README said | Code says (`linter_priorities.go`) |
-|--------|-------------|-------------------------------------|
-| `ineffassign` | Critical | **High** |
-| `gocyclo` | Medium | **High** |
-| `misspell` | Medium | **High** |
-| `revive` | Medium | **High** |
+| Linter        | README said | Code says (`linter_priorities.go`) |
+| ------------- | ----------- | ---------------------------------- |
+| `ineffassign` | Critical    | **High**                           |
+| `gocyclo`     | Medium      | **High**                           |
+| `misspell`    | Medium      | **High**                           |
+| `revive`      | Medium      | **High**                           |
 
 Fixed all 4. Also expanded the section from 13 hand-picked linters to include collapsible `<details>` sections listing all 11 Critical, 50+ High, and 50+ Medium linters (matching `pkg/constants/linter_priorities.go`). Added a curated-highlight intro directing users to `analyze` for the full picture.
 
@@ -37,13 +37,13 @@ Fixed all 4. Also expanded the section from 13 hand-picked linters to include co
 
 Ran a Go program to count actual linters per preset from `pkg/constants/presets.go`:
 
-| Preset | FEATURES.md said | Actual | Fixed? |
-|--------|-------------------|--------|--------|
-| `minimal` | 5 | 5 | ✅ already correct |
-| `standard` | 8 | 8 | ✅ already correct |
-| `strict` | **17** | **20** | ✅ fixed |
-| `reference` | **"60+"** | **62** | ✅ fixed to exact |
-| `format` | 5+3 | 5+3 | ✅ already correct |
+| Preset      | FEATURES.md said | Actual | Fixed?             |
+| ----------- | ---------------- | ------ | ------------------ |
+| `minimal`   | 5                | 5      | ✅ already correct |
+| `standard`  | 8                | 8      | ✅ already correct |
+| `strict`    | **17**           | **20** | ✅ fixed           |
+| `reference` | **"60+"**        | **62** | ✅ fixed to exact  |
+| `format`    | 5+3              | 5+3    | ✅ already correct |
 
 Added verification note: "Linter counts verified against `pkg/constants/presets.go` as of 2026-07-25."
 
@@ -78,7 +78,7 @@ This was the mandated verification gate that the 06-30 report listed as "NOT STA
 
 I fixed the Linter Priorities section (the most severe drift), but I did **not** verify every other claim in the 471-line README. Specifically, these sections were NOT audited:
 
-- **Installation / Requirements** — Go version `1.26+` is correct, but `golangci-lint: v2.10.1+` might be stale (the code now has `ExpectedGolangCILintVersion = "v2.12.2"`). The README says "v2.10.1+" which is the *minimum*, but the tool *expects* v2.12.2. This distinction is not communicated.
+- **Installation / Requirements** — Go version `1.26+` is correct, but `golangci-lint: v2.10.1+` might be stale (the code now has `ExpectedGolangCILintVersion = "v2.12.2"`). The README says "v2.10.1+" which is the _minimum_, but the tool _expects_ v2.12.2. This distinction is not communicated.
 - **Example output** — The `INFO Analyzing configuration` output example on line 78-89 may not match current CLI output. Not verified.
 - **CI/CD integration example** — The GitHub Actions workflow on line 268-288 references `go-version: "1.26"` but the project uses `1.26.5` in `.golangci.yml`. Minor but worth aligning.
 - **Related Projects** — Line 470 references `universal-workflow`. Not verified whether this is still a live/related project.

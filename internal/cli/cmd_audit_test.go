@@ -24,6 +24,7 @@ func captureStdout(t *testing.T, fn func()) string {
 	t.Helper()
 
 	orig := os.Stdout
+
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatalf("create pipe: %v", err)
@@ -34,13 +35,16 @@ func captureStdout(t *testing.T, fn func()) string {
 	defer func() { os.Stdout = orig }()
 
 	done := make(chan string)
+
 	go func() {
 		var buf bytes.Buffer
+
 		_, _ = io.Copy(&buf, r)
 		done <- buf.String()
 	}()
 
 	fn()
+
 	_ = w.Close()
 
 	return <-done
@@ -297,7 +301,8 @@ func TestDisplayAuditEntries_ReadsAndFilters(t *testing.T) {
 	dir := t.TempDir()
 	ledgerPath := filepath.Join(dir, "audit.jsonl")
 
-	writeTestLedger(t, ledgerPath,
+	writeTestLedger(
+		t, ledgerPath,
 		sampleEntry("errcheck", audit.ActionAddedToEnable, time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC)),
 		sampleEntry("gofmt", audit.ActionMovedToDisable, time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC)),
 	)
@@ -322,7 +327,8 @@ func TestClearAuditLedger(t *testing.T) {
 	dir := t.TempDir()
 	ledgerPath := filepath.Join(dir, "audit.jsonl")
 
-	writeTestLedger(t, ledgerPath,
+	writeTestLedger(
+		t, ledgerPath,
 		sampleEntry("errcheck", audit.ActionAddedToEnable, time.Now()),
 	)
 
@@ -342,10 +348,12 @@ func TestClearAuditLedger(t *testing.T) {
 
 func TestAuditDisabled_FlagAndEnv(t *testing.T) {
 	original := noAudit
+
 	t.Cleanup(func() { noAudit = original })
 
 	t.Run("enabled by default", func(t *testing.T) {
 		noAudit = false
+
 		t.Setenv(auditEnvVar, "")
 
 		if auditDisabled() {
@@ -355,6 +363,7 @@ func TestAuditDisabled_FlagAndEnv(t *testing.T) {
 
 	t.Run("disabled via flag", func(t *testing.T) {
 		noAudit = true
+
 		t.Setenv(auditEnvVar, "")
 
 		if !auditDisabled() {
@@ -364,6 +373,7 @@ func TestAuditDisabled_FlagAndEnv(t *testing.T) {
 
 	t.Run("disabled via env var", func(t *testing.T) {
 		noAudit = false
+
 		t.Setenv(auditEnvVar, "1")
 
 		if !auditDisabled() {
@@ -374,7 +384,9 @@ func TestAuditDisabled_FlagAndEnv(t *testing.T) {
 
 func TestNewRunLedger_DisabledReturnsNoop(t *testing.T) {
 	original := noAudit
+
 	t.Cleanup(func() { noAudit = original })
+
 	noAudit = true
 
 	configFile := filepath.Join(t.TempDir(), ".golangci.yml")
@@ -388,8 +400,11 @@ func TestNewRunLedger_DisabledReturnsNoop(t *testing.T) {
 
 func TestNewRunLedger_EnabledReturnsLedger(t *testing.T) {
 	original := noAudit
+
 	t.Cleanup(func() { noAudit = original })
+
 	noAudit = false
+
 	t.Setenv(auditEnvVar, "")
 
 	// Force a deterministic, writable cache dir so DefaultLedgerPath resolves.
@@ -427,7 +442,8 @@ func TestRunAuditCommand_ClearLedger(t *testing.T) {
 		t.Fatalf("mkdir ledger dir: %v", err)
 	}
 
-	writeTestLedger(t, ledgerPath,
+	writeTestLedger(
+		t, ledgerPath,
 		sampleEntry("errcheck", audit.ActionAddedToEnable, time.Now()),
 	)
 
