@@ -30,7 +30,12 @@ func TestColorConstantsGolden(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.got != tt.expected {
-				t.Errorf("%s = %q, want %q (if this is intentional, update the golden value)", tt.name, tt.got, tt.expected)
+				t.Errorf(
+					"%s = %q, want %q (if this is intentional, update the golden value)",
+					tt.name,
+					tt.got,
+					tt.expected,
+				)
 			}
 		})
 	}
@@ -70,10 +75,10 @@ func TestPriorityBackgroundColor(t *testing.T) {
 		priority int
 		expected string
 	}{
-		{1, colorCritical},
-		{2, colorHigh},
-		{3, colorMedium},
-		{4, colorOptional},
+		{0, colorCritical},
+		{1, colorHigh},
+		{2, colorMedium},
+		{3, colorOptional},
 		{99, colorOptional}, // default
 	}
 
@@ -87,15 +92,17 @@ func TestPriorityBackgroundColor(t *testing.T) {
 
 // TestPriorityName verifies the priority label mapping.
 func TestPriorityName(t *testing.T) {
+	optionalLabel := "OPTIONAL"
+
 	tests := []struct {
 		priority int
 		expected string
 	}{
-		{1, "CRITICAL"},
-		{2, "HIGH"},
-		{3, "MEDIUM"},
-		{4, "OPTIONAL"},
-		{99, "OPTIONAL"}, // default
+		{0, "CRITICAL"},
+		{1, "HIGH"},
+		{2, "MEDIUM"},
+		{3, optionalLabel},
+		{99, optionalLabel}, // default
 	}
 
 	for _, tt := range tests {
