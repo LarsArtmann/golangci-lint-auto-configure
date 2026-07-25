@@ -12,12 +12,12 @@
 
 The prior session left FEATURES.md with `PARTIALLY_FUNCTIONAL` statuses that were no longer true:
 
-| Row | Before | After |
-| --- | ------ | ----- |
-| `audit` command | `PARTIALLY_FUNCTIONAL` — "zero unit tests" | `FULLY_FUNCTIONAL` — tested in `cmd_audit_test.go` |
-| Audit ledger | `PARTIALLY_FUNCTIONAL` — "no tests around ledger write paths" | `FULLY_FUNCTIONAL` — tested in `ledger_test.go` |
-| Disable-reason sidecar enforcement | `PARTIALLY_FUNCTIONAL` — "has zero tests" | `FULLY_FUNCTIONAL` — tested in `fixer_enforce_test.go` |
-| Exit-code test coverage | `PARTIALLY_FUNCTIONAL` — "Infra (69) & Corruption (65) untested" | `FULLY_FUNCTIONAL` — tested in `exit_code_test.go` |
+| Row                                | Before                                                           | After                                                  |
+| ---------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------ |
+| `audit` command                    | `PARTIALLY_FUNCTIONAL` — "zero unit tests"                       | `FULLY_FUNCTIONAL` — tested in `cmd_audit_test.go`     |
+| Audit ledger                       | `PARTIALLY_FUNCTIONAL` — "no tests around ledger write paths"    | `FULLY_FUNCTIONAL` — tested in `ledger_test.go`        |
+| Disable-reason sidecar enforcement | `PARTIALLY_FUNCTIONAL` — "has zero tests"                        | `FULLY_FUNCTIONAL` — tested in `fixer_enforce_test.go` |
+| Exit-code test coverage            | `PARTIALLY_FUNCTIONAL` — "Infra (69) & Corruption (65) untested" | `FULLY_FUNCTIONAL` — tested in `exit_code_test.go`     |
 
 ### 2. Wrote data-integrity test cross-checking FEATURES.md counts against code (Item 1)
 
@@ -70,26 +70,26 @@ Added to `pkg/constants/data_integrity_test.go`:
 
 ### 11. Re-verified DOMAIN_LANGUAGE.md — fixed 7 issues (Item 20)
 
-| Issue | Fix |
-| ----- | --- |
-| `LinterReplacement` location wrong (`pkg/constants/rules.go`) | Corrected to `pkg/types/types.go` |
-| `MigrationResult` description mentioned "changed sections" (doesn't exist) | Updated to "fixes applied count, message, next steps" |
-| `ValidationResult` mentioned "warnings" field (doesn't exist) | Removed — only `Valid bool` and `Errors []ValidationError` |
-| `LinterRecommendation` mentioned "whether enabled" (doesn't exist) | Removed — only Name, Priority, Reason |
-| `Change` said "addition or removal" (missing modification) | Updated to "addition, removal, or modification" |
-| `audit` command missing from Commands table | Added |
-| `pkg/audit/` and `pkg/policy/` missing from Bounded Contexts | Added both |
+| Issue                                                                      | Fix                                                        |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `LinterReplacement` location wrong (`pkg/constants/rules.go`)              | Corrected to `pkg/types/types.go`                          |
+| `MigrationResult` description mentioned "changed sections" (doesn't exist) | Updated to "fixes applied count, message, next steps"      |
+| `ValidationResult` mentioned "warnings" field (doesn't exist)              | Removed — only `Valid bool` and `Errors []ValidationError` |
+| `LinterRecommendation` mentioned "whether enabled" (doesn't exist)         | Removed — only Name, Priority, Reason                      |
+| `Change` said "addition or removal" (missing modification)                 | Updated to "addition, removal, or modification"            |
+| `audit` command missing from Commands table                                | Added                                                      |
+| `pkg/audit/` and `pkg/policy/` missing from Bounded Contexts               | Added both                                                 |
 
 ### 12. Re-verified ARCHITECTURE.md — fixed 6 issues (Item 21)
 
-| Issue | Fix |
-| ----- | --- |
-| ADR-001 documents `samber/mo` Result types that don't exist | Marked as **Superseded** with explanation |
-| ADR-005 documents `spf13/afero` that was never used | Rewritten to describe the actual custom `FS` interface |
-| `MigrationResult` struct had wrong JSON tags (snake_case, missing `DryRun`) | Updated to tag-free PascalCase + added `DryRun bool` |
-| `GetAllLinterNames` was actually private `getAllLinterNames` | Fixed visibility |
-| ADR-008 cobra example had wrong `Short` string and wrong arg count | Updated to match actual code |
-| "Future Considerations" listed already-done fixer split + non-existent `samber/mo` | Replaced with current reality |
+| Issue                                                                              | Fix                                                    |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| ADR-001 documents `samber/mo` Result types that don't exist                        | Marked as **Superseded** with explanation              |
+| ADR-005 documents `spf13/afero` that was never used                                | Rewritten to describe the actual custom `FS` interface |
+| `MigrationResult` struct had wrong JSON tags (snake_case, missing `DryRun`)        | Updated to tag-free PascalCase + added `DryRun bool`   |
+| `GetAllLinterNames` was actually private `getAllLinterNames`                       | Fixed visibility                                       |
+| ADR-008 cobra example had wrong `Short` string and wrong arg count                 | Updated to match actual code                           |
+| "Future Considerations" listed already-done fixer split + non-existent `samber/mo` | Replaced with current reality                          |
 
 ### 13. Added missing default settings: funlen + mnd (Item 37)
 
@@ -133,28 +133,33 @@ I fixed the Requirements section, example output, CI example, and Related Projec
 These items from the 50-item list were not addressed (by design — they need dedicated sessions):
 
 **Testing gaps (Items 8-12 partially done, 16-18 not started):**
+
 - Items 8-12 were already done by a prior session — I verified they exist.
 - Item 16: Property-based JSON round-trip tests for report types
 - Item 17: HTML report snapshot/golden tests
 - Item 18: Convert `scripts/coverage-check.sh` to a Go test
 
 **Documentation depth (Items 19, 25):**
+
 - Item 19: Full README.md claim-by-claim audit (all 500 lines)
 - Item 25: Consolidate/archive the 100+ July status reports
 
 **Type safety & data-model (Items 26-33):**
+
 - Item 26: Extract linter/formatter name strings as typed `const` values
 - Item 27: Type `OutputConfig.Formats`
 - Item 28: Add a `Result` type for CLI commands
 - Items 29-33: Schema generation, key validation, splitting large files, consolidating types
 
 **Linter data accuracy (Items 34-36, 38):**
+
 - Item 34: Audit `LinterMinVersions` against upstream `since` values
 - Item 35: Verify `DeprecatedLinters` replacements (partially covered by existing test)
 - Item 36: Audit remaining linter settings against v2.12.2 upstream
 - Item 38: Check if `clickhouselint` should be in `reference` preset
 
 **Preset & UX (Items 39-43):**
+
 - Item 39: Preset composition (`format = minimal + formatters`)
 - Item 40: Multi-preset support (`--preset a --preset b`)
 - Item 41: `--detect` mode for format preset
@@ -162,11 +167,13 @@ These items from the 50-item list were not addressed (by design — they need de
 - Item 43: `--list-presets` output
 
 **Error handling (Items 45-47):**
+
 - Item 45: Audit 20+ swallowed-error sites
 - Item 46: Adopt `HandleError` at CLI boundary
 - Item 47: Build error-code governance registry
 
 **CI/Build (Items 48-50):**
+
 - Item 48: Pin golangci-lint version in CI
 - Item 49: Add `flake.lock` drift detection
 - Item 50: Conventional-commits-to-changelog automation

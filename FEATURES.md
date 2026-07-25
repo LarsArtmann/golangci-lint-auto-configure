@@ -68,7 +68,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | varnamelen defaults (short names, ignore flags)        | FULLY_FUNCTIONAL | Common short variable exemptions                                           |
 | gomoddirectives defaults (replace-local: true)         | FULLY_FUNCTIONAL | Local dev support                                                          |
 | cyclop defaults (max-complexity: 12)                   | FULLY_FUNCTIONAL | Reasonable complexity threshold                                            |
-| funlen defaults (lines: 60, statements: 40)           | FULLY_FUNCTIONAL | Explicit thresholds matching upstream defaults                             |
+| funlen defaults (lines: 60, statements: 40)            | FULLY_FUNCTIONAL | Explicit thresholds matching upstream defaults                             |
 | mnd defaults (ignored-numbers: 0, 1, 2, 100)           | FULLY_FUNCTIONAL | Reduces magic-number noise for common values                               |
 | golines formatter defaults (max-len: 120)              | FULLY_FUNCTIONAL | When enabled via lll replacement                                           |
 | output.formats initialization                          | FULLY_FUNCTIONAL | Empty map to prevent nil issues                                            |
