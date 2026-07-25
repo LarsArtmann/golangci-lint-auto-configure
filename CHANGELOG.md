@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `cmd/coverage-check` binary added to Nix `subPackages` and exposed as `nix run .#coverage-check`
+- `vendorHash.nix` — dedicated file for Go vendor hash (cleaner diffs on dependency updates)
+- All 21 GitHub Actions pinned to immutable commit SHAs across 4 workflow files (supply-chain security)
+- Coverage-check tool documented in README under "Development Tools"
+- `pkg/audit/`, `pkg/policy/`, `pkg/client/`, `pkg/utils/` added to code-organization.md directory tree
 - `--pragmatic` flag: drops the 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from the dynamic enable set
 - `GosecSettings` typed struct with curated excludes (G304, G115) — reduces gosec false-positive friction while preserving unhandled-error detection (errcheck handles known-benign cases surgically)
 - `ErrcheckSettings` typed struct with curated `exclude-functions` (`Close`, `fmt.Fprint*`, Builder writes) — reduces errcheck friction by 20%+
@@ -17,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Stale `//nolint:legacyerrors` directives removed (linter not configured — was producing warnings)
+- README medium linter count corrected from "50+" to "48"
 - `funlen` default thresholds changed from `60/40` to `200/100` (house style — dominant override across 160 sibling projects; diverges from golangci-lint upstream)
 - `CoreFormatters` expanded from 3 to 4 formatters (`gci`, `goimports`, `gofumpt`, `golines`) — now matches the `house` preset's validated winning stack
 - golangci-lint configuration and linter constants updated
