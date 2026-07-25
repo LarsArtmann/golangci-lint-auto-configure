@@ -7,7 +7,8 @@ import (
 )
 
 var _ = Describe("Domain message templates", func() {
-	DescribeTable("every registered template has a non-empty What and Fix",
+	DescribeTable(
+		"every registered template has a non-empty What and Fix",
 		func(code string) {
 			tmpl, ok := errorfamily.TemplateForCode(code)
 			Expect(ok).To(BeTrue(), "template %q should be registered", code)

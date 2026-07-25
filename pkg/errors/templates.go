@@ -10,12 +10,11 @@ import (
 // presentation for structured error rendering.
 //
 // Called from init() in classification.go alongside the sentinel registrations.
-//
-//nolint:gochecknoinits // required by go-error-family registration pattern
 func RegisterDomainTemplates() {
 	errorfamily.DefaultRegistry.RegisterTemplates(domainMessageTemplates)
 }
 
+//nolint:gochecknoglobals // immutable registration table, written once at init
 var domainMessageTemplates = map[string]errorfamily.MessageTemplate{
 	// ── Git ──────────────────────────────────────────────────────────────────
 	"git.not_repository": {
@@ -147,7 +146,9 @@ var domainMessageTemplates = map[string]errorfamily.MessageTemplate{
 		Why:    "The output path may not be writable.",
 		Fix:    "Ensure the output directory exists and is writable.",
 		WayOut: "",
-	}, ────────────────────────────────────────────────────────────
+	},
+
+	// ── Detection ────────────────────────────────────────────────────────────
 	"detector.open_file": {
 		What:   "Failed to open a source file during detection.",
 		Why:    "A file detected during the scan could not be read.",

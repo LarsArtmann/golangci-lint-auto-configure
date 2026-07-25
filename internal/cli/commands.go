@@ -281,19 +281,44 @@ func Main() {
 }
 
 // HandleError classifies an error, outputs it in the appropriate format
-// (JSON via --json-errors, or structured slog), and returns the BSD sysexits
-// exit code. Called at the CLI boundary for all unhandled errors.
+// (JSON via --json-errors, or a user-friendly message with structured slog
+// fallback), and returns the BSD sysexits exit code. Called at the CLI
+// boundary for all unhandled errors.
 func HandleError(err error) int {
 	family := errorfamily.Classify(err)
 	exitCode := errorfamily.ExitCode(err)
 
 	if jsonErrors {
 		outputJSONError(err, family, exitCode)
+	} else if rendered := renderUserError(err); rendered != "" {
+		fmt.Fprintln(os.Stderr, rendered)
 	} else {
 		slog.Error("CLI execution failed", "error", err, "family", family.String())
 	}
 
 	return exitCode
+}
+
+// renderUserError resolves a domain MessageTemplate for the error and renders
+// a user-friendly What/Fix message. Returns "" when no template matches,
+// signaling the caller to fall back to slog.
+func renderUserError(err error) string {
+	code := errorfamily.Code(err)
+	if code == "" {
+		return ""
+	}
+
+	tmpl, ok := errorfamily.TemplateForCode(code)
+	if !ok || tmpl.What == "" {
+		return ""
+	}
+
+	msg := "❌ " + tmpl.What
+	if tmpl.Fix != "" {
+		msg += "\n   → " + tmpl.Fix
+	}
+
+	return msg
 }
 
 func outputJSONError(err error, family errorfamily.Family, exitCode int) {
