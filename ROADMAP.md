@@ -68,3 +68,11 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
   golangci-lint; it does not replace its analysis engine.
 - **A GUI** — the CLI + report outputs (HTML/JSON/SARIF) are the interface.
 - **CBOR support** — report types are JSON-only; CBOR is not a target.
+- **Active v1 config feature development** — v1 config support is
+  maintenance-only (0 live v1 configs across 160 sibling projects, 99.4% are
+  v2). The v1→v2 migrator (`migrate` subcommand) is kept functional but no new
+  v1 features will be added. Bug fixes only.
+- **Promoting the sidecar policy file** — `.golangci-lint-auto-configure.yml`
+  has 0 adoption across 160 projects. The feature stays functional (backward
+  compatible) but will not be actively promoted. The `--pragmatic` flag is the
+  preferred friction-reduction mechanism going forward.

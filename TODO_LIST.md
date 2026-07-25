@@ -21,21 +21,20 @@ Short- and mid-term actionable work. Completed items live in `CHANGELOG.md`; lon
 | ------------------------------------------------------------------- | -------------------------------------------------------- | ------ | ------------------------------------------------------------------------------- |
 | Adopt `HandleError` at the CLI boundary (replaces slog)             | Medium — structured error output at the system boundary  | 1–2h   | No `HandleError` in `internal/cli/` today                                       |
 | Add `--no-color` flag for CI/scripting output                       | Medium — enables accurate plain-text examples in docs    | 1h     | README example output is hand-simplified because real output has ANSI codes     |
-| Pin golangci-lint version in CI to match devShell (v2.12.2)         | Medium — prevents version drift between local and CI     | 30min  | CI uses `go-version-file: go.mod` for Go, but golangci-lint version is unpinned |
-| Convert `scripts/coverage-check.sh` to a Go test                    | Medium — more portable, runs in `go test`                | 1h     | `scripts/coverage-check.sh` is still bash                                       |
-| Full README.md claim-by-claim audit (all ~500 lines)                | Medium — only ~100 lines audited; minor drift may remain | 2h     | README.md is ~500 lines; this session fixed Requirements, output, CI, links     |
 | Extract ARCHITECTURE.md inline ADRs to individual `docs/adr/` files | Medium — ADRs live in two places (split brain)           | 1–2h   | `docs/adr/` has 5 files; ARCHITECTURE.md has 8 inline ADRs                      |
-| Add markdown linter (`markdownlint-cli2`) to Nix devShell and CI    | Medium — catches broken `<details>` blocks, link rot     | 1h     | No markdown linter in `flake.nix` or CI                                         |
-| Add property-based JSON round-trip tests for report types           | Medium — catches serialization regressions               | 2h     | Report types use json/v2 omitzero; no round-trip property tests exist           |
-| Add HTML report snapshot/golden tests                               | Medium — guards against silent templ regressions         | 1–2h   | `pkg/report/report.templ` has no golden tests                                   |
+| Extract linter/formatter name strings as typed `const` values       | Medium — eliminates goconst class of lint warnings      | 2–3h   | Linter names are bare strings in many files; typed `LinterName` exists but underused |
+| Type `OutputConfig.Formats` (only two known shapes: `format: path`) | Medium — makes config parsing type-safe                | 1h     | `pkg/types/config_types.go` uses `map[string]any` for formats                  |
+| Split the 8-method `ConfigLoader` God Object interface              | Medium — too many concerns in one interface              | 2–3h   | `pkg/types/types.go:223` — combines 6 sub-interfaces                            |
+| Consolidate `ValidationError` + `HealthIssue` (overlapping types)   | Medium — type system duplication                       | 1–2h   | `pkg/types/types.go:199` and `pkg/types/validation.go:118`                     |
+| Generate settings structs from golangci-lint's JSON Schema           | Medium — replaces hand-maintained structs with generated | 4–6h  | 13 typed structs in `pkg/constants/linter_settings.go` are hand-maintained     |
 
 ## Low Priority
 
 | Task                                                                     | Impact | Effort | Evidence                                                   |
 | ------------------------------------------------------------------------ | ------ | ------ | ---------------------------------------------------------- |
 | Register domain message templates for `errorfamily.New()` constructors   | Low    | 30min  | `pkg/errors/classification.go` uses bare sentinels         |
-| Build an error-code governance registry (~40 ad-hoc exit codes, no test) | Low    | 2h     | Exit codes scattered across CLI commands; no central map   |
-| Consolidate `ValidationError` + `HealthIssue` (overlapping types)        | Low    | 1–2h   | `pkg/types/types.go:199` and `pkg/types/validation.go:118` |
-| Split the composite `ConfigLoader` God Object interface (8+ methods)     | Low    | 2–3h   | `pkg/types/types.go:223` — combines 6 sub-interfaces       |
-| Add `flake.lock` drift detection to CI                                   | Low    | 30min  | No drift check in `.github/workflows/ci.yml`               |
-| Consolidate/archive the 100+ July status reports in `docs/status/`       | Low    | 1h     | `docs/archive/status/` + `docs/status/` have 100+ files    |
+| Implement preset composition (`format = minimal + formatters`)            | Low    | 1–2h   | `presets.go` format preset reuses minimalLinters directly  |
+| Add `--preset a --preset b` multi-preset support                         | Low    | 2–3h   | `--preset` currently accepts one value                     |
+| Add `--detect` mode for the format preset (auto-enable swaggo)           | Low    | 1h     | `--detect` exists for configure but not format-specific    |
+| Add `--backup` flag decision (always-on vs opt-in)                        | Low    | 30min  | Product decision needed from user                           |
+| Conventional-commits-to-changelog automation (`git-cliff`)               | Low    | 2h     | CHANGELOG is hand-maintained                               |
