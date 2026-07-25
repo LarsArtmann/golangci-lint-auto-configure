@@ -249,6 +249,32 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 		Expect(excludeSlice).To(ContainElement(ContainSubstring("os/exec.Cmd")))
 	})
 
+	It("exhaustruct exclude should contain the canonical stdlib structs", func() {
+		m := constants.DefaultLinterSettings["exhaustruct"].ToMap()
+		exclude, ok := m["exclude"]
+		Expect(ok).To(BeTrue(), "exhaustruct settings missing exclude key")
+		excludeSlice, ok := exclude.([]any)
+		Expect(ok).To(BeTrue(), "exhaustruct exclude is not []any")
+
+		// These stdlib structs are the top sources of exhaustruct false-positive
+		// noise (954 nolints across 146 configs in the cross-project audit).
+		required := []string{
+			"net/http.Client", "net/http.Server", "net/http.Request",
+			"net/http.Response", "net/http.Transport", "net/http.Cookie",
+			"net.TCPAddr", "net.Dialer", "log/slog.HandlerOptions",
+			"sync.WaitGroup", "bytes.Buffer", "time.Ticker", "time.Timer",
+			"os/exec.Cmd",
+		}
+		excludeStrings := make([]string, 0, len(excludeSlice))
+		for _, e := range excludeSlice {
+			excludeStrings = append(excludeStrings, e.(string))
+		}
+		for _, r := range required {
+			Expect(excludeStrings).To(ContainElement(r),
+				"exhaustruct exclude must contain canonical stdlib struct %q", r)
+		}
+	})
+
 	It("revive should produce rules with disabled entries", func() {
 		m := constants.DefaultLinterSettings["revive"].ToMap()
 		rules, ok := m["rules"]

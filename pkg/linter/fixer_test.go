@@ -839,6 +839,21 @@ linters:
 			Expect(content).To(ContainSubstring("always: false"))
 			Expect(content).NotTo(ContainSubstring("always: true"))
 		})
+
+		It("should inject exhaustruct stdlib excludes when exhaustruct is enabled", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - exhaustruct
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("exhaustruct:"))
+			Expect(content).To(ContainSubstring("net/http.Client"))
+			Expect(content).To(ContainSubstring("net/http.Server"))
+			Expect(content).To(ContainSubstring("os/exec.Cmd"))
+		})
 	})
 
 	Context("Default Formatter Settings", func() {

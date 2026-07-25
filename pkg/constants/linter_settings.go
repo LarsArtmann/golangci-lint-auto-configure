@@ -154,7 +154,24 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 		},
 	},
 	"exhaustruct": ExhaustructSettings{
+		// Stdlib structs that are routinely and safely partially-initialized.
+		// Curated from a cross-project audit (954 exhaustruct nolints across 146
+		// configs); these types dominate the noise. Project-specific types are
+		// added per-project, not here.
 		Exclude: []string{
+			"net/http.Client",
+			"net/http.Server",
+			"net/http.Request",
+			"net/http.Response",
+			"net/http.Transport",
+			"net/http.Cookie",
+			"net.TCPAddr",
+			"net.Dialer",
+			"log/slog.HandlerOptions",
+			"sync.WaitGroup",
+			"bytes.Buffer",
+			"time.Ticker",
+			"time.Timer",
 			"os/exec.Cmd",
 		},
 	},
