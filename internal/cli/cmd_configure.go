@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 
 	"charm.land/log/v2"
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -70,9 +72,9 @@ func runFmtCommand(
 
 func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 	var (
-		preset string
-		detect bool
-		check  bool
+		presets []string
+		detect  bool
+		check   bool
 	)
 
 	cmd := builder.Build(
@@ -86,7 +88,7 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 				builder.Logger(),
 				builder.Analyzer(),
 				builder.ConfigLoader(),
-				preset,
+				presets,
 				detect,
 				check,
 				showDiff,
@@ -95,16 +97,16 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 		WithLong(configureLong),
 	)
 
-	addConfigureFlags(cmd, &preset, &detect, &check)
+	addConfigureFlags(cmd, &presets, &detect, &check)
 
 	return cmd
 }
 
-func addConfigureFlags(cmd *cobra.Command, preset *string, detect, check *bool) {
+func addConfigureFlags(cmd *cobra.Command, presets *[]string, detect, check *bool) {
 	cmd.Flags().
 		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
-		StringVar(preset, "preset", "", "Use a preset linter set (minimal, standard, strict, security, performance, reference, format, house)")
+		StringArrayVar(presets, "preset", nil, "Use preset linter sets (can be repeated: --preset minimal --preset security)")
 	cmd.Flags().
 		BoolVar(detect, "detect", false, "Auto-detect project type and select appropriate preset")
 	cmd.Flags().
@@ -120,7 +122,7 @@ func runDetectOrConfigure(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
-	preset string,
+	presets []string,
 	detect,
 	check,
 	showDiff bool,
@@ -131,7 +133,7 @@ func runDetectOrConfigure(
 		analyzer,
 		configLoader,
 		priority,
-		resolvePreset(preset, detect, logger),
+		resolvePresets(presets, detect, logger),
 		check || dryRun,
 		configPath,
 		check,
@@ -139,23 +141,23 @@ func runDetectOrConfigure(
 	)
 }
 
-func resolvePreset(preset string, detect bool, logger *log.Logger) string {
+func resolvePresets(presets []string, detect bool, logger *log.Logger) []string {
 	detectedExtraFormatters = nil
 
 	if !detect {
-		return preset
+		return presets
 	}
 
 	detector := detection.NewDetector(".")
 
-	if preset == "format" {
+	if slices.Contains(presets, "format") {
 		if hasSwaggo, err := detector.HasSwaggo(); err == nil && hasSwaggo {
 			detectedExtraFormatters = []string{"swaggo"}
 
 			logger.Infof("🔍 Detected swaggo usage — adding swaggo formatter to format preset")
 		}
 
-		return preset
+		return presets
 	}
 
 	projectType := detector.Detect()
@@ -163,7 +165,7 @@ func resolvePreset(preset string, detect bool, logger *log.Logger) string {
 	logger.Infof("🔍 Detected project type: %s", projectType.String())
 	logger.Infof("📋 Selected preset: %s", projectType.Preset())
 
-	return projectType.Preset()
+	return []string{projectType.Preset()}
 }
 
 func prepareConfigFile(
@@ -196,7 +198,8 @@ func runConfigure(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
-	priorityParam, preset string,
+	priorityParam string,
+	presets []string,
 	isDryRun bool,
 	configPath string,
 	check bool,
@@ -205,15 +208,15 @@ func runConfigure(
 	configFile, err := prepareConfigFile(ctx, configPath, configLoader, logger)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.prepare_config",
-			"prepare config failed (priority=%s, preset=%s, dryRun=%t)",
-			priorityParam, preset, isDryRun)
+			"prepare config failed (priority=%s, presets=%v, dryRun=%t)",
+			priorityParam, presets, isDryRun)
 	}
 
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
 	return runPresetOrFixer(
 		ctx, logger, analyzer, configLoader,
-		configFile, priorityParam, preset, isDryRun, check, showDiff,
+		configFile, priorityParam, presets, isDryRun, check, showDiff,
 	)
 }
 
@@ -222,12 +225,13 @@ func runPresetOrFixer(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
-	configFile, priorityParam, preset string,
+	configFile, priorityParam string,
+	presets []string,
 	isDryRun, check,
 	showDiff bool,
 ) error {
-	if preset != "" {
-		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, preset, isDryRun)
+	if len(presets) > 0 {
+		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, presets, isDryRun)
 	}
 
 	return runFixerMode(ctx, logger, analyzer, configLoader, configFile, priorityParam, isDryRun, check, showDiff)
@@ -238,12 +242,13 @@ func handlePresetMode(
 	logger *log.Logger,
 	configLoader *config.Loader,
 	analyzer *linter.Analyzer,
-	configFile, preset string,
+	configFile string,
+	presets []string,
 	dryRun bool,
 ) error {
-	if err := applyPreset(ctx, logger, configLoader, configFile, preset, dryRun); err != nil {
+	if err := applyPreset(ctx, logger, configLoader, configFile, presets, dryRun); err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.preset",
-			"apply preset failed (preset=%s, dryRun=%t)", preset, dryRun)
+			"apply preset failed (presets=%v, dryRun=%t)", presets, dryRun)
 	}
 
 	if !dryRun {
@@ -476,38 +481,48 @@ func ParsePriorityParam(priorityParam string) (types.LinterPriority, error) {
 func loadPresetConfig(
 	logger *log.Logger,
 	configLoader presetConfigLoader,
-	configFile, preset string,
+	configFile string,
+	presets []string,
 	dryRun bool,
 ) (*types.Config, []string, error) {
-	logger.Infof("Applying preset: %s", preset)
+	logger.Infof("Applying presets: %s", strings.Join(presets, "+"))
 
 	cfg, err := configLoader.LoadConfig(configFile)
 	if err != nil {
 		return nil, nil, apperrors.WrapClassifiedf(err, "configure.load_preset_config",
-			"failed to load config (preset=%s, dryRun=%t)", preset, dryRun)
+			"failed to load config (presets=%v, dryRun=%t)", presets, dryRun)
 	}
 
-	linters, ok := constants.PresetLinters[preset]
-	if !ok {
-		return nil, nil, errorfamily.WrapRejectionf(apperrors.ErrUnknownPreset,
-			"configure.unknown_preset", "%s (valid: %s, dryRun=%t)",
-			preset, constants.ValidPresets, dryRun)
+	linterSet := make(map[string]struct{})
+
+	for _, preset := range presets {
+		linters, ok := constants.PresetLinters[preset]
+		if !ok {
+			return nil, nil, errorfamily.WrapRejectionf(apperrors.ErrUnknownPreset,
+				"configure.unknown_preset", "%s (valid: %s, dryRun=%t)",
+				preset, constants.ValidPresets, dryRun)
+		}
+
+		for _, l := range linters {
+			linterSet[string(l)] = struct{}{}
+		}
 	}
 
-	return cfg, convertNames(linters), nil
+	return cfg, mapKeys(linterSet), nil
 }
 
 func savePresetConfig(
 	logger *log.Logger,
 	configLoader presetConfigLoader,
 	cfg *types.Config,
-	configFile, preset string,
+	configFile string,
+	presets []string,
 	linterNames []string,
 ) error {
 	cfg.Linters.Enable = linterNames
 	cfg.Linters.Disable = []string{}
 
-	applyPresetFormatters(logger, cfg, preset)
+	applyPresetFormatters(logger, cfg, presets)
 
 	generatedCount := linter.ApplyGeneratedExclusions(logger, cfg, configFile)
 	if generatedCount > 0 {
@@ -516,26 +531,38 @@ func savePresetConfig(
 
 	if err := configLoader.SaveConfig(cfg, configFile); err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.save_preset",
-			"failed to save config (preset=%s, linterCount=%d)",
-			preset, len(linterNames))
+			"failed to save config (presets=%v, linterCount=%d)",
+			presets, len(linterNames))
 	}
 
-	logger.Infof("✅ Applied preset %s with %d linters", preset, len(linterNames))
+	logger.Infof("✅ Applied presets %s with %d linters", strings.Join(presets, "+"), len(linterNames))
 
 	return nil
 }
 
-func applyPresetFormatters(logger *log.Logger, cfg *types.Config, preset string) {
-	formatters, ok := constants.PresetFormatters[preset]
-	if !ok {
+func applyPresetFormatters(logger *log.Logger, cfg *types.Config, presets []string) {
+	formatterSet := make(map[string]struct{})
+
+	for _, preset := range presets {
+		formatters, ok := constants.PresetFormatters[preset]
+		if !ok {
+			continue
+		}
+
+		for _, f := range formatters {
+			formatterSet[string(f)] = struct{}{}
+		}
+	}
+
+	if len(formatterSet) == 0 {
 		return
 	}
 
-	formatterNames := convertNames(formatters)
+	formatterNames := mapKeys(formatterSet)
 	formatterNames = append(formatterNames, detectedExtraFormatters...)
 	cfg.Formatters.Enable = formatterNames
 
-	logger.Infof("Enabling %d formatters from preset: %v", len(formatterNames), formatterNames)
+	logger.Infof("Enabling %d formatters from presets: %v", len(formatterNames), formatterNames)
 }
 
 // applyPreset applies a preset linter configuration.
@@ -543,18 +570,19 @@ func applyPreset(
 	_ context.Context,
 	logger *log.Logger,
 	configLoader presetConfigLoader,
-	configFile, preset string,
+	configFile string,
+	presets []string,
 	dryRun bool,
 ) error {
-	cfg, linterNames, err := loadPresetConfig(logger, configLoader, configFile, preset, dryRun)
+	cfg, linterNames, err := loadPresetConfig(logger, configLoader, configFile, presets, dryRun)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.load_preset",
-			"load preset config failed (preset=%s, dryRun=%t)",
-			preset, dryRun)
+			"load preset config failed (presets=%v, dryRun=%t)",
+			presets, dryRun)
 	}
 
 	if dryRun {
-		logDryRunPreset(logger, preset, linterNames)
+		logDryRunPreset(logger, presets, linterNames)
 
 		return nil
 	}
@@ -564,7 +592,7 @@ func applyPreset(
 			"failed to backup config before preset application (file=%s)", configFile)
 	}
 
-	return savePresetConfig(logger, configLoader, cfg, configFile, preset, linterNames)
+	return savePresetConfig(logger, configLoader, cfg, configFile, presets, linterNames)
 }
 
 func convertNames[T ~string](names []T) []string {
@@ -573,6 +601,18 @@ func convertNames[T ~string](names []T) []string {
 	for _, n := range names {
 		result = append(result, string(n))
 	}
+
+	return result
+}
+
+// mapKeys extracts and sorts keys from a map[string]struct{} set.
+func mapKeys(set map[string]struct{}) []string {
+	result := make([]string, 0, len(set))
+	for k := range set {
+		result = append(result, k)
+	}
+
+	slices.Sort(result)
 
 	return result
 }
@@ -598,14 +638,25 @@ func backupConfigFile(logger *log.Logger, configFile string) error {
 	return nil
 }
 
-func logDryRunPreset(logger *log.Logger, preset string, linterNames []string) {
-	logger.Infof("[DRY-RUN] Would apply preset %s with %d linters:", preset, len(linterNames))
+func logDryRunPreset(logger *log.Logger, presets []string, linterNames []string) {
+	logger.Infof("[DRY-RUN] Would apply presets %s with %d linters:", strings.Join(presets, "+"), len(linterNames))
 
 	for _, l := range linterNames {
 		logger.Infof("  - %s", l)
 	}
 
-	if formatters, ok := constants.PresetFormatters[preset]; ok {
+	formatterSet := make(map[string]struct{})
+
+	for _, preset := range presets {
+		if formatters, ok := constants.PresetFormatters[preset]; ok {
+			for _, f := range formatters {
+				formatterSet[string(f)] = struct{}{}
+			}
+		}
+	}
+
+	if len(formatterSet) > 0 {
+		formatters := mapKeys(formatterSet)
 		logger.Infof("[DRY-RUN] Would also enable %d formatters:", len(formatters))
 
 		for _, f := range formatters {
