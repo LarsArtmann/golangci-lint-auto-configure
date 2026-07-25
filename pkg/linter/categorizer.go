@@ -50,23 +50,25 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 		return true
 	}
 
-	if a.pragmatic {
-		if reason, ok := constants.PragmaticNoiseLinters[linter.Name]; ok {
-			a.logger.Debugf("Skipping noise linter (--pragmatic): %s (%s)", linter.Name, reason)
-
-			return true
-		}
-	}
-
-	if a.isLinterBelowMinVersion(linter) {
+	if a.isPragmaticNoise(linter) || a.isLinterBelowMinVersion(linter) {
 		return true
 	}
 
-	if a.isLinterRedundant(linter, formatterSet) {
+	if a.isLinterRedundant(linter, formatterSet) || a.isLinterProjectSpecific(linter) {
 		return true
 	}
 
-	if a.isLinterProjectSpecific(linter) {
+	return false
+}
+
+func (a *Analyzer) isPragmaticNoise(linter types.LinterInfo) bool {
+	if !a.pragmatic {
+		return false
+	}
+
+	if reason, ok := constants.PragmaticNoiseLinters[linter.Name]; ok {
+		a.logger.Debugf("Skipping noise linter (--pragmatic): %s (%s)", linter.Name, reason)
+
 		return true
 	}
 

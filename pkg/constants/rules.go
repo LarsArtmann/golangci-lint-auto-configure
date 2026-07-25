@@ -124,7 +124,7 @@ var RedundantLinters = map[types.LinterName]types.LinterToFormatter{
 
 // PragmaticNoiseLinters is the set of high-friction linters dropped from the
 // dynamic enable set when --pragmatic is used. These five have the highest
-// nolint-to-enable ratios (exhaustruct 6.5, gochecknoglobals 5.1, ireturn 1.3,
+// friction ratios (exhaustruct 6.5, gochecknoglobals 5.1, ireturn 1.3,
 // wrapcheck 1.8, funlen 0.83) and are the most commonly cited sources of
 // linting friction. They stay enabled by default; --pragmatic is an opt-in
 // escape hatch for projects that find them too noisy.

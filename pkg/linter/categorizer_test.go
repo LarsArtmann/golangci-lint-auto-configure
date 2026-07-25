@@ -159,9 +159,13 @@ var _ = Describe("CategorizeLinters", func() {
 	})
 
 	Context("Pragmatic Mode", func() {
-		noiseLinterEntries := newDisabledEntries(
-			"exhaustruct", "gochecknoglobals", "wrapcheck", "ireturn", "funlen", "misspell",
-		)
+		var noiseLinterEntries []disabledLinterEntry
+
+		BeforeEach(func() {
+			noiseLinterEntries = newDisabledEntries(
+				"exhaustruct", "gochecknoglobals", "wrapcheck", "ireturn", "funlen", "misspell",
+			)
+		})
 
 		It("should skip the 5 noise linters when pragmatic is enabled", func() {
 			analyzer.SetPragmatic(true)
