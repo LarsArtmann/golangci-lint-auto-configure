@@ -5,11 +5,11 @@ See `baseline.md` for the "before" snapshot.
 
 ## Per-linter impact
 
-| Linter     | Before (nolint) | Eliminable | Reduction | DoD Target | Verdict        |
-| ---------- | --------------: | ---------: | --------: | ---------: | -------------- |
-| exhaustruct|             954 |         22 |      2.3% |       ≥40% | **MISSED**    |
-| gosec      |             590 |        140 |     23.7% |       ≥25% | **CLOSE**      |
-| errcheck   |             443 |        121 |     27.3% |       ≥20% | **EXCEEDED**   |
+| Linter      | Before (nolint) | Eliminable | Reduction | DoD Target | Verdict      |
+| ----------- | --------------: | ---------: | --------: | ---------: | ------------ |
+| exhaustruct |             954 |         22 |      2.3% |       ≥40% | **MISSED**   |
+| gosec       |             590 |        140 |     23.7% |       ≥25% | **CLOSE**    |
+| errcheck    |             443 |        121 |     27.3% |       ≥20% | **EXCEEDED** |
 
 ### exhaustruct (954 nolints → 22 eliminable by stdlib excludes)
 
@@ -46,6 +46,7 @@ effective because `defer Close()` and `fmt.Fprint*` are the dominant errcheck no
 ## What actually propagated to existing configs
 
 When the tool runs on an existing `.golangci.yml`, it injects:
+
 - **errcheck exclude-functions** (16 entries) — always injected when errcheck is enabled and no settings exist
 - **gosec excludes** (G104, G304, G115) — always injected when gosec is enabled and no settings exist
 - **exhaustruct excludes** (14 stdlib structs) — always injected when exhaustruct is enabled and no settings exist
