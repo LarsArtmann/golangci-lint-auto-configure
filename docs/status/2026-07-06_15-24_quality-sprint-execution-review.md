@@ -8,8 +8,8 @@
 > | --- | ---------------------------------------------- | ----------- | ----------------------------------------------------------------------- |
 > | 1   | Commit all changes                             | ✅ Done     | All work committed across multiple commits                              |
 > | 2   | Fix ParsePriorityParam classification          | ✅ Done     | `ErrInvalidLinterPriority` registered as Rejection in classification.go |
-> | 3   | --diff integration tests                       | ❌ Not done | User-facing diff output still untested                                  |
-> | 4   | --check integration tests                      | ⚠️ Partial  | 1 of 4 planned tests exists                                             |
+> | 3   | --diff integration tests                       | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal          |
+> | 4   | --check integration tests                      | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases                        |
 > | 5   | Exit-code test: Infrastructure (69)            | ❌ Not done | golangci-lint-not-in-PATH path untested                                 |
 > | 6   | Scanner detection tests                        | ❌ Not done | gogenfilter coverage still ~63.9%                                       |
 > | 7   | Fix nixfmt-standalone                          | ✅ Done     | `.buildflow.yml` skips it; nix-fmt (treefmt) handles Nix formatting     |

@@ -17,7 +17,7 @@
 > | Replace fmt.Errorf with structured errors              | ✅ Done       | All 131 calls migrated to errorfamily.Wrap* (commit a8ff465)                |
 > | Register os.ErrNotExist as Rejection                   | ❌ Not done   | I/O errors still default to Transient                                       |
 > | Swallowed errors audit (20+ sites)                     | ❌ Not done   | Identified but not addressed                                                |
-> | gosec G204 nolints                                     | ❌ Still open | loader.go + cmd_validate.go                                                 |
+> | gosec G204 nolints                                     | ✅ Done (8d10df5) | `//nolint:gosec` added at loader.go:247, cmd_validate.go:264, analyzer.go:325 |
 > | Document error classification in AGENTS.md             | ✅ Done       | Gotcha #5                                                                   |
 >
 > The fmt.Errorf → go-error-family migration (item #6 in "WHAT WE SHOULD IMPROVE") is fully done, resolving the largest item. Structural refactors (split files, split interfaces) remain open. Current open items: `TODO_LIST.md`.

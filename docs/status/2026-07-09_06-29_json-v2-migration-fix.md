@@ -16,7 +16,7 @@
 > | FEATURES.md json/v2 migration row                     | ✅ Done       | Added to Build & CI table                                                  |
 > | TODO_LIST.md json/v2 item                             | ✅ Done       | Added to Completed section                                                 |
 > | GOEXPERIMENT in shellHook echo                        | ✅ Done       | Visible in devShell banner                                                 |
-> | gosec G204 nolints                                    | ❌ Still open | `loader.go` and `cmd_validate.go` still have 2 pre-existing gosec warnings |
+> | gosec G204 nolints                                    | ✅ Done (8d10df5) | `//nolint:gosec` added at loader.go:247, cmd_validate.go:264, analyzer.go:325 |
 >
 > See `docs/status/2026-07-09_07-09_json-v2-complete-buildflow-green.md` for the follow-up session that resolved most items. Current status: `TODO_LIST.md`.
 

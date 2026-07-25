@@ -10,8 +10,8 @@
 > | 2   | Fuzz test for pkg/config/merger.go             | ✅ Done     | FuzzMergeConfigInto + FuzzMergeIdempotent                                              |
 > | 3   | Unit tests for cmd_configure.go                | ⚠️ Partial  | `internal/cli/configure_unit_test.go` added (10 tests); CLI coverage ~13% (target 30%) |
 > | 4   | Fix nixfmt-standalone in devShell              | ✅ Done     | `.buildflow.yml` skips it                                                              |
-> | 5   | --diff integration tests                       | ❌ Not done | User-facing diff output untested                                                       |
-> | 6   | --check mode tests                             | ⚠️ Partial  | 1 of 4 planned tests done                                                              |
+> | 5   | --diff integration tests                       | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal                          |
+> | 6   | --check mode tests                             | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases                                       |
 > | 7   | Branded type for configPath                    | ❌ Not done | Still stringly-typed                                                                   |
 > | 8   | gogenfilter coverage 63.9% → 80%               | ❌ Not done | Still ~63.9%                                                                           |
 > | 9   | Result type for CLI commands                   | ❌ Not done | Commands return `error` only                                                           |

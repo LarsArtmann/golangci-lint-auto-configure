@@ -15,7 +15,7 @@
 > | Error code governance (registry, convention) | ❌ Not done   | ~40 unique codes exist ad-hoc, no registry or test                          |
 > | Split cmd_configure.go (541 lines)           | ❌ Not done   | File still large                                                            |
 > | Split ConfigLoader God Object                | ❌ Not done   | 8-method interface unchanged                                                |
-> | gosec G204 nolints                           | ❌ Still open | loader.go + cmd_validate.go                                                 |
+> | gosec G204 nolints                           | ✅ Done (8d10df5) | `//nolint:gosec` added at loader.go:247, cmd_validate.go:264, analyzer.go:325 |
 >
 > The `[family:code]` prefix question (#g1) remains a design decision. Current open items: `TODO_LIST.md`.
 
