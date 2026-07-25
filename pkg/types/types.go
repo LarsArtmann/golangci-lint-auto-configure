@@ -210,10 +210,33 @@ func (e ValidationError) Error() string {
 	return fmt.Sprintf("validation error: %s (field: %s)", e.Message, e.Field)
 }
 
+// ToHealthIssue converts a ValidationError to a HealthIssue with Critical severity.
+// This bridges the two representations for unified display and reporting.
+func (e ValidationError) ToHealthIssue() HealthIssue {
+	return HealthIssue{
+		Severity: HealthSeverityCritical,
+		Rule:     "validation",
+		Message:  e.Message,
+		Field:    e.Field,
+		Line:     e.Line,
+	}
+}
+
 // ValidationResult represents the result of configuration validation.
 type ValidationResult struct {
 	Valid  bool
 	Errors []ValidationError `json:",omitempty"`
+}
+
+// ToHealthIssues converts all ValidationErrors to HealthIssues for unified
+// reporting alongside structural health checks.
+func (r ValidationResult) ToHealthIssues() []HealthIssue {
+	issues := make([]HealthIssue, 0, len(r.Errors))
+	for _, e := range r.Errors {
+		issues = append(issues, e.ToHealthIssue())
+	}
+
+	return issues
 }
 
 // --- Interfaces for Testability ---

@@ -121,6 +121,7 @@ type HealthIssue struct {
 	Message    string
 	Field      string
 	Suggestion string `json:",omitempty"`
+	Line       int    `json:",omitempty"`
 }
 
 // ConfigHealth represents the structural health assessment of a config.
