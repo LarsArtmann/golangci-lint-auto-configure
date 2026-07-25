@@ -79,7 +79,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | --------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------ |
 | Default linter exclusion paths (\_templ.go$, .gen.go$, vendor/) | FULLY_FUNCTIONAL | Always injected                                                                      |
 | Default formatter exclusion paths (\_templ.go$)                 | FULLY_FUNCTIONAL | Always injected                                                                      |
-| Default test exclusion rules (7 linters for \_test.go)          | FULLY_FUNCTIONAL | exhaustruct, testpackage, gochecknoglobals, funlen, cyclop, goconst, forcetypeassert |
+| Default test exclusion rules (14 linters for \_test.go)         | FULLY_FUNCTIONAL | exhaustruct, testpackage, gochecknoglobals, funlen, cyclop, goconst, forcetypeassert, gosec, errcheck, wrapcheck, ireturn, recvcheck, contextcheck, exhaustive |
 | Default unused text exclusion for test files                    | FULLY_FUNCTIONAL | Suppresses unused false positives in tests                                           |
 | `generated: lax` auto-set                                       | FULLY_FUNCTIONAL | Both linters and formatters                                                          |
 | gogenfilter dynamic scan                                        | FULLY_FUNCTIONAL | Detects templ, protobuf, wire, moq, mockgen, stringer, sqlc, oapi-codegen            |

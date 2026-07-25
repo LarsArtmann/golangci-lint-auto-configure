@@ -854,6 +854,35 @@ linters:
 			Expect(content).To(ContainSubstring("net/http.Server"))
 			Expect(content).To(ContainSubstring("os/exec.Cmd"))
 		})
+
+		It("should inject gosec excludes when gosec is enabled without settings", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+    - gosec
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("gosec:"))
+			Expect(content).To(ContainSubstring("G304"))
+			Expect(content).To(ContainSubstring("G104"))
+		})
+
+		It("should inject errcheck exclude-functions when errcheck is enabled without settings", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+    - errcheck
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(ContainSubstring("errcheck:"))
+			Expect(content).To(ContainSubstring("exclude-functions"))
+			Expect(content).To(ContainSubstring("(*os.File).Close"))
+			Expect(content).To(ContainSubstring("fmt.Fprintf"))
+		})
 	})
 
 	Context("Default Formatter Settings", func() {

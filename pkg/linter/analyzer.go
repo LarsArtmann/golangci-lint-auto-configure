@@ -29,6 +29,7 @@ type Analyzer struct {
 	logger           *log.Logger
 	detectedVersion  string
 	projectRoot      string
+	pragmatic        bool
 }
 
 // NewAnalyzer creates a new linter analyzer.
@@ -38,7 +39,15 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 		logger:           logger,
 		detectedVersion:  "",
 		projectRoot:      "",
+		pragmatic:        false,
 	}
+}
+
+// SetPragmatic enables pragmatic mode, which drops the five highest-noise linters
+// (exhaustruct, gochecknoglobals, ireturn, wrapcheck, funlen) from the dynamic
+// enable set. Off by default — default behavior is byte-identical to today.
+func (a *Analyzer) SetPragmatic(enabled bool) {
+	a.pragmatic = enabled
 }
 
 // GetDetectedVersion returns the detected golangci-lint version, or empty string if not yet checked.

@@ -325,8 +325,28 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 
 	It("funlen should produce lines and statements thresholds", func() {
 		m := constants.DefaultLinterSettings["funlen"].ToMap()
-		Expect(m["lines"]).To(Equal(60))
-		Expect(m["statements"]).To(Equal(40))
+		Expect(m["lines"]).To(Equal(200))
+		Expect(m["statements"]).To(Equal(100))
+	})
+
+	It("gosec should produce excludes list", func() {
+		m := constants.DefaultLinterSettings["gosec"].ToMap()
+		excludes, ok := m["excludes"]
+		Expect(ok).To(BeTrue(), "gosec settings missing excludes key")
+		excludesSlice, ok := excludes.([]any)
+		Expect(ok).To(BeTrue(), "gosec excludes is not []any")
+		Expect(excludesSlice).To(ContainElement(Equal("G304")))
+		Expect(excludesSlice).To(ContainElement(Equal("G104")))
+	})
+
+	It("errcheck should produce exclude-functions list", func() {
+		m := constants.DefaultLinterSettings["errcheck"].ToMap()
+		fns, ok := m["exclude-functions"]
+		Expect(ok).To(BeTrue(), "errcheck settings missing exclude-functions key")
+		fnsSlice, ok := fns.([]any)
+		Expect(ok).To(BeTrue(), "errcheck exclude-functions is not []any")
+		Expect(fnsSlice).To(ContainElement(Equal("(*os.File).Close")))
+		Expect(fnsSlice).To(ContainElement(Equal("fmt.Fprintf")))
 	})
 
 	It("mnd should produce ignored-numbers list", func() {
