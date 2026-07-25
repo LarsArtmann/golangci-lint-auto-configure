@@ -89,6 +89,26 @@ func (p ProjectType) Preset() string {
 	}
 }
 
+// RecommendPresets analyzes the project and returns a prioritized list of
+// recommended presets that can be combined with --preset flags. The first
+// element is always the base preset from project type detection. Additional
+// presets are added based on detected technologies.
+func (d *Detector) RecommendPresets() []string {
+	base := d.Detect().Preset()
+	recommendations := []string{base}
+
+	if hasSwaggo, err := d.HasSwaggo(); err == nil && hasSwaggo {
+		recommendations = append(recommendations, "format")
+	}
+
+	projectType := d.Detect()
+	if projectType == ProjectTypeWeb || projectType == ProjectTypeAPI {
+		recommendations = append(recommendations, "security")
+	}
+
+	return recommendations
+}
+
 type Detector struct {
 	rootDir string
 	cache   ProjectType
