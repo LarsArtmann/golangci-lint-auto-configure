@@ -1,9 +1,8 @@
-package main_test
+package main
 
 import (
 	"testing"
 
-	"github.com/larsartmann/golangci-lint-auto-configure/cmd/coverage-check"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -16,7 +15,7 @@ func TestCoverageCheck(t *testing.T) {
 var _ = Describe("parseTotalPercentage", func() {
 	DescribeTable("parses the total line from go tool cover output",
 		func(output string, expected float64) {
-			percent, err := main.ParseTotalPercentage(output)
+			percent, err := ParseTotalPercentage(output)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(percent).To(Equal(expected))
 		},
@@ -30,7 +29,7 @@ var _ = Describe("parseTotalPercentage", func() {
 
 	DescribeTable("returns an error for invalid output",
 		func(output string, expectedErr string) {
-			_, err := main.ParseTotalPercentage(output)
+			_, err := ParseTotalPercentage(output)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring(expectedErr))
 		},
@@ -41,13 +40,13 @@ var _ = Describe("parseTotalPercentage", func() {
 
 	It("handles output with only per-file lines (no total)", func() {
 		output := "github.com/foo/bar/a.go:10: FuncA\t75.0%\ngithub.com/foo/bar/b.go:5: FuncB\t80.0%\n"
-		_, err := main.ParseTotalPercentage(output)
+		_, err := ParseTotalPercentage(output)
 		Expect(err).To(MatchError(ContainSubstring("no total line")))
 	})
 })
 
 const sampleCoverOutput = `github.com/foo/bar/main.go:10:		Init		100.0%
-github.com/foo/bar/config.go:15:		Load		80.0%
-github.com/foo/bar/utils.go:20:		Helper		50.0%
+github.com/foo/bar/config.go:15:	Load		80.0%
+github.com/foo/bar/utils.go:20:	Helper		50.0%
 total:			(stats)	72.5%
 `

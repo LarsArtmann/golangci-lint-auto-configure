@@ -13,6 +13,7 @@
 **`cmd/coverage-check/main.go`** (NEW) — Portable Go program replacing `scripts/coverage-check.sh`. Uses `flag` package with `-min` and `-profile` flags, `exec.CommandContext` for `go tool cover`, proper sentinel errors (err113-compliant), and context-aware subprocess execution. Lint-clean (0 issues).
 
 **`.github/workflows/ci.yml`** — 3 fixes:
+
 - `test-and-build` job: removed matrix strategy (`go-version: ["1.26"]`), switched to `go-version-file: go.mod` (matches lint/govulncheck jobs)
 - Added `flake.lock` drift detection step to the `nix` job (runs `nix flake lock`, fails if `git diff --exit-code flake.lock`)
 - Coverage gate switched from `bash scripts/coverage-check.sh 60` to `go run ./cmd/coverage-check -min=60 -profile=coverage.out`
@@ -26,12 +27,14 @@
 ### 2. Test coverage (items 16, 17)
 
 **`pkg/types/json_roundtrip_test.go`** (NEW) — 16 BDD specs testing JSON marshal→unmarshal round-trips for ALL report types:
+
 - LinterInfo (full + zero-value), FormatterInfo, LinterRecommendation, FormatterRecommendation, LinterReplacement, ValidationError (with/without Line), MigrationResult, ValidationResult
 - ConfigAnalysis with nested types
 - MigrationResult Error field exclusion (`json:"-"`)
 - Priority enum preservation (Critical/High/Medium/Optional via DescribeTable)
 
 **`pkg/report/golden_test.go`** + **`pkg/report/testdata/golden/report.html`** (NEW) — Golden snapshot test + 8 structural invariant tests:
+
 - Golden file comparison with `UPDATE_GOLDEN=1` regeneration support
 - Auto-creates golden file if missing
 - Structural invariants: doctype, config path in header, success message rendering, linter name rendering, priority section rendering, HTML tag balance
@@ -146,6 +149,7 @@ I replaced `scripts/coverage-check.sh` with `cmd/coverage-check/main.go` but lef
 ### 3. Document the golden file workflow
 
 When adding golden/snapshot tests, document the `UPDATE_GOLDEN=1` workflow in:
+
 - A comment at the top of the test file
 - `docs/references/working-with-codebase.md`
 - `AGENTS.md` critical gotchas section

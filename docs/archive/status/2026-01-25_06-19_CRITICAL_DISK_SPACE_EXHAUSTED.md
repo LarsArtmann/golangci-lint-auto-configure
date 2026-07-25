@@ -755,37 +755,37 @@ logger.Error("analysis failed",
 ```css
 /* pkg/report/styles.css */
 :root {
-  --bg-color: #f5f5f5;
-  --text-color: #333333;
-  --card-bg: #ffffff;
-  --border-color: #e0e0e0;
+	--bg-color: #f5f5f5;
+	--text-color: #333333;
+	--card-bg: #ffffff;
+	--border-color: #e0e0e0;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #1a1a1a;
-    --text-color: #e5e5e5;
-    --card-bg: #2d2d2d;
-    --border-color: #3d3d3d;
-  }
+	:root {
+		--bg-color: #1a1a1a;
+		--text-color: #e5e5e5;
+		--card-bg: #2d2d2d;
+		--border-color: #3d3d3d;
+	}
 }
 
 .dark-mode {
-  --bg-color: #1a1a1a;
-  --text-color: #e5e5e5;
+	--bg-color: #1a1a1a;
+	--text-color: #e5e5e5;
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+	background-color: var(--bg-color);
+	color: var(--text-color);
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease;
 }
 
 .card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
+	background-color: var(--card-bg);
+	border: 1px solid var(--border-color);
 }
 ```
 
@@ -794,28 +794,28 @@ body {
 ```javascript
 // pkg/report/theme.js
 function toggleTheme() {
-  const isDark = document.documentElement.classList.contains("dark-mode");
-  if (isDark) {
-    document.documentElement.classList.remove("dark-mode");
-    localStorage.setItem("theme", "light");
-  } else {
-    document.documentElement.classList.add("dark-mode");
-    localStorage.setItem("theme", "dark");
-  }
+	const isDark = document.documentElement.classList.contains("dark-mode");
+	if (isDark) {
+		document.documentElement.classList.remove("dark-mode");
+		localStorage.setItem("theme", "light");
+	} else {
+		document.documentElement.classList.add("dark-mode");
+		localStorage.setItem("theme", "dark");
+	}
 }
 
 function initTheme() {
-  const saved = localStorage.getItem("theme") || "system";
-  if (saved === "dark") {
-    document.documentElement.classList.add("dark-mode");
-  } else if (saved === "light") {
-    document.documentElement.classList.remove("dark-mode");
-  } else {
-    // Use system preference
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.documentElement.classList.add("dark-mode");
-    }
-  }
+	const saved = localStorage.getItem("theme") || "system";
+	if (saved === "dark") {
+		document.documentElement.classList.add("dark-mode");
+	} else if (saved === "light") {
+		document.documentElement.classList.remove("dark-mode");
+	} else {
+		// Use system preference
+		if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+			document.documentElement.classList.add("dark-mode");
+		}
+	}
 }
 
 document.addEventListener("DOMContentLoaded", initTheme);

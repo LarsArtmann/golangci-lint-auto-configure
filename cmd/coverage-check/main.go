@@ -82,6 +82,9 @@ func parseTotalCoverage(profilePath string) (float64, error) {
 	return parseTotalPercentage(string(output))
 }
 
+// parseTotalPercentage scans the output of `go tool cover -func` for the
+// `total:` line and returns the coverage percentage. It returns an error if
+// the total line is missing, malformed, or contains an unparseable percentage.
 func parseTotalPercentage(output string) (float64, error) {
 	for line := range strings.SplitSeq(output, "\n") {
 		if !strings.HasPrefix(line, "total:") {
