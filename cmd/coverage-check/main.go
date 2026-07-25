@@ -3,12 +3,12 @@
 //
 // Usage:
 //
-//	go run ./cmd/coverage-check [min-percentage] [profile-path]
-//
-// Defaults: min-percentage=60, profile-path=coverage.out
+//	go run ./cmd/coverage-check -min=60 -profile=coverage.out
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -17,21 +17,36 @@ import (
 	"strings"
 )
 
+const (
+	defaultMinCoverage = 60.0
+	minFieldsExpected  = 2
+)
+
+var (
+	errProfileNotFound  = errors.New("coverage profile not found")
+	errCoverageBelowMin = errors.New("coverage below minimum threshold")
+	errTotalLineFormat  = errors.New("unexpected total line format")
+	errNoTotalLine      = errors.New("no total line found in coverage output")
+)
+
 func main() {
-	minFlag := flag.Float64("min", 60.0, "minimum coverage percentage")
-	profileFlag := flag.String("profile", "coverage.out", "path to coverage profile")
+	threshold := flag.Float64("min", defaultMinCoverage, "minimum coverage percentage")
+
+	profilePath := flag.String("profile", "coverage.out", "path to coverage profile")
+
 	flag.Parse()
 
-	if err := run(*minFlag, *profileFlag); err != nil {
+	if err := run(*threshold, *profilePath); err != nil {
 		fmt.Fprintf(os.Stderr, "❌ %s\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(min float64, profilePath string) error {
+func run(threshold float64, profilePath string) error {
 	if _, err := os.Stat(profilePath); err != nil {
 		return fmt.Errorf(
-			"%s not found — run 'go test -coverprofile=%s ./...' first",
+			"%w: %s — run 'go test -coverprofile=%s ./...' first",
+			errProfileNotFound,
 			profilePath,
 			profilePath,
 		)
@@ -42,43 +57,47 @@ func run(min float64, profilePath string) error {
 		return fmt.Errorf("failed to parse coverage: %w", err)
 	}
 
-	fmt.Printf("Coverage: %.1f%% (minimum: %.0f%%)\n", total, min)
+	//nolint:forbidigo // CLI tool output to stdout is intentional
+	fmt.Printf("Coverage: %.1f%% (minimum: %.0f%%)\n", total, threshold)
 
-	if total < min {
-		return fmt.Errorf("coverage %.1f%% is below minimum %.0f%%", total, min)
+	if total < threshold {
+		return fmt.Errorf("%w: %.1f%% < %.0f%%", errCoverageBelowMin, total, threshold)
 	}
 
-	fmt.Printf("✅ Coverage %.1f%% meets minimum %.0f%%\n", total, min)
+	//nolint:forbidigo // CLI tool output to stdout is intentional
+	fmt.Printf("✅ Coverage %.1f%% meets minimum %.0f%%\n", total, threshold)
 
 	return nil
 }
 
 func parseTotalCoverage(profilePath string) (float64, error) {
-	cmd := exec.Command("go", "tool", "cover", "-func="+profilePath)
+	//nolint:gosec // profilePath comes from trusted flag input
+	cmd := exec.CommandContext(context.Background(), "go", "tool", "cover", "-func="+profilePath)
 
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, fmt.Errorf("go tool cover failed: %w", err)
 	}
 
-	for _, line := range strings.Split(string(output), "\n") {
+	for line := range strings.SplitSeq(string(output), "\n") {
 		if !strings.HasPrefix(line, "total:") {
 			continue
 		}
 
 		fields := strings.Fields(line)
-		if len(fields) < 2 {
-			return 0, fmt.Errorf("unexpected total line format: %s", line)
+		if len(fields) < minFieldsExpected {
+			return 0, fmt.Errorf("%w: %s", errTotalLineFormat, line)
 		}
 
 		percentStr := strings.TrimSuffix(fields[len(fields)-1], "%")
-		percent, err := strconv.ParseFloat(percentStr, 64)
-		if err != nil {
-			return 0, fmt.Errorf("failed to parse percentage %q: %w", percentStr, err)
+
+		percent, parseErr := strconv.ParseFloat(percentStr, 64)
+		if parseErr != nil {
+			return 0, fmt.Errorf("failed to parse percentage %q: %w", percentStr, parseErr)
 		}
 
 		return percent, nil
 	}
 
-	return 0, fmt.Errorf("no total line found in coverage output")
+	return 0, errNoTotalLine
 }
