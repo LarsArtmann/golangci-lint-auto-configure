@@ -90,12 +90,14 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | ------------------------------------------------------- | ---------------- | ----------------------------------- |
 | `minimal` preset (5 linters)                            | FULLY_FUNCTIONAL | Essential only, fastest             |
 | `standard` preset (8 linters)                           | FULLY_FUNCTIONAL | Good balance for most projects      |
-| `strict` preset (17 linters)                            | FULLY_FUNCTIONAL | Maximum linting for CI/CD           |
+| `strict` preset (20 linters)                            | FULLY_FUNCTIONAL | Maximum linting for CI/CD           |
 | `security` preset                                       | FULLY_FUNCTIONAL | Security-focused only               |
 | `performance` preset                                    | FULLY_FUNCTIONAL | Performance optimization            |
-| `reference` preset (60+ linters)                        | FULLY_FUNCTIONAL | All critical + high priority        |
+| `reference` preset (62 linters)                        | FULLY_FUNCTIONAL | All critical + high priority        |
 | `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters |
 | Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo    |
+
+> Linter counts verified against `pkg/constants/presets.go` as of 2026-07-25.
 
 ## Formatter Management
 
