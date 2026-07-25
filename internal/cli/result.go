@@ -17,6 +17,8 @@ import (
 //	return ErrorResult(err, 1)
 //
 // Plain error returns continue to work — HandleError handles both.
+//
+//nolint:errname // intentionally not named *Error: represents both success and failure
 type CommandResult struct {
 	err      error
 	message  string

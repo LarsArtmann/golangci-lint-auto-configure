@@ -285,6 +285,11 @@ func Main() {
 // fallback), and returns the BSD sysexits exit code. Called at the CLI
 // boundary for all unhandled errors.
 func HandleError(err error) int {
+	// Check for explicit CommandResult with a user-provided exit code/message
+	if result := extractCommandResult(err); result != nil {
+		return handleCommandResult(result)
+	}
+
 	family := errorfamily.Classify(err)
 	exitCode := errorfamily.ExitCode(err)
 
@@ -297,6 +302,21 @@ func HandleError(err error) int {
 	}
 
 	return exitCode
+}
+
+// handleCommandResult processes a *CommandResult, printing its message and
+// returning its exit code. Success results print to stdout; error results
+// delegate to the standard error handling path.
+func handleCommandResult(result *CommandResult) int {
+	if result.IsSuccess() {
+		if result.Message() != "" {
+			fmt.Fprintln(os.Stdout, result.Message())
+		}
+
+		return 0
+	}
+
+	return result.ExitCode()
 }
 
 // renderUserError resolves a domain MessageTemplate for the error and renders
