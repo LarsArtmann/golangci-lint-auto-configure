@@ -29,7 +29,12 @@ project-specific nolints.
 
 - G304 (file-taint): 49 nolints eliminated
 - G115 (integer overflow): 91 nolints eliminated
-- G104 (unhandled error): 0 direct nolints (redundant with errcheck, rarely nolinted directly)
+
+G104 (unhandled error) was **intentionally NOT excluded** — it overlaps with errcheck,
+but gosec catches security-relevant unhandled errors that errcheck's `exclude-functions`
+list deliberately does not suppress. Excluding G104 globally would hide real
+security findings in production code. errcheck's surgical `exclude-functions` is
+the correct mechanism for known-benign unhandled errors (Close, Fprint*).
 
 23.7% reduction — just under the 25% target. The gap is because many gosec nolints reference
 the linter name generically (`//nolint:gosec`) without specifying a G-code, making them
@@ -48,7 +53,7 @@ effective because `defer Close()` and `fmt.Fprint*` are the dominant errcheck no
 When the tool runs on an existing `.golangci.yml`, it injects:
 
 - **errcheck exclude-functions** (16 entries) — always injected when errcheck is enabled and no settings exist
-- **gosec excludes** (G104, G304, G115) — always injected when gosec is enabled and no settings exist
+- **gosec excludes** (G304, G115) — always injected when gosec is enabled and no settings exist
 - **exhaustruct excludes** (14 stdlib structs) — always injected when exhaustruct is enabled and no settings exist
 - **Test-file exclusion rules** — for new configs only (existing rules with same RuleKey are not duplicated)
 

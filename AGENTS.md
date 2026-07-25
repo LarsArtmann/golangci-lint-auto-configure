@@ -4,7 +4,7 @@ Concise, enduring context for AI sessions. For detail, see the linked docs at th
 
 ## What This Is
 
-Go CLI that auto-configures and optimizes golangci-lint configs: analyzes, detects missing linters, recommends settings, auto-fixes, replaces deprecated linters, migrates v1→v2, and emits HTML/JSON/SARIF/finding reports.
+Go CLI that auto-configures and optimizes golangci-lint configs: analyzes, detects missing linters, recommends settings, auto-fixes, replaces deprecated linters, migrates v1→v2, and emits HTML/JSON/SARIF/finding reports. **v1 config support is maintenance-only** (0 live v1 configs across 160 sibling projects; the `migrate` subcommand is kept functional but no new v1 features will be added).
 
 ## Commands (IMPORTANT — there is NO justfile)
 

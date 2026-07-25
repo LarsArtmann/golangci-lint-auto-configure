@@ -79,7 +79,11 @@ func parseTotalCoverage(profilePath string) (float64, error) {
 		return 0, fmt.Errorf("go tool cover failed: %w", err)
 	}
 
-	for line := range strings.SplitSeq(string(output), "\n") {
+	return parseTotalPercentage(string(output))
+}
+
+func parseTotalPercentage(output string) (float64, error) {
+	for line := range strings.SplitSeq(output, "\n") {
 		if !strings.HasPrefix(line, "total:") {
 			continue
 		}
