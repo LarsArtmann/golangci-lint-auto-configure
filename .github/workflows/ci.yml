@@ -143,6 +143,7 @@ jobs:
 
       - name: Cache Nix store
         uses: DeterminateSystems/magic-nix-cache-action@55718cd9ebf1737a061487d5ada21abf31e99a98 # main
+        continue-on-error: true
 
       - name: Check flake.lock is up to date
         run: |
