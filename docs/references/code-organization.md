@@ -67,6 +67,15 @@ golangci-lint-auto-configure/
 │   │   ├── errors.go              # Custom error types (package: apperrors)
 │   │   ├── classification.go     # go-error-family Family registration + Classified interface
 │   │   └── doc.go                # Package documentation
+│   ├── audit/                      # Append-only JSONL audit ledger for config mutations
+│   │   └── ledger.go              # Ledger + NoopRecorder (90-day retention)
+│   ├── policy/                     # Disable-reason sidecar enforcement (.golangci-lint-auto-configure.yml)
+│   │   └── policy.go              # Policy loader + anti-gaming enforcement
+│   ├── client/                     # golangci-lint CLI client wrapper
+│   │   └── client.go              # Runs `golangci-lint linters` / version commands
+│   ├── utils/                      # Shared utilities
+│   │   ├── git.go                 # Git repo detection (version-control safety)
+│   │   └── retry.go               # Exponential backoff with context cancellation
 │   ├── version/
 │   │   └── version.go             # Structured version info with runtime/debug fallback
 ├── internal/
@@ -76,6 +85,7 @@ golangci-lint-auto-configure/
 │   │   ├── cmd_analyze.go          # Analyze command
 │   │   ├── cmd_validate.go         # Validate command
 │   │   ├── cmd_report.go           # Report command
+│   │   ├── cmd_audit.go            # Audit query command (--json, --since, --clear)
 │   │   ├── cmd_builder.go          # CommandBuilder type
 │   │   ├── cmd/                    # Separate package for some commands
 │   │   │   ├── migrate.go          # Migrate command

@@ -420,7 +420,7 @@ Style and consistency linters:
 - `usestdlibvars` - Detects stdlib variable usage
 - `nonamedreturns` - Enforces named returns policy
 
-<details><summary>All 50+ Medium value linters</summary>
+<details><summary>All 48 Medium value linters</summary>
 
 `dupword`, `godot`, `godox`, `goheader`, `varnamelen`, `whitespace`, `wsl_v5`, `grouper`, `dogsled`, `makezero`, `asciicheck`, `bidichk`, `containedctx`, `decorder`, `forbidigo`, `godoclint`, `gomoddirectives`, `gomodguard`, `gomodguard_v2`, `ireturn`, `lll`, `mnd`, `nlreturn`, `nonamedreturns`, `promlinter`, `tagliatelle`, `testpackage`, `tparallel`, `unqueryvet`, `usestdlibvars`, `asasalint`, `canonicalheader`, `err113`, `exptostd`, `fatcontext`, `gocheckcompilerdirectives`, `goprintffuncname`, `iface`, `inamedparam`, `iotamixing`, `modernize`, `nosprintfhostport`, `tagalign`, `testableexamples`, `importas`, `arangolint`, `embeddedstructfieldcheck`, `clickhouselint`
 
@@ -480,6 +480,23 @@ go test -coverprofile=coverage.out ./pkg/... ./internal/... && go tool cover -ht
 # Check test coverage summary
 go test -cover ./pkg/... ./internal/...
 ```
+
+## Development Tools
+
+### Coverage Threshold Gate
+
+The `cmd/coverage-check` binary enforces a minimum test coverage threshold in CI:
+
+```bash
+# Fail if total coverage drops below 60%
+go run ./cmd/coverage-check -min=60 -profile=coverage.out
+
+# Also available via Nix
+nix run .#coverage-check -- -min=60 -profile=coverage.out
+```
+
+This replaces the previous bash script with a portable Go program that has
+BDD-tested parsing logic.
 
 ## Building from Source
 
