@@ -159,8 +159,19 @@ jobs:
         run: nix flake check --no-build
 
       - name: Build with Nix
-        run:
-          nix build
+        run: |
+          # Retry nix build up to 3 times to handle transient network failures
+          # when fetching flake inputs from the binary cache.
+          for i in 1 2 3; do
+            if nix build; then
+              echo "nix build succeeded on attempt $i"
+              exit 0
+            fi
+            echo "nix build attempt $i failed, retrying in $((i * 10))s..."
+            sleep $((i * 10))
+          done
+          echo "nix build failed after 3 attempts"
+          exit 1
           # Note: requires SSH deploy key for go-finding private repo
           # Configure in Settings > Secrets > SSH_DEPLOY_KEY
 
