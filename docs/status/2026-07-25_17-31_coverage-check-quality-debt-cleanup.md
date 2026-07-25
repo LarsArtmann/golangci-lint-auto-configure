@@ -47,6 +47,7 @@ Added `cmd/coverage-check/` to the directory tree (was missing — the prior ses
 ### 7. Audited remaining `scripts/` files
 
 Checked all 4 remaining scripts for references in CI, Nix, and docs:
+
 - `pre-commit-hook.sh` — **KEEP** (installed by CLI `install-hook` command)
 - `validate_linter_data.go` — **KEEP** (complements Go data integrity tests, referenced in AGENTS.md gotcha #10)
 - `validate_linter_doc.sh` — manual utility (validates auto-generated report docs; no CI/Nix references)
@@ -69,6 +70,7 @@ The prior session removed the Go version matrix but left "Tests on Go 1.26" in t
 ### 10. Explicit commits + push
 
 Made 4 explicit commits with descriptive messages (not relying solely on the auto-commit hook):
+
 1. `test(coverage-check): fix function name casing in BDD specs`
 2. `docs(references): update code organization and working with codebase references`
 3. `docs(agents): add gotchas 21-23 for golden tests, coverage-check, markdownlint`
@@ -149,6 +151,7 @@ Three sessions now have run `--no-build` only. The full check validates the herm
 ### 5. Consider consolidating the scripts/ directory
 
 The directory has 4 scripts with varying relevance:
+
 - 1 Go script (`validate_linter_data.go`) that duplicates Go test coverage
 - 2 bash scripts (`validate_linter_doc.sh`, `verify_linter_count.sh`) that are manual utilities with no CI integration
 - 1 bash script (`pre-commit-hook.sh`) that's actively used
