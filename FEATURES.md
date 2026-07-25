@@ -17,7 +17,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Validate config  | `validate`     | FULLY_FUNCTIONAL     | Checks YAML validity, supports SARIF output                                                    |
 | Generate report  | `report`       | FULLY_FUNCTIONAL     | HTML, JSON, SARIF, finding report formats                                                      |
 | Migrate v1→v2    | `migrate`      | FULLY_FUNCTIONAL     | Migrates v1 configs to v2 format                                                               |
-| Query audit log  | `audit`        | PARTIALLY_FUNCTIONAL | Query config-mutation ledger (`--json`, `--since`, `--linter`, `--clear`); **zero unit tests** |
+| Query audit log  | `audit`        | FULLY_FUNCTIONAL     | Query config-mutation ledger (`--json`, `--since`, `--linter`, `--clear`); tested in `cmd_audit_test.go` |
 | Install hook     | `install-hook` | FULLY_FUNCTIONAL     | Installs git pre-commit hook                                                                   |
 | Shell completion | `completion`   | FULLY_FUNCTIONAL     | bash, zsh, fish, powershell                                                                    |
 
@@ -41,8 +41,8 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Feature                              | Status               | Notes                                                                                                                  |
 | ------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Preserve user `linters.disable`      | FULLY_FUNCTIONAL     | `repair`/`configure` never re-adds a disabled linter; orphaned settings pruned (`fixer_config.go`)                     |
-| Audit ledger (config-mutation JSONL) | PARTIALLY_FUNCTIONAL | Append-only `~/.cache/.../audit.jsonl`; 90-day retention; **no tests around ledger write paths**                       |
-| Disable-reason sidecar enforcement   | PARTIALLY_FUNCTIONAL | `.golangci-lint-auto-configure.yml` justifies disables (anti-gaming); `pkg/linter/fixer_enforce.go` **has zero tests** |
+| Audit ledger (config-mutation JSONL) | FULLY_FUNCTIONAL     | Append-only `~/.cache/.../audit.jsonl`; 90-day retention; tested in `ledger_test.go`                       |
+| Disable-reason sidecar enforcement   | FULLY_FUNCTIONAL     | `.golangci-lint-auto-configure.yml` justifies disables (anti-gaming); `pkg/linter/fixer_enforce.go` + `fixer_enforce_test.go` |
 | Tool-level disabled linters exempt   | FULLY_FUNCTIONAL     | `constants.DisabledLinters`: funcorder, noinlineerr, depguard (`pkg/constants/rules.go`)                               |
 
 ## Error Handling & Exit Codes
@@ -53,7 +53,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Error classification registry      | FULLY_FUNCTIONAL     | All sentinel errors mapped to families in `pkg/errors/classification.go`                                   |
 | `--json-errors` flag               | FULLY_FUNCTIONAL     | Structured JSON via errorfamily.JSON() (snake_case keys matching SARIF ecosystem)                          |
 | `--quiet` flag                     | FULLY_FUNCTIONAL     | Suppresses all output except errors (for CI pipelines)                                                     |
-| Exit-code test coverage            | PARTIALLY_FUNCTIONAL | Exit 0 + exit 1 (invalid priority) + JSON tested; Infrastructure (69) & Corruption (65) paths **untested** |
+| Exit-code test coverage            | FULLY_FUNCTIONAL     | Exit 0, 1 (Rejection), 65 (Corruption), 69 (Infrastructure) tested in `exit_code_test.go`                    |
 
 ## Default Settings Injection
 
