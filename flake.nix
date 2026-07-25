@@ -94,9 +94,12 @@
 
             proxyVendor = true;
 
-            vendorHash = "sha256-nK21Lw03IPf/5z3F+2fOKCaqwJBrUHE5pSO+jqFaCC8=";
+            vendorHash = import ./vendorHash.nix;
 
-            subPackages = [ "cmd/golangci-lint-auto-configure" ];
+            subPackages = [
+              "cmd/golangci-lint-auto-configure"
+              "cmd/coverage-check"
+            ];
 
             ldflags = [
               "-s"
@@ -145,6 +148,11 @@
           apps.default = {
             type = "app";
             program = lib.getExe golangci-lint-auto-configure;
+          };
+
+          apps.coverage-check = {
+            type = "app";
+            program = "${golangci-lint-auto-configure}/bin/coverage-check";
           };
 
           devShells = {
