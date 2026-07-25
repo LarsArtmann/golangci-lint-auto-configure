@@ -50,7 +50,8 @@ Or use --preset for predefined linter sets:
   - format: Core formatters + essential linters
   - house: Validated winning formatter stack (4 formatters)
 
-Or use --detect to automatically select a preset based on project type:`
+Or use --detect to automatically select a preset based on project type.
+Or use --recommend to analyze your project and apply multiple presets at once.`
 
 // runFmtCommand runs golangci-lint fmt to format Go source files.
 func runFmtCommand(
@@ -71,17 +72,16 @@ func runFmtCommand(
 }
 
 func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
-	var (
-		presets []string
-		detect  bool
-		check   bool
-	)
+	var presets []string
+
+	var detect, recommend, check bool
 
 	cmd := builder.Build(
 		"configure",
 		"Auto-configure golangci-lint (default command)",
 		func(cmd *cobra.Command, _ []string) error {
 			builder.Analyzer().SetPragmatic(pragmatic)
+			applyRecommendation(builder.Logger(), &presets, recommend, &detect)
 
 			return runDetectOrConfigure(
 				cmd,
@@ -97,18 +97,32 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 		WithLong(configureLong),
 	)
 
-	addConfigureFlags(cmd, &presets, &detect, &check)
+	addConfigureFlags(cmd, &presets, &detect, &recommend, &check)
 
 	return cmd
 }
 
-func addConfigureFlags(cmd *cobra.Command, presets *[]string, detect, check *bool) {
+func applyRecommendation(logger *log.Logger, presets *[]string, recommend bool, detect *bool) {
+	if !recommend {
+		return
+	}
+
+	detector := detection.NewDetector(".")
+	*presets = detector.RecommendPresets()
+	*detect = true
+
+	logger.Infof("🔍 Recommended presets: %v", *presets)
+}
+
+func addConfigureFlags(cmd *cobra.Command, presets *[]string, detect, recommend, check *bool) {
 	cmd.Flags().
 		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
 		StringArrayVar(presets, "preset", nil, "Use preset linter sets (can be repeated: --preset minimal --preset security)")
 	cmd.Flags().
 		BoolVar(detect, "detect", false, "Auto-detect project type and select appropriate preset")
+	cmd.Flags().
+		BoolVar(recommend, "recommend", false, "Analyze project and recommend multiple presets (implies --detect)")
 	cmd.Flags().
 		BoolVar(check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
 	cmd.Flags().
