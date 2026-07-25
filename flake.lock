@@ -23,11 +23,11 @@
     "go-nix-helpers": {
       "flake": false,
       "locked": {
-        "lastModified": 1784792756,
-        "narHash": "sha256-BVfdBN2fk+RjtG8jMHrnMBNYhtxIqExw9zBKKB+RdlM=",
+        "lastModified": 1784927198,
+        "narHash": "sha256-TF/8f6z9xKBpAPj+/CkThvr2Xt1ddUNydeGqHei9S+k=",
         "ref": "master",
-        "rev": "91fa823a82983fc309504cae427b848a59867f78",
-        "revCount": 36,
+        "rev": "7e7e0bfa2f250abecdba2fbb42b57e3f08e8b9e5",
+        "revCount": 68,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
       },
@@ -40,11 +40,11 @@
     "goFindingSrc": {
       "flake": false,
       "locked": {
-        "lastModified": 1784782151,
-        "narHash": "sha256-X6JgtS46elnlMDF8WaVSD/gMjDr0RMJ3ARFNEQeNLL8=",
+        "lastModified": 1784929613,
+        "narHash": "sha256-k16tsXospfK0npFdlyN3MbIMQWEWJbCxfKPCVSzDZ2E=",
         "ref": "master",
-        "rev": "d90a74e2cbeccbf1ae8c519ff475a15870a61be2",
-        "revCount": 989,
+        "rev": "ebe923c0a2eac70a8b94a3821470070a1fe0a8de",
+        "revCount": 1015,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/go-finding"
       },
@@ -57,11 +57,11 @@
     "gogenfilterSrc": {
       "flake": false,
       "locked": {
-        "lastModified": 1784641377,
-        "narHash": "sha256-5Ye4Iuadn+f05gJ2jy8xiEBDnHQw+6djuRwVrKSRZgE=",
+        "lastModified": 1784933043,
+        "narHash": "sha256-W0G6Jn42rXpsdAMbdz8Ax8abAUUfg4RKQqzHNFOMiO8=",
         "ref": "master",
-        "rev": "39397d211fd7e7a5c98f0e98e7c10839580bb336",
-        "revCount": 747,
+        "rev": "94d9816334948f0c0d36a5d68d028e523c0187aa",
+        "revCount": 767,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/gogenfilter"
       },
@@ -73,11 +73,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1784497964,
-        "narHash": "sha256-vlHUuqAcbcH2RKmHbPiuQzbv1pnzzavXnI62RD0bqCU=",
+        "lastModified": 1784796856,
+        "narHash": "sha256-wWFrV5/Qbm+lyt5x20E/bSbfJiGKMo4RCxZV8cl/WZI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "241313f4e8e508cb9b13278c2b0fa25b9ca27163",
+        "rev": "e2587caef70cea85dd97d7daab492899902dbf5d",
         "type": "github"
       },
       "original": {
