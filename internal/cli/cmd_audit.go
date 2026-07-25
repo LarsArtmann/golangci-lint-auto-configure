@@ -143,7 +143,9 @@ func displayAuditEntries(
 ) error {
 	entries, err := audit.ReadAll(path)
 	if err != nil {
-		if os.IsNotExist(err) {
+		// errors.Is unwraps the fmt.Errorf %w chain that audit.ReadAll adds;
+		// os.IsNotExist does not unwrap and would miss the wrapped *PathError.
+		if errors.Is(err, os.ErrNotExist) {
 			logger.Infof("No audit ledger found at %s", path)
 
 			return nil
