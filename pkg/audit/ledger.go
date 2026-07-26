@@ -228,7 +228,7 @@ func RepoHashOf(repoPath string) string {
 
 // ReadAll reads all entries from the ledger file at path.
 // Malformed lines are skipped (crash resilience, mirroring BuildFlow's loader).
-func ReadAll(path string) ([]Entry, error) {
+func ReadAll(path string) ([]Entry, error) { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open audit ledger %q: %w", path, err)
@@ -311,7 +311,7 @@ func PurgeOlder(path string, maxAge time.Duration) (int, error) {
 }
 
 // Clear truncates the ledger file at path to zero bytes.
-func Clear(path string) error {
+func Clear(path string) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
 	file, err := os.OpenFile(path, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, filePermissions)
 	if err != nil {
 		return fmt.Errorf("clear audit ledger %q: %w", path, err)
@@ -343,7 +343,7 @@ func (l *Ledger) PurgeRetention(maxAge time.Duration) {
 
 // rewriteLedger rewrites the entire ledger file with the given entries.
 // Used by PurgeOlder to compact the file after removing stale entries.
-func rewriteLedger(path string, entries []Entry) error {
+func rewriteLedger(path string, entries []Entry) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
 	file, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("rewrite audit ledger %q: %w", path, err)
@@ -352,7 +352,7 @@ func rewriteLedger(path string, entries []Entry) error {
 
 	for _, entry := range entries {
 		line, err := json.Marshal(entry)
-		if err != nil {
+		if err != nil { //nolint:erraudit // best-effort compaction: file already truncated, log+skip the unmarshalable entry rather than abort (which would lose all entries)
 			slog.Warn("audit ledger: skipping unmarshalable entry during compaction", "error", err)
 
 			continue

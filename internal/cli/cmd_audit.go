@@ -194,7 +194,10 @@ func outputEntries(
 	return nil
 }
 
-func clearAuditLedger(logger *log.Logger, path string) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
+func clearAuditLedger(
+	logger *log.Logger,
+	path string,
+) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
 	err := audit.Clear(path)
 	if err != nil {
 		return fmt.Errorf("clear audit ledger: %w", err)
@@ -274,7 +277,9 @@ func parseSinceDuration(since string) (time.Duration, error) {
 	return duration, nil
 }
 
-func outputAuditJSON(entries []audit.Entry) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
+func outputAuditJSON(
+	entries []audit.Entry,
+) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
 	data, err := json.Marshal(entries, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 	if err != nil {
 		return fmt.Errorf("marshal audit entries: %w", err)
