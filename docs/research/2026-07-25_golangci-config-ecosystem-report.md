@@ -147,3 +147,30 @@ These are enabled in **~150 configs each and receive ZERO `//nolint` directives*
 - **nolint extraction** via ripgrep `//\s*nolint:\s*[a-z0-9_,\s]+` over non-vendored, non-test `.go` files (5 201 total directives).
 - **Vendor configs excluded** from all counts (they are third-party libraries like `spf13/cobra`, `samber/lo`, `charm.land/*` and would skew the "house style" signal).
 - Analysis scripts: `/tmp/analyze_golangci.py`, `/tmp/analyze_clusters.py`, `/tmp/friction.py`.
+
+---
+
+## Actions taken (2026-07-25)
+
+This report's §5 recommendations drove the friction-reduction Pareto plan
+(`docs/planning/2026-07-25_07-56_*`), which was executed the same day. Outcome
+per recommendation:
+
+| #   | Recommendation                                          | Action taken                                                                                                                |
+| --- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Reconsider `exhaustruct` default; auto-populate excludes | ✅ Kept enabled; `ExhaustructSettings.Exclude` expanded to 14 stdlib structs. `--pragmatic` drops it on demand.            |
+| 2   | "strict vs pragmatic" for gochecknoglobals/ireturn/wrapcheck | ✅ `--pragmatic` flag drops the 5 highest-noise linters from the dynamic enable set. Defaults unchanged.                  |
+| 3   | Keep injecting issues pair `(50, 10)`                   | ✅ Validated (128/160 configs); unchanged.                                                                                   |
+| 4   | Sidecar policy: promote or de-emphasize                 | ✅ De-emphasized (0 adoption; ROADMAP non-goal; `--pragmatic` is the preferred mechanism).                                   |
+| 5   | `gosec` curated ignores / test-path exclusion           | ✅ `GosecSettings` with G304/G115 excludes; gosec added to `_test.go` exclusions. (G104 later removed — too broad.)          |
+| 6   | Lock formatter quadruple as a preset                    | ✅ `house` preset = `{gci, gofumpt, goimports, golines}`; `CoreFormatters` aligned to the same 4.                            |
+| 7   | v1 support → maintenance-only                           | ✅ Declared in ROADMAP non-goals + AGENTS (0 live v1 configs).                                                               |
+
+**Measurement:** before/after nolint deltas are recorded in
+`docs/research/validation-delta.md` (errcheck −27.3%, gosec −23.7%,
+exhaustruct −2.3% — the exhaustruct target was unrealistic because 95.7% of its
+nolints target project-specific domain types, not stdlib structs).
+
+**Open follow-up:** the `RuleKey()` dedup means these default improvements only
+reach **new** configs; the 88 machine-generated sibling configs keep the old
+lists until re-injected (see ROADMAP "Config propagation & round-trip fidelity").

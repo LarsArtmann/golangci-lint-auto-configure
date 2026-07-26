@@ -177,3 +177,18 @@ These were in the v2 plan but I did NOT touch them:
 2. **Should G104 stay in the gosec excludes list?** G104 (unhandled errors) overlaps with errcheck, but gosec may flag error paths that errcheck doesn't (e.g., in security-sensitive contexts). Removing G104 means more gosec noise but tighter security. Keeping it means less noise but a potential false-negative. I can't determine your risk tolerance for this.
 
 3. **Should the `RuleKey()` dedup behavior change to allow merging new linters into existing rules?** Right now, adding linters to `DefaultExclusionRules` only helps new configs. Changing `RuleKey()` to include the linter list (or adding a merge step) would propagate updates to existing configs — but it would also re-write configs that users intentionally trimmed. This is a product/architecture decision about how aggressive the tool should be with existing configs.
+
+---
+
+## Resolution (2026-07-25, later sessions)
+
+| Q   | Question                              | Resolution                                                                                                                                                                                                                                                                                             |
+| --- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q1  | Version bump minor (0.6.0) vs patch?  | **OPEN** — still undecided. Now tracked in `TODO_LIST.md` (High Priority). The C19 rollout task is the only unfinished item from the plan.                                                                                                                                                              |
+| Q2  | Should G104 stay in gosec excludes?   | **RESOLVED — REMOVED.** G104 was too broad (suppressed ALL unhandled-error findings, not just the curated Close/Fprint* family). Removed in the `14-29` session; errcheck's surgical `exclude-functions` handles the known-benign cases. (`GosecSettings` now ships `G304, G115` only.)               |
+| Q3  | Change `RuleKey()` to allow merging?  | **OPEN** — the split-brain persists (88 machine-generated configs keep the old exclusion list). Now a ROADMAP theme ("Config propagation & round-trip fidelity") and a `TODO_LIST.md` Medium-priority task. No decision yet; it is a product question about how aggressive the tool should be.           |
+
+Additionally: the `CoreFormatters`/`house` alignment (item #1 in this report's
+follow-ups) shipped in the `14-29` session, but it introduced a **new**
+split-brain — the `format` preset still has 3 formatters while `CoreFormatters`
+and `house` have 4. That is tracked in `TODO_LIST.md` (High Priority).

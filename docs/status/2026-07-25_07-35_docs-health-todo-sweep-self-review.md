@@ -330,3 +330,16 @@ The test I wrote cross-checks FEATURES.md counts against code. If someone adds a
 This session resolved **15 items** from the 50-item TODO list: 4 stale FEATURES.md claims, 7 docs-integrity tests (new file), 5 DefaultExclusionRules tests, 2 new linter settings (funlen, mnd), 13 DOMAIN_LANGUAGE.md fixes, 6 ARCHITECTURE.md fixes, README/CI version updates, and dead-link removal. All tests pass with race detection. The highest-value deliverable is the docs-integrity test that mechanically prevents FEATURES.md count drift — the #1 recommendation from the prior session.
 
 The most impactful miss is not running `nix flake check` (the canonical quality gate) and not verifying README rendering on GitHub. The remaining 35 items are engineering debt (type safety, preset composition, error governance) that need dedicated sessions.
+
+---
+
+## Resolution (2026-07-25, later session)
+
+The "remaining 35 items" — type-safety refactors (typed linter constants,
+`ConfigLoader` split, `ValidationError`+`HealthIssue`), preset composition,
+multi-preset, error governance — were **all completed** later the same day by
+the `2026-07-25_20-55` session. The 27 domain message templates (#38) and
+`HandleError` adoption (#46) also shipped. See the 18-15 report's resolution
+table for per-item commits. Genuinely-open follow-ups (full README audit,
+`nix flake check`, ARCHITECTURE.md ADR consolidation) now live in
+`TODO_LIST.md`.

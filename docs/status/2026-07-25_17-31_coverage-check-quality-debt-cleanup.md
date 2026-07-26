@@ -260,3 +260,14 @@ This was raised in the prior session and remains unanswered. `pkg/constants/lint
 ## Summary
 
 This session resolved all 7 immediate action items from the prior session's self-identified gaps (section d/e). The highest-value deliverables were: deleting the ghost bash script, adding 10 BDD specs for the coverage-check parser, and documenting the golden test workflow in 3 locations. All changes were explicitly committed with descriptive messages and pushed. The most impactful remaining work is the `github-actions-pinned` security findings (21 findings across all workflows) and the large refactors in TODO_LIST.md (split `cmd_configure.go`, typed constants, split ConfigLoader).
+
+---
+
+## Resolution (2026-07-25, later session)
+
+Both "most impactful remaining work" items called out above are now **done**:
+the 21 `github-actions-pinned` findings were resolved by pinning all actions to
+commit SHAs (18-15 session), and the large refactors (`cmd_configure.go` split,
+typed constants via `coreLinters`, `ConfigLoader` split) shipped in the 20-55
+session. The only genuinely-open follow-up is the version bump + tag, tracked in
+`TODO_LIST.md`.

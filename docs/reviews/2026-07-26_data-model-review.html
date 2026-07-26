@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Report Title</title>
+    <title>Data Model Review &middot; golangci-lint-auto-configure</title>
     <style>
       /* =========================================================================
          BAUHAUS LIGHT — Editorial template
@@ -842,9 +842,9 @@
   <body>
     <!-- Full-bleed top bar (optional — remove for quieter reports) -->
     <div class="top-bar">
-      <span>REPORT TYPE</span>
-      <span>YYYY-MM-DD</span>
-      <span>AUTHOR / TEAM</span>
+      <span>Data Model Review</span>
+      <span>2026-07-26</span>
+      <span>Crush &middot; Senior Staff Engineering Partner</span>
     </div>
 
     <div class="layout">
@@ -852,11 +852,13 @@
       <aside class="sidebar" data-nav>
         <nav>
           <div class="label">Contents</div>
-          <a href="#summary">Summary</a>
           <a href="#scorecard">Scorecard</a>
-          <a href="#strengths">Strengths</a>
-          <a href="#findings">Findings</a>
-          <a href="#proposal">Proposal</a>
+          <a href="#current">Current State</a>
+          <a href="#catalog">Problem Catalog</a>
+          <a href="#vision">The Vision</a>
+          <a href="#redesign">Redesigned Model</a>
+          <a href="#validation">Validation Layer</a>
+          <a href="#migration">Migration Roadmap</a>
           <a href="#appendix">Appendix</a>
         </nav>
       </aside>
@@ -865,23 +867,26 @@
       <main class="main">
         <!-- Hero -->
         <header class="hero">
-          <!-- Optional Bauhaus signature: geometric shape cluster. Remove for quieter hero. -->
           <div class="hero-shapes">
             <div class="bar"></div>
             <div class="circle"></div>
             <div class="square"></div>
             <div class="tri"></div>
           </div>
-          <div class="eyebrow">REPORT TYPE &middot; YYYY-MM-DD</div>
-          <h1>Report Title</h1>
+          <div class="eyebrow">DATA MODEL REVIEW &middot; 2026-07-26</div>
+          <h1>Is the data model superb?</h1>
           <p class="subtitle">
-            One or two sentences that set the frame: who this is for, what was reviewed, and what
-            the reader will take away.
+            A first-principles review of 196 struct types across 19 packages. The model is
+            <strong>B+ today</strong>: branded types (<code>LinterName</code>, <code>FormatterName</code>)
+            and a generic <code>Set[T]</code> show intent, and the error model is genuinely excellent.
+            But branded types are applied to only ~half the codebase, a duplicate
+            <code>Config</code> splits the domain, and <code>map[string]any</code> settings bypass the
+            type system in the hottest paths.
           </p>
           <div class="meta">
-            <span class="tag amber">Scope: example</span>
-            <span class="tag">Version: 1.0.0</span>
-            <span class="tag teal">Status: draft</span>
+            <span class="tag amber">196 structs reviewed</span>
+            <span class="tag">7 problem classes</span>
+            <span class="tag teal">Go 1.26 type system</span>
           </div>
         </header>
 

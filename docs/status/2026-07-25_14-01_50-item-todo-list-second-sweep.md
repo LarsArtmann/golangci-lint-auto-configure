@@ -271,3 +271,15 @@ Currently CI runs `nix flake check --no-build` (evaluation only). The full check
 ## Summary
 
 This session executed 16 of the 50 items, focusing on CI/build improvements, test coverage, data verification, and documentation. The highest-value deliverables were the JSON round-trip tests (16 specs), HTML golden snapshot tests (8 specs), portable coverage-check Go program, flake.lock drift detection, and markdown linting CI. The most impactful miss is leaving `scripts/coverage-check.sh` as a ghost file and not running the full `nix flake check`. The remaining 34 items are primarily large refactors (split cmd_configure.go, extract typed constants, split ConfigLoader) and product features (preset composition, multi-preset) that belong in TODO_LIST.md for future sessions.
+
+---
+
+## Resolution (2026-07-25, later session)
+
+The "remaining 34 items" called out above — split `cmd_configure.go`, extract
+typed constants, split `ConfigLoader`, preset composition, multi-preset — were
+**all completed** later the same day by the `2026-07-25_20-55` session. The ghost
+`scripts/coverage-check.sh` was deleted (`git rm`) by the `17-31` session. The
+only items still genuinely open are tracked in `TODO_LIST.md`: the version bump +
+tag, the `format` preset formatter split-brain, and `nix flake check` (full).
+See the 18-15 report's resolution table for the per-item commit mapping.
