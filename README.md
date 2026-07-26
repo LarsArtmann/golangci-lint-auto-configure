@@ -407,7 +407,7 @@ Quality and maintainability linters:
 
 <details><summary>All 50+ High value linters</summary>
 
-`wrapcheck`, `errorlint`, `prealloc`, `unconvert`, `ineffassign`, `gocyclo`, `funlen`, `cyclop`, `gocognit`, `maintidx`, `exhaustive`, `exhaustruct`, `goconst`, `misspell`, `revive`, `nolintlint`, `forcetypeassert`, `gocritic`, `unused`, `bodyclose`, `contextcheck`, `dupl`, `durationcheck`, `errname`, `gochecknoglobals`, `gochecknoinits`, `gosmopolitan`, `interfacebloat`, `nestif`, `nilnil`, `nakedret`, `predeclared`, `reassign`, `rowserrcheck`, `spancheck`, `sqlclosecheck`, `testifylint`, `thelper`, `unparam`, `wastedassign`, `copyloopvar`, `ginkgolinter`, `gochecksumtype`, `intrange`, `mirror`, `perfsprint`, `protogetter`, `usetesting`, `recvcheck`, `nilnesserr`, `zerologlint`
+`wrapcheck`, `errorlint`, `prealloc`, `unconvert`, `ineffassign`, `gocyclo`, `funlen`, `cyclop`, `gocognit`, `maintidx`, `exhaustive`, `goconst`, `misspell`, `revive`, `nolintlint`, `forcetypeassert`, `gocritic`, `unused`, `bodyclose`, `contextcheck`, `dupl`, `durationcheck`, `errname`, `gochecknoglobals`, `gochecknoinits`, `gosmopolitan`, `interfacebloat`, `nestif`, `nilnil`, `nakedret`, `predeclared`, `reassign`, `rowserrcheck`, `spancheck`, `sqlclosecheck`, `testifylint`, `thelper`, `unparam`, `wastedassign`, `copyloopvar`, `ginkgolinter`, `gochecksumtype`, `intrange`, `mirror`, `perfsprint`, `protogetter`, `usetesting`, `recvcheck`, `nilnesserr`, `zerologlint`
 
 </details>
 

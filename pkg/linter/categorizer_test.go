@@ -163,18 +163,17 @@ var _ = Describe("CategorizeLinters", func() {
 
 		BeforeEach(func() {
 			noiseLinterEntries = newDisabledEntries(
-				"exhaustruct", "gochecknoglobals", "wrapcheck", "ireturn", "funlen", "misspell",
+				"gochecknoglobals", "wrapcheck", "ireturn", "funlen", "misspell",
 			)
 		})
 
-		It("should skip the 5 noise linters when pragmatic is enabled", func() {
+		It("should skip the 4 noise linters when pragmatic is enabled", func() {
 			analyzer.SetPragmatic(true)
 
 			disabledLinters := disabledLintersWith(noiseLinterEntries...)
 			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
 
 			Expect(names).To(ContainElement("misspell"))
-			Expect(names).NotTo(ContainElement("exhaustruct"))
 			Expect(names).NotTo(ContainElement("gochecknoglobals"))
 			Expect(names).NotTo(ContainElement("wrapcheck"))
 			Expect(names).NotTo(ContainElement("ireturn"))
@@ -185,11 +184,32 @@ var _ = Describe("CategorizeLinters", func() {
 			disabledLinters := disabledLintersWith(noiseLinterEntries...)
 			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
 
-			Expect(names).To(ContainElement("exhaustruct"))
 			Expect(names).To(ContainElement("gochecknoglobals"))
 			Expect(names).To(ContainElement("wrapcheck"))
 			Expect(names).To(ContainElement("ireturn"))
 			Expect(names).To(ContainElement("funlen"))
+			Expect(names).To(ContainElement("misspell"))
+		})
+	})
+
+	Context("NeverAutoEnable Linters", func() {
+		It("should never auto-enable exhaustruct even when pragmatic is disabled", func() {
+			entries := newDisabledEntries("exhaustruct", "misspell")
+			disabledLinters := disabledLintersWith(entries...)
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
+
+			Expect(names).NotTo(ContainElement("exhaustruct"))
+			Expect(names).To(ContainElement("misspell"))
+		})
+
+		It("should never auto-enable exhaustruct even when pragmatic is enabled", func() {
+			analyzer.SetPragmatic(true)
+
+			entries := newDisabledEntries("exhaustruct", "misspell")
+			disabledLinters := disabledLintersWith(entries...)
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
+
+			Expect(names).NotTo(ContainElement("exhaustruct"))
 			Expect(names).To(ContainElement("misspell"))
 		})
 	})

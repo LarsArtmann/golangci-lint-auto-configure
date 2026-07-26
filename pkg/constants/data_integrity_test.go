@@ -80,6 +80,47 @@ var _ = Describe("DisabledLinters", func() {
 	})
 })
 
+var _ = Describe("NeverAutoEnableLinters", func() {
+	It("should have entries in LinterPriorities", func() {
+		for linter := range constants.NeverAutoEnableLinters {
+			_, exists := constants.LinterPriorities[linter]
+			Expect(exists).
+				To(BeTrue(), "NeverAutoEnableLinters contains %q which is missing from LinterPriorities — these linters need a priority for manual-enable reports", linter)
+		}
+	})
+
+	It("should have entries in LinterReasons", func() {
+		for linter := range constants.NeverAutoEnableLinters {
+			_, exists := constants.LinterReasons[linter]
+			Expect(exists).
+				To(BeTrue(), "NeverAutoEnableLinters contains %q which is missing from LinterReasons", linter)
+		}
+	})
+
+	It("should have a non-empty reason for every entry", func() {
+		for linter, reason := range constants.NeverAutoEnableLinters {
+			Expect(reason).
+				ToNot(BeEmpty(), "NeverAutoEnableLinters contains %q with an empty reason", linter)
+		}
+	})
+
+	It("should not overlap with DisabledLinters", func() {
+		for linter := range constants.NeverAutoEnableLinters {
+			_, exists := constants.DisabledLinters[linter]
+			Expect(exists).
+				To(BeFalse(), "NeverAutoEnableLinters contains %q which is also in DisabledLinters — a linter cannot be both disabled and never-auto-enabled", linter)
+		}
+	})
+
+	It("should not be in PragmaticNoiseLinters", func() {
+		for linter := range constants.NeverAutoEnableLinters {
+			_, exists := constants.PragmaticNoiseLinters[linter]
+			Expect(exists).
+				To(BeFalse(), "NeverAutoEnableLinters contains %q which is also in PragmaticNoiseLinters — redundant; never-auto-enable already handles it unconditionally", linter)
+		}
+	})
+})
+
 var _ = Describe("LinterPriorities and LinterReasons consistency", func() {
 	It("should have exactly the same keys in LinterPriorities and LinterReasons", func() {
 		for linter := range constants.LinterPriorities {
