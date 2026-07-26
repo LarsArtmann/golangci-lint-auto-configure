@@ -55,7 +55,7 @@ var PresetLinters = map[string][]types.LinterName{
 // PresetFormatters defines formatter sets for presets that include formatters.
 // Currently only the "format" preset enables formatters explicitly.
 var PresetFormatters = map[string][]types.FormatterName{
-	"format": {"gci", "goimports", "gofumpt"},
+	"format": {"gci", "goimports", "gofumpt", "golines"},
 	"house":  {"gci", "goimports", "gofumpt", "golines"},
 }
 
@@ -67,6 +67,6 @@ var PresetDescriptions = map[string]string{
 	"security":    "Security-focused linters only",
 	"performance": "Performance optimization linters",
 	"reference":   "All critical + high priority linters (recommended starting point)",
-	"format":      "Core formatters + essential linters (5 linters, 3 formatters) - Code formatting setup",
+	"format":      "Core formatters + essential linters (5 linters, 4 formatters) - Code formatting setup",
 	"house":       "House formatter stack (4 formatters: gci, goimports, gofumpt, golines) + essential linters - validated winning stack across 128/160 projects",
 }

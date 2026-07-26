@@ -258,7 +258,6 @@ func (f *Fixer) applyAllFixes(
 		return count
 	})
 	rec.formatter(func() int { return f.formatterManager.EnableCoreFormatters(formatterSet, dryRun) })
-	rec.formatter(func() int { return f.formatterManager.EnableGolinesFormatter(formatterSet, analysis, dryRun) })
 	rec.formatter(func() int { return f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun) })
 	rec.redundant(func() int { return f.formatterManager.RemoveRedundantLinters(linterSet, formatterSet, dryRun) })
 	rec.redundant(func() int { return f.formatterManager.RemoveRedundantGofmt(formatterSet, dryRun) })

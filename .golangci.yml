@@ -176,7 +176,6 @@ linters:
       replace-local: true
     gosec:
       excludes:
-        - G104
         - G304
         - G115
     ireturn:

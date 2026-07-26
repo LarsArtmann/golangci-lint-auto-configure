@@ -47,29 +47,6 @@ func (fm *FormatterManager) logFormatterChange(name types.FormatterName, action 
 	fm.logChange(string(name), "formatter", action, "", dryRun)
 }
 
-// EnableGolinesFormatter enables the golines formatter if recommended at high priority.
-func (fm *FormatterManager) EnableGolinesFormatter(
-	formatterSet types.Set[types.FormatterName],
-	analysis *types.ConfigAnalysis,
-	dryRun bool,
-) int {
-	shouldEnable := false
-
-	for _, rec := range analysis.FormatterRecommendations {
-		if rec.Name == "golines" && rec.Priority == types.FormatterPriorityHigh {
-			shouldEnable = true
-
-			break
-		}
-	}
-
-	if !shouldEnable || formatterSet.Contains("golines") {
-		return 0
-	}
-
-	return fm.addFormatter(formatterSet, "golines", "formats code and fixes long lines", dryRun)
-}
-
 func (fm *FormatterManager) addFormatter(set types.Set[types.FormatterName], name types.FormatterName, reason string, dryRun bool) int {
 	fm.logChange(string(name), "formatter", "enabling", reason, dryRun)
 
