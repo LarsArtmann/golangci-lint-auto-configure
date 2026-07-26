@@ -126,14 +126,14 @@ func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet types.Set[string],
 
 // RemoveRedundantLinters removes linters that are superseded by enabled formatters.
 func (fm *FormatterManager) RemoveRedundantLinters(
-	linterSet types.Set[string],
+	linterSet types.Set[types.LinterName],
 	formatterSet types.Set[string],
 	dryRun bool,
 ) int {
 	count := 0
 
 	for linterName, mapping := range constants.RedundantLinters {
-		if !linterSet.Contains(string(linterName)) {
+		if !linterSet.Contains(linterName) {
 			continue
 		}
 
@@ -146,7 +146,7 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 		fm.logLinterChange(string(linterName), "removing redundant", mapping.Reason, dryRun)
 
 		if !dryRun {
-			linterSet.Delete(string(linterName))
+			linterSet.Delete(linterName)
 		}
 	}
 

@@ -184,10 +184,10 @@ func isReplacementAvailable(replacement types.LinterReplacement, version string)
 }
 
 // resolveLinterName resolves a linter name, replacing deprecated linters with their successors.
-func resolveLinterName(name types.LinterName) string {
+func resolveLinterName(name types.LinterName) types.LinterName {
 	if replacement, isDeprecated := constants.DeprecatedLinters[name]; isDeprecated {
-		return string(replacement.Replacement)
+		return replacement.Replacement
 	}
 
-	return name.String()
+	return name
 }

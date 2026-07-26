@@ -102,10 +102,10 @@ func savePresetConfig(
 	cfg *types.Config,
 	configFile string,
 	presets []string,
-	linterNames []string,
+	linterNames []types.LinterName,
 ) error {
 	cfg.Linters.Enable = linterNames
-	cfg.Linters.Disable = []string{}
+	cfg.Linters.Disable = []types.LinterName{}
 
 	applyPresetFormatters(logger, cfg, presets)
 

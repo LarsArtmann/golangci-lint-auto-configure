@@ -324,8 +324,8 @@ func (f *Fixer) applyAndSave(
 
 // enableRecommendedLinters enables recommended linters that aren't already enabled or explicitly disabled.
 func (f *Fixer) enableRecommendedLinters(
-	linterSet types.Set[string],
-	disabledLinters []string,
+	linterSet types.Set[types.LinterName],
+	disabledLinters []types.LinterName,
 	analysis *types.ConfigAnalysis,
 	priority types.LinterPriority,
 	dryRun bool,
