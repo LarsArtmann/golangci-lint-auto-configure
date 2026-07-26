@@ -264,8 +264,8 @@ type ConfigValidator interface {
 
 // ConfigInspector reads linter state from a configuration.
 type ConfigInspector interface {
-	GetLintersEnabled(config *Config) []string
-	GetLintersDisabled(config *Config) []string
+	GetLintersEnabled(config *Config) []LinterName
+	GetLintersDisabled(config *Config) []LinterName
 }
 
 // ConfigCreator creates a default configuration.

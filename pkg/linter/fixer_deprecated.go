@@ -21,11 +21,11 @@ func newDeprecatedLinterHandler(logger *log.Logger, version string) *deprecatedL
 // replaceLinters replaces deprecated linters with their successors in the linter set.
 // Returns the updated set and the number of replacements applied.
 func (h *deprecatedLinterHandler) replaceLinters(
-	linterSet types.Set[string],
-	enabledLinters []string,
+	linterSet types.Set[types.LinterName],
+	enabledLinters []types.LinterName,
 	dryRun bool,
 	cfg *types.Config,
-) (types.Set[string], int) {
+) (types.Set[types.LinterName], int) {
 	count := 0
 
 	for _, linter := range enabledLinters {
@@ -36,12 +36,12 @@ func (h *deprecatedLinterHandler) replaceLinters(
 }
 
 func (h *deprecatedLinterHandler) replaceOne(
-	linterSet types.Set[string],
-	linter string,
+	linterSet types.Set[types.LinterName],
+	linter types.LinterName,
 	dryRun bool,
 	cfg *types.Config,
 ) int {
-	replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
+	replacement, isDeprecated := constants.DeprecatedLinters[linter]
 	if !isDeprecated {
 		return 0
 	}
@@ -56,8 +56,8 @@ func (h *deprecatedLinterHandler) replaceOne(
 }
 
 func (h *deprecatedLinterHandler) applyReplacement(
-	linterSet types.Set[string],
-	linter string,
+	linterSet types.Set[types.LinterName],
+	linter types.LinterName,
 	replacement types.LinterReplacement,
 	dryRun bool,
 	cfg *types.Config,
@@ -70,7 +70,7 @@ func (h *deprecatedLinterHandler) applyReplacement(
 		return 1
 	}
 
-	if linterSet.Contains(string(replacement.Replacement)) {
+	if linterSet.Contains(replacement.Replacement) {
 		h.logKeep(linter, replacement.Replacement, dryRun)
 
 		return 1
@@ -79,14 +79,14 @@ func (h *deprecatedLinterHandler) applyReplacement(
 	h.logReplace(linter, replacement, dryRun)
 
 	if !dryRun {
-		linterSet.Add(string(replacement.Replacement))
-		h.migrateSettings(cfg, linter, string(replacement.Replacement))
+		linterSet.Add(replacement.Replacement)
+		h.migrateSettings(cfg, linter, replacement.Replacement)
 	}
 
 	return 1
 }
 
-func (h *deprecatedLinterHandler) logSkip(linter string, replacement types.LinterReplacement) {
+func (h *deprecatedLinterHandler) logSkip(linter types.LinterName, replacement types.LinterReplacement) {
 	h.logger.Debugf(
 		"Skipping deprecation replacement %s -> %s: installed golangci-lint %s < %s",
 		linter, replacement.Replacement, h.version, replacement.MinVersion,
@@ -99,23 +99,26 @@ func (h *deprecatedLinterHandler) replacementAvailable(replacement types.LinterR
 }
 
 // migrateSettings moves linter settings from the deprecated name to the replacement name.
-func (h *deprecatedLinterHandler) migrateSettings(cfg *types.Config, oldName, newName string) {
+func (h *deprecatedLinterHandler) migrateSettings(cfg *types.Config, oldName, newName types.LinterName) {
 	if cfg.Linters.Settings == nil {
 		return
 	}
 
-	settings, exists := cfg.Linters.Settings[oldName]
+	oldKey := string(oldName)
+	newKey := string(newName)
+
+	settings, exists := cfg.Linters.Settings[oldKey]
 	if !exists {
 		return
 	}
 
 	h.logger.Debugf("Migrating settings from %s to %s", oldName, newName)
 
-	cfg.Linters.Settings[newName] = settings
-	delete(cfg.Linters.Settings, oldName)
+	cfg.Linters.Settings[newKey] = settings
+	delete(cfg.Linters.Settings, oldKey)
 }
 
-func (h *deprecatedLinterHandler) logKeep(linter string, replacement types.LinterName, dryRun bool) {
+func (h *deprecatedLinterHandler) logKeep(linter types.LinterName, replacement types.LinterName, dryRun bool) {
 	if dryRun {
 		h.logger.Infof("[DRY-RUN] Would remove deprecated %s (keeping existing %s)", linter, replacement)
 	} else {
@@ -131,11 +134,11 @@ func dryRunActionPrefix(dryRun bool) string {
 	return ""
 }
 
-func (h *deprecatedLinterHandler) logRemove(linter string, replacement types.LinterReplacement, dryRun bool) {
+func (h *deprecatedLinterHandler) logRemove(linter types.LinterName, replacement types.LinterReplacement, dryRun bool) {
 	h.logger.Infof("%sremove deprecated linter: %s (%s)", dryRunActionPrefix(dryRun), linter, replacement.Reason)
 }
 
-func (h *deprecatedLinterHandler) logReplace(linter string, replacement types.LinterReplacement, dryRun bool) {
+func (h *deprecatedLinterHandler) logReplace(linter types.LinterName, replacement types.LinterReplacement, dryRun bool) {
 	h.logger.Infof(
 		"%sreplace deprecated linter: %s -> %s (%s)",
 		dryRunActionPrefix(dryRun),
@@ -147,9 +150,9 @@ func (h *deprecatedLinterHandler) logReplace(linter string, replacement types.Li
 
 // hasDeprecatedLinters checks if any of the enabled linters are deprecated
 // and have replacements available for the installed golangci-lint version.
-func hasDeprecatedLinters(enabledLinters []string, version string) bool {
+func hasDeprecatedLinters(enabledLinters []types.LinterName, version string) bool {
 	for _, linter := range enabledLinters {
-		replacement, isDeprecated := constants.DeprecatedLinters[types.LinterName(linter)]
+		replacement, isDeprecated := constants.DeprecatedLinters[linter]
 		if !isDeprecated {
 			continue
 		}

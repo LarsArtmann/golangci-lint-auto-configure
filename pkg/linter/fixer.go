@@ -116,7 +116,7 @@ func (f *Fixer) analyzeAndFix(
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,
-	originalEnabled []string,
+	originalEnabled []types.LinterName,
 	version string,
 ) (*types.MigrationResult, error) {
 	f.logger.Infof("Analyzing configuration...")
@@ -202,7 +202,7 @@ func (f *Fixer) applyLintersFix(
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,
-	originalEnabled []string,
+	originalEnabled []types.LinterName,
 	version string,
 ) (*types.MigrationResult, error) {
 	before := snapshotLinterState(cfg)
@@ -237,13 +237,13 @@ func (f *Fixer) applyLintersFix(
 }
 
 func (f *Fixer) applyAllFixes(
-	linterSet, formatterSet types.Set[string],
+	linterSet types.Set[types.LinterName], formatterSet types.Set[string],
 	cfg *types.Config,
 	analysis *types.ConfigAnalysis,
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,
-	originalEnabled []string,
+	originalEnabled []types.LinterName,
 	version string,
 ) fixCounts {
 	var rec configChangeRecorder
@@ -274,7 +274,7 @@ func (f *Fixer) applyAllFixes(
 func (f *Fixer) applyAndSave(
 	ctx context.Context,
 	cfg *types.Config,
-	linterSet, formatterSet types.Set[string],
+	linterSet types.Set[types.LinterName], formatterSet types.Set[string],
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,
