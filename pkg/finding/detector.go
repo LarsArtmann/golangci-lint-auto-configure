@@ -6,16 +6,21 @@ import (
 	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
+
+// ConfigAnalyzer is the narrowest interface the detector needs from the linter analyzer.
+// This decouples pkg/finding from pkg/linter.
+type ConfigAnalyzer interface {
+	AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error)
+}
 
 const initialFindingsCapacity = 3
 
 // ConfigAnalysisDetector implements pipeline.Detector for golangci-lint config analysis.
 // It detects missing linters, deprecated linters, and missing formatters.
 type ConfigAnalysisDetector struct {
-	analyzer   *linter.Analyzer
+	analyzer   ConfigAnalyzer
 	configPath string
 	version    string
 	priority   types.LinterPriority
@@ -26,7 +31,7 @@ type ConfigAnalysisDetector struct {
 // (equivalent to LinterPriorityOptional). Use WithPriority to align detection
 // with a repairer's priority threshold, preventing detect→repair loops where
 // the detector reports findings the repairer intentionally won't fix.
-func NewConfigAnalysisDetector(analyzer *linter.Analyzer, configPath, version string) *ConfigAnalysisDetector {
+func NewConfigAnalysisDetector(analyzer ConfigAnalyzer, configPath, version string) *ConfigAnalysisDetector {
 	return &ConfigAnalysisDetector{
 		analyzer:   analyzer,
 		configPath: configPath,
