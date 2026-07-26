@@ -604,7 +604,9 @@ linters:
 			afterSecond, err := configTypes.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(afterSecond.Linters.Disable).To(ContainElements(types.LinterName("mnd"), types.LinterName("tagalign"), types.LinterName("varnamelen")))
+			Expect(
+				afterSecond.Linters.Disable,
+			).To(ContainElements(types.LinterName("mnd"), types.LinterName("tagalign"), types.LinterName("varnamelen")))
 			Expect(afterSecond.Linters.Enable).NotTo(ContainElement(types.LinterName("mnd")))
 			Expect(afterSecond.Linters.Disable).To(Equal(afterFirst.Linters.Disable))
 		})

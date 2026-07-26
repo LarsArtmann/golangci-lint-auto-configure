@@ -1,10 +1,9 @@
 package types_test
 
 import (
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 var _ = Describe("NewConfig", func() {

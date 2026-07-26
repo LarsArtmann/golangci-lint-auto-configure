@@ -3,6 +3,13 @@ package types
 // ConfigOption is a functional option for configuring a Config via NewConfig.
 type ConfigOption func(*Config)
 
+// defaultMaxIssuesPerLinter mirrors constants.DefaultMaxIssuesPerLinter.
+// Defined locally because pkg/types cannot import pkg/constants (circular).
+const defaultMaxIssuesPerLinter = 50
+
+// defaultMaxSameIssues mirrors constants.DefaultMaxSameIssues.
+const defaultMaxSameIssues = 10
+
 // NewConfig creates a new Config with safe production defaults:
 //   - Version set to ConfigVersionV2
 //   - Run.Timeout set to 5m, Tests enabled, IssuesExitCode 1
@@ -12,7 +19,18 @@ type ConfigOption func(*Config)
 //
 // Options are applied in order after defaults are set.
 func NewConfig(opts ...ConfigOption) *Config {
-	cfg := &Config{
+	cfg := defaultConfig()
+
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	return cfg
+}
+
+// defaultConfig returns a Config with all safe production defaults applied.
+func defaultConfig() *Config {
+	return &Config{
 		Version: ConfigVersionV2,
 		Run: RunConfig{
 			Timeout:        "5m",
@@ -33,16 +51,10 @@ func NewConfig(opts ...ConfigOption) *Config {
 			},
 		},
 		Issues: IssuesConfig{
-			MaxIssuesPerLinter: 50,
-			MaxSameIssues:      10,
+			MaxIssuesPerLinter: defaultMaxIssuesPerLinter,
+			MaxSameIssues:      defaultMaxSameIssues,
 		},
 	}
-
-	for _, opt := range opts {
-		opt(cfg)
-	}
-
-	return cfg
 }
 
 // WithTimeout sets the run.timeout value.

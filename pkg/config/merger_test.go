@@ -88,7 +88,9 @@ linters:
 			Expect(result.MergedConfigs).To(ContainElement(yamlPath))
 
 			// Should have merged linters
-			Expect(cfg.Linters.Enable).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck"), types.LinterName("staticcheck")))
+			Expect(
+				cfg.Linters.Enable,
+			).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck"), types.LinterName("staticcheck")))
 		})
 
 		It("should merge run settings from secondary config when primary is empty", func() {
@@ -287,7 +289,9 @@ formatters:
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(cfg.Formatters.Enable).To(ContainElements(types.FormatterName("gofmt"), types.FormatterName("goimports")))
+			Expect(
+				cfg.Formatters.Enable,
+			).To(ContainElements(types.FormatterName("gofmt"), types.FormatterName("goimports")))
 		})
 	})
 

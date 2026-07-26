@@ -449,7 +449,9 @@ output:
 			enabled := loader.GetLintersEnabled(cfg)
 
 			Expect(enabled).To(HaveLen(3))
-			Expect(enabled).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck"), types.LinterName("staticcheck")))
+			Expect(
+				enabled,
+			).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck"), types.LinterName("staticcheck")))
 		})
 	})
 

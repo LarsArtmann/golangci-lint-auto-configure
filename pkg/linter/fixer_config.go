@@ -369,7 +369,8 @@ func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []types
 			cfg.Formatters.Settings = make(map[string]any)
 		}
 
-		if existing, exists := cfg.Formatters.Settings[string(formatterName)]; exists && !isEmptySettingsValue(existing) {
+		if existing, exists := cfg.Formatters.Settings[string(formatterName)]; exists &&
+			!isEmptySettingsValue(existing) {
 			continue
 		}
 

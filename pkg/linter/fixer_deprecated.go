@@ -138,7 +138,11 @@ func (h *deprecatedLinterHandler) logRemove(linter types.LinterName, replacement
 	h.logger.Infof("%sremove deprecated linter: %s (%s)", dryRunActionPrefix(dryRun), linter, replacement.Reason)
 }
 
-func (h *deprecatedLinterHandler) logReplace(linter types.LinterName, replacement types.LinterReplacement, dryRun bool) {
+func (h *deprecatedLinterHandler) logReplace(
+	linter types.LinterName,
+	replacement types.LinterReplacement,
+	dryRun bool,
+) {
 	h.logger.Infof(
 		"%sreplace deprecated linter: %s -> %s (%s)",
 		dryRunActionPrefix(dryRun),

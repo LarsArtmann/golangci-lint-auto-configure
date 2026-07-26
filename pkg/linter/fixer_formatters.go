@@ -47,7 +47,12 @@ func (fm *FormatterManager) logFormatterChange(name types.FormatterName, action 
 	fm.logChange(string(name), "formatter", action, "", dryRun)
 }
 
-func (fm *FormatterManager) addFormatter(set types.Set[types.FormatterName], name types.FormatterName, reason string, dryRun bool) int {
+func (fm *FormatterManager) addFormatter(
+	set types.Set[types.FormatterName],
+	name types.FormatterName,
+	reason string,
+	dryRun bool,
+) int {
 	fm.logChange(string(name), "formatter", "enabling", reason, dryRun)
 
 	if !dryRun {

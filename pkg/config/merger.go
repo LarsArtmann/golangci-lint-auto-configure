@@ -3,10 +3,9 @@ package config
 import (
 	"os"
 
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-
 	"charm.land/log/v2"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // Backup file permission (read/write for owner only).
