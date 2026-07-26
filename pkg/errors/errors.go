@@ -61,7 +61,7 @@ func NewConfigError(msg, path string, err error) *ConfigError {
 
 // IsConfigError checks if an error is a ConfigError.
 func IsConfigError(err error) bool {
-	_, ok := errors.AsType[*ConfigError](err)
+	_, ok := errors.AsType[*ConfigError](err) //nolint:erraudit // AsType returns (value, bool); _ is the typed value, not an ignored error
 
 	return ok
 }
@@ -86,7 +86,7 @@ func NewAnalysisError(msg, file string, err error) *AnalysisError {
 
 // IsAnalysisError checks if an error is an AnalysisError.
 func IsAnalysisError(err error) bool {
-	_, ok := errors.AsType[*AnalysisError](err)
+	_, ok := errors.AsType[*AnalysisError](err) //nolint:erraudit // AsType returns (value, bool); _ is the typed value, not an ignored error
 
 	return ok
 }
@@ -111,7 +111,7 @@ func NewReportError(msg, path string, err error) *ReportError {
 
 // IsReportError checks if an error is a ReportError.
 func IsReportError(err error) bool {
-	_, ok := errors.AsType[*ReportError](err)
+	_, ok := errors.AsType[*ReportError](err) //nolint:erraudit // AsType returns (value, bool); _ is the typed value, not an ignored error
 
 	return ok
 }
@@ -136,7 +136,7 @@ func NewMigrationError(msg, config string, err error) *MigrationError {
 
 // IsMigrationError checks if an error is a MigrationError.
 func IsMigrationError(err error) bool {
-	_, ok := errors.AsType[*MigrationError](err)
+	_, ok := errors.AsType[*MigrationError](err) //nolint:erraudit // AsType returns (value, bool); _ is the typed value, not an ignored error
 
 	return ok
 }
