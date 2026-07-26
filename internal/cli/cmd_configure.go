@@ -176,34 +176,8 @@ func runConfigure(
 
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
-	return runPresetOrFixer(
-		ctx, logger, analyzer, configLoader,
-		configFile, priorityParam, presets, isDryRun, check, showDiff, noAudit,
-	)
-}
-
-func runPresetOrFixer(
-	ctx context.Context,
-	logger *log.Logger,
-	analyzer *linter.Analyzer,
-	configLoader *config.Loader,
-	configFile, priorityParam string,
-	presets []string,
-	isDryRun, check,
-	showDiff bool,
-	noAudit bool,
-) error {
 	if len(presets) > 0 {
-		return handlePresetMode(
-			ctx,
-			logger,
-			configLoader,
-			analyzer,
-			configFile,
-			presets,
-			isDryRun,
-			noAudit,
-		)
+		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, presets, isDryRun, noAudit)
 	}
 
 	return runFixerMode(

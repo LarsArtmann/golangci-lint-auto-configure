@@ -16,4 +16,5 @@ type Flags struct {
 	NoColor      bool
 	NoAudit      bool
 	Pragmatic    bool
+	Check        bool
 }
