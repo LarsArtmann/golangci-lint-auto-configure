@@ -48,7 +48,7 @@ func runMigrate(
 	configLoader *config.Loader,
 	skipValidation bool,
 ) error {
-	verbose, _ := cmd.Flags().GetBool("verbose")
+	verbose, _ := cmd.Flags().GetBool("verbose") //nolint:erraudit // cobra flag is registered; GetBool only errors on an undefined flag (programming error)
 	if verbose {
 		logger.SetLevel(log.DebugLevel)
 	}
@@ -59,7 +59,7 @@ func runMigrate(
 			"resolve migrate config failed (verbose=%t)", verbose)
 	}
 
-	dryRun, _ := cmd.Flags().GetBool("dry-run")
+	dryRun, _ := cmd.Flags().GetBool("dry-run") //nolint:erraudit // cobra flag is registered; GetBool only errors on an undefined flag (programming error)
 
 	return executeMigration(logger, configLoader, configFile, dryRun, skipValidation, verbose)
 }
@@ -69,7 +69,7 @@ func resolveMigrateConfig(
 	configLoader *config.Loader,
 	verbose bool,
 ) (string, error) {
-	configFile, _ := cmd.Flags().GetString("config")
+	configFile, _ := cmd.Flags().GetString("config") //nolint:erraudit // cobra flag is registered; GetString only errors on an undefined flag (programming error)
 	if configFile == "" {
 		var err error
 

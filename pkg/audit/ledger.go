@@ -208,7 +208,7 @@ func (l *Ledger) appendLine(line []byte) {
 // The random suffix disambiguates runs that start within the same second.
 func NewRunID() string {
 	b := make([]byte, runIDSuffixBytes)
-	_, _ = rand.Read(b)
+	_, _ = rand.Read(b) //nolint:erraudit // crypto/rand.Read reads /dev/urandom and never fails on supported platforms
 
 	return time.Now().UTC().Format("20060102-150405") + "-" + hex.EncodeToString(b)
 }
