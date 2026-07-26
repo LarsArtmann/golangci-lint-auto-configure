@@ -4,7 +4,7 @@
 
 1. Define command function in `internal/cli/cmd_*.go` (for configure/analyze/validate/report) or `internal/cli/cmd/*.go` (for migrate/install-hook/completion)
 2. Wire up dependencies in `addSubCommands()` in `internal/cli/commands.go`
-3. Add flags as needed
+3. Add flags to the `Flags` struct in `internal/cli/flags.go` and bind them in `registerGlobalFlags()` (persistent) or the command's flag setup (local). Never use package-level `var` for flag values — the `Flags` struct is threaded through `*CommandBuilder` to all commands
 4. Write BDD tests in `internal/cli/commands_test.go` or `internal/cli/integration_test.go`
 5. Run `go test -race ./pkg/... ./internal/...` to verify
 

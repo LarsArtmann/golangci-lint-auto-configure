@@ -105,6 +105,10 @@ nix develop
 
 23. **Markdown linting is a separate CI workflow.** `.github/workflows/markdown-lint.yml` runs `markdownlint-cli2-action` on `.md` files (excluding `docs/status/`, `docs/archive/`, `vendor/`, `CHANGELOG.md`). Config lives in `.markdownlint-cli2.jsonc` (allows `<details>`/`<summary>` HTML, disables line-length/bare-URLs rules). The main CI workflow (`ci.yml`) has `paths-ignore: **/*.md`, so markdown changes don't trigger Go CI.
 
+24. **Flags struct replaces package-level globals.** All CLI flag values live in a single `Flags` struct (`internal/cli/flags.go`), created in `Main()` and threaded through `*CommandBuilder` to every command. Never add package-level `var` for flags — `gochecknoglobals` enforces this. Global persistent flags are bound in `registerGlobalFlags()`; command-specific flags (e.g., `--check`, `--no-audit`, `--pragmatic`) are bound in the command's flag setup. The migrate command (`internal/cli/cmd/migrate.go`) is the exception: it reads flags from `cmd.Flags()` at runtime and binds its unique `--skip-validation` locally (no `Flags` struct, since it lives in a sub-package that can't import `internal/cli` without a circular dependency).
+
+25. **SettingsMap centralizes `map[string]any` settings access.** `pkg/types/settings_map.go` wraps `map[string]any` with `AsSettingsMap()`, `IsEmpty()`, and `Clone()`. Use `types.AsSettingsMap(v)` instead of raw `v.(map[string]any)` type assertions in clone/merge/validate/prune code paths. BDD specs in `settings_map_test.go`.
+
 ## Where to Find Detail
 
 | Topic                                                  | Location                                        |
