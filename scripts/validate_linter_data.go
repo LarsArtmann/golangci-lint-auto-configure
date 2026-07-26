@@ -9,6 +9,9 @@
 //   - All formatters are consistent
 //   - DisabledLinters entries must not appear in priorities or reasons
 //   - DisabledLinters entries must have non-empty reason strings
+//   - NeverAutoEnableLinters entries must appear in priorities and reasons
+//   - NeverAutoEnableLinters entries must have non-empty reason strings
+//   - NeverAutoEnableLinters must not overlap with DisabledLinters or PragmaticNoiseLinters
 //
 // Run with: go run scripts/validate_linter_data.go
 package main
@@ -122,6 +125,46 @@ func main() {
 	}
 	fmt.Println()
 
+	// Check 7: NeverAutoEnableLinters must appear in priorities and reasons
+	fmt.Println("📋 Check 7: NeverAutoEnableLinters must appear in LinterPriorities and LinterReasons")
+	neverAutoEnableMissing := checkNeverAutoEnableLintersConsistency()
+	if len(neverAutoEnableMissing) > 0 {
+		exitCode = 1
+		fmt.Printf(
+			"   ❌ FAIL: %d never-auto-enable linters missing from priorities or reasons:\n",
+			len(neverAutoEnableMissing),
+		)
+		for _, linter := range neverAutoEnableMissing {
+			fmt.Printf("      - %s\n", linter)
+		}
+	} else {
+		fmt.Printf(
+			"   ✅ PASS: All %d never-auto-enable linters have priorities and reasons\n",
+			len(constants.NeverAutoEnableLinters),
+		)
+	}
+	fmt.Println()
+
+	// Check 8: NeverAutoEnableLinters must have non-empty reasons and not overlap
+	fmt.Println("📋 Check 8: NeverAutoEnableLinters must have non-empty reasons and be disjoint from DisabledLinters and PragmaticNoiseLinters")
+	neverAutoEnableBad := checkNeverAutoEnableLinterReasons()
+	if len(neverAutoEnableBad) > 0 {
+		exitCode = 1
+		fmt.Printf(
+			"   ❌ FAIL: %d never-auto-enable linters have empty reasons or overlap with another tier:\n",
+			len(neverAutoEnableBad),
+		)
+		for _, linter := range neverAutoEnableBad {
+			fmt.Printf("      - %s\n", linter)
+		}
+	} else {
+		fmt.Printf(
+			"   ✅ PASS: All %d never-auto-enable linters have non-empty reasons and are disjoint from other tiers\n",
+			len(constants.NeverAutoEnableLinters),
+		)
+	}
+	fmt.Println()
+
 	// Summary
 	fmt.Println("═══════════════════════════════════════════════════════════")
 	if exitCode == 0 {
@@ -192,6 +235,40 @@ func checkDisabledLintersConsistency() []types.LinterName {
 			continue
 		}
 		if _, ok := constants.LinterReasons[linter]; ok {
+			violations = append(violations, linter)
+		}
+	}
+
+	return sorted(violations)
+}
+
+func checkNeverAutoEnableLintersConsistency() []types.LinterName {
+	var violations []types.LinterName
+	for linter := range constants.NeverAutoEnableLinters {
+		if _, ok := constants.LinterPriorities[linter]; !ok {
+			violations = append(violations, linter)
+			continue
+		}
+		if _, ok := constants.LinterReasons[linter]; !ok {
+			violations = append(violations, linter)
+		}
+	}
+
+	return sorted(violations)
+}
+
+func checkNeverAutoEnableLinterReasons() []types.LinterName {
+	var violations []types.LinterName
+	for linter, reason := range constants.NeverAutoEnableLinters {
+		if reason == "" {
+			violations = append(violations, linter)
+			continue
+		}
+		if _, ok := constants.DisabledLinters[linter]; ok {
+			violations = append(violations, linter)
+			continue
+		}
+		if _, ok := constants.PragmaticNoiseLinters[linter]; ok {
 			violations = append(violations, linter)
 		}
 	}

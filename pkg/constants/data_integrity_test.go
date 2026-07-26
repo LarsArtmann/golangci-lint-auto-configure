@@ -433,7 +433,7 @@ var _ = Describe("DefaultExclusionRules", func() {
 		}
 	})
 
-	It("should not include any tool-level disabled linters", func() {
+	It("should not include any linters from DisabledLinters", func() {
 		for _, rule := range constants.DefaultExclusionRules {
 			for _, linter := range rule.Linters {
 				_, disabled := constants.DisabledLinters[types.LinterName(linter)]

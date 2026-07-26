@@ -108,6 +108,28 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 // DisabledLinters maps linter names that should never be recommended or enabled
 // to the reason for disabling them. These linters are explicitly excluded from
 // configuration by the tool.
+// Linter management tiers
+//
+// Linters are managed across three maps with distinct, non-overlapping
+// semantics. A linter lives in exactly one tier (or none, meaning it is a
+// normal recommendable linter):
+//
+//  1. DisabledLinters      — forcibly disabled. Moved to linters.disable on
+//     every run, never recommended, and must NOT have priority/reason entries
+//     (they are excluded from the recommendation pipeline entirely).
+//
+//  2. NeverAutoEnableLinters — never added to an enable list by the tool, but
+//     never stripped either. If a user manually enables one, it is respected:
+//     safe default settings and test-file exclusions are still injected. Must
+//     have priority + reason entries (manual enables need report data).
+//
+//  3. PragmaticNoiseLinters — enabled by default; dropped only when the user
+//     passes --pragmatic. An opt-out escape hatch, not an unconditional
+//     decision.
+//
+// The data integrity tests (data_integrity_test.go) and the standalone
+// validator (scripts/validate_linter_data.go) enforce that these tiers stay
+// disjoint and internally consistent.
 var DisabledLinters = map[types.LinterName]string{
 	"funcorder":   "provides minimal value and can be confusing for users",
 	"noinlineerr": "conflicts with formatters (gofumpt, goimports) that reformat error handling expressions, causing noisy churn and contradictory findings",
