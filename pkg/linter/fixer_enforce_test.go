@@ -167,7 +167,7 @@ func TestEnforceDisableReasons_NoPolicy(t *testing.T) {
 
 func TestEnforceDisableReasons_ReEnablesUnjustified(t *testing.T) {
 	f := newEnforceFixer()
-	f.pol = &policy.Policy{Disabled: map[string]policy.DisableJustification{
+	f.pol = &policy.Policy{Disabled: map[types.LinterName]policy.DisableJustification{
 		"gofmt": {Reason: "prefer golines", Category: policy.CategoryConvention},
 	}}
 
@@ -224,7 +224,7 @@ func TestEnforceDisableReasons_ToolLevelExempt(t *testing.T) {
 
 func TestEnforceDisableReasons_AllJustified(t *testing.T) {
 	f := newEnforceFixer()
-	f.pol = &policy.Policy{Disabled: map[string]policy.DisableJustification{
+	f.pol = &policy.Policy{Disabled: map[types.LinterName]policy.DisableJustification{
 		"gofmt":    {Reason: "prefer golines", Category: policy.CategoryConvention},
 		"errcheck": {Reason: "false positives", Category: policy.CategoryFalsePositives},
 	}}
@@ -304,7 +304,7 @@ func TestTryReEnableLinter(t *testing.T) {
 
 	t.Run("keeps justified linter", func(t *testing.T) {
 		f := newEnforceFixer()
-		f.pol = &policy.Policy{Disabled: map[string]policy.DisableJustification{
+		f.pol = &policy.Policy{Disabled: map[types.LinterName]policy.DisableJustification{
 			"gofmt": {Reason: "prefer golines", Category: policy.CategoryConvention},
 		}}
 

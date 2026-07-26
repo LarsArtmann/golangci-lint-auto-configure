@@ -69,7 +69,7 @@ func (f *Fixer) tryReEnableLinter(linter types.LinterName, enableSet, disableSet
 		return false
 	}
 
-	if f.pol.IsJustified(string(linter)) {
+	if f.pol.IsJustified(linter) {
 		return false
 	}
 

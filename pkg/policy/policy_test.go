@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/policy"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -74,7 +75,7 @@ var _ = Describe("Policy", func() {
 	Describe("IsJustified", func() {
 		It("returns true for a linter with a justification", func() {
 			pol := &policy.Policy{
-				Disabled: map[string]policy.DisableJustification{
+				Disabled: map[types.LinterName]policy.DisableJustification{
 					"mnd": {Reason: "test", Category: policy.CategoryFalsePositives},
 				},
 			}
@@ -84,7 +85,7 @@ var _ = Describe("Policy", func() {
 
 		It("returns false for a linter without a justification", func() {
 			pol := &policy.Policy{
-				Disabled: map[string]policy.DisableJustification{
+				Disabled: map[types.LinterName]policy.DisableJustification{
 					"mnd": {Reason: "test", Category: policy.CategoryFalsePositives},
 				},
 			}
@@ -105,7 +106,7 @@ var _ = Describe("Policy", func() {
 				Category: policy.CategoryPerformance,
 			}
 			pol := &policy.Policy{
-				Disabled: map[string]policy.DisableJustification{
+				Disabled: map[types.LinterName]policy.DisableJustification{
 					"mnd": expected,
 				},
 			}

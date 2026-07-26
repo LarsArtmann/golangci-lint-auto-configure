@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"go.yaml.in/yaml/v3"
 )
 
@@ -37,7 +38,7 @@ type DisableJustification struct {
 // Policy is the parsed sidecar file. A nil *Policy means no sidecar was found
 // (enforcement is inactive; all disables are respected).
 type Policy struct {
-	Disabled map[string]DisableJustification `yaml:"disabled"`
+	Disabled map[types.LinterName]DisableJustification `yaml:"disabled"`
 }
 
 // Load reads the sidecar file at path. Returns (nil, nil) when the file does
@@ -65,7 +66,7 @@ func Load(path string) (*Policy, error) {
 // IsJustified reports whether the given linter has a justification entry.
 // Returns false when the policy is nil (no sidecar) — callers should check
 // for nil policy separately to distinguish "no enforcement" from "unjustified".
-func (p *Policy) IsJustified(linter string) bool {
+func (p *Policy) IsJustified(linter types.LinterName) bool {
 	if p == nil {
 		return false
 	}
@@ -76,7 +77,7 @@ func (p *Policy) IsJustified(linter string) bool {
 }
 
 // Justification returns the justification for the given linter, or false.
-func (p *Policy) Justification(linter string) (DisableJustification, bool) {
+func (p *Policy) Justification(linter types.LinterName) (DisableJustification, bool) {
 	if p == nil {
 		return DisableJustification{}, false
 	}
