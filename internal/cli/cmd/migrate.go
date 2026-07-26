@@ -9,14 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// MigrateFlags holds the flags for the migrate command.
-type MigrateFlags struct {
-	ConfigPath     string
-	DryRun         bool
-	Verbose        bool
-	SkipValidation bool
-}
-
 const migrateLong = `Migrates golangci-lint configuration from v1 to v2 schema.
 
 This command:
@@ -32,19 +24,20 @@ Use --skip-validation if the v1 config has known issues.`
 func NewMigrateCommand(
 	logger *log.Logger,
 	configLoader *config.Loader,
-	flags MigrateFlags,
 ) *cobra.Command {
+	var skipValidation bool
+
 	cmd := &cobra.Command{
 		Use:   "migrate",
 		Short: "Migrate configuration from v1 to v2 schema",
 		Long:  migrateLong,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			return runMigrate(cmd, logger, configLoader, flags)
+			return runMigrate(cmd, logger, configLoader, skipValidation)
 		},
 	}
 
 	cmd.Flags().
-		BoolVar(&flags.SkipValidation, "skip-validation", false, "Skip validation of v1 configuration")
+		BoolVar(&skipValidation, "skip-validation", false, "Skip validation of v1 configuration")
 
 	return cmd
 }
@@ -53,22 +46,20 @@ func runMigrate(
 	cmd *cobra.Command,
 	logger *log.Logger,
 	configLoader *config.Loader,
-	flags MigrateFlags,
+	skipValidation bool,
 ) error {
 	verbose, _ := cmd.Flags().GetBool("verbose")
 	if verbose {
 		logger.SetLevel(log.DebugLevel)
 	}
 
-	configFile, err := resolveMigrateConfig(cmd, configLoader, flags, verbose)
+	configFile, err := resolveMigrateConfig(cmd, configLoader, verbose)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "migrate.resolve_config",
-			"resolve migrate config failed (configPath=%q, verbose=%t)",
-			flags.ConfigPath, verbose)
+			"resolve migrate config failed (verbose=%t)", verbose)
 	}
 
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
-	skipValidation, _ := cmd.Flags().GetBool("skip-validation")
 
 	return executeMigration(logger, configLoader, configFile, dryRun, skipValidation, verbose)
 }
@@ -76,7 +67,6 @@ func runMigrate(
 func resolveMigrateConfig(
 	cmd *cobra.Command,
 	configLoader *config.Loader,
-	flags MigrateFlags,
 	verbose bool,
 ) (string, error) {
 	configFile, _ := cmd.Flags().GetString("config")
@@ -86,8 +76,7 @@ func resolveMigrateConfig(
 		configFile, err = configLoader.FindConfigFile(".")
 		if err != nil {
 			return "", apperrors.WrapClassifiedf(err, "migrate.find_config",
-				"no config file found (configPath=%q, verbose=%t)",
-				flags.ConfigPath, verbose)
+				"no config file found (verbose=%t)", verbose)
 		}
 	}
 

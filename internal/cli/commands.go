@@ -214,7 +214,7 @@ func addSubCommands(
 	rootCmd.AddCommand(
 		newConfigureCommand(builder),
 		newAnalyzeCommand(builder),
-		clicmd.NewMigrateCommand(logger, configLoader, clicmd.MigrateFlags{}),
+		clicmd.NewMigrateCommand(logger, configLoader),
 		newValidateCommand(builder),
 		newReportCommand(builder),
 		newPresetsCommand(builder),
