@@ -121,13 +121,13 @@ func convertNames[T ~string](names []T) []string {
 }
 
 // mapKeys extracts and sorts keys from a map[string]struct{} set.
-func mapKeys(set map[string]struct{}) []string {
-	result := make([]string, 0, len(set))
-	for k := range set {
-		result = append(result, k)
+func mapKeys[T any](values map[string]T) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
 	}
 
-	slices.Sort(result)
+	slices.Sort(keys)
 
-	return result
+	return keys
 }

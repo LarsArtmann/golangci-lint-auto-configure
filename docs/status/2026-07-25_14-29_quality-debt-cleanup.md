@@ -63,6 +63,14 @@ These were identified as potential work but I did NOT touch them:
 
 ## e) WHAT WE SHOULD IMPROVE
 
+> **Update (2026-07-25, later session):** all four §d "fucked up" findings
+> remained open as of the final session of the day and are now tracked in
+> `TODO_LIST.md` (High Priority): (1) `EnableGolinesFormatter` dead code, (2)
+> stale `G104` in the repo's own `.golangci.yml`, (3) the `format` preset
+> formatter split-brain (3 vs 4), and (4) the recurring `nix flake check`
+> (full) gap. The self-criticism here was accurate — none were silently fixed by
+> a later session.
+
 1. **I keep creating split-brains while fixing split-brains.** This session: I fixed the CoreFormatters/house split-brain but created a CoreFormatters/format split-brain. I fixed the G104-too-broad issue but left the repo's own config with G104. This is a pattern: surgical fixes that don't trace all downstream consequences. Before changing any constant, I should grep ALL consumers and trace every usage path.
 
 2. **`EnableGolinesFormatter` should be removed or documented as intentionally-dead.** It's now unreachable logic. Either remove it (and the `fixer.go:253` call) and accept that golines is unconditional, or remove golines from `CoreFormatters` and keep the conditional path. Having both is the worst option — it looks like the conditional matters but it doesn't.

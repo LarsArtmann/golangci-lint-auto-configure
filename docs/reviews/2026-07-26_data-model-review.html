@@ -892,160 +892,492 @@
 
         <!-- Scorecard -->
         <section id="scorecard" class="scorecard">
-          <div class="score-card score-good">
-            <div class="score">8</div>
-            <div class="label">Items passing</div>
-          </div>
           <div class="score-card score-warn">
-            <div class="score">3</div>
-            <div class="label">Warnings</div>
+            <div class="score">B+</div>
+            <div class="label">Overall grade</div>
+          </div>
+          <div class="score-card score-good">
+            <div class="score">196</div>
+            <div class="label">Structs reviewed</div>
           </div>
           <div class="score-card score-bad">
-            <div class="score">1</div>
-            <div class="label">Blockers</div>
+            <div class="score">7</div>
+            <div class="label">Problem classes</div>
           </div>
-          <div class="score-card">
-            <div class="score">12</div>
-            <div class="label">Total reviewed</div>
+          <div class="score-card score-good">
+            <div class="score">2</div>
+            <div class="label">Critical</div>
           </div>
         </section>
 
-        <!-- Summary -->
-        <section id="summary">
-          <h2><span class="num">00</span>Summary</h2>
+        <!-- Current State -->
+        <section id="current">
+          <h2><span class="num">00</span>Current state</h2>
           <p>
-            Replace this with the bottom-line verdict. A good summary tells the reader whether the
-            subject is ready, what the biggest risk is, and what one action would unlock the most
-            value.
+            The data model lives primarily in <code>pkg/types</code> (the canonical domain types),
+            with supporting types in <code>pkg/constants</code> (linter metadata + typed settings),
+            <code>pkg/audit</code> (ledger entries), <code>pkg/policy</code> (disable justifications),
+            <code>pkg/finding</code> (go-finding integration), and <code>pkg/migration</code>
+            (a parallel v1+v2 schema). The model has clear strengths and clear gaps.
           </p>
-          <div class="callout callout-amber">
-            <strong>The bottom line</strong>
-            State the verdict plainly. If the report is blocking, say so. If it's mostly positive,
-            lead with that.
+          <div class="scorecard" style="margin-bottom:1rem">
+            <div class="score-card score-good"><div class="score">2</div><div class="label">Branded types</div></div>
+            <div class="score-card score-good"><div class="score">1</div><div class="label">Generic collection</div></div>
+            <div class="score-card score-good"><div class="score">5</div><div class="label">iota enums</div></div>
+            <div class="score-card score-bad"><div class="score">~20</div><div class="label"><code>map[string]any</code> sites</div></div>
+            <div class="score-card score-bad"><div class="score">2</div><div class="label">Config definitions</div></div>
+            <div class="score-card score-bad"><div class="score">0</div><div class="label">Config constructors</div></div>
           </div>
-        </section>
-
-        <!-- Strengths -->
-        <section id="strengths">
-          <h2><span class="num">&#9670;</span>What's already excellent</h2>
-          <p>
-            Before the criticism: acknowledge what works. This builds trust and keeps the report
-            from reading like a pure complaint list.
-          </p>
-
-          <div class="strengths">
-            <div class="strength">
-              <div class="check">+</div>
-              <div class="text">
-                <strong>Specific strength one</strong>
-                <span>Explain why it matters and what it enables.</span>
-              </div>
-            </div>
-            <div class="strength">
-              <div class="check">+</div>
-              <div class="text">
-                <strong>Specific strength two</strong>
-                <span>Reference files, metrics, or patterns where possible.</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Findings -->
-        <section id="findings">
-          <h2><span class="num">01</span>Findings</h2>
-          <p>These are the issues that need attention, ordered by impact.</p>
-
-          <!-- Issue 1 -->
-          <div class="issue issue-critical" id="issue-1">
-            <span class="severity severity-critical">Blocking &middot; High impact</span>
-            <h3>Critical issue title</h3>
-            <div class="where">path/to/file.go:42-58 &middot; short context</div>
-            <p>
-              Describe the problem, cite the code or behavior, and explain why it matters to the
-              reader's goals.
-            </p>
-            <pre><code>// Example of the problematic pattern
-func BadExample() {}</code></pre>
-            <div class="callout callout-teal">
-              <strong>Fix: recommended action</strong>
-              State the concrete fix, including file names, function names, or configuration
-              changes.
-            </div>
-          </div>
-
-          <!-- Issue 2 -->
-          <div class="issue issue-important" id="issue-2">
-            <span class="severity severity-important">Important &middot; Medium impact</span>
-            <h3>Important issue title</h3>
-            <div class="where">path/to/another.go:12-19</div>
-            <p>
-              Explain the risk. Important issues are not blockers but would make a careful reviewer
-              hesitate before shipping.
-            </p>
-          </div>
-
-          <!-- Issue 3 -->
-          <div class="issue issue-nice" id="issue-3">
-            <span class="severity severity-nice">Nice to have &middot; Low impact</span>
-            <h3>Nice-to-have improvement</h3>
-            <div class="where">docs/ or config</div>
-            <p>Minor polish, documentation gaps, or future-proofing suggestions go here.</p>
-          </div>
-        </section>
-
-        <!-- Proposal -->
-        <section id="proposal">
-          <h2><span class="num">02</span>What the solution could look like</h2>
-          <p>
-            If the findings were fixed, what would the new state be? Show the target API, structure,
-            or workflow.
-          </p>
-          <pre><code>// Target state after the recommended changes
-type BetterAPI struct {
-    Field string
-}</code></pre>
           <div class="callout callout-teal">
-            <strong>This is the target</strong>
-            Summarize why this state is better and what it unlocks.
+            <strong>What's already right</strong>
+            <code>LinterName</code> / <code>FormatterName</code> branded string types prevent
+            cross-substitution at compile time. <code>LinterPriority</code> / <code>FormatterPriority</code>
+            / <code>HealthSeverity</code> / <code>Action</code> / <code>DisableCategory</code> are
+            properly typed enums with <code>String()</code> methods. The generic
+            <code>Set[T comparable]</code> is complete (union/diff/intersect/subset/sorted). The
+            <code>SettingsConverter</code> interface with compile-time compliance checks is a strong
+            pattern. The error model (go-error-family integration) is exemplary.
           </div>
         </section>
 
-        <!-- Appendix -->
-        <section id="appendix">
-          <h2><span class="num">03</span>Appendix</h2>
-          <p>Methodology, links to related files, or a priority matrix can live here.</p>
+        <!-- Problem Catalog -->
+        <section id="catalog">
+          <h2><span class="num">01</span>Problem catalog</h2>
+          <p>Seven problems, graded by severity and systemicity. Two are critical; the rest are medium-to-low debt.</p>
+
+          <!-- P-CRIT-1 -->
+          <div class="issue issue-critical" id="p-splitbrain">
+            <span class="severity severity-critical">Critical &middot; systemic</span>
+            <h3>P1 &mdash; Split-brain: two Config types for one domain</h3>
+            <div class="where">pkg/types/config_types.go:5 &amp; pkg/migration/config_types.go:10</div>
+            <p>
+              <code>types.Config</code> (v2-only, typed sub-structs, <code>map[string]any</code> settings)
+              and <code>migration.Config</code> (v1+v2, <code>*bool</code> tri-state, different names)
+              represent the same concept with incompatible shapes. Seven sub-structs are fully
+              duplicated (<code>RunConfig</code>/<code>Run</code>, <code>LintersConfig</code>/<code>Linters</code>,
+              etc.) and exclusion rules are <em>triplicated</em> (<code>ExclusionRuleConfig</code>,
+              <code>ExclusionRule</code>, <code>ExcludeRule</code>). Every conversion between them is
+              hand-written, error-prone glue.
+            </p>
+            <pre><code><span class="tok-comment">// types/config_types.go — the "real" Config</span>
+<span class="tok-keyword">type</span> <span class="tok-type">Config</span> <span class="tok-keyword">struct</span> {
+    Version <span class="tok-type">string</span>          <span class="tok-attr">`yaml:"version"`</span>
+    Run     <span class="tok-type">RunConfig</span>      <span class="tok-attr">`yaml:"run"`</span>
+    Linters <span class="tok-type">LintersConfig</span>  <span class="tok-attr">`yaml:"linters"`</span>
+    <span class="tok-comment">// ...</span>
+}
+
+<span class="tok-comment">// migration/config_types.go — the "other" Config</span>
+<span class="tok-keyword">type</span> <span class="tok-type">Config</span> <span class="tok-keyword">struct</span> {
+    Version <span class="tok-type">string</span>          <span class="tok-attr">`yaml:"version"`</span>
+    Run     <span class="tok-type">Run</span>            <span class="tok-attr">`yaml:"run"`</span>
+    Linters <span class="tok-type">Linters</span>        <span class="tok-attr">`yaml:"linters"`</span>
+    ExcludeDirUseDefault *<span class="tok-type">bool</span>  <span class="tok-comment">// tri-state: nil/true/false</span>
+    <span class="tok-comment">// ...</span>
+}</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: unify on types.Config</strong>
+              v1 support is maintenance-only (0 live v1 configs). Make <code>migration.Config</code> a
+              thin unmarshaling shim that normalizes v1&rarr;v2 into <code>types.Config</code>, then
+              delete the duplicate sub-structs. The <code>*bool</code> tri-state fields collapse into
+              an <code>enum</code> of {Default, Enable, Disable}.
+            </div>
+          </div>
+
+          <!-- P-CRIT-2 -->
+          <div class="issue issue-critical" id="p-stringly">
+            <span class="severity severity-critical">Critical &middot; systemic</span>
+            <h3>P2 &mdash; Branded types applied to only half the codebase</h3>
+            <div class="where">pkg/types/config_types.go:44-65 &middot; pkg/audit/ledger.go:63 &middot; pkg/policy/policy.go:40 &middot; pkg/finding/golangci_lint.go:14</div>
+            <p>
+              <code>LinterName</code> and <code>FormatterName</code> exist as branded types, but the
+              <em>core config structs</em> still use raw <code>[]string</code> for linter and formatter
+              lists. The audit ledger, policy sidecar, finding issue, and report types also use
+              <code>string</code> where the branded type should be. This defeats half the purpose of
+              having branded types &mdash; a typo like <code>"gosec"</code> vs <code>"GoSec"</code> is
+              not caught at compile time in the config path.
+            </p>
+            <pre><code><span class="tok-comment">// config_types.go — branded type exists, but fields ignore it</span>
+<span class="tok-keyword">type</span> <span class="tok-type">LintersConfig</span> <span class="tok-keyword">struct</span> {
+    Enable  []<span class="tok-type">string</span>  <span class="tok-comment">// should be []types.LinterName</span>
+    Disable []<span class="tok-type">string</span>  <span class="tok-comment">// should be []types.LinterName</span>
+}
+
+<span class="tok-comment">// audit/ledger.go — Entry.Linter is plain string</span>
+<span class="tok-keyword">type</span> <span class="tok-type">Entry</span> <span class="tok-keyword">struct</span> {
+    Linter <span class="tok-type">string</span>  <span class="tok-comment">// should be types.LinterName</span>
+}</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: propagate branded types to the boundary</strong>
+              Change <code>Enable</code>/<code>Disable</code> to <code>[]LinterName</code> /
+              <code>[]FormatterName</code>. YAML/JSON tags still serialize to strings, but the Go API
+              becomes typo-proof. The ~20 affected sites are mechanical changes.
+            </div>
+          </div>
+
+          <!-- P3 -->
+          <div class="issue issue-important" id="p-any">
+            <span class="severity severity-important">High &middot; systemic</span>
+            <h3>P3 &mdash; map[string]any bypasses the type system in hot paths</h3>
+            <div class="where">pkg/types/config_types.go:36,47,87 &middot; pkg/linter/fixer_config.go &middot; pkg/config/merger_*.go</div>
+            <p>
+              <code>OutputConfig.Formats</code>, <code>LintersConfig.Settings</code>, and
+              <code>FormattersConfig.Settings</code> are <code>map[string]any</code>. Every consumer
+              (<code>clone.go</code>, <code>merger_helpers.go</code>, <code>fixer_config.go</code>,
+              <code>settings_validator.go</code>) does repeated <code>.(map[string]any)</code> type
+              assertions. The <code>SettingsConverter</code> pattern with typed structs
+              (<code>ExhaustructSettings</code>, <code>GosecSettings</code>, etc.) is excellent for
+              <em>defaults</em>, but user-supplied settings still flow through the untyped map.
+            </p>
+            <div class="callout callout-amber">
+              <strong>Tradeoff to acknowledge</strong>
+              <code>map[string]any</code> is <em>intentional</em> here &mdash; it preserves
+              round-trip safety for arbitrary user YAML keys the tool doesn't know about. The
+              SettingsConverter structs cover the known defaults. A full fix (typed settings
+              registry) is high-effort; the current split is a defensible compromise, but the type
+              assertions should be centralized behind one accessor.
+            </div>
+          </div>
+
+          <!-- P4 -->
+          <div class="issue issue-important" id="p-noctor">
+            <span class="severity severity-important">High &middot; central type</span>
+            <h3>P4 &mdash; Config has no constructor &mdash; invalid states compile</h3>
+            <div class="where">pkg/types/ (no NewConfig) &middot; validation.go:32 ValidateConfig is opt-in</div>
+            <p>
+              <code>&amp;types.Config{}</code> is a valid Go value that represents an invalid
+              golangci-lint config (no version, no timeout). <code>ValidateConfig()</code> exists but is
+              never called automatically &mdash; callers must remember. Tests construct partial configs
+              via literals (<code>&amp;types.Config{Version: "2"}</code>) that would fail validation.
+              The production default-config factory (<code>newDefaultConfig</code>) lives in the wrong
+              package (<code>pkg/config</code>, not <code>pkg/types</code>).
+            </p>
+            <pre><code><span class="tok-comment">// Today: anyone can build an invalid Config</span>
+cfg := &amp;<span class="tok-type">Config</span>{}  <span class="tok-comment">// compiles, but Version="" and Run.Timeout=""</span>
+
+<span class="tok-comment">// Target: constructor enforces invariants</span>
+<span class="tok-keyword">func</span> <span class="tok-func">NewConfig</span>(opts ...ConfigOption) *<span class="tok-type">Config</span> {
+    c := &amp;<span class="tok-type">Config</span>{Version: ConfigVersionV2, Run: <span class="tok-type">RunConfig</span>{Timeout: DefaultTimeout}}
+    <span class="tok-keyword">for</span> _, o := <span class="tok-keyword">range</span> opts { o(c) }
+    <span class="tok-keyword">return</span> c  <span class="tok-comment">// always valid</span>
+}</code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix: add NewConfig to pkg/types</strong>
+              A functional-options constructor that sets mandatory defaults (Version, Timeout) and
+              moves <code>newDefaultConfig</code> from <code>pkg/config</code> into
+              <code>pkg/types</code>. Keep <code>ValidateConfig</code> as defense-in-depth.
+            </div>
+          </div>
+
+          <!-- P5 -->
+          <div class="issue issue-important" id="p-version">
+            <span class="severity severity-important">Medium &middot; systemic</span>
+            <h3>P5 &mdash; Version is a raw string everywhere</h3>
+            <div class="where">types.go:149,95,117 &middot; analyzer.go:30 &middot; migration/config_types.go:15</div>
+            <p>
+              There is no branded <code>Version</code> type. <code>Config.Version</code>,
+              <code>LinterInfo.Since</code>, <code>LinterReplacement.MinVersion</code>,
+              <code>Analyzer.detectedVersion</code> are all <code>string</code>. Semver comparisons
+              (<code>semver.Compare</code>) happen on raw strings, and the canonical version constant
+              <code>ConfigVersionV2 = "2"</code> is an untyped string. A <code>type Version string</code>
+              with a <code>Compare</code> method would centralize the semver logic and prevent passing
+              arbitrary strings where a version is expected.
+            </p>
+          </div>
+
+          <!-- P6 -->
+          <div class="issue issue-nice" id="p-bool">
+            <span class="severity severity-nice">Medium &middot; scoped</span>
+            <h3>P6 &mdash; *bool tri-state in migration types</h3>
+            <div class="where">pkg/migration/config_types.go:11-13,91,100-102</div>
+            <p>
+              Seven <code>*bool</code> fields represent v1-era deprecation flags where
+              <code>nil</code>, <code>true</code>, and <code>false</code> are three distinct states.
+              This is the standard Go tri-state pattern, but it is a known smell &mdash; an explicit
+              <code>type TriState int</code> enum (<code>Default</code>/<code>Enabled</code>/<code>Disabled</code>)
+              would be self-documenting and avoid nil-deref risk. Acceptable while v1 migration
+              remains maintenance-only.
+            </p>
+          </div>
+
+          <!-- P7 -->
+          <div class="issue issue-nice" id="p-roundtrip">
+            <span class="severity severity-nice">Low &middot; design smell</span>
+            <h3>P7 &mdash; settingsToMap round-trips through YAML at runtime</h3>
+            <div class="where">pkg/constants/linter_settings.go:19-33</div>
+            <p>
+              <code>settingsToMap</code> converts typed settings structs to
+              <code>map[string]any</code> by marshaling to YAML then unmarshaling to a map. This is
+              runtime reflection where compile-time is possible, and it <code>panic</code>s on
+              marshal failure (which is theoretically impossible for these static structs, but the
+              panic signals a design gap). A generated or hand-written <code>ToMap()</code> per struct
+              would be faster and panic-free, at the cost of verbosity.
+            </p>
+          </div>
+        </section>
+
+        <!-- The Vision -->
+        <section id="vision">
+          <h2><span class="num">02</span>The vision</h2>
+          <p>
+            A data model where invalid states are unrepresentable. One <code>Config</code>. Branded
+            types at every boundary. Settings that are typed end-to-end. Constructors that enforce
+            invariants at creation. This is achievable incrementally &mdash; the existing patterns
+            (branded types, enums, SettingsConverter) are the foundation; they just need to be
+            propagated consistently.
+          </p>
+          <div class="callout callout-teal">
+            <strong>The guiding question</strong>
+            For every field, ask: "Could I construct this with a value that violates a business rule
+            and still compile?" If yes, the type is too weak. Today, <code>Enable []string</code>
+            fails this test. <code>Enable []LinterName</code> passes it.
+          </div>
+        </section>
+
+        <!-- Redesigned Model -->
+        <section id="redesign">
+          <h2><span class="num">03</span>Redesigned model</h2>
+          <p>Target type definitions for the highest-impact fixes. Each uses Go's type system to make misuse a compile error.</p>
+
+          <h3>1. Branded version type</h3>
+          <pre><code><span class="tok-comment">// pkg/types/version.go</span>
+<span class="tok-keyword">type</span> <span class="tok-type">Version</span> <span class="tok-type">string</span>
+
+<span class="tok-keyword">const</span> <span class="tok-type">ConfigVersionV2</span> <span class="tok-type">Version</span> = <span class="tok-string">"2"</span>
+
+<span class="tok-keyword">func</span> (v <span class="tok-type">Version</span>) <span class="tok-func">Valid</span>() <span class="tok-type">bool</span> {
+    <span class="tok-keyword">return</span> v == <span class="tok-type">ConfigVersionV2</span>
+}
+
+<span class="tok-keyword">func</span> <span class="tok-func">ParseVersion</span>(s <span class="tok-type">string</span>) (<span class="tok-type">Version</span>, <span class="tok-type">error</span>) {
+    v := <span class="tok-type">Version</span>(s)
+    <span class="tok-keyword">if</span> !v.<span class="tok-func">Valid</span>() { <span class="tok-keyword">return</span> <span class="tok-string">""</span>, <span class="tok-type">ErrVersionInvalid</span> }
+    <span class="tok-keyword">return</span> v, <span class="tok-keyword">nil</span>
+}</code></pre>
+
+          <h3>2. Branded config path</h3>
+          <pre><code><span class="tok-keyword">type</span> <span class="tok-type">ConfigPath</span> <span class="tok-type">string</span>
+
+<span class="tok-keyword">func</span> (p <span class="tok-type">ConfigPath</span>) <span class="tok-func">Ext</span>() <span class="tok-type">ConfigFormat</span> {
+    <span class="tok-keyword">switch</span> <span class="tok-func">filepath</span>.<span class="tok-func">Ext</span>(<span class="tok-type">string</span>(p)) {
+    <span class="tok-keyword">case</span> <span class="tok-string">".yml"</span>, <span class="tok-string">".yaml"</span>: <span class="tok-keyword">return</span> <span class="tok-type">ConfigFormatYAML</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">".toml"</span>:         <span class="tok-keyword">return</span> <span class="tok-type">ConfigFormatTOML</span>
+    <span class="tok-keyword">case</span> <span class="tok-string">".json"</span>:         <span class="tok-keyword">return</span> <span class="tok-type">ConfigFormatJSON</span>
+    <span class="tok-keyword">default</span>:           <span class="tok-keyword">return</span> <span class="tok-type">ConfigFormatYAML</span>
+    }
+}</code></pre>
+
+          <h3>3. Config with branded fields + constructor</h3>
+          <pre><code><span class="tok-keyword">type</span> <span class="tok-type">LintersConfig</span> <span class="tok-keyword">struct</span> {
+    Enable  []<span class="tok-type">LinterName</span>  <span class="tok-attr">`yaml:"enable,omitempty"`</span>
+    Disable []<span class="tok-type">LinterName</span>  <span class="tok-attr">`yaml:"disable,omitempty"`</span>
+    <span class="tok-comment">// ...</span>
+}
+
+<span class="tok-keyword">type</span> <span class="tok-type">FormattersConfig</span> <span class="tok-keyword">struct</span> {
+    Enable  []<span class="tok-type">FormatterName</span>  <span class="tok-attr">`yaml:"enable,omitempty"`</span>
+    Disable []<span class="tok-type">FormatterName</span>  <span class="tok-attr">`yaml:"disable,omitempty"`</span>
+}
+
+<span class="tok-comment">// Constructor: impossible to build an invalid Config</span>
+<span class="tok-keyword">func</span> <span class="tok-func">NewConfig</span>(opts ...ConfigOption) *<span class="tok-type">Config</span> {
+    c := &amp;<span class="tok-type">Config</span>{
+        Version: <span class="tok-type">ConfigVersionV2</span>,
+        Run:     <span class="tok-type">RunConfig</span>{Timeout: <span class="tok-type">DefaultTimeout</span>},
+    }
+    <span class="tok-keyword">for</span> _, o := <span class="tok-keyword">range</span> opts { o(c) }
+    <span class="tok-keyword">return</span> c
+}</code></pre>
+
+          <h3>4. Audit Entry with branded linter</h3>
+          <pre><code><span class="tok-keyword">type</span> <span class="tok-type">Entry</span> <span class="tok-keyword">struct</span> {
+    Timestamp <span class="tok-type">time.Time</span>   <span class="tok-attr">`json:"timestamp"`</span>
+    Linter    <span class="tok-type">types.LinterName</span> <span class="tok-attr">`json:"linter"`</span>
+    Action    <span class="tok-type">Action</span>       <span class="tok-attr">`json:"action"`</span>
+    <span class="tok-comment">// ...</span>
+}</code></pre>
+        </section>
+
+        <!-- Validation Layer -->
+        <section id="validation">
+          <h2><span class="num">04</span>How invalid states become unrepresentable</h2>
+          <p>
+            The combination of branded types + constructors + enums creates a layered defense. Each
+            layer catches a class of error that today requires runtime validation.
+          </p>
           <table class="compare">
             <thead>
               <tr>
-                <th>Issue</th>
-                <th>Severity</th>
-                <th>Effort</th>
-                <th>Status</th>
+                <th>Error class</th>
+                <th>Today (runtime)</th>
+                <th>After (compile-time)</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Issue one</td>
-                <td class="no">Critical</td>
-                <td>Low</td>
-                <td class="no">Open</td>
+                <td>Typo in linter name</td>
+                <td class="no">Silently ignored or runtime warning</td>
+                <td class="yes"><code>[]LinterName</code> &mdash; string still allowed, but typed at API boundary</td>
               </tr>
               <tr>
-                <td>Issue two</td>
-                <td class="no">Important</td>
-                <td>Medium</td>
-                <td class="yes">In progress</td>
+                <td>Config missing version</td>
+                <td class="no"><code>ValidateConfig</code> catches (if called)</td>
+                <td class="yes"><code>NewConfig()</code> always sets it</td>
+              </tr>
+              <tr>
+                <td>Passing a path where version expected</td>
+                <td class="no">No protection &mdash; both are <code>string</code></td>
+                <td class="yes"><code>Version</code> vs <code>ConfigPath</code> &mdash; different types</td>
+              </tr>
+              <tr>
+                <td>Unknown priority value</td>
+                <td class="yes">Already typed (<code>LinterPriority</code> enum)</td>
+                <td class="yes">No change needed</td>
+              </tr>
+              <tr>
+                <td>Arbitrary settings keys</td>
+                <td class="no"><code>map[string]any</code> accepts anything</td>
+                <td class="warn">Typed structs for known; map retained for unknown (intentional)</td>
               </tr>
             </tbody>
           </table>
         </section>
 
+        <!-- Migration Roadmap -->
+        <section id="migration">
+          <h2><span class="num">05</span>Migration roadmap</h2>
+          <p>Ordered by impact-to-effort ratio. Steps 1&ndash;3 are mechanical and high-value.</p>
+
+          <div class="migration-step">
+            <div class="migration-num">1</div>
+            <div class="migration-content">
+              <h4>Propagate LinterName/FormatterName to config structs</h4>
+              <p>
+                Change <code>Enable</code>/<code>Disable</code> in <code>LintersConfig</code> and
+                <code>FormattersConfig</code> to <code>[]LinterName</code> / <code>[]FormatterName</code>.
+                Update audit <code>Entry.Linter</code>, policy map keys, and finding types. ~20 sites,
+                all mechanical. YAML serialization is unaffected.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">2</div>
+            <div class="migration-content">
+              <h4>Add NewConfig constructor to pkg/types</h4>
+              <p>
+                Functional-options constructor with mandatory defaults. Move
+                <code>newDefaultConfig</code> from <code>pkg/config</code> to <code>pkg/types</code>.
+                Update test literals to use the constructor.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">3</div>
+            <div class="migration-content">
+              <h4>Brand Version and ConfigPath</h4>
+              <p>
+                <code>type Version string</code> and <code>type ConfigPath string</code> with helper
+                methods. Centralize semver comparison behind <code>Version.Compare</code>.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">4</div>
+            <div class="migration-content">
+              <h4>Unify the duplicate Config type</h4>
+              <p>
+                Collapse <code>migration.Config</code> into a v1&rarr;v2 normalizing shim over
+                <code>types.Config</code>. Delete the 7 duplicate sub-structs and the triplicated
+                exclusion rules. This is the largest effort but the highest architectural payoff.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">5</div>
+            <div class="migration-content">
+              <h4>Centralize map[string]any access behind one accessor</h4>
+              <p>
+                Extract a <code>SettingsMap</code> wrapper type with typed getters
+                (<code>GetString</code>, <code>GetSlice</code>) that centralizes the type assertions
+                and returns typed errors instead of panicking. Keeps round-trip safety, removes
+                scattered <code>.(map[string]any)</code> assertions.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Appendix -->
+        <section id="appendix">
+          <h2><span class="num">06</span>Appendix</h2>
+          <p>Decision log and what is explicitly <em>not</em> broken.</p>
+
+          <h3>Decision log</h3>
+          <table>
+            <thead>
+              <tr><th>Decision</th><th>Rationale</th><th>Rejected alternative</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Keep <code>map[string]any</code> for settings</td>
+                <td>Round-trip safety for unknown user keys</td>
+                <td>Full typed registry &mdash; too rigid, breaks on new golangci-lint settings</td>
+              </tr>
+              <tr>
+                <td>Branded <code>LinterName</code>, not struct wrapper</td>
+                <td>Zero-cost, serializes as string, comparable</td>
+                <td>Struct wrapper with validation &mdash; overkill for a name</td>
+              </tr>
+              <tr>
+                <td><code>iota</code> enums over string constants</td>
+                <td>Compile-time exhaustiveness in switches</td>
+                <td>String constants &mdash; no exhaustiveness checking</td>
+              </tr>
+              <tr>
+                <td>SettingsConverter via YAML round-trip</td>
+                <td>DRY &mdash; one implementation per struct via tags</td>
+                <td>Hand-written ToMap per struct &mdash; faster but verbose (P7)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>What is NOT broken (keep as-is)</h3>
+          <div class="strengths">
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Error model (go-error-family)</strong>
+                <span>Classified errors, sentinel registration, BSD exit codes, json/v2 output. Exemplary.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Generic Set[T]</strong>
+                <span>Complete set algebra, benchmarked, used consistently. No changes needed.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Typed enums (iota + String())</strong>
+                <span>LinterPriority, FormatterPriority, HealthSeverity, Action, DisableCategory. Correct pattern.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>SettingsConverter interface</strong>
+                <span>Compile-time compliance checks, typed defaults. The right pattern for the typed subset.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Footer -->
         <footer class="footer">
           <p>
-            Generated YYYY-MM-DD &middot; Reviewed against version X.Y.Z &middot; All claims
-            verified against source code where noted
+            Generated 2026-07-26 &middot; 196 structs reviewed across 19 packages &middot;
+            Companion: <a href="../architecture-understanding/2026-07-26_architecture-review.html">architecture review</a>
           </p>
         </footer>
       </main>
