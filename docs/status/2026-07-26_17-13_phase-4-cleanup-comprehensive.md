@@ -10,61 +10,63 @@
 
 ### Build + test + lint baseline verified
 
-| # | Item | Verification |
-|---|------|-------------|
-| 1 | `go build ./...` passes | ✅ clean |
-| 2 | `golangci-lint run` passes — **0 issues** | ✅ clean |
-| 3 | `go test -race ./pkg/... ./internal/...` — all 18 packages pass | ✅ green |
-| 4 | Coverage: 64.6% (minimum: 60%) | ✅ passes |
-| 5 | `gochecknoglobals` — zero globals after `detectedExtraFormatters` removal | ✅ passes |
-| 6 | CLI binary verified end-to-end: `--help`, `configure --dry-run`, `migrate --help` | ✅ all flag bindings work |
+| #   | Item                                                                              | Verification              |
+| --- | --------------------------------------------------------------------------------- | ------------------------- |
+| 1   | `go build ./...` passes                                                           | ✅ clean                  |
+| 2   | `golangci-lint run` passes — **0 issues**                                         | ✅ clean                  |
+| 3   | `go test -race ./pkg/... ./internal/...` — all 18 packages pass                   | ✅ green                  |
+| 4   | Coverage: 64.6% (minimum: 60%)                                                    | ✅ passes                 |
+| 5   | `gochecknoglobals` — zero globals after `detectedExtraFormatters` removal         | ✅ passes                 |
+| 6   | CLI binary verified end-to-end: `--help`, `configure --dry-run`, `migrate --help` | ✅ all flag bindings work |
 
 ### Architecture fixes (items 1-5 from prior report's "High Priority")
 
-| # | Item | Verification |
-|---|------|-------------|
-| 7 | Removed `GetMap` dead code from `SettingsMap` (`pkg/types/settings_map.go`) | Zero callers confirmed; build passes |
-| 8 | Eliminated `detectedExtraFormatters` package-level global — `resolvePresets` now returns `([]string, []types.FormatterName)` threaded explicitly through `runConfigure` → `handlePresetMode` → `applyPreset` → `savePresetConfig` → `applyPresetFormatters` | `gochecknoglobals` passes |
-| 9 | Removed unused `_ bool noAudit` placeholder parameter from `handlePresetMode` — now receives `*Flags` and computes `dryRun` internally | Tests pass |
-| 10 | Passed `*Flags` through to `runFixerMode` and `handlePresetMode` instead of unpacking 6+ individual fields — eliminated the `//nolint:funlen` on `runConfigure` | Lint passes without nolint |
-| 11 | Removed vestigial `MigrateFlags` struct — was always passed empty; migrate command reads from `cmd.Flags()` at runtime and binds `--skip-validation` locally | Build + migrate tests pass |
+| #   | Item                                                                                                                                                                                                                                                        | Verification                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| 7   | Removed `GetMap` dead code from `SettingsMap` (`pkg/types/settings_map.go`)                                                                                                                                                                                 | Zero callers confirmed; build passes |
+| 8   | Eliminated `detectedExtraFormatters` package-level global — `resolvePresets` now returns `([]string, []types.FormatterName)` threaded explicitly through `runConfigure` → `handlePresetMode` → `applyPreset` → `savePresetConfig` → `applyPresetFormatters` | `gochecknoglobals` passes            |
+| 9   | Removed unused `_ bool noAudit` placeholder parameter from `handlePresetMode` — now receives `*Flags` and computes `dryRun` internally                                                                                                                      | Tests pass                           |
+| 10  | Passed `*Flags` through to `runFixerMode` and `handlePresetMode` instead of unpacking 6+ individual fields — eliminated the `//nolint:funlen` on `runConfigure`                                                                                             | Lint passes without nolint           |
+| 11  | Removed vestigial `MigrateFlags` struct — was always passed empty; migrate command reads from `cmd.Flags()` at runtime and binds `--skip-validation` locally                                                                                                | Build + migrate tests pass           |
 
 ### BDD tests (item 7 from prior report)
 
-| # | Item | Verification |
-|---|------|-------------|
-| 12 | Wrote 12 Ginkgo specs for `SettingsMap` (`pkg/types/settings_map_test.go`) covering `AsSettingsMap` (valid, nil, non-map types), `IsEmpty` (nil, empty, populated), `Clone` (nil receiver, empty, nested maps, nested slices, independence, primitives) | All 12 specs pass |
+| #   | Item                                                                                                                                                                                                                                                    | Verification      |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| 12  | Wrote 12 Ginkgo specs for `SettingsMap` (`pkg/types/settings_map_test.go`) covering `AsSettingsMap` (valid, nil, non-map types), `IsEmpty` (nil, empty, populated), `Clone` (nil receiver, empty, nested maps, nested slices, independence, primitives) | All 12 specs pass |
 
 ### Pre-existing lint gate fixes (blocking issues in finding package)
 
-| # | Item | Verification |
-|---|------|-------------|
-| 13 | Extracted `appendAnalysisFindings` helper from `Detect` in `pkg/finding/detector.go` to resolve funlen + wsl_v5 conflicts | Lint passes |
-| 14 | Added missing whitespace above `switch` in `pkg/finding/converter.go` for wsl_v5 | Lint passes |
+| #   | Item                                                                                                                      | Verification |
+| --- | ------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| 13  | Extracted `appendAnalysisFindings` helper from `Detect` in `pkg/finding/detector.go` to resolve funlen + wsl_v5 conflicts | Lint passes  |
+| 14  | Added missing whitespace above `switch` in `pkg/finding/converter.go` for wsl_v5                                          | Lint passes  |
 
 ### Documentation
 
-| # | Item | Verification |
-|---|------|-------------|
-| 15 | Updated `AGENTS.md` with gotcha #24 (Flags struct pattern) and #25 (SettingsMap wrapper) | Committed |
-| 16 | Updated `docs/references/working-with-codebase.md` "Adding a New CLI Command" with the Flags struct wiring pattern | Committed |
+| #   | Item                                                                                                               | Verification |
+| --- | ------------------------------------------------------------------------------------------------------------------ | ------------ |
+| 15  | Updated `AGENTS.md` with gotcha #24 (Flags struct pattern) and #25 (SettingsMap wrapper)                           | Committed    |
+| 16  | Updated `docs/references/working-with-codebase.md` "Adding a New CLI Command" with the Flags struct wiring pattern | Committed    |
 
 ### Test updates for signature changes
 
-| # | Item | Verification |
-|---|------|-------------|
-| 17 | Updated `internal/cli/cmd_configure_internal_test.go` — all 8 `applyPreset` calls now pass `nil` for `extraFormatters` | Tests pass |
-| 18 | Updated `internal/cli/configure_unit_test.go` — `resolvePresets` calls now handle 2 return values | Tests pass |
+| #   | Item                                                                                                                   | Verification |
+| --- | ---------------------------------------------------------------------------------------------------------------------- | ------------ |
+| 17  | Updated `internal/cli/cmd_configure_internal_test.go` — all 8 `applyPreset` calls now pass `nil` for `extraFormatters` | Tests pass   |
+| 18  | Updated `internal/cli/configure_unit_test.go` — `resolvePresets` calls now handle 2 return values                      | Tests pass   |
 
 ---
 
 ## b) PARTIALLY DONE
 
 ### finding/detector.go refactor
+
 - **Done:** Extracted `appendAnalysisFindings` to fix funlen. Build + tests pass.
 - **Not done:** **Subtle behavior change introduced.** The original `Detect` returned `(nil, err)` on error. The refactored version returns `(findings, appendAnalysisFindings(...))` which means on error, the caller receives a **partially populated findings slice** instead of nil. Standard Go practice says callers should ignore the value when `err != nil`, but the original explicitly returned nil as a stronger contract. This should be fixed to match the original behavior (return nil on error) or documented as intentional.
 
 ### finding package cleanup
+
 - **Done:** Fixed `wsl_v5` and `funlen` issues in `detector.go` and `converter.go` that were blocking the lint gate.
 - **Not done:** These files were touched by the auto-commit daemon in a prior session (commit `f850ec9`). I fixed lint issues as a side effect but didn't fully audit whether the daemon's changes are semantically correct. The detector/converter refactoring was to unblock the lint gate, not part of the planned Phase 4 scope.
 

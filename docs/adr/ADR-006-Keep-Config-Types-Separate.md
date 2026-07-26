@@ -14,16 +14,16 @@ The codebase has two `Config` struct types:
 
 ### Key Differences
 
-| Aspect | `types.Config` | `migration.Config` |
-|--------|----------------|---------------------|
-| Linter names | `[]LinterName` (branded) | `[]string` |
-| Formatter names | `[]FormatterName` (branded) | `[]string` |
-| Version | `Version` (branded) | `string` |
-| Struct tags | `json`/`yaml`/`toml` (triple) | `yaml` only |
-| Issues nesting | Top-level `Issues` field | Nested under `Run.RunIssues` (v1 layout) |
-| Exclude rules | Under `Linters.Exclusions.Rules` | Top-level `ExcludeRules` (v1 layout) |
-| `*bool`/TriState | Not needed (v2 only) | 7 fields use `TriState` for v1 compatibility |
-| v1-only fields | None | `EnableAll`, `Fast`, `ExcludeFiles`, `ExcludeDirs`, 3 `*UseDefault` TriState fields |
+| Aspect           | `types.Config`                   | `migration.Config`                                                                  |
+| ---------------- | -------------------------------- | ----------------------------------------------------------------------------------- |
+| Linter names     | `[]LinterName` (branded)         | `[]string`                                                                          |
+| Formatter names  | `[]FormatterName` (branded)      | `[]string`                                                                          |
+| Version          | `Version` (branded)              | `string`                                                                            |
+| Struct tags      | `json`/`yaml`/`toml` (triple)    | `yaml` only                                                                         |
+| Issues nesting   | Top-level `Issues` field         | Nested under `Run.RunIssues` (v1 layout)                                            |
+| Exclude rules    | Under `Linters.Exclusions.Rules` | Top-level `ExcludeRules` (v1 layout)                                                |
+| `*bool`/TriState | Not needed (v2 only)             | 7 fields use `TriState` for v1 compatibility                                        |
+| v1-only fields   | None                             | `EnableAll`, `Fast`, `ExcludeFiles`, `ExcludeDirs`, 3 `*UseDefault` TriState fields |
 
 ### Why Two Types Exist
 
@@ -44,7 +44,7 @@ The migration package must parse v1 YAML configs that have a fundamentally diffe
 2. **The schemas are genuinely different.** v1 and v2 configs have different field layouts, different nesting, and different semantics. A unified type would require either:
    - Embedding v1-only fields in `types.Config` (complexity leak into the canonical type)
    - A shim type wrapping `types.Config` (essentially recreating `migration.Config` with extra indirection)
-   
+
    Either option adds complexity without removing it.
 
 3. **Branded types are a v2 concern.** `types.Config` uses `LinterName`/`FormatterName`/`Version` for compile-time safety. Forcing these onto the migration package would require converting at every boundary, adding friction to the migration code with no benefit (migration reads arbitrary strings from v1 configs).
