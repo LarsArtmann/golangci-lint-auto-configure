@@ -524,8 +524,8 @@ linters:
 
 			parsed, err := configTypes.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(parsed.Linters.Enable).NotTo(ContainElement("noinlineerr"))
-			Expect(parsed.Linters.Disable).To(ContainElement("noinlineerr"))
+			Expect(parsed.Linters.Enable).NotTo(ContainElement(types.LinterName("noinlineerr")))
+			Expect(parsed.Linters.Disable).To(ContainElement(types.LinterName("noinlineerr")))
 		})
 
 		It("should move depguard from enable to disable", func() {
@@ -541,8 +541,8 @@ linters:
 
 			parsed, err := configTypes.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(parsed.Linters.Enable).NotTo(ContainElement("depguard"))
-			Expect(parsed.Linters.Disable).To(ContainElement("depguard"))
+			Expect(parsed.Linters.Enable).NotTo(ContainElement(types.LinterName("depguard")))
+			Expect(parsed.Linters.Disable).To(ContainElement(types.LinterName("depguard")))
 		})
 	})
 
@@ -561,8 +561,8 @@ linters:
 
 			parsed, err := configTypes.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(parsed.Linters.Disable).To(ContainElement("mnd"))
-			Expect(parsed.Linters.Disable).To(ContainElement("varnamelen"))
+			Expect(parsed.Linters.Disable).To(ContainElement(types.LinterName("mnd")))
+			Expect(parsed.Linters.Disable).To(ContainElement(types.LinterName("varnamelen")))
 		})
 
 		It("should not re-add a recommended linter that is in the disable list", func() {
@@ -578,8 +578,8 @@ linters:
 
 			parsed, err := configTypes.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(parsed.Linters.Enable).NotTo(ContainElement("ireturn"))
-			Expect(parsed.Linters.Disable).To(ContainElement("ireturn"))
+			Expect(parsed.Linters.Enable).NotTo(ContainElement(types.LinterName("ireturn")))
+			Expect(parsed.Linters.Disable).To(ContainElement(types.LinterName("ireturn")))
 		})
 
 		It("should preserve the disable list across repeated runs (idempotency)", func() {
@@ -605,7 +605,7 @@ linters:
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(afterSecond.Linters.Disable).To(ContainElements("mnd", "tagalign", "varnamelen"))
-			Expect(afterSecond.Linters.Enable).NotTo(ContainElement("mnd"))
+			Expect(afterSecond.Linters.Enable).NotTo(ContainElement(types.LinterName("mnd")))
 			Expect(afterSecond.Linters.Disable).To(Equal(afterFirst.Linters.Disable))
 		})
 
@@ -648,8 +648,8 @@ linters:
 
 			parsed, err := configTypes.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(parsed.Linters.Enable).To(ContainElement("mnd"))
-			Expect(parsed.Linters.Disable).NotTo(ContainElement("mnd"))
+			Expect(parsed.Linters.Enable).To(ContainElement(types.LinterName("mnd")))
+			Expect(parsed.Linters.Disable).NotTo(ContainElement(types.LinterName("mnd")))
 		})
 	})
 

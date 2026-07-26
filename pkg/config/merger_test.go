@@ -60,7 +60,7 @@ linters:
 			Expect(result.PrimaryConfig).To(Equal(ymlPath))
 			Expect(cfg.Version).To(Equal(types.ConfigVersionV2))
 			Expect(cfg.Run.Timeout).To(Equal("5m"))
-			Expect(cfg.Linters.Enable).To(ContainElement("gosec"))
+			Expect(cfg.Linters.Enable).To(ContainElement(types.LinterName("gosec")))
 		})
 
 		It("should merge linters from secondary config", func() {
@@ -88,7 +88,7 @@ linters:
 			Expect(result.MergedConfigs).To(ContainElement(yamlPath))
 
 			// Should have merged linters
-			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck", "staticcheck"))
+			Expect(cfg.Linters.Enable).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck"), types.LinterName("staticcheck")))
 		})
 
 		It("should merge run settings from secondary config when primary is empty", func() {
@@ -144,7 +144,7 @@ linters:
 			// Secondary Go version should be merged
 			Expect(cfg.Run.Go).To(Equal("1.23"))
 			// Both linters should be present
-			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
+			Expect(cfg.Linters.Enable).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck")))
 		})
 
 		It("should respect golangci-lint priority order", func() {
@@ -197,7 +197,7 @@ linters:
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(cfg.Linters.Disable).To(ContainElements("unused", "gocyclo"))
+			Expect(cfg.Linters.Disable).To(ContainElements(types.LinterName("unused"), types.LinterName("gocyclo")))
 		})
 
 		It("should merge issues settings", func() {
@@ -234,7 +234,7 @@ linters:
 			// Verify primary has merged content
 			loaded, err := loader.LoadConfig(ymlPath)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(loaded.Linters.Enable).To(ContainElements("gosec", "errcheck"))
+			Expect(loaded.Linters.Enable).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck")))
 
 			// Verify secondary still exists
 			_, err = os.Stat(yamlPath)
