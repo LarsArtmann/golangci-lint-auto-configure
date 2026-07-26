@@ -240,7 +240,7 @@ type LinterList struct {
 }
 
 // getAllLinterNames fetches all available linter names from golangci-lint.
-func (l *Loader) getAllLinterNames(ctx context.Context) ([]string, error) {
+func (l *Loader) getAllLinterNames(ctx context.Context) ([]types.LinterName, error) {
 	ctx, cancel := context.WithTimeout(ctx, LintersTimeout)
 	defer cancel()
 
@@ -260,9 +260,9 @@ func (l *Loader) getAllLinterNames(ctx context.Context) ([]string, error) {
 	}
 
 	// Extract all enabled linter names
-	var linterNames []string
+	var linterNames []types.LinterName
 	for _, linter := range linterList.Enabled {
-		linterNames = append(linterNames, linter.Name)
+		linterNames = append(linterNames, types.LinterName(linter.Name))
 	}
 
 	return linterNames, nil
@@ -307,7 +307,7 @@ func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
 	return newDefaultConfig(allLinters, goVersion)
 }
 
-func newDefaultConfig(allLinters []string, goVersion string) *Config {
+func newDefaultConfig(allLinters []types.LinterName, goVersion string) *Config {
 	return &Config{
 		Version: types.ConfigVersionV2,
 		Run: RunConfig{
@@ -340,12 +340,12 @@ func newDefaultConfig(allLinters []string, goVersion string) *Config {
 	}
 }
 
-func (l *Loader) fetchLintersWithFallback(ctx context.Context) []string {
+func (l *Loader) fetchLintersWithFallback(ctx context.Context) []types.LinterName {
 	allLinters, err := l.getAllLinterNames(ctx)
 	if err != nil {
 		l.logger.Warnf("Failed to fetch all linters, using critical set: %v", err)
 
-		return []string{
+		return []types.LinterName{
 			"gosec",
 			"errcheck",
 			"staticcheck",
@@ -459,11 +459,11 @@ func (l *Loader) ValidateConfig(config *Config) []error {
 }
 
 // GetLintersEnabled returns the list of explicitly enabled linters.
-func (l *Loader) GetLintersEnabled(config *Config) []string {
+func (l *Loader) GetLintersEnabled(config *Config) []types.LinterName {
 	return config.Linters.Enable
 }
 
 // GetLintersDisabled returns the list of explicitly disabled linters.
-func (l *Loader) GetLintersDisabled(config *Config) []string {
+func (l *Loader) GetLintersDisabled(config *Config) []types.LinterName {
 	return config.Linters.Disable
 }

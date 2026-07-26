@@ -124,7 +124,7 @@ func (d *Differ) addTestChangeIfDifferent(changes []Change, oldTests, newTests b
 	return changes
 }
 
-func (d *Differ) compareListChanges[T ~string](oldItems, newItems []T, pathPrefix, entityName, subKey string) []Change {
+func (d *Differ) compareListChanges(oldItems, newItems []string, pathPrefix, entityName, subKey string) []Change {
 	oldSet := types.NewSet(oldItems...)
 	newSet := types.NewSet(newItems...)
 
@@ -132,13 +132,13 @@ func (d *Differ) compareListChanges[T ~string](oldItems, newItems []T, pathPrefi
 
 	for item := range newSet {
 		if !oldSet.Contains(item) {
-			changes = append(changes, d.makeAddedChange(pathPrefix, subKey, entityName, string(item)))
+			changes = append(changes, d.makeAddedChange(pathPrefix, subKey, entityName, item))
 		}
 	}
 
 	for item := range oldSet {
 		if !newSet.Contains(item) {
-			changes = append(changes, d.makeRemovedChange(pathPrefix, subKey, entityName, string(item)))
+			changes = append(changes, d.makeRemovedChange(pathPrefix, subKey, entityName, item))
 		}
 	}
 
@@ -151,6 +151,16 @@ func changeAction(subKey, enabledAction, disabledAction string) string {
 	}
 
 	return enabledAction
+}
+
+func linterNamesToStrings(names []types.LinterName) []string {
+	result := make([]string, len(names))
+
+	for i, n := range names {
+		result[i] = string(n)
+	}
+
+	return result
 }
 
 func (d *Differ) makeAddedChange(pathPrefix, subKey, entityName, item string) Change {
@@ -174,17 +184,19 @@ func (d *Differ) makeRemovedChange(pathPrefix, subKey, entityName, item string) 
 }
 
 func (d *Differ) compareLinters(old, newCfg types.LintersConfig) []Change {
-	return d.compareEnableDisable(old.Enable, old.Disable, newCfg.Enable, newCfg.Disable, "linters", "linter")
+	return d.compareEnableDisable(
+		linterNamesToStrings(old.Enable), linterNamesToStrings(old.Disable),
+		linterNamesToStrings(newCfg.Enable), linterNamesToStrings(newCfg.Disable),
+		"linters", "linter",
+	)
 }
 
 func (d *Differ) compareFormatters(old, newCfg types.FormattersConfig) []Change {
 	return d.compareEnableDisable(old.Enable, old.Disable, newCfg.Enable, newCfg.Disable, "formatters", "formatter")
 }
 
-func (d *Differ) compareEnableDisable[
-	T ~string,
-](
-	oldEnable, oldDisable, newEnable, newDisable []T,
+func (d *Differ) compareEnableDisable(
+	oldEnable, oldDisable, newEnable, newDisable []string,
 	pathPrefix, entityName string,
 ) []Change {
 	changes := make([]Change, 0, len(oldEnable)+len(oldDisable)+len(newEnable)+len(newDisable))

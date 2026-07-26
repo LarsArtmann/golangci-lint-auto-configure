@@ -12,7 +12,7 @@ func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) in
 }
 
 // mergeEnableDisable merges enable and disable slices, returning the total change count.
-func mergeEnableDisable(primaryEnable, primaryDisable *[]string, secondaryEnable, secondaryDisable []string) int {
+func mergeEnableDisable[T ~string](primaryEnable, primaryDisable *[]T, secondaryEnable, secondaryDisable []T) int {
 	changes := 0
 
 	updated, fieldChanges := mergeSortedStringSlice(*primaryEnable, secondaryEnable)

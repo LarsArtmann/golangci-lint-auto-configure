@@ -2,6 +2,7 @@ package config
 
 import (
 	"path/filepath"
+	"slices"
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -57,7 +58,7 @@ func mergeMap[T any](primary, secondary map[string]T) int {
 
 // mergeSortedStringSlice merges secondary into primary string slice with deduplication and sorting.
 // Returns the number of changes made.
-func mergeSortedStringSlice(primary, secondary []string) ([]string, int) {
+func mergeSortedStringSlice[T ~string](primary, secondary []T) ([]T, int) {
 	if len(primary) == 0 && len(secondary) > 0 {
 		return secondary, 1
 	}
@@ -69,7 +70,7 @@ func mergeSortedStringSlice(primary, secondary []string) ([]string, int) {
 	primary, changes := mergeUniqueItems(primary, secondary)
 
 	if changes > 0 {
-		sort.Strings(primary)
+		slices.Sort(primary)
 	}
 
 	return primary, changes
@@ -77,7 +78,7 @@ func mergeSortedStringSlice(primary, secondary []string) ([]string, int) {
 
 // mergeUniqueItems adds items from secondary to primary that don't already exist.
 // Returns the updated slice and the number of changes made.
-func mergeUniqueItems(primary, secondary []string) ([]string, int) {
+func mergeUniqueItems[T ~string](primary, secondary []T) ([]T, int) {
 	primarySet := types.NewSet(primary...)
 	changes := 0
 
