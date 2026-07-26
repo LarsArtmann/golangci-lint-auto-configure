@@ -40,11 +40,6 @@ const (
 
 	// Default file permissions for config files (read/write for owner only).
 	defaultFilePermissions = 0o600
-
-	// DefaultMaxIssuesPerLinter is the default maximum issues per linter.
-	DefaultMaxIssuesPerLinter = 50
-	// DefaultMaxSameIssues is the default maximum same issues.
-	DefaultMaxSameIssues = 10
 )
 
 // FS defines the filesystem operations needed by the config package.
@@ -321,8 +316,8 @@ func newDefaultConfig(allLinters []types.LinterName, goVersion string) *types.Co
 			},
 		},
 		Issues: types.IssuesConfig{
-			MaxIssuesPerLinter: DefaultMaxIssuesPerLinter,
-			MaxSameIssues:      DefaultMaxSameIssues,
+			MaxIssuesPerLinter: constants.DefaultMaxIssuesPerLinter,
+			MaxSameIssues:      constants.DefaultMaxSameIssues,
 		},
 	}
 }
