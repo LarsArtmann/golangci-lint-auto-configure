@@ -63,7 +63,7 @@ linters:
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(cfg.Version).To(Equal(types.Version("1")))
-			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
+			Expect(cfg.Linters.Enable).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck")))
 		})
 
 		It("should parse all config sections", func() {
@@ -154,7 +154,7 @@ timeout = "5m"
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(cfg.Version).To(Equal(types.ConfigVersionV2))
-			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
+			Expect(cfg.Linters.Enable).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck")))
 			Expect(cfg.Run.Timeout).To(Equal("5m"))
 		})
 
@@ -175,7 +175,7 @@ timeout = "5m"
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(cfg.Version).To(Equal(types.ConfigVersionV2))
-			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
+			Expect(cfg.Linters.Enable).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck")))
 		})
 
 		It("should save config in TOML format", func() {
@@ -449,7 +449,7 @@ output:
 			enabled := loader.GetLintersEnabled(cfg)
 
 			Expect(enabled).To(HaveLen(3))
-			Expect(enabled).To(ContainElements("gosec", "errcheck", "staticcheck"))
+			Expect(enabled).To(ContainElements(types.LinterName("gosec"), types.LinterName("errcheck"), types.LinterName("staticcheck")))
 		})
 	})
 
@@ -464,7 +464,7 @@ output:
 			disabled := loader.GetLintersDisabled(cfg)
 
 			Expect(disabled).To(HaveLen(2))
-			Expect(disabled).To(ContainElements("unused", "gocyclo"))
+			Expect(disabled).To(ContainElements(types.LinterName("unused"), types.LinterName("gocyclo")))
 		})
 	})
 })

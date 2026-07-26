@@ -60,7 +60,7 @@ var _ = Describe("Config.Clone", func() {
 
 		Expect(cloned.Linters.Enable).To(Equal(original.Linters.Enable))
 		cloned.Linters.Enable[0] = "modified"
-		Expect(original.Linters.Enable[0]).To(Equal("gosec"))
+		Expect(original.Linters.Enable[0]).To(Equal(types.LinterName("gosec")))
 
 		Expect(cloned.Linters.Settings).To(Equal(original.Linters.Settings))
 		cloned.Linters.Settings["funlen"] = map[string]any{"lines": 200}
