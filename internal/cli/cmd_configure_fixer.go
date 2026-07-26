@@ -26,6 +26,7 @@ func runFixerMode(
 ) error {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
 	fixer.SetLedger(newRunLedger(ctx, logger, configFile))
+	fixer.SetGoVersionProvider(config.GetLocalGoVersion)
 
 	linterPriority, err := ParsePriorityParam(priorityParam)
 	if err != nil {

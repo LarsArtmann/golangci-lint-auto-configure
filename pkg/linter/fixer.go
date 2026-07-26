@@ -19,20 +19,22 @@ type fixerConfigLoader interface {
 
 // Fixer provides functionality to fix golangci-lint configurations.
 type Fixer struct {
-	configLoader     fixerConfigLoader
-	analyzer         types.LinterAnalyzer
-	logger           *log.Logger
-	formatterManager *FormatterManager
-	ledger           audit.Recorder
-	pol              *policy.Policy
+	configLoader      fixerConfigLoader
+	analyzer          types.LinterAnalyzer
+	logger            *log.Logger
+	formatterManager  *FormatterManager
+	ledger            audit.Recorder
+	pol               *policy.Policy
+	goVersionProvider GoVersionProvider
 }
 
 // NewFixer creates a new fixer.
 func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader fixerConfigLoader) *Fixer {
 	return &Fixer{
-		configLoader:     configLoader,
-		analyzer:         analyzer,
-		logger:           logger,
+		configLoader:      configLoader,
+		analyzer:          analyzer,
+		logger:            logger,
+		goVersionProvider: func(context.Context) string { return "" },
 		formatterManager: NewFormatterManager(logger),
 		ledger:           audit.NoopRecorder{},
 		pol:              nil,
@@ -47,6 +49,16 @@ func (f *Fixer) SetLedger(recorder audit.Recorder) {
 	}
 
 	f.ledger = recorder
+}
+
+// SetGoVersionProvider sets the function used to detect the local Go version.
+// If provider is nil, the fixer uses a no-op that returns an empty string (skips go-version updates).
+func (f *Fixer) SetGoVersionProvider(provider GoVersionProvider) {
+	if provider == nil {
+		provider = func(context.Context) string { return "" }
+	}
+
+	f.goVersionProvider = provider
 }
 
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
@@ -280,7 +292,7 @@ func (f *Fixer) applyAndSave(
 	version string,
 	counts fixCounts,
 ) (*types.MigrationResult, error) {
-	updater := newConfigUpdater(f.logger)
+	updater := newConfigUpdater(f.logger, f.goVersionProvider)
 
 	rec := configChangeRecorder{counts: counts}
 	rec.normalize(func() int { return updater.updateGoVersion(ctx, cfg) })
