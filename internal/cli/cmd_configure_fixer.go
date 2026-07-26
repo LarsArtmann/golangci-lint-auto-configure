@@ -30,12 +30,8 @@ func newConfiguredFixer(
 }
 
 func runFixerMode(
-	ctx context.Context,
-	logger *log.Logger,
-	analyzer *linter.Analyzer,
-	configLoader *config.Loader,
-	configFile string,
-	flags *Flags,
+	ctx context.Context, logger *log.Logger, analyzer *linter.Analyzer,
+	configLoader *config.Loader, configFile string, flags *Flags,
 ) error {
 	isDryRun := flags.Check || flags.DryRun
 
@@ -48,12 +44,7 @@ func runFixerMode(
 	}
 
 	originalCfg := captureOriginalConfig(flags.ShowDiff, configLoader, configFile, logger)
-	effectiveDryRun := effectiveDryRunForCheckDiff(
-		isDryRun,
-		flags.Check,
-		flags.ShowDiff,
-		originalCfg,
-	)
+	effectiveDryRun := effectiveDryRunForCheckDiff(isDryRun, flags.Check, flags.ShowDiff, originalCfg)
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, effectiveDryRun)
 	if err != nil {

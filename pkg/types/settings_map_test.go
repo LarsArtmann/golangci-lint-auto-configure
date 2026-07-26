@@ -73,6 +73,7 @@ var _ = Describe("SettingsMap", func() {
 
 			clonedNested, ok := cloned["gocritic"].(map[string]any)
 			Expect(ok).To(BeTrue())
+
 			clonedNested["enabled-tags"] = []any{"performance"}
 
 			originalNested := original["gocritic"].(map[string]any)
@@ -116,6 +117,7 @@ var _ = Describe("SettingsMap", func() {
 			Expect(cloned).ToNot(BeIdenticalTo(original))
 
 			cloned["new"] = "entry"
+
 			Expect(original).ToNot(HaveKey("new"))
 		})
 	})

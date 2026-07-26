@@ -110,13 +110,9 @@ func loadPresetConfig(
 }
 
 func savePresetConfig(
-	logger *log.Logger,
-	configLoader presetConfigLoader,
-	cfg *types.Config,
-	configFile string,
-	presets []string,
-	linterNames []types.LinterName,
-	extraFormatters []types.FormatterName,
+	logger *log.Logger, configLoader presetConfigLoader,
+	cfg *types.Config, configFile string, presets []string,
+	linterNames []types.LinterName, extraFormatters []types.FormatterName,
 ) error {
 	cfg.Linters.Enable = linterNames
 	cfg.Linters.Disable = []types.LinterName{}
@@ -134,11 +130,7 @@ func savePresetConfig(
 			presets, len(linterNames))
 	}
 
-	logger.Infof(
-		"✅ Applied presets %s with %d linters",
-		strings.Join(presets, "+"),
-		len(linterNames),
-	)
+	logger.Infof("✅ Applied presets %s with %d linters", strings.Join(presets, "+"), len(linterNames))
 
 	return nil
 }
@@ -174,19 +166,14 @@ func applyPresetFormatters(
 }
 
 func applyPreset(
-	_ context.Context,
-	logger *log.Logger,
-	configLoader presetConfigLoader,
-	configFile string,
-	presets []string,
-	dryRun bool,
+	_ context.Context, logger *log.Logger, configLoader presetConfigLoader,
+	configFile string, presets []string, dryRun bool,
 	extraFormatters []types.FormatterName,
 ) error {
 	cfg, linterNames, err := loadPresetConfig(logger, configLoader, configFile, presets, dryRun)
 	if err != nil {
-		return apperrors.WrapClassifiedf(err, "configure.load_preset",
-			"load preset config failed (presets=%v, dryRun=%t)",
-			presets, dryRun)
+		return apperrors.WrapClassifiedf(
+			err, "configure.load_preset", "load preset config failed (presets=%v, dryRun=%t)", presets, dryRun)
 	}
 
 	if dryRun {
