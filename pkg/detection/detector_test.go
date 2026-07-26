@@ -217,6 +217,30 @@ func TestDetector_HasArangoDB(t *testing.T) {
 	})
 }
 
+func TestDetector_HasSwaggo_PropagatesScannerError(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	err := writeGoMod(dir) // no swaggo dependency
+	if err != nil {
+		t.Fatalf("Setup failed: %v", err)
+	}
+
+	// A line exceeding bufio.MaxScanTokenSize (64 KiB) triggers
+	// bufio.ErrTooLong. scanFileForSwaggo must propagate this error
+	// through hasSwaggoInCode back to the caller.
+	longLine := "// " + strings.Repeat("x", 100_000)
+	err = writeGoFile(dir, "overflow.go", "package main\n"+longLine+"\n")
+	if err != nil {
+		t.Fatalf("Setup failed: %v", err)
+	}
+
+	_, err = detectionpkg.NewDetector(dir).HasSwaggo()
+	if err == nil {
+		t.Fatal("HasSwaggo() expected error for unscannable .go file, got nil")
+	}
+}
+
 func allProjectTypes() []detectionpkg.ProjectType {
 	return []detectionpkg.ProjectType{
 		detectionpkg.ProjectTypeCLI,

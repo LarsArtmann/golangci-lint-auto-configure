@@ -65,6 +65,16 @@ var _ = Describe("Report Generator", func() {
 			err := gen.GenerateReport(context.Background(), analysis, "/nonexistent/dir/report.html")
 			Expect(err).To(HaveOccurred())
 		})
+
+		It("propagates render errors through the named return", func() {
+			if _, statErr := os.Stat("/dev/full"); statErr != nil {
+				Skip("/dev/full not available on this platform")
+			}
+
+			gen := report.NewGenerator(logger)
+			err := gen.GenerateReport(context.Background(), analysis, "/dev/full")
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
 	Context("JSON Report", func() {
