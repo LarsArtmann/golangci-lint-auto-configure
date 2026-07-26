@@ -23,22 +23,22 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## Auto-Configuration Features
 
-| Feature                                                | Status           | Notes                                                                                                     |
-| ------------------------------------------------------ | ---------------- | --------------------------------------------------------------------------------------------------------- |
-| Linter priority system (Critical/High/Medium/Optional) | FULLY_FUNCTIONAL | `pkg/constants/linter_priorities.go` + `linter_reasons.go`                                                |
-| Priority-based filtering (`--priority`)                | FULLY_FUNCTIONAL | configure command                                                                                         |
-| Pragmatic mode (`--pragmatic`)                         | FULLY_FUNCTIONAL | Drops 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen) from enable set             |
-| Multi-preset support (`--preset a --preset b`)         | FULLY_FUNCTIONAL | Repeated `--preset` flags merge linters/formatters with deduplication                                     |
-| Preset recommendation (`--recommend`)                  | FULLY_FUNCTIONAL | Analyzes project and applies multiple presets (implies `--detect`)                                        |
-| `--detect` for the format preset                       | FULLY_FUNCTIONAL | `--preset format --detect` auto-enables swaggo on Swagger detection                                       |
-| Dry-run mode (`--dry-run`)                             | FULLY_FUNCTIONAL | Shows what would change                                                                                   |
-| CI check mode (`--check`)                              | FULLY_FUNCTIONAL | Exit 0 if optimal, exit 1 if changes needed                                                               |
-| Diff preview (`--diff`)                                | FULLY_FUNCTIONAL | Shows config diff before applying (threaded as parameter, not global var)                                 |
-| Deprecated linter auto-replacement                     | FULLY_FUNCTIONAL | wsl→wsl_v5, gomodguard→gomodguard_v2, etc.                                                                |
-| Version-gated deprecation                              | FULLY_FUNCTIONAL | gomodguard_v2 requires v2.12.0+                                                                           |
-| Typecheck linter removal                               | FULLY_FUNCTIONAL | Removes from enable/disable lists                                                                         |
-| Invalid duration fix                                   | FULLY_FUNCTIONAL | Fixes empty/invalid timeout values                                                                        |
-| Multiple binary detection                              | FULLY_FUNCTIONAL | Warns if multiple golangci-lint binaries                                                                  |
+| Feature                                                | Status           | Notes                                                                                        |
+| ------------------------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------- |
+| Linter priority system (Critical/High/Medium/Optional) | FULLY_FUNCTIONAL | `pkg/constants/linter_priorities.go` + `linter_reasons.go`                                   |
+| Priority-based filtering (`--priority`)                | FULLY_FUNCTIONAL | configure command                                                                            |
+| Pragmatic mode (`--pragmatic`)                         | FULLY_FUNCTIONAL | Drops 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen) from enable set |
+| Multi-preset support (`--preset a --preset b`)         | FULLY_FUNCTIONAL | Repeated `--preset` flags merge linters/formatters with deduplication                        |
+| Preset recommendation (`--recommend`)                  | FULLY_FUNCTIONAL | Analyzes project and applies multiple presets (implies `--detect`)                           |
+| `--detect` for the format preset                       | FULLY_FUNCTIONAL | `--preset format --detect` auto-enables swaggo on Swagger detection                          |
+| Dry-run mode (`--dry-run`)                             | FULLY_FUNCTIONAL | Shows what would change                                                                      |
+| CI check mode (`--check`)                              | FULLY_FUNCTIONAL | Exit 0 if optimal, exit 1 if changes needed                                                  |
+| Diff preview (`--diff`)                                | FULLY_FUNCTIONAL | Shows config diff before applying (threaded as parameter, not global var)                    |
+| Deprecated linter auto-replacement                     | FULLY_FUNCTIONAL | wsl→wsl_v5, gomodguard→gomodguard_v2, etc.                                                   |
+| Version-gated deprecation                              | FULLY_FUNCTIONAL | gomodguard_v2 requires v2.12.0+                                                              |
+| Typecheck linter removal                               | FULLY_FUNCTIONAL | Removes from enable/disable lists                                                            |
+| Invalid duration fix                                   | FULLY_FUNCTIONAL | Fixes empty/invalid timeout values                                                           |
+| Multiple binary detection                              | FULLY_FUNCTIONAL | Warns if multiple golangci-lint binaries                                                     |
 
 ## Disable-Respect & Audit Policy
 
@@ -61,26 +61,26 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## Default Settings Injection
 
-| Feature                                                  | Status           | Notes                                                                                                                                                           |
-| -------------------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Typed settings structs (SettingsConverter interface)     | FULLY_FUNCTIONAL | Compile-time safety in `pkg/constants/linter_settings.go`                                                                                                       |
-| depguard defaults ($gostd, $module)                      | FULLY_FUNCTIONAL | Prevents deny-all default (depguard now tool-disabled; kept for reference)                                                                                      |
-| ireturn defaults (error, empty, anon, stdlib, generic)   | FULLY_FUNCTIONAL | Reasonable interface return policy                                                                                                                              |
-| gocritic defaults (ifElseChain disabled)                 | FULLY_FUNCTIONAL | Removes noisy checks                                                                                                                                            |
-| NeverAutoEnableLinters (exhaustruct)                    | FULLY_FUNCTIONAL | Never auto-enabled (highest friction: 6.5 nolint ratio), but respected + safe defaults injected when manually enabled              |
+| Feature                                                  | Status           | Notes                                                                                                                                                                                           |
+| -------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Typed settings structs (SettingsConverter interface)     | FULLY_FUNCTIONAL | Compile-time safety in `pkg/constants/linter_settings.go`                                                                                                                                       |
+| depguard defaults ($gostd, $module)                      | FULLY_FUNCTIONAL | Prevents deny-all default (depguard now tool-disabled; kept for reference)                                                                                                                      |
+| ireturn defaults (error, empty, anon, stdlib, generic)   | FULLY_FUNCTIONAL | Reasonable interface return policy                                                                                                                                                              |
+| gocritic defaults (ifElseChain disabled)                 | FULLY_FUNCTIONAL | Removes noisy checks                                                                                                                                                                            |
+| NeverAutoEnableLinters (exhaustruct)                     | FULLY_FUNCTIONAL | Never auto-enabled (highest friction: 6.5 nolint ratio), but respected + safe defaults injected when manually enabled                                                                           |
 | exhaustruct defaults (14 stdlib structs excluded)        | FULLY_FUNCTIONAL | Injected when manually enabled; net/http.Client/Server/Request/Response/Transport/Cookie, net.TCPAddr/Dialer, slog.HandlerOptions, sync.WaitGroup, bytes.Buffer, time.Ticker/Timer, os/exec.Cmd |
-| revive defaults (exported, package-comments disabled)    | FULLY_FUNCTIONAL | Noisy without config                                                                                                                                            |
-| varnamelen defaults (short names, ignore flags)          | FULLY_FUNCTIONAL | Common short variable exemptions                                                                                                                                |
-| gomoddirectives defaults (replace-local: true)           | FULLY_FUNCTIONAL | Local dev support                                                                                                                                               |
-| cyclop defaults (max-complexity: 12)                     | FULLY_FUNCTIONAL | Reasonable complexity threshold                                                                                                                                 |
-| funlen defaults (lines: 200, statements: 100)            | FULLY_FUNCTIONAL | House style; dominant override across 160 projects; diverges from upstream                                                                                      |
-| mnd defaults (ignored-numbers: 0, 1, 2, 100)             | FULLY_FUNCTIONAL | Reduces magic-number noise for common values                                                                                                                    |
-| golines formatter defaults (max-len: 120)                | FULLY_FUNCTIONAL | When enabled via lll replacement                                                                                                                                |
-| gosec defaults (G304, G115 excluded)                     | FULLY_FUNCTIONAL | Curated excludes for common false-positive security findings                                                                                                    |
-| errcheck defaults (exclude-functions for Close, Fprint*) | FULLY_FUNCTIONAL | Curated exclude-functions reducing defer/fmt noise                                                                                                              |
-| wrapcheck defaults (curated ignore-sigs)                 | FULLY_FUNCTIONAL | Reduces wrapping noise for common stdlib signatures                                                                                                             |
-| Settings key validation (soft warnings)                  | FULLY_FUNCTIONAL | Warns on unknown linter settings keys at config load time                                                                                                       |
-| output.formats initialization                            | FULLY_FUNCTIONAL | Empty map to prevent nil issues                                                                                                                                 |
+| revive defaults (exported, package-comments disabled)    | FULLY_FUNCTIONAL | Noisy without config                                                                                                                                                                            |
+| varnamelen defaults (short names, ignore flags)          | FULLY_FUNCTIONAL | Common short variable exemptions                                                                                                                                                                |
+| gomoddirectives defaults (replace-local: true)           | FULLY_FUNCTIONAL | Local dev support                                                                                                                                                                               |
+| cyclop defaults (max-complexity: 12)                     | FULLY_FUNCTIONAL | Reasonable complexity threshold                                                                                                                                                                 |
+| funlen defaults (lines: 200, statements: 100)            | FULLY_FUNCTIONAL | House style; dominant override across 160 projects; diverges from upstream                                                                                                                      |
+| mnd defaults (ignored-numbers: 0, 1, 2, 100)             | FULLY_FUNCTIONAL | Reduces magic-number noise for common values                                                                                                                                                    |
+| golines formatter defaults (max-len: 120)                | FULLY_FUNCTIONAL | When enabled via lll replacement                                                                                                                                                                |
+| gosec defaults (G304, G115 excluded)                     | FULLY_FUNCTIONAL | Curated excludes for common false-positive security findings                                                                                                                                    |
+| errcheck defaults (exclude-functions for Close, Fprint*) | FULLY_FUNCTIONAL | Curated exclude-functions reducing defer/fmt noise                                                                                                                                              |
+| wrapcheck defaults (curated ignore-sigs)                 | FULLY_FUNCTIONAL | Reduces wrapping noise for common stdlib signatures                                                                                                                                             |
+| Settings key validation (soft warnings)                  | FULLY_FUNCTIONAL | Warns on unknown linter settings keys at config load time                                                                                                                                       |
+| output.formats initialization                            | FULLY_FUNCTIONAL | Empty map to prevent nil issues                                                                                                                                                                 |
 
 ## Exclusion Automation
 
