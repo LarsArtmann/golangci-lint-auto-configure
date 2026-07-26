@@ -15,6 +15,7 @@ import (
 	"encoding/hex"
 	"encoding/json/v2"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -352,6 +353,8 @@ func rewriteLedger(path string, entries []Entry) error {
 	for _, entry := range entries {
 		line, err := json.Marshal(entry)
 		if err != nil {
+			slog.Warn("audit ledger: skipping unmarshalable entry during compaction", "error", err)
+
 			continue
 		}
 
