@@ -6,28 +6,82 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
+A large unreleased batch covering the friction-reduction Pareto plan and the
+subsequent quality-debt cleanup. Grouped by theme.
 
-- `cmd/coverage-check` binary added to Nix `subPackages` and exposed as `nix run .#coverage-check`
-- `vendorHash.nix` — dedicated file for Go vendor hash (cleaner diffs on dependency updates)
-- All 21 GitHub Actions pinned to immutable commit SHAs across 4 workflow files (supply-chain security)
-- Coverage-check tool documented in README under "Development Tools"
-- `pkg/audit/`, `pkg/policy/`, `pkg/client/`, `pkg/utils/` added to code-organization.md directory tree
+### Added — Friction reduction (data-driven default tuning)
+
 - `--pragmatic` flag: drops the 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from the dynamic enable set
 - `GosecSettings` typed struct with curated excludes (G304, G115) — reduces gosec false-positive friction while preserving unhandled-error detection (errcheck handles known-benign cases surgically)
 - `ErrcheckSettings` typed struct with curated `exclude-functions` (`Close`, `fmt.Fprint*`, Builder writes) — reduces errcheck friction by 20%+
+- `WrapcheckSettings` typed struct with a curated `ignore-sigs` list
+- Friction-driven defaults: expanded `exhaustruct` exclude list with 14 stdlib structs (net/http.Client/Server/Request/Response/Transport/Cookie, net.TCPAddr/Dialer, slog.HandlerOptions, sync.WaitGroup, bytes.Buffer, time.Ticker/Timer, os/exec.Cmd)
+- `house` formatter preset (4 formatters: gci, goimports, gofumpt, golines) — the validated winning stack across 128/160 sibling projects
 - `forcetypeassert` added to the default `_test.go` exclusion rules
 - `gosec`, `errcheck`, `wrapcheck`, `ireturn`, `recvcheck`, `contextcheck`, `exhaustive` added to default `_test.go` exclusion rules
-- Friction-driven defaults: expanded `exhaustruct` exclude list with 14 stdlib structs (net/http.Client/Server/Request/Response/Transport/Cookie, net.TCPAddr/Dialer, slog.HandlerOptions, sync.WaitGroup, bytes.Buffer, time.Ticker/Timer, os/exec.Cmd)
+
+### Added — Architecture & type safety
+
+- `CommandResult` type: optional structured return for CLI commands carrying a user-facing message and explicit exit code alongside the standard error
+- `ConfigLoader` God Object interface decomposed into 6 focused sub-interfaces (ConfigReader, ConfigWriter, ConfigDiscoverer, ConfigValidator, ConfigInspector, ConfigCreator)
+- `coreLinters` + `withCore()` pattern eliminating 6× duplication of the core-linter list across detection patterns
+- `ValidationError.ToHealthIssue()` conversion bridging the two reporting types
+- Settings key validation: soft warnings for unknown linter settings keys at config load time
+- `cmd/generate-settings`: generates 88 settings structs from the golangci-lint JSON Schema (codegen infrastructure replacing hand-maintained structs)
+
+### Added — UX & preset ergonomics
+
+- Multi-preset support: repeated `--preset` flags merge linters/formatters with deduplication (`--preset minimal --preset security`)
+- `--recommend` flag: analyzes the project and applies multiple recommended presets (implies `--detect`)
+- `--detect` mode for the format preset: `--preset format --detect` auto-enables swaggo when Swagger annotations are found
+- `--no-color` flag for CI/scripting output (sets `NO_COLOR=1`)
+- `--json` output for the `presets` command (structured preset details)
+
+### Added — Error handling
+
+- `HandleError` function at the CLI boundary (replaces raw `slog.Error` calls with classified, user-friendly rendering)
+- Domain message templates: 27 Wix-style error messages (What/Why/Fix/WayOut) registered with `errorfamily.New()`
+
+### Added — CI, build & tooling
+
+- All 21 GitHub Actions pinned to immutable commit SHAs across 4 workflow files (supply-chain security)
+- `cmd/coverage-check` binary added to Nix `subPackages` and exposed as `nix run .#coverage-check`
+- `vendorHash.nix` — dedicated file for Go vendor hash (cleaner diffs on dependency updates)
+- CI retry logic for nix build (3 attempts) and resilient magic-nix-cache handling
+- Dependabot automation (`.github/dependabot.yml`) for GitHub Actions and Go modules
+- `git-cliff` config (`cliff.toml`) for changelog generation from conventional commits
+- Coverage-check tool documented in README under "Development Tools"
+- `pkg/audit/`, `pkg/policy/`, `pkg/client/`, `pkg/utils/` added to code-organization.md directory tree
+- `docs/status/README.md`: consolidating index for historical status reports
+- `docs/architecture-understanding/`: dated architecture review documenting package structure, strengths, and concerns
+
+### Added — Tests
+
+- Policy-enforcement tests (`fixer_enforce_test.go`, 14 tests) and audit CLI tests (`cmd_audit_test.go`, ~20 tests) for previously zero-coverage code paths
+- Exit-code integration tests for Infrastructure (69) and Corruption (65)
+- JSON round-trip tests for all report types (`pkg/types/json_roundtrip_test.go`)
+- HTML report golden snapshot test + 8 structural invariant tests
+- HTML report CSS regression tests (color golden values + cross-format consistency)
+- Coverage-check integration tests for `run()` threshold logic
+- Docs-integrity test cross-checking FEATURES.md preset counts against `pkg/constants/presets.go` (fails CI on drift)
+- `DefaultExclusionRules` data-integrity tests (valid names, no disabled overlap, no duplicates)
 
 ### Changed
 
-- Stale `//nolint:legacyerrors` directives removed (linter not configured — was producing warnings)
-- README medium linter count corrected from "50+" to "48"
+- `cmd_configure.go` split from 680 lines into 4 focused files (193/208/182/133 lines)
 - `funlen` default thresholds changed from `60/40` to `200/100` (house style — dominant override across 160 sibling projects; diverges from golangci-lint upstream)
 - `CoreFormatters` expanded from 3 to 4 formatters (`gci`, `goimports`, `gofumpt`, `golines`) — now matches the `house` preset's validated winning stack
+- CI workflow switched from a Go version matrix to `go-version-file: go.mod`; `flake.lock` drift detection added
+- README medium linter count corrected from "50+" to "48"; linter-priority tiers corrected (ineffassign/gocyclo/misspell/revive moved to High)
+- Stale `//nolint:legacyerrors` directives removed (linter not configured — was producing warnings)
 - golangci-lint configuration and linter constants updated
 - Nix flake configuration and module dependencies updated
+
+### Fixed
+
+- G104 removed from `GosecSettings.Excludes` defaults — it was too broad, suppressing ALL unhandled-error findings from gosec rather than just the curated Close/Fprint* family that errcheck handles surgically
+- `audit` subcommand broken on first run (no ledger exists yet): `os.IsNotExist` does not unwrap `fmt.Errorf %w` chains, so a missing ledger returned an error instead of nil. Changed to `errors.Is(err, os.ErrNotExist)`
+- Coverage-check ghost file (`scripts/coverage-check.sh`) deleted — replaced by the Go `cmd/coverage-check`
 
 ## [0.5.0] - 2026-07-23
 

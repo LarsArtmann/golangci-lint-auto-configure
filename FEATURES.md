@@ -28,6 +28,9 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Linter priority system (Critical/High/Medium/Optional) | FULLY_FUNCTIONAL | `pkg/constants/linter_priorities.go` + `linter_reasons.go`                                                |
 | Priority-based filtering (`--priority`)                | FULLY_FUNCTIONAL | configure command                                                                                         |
 | Pragmatic mode (`--pragmatic`)                         | FULLY_FUNCTIONAL | Drops 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from enable set |
+| Multi-preset support (`--preset a --preset b`)         | FULLY_FUNCTIONAL | Repeated `--preset` flags merge linters/formatters with deduplication |
+| Preset recommendation (`--recommend`)                  | FULLY_FUNCTIONAL | Analyzes project and applies multiple presets (implies `--detect`)  |
+| `--detect` for the format preset                       | FULLY_FUNCTIONAL | `--preset format --detect` auto-enables swaggo on Swagger detection |
 | Dry-run mode (`--dry-run`)                             | FULLY_FUNCTIONAL | Shows what would change                                                                                   |
 | CI check mode (`--check`)                              | FULLY_FUNCTIONAL | Exit 0 if optimal, exit 1 if changes needed                                                               |
 | Diff preview (`--diff`)                                | FULLY_FUNCTIONAL | Shows config diff before applying (threaded as parameter, not global var)                                 |
@@ -99,8 +102,9 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | `security` preset                                       | FULLY_FUNCTIONAL | Security-focused only               |
 | `performance` preset                                    | FULLY_FUNCTIONAL | Performance optimization            |
 | `reference` preset (62 linters)                         | FULLY_FUNCTIONAL | All critical + high priority        |
-| `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters |
-| Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo    |
+| `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters                         |
+| `house` preset (5 linters + 4 formatters)               | FULLY_FUNCTIONAL | Winning stack across 128/160 projects (gci, goimports, gofumpt, golines) |
+| Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo                            |
 
 > Linter counts verified against `pkg/constants/presets.go` as of 2026-07-25.
 
@@ -108,7 +112,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 | Feature                                                   | Status           | Notes                       |
 | --------------------------------------------------------- | ---------------- | --------------------------- |
-| Core formatters (gci, gofumpt, goimports)                 | FULLY_FUNCTIONAL | Always enabled              |
+| Core formatters (gci, gofumpt, goimports, golines)        | FULLY_FUNCTIONAL | Always enabled (4-formatter winning stack) |
 | golines auto-enable (when lll detected)                   | FULLY_FUNCTIONAL | Replaces redundant linter   |
 | swaggo auto-detection                                     | FULLY_FUNCTIONAL | Detects swag annotations    |
 | Redundant formatter removal (gofmt when gofumpt)          | FULLY_FUNCTIONAL | Superset detection          |
