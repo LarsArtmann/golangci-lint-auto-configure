@@ -352,10 +352,15 @@ func (d *Detector) hasMainPackage() bool {
 			}
 		}
 
-		return scanner.Err()
+		if err := scanner.Err(); err != nil {
+			// Best-effort by design: swallow per-file scan errors so one
+			// pathologically long line does not abort detection of the project.
+			slog.Debug("detector: hasMainPackage scan error, skipping file", "error", err)
+		}
+
+		return nil
 	}); walkErr != nil {
-		// Best-effort by design: scan failures degrade safely to ProjectTypeUnknown.
-		slog.Debug("detector: hasMainPackage scan failed", "error", walkErr)
+		slog.Debug("detector: hasMainPackage walk failed", "error", walkErr)
 	}
 
 	return found
@@ -401,10 +406,15 @@ func (d *Detector) hasAPICodePatterns() bool {
 			}
 		}
 
-		return scanner.Err()
+		if err := scanner.Err(); err != nil {
+			// Best-effort by design: swallow per-file scan errors so one
+			// pathologically long line does not abort detection of the project.
+			slog.Debug("detector: hasAPICodePatterns scan error, skipping file", "error", err)
+		}
+
+		return nil
 	}); walkErr != nil {
-		// Best-effort by design: scan failures degrade safely to ProjectTypeUnknown.
-		slog.Debug("detector: hasAPICodePatterns scan failed", "error", walkErr)
+		slog.Debug("detector: hasAPICodePatterns walk failed", "error", walkErr)
 	}
 
 	return found

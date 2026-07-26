@@ -241,6 +241,35 @@ func TestDetector_HasSwaggo_PropagatesScannerError(t *testing.T) {
 	}
 }
 
+func TestDetector_DetectResilientToScannerErrorsInSiblingFiles(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	err := writeGoMod(dir, "github.com/spf13/cobra v1.8.0")
+	if err != nil {
+		t.Fatalf("Setup failed: %v", err)
+	}
+
+	// aaa_overflow.go sorts before main.go, so filepath.Walk visits it first.
+	// Its >64 KiB line triggers bufio.ErrTooLong. hasMainPackage must swallow
+	// the per-file scanner error, continue the walk, and still find "package
+	// main" in main.go — without resilience the walk would abort at the bad file.
+	longLine := "// " + strings.Repeat("x", 100_000)
+	if err := writeGoFile(dir, "aaa_overflow.go", longLine+"\n"); err != nil {
+		t.Fatalf("Setup failed: %v", err)
+	}
+
+	if err := writeGoFile(dir, "main.go", "package main\n\nfunc main() {}\n"); err != nil {
+		t.Fatalf("Setup failed: %v", err)
+	}
+
+	got := detectionpkg.NewDetector(dir).Detect()
+	if got != detectionpkg.ProjectTypeCLI {
+		t.Errorf("Detect() = %v, want %v (scanner error in sibling file must not abort detection)",
+			got, detectionpkg.ProjectTypeCLI)
+	}
+}
+
 func allProjectTypes() []detectionpkg.ProjectType {
 	return []detectionpkg.ProjectType{
 		detectionpkg.ProjectTypeCLI,
