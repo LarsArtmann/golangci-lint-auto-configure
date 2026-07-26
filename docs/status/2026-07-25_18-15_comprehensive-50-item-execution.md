@@ -125,25 +125,25 @@ The 17 "Remaining Items" above (item #13 deduplicate-code was resolved too) were
 all completed later the same day by the `2026-07-25_20-55` session. Mapping to
 commits:
 
-| #   | Item                                            | Resolution                          | Commit    |
-| --- | ----------------------------------------------- | ----------------------------------- | --------- |
-| 1   | Split `cmd_configure.go`                        | 680 lines → 4 focused files         | `9a41447` |
-| 2   | Extract typed linter constants                  | `coreLinters` + `withCore()`        | `9e0e702` |
-| 3   | Split `ConfigLoader` interface                  | 6 focused sub-interfaces            | `39cca87` |
-| 4   | Consolidate `ValidationError` + `HealthIssue`   | `ToHealthIssue()` conversion        | `58fbe3c` |
-| 5   | Settings key validation                         | Soft warnings at config load        | `e8f30f0` |
-| 6   | Generate settings from JSON Schema              | `cmd/generate-settings` (88 structs) | `3665d79` |
-| 7   | `CommandResult` type for CLI                    | Optional structured return          | `40eda4c` |
-| 8   | Multi-preset support                            | `--preset a --preset b` merge       | `86ddc2d` |
-| 9   | Format `--detect` mode                          | `--preset format --detect`          | `ecb3fe0` |
-| 10  | Preset recommendation                           | `--recommend` flag                  | `d97237c` |
-| 11  | Domain message templates                        | 27 Wix-style templates              | `03a0806` |
-| 12  | HTML report CSS regression test                 | Color golden-value tests            | `2c6accf` |
-| 13  | CI retry logic                                  | 3-attempt nix build retry           | `5c76e1c` |
-| 14  | Coverage-check integration test                 | End-to-end threshold tests          | `65fec5c` |
-| 15  | Run deduplicate-code skill                      | 0 clone groups (clean)              | —         |
-| 16  | Run architecture-review skill                   | `docs/architecture-understanding/`  | `f39f7f7` |
-| 17  | Consolidate status reports                      | `docs/status/README.md` index       | `fb7c9eb` |
+| #   | Item                                          | Resolution                           | Commit    |
+| --- | --------------------------------------------- | ------------------------------------ | --------- |
+| 1   | Split `cmd_configure.go`                      | 680 lines → 4 focused files          | `9a41447` |
+| 2   | Extract typed linter constants                | `coreLinters` + `withCore()`         | `9e0e702` |
+| 3   | Split `ConfigLoader` interface                | 6 focused sub-interfaces             | `39cca87` |
+| 4   | Consolidate `ValidationError` + `HealthIssue` | `ToHealthIssue()` conversion         | `58fbe3c` |
+| 5   | Settings key validation                       | Soft warnings at config load         | `e8f30f0` |
+| 6   | Generate settings from JSON Schema            | `cmd/generate-settings` (88 structs) | `3665d79` |
+| 7   | `CommandResult` type for CLI                  | Optional structured return           | `40eda4c` |
+| 8   | Multi-preset support                          | `--preset a --preset b` merge        | `86ddc2d` |
+| 9   | Format `--detect` mode                        | `--preset format --detect`           | `ecb3fe0` |
+| 10  | Preset recommendation                         | `--recommend` flag                   | `d97237c` |
+| 11  | Domain message templates                      | 27 Wix-style templates               | `03a0806` |
+| 12  | HTML report CSS regression test               | Color golden-value tests             | `2c6accf` |
+| 13  | CI retry logic                                | 3-attempt nix build retry            | `5c76e1c` |
+| 14  | Coverage-check integration test               | End-to-end threshold tests           | `65fec5c` |
+| 15  | Run deduplicate-code skill                    | 0 clone groups (clean)               | —         |
+| 16  | Run architecture-review skill                 | `docs/architecture-understanding/`   | `f39f7f7` |
+| 17  | Consolidate status reports                    | `docs/status/README.md` index        | `fb7c9eb` |
 
 **Still open:** the version bump + git tag (C19 of the friction-reduction plan)
 was intentionally not done — it requires a semver decision. Now tracked in

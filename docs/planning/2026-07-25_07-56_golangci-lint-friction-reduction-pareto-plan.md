@@ -361,29 +361,29 @@ v1 is preserved in git at `62baa44`.
 
 This plan was executed the same day it was proposed. Task-by-task outcome:
 
-| Task   | Outcome | Notes                                                                                                  |
-| ------ | ------- | ------------------------------------------------------------------------------------------------------ |
-| C0     | ✅ Done | Baseline frozen in `docs/research/baseline.md`                                                         |
-| C1     | ✅ Done | `ExhaustructSettings.Exclude` expanded to 14 stdlib structs + data-integrity test                      |
-| C2/C2b | ✅ Done | High + low friction test-file exclusions added to `DefaultExclusionRules[0]` (now 14 linters)         |
-| C3     | ✅ Done | `funlen` → 200/100 (house style); repo's own `.golangci.yml` regenerated via the tool                  |
-| C4     | ✅ Done | `GosecSettings` typed struct; G104 later removed (too broad — see C4 note)                             |
-| C4b    | ✅ Done | `ErrcheckSettings` with curated `exclude-functions`                                                    |
-| C5/C5b | ✅ Done | `--pragmatic` flag + `PragmaticNoiseLinters` skip-set; gochecknoglobals kept in defaults               |
-| C6     | ✅ Done | Sidecar de-emphasized (ROADMAP non-goal; README note added)                                            |
-| C7     | ✅ Done | CI already runs `golangci-lint` without `--fix` (verified)                                             |
-| C8     | ✅ Done | Findings published in FEATURES/AGENTS/CHANGELOG                                                       |
-| C9     | ✅ Done | `house` formatter preset locked (4 formatters) + alignment test                                        |
-| C10    | ✅ Done | v1 declared maintenance-only in ROADMAP + AGENTS                                                       |
-| C11    | ✅ Done | Audit/policy tests written (`cmd_audit_test.go`, `fixer_enforce_test.go`)                              |
-| C12    | ✅ Done | Exit-code integration tests for Infrastructure(69) + Corruption(65)                                    |
-| C13    | ✅ Done | CLI coverage raised (~11% → 27.9%)                                                                     |
-| C14    | ✅ Done | `scripts/coverage-check.sh` → `cmd/coverage-check` (Go); old script deleted                            |
-| C15    | ✅ Done | `HandleError` adopted at CLI boundary                                                                  |
-| C16    | ⚠️ Open | `funcorder` test gap — not closed this cycle                                                           |
-| C17    | ✅ Done | 27 domain message templates registered via `errorfamily.New()`                                         |
+| Task   | Outcome | Notes                                                                                                            |
+| ------ | ------- | ---------------------------------------------------------------------------------------------------------------- |
+| C0     | ✅ Done | Baseline frozen in `docs/research/baseline.md`                                                                   |
+| C1     | ✅ Done | `ExhaustructSettings.Exclude` expanded to 14 stdlib structs + data-integrity test                                |
+| C2/C2b | ✅ Done | High + low friction test-file exclusions added to `DefaultExclusionRules[0]` (now 14 linters)                    |
+| C3     | ✅ Done | `funlen` → 200/100 (house style); repo's own `.golangci.yml` regenerated via the tool                            |
+| C4     | ✅ Done | `GosecSettings` typed struct; G104 later removed (too broad — see C4 note)                                       |
+| C4b    | ✅ Done | `ErrcheckSettings` with curated `exclude-functions`                                                              |
+| C5/C5b | ✅ Done | `--pragmatic` flag + `PragmaticNoiseLinters` skip-set; gochecknoglobals kept in defaults                         |
+| C6     | ✅ Done | Sidecar de-emphasized (ROADMAP non-goal; README note added)                                                      |
+| C7     | ✅ Done | CI already runs `golangci-lint` without `--fix` (verified)                                                       |
+| C8     | ✅ Done | Findings published in FEATURES/AGENTS/CHANGELOG                                                                  |
+| C9     | ✅ Done | `house` formatter preset locked (4 formatters) + alignment test                                                  |
+| C10    | ✅ Done | v1 declared maintenance-only in ROADMAP + AGENTS                                                                 |
+| C11    | ✅ Done | Audit/policy tests written (`cmd_audit_test.go`, `fixer_enforce_test.go`)                                        |
+| C12    | ✅ Done | Exit-code integration tests for Infrastructure(69) + Corruption(65)                                              |
+| C13    | ✅ Done | CLI coverage raised (~11% → 27.9%)                                                                               |
+| C14    | ✅ Done | `scripts/coverage-check.sh` → `cmd/coverage-check` (Go); old script deleted                                      |
+| C15    | ✅ Done | `HandleError` adopted at CLI boundary                                                                            |
+| C16    | ⚠️ Open | `funcorder` test gap — not closed this cycle                                                                     |
+| C17    | ✅ Done | 27 domain message templates registered via `errorfamily.New()`                                                   |
 | C18    | ✅ Done | `docs/research/validation-delta.md` written (errcheck 27.3%, gosec 23.7%, exhaustruct 2.3% — target unrealistic) |
-| C19    | ❌ Open | Version bump + tag NOT done — requires semver decision. Now in `TODO_LIST.md` (High Priority)          |
+| C19    | ❌ Open | Version bump + tag NOT done — requires semver decision. Now in `TODO_LIST.md` (High Priority)                    |
 
 **Caveat carried forward:** the `RuleKey()` dedup means new default-exclusion
 linters only reach **new/regenerated** configs; 88 machine-generated sibling

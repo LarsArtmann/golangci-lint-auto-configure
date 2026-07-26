@@ -12,7 +12,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Feature          | Command        | Status           | Notes                                                                                                    |
 | ---------------- | -------------- | ---------------- | -------------------------------------------------------------------------------------------------------- |
 | Auto-configure   | `configure`    | FULLY_FUNCTIONAL | Enables recommended linters, applies fixes, backs up config                                              |
-| List presets     | `presets`      | FULLY_FUNCTIONAL | Lists all presets with descriptions; `--json` for structured output                                       |
+| List presets     | `presets`      | FULLY_FUNCTIONAL | Lists all presets with descriptions; `--json` for structured output                                      |
 | Analyze config   | `analyze`      | FULLY_FUNCTIONAL | Reports missing/extra linters, supports SARIF/finding JSON                                               |
 | Validate config  | `validate`     | FULLY_FUNCTIONAL | Checks YAML validity, supports SARIF output                                                              |
 | Generate report  | `report`       | FULLY_FUNCTIONAL | HTML, JSON, SARIF, finding report formats                                                                |
@@ -28,9 +28,9 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Linter priority system (Critical/High/Medium/Optional) | FULLY_FUNCTIONAL | `pkg/constants/linter_priorities.go` + `linter_reasons.go`                                                |
 | Priority-based filtering (`--priority`)                | FULLY_FUNCTIONAL | configure command                                                                                         |
 | Pragmatic mode (`--pragmatic`)                         | FULLY_FUNCTIONAL | Drops 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from enable set |
-| Multi-preset support (`--preset a --preset b`)         | FULLY_FUNCTIONAL | Repeated `--preset` flags merge linters/formatters with deduplication |
-| Preset recommendation (`--recommend`)                  | FULLY_FUNCTIONAL | Analyzes project and applies multiple presets (implies `--detect`)  |
-| `--detect` for the format preset                       | FULLY_FUNCTIONAL | `--preset format --detect` auto-enables swaggo on Swagger detection |
+| Multi-preset support (`--preset a --preset b`)         | FULLY_FUNCTIONAL | Repeated `--preset` flags merge linters/formatters with deduplication                                     |
+| Preset recommendation (`--recommend`)                  | FULLY_FUNCTIONAL | Analyzes project and applies multiple presets (implies `--detect`)                                        |
+| `--detect` for the format preset                       | FULLY_FUNCTIONAL | `--preset format --detect` auto-enables swaggo on Swagger detection                                       |
 | Dry-run mode (`--dry-run`)                             | FULLY_FUNCTIONAL | Shows what would change                                                                                   |
 | CI check mode (`--check`)                              | FULLY_FUNCTIONAL | Exit 0 if optimal, exit 1 if changes needed                                                               |
 | Diff preview (`--diff`)                                | FULLY_FUNCTIONAL | Shows config diff before applying (threaded as parameter, not global var)                                 |
@@ -96,30 +96,30 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## Presets
 
-| Feature                                                 | Status           | Notes                               |
-| ------------------------------------------------------- | ---------------- | ----------------------------------- |
-| `minimal` preset (5 linters)                            | FULLY_FUNCTIONAL | Essential only, fastest             |
-| `standard` preset (8 linters)                           | FULLY_FUNCTIONAL | Good balance for most projects      |
-| `strict` preset (20 linters)                            | FULLY_FUNCTIONAL | Maximum linting for CI/CD           |
-| `security` preset                                       | FULLY_FUNCTIONAL | Security-focused only               |
-| `performance` preset                                    | FULLY_FUNCTIONAL | Performance optimization            |
-| `reference` preset (62 linters)                         | FULLY_FUNCTIONAL | All critical + high priority        |
-| `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters                         |
+| Feature                                                 | Status           | Notes                                                                    |
+| ------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------ |
+| `minimal` preset (5 linters)                            | FULLY_FUNCTIONAL | Essential only, fastest                                                  |
+| `standard` preset (8 linters)                           | FULLY_FUNCTIONAL | Good balance for most projects                                           |
+| `strict` preset (20 linters)                            | FULLY_FUNCTIONAL | Maximum linting for CI/CD                                                |
+| `security` preset                                       | FULLY_FUNCTIONAL | Security-focused only                                                    |
+| `performance` preset                                    | FULLY_FUNCTIONAL | Performance optimization                                                 |
+| `reference` preset (62 linters)                         | FULLY_FUNCTIONAL | All critical + high priority                                             |
+| `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters                                      |
 | `house` preset (5 linters + 4 formatters)               | FULLY_FUNCTIONAL | Winning stack across 128/160 projects (gci, goimports, gofumpt, golines) |
-| Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo                            |
+| Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo                                         |
 
 > Linter counts verified against `pkg/constants/presets.go` as of 2026-07-25.
 
 ## Formatter Management
 
-| Feature                                                   | Status           | Notes                       |
-| --------------------------------------------------------- | ---------------- | --------------------------- |
+| Feature                                                   | Status           | Notes                                      |
+| --------------------------------------------------------- | ---------------- | ------------------------------------------ |
 | Core formatters (gci, gofumpt, goimports, golines)        | FULLY_FUNCTIONAL | Always enabled (4-formatter winning stack) |
-| golines auto-enable (when lll detected)                   | FULLY_FUNCTIONAL | Replaces redundant linter   |
-| swaggo auto-detection                                     | FULLY_FUNCTIONAL | Detects swag annotations    |
-| Redundant formatter removal (gofmt when gofumpt)          | FULLY_FUNCTIONAL | Superset detection          |
-| Redundant linter removal (lll when golines)               | FULLY_FUNCTIONAL | Formatter supersedes linter |
-| Formatter ordering (gci→goimports→gofumpt→golines→swaggo) | FULLY_FUNCTIONAL | Canonical order             |
+| golines auto-enable (when lll detected)                   | FULLY_FUNCTIONAL | Replaces redundant linter                  |
+| swaggo auto-detection                                     | FULLY_FUNCTIONAL | Detects swag annotations                   |
+| Redundant formatter removal (gofmt when gofumpt)          | FULLY_FUNCTIONAL | Superset detection                         |
+| Redundant linter removal (lll when golines)               | FULLY_FUNCTIONAL | Formatter supersedes linter                |
+| Formatter ordering (gci→goimports→gofumpt→golines→swaggo) | FULLY_FUNCTIONAL | Canonical order                            |
 
 ## Build & Runner Settings
 
@@ -177,15 +177,15 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## Error Handling
 
-| Feature                                                                      | Status           | Notes                  |
-| ---------------------------------------------------------------------------- | ---------------- | ---------------------- |
-| Custom error types (ConfigError, AnalysisError, ReportError, MigrationError) | FULLY_FUNCTIONAL | `pkg/errors/errors.go` |
-| Error wrapping with context (%w)                                             | FULLY_FUNCTIONAL |                        |
-| `HandleError` at CLI boundary (classified rendering)                         | FULLY_FUNCTIONAL | Replaces raw `slog.Error`; renders user-friendly What/Why/Fix/WayOut messages |
-| Domain message templates (27 Wix-style error messages)                       | FULLY_FUNCTIONAL | `pkg/errors/templates.go`; registered with `errorfamily.New()` |
+| Feature                                                                      | Status           | Notes                                                                                         |
+| ---------------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------- |
+| Custom error types (ConfigError, AnalysisError, ReportError, MigrationError) | FULLY_FUNCTIONAL | `pkg/errors/errors.go`                                                                        |
+| Error wrapping with context (%w)                                             | FULLY_FUNCTIONAL |                                                                                               |
+| `HandleError` at CLI boundary (classified rendering)                         | FULLY_FUNCTIONAL | Replaces raw `slog.Error`; renders user-friendly What/Why/Fix/WayOut messages                 |
+| Domain message templates (27 Wix-style error messages)                       | FULLY_FUNCTIONAL | `pkg/errors/templates.go`; registered with `errorfamily.New()`                                |
 | `CommandResult` structured return type                                       | FULLY_FUNCTIONAL | Optional message + explicit exit code alongside the standard error (`internal/cli/result.go`) |
-| Structured logging (charmbracelet/log)                                       | FULLY_FUNCTIONAL |                        |
-| Panic-free finding builder                                                   | FULLY_FUNCTIONAL | `pkg/finding/`         |
+| Structured logging (charmbracelet/log)                                       | FULLY_FUNCTIONAL |                                                                                               |
+| Panic-free finding builder                                                   | FULLY_FUNCTIONAL | `pkg/finding/`                                                                                |
 
 ## Build & CI
 
@@ -201,9 +201,9 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Coverage threshold gate             | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 60% threshold)                      |
 | GitHub Actions pinned to SHAs       | FULLY_FUNCTIONAL | 21 actions across 4 workflows pinned to immutable commit hashes     |
 | Settings struct codegen             | FULLY_FUNCTIONAL | `cmd/generate-settings` generates 88 structs from JSON Schema       |
-| CI retry logic                      | FULLY_FUNCTIONAL | 3-attempt retry for nix build; resilient magic-nix-cache           |
-| Dependabot automation               | FULLY_FUNCTIONAL | `.github/dependabot.yml` for Actions + Go modules                  |
-| `git-cliff` changelog automation    | FULLY_FUNCTIONAL | `cliff.toml` config for changelog generation from commits          |
+| CI retry logic                      | FULLY_FUNCTIONAL | 3-attempt retry for nix build; resilient magic-nix-cache            |
+| Dependabot automation               | FULLY_FUNCTIONAL | `.github/dependabot.yml` for Actions + Go modules                   |
+| `git-cliff` changelog automation    | FULLY_FUNCTIONAL | `cliff.toml` config for changelog generation from commits           |
 | `--no-color` flag                   | FULLY_FUNCTIONAL | CI/scripting output (sets `NO_COLOR=1`)                             |
 | Fuzz + property tests               | FULLY_FUNCTIONAL | Set algebra invariants (commutative, idempotent, subset)            |
 | `--json-errors` flag                | FULLY_FUNCTIONAL | JSON error output for CI/CD                                         |
