@@ -21,7 +21,13 @@ func newReportCommand(builder *CommandBuilder) *cobra.Command {
 		"report",
 		"Generate HTML report of configuration",
 		func(cmd *cobra.Command, _ []string) error {
-			return runReport(cmd, builder.Logger(), builder.Analyzer(), builder.ConfigLoader(), builder.Flags())
+			return runReport(
+				cmd,
+				builder.Logger(),
+				builder.Analyzer(),
+				builder.ConfigLoader(),
+				builder.Flags(),
+			)
 		},
 	)
 }

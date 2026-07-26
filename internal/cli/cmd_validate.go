@@ -23,7 +23,13 @@ func newValidateCommand(builder *CommandBuilder) *cobra.Command {
 	cmd := builder.Build(
 		"validate", "Validate golangci-lint configuration",
 		func(cmd *cobra.Command, _ []string) error {
-			return runValidate(cmd, builder.Logger(), builder.ConfigLoader(), builder.Flags(), skipGolangciLint)
+			return runValidate(
+				cmd,
+				builder.Logger(),
+				builder.ConfigLoader(),
+				builder.Flags(),
+				skipGolangciLint,
+			)
 		},
 		WithLong(`Validates the golangci-lint configuration file.
 
@@ -136,7 +142,12 @@ func validateLoadedConfig(
 	return checkConfigHealth(cfg, logger, configFile, reportFormat)
 }
 
-func checkConfigHealth(cfg *types.Config, logger *log.Logger, configFile string, reportFormat string) error {
+func checkConfigHealth(
+	cfg *types.Config,
+	logger *log.Logger,
+	configFile string,
+	reportFormat string,
+) error {
 	health := types.CheckConfigHealthWithCriticalLinters(cfg, constants.CriticalLinters())
 
 	if health.IsHealthy() {

@@ -106,7 +106,12 @@ func applyRecommendation(logger *log.Logger, presets *[]string, recommend bool, 
 	logger.Infof("🔍 Recommended presets: %v", *presets)
 }
 
-func addConfigureFlags(cmd *cobra.Command, flags *Flags, presets *[]string, detect, recommend, check *bool) {
+func addConfigureFlags(
+	cmd *cobra.Command,
+	flags *Flags,
+	presets *[]string,
+	detect, recommend, check *bool,
+) {
 	cmd.Flags().
 		StringVar(&flags.Priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
@@ -189,7 +194,16 @@ func runPresetOrFixer(
 	noAudit bool,
 ) error {
 	if len(presets) > 0 {
-		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, presets, isDryRun, noAudit)
+		return handlePresetMode(
+			ctx,
+			logger,
+			configLoader,
+			analyzer,
+			configFile,
+			presets,
+			isDryRun,
+			noAudit,
+		)
 	}
 
 	return runFixerMode(
@@ -202,5 +216,6 @@ func runPresetOrFixer(
 		isDryRun,
 		check,
 		showDiff,
+		noAudit,
 	)
 }

@@ -23,8 +23,6 @@ import (
 // Version is the CLI version string, derived from pkg/version.
 var Version = version.Get().Short()
 
-
-
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
 func resolveConfigPath(
 	_ context.Context,
@@ -50,7 +48,14 @@ func resolveConfig(
 	flags *Flags,
 	errorPrefix string,
 ) (string, error) {
-	configFile, err := resolveConfigPath(ctx, configLoader, logger, flags.ConfigPath, flags.DryRun, flags.NoAutoMerge)
+	configFile, err := resolveConfigPath(
+		ctx,
+		configLoader,
+		logger,
+		flags.ConfigPath,
+		flags.DryRun,
+		flags.NoAutoMerge,
+	)
 	if err != nil {
 		return "", apperrors.WrapClassifiedf(err, "cli.resolve_config_path",
 			"%s", errorPrefix)
@@ -224,7 +229,8 @@ func registerGlobalFlags(rootCmd *cobra.Command, flags *Flags) {
 		StringVarP(&flags.ConfigPath, "config", "c", "", "Path to golangci-lint config file")
 	rootCmd.PersistentFlags().
 		BoolVarP(&flags.DryRun, "dry-run", "d", false, "Show what would be done without making changes")
-	rootCmd.PersistentFlags().BoolVarP(&flags.Verbose, "verbose", "v", false, "Enable verbose output")
+	rootCmd.PersistentFlags().
+		BoolVarP(&flags.Verbose, "verbose", "v", false, "Enable verbose output")
 	rootCmd.PersistentFlags().
 		StringVar(&flags.OutputReport, "output", "report.html", "Output path for HTML report")
 	rootCmd.PersistentFlags().

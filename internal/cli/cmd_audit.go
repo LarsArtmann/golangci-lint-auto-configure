@@ -65,7 +65,12 @@ func auditDisabled(noAudit bool) bool {
 // Retention purge runs at creation to clean up stale entries from prior runs.
 //
 //nolint:ireturn // strategy pattern: returns concrete Ledger or NoopRecorder
-func newRunLedger(ctx context.Context, logger *log.Logger, configFile string, noAudit bool) audit.Recorder {
+func newRunLedger(
+	ctx context.Context,
+	logger *log.Logger,
+	configFile string,
+	noAudit bool,
+) audit.Recorder {
 	if auditDisabled(noAudit) {
 		return audit.NoopRecorder{}
 	}

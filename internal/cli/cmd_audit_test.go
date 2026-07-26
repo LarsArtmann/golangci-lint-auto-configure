@@ -364,51 +364,35 @@ func TestClearAuditLedger(t *testing.T) {
 }
 
 func TestAuditDisabled_FlagAndEnv(t *testing.T) {
-	original := noAudit
-
-	t.Cleanup(func() { noAudit = original })
-
 	t.Run("enabled by default", func(t *testing.T) {
-		noAudit = false
-
 		t.Setenv(auditEnvVar, "")
 
-		if auditDisabled() {
-			t.Error("expected auditDisabled() to be false")
+		if auditDisabled(false) {
+			t.Error("expected auditDisabled(false) to be false")
 		}
 	})
 
 	t.Run("disabled via flag", func(t *testing.T) {
-		noAudit = true
-
 		t.Setenv(auditEnvVar, "")
 
-		if !auditDisabled() {
-			t.Error("expected auditDisabled() to be true when flag set")
+		if !auditDisabled(true) {
+			t.Error("expected auditDisabled(true) to be true when flag set")
 		}
 	})
 
 	t.Run("disabled via env var", func(t *testing.T) {
-		noAudit = false
-
 		t.Setenv(auditEnvVar, "1")
 
-		if !auditDisabled() {
-			t.Error("expected auditDisabled() to be true when env var set")
+		if !auditDisabled(false) {
+			t.Error("expected auditDisabled(false) to be true when env var set")
 		}
 	})
 }
 
 func TestNewRunLedger_DisabledReturnsNoop(t *testing.T) {
-	original := noAudit
-
-	t.Cleanup(func() { noAudit = original })
-
-	noAudit = true
-
 	configFile := filepath.Join(t.TempDir(), ".golangci.yml")
 
-	recorder := newRunLedger(context.Background(), testAuditLogger(), configFile)
+	recorder := newRunLedger(context.Background(), testAuditLogger(), configFile, true)
 
 	if _, ok := recorder.(audit.NoopRecorder); !ok {
 		t.Errorf("expected audit.NoopRecorder when disabled, got %T", recorder)
@@ -416,12 +400,6 @@ func TestNewRunLedger_DisabledReturnsNoop(t *testing.T) {
 }
 
 func TestNewRunLedger_EnabledReturnsLedger(t *testing.T) {
-	original := noAudit
-
-	t.Cleanup(func() { noAudit = original })
-
-	noAudit = false
-
 	t.Setenv(auditEnvVar, "")
 
 	// Force a deterministic, writable cache dir so DefaultLedgerPath resolves.
@@ -430,7 +408,7 @@ func TestNewRunLedger_EnabledReturnsLedger(t *testing.T) {
 
 	configFile := filepath.Join(t.TempDir(), ".golangci.yml")
 
-	recorder := newRunLedger(context.Background(), testAuditLogger(), configFile)
+	recorder := newRunLedger(context.Background(), testAuditLogger(), configFile, false)
 
 	ledger, ok := recorder.(*audit.Ledger)
 	if !ok {

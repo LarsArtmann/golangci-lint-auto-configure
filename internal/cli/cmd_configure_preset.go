@@ -50,6 +50,7 @@ func handlePresetMode(
 	configFile string,
 	presets []string,
 	dryRun bool,
+	_ bool, // noAudit — presets don't record to the ledger (yet)
 ) error {
 	if err := applyPreset(ctx, logger, configLoader, configFile, presets, dryRun); err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.preset",
