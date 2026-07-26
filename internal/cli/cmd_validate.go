@@ -337,9 +337,7 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 			"failed to format SARIF")
 	}
 
-	_, writeErr := os.Stdout.Write(
-		pretty,
-	)
+	_, writeErr := os.Stdout.Write(pretty)
 	if writeErr != nil {
 		return errorfamily.WrapRejectionf(writeErr, "validate.sarif_write",
 			"failed to write SARIF output")
