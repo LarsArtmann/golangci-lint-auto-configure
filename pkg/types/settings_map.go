@@ -21,16 +21,6 @@ func (s SettingsMap) IsEmpty() bool {
 	return len(s) == 0
 }
 
-// GetMap returns a nested SettingsMap at the given key.
-func (s SettingsMap) GetMap(key string) (SettingsMap, bool) {
-	v, ok := s[key]
-	if !ok {
-		return nil, false
-	}
-
-	return AsSettingsMap(v)
-}
-
 // Clone returns a deep copy of the settings map, recursively cloning
 // nested maps and slices.
 func (s SettingsMap) Clone() SettingsMap {
