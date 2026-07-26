@@ -66,7 +66,7 @@ func runFmtCommand(
 func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 	var presets []string
 
-	var detect, recommend, check bool
+	var detect, recommend bool
 
 	cmd := builder.Build(
 		"configure",
@@ -83,13 +83,12 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 				builder.Flags(),
 				presets,
 				detect,
-				check,
 			)
 		},
 		WithLong(configureLong),
 	)
 
-	addConfigureFlags(cmd, builder.Flags(), &presets, &detect, &recommend, &check)
+	addConfigureFlags(cmd, builder.Flags(), &presets, &detect, &recommend)
 
 	return cmd
 }
@@ -110,7 +109,7 @@ func addConfigureFlags(
 	cmd *cobra.Command,
 	flags *Flags,
 	presets *[]string,
-	detect, recommend, check *bool,
+	detect, recommend *bool,
 ) {
 	cmd.Flags().
 		StringVar(&flags.Priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
@@ -121,7 +120,7 @@ func addConfigureFlags(
 	cmd.Flags().
 		BoolVar(recommend, "recommend", false, "Analyze project and recommend multiple presets (implies --detect)")
 	cmd.Flags().
-		BoolVar(check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
+		BoolVar(&flags.Check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
 	cmd.Flags().
 		BoolVar(&flags.NoAudit, "no-audit", false, "Skip writing to the audit ledger (also: "+auditEnvVar+" env var)")
 	cmd.Flags().
@@ -135,49 +134,51 @@ func runDetectOrConfigure(
 	configLoader *config.Loader,
 	flags *Flags,
 	presets []string,
-	detect,
-	check bool,
+	detect bool,
 ) error {
 	return runConfigure(
 		cmd.Context(),
 		logger,
 		analyzer,
 		configLoader,
-		flags.Priority,
+		flags,
 		resolvePresets(presets, detect, logger),
-		check || flags.DryRun,
-		flags.ConfigPath,
-		check,
-		flags.ShowDiff,
-		flags.NoAudit,
 	)
 }
 
 // runConfigure executes the configure command logic.
+//
+//nolint:funlen // dispatcher: length is from multi-arg delegate calls, not complexity
 func runConfigure(
 	ctx context.Context,
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
-	priorityParam string,
+	flags *Flags,
 	presets []string,
-	isDryRun bool,
-	configPath string,
-	check bool,
-	showDiff bool,
-	noAudit bool,
 ) error {
-	configFile, err := prepareConfigFile(ctx, configPath, configLoader, logger, isDryRun)
+	isDryRun := flags.Check || flags.DryRun
+
+	configFile, err := prepareConfigFile(ctx, flags.ConfigPath, configLoader, logger, isDryRun)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.prepare_config",
 			"prepare config failed (priority=%s, presets=%v, dryRun=%t)",
-			priorityParam, presets, isDryRun)
+			flags.Priority, presets, isDryRun)
 	}
 
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
 	if len(presets) > 0 {
-		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, presets, isDryRun, noAudit)
+		return handlePresetMode(
+			ctx,
+			logger,
+			configLoader,
+			analyzer,
+			configFile,
+			presets,
+			isDryRun,
+			flags.NoAudit,
+		)
 	}
 
 	return runFixerMode(
@@ -186,10 +187,10 @@ func runConfigure(
 		analyzer,
 		configLoader,
 		configFile,
-		priorityParam,
+		flags.Priority,
 		isDryRun,
-		check,
-		showDiff,
-		noAudit,
+		flags.Check,
+		flags.ShowDiff,
+		flags.NoAudit,
 	)
 }
