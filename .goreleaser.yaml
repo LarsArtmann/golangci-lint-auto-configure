@@ -45,7 +45,7 @@ archives:
         {{- else }}{{ .Arch }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [zip]
     files:
       - LICENSE*
       - README*
@@ -93,23 +93,26 @@ signs:
 sboms:
   - artifacts: archive
 
-brews:
+homebrew_casks:
   - name: golangci-lint-auto-configure
     skip_upload: true
     homepage: "https://github.com/LarsArtmann/golangci-lint-auto-configure"
     description: "Auto-configure golangci-lint for Go projects"
-    license: MIT
     repository:
       owner: LarsArtmann
       name: homebrew-tap
-    directory: Formula
+    directory: Casks
     commit_author:
       name: goreleaserbot
       email: goreleaser@larsartmann.com
-    install: |
-      bin.install "golangci-lint-auto-configure"
-    test: |
-      system "#{bin}/golangci-lint-auto-configure --version"
+    binaries:
+      - golangci-lint-auto-configure
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/golangci-lint-auto-configure"]
+          end
 
 nix:
   - name: golangci-lint-auto-configure
@@ -158,41 +161,19 @@ scoops:
     description: "Auto-configure golangci-lint for Go projects"
     license: MIT
 
-dockers:
-  - image_templates:
-      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-amd64"
-    dockerfile: Dockerfile
-    goarch: amd64
-    build_flag_templates:
-      - "--pull"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-      - "--label=org.opencontainers.image.source={{.GitURL}}"
-      - "--platform=linux/amd64"
-  - image_templates:
-      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-arm64"
-    dockerfile: Dockerfile
-    goarch: arm64
-    build_flag_templates:
-      - "--pull"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-      - "--label=org.opencontainers.image.source={{.GitURL}}"
-      - "--platform=linux/arm64"
-
-docker_manifests:
-  - name_template: "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}"
-    image_templates:
-      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-amd64"
-      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-arm64"
-  - name_template: "ghcr.io/larsartmann/golangci-lint-auto-configure:latest"
-    image_templates:
-      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-amd64"
-      - "ghcr.io/larsartmann/golangci-lint-auto-configure:{{ .Tag }}-arm64"
+dockers_v2:
+  - images:
+      - "ghcr.io/larsartmann/golangci-lint-auto-configure"
+    tags:
+      - "{{ .Tag }}"
+      - latest
+    dockerfile: Dockerfile.goreleaser
+    labels:
+      "org.opencontainers.image.created": "{{.Date}}"
+      "org.opencontainers.image.title": "{{.ProjectName}}"
+      "org.opencontainers.image.revision": "{{.FullCommit}}"
+      "org.opencontainers.image.version": "{{.Version}}"
+      "org.opencontainers.image.source": "{{.GitURL}}"
 
 release:
   github:
@@ -207,7 +188,7 @@ release:
     **Homebrew:**
     ```bash
     brew tap LarsArtmann/tap
-    brew install golangci-lint-auto-configure
+    brew install --cask golangci-lint-auto-configure
     ```
 
     **Nix:**

@@ -1,0 +1,9 @@
+FROM golangci/golangci-lint:v2.1-alpine
+
+RUN apk add --no-cache git bash
+
+ARG TARGETPLATFORM
+COPY $TARGETPLATFORM/golangci-lint-auto-configure /usr/local/bin/
+
+WORKDIR /app
+CMD ["golangci-lint-auto-configure", "--help"]
