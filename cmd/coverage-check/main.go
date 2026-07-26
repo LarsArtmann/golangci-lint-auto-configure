@@ -42,7 +42,7 @@ func main() {
 	}
 }
 
-func run(threshold float64, profilePath string) error {
+func run(threshold float64, profilePath string) error { //nolint:erraudit // advisory: errors classified at main exit via errorfamily.ExitCode, not per-function types
 	if _, err := os.Stat(profilePath); err != nil {
 		return fmt.Errorf(
 			"%w: %s — run 'go test -coverprofile=%s ./...' first",

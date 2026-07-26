@@ -43,7 +43,7 @@ type Policy struct {
 
 // Load reads the sidecar file at path. Returns (nil, nil) when the file does
 // not exist (no enforcement). Returns an error only for read or parse failures.
-func Load(path string) (*Policy, error) {
+func Load(path string) (*Policy, error) { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
