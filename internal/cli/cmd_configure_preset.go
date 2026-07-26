@@ -176,13 +176,8 @@ func applyPreset(
 ) error {
 	cfg, linterNames, err := loadPresetConfig(logger, configLoader, configFile, presets, dryRun)
 	if err != nil {
-		return apperrors.WrapClassifiedf(
-			err,
-			"configure.load_preset",
-			"load preset config failed (presets=%v, dryRun=%t)",
-			presets,
-			dryRun,
-		)
+		return apperrors.WrapClassifiedf(err, "configure.load_preset",
+			"load preset config failed (presets=%v, dryRun=%t)", presets, dryRun)
 	}
 
 	if dryRun {
@@ -196,15 +191,8 @@ func applyPreset(
 			"failed to backup config before preset application (file=%s)", configFile)
 	}
 
-	return savePresetConfig(
-		logger,
-		configLoader,
-		cfg,
-		configFile,
-		presets,
-		linterNames,
-		extraFormatters,
-	)
+	return savePresetConfig(logger, configLoader, cfg, configFile,
+		presets, linterNames, extraFormatters)
 }
 
 func logDryRunPreset(logger *log.Logger, presets []string, linterNames []types.LinterName) {
