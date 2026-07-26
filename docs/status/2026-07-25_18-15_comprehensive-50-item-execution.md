@@ -4,6 +4,14 @@
 **Session scope:** Execute ALL 50 items from the quality debt backlog (section f of the prior report), sorted by impact/effort/customer-value.
 **Result:** 32 of 50 items completed or resolved. 18 remain (all large refactors, complex features, or skill invocations).
 
+> **Update (later 2026-07-25 session):** all 18 "remaining" items below were
+> completed the same day by the `2026-07-25_20-55` session (commits
+> `03a0806`…`40eda4c`). The "Remaining Items" table is now a historical record of
+> what was deferred, not a backlog. Per-item resolution in
+> [Resolution](#resolution-2026-07-25-later-session) at the end of this file.
+> The only genuinely-open follow-up is the version bump + git tag (C19 of the
+> friction-reduction plan), now tracked in `TODO_LIST.md`.
+
 ---
 
 ## Final Verification
@@ -108,3 +116,35 @@
 3. **Scripts kept as documented manual utilities** — `validate_linter_doc.sh` and `verify_linter_count.sh` serve niche manual verification needs. Porting to Go subcommands adds maintenance burden for rarely-used tools.
 
 4. **Funlen defaults are 200/100** — Already decided in a prior session as the house style (dominant override across 160 sibling projects). Not 60/40 or 30/20.
+
+---
+
+## Resolution (2026-07-25, later session)
+
+The 17 "Remaining Items" above (item #13 deduplicate-code was resolved too) were
+all completed later the same day by the `2026-07-25_20-55` session. Mapping to
+commits:
+
+| #   | Item                                            | Resolution                          | Commit    |
+| --- | ----------------------------------------------- | ----------------------------------- | --------- |
+| 1   | Split `cmd_configure.go`                        | 680 lines → 4 focused files         | `9a41447` |
+| 2   | Extract typed linter constants                  | `coreLinters` + `withCore()`        | `9e0e702` |
+| 3   | Split `ConfigLoader` interface                  | 6 focused sub-interfaces            | `39cca87` |
+| 4   | Consolidate `ValidationError` + `HealthIssue`   | `ToHealthIssue()` conversion        | `58fbe3c` |
+| 5   | Settings key validation                         | Soft warnings at config load        | `e8f30f0` |
+| 6   | Generate settings from JSON Schema              | `cmd/generate-settings` (88 structs) | `3665d79` |
+| 7   | `CommandResult` type for CLI                    | Optional structured return          | `40eda4c` |
+| 8   | Multi-preset support                            | `--preset a --preset b` merge       | `86ddc2d` |
+| 9   | Format `--detect` mode                          | `--preset format --detect`          | `ecb3fe0` |
+| 10  | Preset recommendation                           | `--recommend` flag                  | `d97237c` |
+| 11  | Domain message templates                        | 27 Wix-style templates              | `03a0806` |
+| 12  | HTML report CSS regression test                 | Color golden-value tests            | `2c6accf` |
+| 13  | CI retry logic                                  | 3-attempt nix build retry           | `5c76e1c` |
+| 14  | Coverage-check integration test                 | End-to-end threshold tests          | `65fec5c` |
+| 15  | Run deduplicate-code skill                      | 0 clone groups (clean)              | —         |
+| 16  | Run architecture-review skill                   | `docs/architecture-understanding/`  | `f39f7f7` |
+| 17  | Consolidate status reports                      | `docs/status/README.md` index       | `fb7c9eb` |
+
+**Still open:** the version bump + git tag (C19 of the friction-reduction plan)
+was intentionally not done — it requires a semver decision. Now tracked in
+`TODO_LIST.md` (High Priority).

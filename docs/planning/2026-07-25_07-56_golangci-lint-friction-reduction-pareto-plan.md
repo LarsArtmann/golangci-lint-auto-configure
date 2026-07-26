@@ -4,6 +4,13 @@
 **Author:** Pareto-planning session, grounded in `docs/research/2026-07-25_golangci-config-ecosystem-report.md`
 **Status:** PROPOSED — awaiting approval before execution
 
+> **Update (2026-07-25, later session):** this plan was **EXECUTED** the same
+> day. Phases 0–4 shipped (C0–C9, C11–C17); C18 (validation) produced
+> `docs/research/validation-delta.md`; **C19 (version bump + tag) is the only
+> unfinished task** — now tracked in `TODO_LIST.md`. Per-task status in
+> [Execution resolution](#execution-resolution-2026-07-25) at the end of this
+> file. The DoD checklist in §6 is superseded by that resolution table.
+
 > **What changed in v2?** A critical re-review of v1 against the _actual_ codebase found
 > **6 correctness defects + 3 structural gaps**. They are listed in [§7 Revision history](#7-revision-history--v1--v2-changelog)
 > and fixed throughout. v1 is preserved in git history (`62baa44`).
@@ -347,3 +354,39 @@ A critical re-review of v1 against the **actual codebase** (verified by reading 
 | 9   | **`ireturn` already configured** (`Allow:[error,empty,anon,stdlib,generic]` at `linter_settings.go:148`) — pragmatic removing it is low-value.                                  | Noted in the friction table; `ireturn` stays in `--pragmatic` set but flagged as already-well-handled.                                                                           |
 
 v1 is preserved in git at `62baa44`.
+
+---
+
+## Execution resolution (2026-07-25)
+
+This plan was executed the same day it was proposed. Task-by-task outcome:
+
+| Task   | Outcome | Notes                                                                                                  |
+| ------ | ------- | ------------------------------------------------------------------------------------------------------ |
+| C0     | ✅ Done | Baseline frozen in `docs/research/baseline.md`                                                         |
+| C1     | ✅ Done | `ExhaustructSettings.Exclude` expanded to 14 stdlib structs + data-integrity test                      |
+| C2/C2b | ✅ Done | High + low friction test-file exclusions added to `DefaultExclusionRules[0]` (now 14 linters)         |
+| C3     | ✅ Done | `funlen` → 200/100 (house style); repo's own `.golangci.yml` regenerated via the tool                  |
+| C4     | ✅ Done | `GosecSettings` typed struct; G104 later removed (too broad — see C4 note)                             |
+| C4b    | ✅ Done | `ErrcheckSettings` with curated `exclude-functions`                                                    |
+| C5/C5b | ✅ Done | `--pragmatic` flag + `PragmaticNoiseLinters` skip-set; gochecknoglobals kept in defaults               |
+| C6     | ✅ Done | Sidecar de-emphasized (ROADMAP non-goal; README note added)                                            |
+| C7     | ✅ Done | CI already runs `golangci-lint` without `--fix` (verified)                                             |
+| C8     | ✅ Done | Findings published in FEATURES/AGENTS/CHANGELOG                                                       |
+| C9     | ✅ Done | `house` formatter preset locked (4 formatters) + alignment test                                        |
+| C10    | ✅ Done | v1 declared maintenance-only in ROADMAP + AGENTS                                                       |
+| C11    | ✅ Done | Audit/policy tests written (`cmd_audit_test.go`, `fixer_enforce_test.go`)                              |
+| C12    | ✅ Done | Exit-code integration tests for Infrastructure(69) + Corruption(65)                                    |
+| C13    | ✅ Done | CLI coverage raised (~11% → 27.9%)                                                                     |
+| C14    | ✅ Done | `scripts/coverage-check.sh` → `cmd/coverage-check` (Go); old script deleted                            |
+| C15    | ✅ Done | `HandleError` adopted at CLI boundary                                                                  |
+| C16    | ⚠️ Open | `funcorder` test gap — not closed this cycle                                                           |
+| C17    | ✅ Done | 27 domain message templates registered via `errorfamily.New()`                                         |
+| C18    | ✅ Done | `docs/research/validation-delta.md` written (errcheck 27.3%, gosec 23.7%, exhaustruct 2.3% — target unrealistic) |
+| C19    | ❌ Open | Version bump + tag NOT done — requires semver decision. Now in `TODO_LIST.md` (High Priority)          |
+
+**Caveat carried forward:** the `RuleKey()` dedup means new default-exclusion
+linters only reach **new/regenerated** configs; 88 machine-generated sibling
+configs keep the old list until their rule is re-injected (see ROADMAP "Config
+propagation"). The validation delta (C18) was measured via grep estimates, not
+full config regeneration — a proper re-measurement remains open.

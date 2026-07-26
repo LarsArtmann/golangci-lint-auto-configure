@@ -867,58 +867,64 @@
       <main class="main">
         <!-- Hero -->
         <header class="hero">
-          <!-- Optional Bauhaus signature: geometric shape cluster. Remove for quieter hero. -->
           <div class="hero-shapes">
             <div class="bar"></div>
             <div class="circle"></div>
             <div class="square"></div>
             <div class="tri"></div>
           </div>
-          <div class="eyebrow">REPORT TYPE &middot; YYYY-MM-DD</div>
-          <h1>Report Title</h1>
+          <div class="eyebrow">ARCHITECTURE REVIEW &middot; 2026-07-26</div>
+          <h1>Is the architecture superb?</h1>
           <p class="subtitle">
-            One or two sentences that set the frame: who this is for, what was reviewed, and what
-            the reader will take away.
+            A modular Go CLI (16.6k LOC, 19 packages) that auto-configures golangci-lint.
+            Reviewed for scalability, modularity, service orientation, and composability.
+            The dependency graph is a clean DAG with zero cycles; the weaknesses are in
+            <em>coupling depth</em> and <em>concern conflation</em>, not structure.
           </p>
           <div class="meta">
-            <span class="tag amber">Scope: example</span>
-            <span class="tag">Version: 1.0.0</span>
-            <span class="tag teal">Status: draft</span>
+            <span class="tag amber">Scope: full repo</span>
+            <span class="tag">Go 1.26 &middot; 102 source files</span>
+            <span class="tag teal">Go 1.26 + json/v2</span>
           </div>
         </header>
 
         <!-- Scorecard -->
         <section id="scorecard" class="scorecard">
           <div class="score-card score-good">
+            <div class="score">A&minus;</div>
+            <div class="label">Overall grade</div>
+          </div>
+          <div class="score-card score-good">
             <div class="score">8</div>
-            <div class="label">Items passing</div>
+            <div class="label">Structural wins</div>
           </div>
           <div class="score-card score-warn">
-            <div class="score">3</div>
-            <div class="label">Warnings</div>
-          </div>
-          <div class="score-card score-bad">
-            <div class="score">1</div>
-            <div class="label">Blockers</div>
+            <div class="score">6</div>
+            <div class="label">Coupling risks</div>
           </div>
           <div class="score-card">
-            <div class="score">12</div>
-            <div class="label">Total reviewed</div>
+            <div class="score">0</div>
+            <div class="label">Import cycles</div>
           </div>
         </section>
 
-        <!-- Summary -->
+        <!-- Summary / Verdict -->
         <section id="summary">
-          <h2><span class="num">00</span>Summary</h2>
+          <h2><span class="num">00</span>Verdict</h2>
           <p>
-            Replace this with the bottom-line verdict. A good summary tells the reader whether the
-            subject is ready, what the biggest risk is, and what one action would unlock the most
-            value.
+            <strong>Yes &mdash; with one caveat.</strong> This is a genuinely well-architected codebase:
+            a strict layered DAG, disciplined interface segregation, wire-format decoupling, and no god
+            files. It would score an <strong>A</strong> if not for a cluster of coupling issues centered
+            on <code>pkg/linter</code> reaching down into <code>pkg/config</code>, and a split-brain
+            duplicate <code>Config</code> type between <code>pkg/types</code> and <code>pkg/migration</code>.
+            Fix those two things and it is among the cleanest Go CLIs of this size.
           </p>
           <div class="callout callout-amber">
             <strong>The bottom line</strong>
-            State the verdict plainly. If the report is blocking, say so. If it's mostly positive,
-            lead with that.
+            The architecture is scalable and modular today. The single highest-leverage change is
+            inverting the <code>linter&nbsp;&rarr;&nbsp;config</code> dependency so the fixing engine
+            depends only on a port (interface), not on the concrete loader. That one move unlocks
+            composability for the finding pipeline and dissolves the <code>pkg/client</code> god-package.
           </div>
         </section>
 
@@ -926,113 +932,373 @@
         <section id="strengths">
           <h2><span class="num">&#9670;</span>What's already excellent</h2>
           <p>
-            Before the criticism: acknowledge what works. This builds trust and keeps the report
-            from reading like a pure complaint list.
+            Eight patterns here are worth keeping and copying. These are the load-bearing structure
+            that makes the codebase maintainable.
           </p>
 
           <div class="strengths">
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength one</strong>
-                <span>Explain why it matters and what it enables.</span>
+                <strong>Zero import cycles &mdash; verified acyclic DAG</strong>
+                <span>Every package edge was checked. <code>types</code>, <code>errors</code>,
+                <code>audit</code>, <code>policy</code>, <code>version</code>, <code>detection</code>
+                are pure leaves. The graph flows strictly top-down: <code>internal/cli</code>
+                &rarr; domain &rarr; leaves.</span>
               </div>
             </div>
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Specific strength two</strong>
-                <span>Reference files, metrics, or patterns where possible.</span>
+                <strong>Interface Segregation done right</strong>
+                <span>Six narrow sub-interfaces in <code>pkg/types</code> (ConfigReader, ConfigWriter,
+                ConfigDiscoverer, ConfigValidator, ConfigInspector, ConfigCreator) composed into one
+                ConfigLoader. Consumers define their own minimal local interfaces
+                (<code>fixerConfigLoader</code>, <code>presetConfigLoader</code>). Textbook ISP.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Wire-format decoupling from report types</strong>
+                <span><code>golangciLinterEntry</code> / <code>golangciFormatterEntry</code> in
+                <code>analyzer.go</code> match golangci-lint's exact JSON shape (capitalized wrapper
+                keys, lowercase field keys) and convert to tag-free <code>LinterInfo</code> report
+                types. Avoids the json/v2 case-sensitivity conflict cleanly.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Filesystem abstraction for testability</strong>
+                <span>The <code>FS</code> interface (<code>loader.go:64</code>) with
+                <code>osFS</code> default + <code>NewLoaderWithFS</code> injection lets config loading
+                be tested without touching disk. Mature pattern.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Best-effort audit ledger with safe default</strong>
+                <span><code>audit.Recorder</code> interface + <code>NoopRecorder</code> zero-value
+                default means the Fixer is safe to construct without a ledger, and recording failures
+                never block a run. Small, composable, exemplary.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>No god files</strong>
+                <span>Only one file exceeds 500 lines (<code>linter_settings_generated.go</code>,
+                ~1692 lines) and it is code-generated from a JSON schema. Every hand-written file is
+                &lt;460 lines. Functions are small and single-purpose.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Manual DI with safe defaults</strong>
+                <span><code>NewFixer</code> wires <code>NoopRecorder</code> and constructs a
+                <code>FormatterManager</code> internally; <code>SetLedger</code> / <code>SetPolicy</code>
+                mutate later. No DI framework, no magic &mdash; just clear constructors.</span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Strong test ratio (0.79 test:source)</strong>
+                <span>13,170 lines of BDD tests (Ginkgo+Gomega) against 16,605 source lines. Every
+                package has its own <code>suite_test.go</code>. Benchmarks, fuzz tests, and golden
+                snapshots exist where they matter.</span>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- Findings -->
-        <section id="findings">
-          <h2><span class="num">01</span>Findings</h2>
-          <p>These are the issues that need attention, ordered by impact.</p>
-
-          <!-- Issue 1 -->
-          <div class="issue issue-critical" id="issue-1">
-            <span class="severity severity-critical">Blocking &middot; High impact</span>
-            <h3>Critical issue title</h3>
-            <div class="where">path/to/file.go:42-58 &middot; short context</div>
-            <p>
-              Describe the problem, cite the code or behavior, and explain why it matters to the
-              reader's goals.
-            </p>
-            <pre><code>// Example of the problematic pattern
-func BadExample() {}</code></pre>
-            <div class="callout callout-teal">
-              <strong>Fix: recommended action</strong>
-              State the concrete fix, including file names, function names, or configuration
-              changes.
-            </div>
+        <!-- Dependency Graph -->
+        <section id="depgraph">
+          <h2><span class="num">01</span>The dependency graph</h2>
+          <p>
+            The full internal import graph. Arrows point from importer to imported. The layering is
+            clean; the concerns are in <em>depth</em>, not direction.
+          </p>
+          <div class="dep-tree">
+<span class="root">internal/cli</span> &rarr; <span class="ok">config</span> &rarr; <span class="ok">constants</span> &rarr; types (leaf)
+                  &rarr; <span class="ok">errors</span> &rarr; types (leaf)
+                  &rarr; <span class="ok">utils</span> &rarr; errors
+            &rarr; <span class="unwanted">linter</span> &rarr; config &middot; audit &middot; detection &middot; gogenfilter &middot; policy
+            &rarr; <span class="unwanted">finding</span> &rarr; linter &rarr; config  <em>(transitive)</em>
+            &rarr; <span class="unwanted">client</span> &rarr; config + linter  <em>(god-package)</em>
+            &rarr; migration &middot; report &middot; ui &middot; version  <span class="ok">(clean leaves/branches)</span>
           </div>
-
-          <!-- Issue 2 -->
-          <div class="issue issue-important" id="issue-2">
-            <span class="severity severity-important">Important &middot; Medium impact</span>
-            <h3>Important issue title</h3>
-            <div class="where">path/to/another.go:12-19</div>
-            <p>
-              Explain the risk. Important issues are not blockers but would make a careful reviewer
-              hesitate before shipping.
-            </p>
-          </div>
-
-          <!-- Issue 3 -->
-          <div class="issue issue-nice" id="issue-3">
-            <span class="severity severity-nice">Nice to have &middot; Low impact</span>
-            <h3>Nice-to-have improvement</h3>
-            <div class="where">docs/ or config</div>
-            <p>Minor polish, documentation gaps, or future-proofing suggestions go here.</p>
+          <div class="callout callout-amber">
+            <strong>Read this carefully</strong>
+            The three red edges (<code>linter</code>, <code>finding</code>, <code>client</code>) all
+            stem from one root cause: the fixing engine depends on the concrete config I/O package.
+            Fix that, and the finding and client packages untangle for free.
           </div>
         </section>
 
-        <!-- Proposal -->
-        <section id="proposal">
-          <h2><span class="num">02</span>What the solution could look like</h2>
+        <!-- Findings -->
+        <section id="findings">
+          <h2><span class="num">02</span>Findings</h2>
+          <p>Six issues, ordered by impact. None are structural emergencies &mdash; they are coupling debts that compound.</p>
+
+          <!-- Finding 1 -->
+          <div class="issue issue-critical" id="f1">
+            <span class="severity severity-critical">High impact &middot; coupling</span>
+            <h3>pkg/linter imports pkg/config &mdash; engine bound to I/O</h3>
+            <div class="where">pkg/linter/fixer.go:14 &middot; fixerConfigLoader &middot; pkg/linter/fixer_config.go:10</div>
+            <p>
+              The <code>Fixer</code> (the fixing engine) takes a <code>fixerConfigLoader</code> interface
+              for tests, but production wiring in <code>commands.go</code> passes a concrete
+              <code>*config.Loader</code>. More importantly, <code>fixer_config.go</code> directly
+              imports <code>pkg/config</code> for helpers. This conflates "knows how to fix a config"
+              with "knows how to load/save a config from disk." The engine should depend on a port,
+              never on the adapter.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix: invert the dependency</strong>
+              Move <code>fixer_config.go</code>'s config helpers behind an interface the Fixer already
+              owns (<code>fixerConfigLoader</code>), or move those helpers into <code>pkg/linter</code>.
+              The concrete <code>config.Loader</code> should be the <em>only</em> thing that imports
+              <code>pkg/config</code> from outside, injected at the CLI boundary.
+            </div>
+          </div>
+
+          <!-- Finding 2 -->
+          <div class="issue issue-critical" id="f2">
+            <span class="severity severity-critical">High impact &middot; split brain</span>
+            <h3>Duplicate Config type across pkg/types and pkg/migration</h3>
+            <div class="where">pkg/types/config_types.go:5 vs pkg/migration/config_types.go:10</div>
+            <p>
+              Two completely different <code>Config</code> structs represent the same domain concept.
+              <code>types.Config</code> is v2-only with typed sub-structs;
+              <code>migration.Config</code> is v1+v2 with <code>*bool</code> tri-state fields and
+              different sub-struct names (<code>Run</code> vs <code>RunConfig</code>,
+              <code>Linters</code> vs <code>LintersConfig</code>). Data must be manually converted
+              between them. This is the single largest architectural debt &mdash; covered in depth in
+              the companion <a href="../reviews/2026-07-26_data-model-review.html">data model review</a>.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix: unify on types.Config</strong>
+              The v1 support is maintenance-only (0 live v1 configs). Collapse
+              <code>migration.Config</code> into a thin unmarshaling shim over <code>types.Config</code>,
+              or extract a shared <code>configschema</code> package both can reference.
+            </div>
+          </div>
+
+          <!-- Finding 3 -->
+          <div class="issue issue-important" id="f3">
+            <span class="severity severity-important">Medium impact &middot; god-package</span>
+            <h3>pkg/client is a composition root masquerading as a library</h3>
+            <div class="where">pkg/client/client.go:9,11</div>
+            <p>
+              <code>pkg/client</code> imports both <code>config</code> <em>and</em> <code>linter</code>
+              directly. It has no single responsibility &mdash; it glues the loader to the analyzer.
+              That is the job of the CLI layer (<code>internal/cli</code>), not a public package.
+              A library consumer who imports <code>pkg/client</code> transitively pulls in the entire
+              stack.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix: dissolve or rename</strong>
+              Either fold <code>pkg/client</code> into <code>internal/cli</code> (it is wiring, not a
+              library), or give it a focused responsibility (e.g. a <code>Facade</code> with a single
+              <code>Configure()</code> entry point) that hides the internal packages it composes.
+            </div>
+          </div>
+
+          <!-- Finding 4 -->
+          <div class="issue issue-important" id="f4">
+            <span class="severity severity-important">Medium impact &middot; transitive coupling</span>
+            <h3>pkg/finding transitively depends on pkg/config via pkg/linter</h3>
+            <div class="where">pkg/finding/detector.go:9 &rarr; pkg/linter &rarr; pkg/config</div>
+            <p>
+              The finding model (converters for SARIF/JSON output) transitively pulls in the entire
+              config+linter stack. A finding converter should not need to know how configs are loaded
+              from disk. This blocks <code>pkg/finding</code> from being a reusable, standalone
+              library &mdash; it currently drags in ~8 packages.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix: finding should depend only on types</strong>
+              If <code>finding</code> needs linter metadata, pass it in as a parameter (a
+              <code>[]LinterInfo</code> or a priority lookup function), not by importing the analyzer.
+              This makes the finding pipeline a clean leaf.
+            </div>
+          </div>
+
+          <!-- Finding 5 -->
+          <div class="issue issue-important" id="f5">
+            <span class="severity severity-important">Medium impact &middot; shared state</span>
+            <h3>Package-level mutable CLI flags</h3>
+            <div class="where">internal/cli/commands.go:25-39 &middot; cmd_configure.go:19</div>
+            <p>
+              Twelve global <code>var</code> flags (<code>configPath</code>, <code>dryRun</code>,
+              <code>verbose</code>, etc.) plus <code>detectedExtraFormatters</code> are package-level
+              mutable state. This prevents concurrent command execution, complicates isolated testing,
+              and makes flag plumbing implicit. The <code>migrateFlags</code> struct in
+              <code>commands.go</code> is a half-step toward fixing this but copies the globals rather
+              than replacing them.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix: per-command flag structs</strong>
+              Pass flag values through a <code>CommandBuilder</code> options struct (the pattern
+              already exists for <code>presetConfigLoader</code>). Eliminate the package-level
+              <code>var</code> block entirely.
+            </div>
+          </div>
+
+          <!-- Finding 6 -->
+          <div class="issue issue-nice" id="f6">
+            <span class="severity severity-nice">Low impact &middot; housekeeping</span>
+            <h3>Type-alias re-exports in pkg/config create import ambiguity</h3>
+            <div class="where">pkg/config/loader.go:51-61</div>
+            <p>
+              The <code>type Config = types.Config</code> aliases (and 8 siblings) let callers write
+              either <code>config.Config</code> or <code>types.Config</code> for the same type. This is
+              backward-compat scaffolding that now creates two valid import paths to every config type.
+              It makes grep-based navigation ambiguous and signals the package boundary is soft.
+            </p>
+          </div>
+        </section>
+
+        <!-- Target Architecture -->
+        <section id="target">
+          <h2><span class="num">03</span>Target architecture</h2>
           <p>
-            If the findings were fixed, what would the new state be? Show the target API, structure,
-            or workflow.
+            If the six findings were resolved, the dependency graph would flatten. The fixing engine
+            becomes a pure consumer of ports; the finding pipeline becomes a standalone leaf; the
+            CLI is the only composition root.
           </p>
-          <pre><code>// Target state after the recommended changes
-type BetterAPI struct {
-    Field string
-}</code></pre>
+          <div class="dep-tree">
+<span class="root">internal/cli</span> <em>(composition root &mdash; the only place that imports concrete adapters)</span>
+  &boxvr;&nbsp;<span class="ok">config.Loader</span> <em>(adapter: implements ConfigReader/Writer)</em>
+  &boxvr;&nbsp;<span class="ok">linter.Fixer + Analyzer</span> <em>(engine: depends only on types + ports)</em>
+  &boxvr;&nbsp;<span class="ok">finding.Converter</span> <em>(leaf: depends only on types)</em>
+  &boxur;&nbsp;audit &middot; policy &middot; detection &middot; migration <em>(leaves)</em>
+          </div>
           <div class="callout callout-teal">
             <strong>This is the target</strong>
-            Summarize why this state is better and what it unlocks.
+            One composition root, clean ports, no engine depends on an adapter. The audit
+            <code>Recorder</code> interface is already the template for how every other boundary
+            should look.
+          </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section id="roadmap">
+          <h2><span class="num">04</span>Recommended roadmap</h2>
+          <p>Ordered by leverage. Steps 1&ndash;2 unlock the rest.</p>
+
+          <div class="migration-step">
+            <div class="migration-num">1</div>
+            <div class="migration-content">
+              <h4>Invert the linter&rarr;config dependency</h4>
+              <p>
+                Make <code>pkg/linter</code> depend only on <code>types</code> + interfaces it owns.
+                Move config helpers from <code>fixer_config.go</code> behind
+                <code>fixerConfigLoader</code>. Highest leverage &mdash; unblocks steps 2 and 3.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">2</div>
+            <div class="migration-content">
+              <h4>Decouple pkg/finding from pkg/linter</h4>
+              <p>
+                Pass linter metadata as parameters to finding converters instead of importing the
+                analyzer. Finding becomes a clean, reusable leaf.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">3</div>
+            <div class="migration-content">
+              <h4>Dissolve pkg/client into internal/cli</h4>
+              <p>
+                It is wiring, not a library. Once steps 1&ndash;2 land, its remaining glue belongs in
+                the composition root.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">4</div>
+            <div class="migration-content">
+              <h4>Unify the duplicate Config type</h4>
+              <p>
+                Collapse <code>migration.Config</code> into a shim over <code>types.Config</code>.
+                See the <a href="../reviews/2026-07-26_data-model-review.html">data model review</a>
+                for the full type-level redesign.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">5</div>
+            <div class="migration-content">
+              <h4>Remove global CLI flags &amp; alias re-exports</h4>
+              <p>
+                Per-command flag structs; delete the <code>type X = types.X</code> aliases once
+                callers use the canonical <code>types.</code> path.
+              </p>
+            </div>
           </div>
         </section>
 
         <!-- Appendix -->
         <section id="appendix">
-          <h2><span class="num">03</span>Appendix</h2>
-          <p>Methodology, links to related files, or a priority matrix can live here.</p>
+          <h2><span class="num">05</span>Appendix</h2>
+          <p>Metrics collected from the source tree and priority matrix for the findings.</p>
+          <div class="scorecard" style="margin-bottom:1.5rem">
+            <div class="score-card"><div class="score">19</div><div class="label">Packages</div></div>
+            <div class="score-card"><div class="score">102</div><div class="label">Source files</div></div>
+            <div class="score-card"><div class="score">196</div><div class="label">Struct types</div></div>
+            <div class="score-card"><div class="score">14</div><div class="label">Interfaces</div></div>
+          </div>
           <table class="compare">
             <thead>
               <tr>
-                <th>Issue</th>
+                <th>Finding</th>
                 <th>Severity</th>
                 <th>Effort</th>
-                <th>Status</th>
+                <th>Unlocks</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Issue one</td>
-                <td class="no">Critical</td>
-                <td>Low</td>
-                <td class="no">Open</td>
+                <td>linter&rarr;config dependency</td>
+                <td class="no">High</td>
+                <td>Medium</td>
+                <td>finding decouple + client dissolve</td>
               </tr>
               <tr>
-                <td>Issue two</td>
-                <td class="no">Important</td>
+                <td>Duplicate Config type</td>
+                <td class="no">High</td>
+                <td>High</td>
+                <td>Single source of truth</td>
+              </tr>
+              <tr>
+                <td>pkg/client god-package</td>
+                <td class="no">Medium</td>
+                <td>Low</td>
+                <td>Cleaner public API</td>
+              </tr>
+              <tr>
+                <td>finding transitive coupling</td>
+                <td class="no">Medium</td>
+                <td>Low</td>
+                <td>Reusable finding lib</td>
+              </tr>
+              <tr>
+                <td>Global CLI flags</td>
+                <td class="no">Medium</td>
                 <td>Medium</td>
-                <td class="yes">In progress</td>
+                <td>Testable, concurrent CLI</td>
+              </tr>
+              <tr>
+                <td>Type-alias re-exports</td>
+                <td class="yes">Low</td>
+                <td>Low</td>
+                <td>Unambiguous imports</td>
               </tr>
             </tbody>
           </table>
@@ -1041,8 +1307,8 @@ type BetterAPI struct {
         <!-- Footer -->
         <footer class="footer">
           <p>
-            Generated YYYY-MM-DD &middot; Reviewed against version X.Y.Z &middot; All claims
-            verified against source code where noted
+            Generated 2026-07-26 &middot; All import edges verified by static analysis of source files
+            &middot; Companion: <a href="../reviews/2026-07-26_data-model-review.html">data model review</a>
           </p>
         </footer>
       </main>
