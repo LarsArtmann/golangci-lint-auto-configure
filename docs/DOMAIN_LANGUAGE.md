@@ -23,6 +23,7 @@ If a word means something different to a developer than to a user, define it her
 | Config Analysis       | The full result of analyzing a config: enabled/disabled linters, recommendations          | `ConfigAnalysis` struct, output of `analyze` |
 | Deprecation           | A linter that has been superseded by a newer version (e.g. wsl → wsl_v5)                  | Auto-replaced by the fixer                   |
 | Version-Gated         | A linter that requires a minimum golangci-lint version to be available                    | `LinterMinVersions` map                      |
+| Linter Management Tier | How the tool governs a linter's lifecycle: **Disabled** (never enabled), **NeverAutoEnable** (never recommended but respected if manually added), or **PragmaticNoise** (enabled by default, opt-out via `--pragmatic`) | Three disjoint maps in `pkg/constants/rules.go` |
 | Exclusion Path        | A regex pattern that excludes files from linting (e.g. `_templ\.go$`, `vendor/`)          | RE2 syntax, injected into config             |
 | Migration             | Converting a v1 golangci-lint config to v2 schema format                                  | `migrate` command                            |
 | Validation            | Checking a config for correctness (YAML validity, schema compliance)                      | `validate` command                           |

@@ -11,7 +11,7 @@ subsequent quality-debt cleanup. Grouped by theme.
 
 ### Added — Friction reduction (data-driven default tuning)
 
-- `--pragmatic` flag: drops the 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from the dynamic enable set
+- `--pragmatic` flag: drops the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen) from the dynamic enable set
 - `GosecSettings` typed struct with curated excludes (G304, G115) — reduces gosec false-positive friction while preserving unhandled-error detection (errcheck handles known-benign cases surgically)
 - `ErrcheckSettings` typed struct with curated `exclude-functions` (`Close`, `fmt.Fprint*`, Builder writes) — reduces errcheck friction by 20%+
 - `WrapcheckSettings` typed struct with a curated `ignore-sigs` list
@@ -82,6 +82,14 @@ subsequent quality-debt cleanup. Grouped by theme.
 - G104 removed from `GosecSettings.Excludes` defaults — it was too broad, suppressing ALL unhandled-error findings from gosec rather than just the curated Close/Fprint* family that errcheck handles surgically
 - `audit` subcommand broken on first run (no ledger exists yet): `os.IsNotExist` does not unwrap `fmt.Errorf %w` chains, so a missing ledger returned an error instead of nil. Changed to `errors.Is(err, os.ErrNotExist)`
 - Coverage-check ghost file (`scripts/coverage-check.sh`) deleted — replaced by the Go `cmd/coverage-check`
+
+### Changed — exhaustruct NeverAutoEnable reclassification
+
+- `exhaustruct` (highest-friction linter across 160 sibling projects, 6.5 nolint ratio) moved from auto-enabled (High priority, in the `reference` preset) to a new **`NeverAutoEnableLinters`** tier: it is never recommended or auto-enabled, but it is **never stripped** if a user manually adds it. Safe default settings (14 stdlib struct excludes) and `_test.go` exclusion rules are still injected when it is manually enabled
+- New **linter management tiers**: `DisabledLinters` (forcibly disabled), `NeverAutoEnableLinters` (never recommended, respected if manual), and `PragmaticNoiseLinters` (opt-out via `--pragmatic`) — three disjoint maps with data-integrity tests enforcing consistency
+- `--pragmatic` now drops 4 linters (was 5): `exhaustruct` graduated from `PragmaticNoiseLinters` to `NeverAutoEnableLinters` (handled unconditionally now, not just with the flag)
+- `reference` preset now 61 linters (was 62): `exhaustruct` removed; `exhaustruct` priority downgraded High → Medium
+- Sidecar policy enforcer (`isToolLevelDisabled` → `isToolLevelManaged`): now exempts both `DisabledLinters` and `NeverAutoEnableLinters` from re-enable enforcement, so a manually-disabled `exhaustruct` is respected
 
 ## [0.5.0] - 2026-07-23
 
