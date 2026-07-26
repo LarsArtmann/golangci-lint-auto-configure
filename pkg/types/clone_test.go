@@ -51,7 +51,7 @@ var _ = Describe("Config.Clone", func() {
 		cloned := original.Clone()
 
 		Expect(cloned).ToNot(BeIdenticalTo(original))
-		Expect(cloned.Version).To(Equal("2"))
+		Expect(cloned.Version).To(Equal(types.ConfigVersionV2))
 		Expect(cloned.Run.Timeout).To(Equal("5m"))
 
 		Expect(cloned.Run.BuildTags).To(Equal(original.Run.BuildTags))

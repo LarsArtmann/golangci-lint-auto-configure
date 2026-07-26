@@ -1,18 +1,11 @@
 package types_test
 
 import (
-	"testing"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
-
-func TestConfigConstructor(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Config Constructor Suite")
-}
 
 var _ = Describe("NewConfig", func() {
 	It("sets Version to ConfigVersionV2", func() {

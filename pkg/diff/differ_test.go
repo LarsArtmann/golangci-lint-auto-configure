@@ -60,7 +60,7 @@ var compareTests = []struct {
 
 func newTestConfig(version, timeout string, linters []string) *types.Config {
 	return &types.Config{
-		Version: version,
+		Version: types.Version(version),
 		Run:     types.RunConfig{Timeout: timeout},
 		Linters: types.LintersConfig{Enable: linters},
 	}
