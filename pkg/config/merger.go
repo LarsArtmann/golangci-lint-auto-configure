@@ -50,7 +50,7 @@ func (m *MergeResult) IsSuccess() bool {
 // MergeConfigs loads and merges multiple config files.
 // The first config in the list has the highest priority (per golangci-lint search order).
 // Returns the merged config and a result describing what was merged.
-func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, error) {
+func (cm *Merger) MergeConfigs(configPaths []string) (*types.Config, *MergeResult, error) {
 	if len(configPaths) == 0 {
 		return nil, nil, ErrNoConfigFiles
 	}
@@ -123,7 +123,7 @@ func (cm *Merger) MergeConfigs(configPaths []string) (*Config, *MergeResult, err
 	return primaryConfig, result, nil
 }
 
-// Config priority constants for sortByPriority.
+// types.Config priority constants for sortByPriority.
 const (
 	// ConfigPriorityYML is the priority for .golangci.yml files.
 	ConfigPriorityYML = iota
@@ -138,7 +138,7 @@ const (
 // mergeConfigInto merges secondary config into primary.
 // Primary values take precedence; secondary fills in gaps.
 // Returns the number of changes applied.
-func (cm *Merger) mergeConfigInto(primary, secondary *Config) int {
+func (cm *Merger) mergeConfigInto(primary, secondary *types.Config) int {
 	changes := 0
 
 	// Merge Run settings
@@ -165,7 +165,7 @@ func (cm *Merger) logAndContinue(path string, err error, operation string) {
 
 // SaveMergedConfig saves the merged config and optionally removes secondary configs.
 // Creates backups of all modified configs before making changes.
-func (cm *Merger) SaveMergedConfig(config *Config, result *MergeResult, removeSecondary bool) error {
+func (cm *Merger) SaveMergedConfig(config *types.Config, result *MergeResult, removeSecondary bool) error {
 	loader := NewLoaderWithFS(cm.logger, cm.fs)
 
 	// Initialize backup tracking

@@ -47,19 +47,6 @@ const (
 	DefaultMaxSameIssues = 10
 )
 
-// Re-export types for backward compatibility.
-type (
-	Config                     = types.Config
-	RunConfig                  = types.RunConfig
-	OutputConfig               = types.OutputConfig
-	LintersConfig              = types.LintersConfig
-	LintersExclusionsConfig    = types.LintersExclusionsConfig
-	ExclusionRuleConfig        = types.ExclusionRuleConfig
-	IssuesConfig               = types.IssuesConfig
-	FormattersConfig           = types.FormattersConfig
-	FormattersExclusionsConfig = types.FormattersExclusionsConfig
-)
-
 // FS defines the filesystem operations needed by the config package.
 type FS interface {
 	ReadFile(name string) ([]byte, error)
@@ -100,7 +87,7 @@ func NewLoaderWithFS(logger *log.Logger, fs FS) *Loader {
 }
 
 // LoadConfig loads a golangci-lint configuration from the given path.
-func (l *Loader) LoadConfig(path string) (*Config, error) {
+func (l *Loader) LoadConfig(path string) (*types.Config, error) {
 	data, err := l.fs.ReadFile(path)
 	if err != nil {
 		return nil, apperrors.NewConfigError("failed to read config file", path, err)
@@ -108,7 +95,7 @@ func (l *Loader) LoadConfig(path string) (*Config, error) {
 
 	format := detectFormat(path)
 
-	var config Config
+	var config types.Config
 
 	if err := unmarshalConfig(data, format, &config); err != nil {
 		return nil, apperrors.NewConfigError("failed to parse config file", path, err)
@@ -140,8 +127,8 @@ func detectFormat(path string) ConfigFormat {
 // errUnsupportedConfigFormat is returned for unknown config formats.
 var errUnsupportedConfigFormat = errors.New("unsupported config format")
 
-// unmarshalConfig unmarshals data into a Config based on the format.
-func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
+// unmarshalConfig unmarshals data into a types.Config based on the format.
+func unmarshalConfig(data []byte, format ConfigFormat, config *types.Config) error {
 	switch format {
 	case ConfigFormatTOML:
 		return toml.Unmarshal(data, config)
@@ -158,7 +145,7 @@ func unmarshalConfig(data []byte, format ConfigFormat, config *Config) error {
 	}
 }
 
-func migrateLintersSettingsV1(config *Config, logger *log.Logger) {
+func migrateLintersSettingsV1(config *types.Config, logger *log.Logger) {
 	if len(config.LintersSettingsV1) == 0 {
 		return
 	}
@@ -300,40 +287,40 @@ const LintersTimeout = 30 * time.Second
 // CreateDefaultConfig creates a default golangci-lint configuration with ALL linters enabled.
 // The config includes production-ready defaults: exclusion paths, exclusion rules for test files,
 // and the standard issues configuration.
-func (l *Loader) CreateDefaultConfig(ctx context.Context) *Config {
+func (l *Loader) CreateDefaultConfig(ctx context.Context) *types.Config {
 	allLinters := l.fetchLintersWithFallback(ctx)
 	goVersion := l.detectGoVersion(ctx)
 
 	return newDefaultConfig(allLinters, goVersion)
 }
 
-func newDefaultConfig(allLinters []types.LinterName, goVersion string) *Config {
-	return &Config{
+func newDefaultConfig(allLinters []types.LinterName, goVersion string) *types.Config {
+	return &types.Config{
 		Version: types.ConfigVersionV2,
-		Run: RunConfig{
+		Run: types.RunConfig{
 			Timeout:        "5m",
 			Go:             goVersion,
 			IssuesExitCode: 1,
 			Tests:          true,
 		},
-		Output: OutputConfig{
+		Output: types.OutputConfig{
 			Formats: map[string]any{},
 		},
-		Linters: LintersConfig{
+		Linters: types.LintersConfig{
 			Enable: allLinters,
-			Exclusions: LintersExclusionsConfig{
+			Exclusions: types.LintersExclusionsConfig{
 				Generated: "lax",
 				Rules:     defaultExclusionRules(),
 				Paths:     defaultExclusionPaths(),
 			},
 		},
-		Formatters: FormattersConfig{
-			Exclusions: FormattersExclusionsConfig{
+		Formatters: types.FormattersConfig{
+			Exclusions: types.FormattersExclusionsConfig{
 				Generated: "lax",
 				Paths:     defaultFormatterExclusionPaths(),
 			},
 		},
-		Issues: IssuesConfig{
+		Issues: types.IssuesConfig{
 			MaxIssuesPerLinter: DefaultMaxIssuesPerLinter,
 			MaxSameIssues:      DefaultMaxSameIssues,
 		},
@@ -384,16 +371,16 @@ func defaultFormatterExclusionPaths() []string {
 	return paths
 }
 
-func defaultExclusionRules() []types.ExclusionRuleConfig {
-	rules := make([]types.ExclusionRuleConfig, 0, len(constants.DefaultExclusionRules))
+func defaultExclusionRules() []types.types.ExclusionRuleConfig {
+	rules := make([]types.types.ExclusionRuleConfig, 0, len(constants.DefaultExclusionRules))
 
 	rules = append(rules, constants.DefaultExclusionRules...)
 
 	return rules
 }
 
-// marshalConfig marshals a Config to bytes based on the format.
-func marshalConfig(config *Config, format ConfigFormat) ([]byte, error) {
+// marshalConfig marshals a types.Config to bytes based on the format.
+func marshalConfig(config *types.Config, format ConfigFormat) ([]byte, error) {
 	switch format {
 	case ConfigFormatTOML:
 		return toml.Marshal(config)
@@ -408,7 +395,7 @@ func marshalConfig(config *Config, format ConfigFormat) ([]byte, error) {
 }
 
 // SaveConfig saves a golangci-lint configuration to the given path.
-func (l *Loader) SaveConfig(config *Config, path string) error {
+func (l *Loader) SaveConfig(config *types.Config, path string) error {
 	format := detectFormat(path)
 
 	data, err := marshalConfig(config, format)
@@ -436,7 +423,7 @@ func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool {
 }
 
 // ValidateConfig performs validation on the configuration using struct validation.
-func (l *Loader) ValidateConfig(config *Config) []error {
+func (l *Loader) ValidateConfig(config *types.Config) []error {
 	var errs []error
 
 	// Use struct validation from types package
@@ -459,11 +446,11 @@ func (l *Loader) ValidateConfig(config *Config) []error {
 }
 
 // GetLintersEnabled returns the list of explicitly enabled linters.
-func (l *Loader) GetLintersEnabled(config *Config) []types.LinterName {
+func (l *Loader) GetLintersEnabled(config *types.Config) []types.LinterName {
 	return config.Linters.Enable
 }
 
 // GetLintersDisabled returns the list of explicitly disabled linters.
-func (l *Loader) GetLintersDisabled(config *Config) []types.LinterName {
+func (l *Loader) GetLintersDisabled(config *types.Config) []types.LinterName {
 	return config.Linters.Disable
 }

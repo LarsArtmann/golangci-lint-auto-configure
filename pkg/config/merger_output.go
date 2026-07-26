@@ -3,7 +3,7 @@ package config
 import "maps"
 
 // mergeOutputConfig merges output configurations.
-func (cm *Merger) mergeOutputConfig(primary, secondary *OutputConfig) int {
+func (cm *Merger) mergeOutputConfig(primary, secondary *types.OutputConfig) int {
 	changes := 0
 
 	changes += mergeFormatMap(primary.Formats, secondary.Formats)

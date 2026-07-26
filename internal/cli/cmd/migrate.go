@@ -3,6 +3,7 @@ package cmd
 import (
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/migration"
 	"github.com/spf13/cobra"
@@ -121,7 +122,7 @@ func loadConfigForMigration(
 	logger *log.Logger,
 	configLoader *config.Loader,
 	configFile string,
-) (*config.Config, error) {
+) (*types.Config, error) {
 	logger.Infof("Migrating configuration: %s", configFile)
 
 	oldConfig, err := configLoader.LoadConfig(configFile)
@@ -133,7 +134,7 @@ func loadConfigForMigration(
 	return oldConfig, nil
 }
 
-func isAlreadyV2(cfg *config.Config) bool {
+func isAlreadyV2(cfg *types.Config) bool {
 	return cfg.Version == "2"
 }
 
@@ -142,7 +143,7 @@ func runMigrator(
 	configLoader *config.Loader,
 	configFile string,
 	dryRun, skipValidation, verbose bool,
-	oldConfig *config.Config,
+	oldConfig *types.Config,
 ) error {
 	migrator, err := createMigrator(configFile, dryRun, skipValidation, verbose, logger)
 	if err != nil {
@@ -190,7 +191,7 @@ func showMigrationResult(
 	logger *log.Logger,
 	configLoader *config.Loader,
 	configFile string,
-	oldConfig *config.Config,
+	oldConfig *types.Config,
 	success bool,
 	fixesApplied int,
 	dryRun bool,
@@ -219,7 +220,7 @@ func showMigrationResult(
 }
 
 // ShowMigrationChanges displays the differences between old and new config.
-func ShowMigrationChanges(logger *log.Logger, oldCfg, newCfg *config.Config) {
+func ShowMigrationChanges(logger *log.Logger, oldCfg, newCfg *types.Config) {
 	oldLinters := len(oldCfg.Linters.Enable)
 	newLinters := len(newCfg.Linters.Enable)
 

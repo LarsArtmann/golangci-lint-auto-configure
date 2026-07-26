@@ -84,7 +84,7 @@ func (c *Client) AnalyzeConfig(ctx context.Context, configPath string) (*types.C
 //	    log.Fatal(err)
 //	}
 //	fmt.Printf("Timeout: %s\n", cfg.Run.Timeout)
-func (c *Client) LoadConfig(configPath string) (*config.Config, error) {
+func (c *Client) LoadConfig(configPath string) (*types.Config, error) {
 	cfg, err := c.configLoader.LoadConfig(configPath)
 	if err != nil {
 		return nil, apperrors.WrapClassified(err, "client.load_config", "failed to load config")
@@ -103,7 +103,7 @@ func (c *Client) LoadConfig(configPath string) (*config.Config, error) {
 //	if len(errs) > 0 {
 //	    fmt.Printf("Config has %d validation errors\n", len(errs))
 //	}
-func (c *Client) ValidateConfig(cfg *config.Config) []error {
+func (c *Client) ValidateConfig(cfg *types.Config) []error {
 	return c.configLoader.ValidateConfig(cfg)
 }
 
@@ -124,9 +124,9 @@ func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string {
 // Example:
 //
 //	client := client.New(client.Options{})
-//	cfg := &config.Config{Version: "2", Linters: config.LintersConfig{Enable: []string{"gofmt"}}}
+//	cfg := &types.Config{Version: "2", Linters: types.LintersConfig{Enable: []string{"gofmt"}}}
 //	err := client.SaveConfig(cfg, ".golangci.yml")
-func (c *Client) SaveConfig(cfg *config.Config, path string) error {
+func (c *Client) SaveConfig(cfg *types.Config, path string) error {
 	err := c.configLoader.SaveConfig(cfg, path)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "client.save_config",

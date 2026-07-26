@@ -5,7 +5,7 @@ import (
 )
 
 // mergeLintersConfig merges linter configurations.
-func (cm *Merger) mergeLintersConfig(primary, secondary *LintersConfig) int {
+func (cm *Merger) mergeLintersConfig(primary, secondary *types.LintersConfig) int {
 	changes := mergeEnableDisable(&primary.Enable, &primary.Disable, secondary.Enable, secondary.Disable)
 
 	if primary.Default == "" && secondary.Default != "" {
@@ -50,13 +50,13 @@ func mergeCommonExclusionFields[T any](
 }
 
 // mergeLintersExclusions merges linter exclusion configurations.
-func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsConfig) int {
+func (cm *Merger) mergeLintersExclusions(primary, secondary *types.LintersExclusionsConfig) int {
 	changes := mergeCommonExclusionFields(
 		primary, secondary,
-		func(c *LintersExclusionsConfig) string { return c.Generated },
-		func(c *LintersExclusionsConfig, v string) { c.Generated = v },
-		func(c *LintersExclusionsConfig) bool { return c.WarnUnused },
-		func(c *LintersExclusionsConfig, v bool) { c.WarnUnused = v },
+		func(c *types.LintersExclusionsConfig) string { return c.Generated },
+		func(c *types.LintersExclusionsConfig, v string) { c.Generated = v },
+		func(c *types.LintersExclusionsConfig) bool { return c.WarnUnused },
+		func(c *types.LintersExclusionsConfig, v bool) { c.WarnUnused = v },
 	)
 
 	changes += cm.mergeLintersExclusionPresets(primary, secondary)
@@ -66,7 +66,7 @@ func (cm *Merger) mergeLintersExclusions(primary, secondary *LintersExclusionsCo
 	return changes
 }
 
-func (cm *Merger) mergeLintersExclusionPresets(primary, secondary *LintersExclusionsConfig) int {
+func (cm *Merger) mergeLintersExclusionPresets(primary, secondary *types.LintersExclusionsConfig) int {
 	if len(primary.Presets) == 0 && len(secondary.Presets) > 0 {
 		primary.Presets = secondary.Presets
 
@@ -90,7 +90,7 @@ func (cm *Merger) mergeLintersExclusionPresets(primary, secondary *LintersExclus
 	return changes
 }
 
-func (cm *Merger) mergeLintersExclusionRules(primary, secondary *LintersExclusionsConfig) int {
+func (cm *Merger) mergeLintersExclusionRules(primary, secondary *types.LintersExclusionsConfig) int {
 	if len(primary.Rules) == 0 && len(secondary.Rules) > 0 {
 		primary.Rules = secondary.Rules
 
@@ -106,7 +106,7 @@ func (cm *Merger) mergeLintersExclusionRules(primary, secondary *LintersExclusio
 	return 0
 }
 
-func (cm *Merger) mergeLintersExclusionPaths(primary, secondary *LintersExclusionsConfig) int {
+func (cm *Merger) mergeLintersExclusionPaths(primary, secondary *types.LintersExclusionsConfig) int {
 	changes := mergePaths(&primary.Paths, secondary.Paths)
 
 	if len(primary.PathsExcept) == 0 && len(secondary.PathsExcept) > 0 {

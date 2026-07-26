@@ -1,7 +1,7 @@
 package config
 
 // mergeFormattersConfig merges formatter configurations.
-func (cm *Merger) mergeFormattersConfig(primary, secondary *FormattersConfig) int {
+func (cm *Merger) mergeFormattersConfig(primary, secondary *types.FormattersConfig) int {
 	changes := mergeEnableDisable(&primary.Enable, &primary.Disable, secondary.Enable, secondary.Disable)
 
 	changes += mergeSettingsMaps(primary.Settings, secondary.Settings)
@@ -27,13 +27,13 @@ func mergeEnableDisable[T ~string](primaryEnable, primaryDisable *[]T, secondary
 }
 
 // mergeFormattersExclusions merges formatter exclusion configurations.
-func (cm *Merger) mergeFormattersExclusions(primary, secondary *FormattersExclusionsConfig) int {
+func (cm *Merger) mergeFormattersExclusions(primary, secondary *types.FormattersExclusionsConfig) int {
 	changes := mergeCommonExclusionFields(
 		primary, secondary,
-		func(c *FormattersExclusionsConfig) string { return c.Generated },
-		func(c *FormattersExclusionsConfig, v string) { c.Generated = v },
-		func(c *FormattersExclusionsConfig) bool { return c.WarnUnused },
-		func(c *FormattersExclusionsConfig, v bool) { c.WarnUnused = v },
+		func(c *types.FormattersExclusionsConfig) string { return c.Generated },
+		func(c *types.FormattersExclusionsConfig, v string) { c.Generated = v },
+		func(c *types.FormattersExclusionsConfig) bool { return c.WarnUnused },
+		func(c *types.FormattersExclusionsConfig, v bool) { c.WarnUnused = v },
 	)
 
 	changes += mergePaths(&primary.Paths, secondary.Paths)

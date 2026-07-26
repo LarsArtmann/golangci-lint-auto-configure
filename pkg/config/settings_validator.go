@@ -13,7 +13,7 @@ import (
 // unrecognized linter names or unknown settings sub-keys. Warnings are soft —
 // they don't block config loading, since newer golangci-lint versions may add
 // new settings that this tool doesn't know about yet.
-func ValidateSettingsKeys(config *types.Config) []string {
+func ValidateSettingsKeys(config *types.types.Config) []string {
 	var warnings []string
 
 	for linterName, rawSettings := range config.Linters.Settings {

@@ -12,6 +12,7 @@ import (
 	errorfamily "github.com/larsartmann/go-error-family"
 	clicmd "github.com/larsartmann/golangci-lint-auto-configure/internal/cli/cmd"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
@@ -126,7 +127,7 @@ func performAutoMerge(
 
 func saveMergedConfigAndReturn(
 	merger *config.Merger,
-	mergedConfig *config.Config,
+	mergedConfig *types.Config,
 	mergeResult *config.MergeResult,
 	allConfigs []string,
 	logger *log.Logger,
