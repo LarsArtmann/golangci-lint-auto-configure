@@ -154,20 +154,20 @@ func changeAction(subKey, enabledAction, disabledAction string) string {
 }
 
 func linterNamesToStrings(names []types.LinterName) []string {
-	result := make([]string, len(names))
+	result := make([]string, 0, len(names))
 
-	for i, n := range names {
-		result[i] = string(n)
+	for _, n := range names {
+		result = append(result, string(n))
 	}
 
 	return result
 }
 
 func formatterNamesToStrings(names []types.FormatterName) []string {
-	result := make([]string, len(names))
+	result := make([]string, 0, len(names))
 
-	for i, n := range names {
-		result[i] = string(n)
+	for _, n := range names {
+		result = append(result, string(n))
 	}
 
 	return result
