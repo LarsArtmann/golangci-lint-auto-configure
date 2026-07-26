@@ -14,7 +14,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Config Suite")
+	RunSpecs(t, "types.Config Suite")
 }
 
 func writeTestConfigFile(dir, filename string) {
@@ -97,9 +97,9 @@ output:
 
 	Context("SaveConfig", func() {
 		It("should save config to file", func() {
-			cfg := &config.Config{
+			cfg := &types.Config{
 				Version: "1",
-				Linters: config.LintersConfig{
+				Linters: types.LintersConfig{
 					Enable: []types.LinterName{"gosec", "errcheck"},
 				},
 			}
@@ -115,13 +115,13 @@ output:
 		})
 
 		It("should preserve complex config structure", func() {
-			cfg := &config.Config{
+			cfg := &types.Config{
 				Version: "1",
-				Run: config.RunConfig{
+				Run: types.RunConfig{
 					Timeout: "5m",
 					Go:      "1.21",
 				},
-				Linters: config.LintersConfig{
+				Linters: types.LintersConfig{
 					Enable:  []types.LinterName{"gosec", "errcheck"},
 					Disable: []types.LinterName{"unused"},
 				},
@@ -180,9 +180,9 @@ timeout = "5m"
 
 		It("should save config in TOML format", func() {
 			tomlConfig := filepath.Join(testDir, ".golangci.toml")
-			cfg := &config.Config{
+			cfg := &types.Config{
 				Version: "2",
-				Linters: config.LintersConfig{
+				Linters: types.LintersConfig{
 					Enable: []types.LinterName{"gosec"},
 				},
 			}
@@ -276,16 +276,16 @@ timeout = "5m"
 
 	Context("ValidateConfig", func() {
 		It("should return error for empty timeout", func() {
-			cfg := &config.Config{}
+			cfg := &types.Config{}
 			errs := loader.ValidateConfig(cfg)
 			Expect(errs).ToNot(BeEmpty())
 			Expect(errs[0].Error()).To(ContainSubstring("validation"))
 		})
 
 		It("should validate valid config", func() {
-			cfg := &config.Config{
+			cfg := &types.Config{
 				Version: "2",
-				Run: config.RunConfig{
+				Run: types.RunConfig{
 					Timeout: "5m",
 				},
 			}
@@ -440,8 +440,8 @@ output:
 
 	Context("GetLintersEnabled", func() {
 		It("should return enabled linters", func() {
-			cfg := &config.Config{
-				Linters: config.LintersConfig{
+			cfg := &types.Config{
+				Linters: types.LintersConfig{
 					Enable: []types.LinterName{"gosec", "errcheck", "staticcheck"},
 				},
 			}
@@ -455,8 +455,8 @@ output:
 
 	Context("GetLintersDisabled", func() {
 		It("should return disabled linters", func() {
-			cfg := &config.Config{
-				Linters: config.LintersConfig{
+			cfg := &types.Config{
+				Linters: types.LintersConfig{
 					Disable: []types.LinterName{"unused", "gocyclo"},
 				},
 			}

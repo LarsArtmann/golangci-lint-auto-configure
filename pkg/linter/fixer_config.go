@@ -7,25 +7,28 @@ import (
 	"slices"
 
 	"charm.land/log/v2"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/gogenfilter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
+// GoVersionProvider returns the locally installed Go version.
+type GoVersionProvider func(ctx context.Context) string
+
 // configUpdater handles updating config fields.
 type configUpdater struct {
-	logger *log.Logger
+	logger          *log.Logger
+	goVersionProvider GoVersionProvider
 }
 
 // newConfigUpdater creates a new config updater.
-func newConfigUpdater(logger *log.Logger) *configUpdater {
-	return &configUpdater{logger: logger}
+func newConfigUpdater(logger *log.Logger, goVersionProvider GoVersionProvider) *configUpdater {
+	return &configUpdater{logger: logger, goVersionProvider: goVersionProvider}
 }
 
 // updateGoVersion sets the Go version in the config to the local version.
 func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config) int {
-	goVersion := config.GetLocalGoVersion(ctx)
+	goVersion := cu.goVersionProvider(ctx)
 	if goVersion == "" {
 		return 0
 	}
@@ -194,14 +197,14 @@ func (cu *configUpdater) updateIssuesSettings(cfg *types.Config) int {
 	added := 0
 
 	if cfg.Issues.MaxIssuesPerLinter == 0 {
-		cu.logger.Infof("Setting issues.max-issues-per-linter to %d", config.DefaultMaxIssuesPerLinter)
-		cfg.Issues.MaxIssuesPerLinter = config.DefaultMaxIssuesPerLinter
+		cu.logger.Infof("Setting issues.max-issues-per-linter to %d", constants.DefaultMaxIssuesPerLinter)
+		cfg.Issues.MaxIssuesPerLinter = constants.DefaultMaxIssuesPerLinter
 		added++
 	}
 
 	if cfg.Issues.MaxSameIssues == 0 {
-		cu.logger.Infof("Setting issues.max-same-issues to %d", config.DefaultMaxSameIssues)
-		cfg.Issues.MaxSameIssues = config.DefaultMaxSameIssues
+		cu.logger.Infof("Setting issues.max-same-issues to %d", constants.DefaultMaxSameIssues)
+		cfg.Issues.MaxSameIssues = constants.DefaultMaxSameIssues
 		added++
 	}
 

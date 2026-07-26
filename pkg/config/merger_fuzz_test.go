@@ -89,8 +89,8 @@ func FuzzMergeIdempotent(f *testing.F) {
 	})
 }
 
-func configFromLinters(linters string) *Config {
-	return &Config{
+func configFromLinters(linters string) *types.Config {
+	return &types.Config{
 		Linters: types.LintersConfig{
 			Enable: parseLinters(linters),
 		},

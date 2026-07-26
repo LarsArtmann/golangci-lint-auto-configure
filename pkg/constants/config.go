@@ -5,6 +5,12 @@ import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 // DefaultTimeout is the default run timeout value for golangci-lint configurations.
 const DefaultTimeout = "5m"
 
+// DefaultMaxIssuesPerLinter is the default maximum issues per linter.
+const DefaultMaxIssuesPerLinter = 50
+
+// DefaultMaxSameIssues is the default maximum same issues.
+const DefaultMaxSameIssues = 10
+
 // ToolName is the canonical name of this tool, used for reports, findings, and CLI identity.
 const ToolName = "golangci-lint-auto-configure"
 
