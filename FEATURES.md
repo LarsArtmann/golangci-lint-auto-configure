@@ -1,7 +1,7 @@
 # golangci-lint-auto-configure — Feature Audit
 
-**Version:** v0.5.0+ (unreleased changes)
-**Last Audited:** 2026-07-25
+**Version:** v0.6.0
+**Last Audited:** 2026-07-27
 
 Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `PLANNED`.
 

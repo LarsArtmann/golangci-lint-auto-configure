@@ -1,6 +1,6 @@
 # golangci-lint-auto-configure — TODO List
 
-**Last Updated:** 2026-07-25
+**Last Updated:** 2026-07-27
 
 Short- and mid-term actionable work. Completed items live in `CHANGELOG.md`;
 long-term ideas live in `ROADMAP.md`. **This file contains OPEN work only** —
@@ -10,29 +10,7 @@ when a task ships, remove it here and record it in `CHANGELOG.md`.
 
 ## High Priority
 
-| Task                                                    | Impact                                          | Effort | Evidence                                                                                  |
-| ------------------------------------------------------- | ----------------------------------------------- | ------ | ----------------------------------------------------------------------------------------- |
-| Cut a release (version bump + git tag)                  | High — ~30 unreleased commits since `v0.5.0`    | 30min  | `git tag` shows `v0.5.0` as latest; friction-reduction + quality-debt work is untagged    |
-| Resolve the `format` preset formatter split-brain       | High — config inconsistency, user confusion     | 1h     | `pkg/constants/presets.go`: `format` = 3 formatters, `CoreFormatters` & `house` = 4       |
-| Remove `EnableGolinesFormatter` dead code               | Medium — unreachable logic after CoreFormatters | 30min  | `pkg/linter/fixer_formatters.go:51`; bypassed by `EnableCoreFormatters` (`fixer.go:260`)  |
-| Remove stale `G104` from the repo's own `.golangci.yml` | Medium — split-brain vs current defaults        | 15min  | `.golangci.yml:179` still lists `G104`; defaults now ship `G304, G115` only (idempotency) |
-
-### Notes on the High-priority items
-
-- **Release:** the friction-reduction Pareto plan (C19) was the only rollout
-  task not executed. Decide patch (`v0.5.1`) vs minor (`v0.6.0`); additive
-  defaults that change output argue for minor, but pre-1.0 semver is looser.
-- **`format` split-brain:** `CoreFormatters` gained `golines` (now 4), the
-  `house` preset has 4, but `PresetFormatters["format"]` still has 3. Either add
-  `golines` to `format` or document it as the deliberate "minimal formatter"
-  preset. Product decision.
-- **Dead code:** two options — (a) remove `EnableGolinesFormatter` + its call
-  site and accept golines as unconditional (matches the validated 128/160
-  stack); (b) remove `golines` from `CoreFormatters` and keep the conditional
-  recommendation path. Option (a) is recommended.
-- **Stale `G104`:** the tool's idempotency guarantee means re-running
-  `configure` won't remove it. Manually delete the `gosec:` settings block from
-  `.golangci.yml`, then run the tool to re-inject the correct defaults.
+_All high-priority items resolved in v0.6.0 — see CHANGELOG.md._
 
 ## Medium Priority
 
