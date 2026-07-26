@@ -13,8 +13,8 @@ type configSnapshot struct {
 	enable           types.Set[types.LinterName]
 	disable          types.Set[types.LinterName]
 	settingsKeys     types.Set[string]
-	formatterEnable  types.Set[string]
-	formatterDisable types.Set[string]
+	formatterEnable  types.Set[types.FormatterName]
+	formatterDisable types.Set[types.FormatterName]
 }
 
 // snapshotLinterState captures the current linter and formatter state of the config.
@@ -68,10 +68,10 @@ func (f *Fixer) recordLinterChanges(before, after configSnapshot) {
 
 func (f *Fixer) recordFormatterChanges(before, after configSnapshot) {
 	for _, formatter := range types.ToSortedSlice(after.formatterEnable.Difference(before.formatterEnable)) {
-		f.ledger.Record(audit.ActionFormatterAddedToEnable, formatter, "recommended formatter")
+		f.ledger.Record(audit.ActionFormatterAddedToEnable, string(formatter), "recommended formatter")
 	}
 
 	for _, formatter := range types.ToSortedSlice(before.formatterEnable.Difference(after.formatterEnable)) {
-		f.ledger.Record(audit.ActionFormatterRemovedFromEnable, formatter, "")
+		f.ledger.Record(audit.ActionFormatterRemovedFromEnable, string(formatter), "")
 	}
 }

@@ -22,7 +22,7 @@ func NewFormatterManager(logger *log.Logger) *FormatterManager {
 }
 
 // EnableCoreFormatters enables the core formatters: gci, goimports, gofumpt, golines.
-func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[string], dryRun bool) int {
+func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[types.FormatterName], dryRun bool) int {
 	coreFormatters := constants.CoreFormatters
 	count := 0
 
@@ -43,13 +43,13 @@ func (fm *FormatterManager) EnableCoreFormatters(formatterSet types.Set[string],
 	return count
 }
 
-func (fm *FormatterManager) logFormatterChange(name, action string, dryRun bool) {
-	fm.logChange(name, "formatter", action, "", dryRun)
+func (fm *FormatterManager) logFormatterChange(name types.FormatterName, action string, dryRun bool) {
+	fm.logChange(string(name), "formatter", action, "", dryRun)
 }
 
 // EnableGolinesFormatter enables the golines formatter if recommended at high priority.
 func (fm *FormatterManager) EnableGolinesFormatter(
-	formatterSet types.Set[string],
+	formatterSet types.Set[types.FormatterName],
 	analysis *types.ConfigAnalysis,
 	dryRun bool,
 ) int {
@@ -70,8 +70,8 @@ func (fm *FormatterManager) EnableGolinesFormatter(
 	return fm.addFormatter(formatterSet, "golines", "formats code and fixes long lines", dryRun)
 }
 
-func (fm *FormatterManager) addFormatter(set types.Set[string], name, reason string, dryRun bool) int {
-	fm.logChange(name, "formatter", "enabling", reason, dryRun)
+func (fm *FormatterManager) addFormatter(set types.Set[types.FormatterName], name types.FormatterName, reason string, dryRun bool) int {
+	fm.logChange(string(name), "formatter", "enabling", reason, dryRun)
 
 	if !dryRun {
 		set.Add(name)
@@ -94,7 +94,7 @@ func (fm *FormatterManager) logChange(name, entityType, action, reason string, d
 
 // EnableSwaggoFormatter enables the swaggo formatter if swaggo is detected in the project.
 func (fm *FormatterManager) EnableSwaggoFormatter(
-	formatterSet types.Set[string],
+	formatterSet types.Set[types.FormatterName],
 	configPath string,
 	dryRun bool,
 ) int {
@@ -110,7 +110,7 @@ func (fm *FormatterManager) EnableSwaggoFormatter(
 }
 
 // RemoveRedundantGofmt removes gofmt when gofumpt is enabled (gofumpt is a superset).
-func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet types.Set[string], dryRun bool) int {
+func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet types.Set[types.FormatterName], dryRun bool) int {
 	if !formatterSet.Contains("gofumpt") || !formatterSet.Contains("gofmt") {
 		return 0
 	}
@@ -127,7 +127,7 @@ func (fm *FormatterManager) RemoveRedundantGofmt(formatterSet types.Set[string],
 // RemoveRedundantLinters removes linters that are superseded by enabled formatters.
 func (fm *FormatterManager) RemoveRedundantLinters(
 	linterSet types.Set[types.LinterName],
-	formatterSet types.Set[string],
+	formatterSet types.Set[types.FormatterName],
 	dryRun bool,
 ) int {
 	count := 0
@@ -137,7 +137,7 @@ func (fm *FormatterManager) RemoveRedundantLinters(
 			continue
 		}
 
-		if !formatterSet.Contains(string(mapping.Formatter)) {
+		if !formatterSet.Contains(mapping.Formatter) {
 			continue
 		}
 
@@ -159,11 +159,11 @@ func (fm *FormatterManager) logLinterChange(name, action, reason string, dryRun 
 
 // ToOrderedSlice converts formatter set to ordered slice.
 // Order: gci → goimports → gofumpt → golines → swaggo → others (sorted).
-func (fm *FormatterManager) ToOrderedSlice(set types.Set[string]) []string {
+func (fm *FormatterManager) ToOrderedSlice(set types.Set[types.FormatterName]) []types.FormatterName {
 	order := constants.FormatterOrder
 
-	result := make([]string, 0, set.Len())
-	remaining := make([]string, 0)
+	result := make([]types.FormatterName, 0, set.Len())
+	remaining := make([]types.FormatterName, 0)
 
 	for _, name := range order {
 		if set.Contains(name) {

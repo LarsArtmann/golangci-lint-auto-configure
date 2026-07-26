@@ -237,7 +237,7 @@ func (f *Fixer) applyLintersFix(
 }
 
 func (f *Fixer) applyAllFixes(
-	linterSet types.Set[types.LinterName], formatterSet types.Set[string],
+	linterSet types.Set[types.LinterName], formatterSet types.Set[types.FormatterName],
 	cfg *types.Config,
 	analysis *types.ConfigAnalysis,
 	configPath string,
@@ -274,7 +274,7 @@ func (f *Fixer) applyAllFixes(
 func (f *Fixer) applyAndSave(
 	ctx context.Context,
 	cfg *types.Config,
-	linterSet types.Set[types.LinterName], formatterSet types.Set[string],
+	linterSet types.Set[types.LinterName], formatterSet types.Set[types.FormatterName],
 	configPath string,
 	priority types.LinterPriority,
 	dryRun bool,

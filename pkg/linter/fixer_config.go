@@ -239,7 +239,7 @@ func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logg
 func updateConfigFromSets(
 	cfg *types.Config,
 	linterSet types.Set[types.LinterName],
-	formatterSet types.Set[string],
+	formatterSet types.Set[types.FormatterName],
 	formatterManager *FormatterManager,
 	logger *log.Logger,
 ) int {
@@ -353,11 +353,11 @@ func isEmptySettingsValue(v any) bool {
 // configuration, but only if the config doesn't already have meaningful settings for them.
 // Empty or nil values are treated as missing and will be overwritten with defaults.
 // Returns the number of settings injected.
-func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []string) int {
+func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []types.FormatterName) int {
 	injected := 0
 
 	for _, formatterName := range enabledFormatters {
-		defaults, hasDefaults := constants.DefaultFormatterSettings[types.FormatterName(formatterName)]
+		defaults, hasDefaults := constants.DefaultFormatterSettings[formatterName]
 		if !hasDefaults {
 			continue
 		}
@@ -366,11 +366,11 @@ func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []strin
 			cfg.Formatters.Settings = make(map[string]any)
 		}
 
-		if existing, exists := cfg.Formatters.Settings[formatterName]; exists && !isEmptySettingsValue(existing) {
+		if existing, exists := cfg.Formatters.Settings[string(formatterName)]; exists && !isEmptySettingsValue(existing) {
 			continue
 		}
 
-		cfg.Formatters.Settings[formatterName] = defaults.ToMap()
+		cfg.Formatters.Settings[string(formatterName)] = defaults.ToMap()
 		injected++
 	}
 
