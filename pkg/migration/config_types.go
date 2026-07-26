@@ -8,9 +8,9 @@ import "go.yaml.in/yaml/v3"
 // Config represents a golangci-lint configuration file.
 // Supports both v1 and v2 schema versions for migration purposes.
 type Config struct {
-	ExcludeDirUseDefault   *bool          `yaml:"exclude-dir-use-default,omitempty"`
-	ExcludeRulesUseDefault *bool          `yaml:"exclude-rules-use-default,omitempty"`
-	ExcludeUseDefault      *bool          `yaml:"exclude-use-default,omitempty"`
+	ExcludeDirUseDefault   TriState       `yaml:"exclude-dir-use-default,omitempty"`
+	ExcludeRulesUseDefault TriState       `yaml:"exclude-rules-use-default,omitempty"`
+	ExcludeUseDefault      TriState       `yaml:"exclude-use-default,omitempty"`
 	LintersSettingsV1      map[string]any `yaml:"linters-settings,omitempty"`
 	Version                string         `yaml:"version"`
 	ExcludeRules           []ExcludeRule  `yaml:"exclude-rules,omitempty"`
@@ -88,7 +88,7 @@ type configWrapper Config
 
 // Run represents the run section of golangci-lint configuration.
 type Run struct {
-	SkipDirsUseDefault *bool     `yaml:"skip-dirs-use-default,omitempty"`
+	SkipDirsUseDefault TriState `yaml:"skip-dirs-use-default,omitempty"`
 	Timeout            string    `yaml:"timeout,omitempty"`
 	Issues             RunIssues `yaml:"issues,omitempty"`
 	SkipDirs           []string  `yaml:"skip-dirs,omitempty"`
@@ -97,9 +97,9 @@ type Run struct {
 
 // RunIssues represents the issues subsection under run (deprecated v1 structure).
 type RunIssues struct {
-	ExcludeUseDefault      *bool         `yaml:"exclude-use-default,omitempty"`
-	ExcludeRulesUseDefault *bool         `yaml:"exclude-rules-use-default,omitempty"`
-	ExcludeDirUseDefault   *bool         `yaml:"exclude-dir-use-default,omitempty"`
+	ExcludeUseDefault      TriState      `yaml:"exclude-use-default,omitempty"`
+	ExcludeRulesUseDefault TriState      `yaml:"exclude-rules-use-default,omitempty"`
+	ExcludeDirUseDefault   TriState      `yaml:"exclude-dir-use-default,omitempty"`
 	ExcludeRules           []ExcludeRule `yaml:"exclude-rules,omitempty"`
 	ExcludeFiles           []string      `yaml:"exclude-files,omitempty"`
 	ExcludeDirs            []string      `yaml:"exclude-dirs,omitempty"`

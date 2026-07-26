@@ -3,6 +3,7 @@
 package constants
 
 import (
+	"fmt"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"go.yaml.in/yaml/v3"
 )
@@ -63,19 +64,19 @@ type IreturnSettings struct {
 	Allow []string `yaml:"allow"`
 }
 
-func (s IreturnSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s IreturnSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type GocriticSettings struct {
 	DisabledChecks []string `yaml:"disabled-checks"`
 }
 
-func (s GocriticSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s GocriticSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type ExhaustructSettings struct {
 	Exclude []string `yaml:"exclude"`
 }
 
-func (s ExhaustructSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s ExhaustructSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type ReviveSettings struct {
 	Rules []ReviveRule `yaml:"rules"`
@@ -86,7 +87,7 @@ type ReviveRule struct {
 	Name     string `yaml:"name"`
 }
 
-func (s ReviveSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s ReviveSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type VarnamelenSettings struct {
 	IgnoreMapIndexOk   bool     `yaml:"ignore-map-index-ok"`
@@ -94,70 +95,70 @@ type VarnamelenSettings struct {
 	IgnoreTypeAssertOk bool     `yaml:"ignore-type-assert-ok"`
 }
 
-func (s VarnamelenSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s VarnamelenSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type GomoddirectivesSettings struct {
 	ReplaceLocal bool `yaml:"replace-local"`
 }
 
-func (s GomoddirectivesSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s GomoddirectivesSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type CyclopSettings struct {
 	MaxComplexity int `yaml:"max-complexity"`
 }
 
-func (s CyclopSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s CyclopSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type GinkgolinterSettings struct {
 	ForbidFocusContainer bool `yaml:"forbid-focus-container"`
 	ForbidSpecPollution  bool `yaml:"forbid-spec-pollution"`
 }
 
-func (s GinkgolinterSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s GinkgolinterSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type TestifylintSettings struct {
 	EnableAll bool     `yaml:"enable-all"`
 	Disable   []string `yaml:"disable"`
 }
 
-func (s TestifylintSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s TestifylintSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type MakezeroSettings struct {
 	Always bool `yaml:"always"`
 }
 
-func (s MakezeroSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s MakezeroSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type FunlenSettings struct {
 	Lines      int `yaml:"lines"`
 	Statements int `yaml:"statements"`
 }
 
-func (s FunlenSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s FunlenSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type MndSettings struct {
 	IgnoredNumbers []string `yaml:"ignored-numbers"`
 }
 
-func (s MndSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s MndSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type GosecSettings struct {
 	Excludes []string `yaml:"excludes"`
 }
 
-func (s GosecSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s GosecSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type ErrcheckSettings struct {
 	ExcludeFunctions []string `yaml:"exclude-functions"`
 }
 
-func (s ErrcheckSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s ErrcheckSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type WrapcheckSettings struct {
 	IgnoreSigs []string `yaml:"ignore-sigs"`
 }
 
-func (s WrapcheckSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s WrapcheckSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 // --- Formatter Settings Structs ---
 
@@ -165,7 +166,7 @@ type GolinesFormatterSettings struct {
 	MaxLen int `yaml:"max-len"`
 }
 
-func (s GolinesFormatterSettings) ToMap() map[string]any { return settingsToMap(s) }
+func (s GolinesFormatterSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 // DefaultLinterSettings provides compile-time-safe default settings for linters
 // that require configuration to work correctly when auto-enabled.

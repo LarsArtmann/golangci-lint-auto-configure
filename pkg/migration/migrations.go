@@ -128,15 +128,15 @@ func (m *Migrator) migrateIssuesFlags(config *Config) int {
 
 func (m *Migrator) countIssuesFlags(config *Config) int {
 	count := 0
-	if config.ExcludeUseDefault != nil {
+	if config.ExcludeUseDefault != TriStateUnspecified {
 		count++
 	}
 
-	if config.ExcludeRulesUseDefault != nil {
+	if config.ExcludeRulesUseDefault != TriStateUnspecified {
 		count++
 	}
 
-	if config.ExcludeDirUseDefault != nil {
+	if config.ExcludeDirUseDefault != TriStateUnspecified {
 		count++
 	}
 
@@ -146,18 +146,18 @@ func (m *Migrator) countIssuesFlags(config *Config) int {
 func (m *Migrator) clearIssuesFlags(config *Config) int {
 	fixes := 0
 
-	if config.ExcludeUseDefault != nil {
-		config.ExcludeUseDefault = nil
+	if config.ExcludeUseDefault != TriStateUnspecified {
+		config.ExcludeUseDefault = TriStateUnspecified
 		fixes++
 	}
 
-	if config.ExcludeRulesUseDefault != nil {
-		config.ExcludeRulesUseDefault = nil
+	if config.ExcludeRulesUseDefault != TriStateUnspecified {
+		config.ExcludeRulesUseDefault = TriStateUnspecified
 		fixes++
 	}
 
-	if config.ExcludeDirUseDefault != nil {
-		config.ExcludeDirUseDefault = nil
+	if config.ExcludeDirUseDefault != TriStateUnspecified {
+		config.ExcludeDirUseDefault = TriStateUnspecified
 		fixes++
 	}
 
