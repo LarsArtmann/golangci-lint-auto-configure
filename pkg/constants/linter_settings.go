@@ -22,18 +22,25 @@ type SettingsConverter interface {
 // programming error (wrong struct type), not a runtime failure mode.
 func mustSettingsToMap(v any) map[string]any {
 	data, err := yaml.Marshal(v)
-	if err != nil {
-		panic(fmt.Sprintf("settingsToMap: failed to marshal %T: %v", v, err))
-	}
+	mustSettingsAction("marshal", v, err)
 
 	var m map[string]any
 
 	err = yaml.Unmarshal(data, &m)
-	if err != nil {
-		panic(fmt.Sprintf("settingsToMap: failed to unmarshal %T: %v", v, err))
-	}
+	mustSettingsAction("unmarshal", v, err)
 
 	return m
+}
+
+// mustSettingsAction panics with a uniform message when a YAML action fails.
+// The input is always a statically-typed settings struct, so a panic here
+// signals a programming error, not a runtime failure.
+func mustSettingsAction(action string, v any, err error) {
+	if err == nil {
+		return
+	}
+
+	panic(fmt.Sprintf("settingsToMap: failed to %s %T: %v", action, v, err))
 }
 
 // --- Compile-time interface compliance checks ---.

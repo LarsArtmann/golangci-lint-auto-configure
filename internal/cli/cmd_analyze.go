@@ -128,6 +128,11 @@ func resolveAnalyzeConfig(configLoader *config.Loader, _ string) (string, error)
 	return configFile, nil
 }
 
+// printBytesToStdout writes data followed by a newline to stdout.
+func printBytesToStdout(data []byte) {
+	fmt.Fprintln(os.Stdout, string(data))
+}
+
 func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) error {
 	switch format {
 	case formatJSON:
@@ -141,7 +146,7 @@ func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) e
 				"failed to marshal analysis to JSON (format=%s)", format)
 		}
 
-		fmt.Fprintln(os.Stdout, string(data))
+		printBytesToStdout(data)
 	case formatSARIF:
 		return outputSARIF(analysis)
 	case formatFinding:
@@ -161,7 +166,7 @@ func outputSARIF(analysis *types.ConfigAnalysis) error {
 		return apperrors.WrapClassified(err, "analyze.sarif", "failed to generate SARIF")
 	}
 
-	fmt.Fprintln(os.Stdout, string(sarif))
+	printBytesToStdout(sarif)
 
 	return nil
 }

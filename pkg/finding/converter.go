@@ -249,28 +249,34 @@ func collectAnalysisFindings(report *finding.Report, analysis *types.ConfigAnaly
 	var errs []error
 
 	recs, err := RecommendationsToFindings(analysis.LinterRecommendations, analysis.ConfigPath)
-	if err != nil {
-		errs = append(errs, errorfamily.WrapCorruption(err, "converter.recommendations",
-			"convert recommendations"))
-	}
-
-	report.AddFindings(recs)
+	errs = appendFindingBatch(report, errs, recs, err,
+		"converter.recommendations", "convert recommendations")
 
 	fmtRecs, err := FormatterRecommendationsToFindings(analysis.FormatterRecommendations, analysis.ConfigPath)
-	if err != nil {
-		errs = append(errs, errorfamily.WrapCorruption(err, "converter.formatter_recommendations",
-			"convert formatter recommendations"))
-	}
-
-	report.AddFindings(fmtRecs)
+	errs = appendFindingBatch(report, errs, fmtRecs, err,
+		"converter.formatter_recommendations", "convert formatter recommendations")
 
 	depRecs, err := DeprecatedLintersToFindings(analysis.DeprecatedLinters, analysis.ConfigPath)
+	errs = appendFindingBatch(report, errs, depRecs, err,
+		"converter.deprecated", "convert deprecated linters")
+
+	return errs
+}
+
+// appendFindingBatch adds findings to the report and collects any conversion
+// error, wrapped with the given code and message.
+func appendFindingBatch(
+	report *finding.Report,
+	errs []error,
+	findings []finding.Finding,
+	err error,
+	code, msg string,
+) []error {
 	if err != nil {
-		errs = append(errs, errorfamily.WrapCorruption(err, "converter.deprecated",
-			"convert deprecated linters"))
+		return append(errs, errorfamily.WrapCorruption(err, code, msg))
 	}
 
-	report.AddFindings(depRecs)
+	report.AddFindings(findings)
 
 	return errs
 }

@@ -275,7 +275,7 @@ func outputAuditJSON(entries []audit.Entry) error {
 		return fmt.Errorf("marshal audit entries: %w", err)
 	}
 
-	fmt.Fprintln(os.Stdout, string(data))
+	printBytesToStdout(data)
 
 	return nil
 }

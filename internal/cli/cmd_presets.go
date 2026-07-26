@@ -60,7 +60,7 @@ func outputPresetsJSON() error {
 		return fmt.Errorf("marshal presets JSON: %w", err)
 	}
 
-	fmt.Fprintln(os.Stdout, string(data))
+	printBytesToStdout(data)
 
 	return nil
 }
