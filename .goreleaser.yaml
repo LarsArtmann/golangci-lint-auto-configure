@@ -109,7 +109,7 @@ brews:
     install: |
       bin.install "golangci-lint-auto-configure"
     test: |
-      system "#{{bin}}/golangci-lint-auto-configure --version"
+      system "#{bin}/golangci-lint-auto-configure --version"
 
 nix:
   - name: golangci-lint-auto-configure
@@ -124,7 +124,7 @@ nix:
     path: pkgs/golangci-lint-auto-configure/default.nix
     install: |
       mkdir -p $out/bin
-      cp -vr ./{{binary}} $out/bin/golangci-lint-auto-configure
+      cp -vr ./golangci-lint-auto-configure $out/bin/golangci-lint-auto-configure
 
 nfpms:
   - id: default
