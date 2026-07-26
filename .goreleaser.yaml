@@ -32,10 +32,10 @@ builds:
       - osusergo
     ldflags:
       - -s -w
-      - -X main.version={{.Version}}
-      - -X main.commit={{.Commit}}
-      - -X main.date={{.Date}}
-      - -X main.builtBy=goreleaser
+      - -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.version={{.Version}}
+      - -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.commit={{.Commit}}
+      - -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.date={{.Date}}
+      - -X github.com/larsartmann/golangci-lint-auto-configure/pkg/version.treeState=clean
 
 archives:
   - id: default
