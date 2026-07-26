@@ -129,6 +129,7 @@ func filterFormatterRecommendationsByPriority(
 	}
 
 	var maxFormatterPriority types.FormatterPriority
+
 	switch {
 	case maxLintPriority <= types.LinterPriorityHigh:
 		maxFormatterPriority = types.FormatterPriorityHigh

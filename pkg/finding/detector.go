@@ -66,8 +66,8 @@ func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding,
 	}
 
 	findings := make([]finding.Finding, 0, initialFindingsCapacity)
-
 	filteredLinterRecs := filterLinterRecommendationsByPriority(analysis.LinterRecommendations, d.priority)
+	filteredFormatterRecs := filterFormatterRecommendationsByPriority(analysis.FormatterRecommendations, d.priority)
 
 	err = appendDetectorFindings(&findings, analysis.ConfigPath, "detector.convert_recommendations",
 		RecommendationsToFindings, filteredLinterRecs)
@@ -75,16 +75,13 @@ func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding,
 		return nil, err
 	}
 
-	filteredFormatterRecs := filterFormatterRecommendationsByPriority(analysis.FormatterRecommendations, d.priority)
-
 	err = appendDetectorFindings(&findings, analysis.ConfigPath, "detector.convert_formatters",
 		FormatterRecommendationsToFindings, filteredFormatterRecs)
 	if err != nil {
 		return nil, err
 	}
 
-	err = appendDetectorFindings(&findings, analysis.ConfigPath, "detector.convert_deprecated",
-		DeprecatedLintersToFindings, analysis.DeprecatedLinters)
+	err = appendDetectorFindings(&findings, analysis.ConfigPath, "detector.convert_deprecated", DeprecatedLintersToFindings, analysis.DeprecatedLinters)
 	if err != nil {
 		return nil, err
 	}
