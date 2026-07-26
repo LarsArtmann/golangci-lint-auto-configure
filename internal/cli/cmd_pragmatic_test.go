@@ -50,7 +50,7 @@ var _ = Describe("--pragmatic flag", func() {
 		return names
 	}
 
-	It("should exclude the 5 noise linters from the enable set", func() {
+	It("should exclude the 4 noise linters from the enable set", func() {
 		initGitRepo()
 
 		binaryPath := buildBinary()
@@ -88,5 +88,29 @@ var _ = Describe("--pragmatic flag", func() {
 			To(BeTrue(),
 				"without --pragmatic at least one noise linter should be enabled, but none found: enable=%v",
 				enableList)
+	})
+
+	It("should never auto-enable exhaustruct, with or without --pragmatic", func() {
+		initGitRepo()
+
+		binaryPath := buildBinary()
+
+		for _, args := range [][]string{
+			{"configure", "--config"},
+			{"configure", "--pragmatic", "--config"},
+		} {
+			configPath := writeConfig(testConfigContentMinimal)
+			fullArgs := append(append([]string{}, args...), configPath)
+
+			cmd := exec.Command(binaryPath, fullArgs...)
+			output, err := cmd.CombinedOutput()
+			Expect(err).NotTo(HaveOccurred(), string(output))
+
+			enableList := parseEnableList(configPath)
+			Expect(enableList).
+				NotTo(ContainElement(types.LinterName("exhaustruct")),
+					"exhaustruct must never be auto-enabled (args=%v), but it appeared in enable=%v",
+					fullArgs, enableList)
+		}
 	})
 })
