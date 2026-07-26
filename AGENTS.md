@@ -71,7 +71,7 @@ nix develop
 
 10. **Linter priority data is static constants.** Priorities live in `pkg/constants/linter_priorities.go` + reasons in `linter_reasons.go`. Not dynamically computed from golangci-lint. To add/change a linter, edit both files (and `presets.go`/`rules.go` if relevant). Three linter-management maps in `rules.go`: `DisabledLinters` (never enabled, forcibly moved to disable list), `NeverAutoEnableLinters` (never auto-enabled but respected if manually added — currently `exhaustruct`), and `PragmaticNoiseLinters` (dropped only with `--pragmatic`). Disabled linters must never have entries in `LinterPriorities` or `LinterReasons`; NeverAutoEnable linters MUST have entries (they can be manually enabled). Enforced by data integrity tests + `scripts/validate_linter_data.go`.
 
-11. **Versioning is self-initializing.** `pkg/version/` reads ldflags with `runtime/debug.ReadBuildInfo()` fallback. `cli.Version` self-inits — no manual setup. All build targets (Nix, CI) inject via ldflags.
+11. **Versioning is self-initializing.** `pkg/version/` reads ldflags with `runtime/debug.ReadBuildInfo()` fallback. `cli.Version` self-inits — no manual setup. All build targets (Nix, CI) inject via ldflags. **Critical:** the ldflags must target `github.com/larsartmann/golangci-lint-auto-configure/pkg/version.*`, NOT `main.*` — the version vars live in `pkg/version/version.go`, not in `main.go`. The Nix flake and Dockerfile already target the correct path. `.goreleaser.yaml` was fixed in the v0.6.0 post-release cleanup (it had been targeting `main.*` since the versioning overhaul, causing every GoReleaser binary to show the commit hash instead of the version number).
 
 12. **Struct tag case policy.** Enforced by **tagliatelle** in `.golangci.yml` (`json: pascal`, `yaml: kebab`, `toml: kebab`). Three type families:
 
@@ -125,3 +125,4 @@ nix develop
 | Feature inventory                                      | `FEATURES.md`                                   |
 | Open work                                              | `TODO_LIST.md`                                  |
 | Domain language                                        | `docs/DOMAIN_LANGUAGE.md`                       |
+| Release process (tagging, GoReleaser, verification)    | `docs/references/release-process.md`            |
