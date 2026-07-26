@@ -29,7 +29,6 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"gocognit":         types.LinterPriorityHigh,
 	"maintidx":         types.LinterPriorityHigh,
 	"exhaustive":       types.LinterPriorityHigh,
-	"exhaustruct":      types.LinterPriorityHigh,
 	"goconst":          types.LinterPriorityHigh,
 	"misspell":         types.LinterPriorityHigh,
 	"revive":           types.LinterPriorityHigh,

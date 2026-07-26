@@ -122,14 +122,24 @@ var RedundantLinters = map[types.LinterName]types.LinterToFormatter{
 	},
 }
 
+// NeverAutoEnableLinters maps linter names that the tool will never add to an
+// enable list, but will never strip from a config either. Unlike
+// DisabledLinters (which are forcibly moved to the disable list), these are
+// respected when a user has explicitly enabled them — the tool simply never
+// recommends them. They still receive safe default settings and test-file
+// exclusions (via DefaultExclusionRules) when manually enabled.
+var NeverAutoEnableLinters = map[types.LinterName]string{
+	"exhaustruct": "highest-friction linter across 160 sibling projects (6.5 nolint ratio); never auto-enabled, but respected with curated stdlib excludes when added manually",
+}
+
 // PragmaticNoiseLinters is the set of high-friction linters dropped from the
-// dynamic enable set when --pragmatic is used. These five have the highest
-// friction ratios (exhaustruct 6.5, gochecknoglobals 5.1, ireturn 1.3,
-// wrapcheck 1.8, funlen 0.83) and are the most commonly cited sources of
-// linting friction. They stay enabled by default; --pragmatic is an opt-in
-// escape hatch for projects that find them too noisy.
+// dynamic enable set when --pragmatic is used. These four have the highest
+// friction ratios (gochecknoglobals 5.1, wrapcheck 1.8, ireturn 1.3,
+// funlen 0.83) and are the most commonly cited sources of linting friction.
+// They stay enabled by default; --pragmatic is an opt-in escape hatch for
+// projects that find them too noisy. (exhaustruct, the former #1 at 6.5, is
+// now in NeverAutoEnableLinters — never auto-enabled at all.)
 var PragmaticNoiseLinters = map[types.LinterName]string{
-	"exhaustruct":      "forces exhaustive struct literals on every http.Server{}, Cmd{}, etc. (friction 6.5)",
 	"gochecknoglobals": "fights standard Go patterns like registries and sentinels (friction 5.1, no config knobs)",
 	"wrapcheck":        "demands every error be wrapped (friction 1.8)",
 	"ireturn":          "conflicts with common interface-returning APIs (friction 1.3)",

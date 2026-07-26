@@ -50,11 +50,25 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 		return true
 	}
 
+	if a.isNeverAutoEnable(linter) {
+		return true
+	}
+
 	if a.isPragmaticNoise(linter) || a.isLinterBelowMinVersion(linter) {
 		return true
 	}
 
 	if a.isLinterRedundant(linter, formatterSet) || a.isLinterProjectSpecific(linter) {
+		return true
+	}
+
+	return false
+}
+
+func (a *Analyzer) isNeverAutoEnable(linter types.LinterInfo) bool {
+	if reason, ok := constants.NeverAutoEnableLinters[linter.Name]; ok {
+		a.logger.Debugf("Skipping never-auto-enable linter: %s (%s)", linter.Name, reason)
+
 		return true
 	}
 

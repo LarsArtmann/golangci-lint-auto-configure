@@ -37,7 +37,7 @@ var PresetLinters = map[string][]types.LinterName{
 		"loggercheck", "errchkjson", "musttag", "sloglint", "nilerr", "noctx",
 		"wrapcheck", "errorlint", "prealloc", "unconvert",
 		"gocyclo", "funlen", "cyclop", "gocognit", "maintidx",
-		"exhaustive", "exhaustruct", "goconst", "misspell",
+		"exhaustive", "goconst", "misspell",
 		"revive", "nolintlint", "forcetypeassert", "gocritic", "unused",
 		"bodyclose", "contextcheck", "dupl", "durationcheck", "errname",
 		"gochecknoglobals", "gochecknoinits", "gosmopolitan", "interfacebloat",
