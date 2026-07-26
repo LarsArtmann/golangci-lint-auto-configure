@@ -1,5 +1,7 @@
 package config
 
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+
 // mergeFormattersConfig merges formatter configurations.
 func (cm *Merger) mergeFormattersConfig(primary, secondary *types.FormattersConfig) int {
 	changes := mergeEnableDisable(&primary.Enable, &primary.Disable, secondary.Enable, secondary.Disable)

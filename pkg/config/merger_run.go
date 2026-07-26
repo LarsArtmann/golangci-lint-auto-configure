@@ -1,7 +1,9 @@
 package config
 
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+
 // mergeRunConfig merges run configurations. Uses multiple conditionals for config fields.
-func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
+func (cm *Merger) mergeRunConfig(primary, secondary *types.RunConfig) int {
 	changes := 0
 
 	changes += mergeRunStringFields(primary, secondary)
@@ -11,7 +13,7 @@ func (cm *Merger) mergeRunConfig(primary, secondary *RunConfig) int {
 	return changes
 }
 
-func mergeRunStringFields(primary, secondary *RunConfig) int {
+func mergeRunStringFields(primary, secondary *types.RunConfig) int {
 	changes := 0
 
 	if primary.Timeout == "" && secondary.Timeout != "" {
@@ -42,7 +44,7 @@ func mergeRunStringFields(primary, secondary *RunConfig) int {
 	return changes
 }
 
-func mergeRunBoolFields(primary, secondary *RunConfig) int {
+func mergeRunBoolFields(primary, secondary *types.RunConfig) int {
 	changes := 0
 
 	if !primary.AllowParallelRunners && secondary.AllowParallelRunners {
@@ -63,7 +65,7 @@ func mergeRunBoolFields(primary, secondary *RunConfig) int {
 	return changes
 }
 
-func mergeRunNumericFields(primary, secondary *RunConfig) int {
+func mergeRunNumericFields(primary, secondary *types.RunConfig) int {
 	changes := 0
 
 	if primary.IssuesExitCode == 0 && secondary.IssuesExitCode != 0 {

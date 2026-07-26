@@ -371,8 +371,8 @@ func defaultFormatterExclusionPaths() []string {
 	return paths
 }
 
-func defaultExclusionRules() []types.types.ExclusionRuleConfig {
-	rules := make([]types.types.ExclusionRuleConfig, 0, len(constants.DefaultExclusionRules))
+func defaultExclusionRules() []types.ExclusionRuleConfig {
+	rules := make([]types.ExclusionRuleConfig, 0, len(constants.DefaultExclusionRules))
 
 	rules = append(rules, constants.DefaultExclusionRules...)
 

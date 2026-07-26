@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"os"
 
 	"charm.land/log/v2"

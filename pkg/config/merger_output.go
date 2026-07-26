@@ -1,5 +1,7 @@
 package config
 
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+
 import "maps"
 
 // mergeOutputConfig merges output configurations.

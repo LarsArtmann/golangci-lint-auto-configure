@@ -1,7 +1,9 @@
 package config
 
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+
 // mergeIssuesConfig merges issues configurations.
-func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
+func (cm *Merger) mergeIssuesConfig(primary, secondary *types.IssuesConfig) int {
 	changes := 0
 
 	changes += mergeIssuesNumericFields(primary, secondary)
@@ -12,7 +14,7 @@ func (cm *Merger) mergeIssuesConfig(primary, secondary *IssuesConfig) int {
 }
 
 // Zero is a valid value (disable), so we check if primary hasn't been explicitly set.
-func mergeIssuesNumericFields(primary, secondary *IssuesConfig) int {
+func mergeIssuesNumericFields(primary, secondary *types.IssuesConfig) int {
 	changes := 0
 
 	if primary.MaxIssuesPerLinter == 0 && secondary.MaxIssuesPerLinter != 0 {
@@ -28,7 +30,7 @@ func mergeIssuesNumericFields(primary, secondary *IssuesConfig) int {
 	return changes
 }
 
-func mergeIssuesStringFields(primary, secondary *IssuesConfig) int {
+func mergeIssuesStringFields(primary, secondary *types.IssuesConfig) int {
 	changes := 0
 
 	if primary.NewFromRev == "" && secondary.NewFromRev != "" {
@@ -49,7 +51,7 @@ func mergeIssuesStringFields(primary, secondary *IssuesConfig) int {
 	return changes
 }
 
-func mergeIssuesBoolFields(primary, secondary *IssuesConfig) int {
+func mergeIssuesBoolFields(primary, secondary *types.IssuesConfig) int {
 	changes := 0
 
 	if !primary.New && secondary.New {

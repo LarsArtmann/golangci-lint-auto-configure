@@ -3,9 +3,9 @@ package cmd
 import (
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/migration"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/spf13/cobra"
 )
 
