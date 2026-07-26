@@ -223,6 +223,37 @@ func TestEnforceDisableReasons_ToolLevelExempt(t *testing.T) {
 	}
 }
 
+func TestEnforceDisableReasons_NeverAutoEnableExempt(t *testing.T) {
+	f := newEnforceFixer()
+	// Sidecar is present but justifies nothing: anti-gaming enforcement would
+	// re-enable every unjustified disable. NeverAutoEnable linters must be exempt
+	// so the tool cannot be tricked into force-enabling them via a sidecar gap.
+	f.pol = &policy.Policy{}
+
+	cfg := &types.Config{Linters: types.LintersConfig{
+		Disable: []types.LinterName{"exhaustruct", "errcheck"},
+	}}
+
+	count := f.enforceDisableReasons(cfg)
+
+	// exhaustruct is tool-level managed (never-auto-enable) → exempt. Only errcheck re-enabled.
+	if count != 1 {
+		t.Fatalf("expected 1 re-enable (errcheck only), got %d", count)
+	}
+
+	if !sliceHas(cfg.Linters.Disable, "exhaustruct") {
+		t.Errorf("exhaustruct must stay disabled (tool-level managed); disable=%v", cfg.Linters.Disable)
+	}
+
+	if sliceHas(cfg.Linters.Enable, "exhaustruct") {
+		t.Errorf("exhaustruct must never be force-enabled by sidecar enforcement; enable=%v", cfg.Linters.Enable)
+	}
+
+	if f.recorder().hasReEnable("exhaustruct") {
+		t.Error("exhaustruct must never be recorded as re-enabled")
+	}
+}
+
 func TestEnforceDisableReasons_AllJustified(t *testing.T) {
 	f := newEnforceFixer()
 	f.pol = &policy.Policy{Disabled: map[types.LinterName]policy.DisableJustification{
