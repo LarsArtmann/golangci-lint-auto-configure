@@ -163,6 +163,16 @@ func linterNamesToStrings(names []types.LinterName) []string {
 	return result
 }
 
+func formatterNamesToStrings(names []types.FormatterName) []string {
+	result := make([]string, len(names))
+
+	for i, n := range names {
+		result[i] = string(n)
+	}
+
+	return result
+}
+
 func (d *Differ) makeAddedChange(pathPrefix, subKey, entityName, item string) Change {
 	return Change{
 		Type:        ChangeTypeAdded,
@@ -192,7 +202,11 @@ func (d *Differ) compareLinters(old, newCfg types.LintersConfig) []Change {
 }
 
 func (d *Differ) compareFormatters(old, newCfg types.FormattersConfig) []Change {
-	return d.compareEnableDisable(old.Enable, old.Disable, newCfg.Enable, newCfg.Disable, "formatters", "formatter")
+	return d.compareEnableDisable(
+		formatterNamesToStrings(old.Enable), formatterNamesToStrings(old.Disable),
+		formatterNamesToStrings(newCfg.Enable), formatterNamesToStrings(newCfg.Disable),
+		"formatters", "formatter",
+	)
 }
 
 func (d *Differ) compareEnableDisable(

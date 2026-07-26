@@ -67,7 +67,7 @@ func WithLinters(linters []LinterName) ConfigOption {
 }
 
 // WithFormatters sets the formatters.enable list.
-func WithFormatters(formatters []string) ConfigOption {
+func WithFormatters(formatters []FormatterName) ConfigOption {
 	return func(c *Config) {
 		c.Formatters.Enable = formatters
 	}

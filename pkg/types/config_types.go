@@ -82,8 +82,8 @@ type IssuesConfig struct {
 }
 
 type FormattersConfig struct {
-	Enable     []string                   `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
-	Disable    []string                   `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
+	Enable     []FormatterName           `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
+	Disable    []FormatterName           `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
 	Settings   map[string]any             `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
 	Exclusions FormattersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
 }
