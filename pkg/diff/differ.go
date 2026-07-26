@@ -57,8 +57,8 @@ func (d *Differ) Compare(old, newConfig *types.Config) []Change {
 		changes = append(changes, Change{
 			Type:        ChangeTypeModified,
 			Path:        "version",
-			OldValue:    old.Version,
-			NewValue:    newConfig.Version,
+			OldValue:    string(old.Version),
+			NewValue:    string(newConfig.Version),
 			Description: fmt.Sprintf("Version changed from %s to %s", old.Version, newConfig.Version),
 		})
 	}

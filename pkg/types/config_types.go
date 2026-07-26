@@ -3,7 +3,7 @@ package types
 // Config represents a golangci-lint configuration file.
 // All field tags use kebab-case to match the golangci-lint schema for round-trip safety.
 type Config struct {
-	Version    string           `json:"version"    toml:"version"              yaml:"version"`
+	Version    Version         `json:"version"    toml:"version"              yaml:"version"`
 	Run        RunConfig        `json:"run"        toml:"run"                  yaml:"run"`
 	Output     OutputConfig     `json:"output"     toml:"output"               yaml:"output"`
 	Linters    LintersConfig    `json:"linters"    toml:"linters"              yaml:"linters"`

@@ -9,7 +9,7 @@ import (
 
 const (
 	// ConfigVersionV2 is the golangci-lint v2 config schema version.
-	ConfigVersionV2 = "2"
+	ConfigVersionV2 Version = "2"
 
 	RuleDuplicateLinter       = "duplicate-linter"
 	RuleEnableDisableOverlap  = "enable-disable-overlap"
