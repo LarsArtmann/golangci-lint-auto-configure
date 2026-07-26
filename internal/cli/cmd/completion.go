@@ -53,16 +53,12 @@ func generateCompletion(cmd *cobra.Command, shell string) {
 
 	switch shell {
 	case "bash":
-		_ = cmd.Root().
-			GenBashCompletion(out)
+		_ = cmd.Root().GenBashCompletion(out)
 	case "zsh":
-		_ = cmd.Root().
-			GenZshCompletion(out)
+		_ = cmd.Root().GenZshCompletion(out)
 	case "fish":
-		_ = cmd.Root().
-			GenFishCompletion(out, true)
+		_ = cmd.Root().GenFishCompletion(out, true)
 	case "powershell":
-		_ = cmd.Root().
-			GenPowerShellCompletionWithDesc(out)
+		_ = cmd.Root().GenPowerShellCompletionWithDesc(out)
 	}
 }
