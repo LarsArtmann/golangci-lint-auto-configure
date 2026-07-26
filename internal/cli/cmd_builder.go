@@ -12,6 +12,7 @@ type CommandBuilder struct {
 	logger       *log.Logger
 	analyzer     *linter.Analyzer
 	configLoader *config.Loader
+	flags        *Flags
 }
 
 // NewCommandBuilder creates a new CommandBuilder with the common dependencies.
@@ -19,11 +20,13 @@ func NewCommandBuilder(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
+	flags *Flags,
 ) *CommandBuilder {
 	return &CommandBuilder{
 		logger:       logger,
 		analyzer:     analyzer,
 		configLoader: configLoader,
+		flags:        flags,
 	}
 }
 
@@ -67,4 +70,9 @@ func (b *CommandBuilder) Analyzer() *linter.Analyzer {
 // ConfigLoader returns the builder's config loader.
 func (b *CommandBuilder) ConfigLoader() *config.Loader {
 	return b.configLoader
+}
+
+// Flags returns the shared CLI flags.
+func (b *CommandBuilder) Flags() *Flags {
+	return b.flags
 }

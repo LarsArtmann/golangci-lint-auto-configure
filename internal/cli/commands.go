@@ -23,21 +23,7 @@ import (
 // Version is the CLI version string, derived from pkg/version.
 var Version = version.Get().Short()
 
-var (
-	configPath   string
-	dryRun       bool
-	verbose      bool
-	quiet        bool
-	outputReport string
-	priority     string
-	reportFormat string
-	noAutoMerge  bool
-	showDiff     bool
-	jsonErrors   bool
-	noColor      bool
-	noAudit      bool
-	pragmatic    bool
-)
+
 
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
 func resolveConfigPath(
@@ -46,13 +32,14 @@ func resolveConfigPath(
 	logger *log.Logger,
 	specifiedPath string,
 	isDryRun bool,
+	noAutoMerge bool,
 ) (string, error) {
 	configFile := specifiedPath
 	if configFile == "" {
 		configFile = configLoader.FindOrGetDefaultConfigPath(".")
 	}
 
-	return resolveWithAutoMerge(configLoader, logger, configFile, isDryRun)
+	return resolveWithAutoMerge(configLoader, logger, configFile, isDryRun, noAutoMerge)
 }
 
 // resolveConfig is a helper that resolves config path with a custom error prefix.
@@ -60,9 +47,10 @@ func resolveConfig(
 	ctx context.Context,
 	configLoader *config.Loader,
 	logger *log.Logger,
+	flags *Flags,
 	errorPrefix string,
 ) (string, error) {
-	configFile, err := resolveConfigPath(ctx, configLoader, logger, configPath, dryRun)
+	configFile, err := resolveConfigPath(ctx, configLoader, logger, flags.ConfigPath, flags.DryRun, flags.NoAutoMerge)
 	if err != nil {
 		return "", apperrors.WrapClassifiedf(err, "cli.resolve_config_path",
 			"%s", errorPrefix)
@@ -76,6 +64,7 @@ func resolveWithAutoMerge(
 	logger *log.Logger,
 	configFile string,
 	isDryRun bool,
+	noAutoMerge bool,
 ) (string, error) {
 	allConfigs := configLoader.FindAllConfigFiles(".")
 
@@ -166,7 +155,7 @@ func newLogger() *log.Logger {
 }
 
 // NewRootCommand creates the root CLI command.
-func NewRootCommand() *cobra.Command {
+func NewRootCommand(flags *Flags) *cobra.Command {
 	logger := newLogger()
 	slog.SetDefault(slog.New(logger))
 
@@ -182,16 +171,12 @@ actionable recommendations to improve your Go code quality.`,
 	analyzer := linter.NewAnalyzer(logger)
 	configLoader := config.NewLoader(logger)
 
-	migrateFlags := clicmd.MigrateFlags{
-		ConfigPath: configPath,
-		DryRun:     dryRun,
-		Verbose:    verbose,
-	}
+	builder := NewCommandBuilder(logger, analyzer, configLoader, flags)
 
-	rootCmd.PersistentPreRun = makeLogLevelConfigurer(logger)
+	rootCmd.PersistentPreRun = makeLogLevelConfigurer(logger, flags)
 
-	addSubCommands(rootCmd, logger, analyzer, configLoader, migrateFlags)
-	registerGlobalFlags(rootCmd)
+	addSubCommands(rootCmd, builder, logger, configLoader)
+	registerGlobalFlags(rootCmd, flags)
 
 	rootCmd.SetVersionTemplate(version.Get().Full() + "\n")
 
@@ -200,16 +185,16 @@ actionable recommendations to improve your Go code quality.`,
 
 // makeLogLevelConfigurer returns a PersistentPreRun that adjusts the logger level
 // based on --quiet and --verbose flags.
-func makeLogLevelConfigurer(logger *log.Logger) func(*cobra.Command, []string) {
+func makeLogLevelConfigurer(logger *log.Logger, flags *Flags) func(*cobra.Command, []string) {
 	return func(_ *cobra.Command, _ []string) {
-		if noColor {
+		if flags.NoColor {
 			_ = os.Setenv("NO_COLOR", "1")
 		}
 
 		switch {
-		case quiet:
+		case flags.Quiet:
 			logger.SetLevel(log.ErrorLevel)
-		case verbose:
+		case flags.Verbose:
 			logger.SetLevel(log.DebugLevel)
 		}
 	}
@@ -217,17 +202,14 @@ func makeLogLevelConfigurer(logger *log.Logger) func(*cobra.Command, []string) {
 
 func addSubCommands(
 	rootCmd *cobra.Command,
+	builder *CommandBuilder,
 	logger *log.Logger,
-	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
-	migrateFlags clicmd.MigrateFlags,
 ) {
-	builder := NewCommandBuilder(logger, analyzer, configLoader)
-
 	rootCmd.AddCommand(
 		newConfigureCommand(builder),
 		newAnalyzeCommand(builder),
-		clicmd.NewMigrateCommand(logger, configLoader, migrateFlags),
+		clicmd.NewMigrateCommand(logger, configLoader, clicmd.MigrateFlags{}),
 		newValidateCommand(builder),
 		newReportCommand(builder),
 		newPresetsCommand(builder),
@@ -237,34 +219,34 @@ func addSubCommands(
 	)
 }
 
-func registerGlobalFlags(rootCmd *cobra.Command) {
+func registerGlobalFlags(rootCmd *cobra.Command, flags *Flags) {
 	rootCmd.PersistentFlags().
-		StringVarP(&configPath, "config", "c", "", "Path to golangci-lint config file")
+		StringVarP(&flags.ConfigPath, "config", "c", "", "Path to golangci-lint config file")
 	rootCmd.PersistentFlags().
-		BoolVarP(&dryRun, "dry-run", "d", false, "Show what would be done without making changes")
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
+		BoolVarP(&flags.DryRun, "dry-run", "d", false, "Show what would be done without making changes")
+	rootCmd.PersistentFlags().BoolVarP(&flags.Verbose, "verbose", "v", false, "Enable verbose output")
 	rootCmd.PersistentFlags().
-		StringVar(&outputReport, "output", "report.html", "Output path for HTML report")
+		StringVar(&flags.OutputReport, "output", "report.html", "Output path for HTML report")
 	rootCmd.PersistentFlags().
-		StringVar(&priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
+		StringVar(&flags.Priority, "priority", "high", "Minimum priority level to enable (critical, high, medium, optional)")
 	rootCmd.PersistentFlags().
-		StringVar(&reportFormat, "format", "html", "Output format (html, json, sarif, finding)")
+		StringVar(&flags.ReportFormat, "format", "html", "Output format (html, json, sarif, finding)")
 	rootCmd.PersistentFlags().
-		BoolVar(&noAutoMerge, "no-auto-merge", false, "Disable automatic merging of multiple config files")
+		BoolVar(&flags.NoAutoMerge, "no-auto-merge", false, "Disable automatic merging of multiple config files")
 	rootCmd.PersistentFlags().
-		BoolVar(&quiet, "quiet", false, "Suppress all output except errors (useful for CI)")
+		BoolVar(&flags.Quiet, "quiet", false, "Suppress all output except errors (useful for CI)")
 	rootCmd.PersistentFlags().
-		BoolVar(&showDiff, "diff", false, "Show diff of config changes before applying")
+		BoolVar(&flags.ShowDiff, "diff", false, "Show diff of config changes before applying")
 	rootCmd.PersistentFlags().
-		BoolVar(&jsonErrors, "json-errors", false, "Output errors as JSON to stderr for programmatic consumption")
+		BoolVar(&flags.JSONErrors, "json-errors", false, "Output errors as JSON to stderr for programmatic consumption")
 	rootCmd.PersistentFlags().
-		BoolVar(&noColor, "no-color", false, "Disable colored output (also honored via NO_COLOR env var)")
+		BoolVar(&flags.NoColor, "no-color", false, "Disable colored output (also honored via NO_COLOR env var)")
 }
 
 // Execute runs the CLI using fang for enhanced CLI features.
-func Execute(ctx context.Context) error {
+func Execute(ctx context.Context, flags *Flags) error {
 	//nolint:contextcheck // Context is passed through fang.Execute; linter doesn't trace third-party calls
-	rootCmd := NewRootCommand()
+	rootCmd := NewRootCommand(flags)
 
 	err := fang.Execute(ctx, rootCmd, fang.WithVersion(Version))
 	if err != nil {
@@ -276,8 +258,9 @@ func Execute(ctx context.Context) error {
 
 // Main is the entry point.
 func Main() {
-	if err := Execute(context.Background()); err != nil {
-		os.Exit(HandleError(err))
+	flags := &Flags{}
+	if err := Execute(context.Background(), flags); err != nil {
+		os.Exit(HandleError(err, flags))
 	}
 }
 
@@ -285,7 +268,7 @@ func Main() {
 // (JSON via --json-errors, or a user-friendly message with structured slog
 // fallback), and returns the BSD sysexits exit code. Called at the CLI
 // boundary for all unhandled errors.
-func HandleError(err error) int {
+func HandleError(err error, flags *Flags) int {
 	// Check for explicit CommandResult with a user-provided exit code/message
 	if result := extractCommandResult(err); result != nil {
 		return handleCommandResult(result)
@@ -294,7 +277,7 @@ func HandleError(err error) int {
 	family := errorfamily.Classify(err)
 	exitCode := errorfamily.ExitCode(err)
 
-	if jsonErrors {
+	if flags.JSONErrors {
 		outputJSONError(err, family, exitCode)
 	} else if rendered := renderUserError(err); rendered != "" {
 		fmt.Fprintln(os.Stderr, rendered)
