@@ -14,6 +14,20 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/ui"
 )
 
+func newConfiguredFixer(
+	ctx context.Context,
+	logger *log.Logger,
+	analyzer *linter.Analyzer,
+	configLoader *config.Loader,
+	configFile string,
+) *linter.Fixer {
+	fixer := linter.NewFixer(logger, analyzer, configLoader)
+	fixer.SetLedger(newRunLedger(ctx, logger, configFile))
+	fixer.SetGoVersionProvider(config.GetLocalGoVersion)
+
+	return fixer
+}
+
 func runFixerMode(
 	ctx context.Context,
 	logger *log.Logger,
