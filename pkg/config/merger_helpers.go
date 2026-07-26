@@ -28,9 +28,9 @@ func mergeSettingsMaps(primary, secondary map[string]any) int {
 			continue
 		}
 
-		primMap, primOK := primaryValue.(map[string]any)
+		primMap, primOK := types.AsSettingsMap(primaryValue)
 
-		secMap, secOK := secondaryValue.(map[string]any)
+		secMap, secOK := types.AsSettingsMap(secondaryValue)
 		if primOK && secOK {
 			changes += mergeSettingsMaps(primMap, secMap)
 

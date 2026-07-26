@@ -37,7 +37,7 @@ func validateSingleLinterSettings(linterName string, rawSettings any) []string {
 		}
 	}
 
-	settingsMap, ok := rawSettings.(map[string]any)
+	settingsMap, ok := types.AsSettingsMap(rawSettings)
 	if !ok {
 		return nil
 	}

@@ -347,9 +347,9 @@ func isEmptySettingsValue(v any) bool {
 		return true
 	}
 
-	m, ok := v.(map[string]any)
+	m, ok := types.AsSettingsMap(v)
 
-	return ok && len(m) == 0
+	return ok && m.IsEmpty()
 }
 
 // injectDefaultFormatterSettings injects safe default settings for formatters that require

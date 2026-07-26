@@ -12,16 +12,7 @@ func cloneSlice[T any](src []T) []T {
 }
 
 func cloneAnyMap(m map[string]any) map[string]any {
-	if m == nil {
-		return nil
-	}
-
-	cp := make(map[string]any, len(m))
-	for k, v := range m {
-		cp[k] = deepCloneAny(v)
-	}
-
-	return cp
+	return SettingsMap(m).Clone()
 }
 
 func deepCloneAny(v any) any {
