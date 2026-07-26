@@ -69,9 +69,9 @@ func TestIsToolLevelManaged(t *testing.T) {
 		linter types.LinterName
 		want   bool
 	}{
-		{"funcorder is tool-level disabled", "funcorder", true},
-		{"noinlineerr is tool-level disabled", "noinlineerr", true},
-		{"depguard is tool-level disabled", "depguard", true},
+		{"funcorder is tool-level managed (forcibly disabled)", "funcorder", true},
+		{"noinlineerr is tool-level managed (forcibly disabled)", "noinlineerr", true},
+		{"depguard is tool-level managed (forcibly disabled)", "depguard", true},
 		{"exhaustruct is tool-level managed (never-auto-enable)", "exhaustruct", true},
 		{"errcheck is not tool-level managed", "errcheck", false},
 		{"gofmt is not tool-level managed", "gofmt", false},
@@ -209,7 +209,7 @@ func TestEnforceDisableReasons_ToolLevelExempt(t *testing.T) {
 
 	count := f.enforceDisableReasons(cfg)
 
-	// funcorder is tool-level disabled → exempt. Only errcheck re-enabled.
+	// funcorder is tool-level managed (forcibly disabled) → exempt. Only errcheck re-enabled.
 	if count != 1 {
 		t.Fatalf("expected 1 re-enable (errcheck only), got %d", count)
 	}
@@ -279,7 +279,7 @@ func TestTryReEnableLinter(t *testing.T) {
 		}
 	})
 
-	t.Run("keeps tool-level disabled linter", func(t *testing.T) {
+	t.Run("keeps tool-level managed linter", func(t *testing.T) {
 		f := newEnforceFixer()
 		f.pol = &policy.Policy{}
 
@@ -287,7 +287,7 @@ func TestTryReEnableLinter(t *testing.T) {
 		disable := types.NewSet[types.LinterName]("funcorder")
 
 		if f.tryReEnableLinter("funcorder", enable, disable) {
-			t.Fatal("expected false for tool-level disabled linter")
+			t.Fatal("expected false for tool-level managed linter")
 		}
 
 		if enable.Contains("funcorder") {
