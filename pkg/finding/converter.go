@@ -109,6 +109,46 @@ func RecommendationsToFindings(
 	return result, nil
 }
 
+// filterFormatterRecommendationsByPriority returns only formatter recommendations
+// whose Priority is at or below the threshold derived from maxLintPriority.
+// This mirrors filterLinterRecommendationsByPriority and prevents detect→repair
+// loops where the detector reports formatter findings that the repairer won't fix.
+//
+// Mapping: LinterPriority has 4 levels (Critical..Optional), FormatterPriority
+// has 3 (High..Low). The mapping is:
+//
+//	Critical/High (0-1) → only FormatterPriorityHigh
+//	Medium (2)          → High + Medium
+//	Optional (3)        → all
+func filterFormatterRecommendationsByPriority(
+	recommendations []types.FormatterRecommendation,
+	maxLintPriority types.LinterPriority,
+) []types.FormatterRecommendation {
+	if maxLintPriority >= types.LinterPriorityOptional {
+		return recommendations
+	}
+
+	var maxFormatterPriority types.FormatterPriority
+	switch {
+	case maxLintPriority <= types.LinterPriorityHigh:
+		maxFormatterPriority = types.FormatterPriorityHigh
+	case maxLintPriority <= types.LinterPriorityMedium:
+		maxFormatterPriority = types.FormatterPriorityMedium
+	default:
+		maxFormatterPriority = types.FormatterPriorityLow
+	}
+
+	filtered := make([]types.FormatterRecommendation, 0, len(recommendations))
+
+	for _, rec := range recommendations {
+		if rec.Priority <= maxFormatterPriority {
+			filtered = append(filtered, rec)
+		}
+	}
+
+	return filtered
+}
+
 // FormatterRecommendationsToFindings converts FormatterRecommendations to Findings.
 func FormatterRecommendationsToFindings(
 	recommendations []types.FormatterRecommendation,
