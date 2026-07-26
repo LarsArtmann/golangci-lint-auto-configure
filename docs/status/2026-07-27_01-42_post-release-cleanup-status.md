@@ -43,7 +43,7 @@
    - `129e0c3` — release workflow + scripts + Dockerfile.goreleaser
    - `fe3b798` — release process doc + script bug fixes
    - `6e0b693` — AGENTS.md update
-   
+
    The auto-commit daemon committed these, but none have been pushed. Anyone cloning the repo right now gets stale state.
 
 2. **Post-release verification script catches v0.6.0's bug but can't fix it.** Running `./scripts/post-release-verify.sh 0.6.0` correctly reports 1 failure: "Binary --version does not show version 0.6.0" (shows `f685f11` instead). The fix exists in the repo but the published v0.6.0 binary is permanently broken — users who downloaded it see a commit hash, not a version number.
@@ -119,12 +119,14 @@
 ## f) Up to 50 Things to Get Done Next
 
 ### Critical (user-facing impact)
+
 1. **Push the 5 unpushed commits to origin/master** — changes are done but invisible
 2. **Cut v0.6.1 patch release** with the ldflags fix — give users a binary that shows the correct version
 3. **Run the pre-release checklist script against the current repo** — validate it actually works
 4. **Announce the v0.6.0 ldflags bug** to existing downloaders (release note edit, GitHub Discussion)
 
 ### High (release infrastructure)
+
 5. **Install `syft` in Nix devShell** — enables local SBOM generation
 6. **Install `cosign` in Nix devShell** — enables local artifact signing
 7. **Set up `homebrew-tap` repo** with `HOMEBREW_TAP_GITHUB_TOKEN` secret — enables Homebrew publishing
@@ -138,6 +140,7 @@
 15. **Determine GitHub Actions budget status** — temporary or permanent?
 
 ### Medium (release quality)
+
 16. **Add release dry-run CI job** — `goreleaser release --snapshot --skip=publish` on PRs touching release config
 17. **Add version-consistency CI check** — CHANGELOG version == tag version == FEATURES.md version
 18. **Pin GoReleaser version in CI** — replace `~> v2` with exact version
@@ -152,6 +155,7 @@
 27. **Add `CONTRIBUTING.md`** section linking to release-process.md
 
 ### Lower (polish & future-proofing)
+
 28. **Add `--check` mode** to the tool itself that validates its own `.golangci.yml` in CI
 29. **Fix auto-commit daemon commit messages** — they're verbose boilerplate, not useful signal
 30. **Audit the 207 v0.5.0→v0.6.0 commit messages** — many are useless (`implementations`, `tests`)

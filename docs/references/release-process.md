@@ -20,6 +20,7 @@ This document describes the step-by-step process for cutting a release of golang
 ```
 
 This script verifies:
+
 - Working tree is clean
 - Build, tests (-race), and lint pass
 - Coverage meets the 60% threshold
@@ -100,6 +101,7 @@ The release notes should be a curated summary, not a raw commit log. Use the CHA
 ```
 
 This script verifies:
+
 - Tag exists locally and on remote
 - GitHub release exists with assets
 - Release notes are curated (not a commit dump)
