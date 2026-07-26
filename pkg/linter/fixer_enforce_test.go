@@ -258,7 +258,7 @@ func TestTryReEnableLinter(t *testing.T) {
 		f := newEnforceFixer()
 		f.pol = &policy.Policy{} // no justifications
 
-		enable := types.NewSet[string]()
+		enable := types.NewSet[types.LinterName]()
 		disable := types.NewSet("errcheck")
 
 		if !f.tryReEnableLinter("errcheck", enable, disable) {
@@ -282,7 +282,7 @@ func TestTryReEnableLinter(t *testing.T) {
 		f := newEnforceFixer()
 		f.pol = &policy.Policy{}
 
-		enable := types.NewSet[string]()
+		enable := types.NewSet[types.LinterName]()
 		disable := types.NewSet("funcorder")
 
 		if f.tryReEnableLinter("funcorder", enable, disable) {
@@ -308,7 +308,7 @@ func TestTryReEnableLinter(t *testing.T) {
 			"gofmt": {Reason: "prefer golines", Category: policy.CategoryConvention},
 		}}
 
-		enable := types.NewSet[string]()
+		enable := types.NewSet[types.LinterName]()
 		disable := types.NewSet("gofmt")
 
 		if f.tryReEnableLinter("gofmt", enable, disable) {
@@ -325,6 +325,6 @@ func TestTryReEnableLinter(t *testing.T) {
 	})
 }
 
-func sliceHas(slice []types.LinterName, want string) bool {
+func sliceHas(slice []types.LinterName, want types.LinterName) bool {
 	return slices.Contains(slice, want)
 }

@@ -100,7 +100,7 @@ output:
 			cfg := &config.Config{
 				Version: "1",
 				Linters: config.LintersConfig{
-					Enable: []string{"gosec", "errcheck"},
+					Enable: []types.LinterName{"gosec", "errcheck"},
 				},
 			}
 
@@ -122,8 +122,8 @@ output:
 					Go:      "1.21",
 				},
 				Linters: config.LintersConfig{
-					Enable:  []string{"gosec", "errcheck"},
-					Disable: []string{"unused"},
+					Enable:  []types.LinterName{"gosec", "errcheck"},
+					Disable: []types.LinterName{"unused"},
 				},
 			}
 
@@ -183,7 +183,7 @@ timeout = "5m"
 			cfg := &config.Config{
 				Version: "2",
 				Linters: config.LintersConfig{
-					Enable: []string{"gosec"},
+					Enable: []types.LinterName{"gosec"},
 				},
 			}
 
@@ -442,7 +442,7 @@ output:
 		It("should return enabled linters", func() {
 			cfg := &config.Config{
 				Linters: config.LintersConfig{
-					Enable: []string{"gosec", "errcheck", "staticcheck"},
+					Enable: []types.LinterName{"gosec", "errcheck", "staticcheck"},
 				},
 			}
 
@@ -457,7 +457,7 @@ output:
 		It("should return disabled linters", func() {
 			cfg := &config.Config{
 				Linters: config.LintersConfig{
-					Disable: []string{"unused", "gocyclo"},
+					Disable: []types.LinterName{"unused", "gocyclo"},
 				},
 			}
 

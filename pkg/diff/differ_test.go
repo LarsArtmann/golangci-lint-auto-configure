@@ -10,7 +10,7 @@ import (
 
 var baseV2 = &types.Config{
 	Version: "2",
-	Linters: types.LintersConfig{Enable: []string{"errcheck"}},
+	Linters: types.LintersConfig{Enable: []types.LinterName{"errcheck"}},
 }
 
 func TestDiffer_Compare(t *testing.T) {
