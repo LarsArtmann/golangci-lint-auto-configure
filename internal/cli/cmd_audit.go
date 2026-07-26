@@ -146,7 +146,7 @@ func runAuditCommand(
 	return displayAuditEntries(logger, path, jsonOutput, sinceFilter, linterFilter)
 }
 
-func displayAuditEntries( //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
+func displayAuditEntries(
 	logger *log.Logger,
 	path string,
 	jsonOutput bool,
@@ -197,7 +197,7 @@ func outputEntries(
 func clearAuditLedger(
 	logger *log.Logger,
 	path string,
-) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
+) error {
 	err := audit.Clear(path)
 	if err != nil {
 		return fmt.Errorf("clear audit ledger: %w", err)
@@ -279,7 +279,7 @@ func parseSinceDuration(since string) (time.Duration, error) {
 
 func outputAuditJSON(
 	entries []audit.Entry,
-) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
+) error {
 	data, err := json.Marshal(entries, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 	if err != nil {
 		return fmt.Errorf("marshal audit entries: %w", err)

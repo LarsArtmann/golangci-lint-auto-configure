@@ -109,7 +109,7 @@ func (cm *Merger) MergeConfigs(configPaths []string) (*types.Config, *MergeResul
 	// Merge secondary configs into primary
 	for _, secondaryPath := range secondaryPaths {
 		secondaryConfig, err := loader.LoadConfig(secondaryPath)
-		if err != nil { //nolint:erraudit // best-effort merge: skip a secondary config that fails to load, merge the rest
+		if err != nil {
 			cm.logger.Warnf("Failed to load secondary config %s: %v", secondaryPath, err)
 
 			continue
@@ -176,7 +176,7 @@ func (cm *Merger) SaveMergedConfig(config *types.Config, result *MergeResult, re
 	allConfigs := append([]string{result.PrimaryConfig}, result.MergedConfigs...)
 	for _, path := range allConfigs {
 		backupPath, err := createBackup(cm.fs, path)
-		if err != nil { //nolint:erraudit // best-effort: skip a backup that fails, continue merging
+		if err != nil {
 			cm.logAndContinue(path, err, "create backup for")
 
 			continue
@@ -200,7 +200,7 @@ func (cm *Merger) SaveMergedConfig(config *types.Config, result *MergeResult, re
 	if removeSecondary {
 		for _, path := range result.MergedConfigs {
 			err := cm.fs.Remove(path)
-			if err != nil { //nolint:erraudit // best-effort: skip a secondary config that cannot be removed, continue
+			if err != nil {
 				cm.logAndContinue(path, err, "remove")
 
 				continue

@@ -193,7 +193,7 @@ actionable recommendations to improve your Go code quality.`,
 func makeLogLevelConfigurer(logger *log.Logger, flags *Flags) func(*cobra.Command, []string) {
 	return func(_ *cobra.Command, _ []string) {
 		if flags.NoColor {
-			_ = os.Setenv("NO_COLOR", "1") //nolint:erraudit // in-process env for a constant key/value; Setenv only fails on a malformed key (programming error)
+			_ = os.Setenv("NO_COLOR", "1")
 		}
 
 		switch {

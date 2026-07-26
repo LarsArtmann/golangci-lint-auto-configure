@@ -39,7 +39,7 @@ type presetEntry struct {
 	Formatters  []string `json:"Formatters"`
 }
 
-func outputPresetsJSON() error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
+func outputPresetsJSON() error {
 	presetNames := make([]string, 0, len(constants.PresetDescriptions))
 
 	for name := range constants.PresetDescriptions {

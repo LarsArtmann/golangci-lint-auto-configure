@@ -90,7 +90,7 @@ func cloneConfig(configLoader *config.Loader, configFile string, logger *log.Log
 	return cfg.Clone()
 }
 
-func backupConfigFile(logger *log.Logger, configFile string) error { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
+func backupConfigFile(logger *log.Logger, configFile string) error {
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		return nil
 	}

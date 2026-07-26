@@ -269,7 +269,7 @@ func ErrorsToFindings(errors []error, configPath string) ([]finding.Finding, err
 }
 
 // AnalysisToReport converts a full ConfigAnalysis to a finding.Report.
-func AnalysisToReport(analysis *types.ConfigAnalysis, version string) (*finding.Report, error) { //nolint:erraudit // advisory: errors classified at command boundary via go-error-family, not per-function types
+func AnalysisToReport(analysis *types.ConfigAnalysis, version string) (*finding.Report, error) {
 	report := finding.NewReport(finding.ToolInfo{
 		Name:    constants.ToolName,
 		Version: version,

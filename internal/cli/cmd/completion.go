@@ -55,18 +55,14 @@ func generateCompletion(cmd *cobra.Command, shell string) {
 	case "bash":
 		_ = cmd.Root().
 			GenBashCompletion(out)
-	//nolint:erraudit // completion-script generation errors are non-actionable in the completion subcommand
 	case "zsh":
 		_ = cmd.Root().
 			GenZshCompletion(out)
-	//nolint:erraudit // completion-script generation errors are non-actionable in the completion subcommand
 	case "fish":
 		_ = cmd.Root().
 			GenFishCompletion(out, true)
-	//nolint:erraudit // completion-script generation errors are non-actionable in the completion subcommand
 	case "powershell":
 		_ = cmd.Root().
 			GenPowerShellCompletionWithDesc(out)
-		//nolint:erraudit // completion-script generation errors are non-actionable in the completion subcommand
 	}
 }
