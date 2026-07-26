@@ -18,23 +18,23 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 
 ### Phase 1 — Safe Type-Safety Wins (1% → 51%) ✅
 
-| Task | Description | Status |
-|------|-------------|--------|
-| MT1  | `NewConfig()` constructor with functional options (`pkg/types/config_constructor.go`) | ✅ Done, 85 specs pass |
-| MT2  | Brand `Version` type (`type Version string`) with `Valid()`/`Compare()` using semver | ✅ Done |
-| MT3  | `LintersConfig.Enable`/`Disable` changed from `[]string` to `[]LinterName` | ✅ Done, ~30 files fixed |
-| MT4  | `FormattersConfig.Enable`/`Disable` changed from `[]string` to `[]FormatterName` | ✅ Done, ~15 files fixed |
-| GATE 1 | `go build ./...` + `go test -race ./pkg/... ./internal/...` — all 18 packages green | ✅ Passed |
+| Task   | Description                                                                           | Status                   |
+| ------ | ------------------------------------------------------------------------------------- | ------------------------ |
+| MT1    | `NewConfig()` constructor with functional options (`pkg/types/config_constructor.go`) | ✅ Done, 85 specs pass   |
+| MT2    | Brand `Version` type (`type Version string`) with `Valid()`/`Compare()` using semver  | ✅ Done                  |
+| MT3    | `LintersConfig.Enable`/`Disable` changed from `[]string` to `[]LinterName`            | ✅ Done, ~30 files fixed |
+| MT4    | `FormattersConfig.Enable`/`Disable` changed from `[]string` to `[]FormatterName`      | ✅ Done, ~15 files fixed |
+| GATE 1 | `go build ./...` + `go test -race ./pkg/... ./internal/...` — all 18 packages green   | ✅ Passed                |
 
 ### Phase 2 — Cleanup & Completion (4% → 64%) ✅
 
-| Task | Description | Status |
-|------|-------------|--------|
-| MT5  | Branded types propagated: `policy.Policy.Disabled` map key → `LinterName`, `report.JSONReport` linter slices → `[]LinterName` | ✅ Done |
-| MT6  | `settingsToMap` panic renamed to `mustSettingsToMap` with descriptive panic messages (intentional: static structs cannot fail to marshal) | ✅ Done |
-| MT7  | `TriState` enum created in `pkg/migration/tristate.go`; 7 `*bool` fields in migration types replaced | ✅ Done |
-| MT8  | Dead code removed (`EnableGolinesFormatter`), stale `G104` removed from `.golangci.yml`, `golines` added to `format` preset (aligns with `CoreFormatters`) | ✅ Done |
-| GATE 2 | All 18 packages green with race detector | ✅ Passed |
+| Task   | Description                                                                                                                                                | Status    |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| MT5    | Branded types propagated: `policy.Policy.Disabled` map key → `LinterName`, `report.JSONReport` linter slices → `[]LinterName`                              | ✅ Done   |
+| MT6    | `settingsToMap` panic renamed to `mustSettingsToMap` with descriptive panic messages (intentional: static structs cannot fail to marshal)                  | ✅ Done   |
+| MT7    | `TriState` enum created in `pkg/migration/tristate.go`; 7 `*bool` fields in migration types replaced                                                       | ✅ Done   |
+| MT8    | Dead code removed (`EnableGolinesFormatter`), stale `G104` removed from `.golangci.yml`, `golines` added to `format` preset (aligns with `CoreFormatters`) | ✅ Done   |
+| GATE 2 | All 18 packages green with race detector                                                                                                                   | ✅ Passed |
 
 ---
 
@@ -42,12 +42,12 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 
 ### Phase 3 — Architectural Decoupling (20% → 80%) 🔧
 
-| Task | Description | Status |
-|------|-------------|--------|
-| MT9  | Decouple `pkg/finding` from `pkg/linter` — `ConfigAnalysisDetector` now takes `ConfigAnalyzer` interface (defined in `pkg/finding`) instead of `*linter.Analyzer` | ✅ Done |
-| MT10 | Remove type-alias re-exports — `type Config = types.Config` block deleted from `pkg/config/loader.go`; all ~10 external callers updated to `types.Config` | ✅ Done |
+| Task | Description                                                                                                                                                                                                         | Status                            |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| MT9  | Decouple `pkg/finding` from `pkg/linter` — `ConfigAnalysisDetector` now takes `ConfigAnalyzer` interface (defined in `pkg/finding`) instead of `*linter.Analyzer`                                                   | ✅ Done                           |
+| MT10 | Remove type-alias re-exports — `type Config = types.Config` block deleted from `pkg/config/loader.go`; all ~10 external callers updated to `types.Config`                                                           | ✅ Done                           |
 | MT11 | Invert `pkg/linter` → `pkg/config` dependency — `GoVersionProvider` func type injected, constants moved to `pkg/constants`, `config.DefaultMaxIssuesPerLinter`/`DefaultMaxSameIssues` duplicated to `pkg/constants` | ⚠️ **IN PROGRESS — BUILD BROKEN** |
-| MT12 | Dissolve `pkg/client` god-package | ❌ Not started |
+| MT12 | Dissolve `pkg/client` god-package                                                                                                                                                                                   | ❌ Not started                    |
 
 **The break:** `pkg/linter/fixer_config.go:218` has a second call to `newConfigUpdater(f.logger)` that was not updated to `newConfigUpdater(f.logger, f.goVersionProvider)`. The auto-commit daemon committed this broken state.
 
@@ -59,13 +59,13 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 
 ### Phase 4 — Deep Refactors (→ 100%)
 
-| Task | Description | Risk |
-|------|-------------|------|
-| MT13 | Replace 12 global CLI flag vars with `CommandContext` struct | MED |
-| MT14 | Config unification design spike (ADR-006) | LOW |
-| MT15 | Implement Config unification (`migration.Config` → shim over `types.Config`) | HIGH |
-| MT16 | `SettingsMap` wrapper with typed getters | MED |
-| GATE 4 | `nix flake check` (full hermetic build) | — |
+| Task   | Description                                                                  | Risk |
+| ------ | ---------------------------------------------------------------------------- | ---- |
+| MT13   | Replace 12 global CLI flag vars with `CommandContext` struct                 | MED  |
+| MT14   | Config unification design spike (ADR-006)                                    | LOW  |
+| MT15   | Implement Config unification (`migration.Config` → shim over `types.Config`) | HIGH |
+| MT16   | `SettingsMap` wrapper with typed getters                                     | MED  |
+| GATE 4 | `nix flake check` (full hermetic build)                                      | —    |
 
 ---
 
@@ -100,6 +100,7 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 ## f) Next 50 Things to Get Done
 
 ### Immediate (Block everything)
+
 1. **Fix the broken build** — update `newConfigUpdater` call at `fixer_config.go:218`
 2. Wire `SetGoVersionProvider(config.GetLocalGoVersion)` in `pkg/client/client.go`
 3. Remove duplicate `DefaultMaxIssuesPerLinter`/`DefaultMaxSameIssues` from `pkg/config/loader.go`
@@ -107,6 +108,7 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 5. Run full test suite to verify GATE 2 is restored
 
 ### Phase 3 Completion
+
 6. **MT12:** Analyze `pkg/client` public API and callers
 7. **MT12:** Move client wiring to `internal/cli` or give focused facade
 8. **MT12:** Update `examples/api-usage/main.go` if it imports client
@@ -116,6 +118,7 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 12. **GATE 3:** `grep -r "config.Config\b" internal/ pkg/` returns zero alias hits
 
 ### Phase 4 — Deep Refactors
+
 13. **MT13:** Design `CommandContext` struct (flags + logger + analyzer refs)
 14. **MT13:** Replace 12 global `var` declarations in `commands.go`
 15. **MT13:** Update `newConfigureCommand` to use `CommandContext`
@@ -142,6 +145,7 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 36. **GATE 4:** `nix flake check` (full hermetic build + format + test)
 
 ### Quality Follow-ups
+
 37. Write tests for `Version.Compare()` (semver ordering edge cases)
 38. Write tests for `TriState.UnmarshalYAML` (nil/true/false)
 39. Write tests for `NewConfig()` options (all `With*` functions)

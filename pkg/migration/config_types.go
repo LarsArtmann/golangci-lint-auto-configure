@@ -88,7 +88,7 @@ type configWrapper Config
 
 // Run represents the run section of golangci-lint configuration.
 type Run struct {
-	SkipDirsUseDefault TriState `yaml:"skip-dirs-use-default,omitempty"`
+	SkipDirsUseDefault TriState  `yaml:"skip-dirs-use-default,omitempty"`
 	Timeout            string    `yaml:"timeout,omitempty"`
 	Issues             RunIssues `yaml:"issues,omitempty"`
 	SkipDirs           []string  `yaml:"skip-dirs,omitempty"`

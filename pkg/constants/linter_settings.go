@@ -4,6 +4,7 @@ package constants
 
 import (
 	"fmt"
+
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"go.yaml.in/yaml/v3"
 )

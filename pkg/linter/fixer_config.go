@@ -17,7 +17,7 @@ type GoVersionProvider func(ctx context.Context) string
 
 // configUpdater handles updating config fields.
 type configUpdater struct {
-	logger          *log.Logger
+	logger            *log.Logger
 	goVersionProvider GoVersionProvider
 }
 

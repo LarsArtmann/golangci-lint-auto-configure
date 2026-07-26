@@ -3,7 +3,7 @@ package types
 // Config represents a golangci-lint configuration file.
 // All field tags use kebab-case to match the golangci-lint schema for round-trip safety.
 type Config struct {
-	Version    Version         `json:"version"    toml:"version"              yaml:"version"`
+	Version    Version          `json:"version"    toml:"version"              yaml:"version"`
 	Run        RunConfig        `json:"run"        toml:"run"                  yaml:"run"`
 	Output     OutputConfig     `json:"output"     toml:"output"               yaml:"output"`
 	Linters    LintersConfig    `json:"linters"    toml:"linters"              yaml:"linters"`
@@ -82,8 +82,8 @@ type IssuesConfig struct {
 }
 
 type FormattersConfig struct {
-	Enable     []FormatterName           `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
-	Disable    []FormatterName           `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
+	Enable     []FormatterName            `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
+	Disable    []FormatterName            `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
 	Settings   map[string]any             `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
 	Exclusions FormattersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`
 }

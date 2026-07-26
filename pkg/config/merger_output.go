@@ -1,8 +1,10 @@
 package config
 
-import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+import (
+	"maps"
 
-import "maps"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+)
 
 // mergeOutputConfig merges output configurations.
 func (cm *Merger) mergeOutputConfig(primary, secondary *types.OutputConfig) int {
