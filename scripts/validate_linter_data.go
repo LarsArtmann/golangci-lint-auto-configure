@@ -146,7 +146,9 @@ func main() {
 	fmt.Println()
 
 	// Check 8: NeverAutoEnableLinters must have non-empty reasons and not overlap
-	fmt.Println("📋 Check 8: NeverAutoEnableLinters must have non-empty reasons and be disjoint from DisabledLinters and PragmaticNoiseLinters")
+	fmt.Println(
+		"📋 Check 8: NeverAutoEnableLinters must have non-empty reasons and be disjoint from DisabledLinters and PragmaticNoiseLinters",
+	)
 	neverAutoEnableBad := checkNeverAutoEnableLinterReasons()
 	if len(neverAutoEnableBad) > 0 {
 		exitCode = 1

@@ -8,25 +8,25 @@ If a word means something different to a developer than to a user, define it her
 
 ## Glossary
 
-| Term                  | Definition                                                                                | Context                                      |
-| --------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------- |
-| Linter                | A static analysis tool that checks Go source code for issues                              | golangci-lint integrates many linters        |
-| Formatter             | A tool that reformats Go source code (gofumpt, goimports, gci, golines, swaggo)           | Distinct from linters — changes code style   |
-| Linter Priority       | A tier (Critical, High, Medium, Optional) ranking how important a linter is               | Drives `--priority` filtering                |
-| Linter Recommendation | A suggestion to enable/disable a specific linter, with reason and severity                | Output of `analyze`, converted to Findings   |
-| Preset                | A curated set of linters for a specific use case (minimal, standard, strict, etc.)        | Applied via `--preset` flag                  |
-| Project Type          | Classification of the target project (CLI, Library, Web, API, Monorepo)                   | Auto-detected via `--detect`                 |
-| Fixer                 | The engine that applies config mutations: enable linters, fix settings, remove deprecated | `pkg/linter/fixer.go` — linear, idempotent   |
-| Config Mutation       | Any change the fixer makes to a golangci-lint config file                                 | Tracked by `configChangeRecorder`            |
-| Normalization         | Pre-flight fixes applied before analysis (timeout, version, deprecated linters)           | Saved to disk before golangci-lint can run   |
-| Finding               | A unified issue representation (from go-finding) with severity, rule, file, message       | Used for SARIF/JSON output                   |
-| Config Analysis       | The full result of analyzing a config: enabled/disabled linters, recommendations          | `ConfigAnalysis` struct, output of `analyze` |
-| Deprecation           | A linter that has been superseded by a newer version (e.g. wsl → wsl_v5)                  | Auto-replaced by the fixer                   |
-| Version-Gated         | A linter that requires a minimum golangci-lint version to be available                    | `LinterMinVersions` map                      |
+| Term                   | Definition                                                                                                                                                                                                              | Context                                         |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Linter                 | A static analysis tool that checks Go source code for issues                                                                                                                                                            | golangci-lint integrates many linters           |
+| Formatter              | A tool that reformats Go source code (gofumpt, goimports, gci, golines, swaggo)                                                                                                                                         | Distinct from linters — changes code style      |
+| Linter Priority        | A tier (Critical, High, Medium, Optional) ranking how important a linter is                                                                                                                                             | Drives `--priority` filtering                   |
+| Linter Recommendation  | A suggestion to enable/disable a specific linter, with reason and severity                                                                                                                                              | Output of `analyze`, converted to Findings      |
+| Preset                 | A curated set of linters for a specific use case (minimal, standard, strict, etc.)                                                                                                                                      | Applied via `--preset` flag                     |
+| Project Type           | Classification of the target project (CLI, Library, Web, API, Monorepo)                                                                                                                                                 | Auto-detected via `--detect`                    |
+| Fixer                  | The engine that applies config mutations: enable linters, fix settings, remove deprecated                                                                                                                               | `pkg/linter/fixer.go` — linear, idempotent      |
+| Config Mutation        | Any change the fixer makes to a golangci-lint config file                                                                                                                                                               | Tracked by `configChangeRecorder`               |
+| Normalization          | Pre-flight fixes applied before analysis (timeout, version, deprecated linters)                                                                                                                                         | Saved to disk before golangci-lint can run      |
+| Finding                | A unified issue representation (from go-finding) with severity, rule, file, message                                                                                                                                     | Used for SARIF/JSON output                      |
+| Config Analysis        | The full result of analyzing a config: enabled/disabled linters, recommendations                                                                                                                                        | `ConfigAnalysis` struct, output of `analyze`    |
+| Deprecation            | A linter that has been superseded by a newer version (e.g. wsl → wsl_v5)                                                                                                                                                | Auto-replaced by the fixer                      |
+| Version-Gated          | A linter that requires a minimum golangci-lint version to be available                                                                                                                                                  | `LinterMinVersions` map                         |
 | Linter Management Tier | How the tool governs a linter's lifecycle: **Disabled** (never enabled), **NeverAutoEnable** (never recommended but respected if manually added), or **PragmaticNoise** (enabled by default, opt-out via `--pragmatic`) | Three disjoint maps in `pkg/constants/rules.go` |
-| Exclusion Path        | A regex pattern that excludes files from linting (e.g. `_templ\.go$`, `vendor/`)          | RE2 syntax, injected into config             |
-| Migration             | Converting a v1 golangci-lint config to v2 schema format                                  | `migrate` command                            |
-| Validation            | Checking a config for correctness (YAML validity, schema compliance)                      | `validate` command                           |
+| Exclusion Path         | A regex pattern that excludes files from linting (e.g. `_templ\.go$`, `vendor/`)                                                                                                                                        | RE2 syntax, injected into config                |
+| Migration              | Converting a v1 golangci-lint config to v2 schema format                                                                                                                                                                | `migrate` command                               |
+| Validation             | Checking a config for correctness (YAML validity, schema compliance)                                                                                                                                                    | `validate` command                              |
 
 ## Entities
 

@@ -10,6 +10,7 @@
 > exhaustruct should NOT get enabled, if somebody adds it it should not be removed but it should always ignore *_test.go files
 
 Three requirements:
+
 1. **Never auto-enable** exhaustruct
 2. **Never strip** exhaustruct if a user manually adds it
 3. **Always ignore** `*_test.go` files (already satisfied via `DefaultExclusionRules`)
@@ -20,24 +21,24 @@ Three requirements:
 
 ### Core mechanism — `NeverAutoEnableLinters` map
 
-| What | File | Detail |
-| --- | --- | --- |
-| New `NeverAutoEnableLinters` map | `pkg/constants/rules.go` | Third management tier: `exhaustruct` is the sole entry. Never auto-enabled, but not forcibly disabled. |
-| Removed exhaustruct from `PragmaticNoiseLinters` | `pkg/constants/rules.go` | Was 5 linters → now 4. exhaustruct is handled unconditionally now, not just with `--pragmatic`. |
-| `isNeverAutoEnable` skip in categorizer | `pkg/linter/categorizer.go:53-55` | Unconditional skip — independent of `--pragmatic` flag. |
-| `isNeverAutoEnable` method | `pkg/linter/categorizer.go:68-76` | Checks `NeverAutoEnableLinters` map, logs debug message. |
-| Downgraded exhaustruct priority High → Medium | `pkg/constants/linter_priorities.go:72` | No longer in the "all critical + high must be in reference preset" invariant. |
-| Removed exhaustruct from `reference` preset | `pkg/constants/presets.go:40` | Was 62 linters → now 61. |
-| Renamed `isToolLevelDisabled` → `isToolLevelManaged` | `pkg/linter/fixer_enforce.go:89-97` | Now checks both `DisabledLinters` AND `NeverAutoEnableLinters`. Prevents the policy enforcer from stripping a manually-added exhaustruct from the disable list (or re-enabling it without justification). |
+| What                                                 | File                                    | Detail                                                                                                                                                                                                    |
+| ---------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| New `NeverAutoEnableLinters` map                     | `pkg/constants/rules.go`                | Third management tier: `exhaustruct` is the sole entry. Never auto-enabled, but not forcibly disabled.                                                                                                    |
+| Removed exhaustruct from `PragmaticNoiseLinters`     | `pkg/constants/rules.go`                | Was 5 linters → now 4. exhaustruct is handled unconditionally now, not just with `--pragmatic`.                                                                                                           |
+| `isNeverAutoEnable` skip in categorizer              | `pkg/linter/categorizer.go:53-55`       | Unconditional skip — independent of `--pragmatic` flag.                                                                                                                                                   |
+| `isNeverAutoEnable` method                           | `pkg/linter/categorizer.go:68-76`       | Checks `NeverAutoEnableLinters` map, logs debug message.                                                                                                                                                  |
+| Downgraded exhaustruct priority High → Medium        | `pkg/constants/linter_priorities.go:72` | No longer in the "all critical + high must be in reference preset" invariant.                                                                                                                             |
+| Removed exhaustruct from `reference` preset          | `pkg/constants/presets.go:40`           | Was 62 linters → now 61.                                                                                                                                                                                  |
+| Renamed `isToolLevelDisabled` → `isToolLevelManaged` | `pkg/linter/fixer_enforce.go:89-97`     | Now checks both `DisabledLinters` AND `NeverAutoEnableLinters`. Prevents the policy enforcer from stripping a manually-added exhaustruct from the disable list (or re-enabling it without justification). |
 
 ### Test coverage
 
-| What | File |
-| --- | --- |
-| `TestIsToolLevelManaged` — renamed + added exhaustruct case | `pkg/linter/fixer_enforce_test.go:66-88` |
-| Categorizer pragmatic tests updated (4 linters, not 5) | `pkg/linter/categorizer_test.go:161-194` |
-| New "NeverAutoEnable Linters" test context (2 specs) | `pkg/linter/categorizer_test.go:196-215` |
-| `NeverAutoEnableLinters` data integrity block (5 specs) | `pkg/constants/data_integrity_test.go:83-127` |
+| What                                                        | File                                          |
+| ----------------------------------------------------------- | --------------------------------------------- |
+| `TestIsToolLevelManaged` — renamed + added exhaustruct case | `pkg/linter/fixer_enforce_test.go:66-88`      |
+| Categorizer pragmatic tests updated (4 linters, not 5)      | `pkg/linter/categorizer_test.go:161-194`      |
+| New "NeverAutoEnable Linters" test context (2 specs)        | `pkg/linter/categorizer_test.go:196-215`      |
+| `NeverAutoEnableLinters` data integrity block (5 specs)     | `pkg/constants/data_integrity_test.go:83-127` |
 
 ### Data integrity constraints enforced
 
@@ -49,13 +50,13 @@ Three requirements:
 
 ### Living docs updated
 
-| File | What changed |
-| --- | --- |
-| `FEATURES.md` | Pragmatic row (5→4), new NeverAutoEnableLinters row, exhaustruct defaults row notes "when manually enabled", reference count 62→61 |
-| `README.md` | Removed `exhaustruct` from the reference preset linter list |
-| `AGENTS.md` | Gotcha #10 (three-tier management), Gotcha #19 (pragmatic is 4, exhaustruct is NeverAutoEnable) |
-| `pkg/linter/analyzer.go` | `SetPragmatic` comment updated (5→4) |
-| `internal/cli/cmd_configure.go` | `--pragmatic` help text (5→4) |
+| File                            | What changed                                                                                                                       |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `FEATURES.md`                   | Pragmatic row (5→4), new NeverAutoEnableLinters row, exhaustruct defaults row notes "when manually enabled", reference count 62→61 |
+| `README.md`                     | Removed `exhaustruct` from the reference preset linter list                                                                        |
+| `AGENTS.md`                     | Gotcha #10 (three-tier management), Gotcha #19 (pragmatic is 4, exhaustruct is NeverAutoEnable)                                    |
+| `pkg/linter/analyzer.go`        | `SetPragmatic` comment updated (5→4)                                                                                               |
+| `internal/cli/cmd_configure.go` | `--pragmatic` help text (5→4)                                                                                                      |
 
 ### Verification
 
@@ -74,6 +75,7 @@ I read the script (line 91-109 checks `DisabledLinters` consistency) but did NOT
 ### `CHANGELOG.md` — NOT updated
 
 `CHANGELOG.md:14` still says "drops the 5 highest-noise linters (exhaustruct, ...)". The `[Unreleased]` section should document:
+
 - New `NeverAutoEnableLinters` concept
 - exhaustruct moved from auto-enabled to never-auto-enable
 - `--pragmatic` now drops 4 linters instead of 5
