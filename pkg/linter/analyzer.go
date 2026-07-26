@@ -43,9 +43,9 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 	}
 }
 
-// SetPragmatic enables pragmatic mode, which drops the five highest-noise linters
-// (exhaustruct, gochecknoglobals, ireturn, wrapcheck, funlen) from the dynamic
-// enable set. Off by default — default behavior is byte-identical to today.
+// SetPragmatic enables pragmatic mode, which drops the four highest-noise linters
+// (gochecknoglobals, ireturn, wrapcheck, funlen) from the dynamic enable set.
+// Off by default — default behavior is byte-identical to today.
 func (a *Analyzer) SetPragmatic(enabled bool) {
 	a.pragmatic = enabled
 }
