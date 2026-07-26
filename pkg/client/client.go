@@ -127,7 +127,7 @@ func (c *Client) GetSummary(analysis *types.ConfigAnalysis) string {
 // Example:
 //
 //	client := client.New(client.Options{})
-//	cfg := &types.Config{Version: "2", Linters: types.LintersConfig{Enable: []string{"gofmt"}}}
+//	cfg := &types.Config{Version: types.ConfigVersionV2, Linters: types.LintersConfig{Enable: []types.LinterName{"gofmt"}}}
 //	err := client.SaveConfig(cfg, ".golangci.yml")
 func (c *Client) SaveConfig(cfg *types.Config, path string) error {
 	err := c.configLoader.SaveConfig(cfg, path)
