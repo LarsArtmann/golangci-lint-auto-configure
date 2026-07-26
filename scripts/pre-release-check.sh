@@ -29,10 +29,10 @@ check() {
     shift
     if "$@" >/dev/null 2>&1; then
         echo -e "${GREEN}✓${NC} $desc"
-        ((pass++))
+        pass=$((pass + 1))
     else
         echo -e "${RED}✗${NC} $desc"
-        ((fail++))
+        fail=$((fail + 1))
     fi
 }
 
@@ -41,10 +41,10 @@ warn_check() {
     shift
     if "$@" >/dev/null 2>&1; then
         echo -e "${GREEN}✓${NC} $desc"
-        ((pass++))
+        pass=$((pass + 1))
     else
         echo -e "${YELLOW}⚠${NC}  $desc"
-        ((warn++))
+        warn=$((warn + 1))
     fi
 }
 
@@ -64,7 +64,7 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 else
     echo -e "${GREEN}✓${NC} Working tree clean"
-    ((pass++))
+    pass=$((pass + 1))
 fi
 
 # 2. Determine version
@@ -91,10 +91,10 @@ COVERAGE_PCT=$(echo "$COVERAGE_OUTPUT" | grep -oP 'coverage: \K[0-9.]+' || echo 
 COVERAGE_THRESHOLD=60
 if (( $(echo "$COVERAGE_PCT >= $COVERAGE_THRESHOLD" | bc -l) )); then
     echo -e "${GREEN}✓${NC} Coverage ${COVERAGE_PCT}% >= ${COVERAGE_THRESHOLD}% threshold"
-    ((pass++))
+    pass=$((pass + 1))
 else
     echo -e "${RED}✗${NC} Coverage ${COVERAGE_PCT}% < ${COVERAGE_THRESHOLD}% threshold"
-    ((fail++))
+    fail=$((fail + 1))
 fi
 
 echo ""
@@ -109,19 +109,19 @@ check "CHANGELOG.md has [${VERSION}] entry" grep -q "\[${VERSION}\]" CHANGELOG.m
 FEATURES_VERSION=$(grep -oP '(?<=\*\*Version:\*\* v)[0-9]+\.[0-9]+\.[0-9]+' FEATURES.md || echo "unknown")
 if [ "$FEATURES_VERSION" = "$VERSION" ]; then
     echo -e "${GREEN}✓${NC} FEATURES.md version matches ($FEATURES_VERSION)"
-    ((pass++))
+    pass=$((pass + 1))
 else
     echo -e "${RED}✗${NC} FEATURES.md version ($FEATURES_VERSION) != target ($VERSION)"
-    ((fail++))
+    fail=$((fail + 1))
 fi
 
 # 10. Tag doesn't already exist
 if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
     echo -e "${RED}✗${NC} Tag v${VERSION} already exists"
-    ((fail++))
+    fail=$((fail + 1))
 else
     echo -e "${GREEN}✓${NC} Tag v${VERSION} does not exist yet"
-    ((pass++))
+    pass=$((pass + 1))
 fi
 
 # 11. Local branch is up to date with remote
@@ -129,13 +129,13 @@ LOCAL=$(git rev-parse HEAD)
 REMOTE=$(git rev-parse origin/master 2>/dev/null || echo "")
 if [ -n "$REMOTE" ] && [ "$LOCAL" = "$REMOTE" ]; then
     echo -e "${GREEN}✓${NC} Local master is up to date with origin"
-    ((pass++))
+    pass=$((pass + 1))
 elif [ -z "$REMOTE" ]; then
     echo -e "${YELLOW}⚠${NC}  Could not check remote (no origin/master)"
-    ((warn++))
+    warn=$((warn + 1))
 else
     echo -e "${YELLOW}⚠${NC}  Local master is ahead/behind origin — push before tagging"
-    ((warn++))
+    warn=$((warn + 1))
 fi
 
 # 12. Snapshot build (warning if it fails — non-blocking since syft/cosign may be missing)
@@ -143,16 +143,16 @@ echo ""
 echo -e "  ${YELLOW}Running goreleaser snapshot...${NC}"
 if goreleaser release --snapshot --clean --skip=publish 2>/tmp/goreleaser-snapshot.log; then
     echo -e "${GREEN}✓${NC} Goreleaser snapshot build succeeds"
-    ((pass++))
+    pass=$((pass + 1))
 else
     SNAPSHOT_ERR=$(tail -5 /tmp/goreleaser-snapshot.log)
     if echo "$SNAPSHOT_ERR" | grep -q "syft\|cosign\|docker"; then
         echo -e "${YELLOW}⚠${NC}  Goreleaser snapshot fails only on missing tool (syft/cosign/docker) — acceptable for local release"
-        ((warn++))
+        warn=$((warn + 1))
     else
         echo -e "${RED}✗${NC} Goreleaser snapshot build fails:"
         echo "$SNAPSHOT_ERR"
-        ((fail++))
+        fail=$((fail + 1))
     fi
 fi
 

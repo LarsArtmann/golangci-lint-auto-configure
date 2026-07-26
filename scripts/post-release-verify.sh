@@ -31,10 +31,10 @@ check() {
     shift
     if "$@"; then
         echo -e "${GREEN}✓${NC} $desc"
-        ((pass++))
+        pass=$((pass + 1))
     else
         echo -e "${RED}✗${NC} $desc"
-        ((fail++))
+        fail=$((fail + 1))
     fi
 }
 
@@ -47,10 +47,10 @@ check "Tag ${TAG} exists locally" git rev-parse "${TAG}"
 REMOTE_TAG=$(git ls-remote --tags origin "refs/tags/${TAG}" 2>/dev/null || true)
 if [ -n "$REMOTE_TAG" ]; then
     echo -e "${GREEN}✓${NC} Tag ${TAG} exists on remote"
-    ((pass++))
+    pass=$((pass + 1))
 else
     echo -e "${RED}✗${NC} Tag ${TAG} not found on remote"
-    ((fail++))
+    fail=$((fail + 1))
 fi
 
 # 2. GitHub release exists
@@ -60,33 +60,33 @@ check "GitHub release ${TAG} exists" gh release view "${TAG}" --repo "${REPO}"
 ASSET_COUNT=$(gh release view "${TAG}" --repo "${REPO}" --json assets --jq '.assets | length' 2>/dev/null || echo "0")
 if [ "$ASSET_COUNT" -ge 3 ]; then
     echo -e "${GREEN}✓${NC} Release has ${ASSET_COUNT} assets"
-    ((pass++))
+    pass=$((pass + 1))
 else
     echo -e "${RED}✗${NC} Release has only ${ASSET_COUNT} assets (expected >= 3)"
-    ((fail++))
+    fail=$((fail + 1))
 fi
 
 # 4. Release notes are not the commit dump (should be < 15KB of curated content)
 NOTES_LENGTH=$(gh release view "${TAG}" --repo "${REPO}" --json body --jq '.body | length' 2>/dev/null || echo "0")
 if [ "$NOTES_LENGTH" -gt 0 ] && [ "$NOTES_LENGTH" -lt 20000 ]; then
     echo -e "${GREEN}✓${NC} Release notes are curated (${NOTES_LENGTH} bytes)"
-    ((pass++))
+    pass=$((pass + 1))
 elif [ "$NOTES_LENGTH" -ge 20000 ]; then
     echo -e "${RED}✗${NC} Release notes look like raw commit dump (${NOTES_LENGTH} bytes — rewrite with curated content)"
-    ((fail++))
+    fail=$((fail + 1))
 else
     echo -e "${RED}✗${NC} Release notes are empty"
-    ((fail++))
+    fail=$((fail + 1))
 fi
 
 # 5. Checksums file exists
 ASSET_NAMES=$(gh release view "${TAG}" --repo "${REPO}" --json assets --jq '.assets[].name' 2>/dev/null || true)
 if echo "$ASSET_NAMES" | grep -q checksums; then
     echo -e "${GREEN}✓${NC} Checksums asset exists"
-    ((pass++))
+    pass=$((pass + 1))
 else
     echo -e "${RED}✗${NC} Checksums asset not found"
-    ((fail++))
+    fail=$((fail + 1))
 fi
 
 # 6. Download and smoke-test a binary
@@ -99,22 +99,35 @@ if gh release download "${TAG}" --repo "${REPO}" --pattern '*Linux_x86_64*' --di
     tar xzf "$TMPDIR"/golangci-lint-auto-configure_*_Linux_x86_64.tar.gz -C "$TMPDIR"
     BINARY="$TMPDIR/golangci-lint-auto-configure"
 
-    check "Binary --version runs" "\"$BINARY\" --version"
-    check "Binary --help runs" "\"$BINARY\" --help"
+    if "$BINARY" --version >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} Binary --version runs"
+        pass=$((pass + 1))
+    else
+        echo -e "${RED}✗${NC} Binary --version runs"
+        fail=$((fail + 1))
+    fi
 
-    # Verify version string contains the version number
+    if "$BINARY" --help >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} Binary --help runs"
+        pass=$((pass + 1))
+    else
+        echo -e "${RED}✗${NC} Binary --help runs"
+        fail=$((fail + 1))
+    fi
+
+    # Verify version string contains the version number (literal match, not regex)
     VERSION_OUTPUT=$("$BINARY" --version 2>&1)
-    if echo "$VERSION_OUTPUT" | grep -q "$VERSION"; then
+    if echo "$VERSION_OUTPUT" | grep -qF "$VERSION"; then
         echo -e "${GREEN}✓${NC} Binary --version shows correct version (${VERSION})"
-        ((pass++))
+        pass=$((pass + 1))
     else
         echo -e "${RED}✗${NC} Binary --version does not show version ${VERSION}:"
         echo "  $VERSION_OUTPUT"
-        ((fail++))
+        fail=$((fail + 1))
     fi
 else
     echo -e "${RED}✗${NC} Could not download Linux x86_64 binary"
-    ((fail++))
+    fail=$((fail + 1))
 fi
 
 echo ""
