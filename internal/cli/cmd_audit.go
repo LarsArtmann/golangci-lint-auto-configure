@@ -52,7 +52,7 @@ Maintenance:
 
 // auditDisabled reports whether the audit ledger should be skipped for this run.
 // Honors both the --no-audit flag and the GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT env var.
-func auditDisabled() bool {
+func auditDisabled(noAudit bool) bool {
 	if noAudit {
 		return true
 	}
@@ -65,8 +65,8 @@ func auditDisabled() bool {
 // Retention purge runs at creation to clean up stale entries from prior runs.
 //
 //nolint:ireturn // strategy pattern: returns concrete Ledger or NoopRecorder
-func newRunLedger(ctx context.Context, logger *log.Logger, configFile string) audit.Recorder {
-	if auditDisabled() {
+func newRunLedger(ctx context.Context, logger *log.Logger, configFile string, noAudit bool) audit.Recorder {
+	if auditDisabled(noAudit) {
 		return audit.NoopRecorder{}
 	}
 

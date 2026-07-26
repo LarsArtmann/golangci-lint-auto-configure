@@ -17,8 +17,9 @@ func prepareConfigFile(
 	configPath string,
 	configLoader *config.Loader,
 	logger *log.Logger,
+	isDryRun bool,
 ) (string, error) {
-	configFile, err := resolveConfigPath(ctx, configLoader, logger, configPath, dryRun)
+	configFile, err := resolveConfigPath(ctx, configLoader, logger, configPath, isDryRun, false)
 	if err != nil {
 		return "", err
 	}

@@ -23,7 +23,7 @@ func newValidateCommand(builder *CommandBuilder) *cobra.Command {
 	cmd := builder.Build(
 		"validate", "Validate golangci-lint configuration",
 		func(cmd *cobra.Command, _ []string) error {
-			return runValidate(cmd, builder.Logger(), builder.ConfigLoader(), skipGolangciLint)
+			return runValidate(cmd, builder.Logger(), builder.ConfigLoader(), builder.Flags(), skipGolangciLint)
 		},
 		WithLong(`Validates the golangci-lint configuration file.
 
@@ -46,18 +46,19 @@ func runValidate(
 	cmd *cobra.Command,
 	logger *log.Logger,
 	configLoader *config.Loader,
+	flags *Flags,
 	skipGolangciLint bool,
 ) error {
-	setLogLevel(logger)
+	setLogLevel(logger, flags.Verbose)
 
-	configFile, err := resolveValidateConfig(cmd, configLoader, logger, skipGolangciLint)
+	configFile, err := resolveValidateConfig(cmd, configLoader, logger, flags, skipGolangciLint)
 	if err != nil {
 		return apperrors.WrapClassified(err, "validate.resolve_config", "resolve config")
 	}
 
 	logger.Infof("Validating configuration: %s", configFile)
 
-	err = validateConfig(configLoader, logger, configFile, skipGolangciLint)
+	err = validateConfig(configLoader, logger, configFile, flags.ReportFormat)
 	if err != nil {
 		return apperrors.WrapClassified(err, "validate.config", "validate config")
 	}
@@ -75,21 +76,23 @@ func resolveValidateConfig(
 	cmd *cobra.Command,
 	configLoader *config.Loader,
 	logger *log.Logger,
+	flags *Flags,
 	_ bool,
 ) (string, error) {
-	return resolveConfig(cmd.Context(), configLoader, logger, "resolve config path")
+	return resolveConfig(cmd.Context(), configLoader, logger, flags, "resolve config path")
 }
 
 func validateConfig(
 	configLoader *config.Loader,
 	logger *log.Logger,
 	configFile string,
-	_ bool,
+	reportFormat string,
 ) error {
 	err := validateLoadedConfig(
 		configLoader,
 		logger,
 		configFile,
+		reportFormat,
 	) //art-dupl:accept standard Go early-return idiom
 	if err == nil {
 		return nil
@@ -106,6 +109,7 @@ func validateLoadedConfig(
 	configLoader *config.Loader,
 	logger *log.Logger,
 	configFile string,
+	reportFormat string,
 ) error {
 	cfg, loadErr := configLoader.LoadConfig(configFile)
 	if loadErr != nil {
@@ -129,10 +133,10 @@ func validateLoadedConfig(
 
 	logger.Infof("✓ Internal validation passed")
 
-	return checkConfigHealth(cfg, logger, configFile)
+	return checkConfigHealth(cfg, logger, configFile, reportFormat)
 }
 
-func checkConfigHealth(cfg *types.Config, logger *log.Logger, configFile string) error {
+func checkConfigHealth(cfg *types.Config, logger *log.Logger, configFile string, reportFormat string) error {
 	health := types.CheckConfigHealthWithCriticalLinters(cfg, constants.CriticalLinters())
 
 	if health.IsHealthy() {

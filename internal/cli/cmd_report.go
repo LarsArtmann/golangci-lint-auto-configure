@@ -21,7 +21,7 @@ func newReportCommand(builder *CommandBuilder) *cobra.Command {
 		"report",
 		"Generate HTML report of configuration",
 		func(cmd *cobra.Command, _ []string) error {
-			return runReport(cmd, builder.Logger(), builder.Analyzer(), builder.ConfigLoader())
+			return runReport(cmd, builder.Logger(), builder.Analyzer(), builder.ConfigLoader(), builder.Flags())
 		},
 	)
 }
@@ -31,28 +31,31 @@ func runReport(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
+	flags *Flags,
 ) error {
-	setLogLevel(logger)
+	setLogLevel(logger, flags.Verbose)
 
-	configFile, err := resolveReportConfig(cmd, configLoader, logger)
+	configFile, err := resolveReportConfig(cmd, configLoader, logger, flags)
 	if err != nil {
 		return apperrors.WrapClassified(err, "report.resolve_config", "resolve config")
 	}
 
-	analysis, err := analyzeConfig(logger, cmd, analyzer, configFile)
+	analysis, err := analyzeConfig(logger, cmd, analyzer, configFile, flags.ReportFormat)
 	if err != nil {
 		return apperrors.WrapClassified(err, "report.analyze", "analyze config")
 	}
 
-	return writeReport(cmd.Context(), analysis, logger, configFile)
+	return writeReport(cmd.Context(), analysis, logger, configFile,
+		determineOutputPath(flags.OutputReport, flags.ReportFormat), flags.ReportFormat)
 }
 
 func resolveReportConfig(
 	cmd *cobra.Command,
 	configLoader *config.Loader,
 	logger *log.Logger,
+	flags *Flags,
 ) (string, error) {
-	return resolveConfig(cmd.Context(), configLoader, logger, "find config")
+	return resolveConfig(cmd.Context(), configLoader, logger, flags, "find config")
 }
 
 func writeReport(
@@ -60,10 +63,9 @@ func writeReport(
 	analysis *types.ConfigAnalysis,
 	logger *log.Logger,
 	configFile string,
+	outputPath, format string,
 ) error {
-	outputPath := determineOutputPath(outputReport, reportFormat)
-
-	switch reportFormat {
+	switch format {
 	case "json":
 		return writeJSONReport(logger, analysis, outputPath, configFile)
 	case formatSARIF:
@@ -75,7 +77,7 @@ func writeReport(
 	}
 }
 
-func setLogLevel(logger *log.Logger) {
+func setLogLevel(logger *log.Logger, verbose bool) {
 	if verbose {
 		logger.SetLevel(log.DebugLevel)
 	}
@@ -86,6 +88,7 @@ func analyzeConfig(
 	cmd *cobra.Command,
 	analyzer *linter.Analyzer,
 	configFile string,
+	reportFormat string,
 ) (*types.ConfigAnalysis, error) {
 	logger.Infof("Generating %s report for: %s", reportFormat, configFile)
 

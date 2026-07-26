@@ -72,7 +72,7 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 		"configure",
 		"Auto-configure golangci-lint (default command)",
 		func(cmd *cobra.Command, _ []string) error {
-			builder.Analyzer().SetPragmatic(pragmatic)
+			builder.Analyzer().SetPragmatic(builder.Flags().Pragmatic)
 			applyRecommendation(builder.Logger(), &presets, recommend, &detect)
 
 			return runDetectOrConfigure(
@@ -80,16 +80,16 @@ func newConfigureCommand(builder *CommandBuilder) *cobra.Command {
 				builder.Logger(),
 				builder.Analyzer(),
 				builder.ConfigLoader(),
+				builder.Flags(),
 				presets,
 				detect,
 				check,
-				showDiff,
 			)
 		},
 		WithLong(configureLong),
 	)
 
-	addConfigureFlags(cmd, &presets, &detect, &recommend, &check)
+	addConfigureFlags(cmd, builder.Flags(), &presets, &detect, &recommend, &check)
 
 	return cmd
 }
@@ -106,9 +106,9 @@ func applyRecommendation(logger *log.Logger, presets *[]string, recommend bool, 
 	logger.Infof("🔍 Recommended presets: %v", *presets)
 }
 
-func addConfigureFlags(cmd *cobra.Command, presets *[]string, detect, recommend, check *bool) {
+func addConfigureFlags(cmd *cobra.Command, flags *Flags, presets *[]string, detect, recommend, check *bool) {
 	cmd.Flags().
-		StringVar(&priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
+		StringVar(&flags.Priority, "priority", "optional", "Minimum priority level to enable (critical, high, medium, optional)")
 	cmd.Flags().
 		StringArrayVar(presets, "preset", nil, "Use preset linter sets (can be repeated: --preset minimal --preset security)")
 	cmd.Flags().
@@ -118,9 +118,9 @@ func addConfigureFlags(cmd *cobra.Command, presets *[]string, detect, recommend,
 	cmd.Flags().
 		BoolVar(check, "check", false, "Check mode: exit 0 if config is optimal, exit 1 if changes needed (no modifications)")
 	cmd.Flags().
-		BoolVar(&noAudit, "no-audit", false, "Skip writing to the audit ledger (also: "+auditEnvVar+" env var)")
+		BoolVar(&flags.NoAudit, "no-audit", false, "Skip writing to the audit ledger (also: "+auditEnvVar+" env var)")
 	cmd.Flags().
-		BoolVar(&pragmatic, "pragmatic", false, "Drop the 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from the enable set")
+		BoolVar(&flags.Pragmatic, "pragmatic", false, "Drop the 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from the enable set")
 }
 
 func runDetectOrConfigure(
@@ -128,22 +128,23 @@ func runDetectOrConfigure(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
+	flags *Flags,
 	presets []string,
 	detect,
-	check,
-	showDiff bool,
+	check bool,
 ) error {
 	return runConfigure(
 		cmd.Context(),
 		logger,
 		analyzer,
 		configLoader,
-		priority,
+		flags.Priority,
 		resolvePresets(presets, detect, logger),
-		check || dryRun,
-		configPath,
+		check || flags.DryRun,
+		flags.ConfigPath,
 		check,
-		showDiff,
+		flags.ShowDiff,
+		flags.NoAudit,
 	)
 }
 
@@ -159,8 +160,9 @@ func runConfigure(
 	configPath string,
 	check bool,
 	showDiff bool,
+	noAudit bool,
 ) error {
-	configFile, err := prepareConfigFile(ctx, configPath, configLoader, logger)
+	configFile, err := prepareConfigFile(ctx, configPath, configLoader, logger, isDryRun)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.prepare_config",
 			"prepare config failed (priority=%s, presets=%v, dryRun=%t)",
@@ -171,7 +173,7 @@ func runConfigure(
 
 	return runPresetOrFixer(
 		ctx, logger, analyzer, configLoader,
-		configFile, priorityParam, presets, isDryRun, check, showDiff,
+		configFile, priorityParam, presets, isDryRun, check, showDiff, noAudit,
 	)
 }
 
@@ -184,9 +186,10 @@ func runPresetOrFixer(
 	presets []string,
 	isDryRun, check,
 	showDiff bool,
+	noAudit bool,
 ) error {
 	if len(presets) > 0 {
-		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, presets, isDryRun)
+		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, presets, isDryRun, noAudit)
 	}
 
 	return runFixerMode(

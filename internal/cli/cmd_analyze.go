@@ -56,6 +56,7 @@ func newAnalyzeCommand(builder *CommandBuilder) *cobra.Command {
 				builder.Logger(),
 				builder.Analyzer(),
 				builder.ConfigLoader(),
+				builder.Flags(),
 				format,
 			)
 		},
@@ -93,11 +94,12 @@ func runAnalyze(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
+	flags *Flags,
 	format string,
 ) error {
-	setLogLevel(logger)
+	setLogLevel(logger, flags.Verbose)
 
-	configFile, err := resolveAnalyzeConfig(configLoader, format)
+	configFile, err := resolveAnalyzeConfig(configLoader, flags.ConfigPath)
 	if err != nil {
 		return apperrors.WrapClassified(err, "analyze.resolve_config", "resolve config")
 	}
@@ -112,7 +114,7 @@ func runAnalyze(
 	return outputAnalysis(analysis, format, configFile)
 }
 
-func resolveAnalyzeConfig(configLoader *config.Loader, _ string) (string, error) {
+func resolveAnalyzeConfig(configLoader *config.Loader, configPath string) (string, error) {
 	configFile := configPath
 	if configFile == "" {
 		var err error
