@@ -30,8 +30,8 @@ type JSONReport struct {
 	ConfigPath      string
 	Summary         JSONSummary
 	Recommendations []types.LinterRecommendation
-	EnabledLinters  []string
-	DisabledLinters []string
+	EnabledLinters  []types.LinterName
+	DisabledLinters []types.LinterName
 }
 
 // JSONSummary contains summary statistics.
@@ -82,10 +82,10 @@ func (g *JSONGenerator) buildJSONReport(analysis *types.ConfigAnalysis) JSONRepo
 	}
 }
 
-func extractLinterNames(linters []types.LinterInfo) []string {
-	names := make([]string, 0, len(linters))
+func extractLinterNames(linters []types.LinterInfo) []types.LinterName {
+	names := make([]types.LinterName, 0, len(linters))
 	for _, linter := range linters {
-		names = append(names, string(linter.Name))
+		names = append(names, linter.Name)
 	}
 
 	return names

@@ -14,19 +14,22 @@ type SettingsConverter interface {
 	ToMap() map[string]any
 }
 
-// settingsToMap converts a struct to map[string]any using YAML serialization.
+// mustSettingsToMap converts a struct to map[string]any using YAML serialization.
 // YAML tags on the struct control the key names (kebab-case).
-func settingsToMap(v any) map[string]any {
+// Panics if marshaling fails — this is safe because the input is always a statically-typed
+// settings struct with known YAML tags. The panic is a defensive guard against a
+// programming error (wrong struct type), not a runtime failure mode.
+func mustSettingsToMap(v any) map[string]any {
 	data, err := yaml.Marshal(v)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("settingsToMap: failed to marshal %T: %v", v, err))
 	}
 
 	var m map[string]any
 
 	err = yaml.Unmarshal(data, &m)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("settingsToMap: failed to unmarshal %T: %v", v, err))
 	}
 
 	return m
