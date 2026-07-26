@@ -2,46 +2,56 @@
 
 **Last Updated:** 2026-07-25
 
-Short- and mid-term actionable work. Completed items live in `CHANGELOG.md`; long-term ideas live in `ROADMAP.md`.
+Short- and mid-term actionable work. Completed items live in `CHANGELOG.md`;
+long-term ideas live in `ROADMAP.md`. **This file contains OPEN work only** —
+when a task ships, remove it here and record it in `CHANGELOG.md`.
 
 ---
 
 ## High Priority
 
-| Task                                                                                       | Impact                                       | Effort | Evidence                                                                                 |
-| ------------------------------------------------------------------------------------------ | -------------------------------------------- | ------ | ---------------------------------------------------------------------------------------- |
-| Split `cmd_configure.go` (586 lines, 8+ concerns) into focused files                       | High — largest SRP violation in the codebase | 3–4h   | `internal/cli/cmd_configure.go` is 586 lines; fixer was already split, configure was not |
-| Extend docs-integrity test to cover ALL hardcoded counts in FEATURES.md (not just presets) | High — prevents all documentation drift      | 1h     | `pkg/constants/docs_integrity_test.go` infrastructure exists; only preset counts covered |
+| Task                                                                                     | Impact                                          | Effort  | Evidence                                                                                  |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------- | ------- | ----------------------------------------------------------------------------------------- |
+| Cut a release (version bump + git tag)                                                   | High — ~30 unreleased commits since `v0.5.0`    | 30min   | `git tag` shows `v0.5.0` as latest; friction-reduction + quality-debt work is untagged    |
+| Resolve the `format` preset formatter split-brain                                        | High — config inconsistency, user confusion     | 1h      | `pkg/constants/presets.go`: `format` = 3 formatters, `CoreFormatters` & `house` = 4       |
+| Remove `EnableGolinesFormatter` dead code                                                | Medium — unreachable logic after CoreFormatters | 30min   | `pkg/linter/fixer_formatters.go:51`; bypassed by `EnableCoreFormatters` (`fixer.go:260`)  |
+| Remove stale `G104` from the repo's own `.golangci.yml`                                  | Medium — split-brain vs current defaults        | 15min   | `.golangci.yml:179` still lists `G104`; defaults now ship `G304, G115` only (idempotency) |
+
+### Notes on the High-priority items
+
+- **Release:** the friction-reduction Pareto plan (C19) was the only rollout
+  task not executed. Decide patch (`v0.5.1`) vs minor (`v0.6.0`); additive
+  defaults that change output argue for minor, but pre-1.0 semver is looser.
+- **`format` split-brain:** `CoreFormatters` gained `golines` (now 4), the
+  `house` preset has 4, but `PresetFormatters["format"]` still has 3. Either add
+  `golines` to `format` or document it as the deliberate "minimal formatter"
+  preset. Product decision.
+- **Dead code:** two options — (a) remove `EnableGolinesFormatter` + its call
+  site and accept golines as unconditional (matches the validated 128/160
+  stack); (b) remove `golines` from `CoreFormatters` and keep the conditional
+  recommendation path. Option (a) is recommended.
+- **Stale `G104`:** the tool's idempotency guarantee means re-running
+  `configure` won't remove it. Manually delete the `gosec:` settings block from
+  `.golangci.yml`, then run the tool to re-inject the correct defaults.
 
 ## Medium Priority
 
-| Task                                                              | Impact                                                   | Effort | Evidence                                                                             |
-| ----------------------------------------------------------------- | -------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------ |
-| Extract linter/formatter name strings as typed `const` values     | Medium — eliminates goconst class of lint warnings       | 2–3h   | Linter names are bare strings in many files; typed `LinterName` exists but underused |
-| Split the 8-method `ConfigLoader` God Object interface            | Medium — too many concerns in one interface              | 2–3h   | `pkg/types/types.go:223` — combines 6 sub-interfaces                                 |
-| Consolidate `ValidationError` + `HealthIssue` (overlapping types) | Medium — type system duplication                         | 1–2h   | `pkg/types/types.go:199` and `pkg/types/validation.go:118`                           |
-| Generate settings structs from golangci-lint's JSON Schema        | Medium — replaces hand-maintained structs with generated | 4–6h   | 15 typed structs in `pkg/constants/linter_settings.go` are hand-maintained           |
-| Add settings key validation against golangci-lint schema at load  | Medium — catches typos in user config before runtime     | 2h     | No schema validation in `pkg/config/loader.go` today                                 |
+| Task                                                                   | Impact                                              | Effort  | Evidence                                                                  |
+| ---------------------------------------------------------------------- | --------------------------------------------------- | ------- | ------------------------------------------------------------------------- |
+| `RuleKey()` merge strategy for default-exclusion propagation           | Medium — new linters don't reach existing configs   | 2–3h    | `RuleKey()` dedup key is `Path\|Text\|Source`; 88 machine-generated configs stuck on old list |
+| YAML indentation preservation in config output                         | Medium — massive whitespace diffs obscure changes   | 3–4h    | Tool reformats 2-space→4-space aggressively                               |
+| `--force-settings` flag (re-inject defaults over existing settings)    | Medium — solves the idempotency trap for self-config | 2h      | No way to refresh stale settings in an existing config today              |
+| Consolidate `ARCHITECTURE.md` inline ADRs into `docs/adr/`             | Medium — ADRs live in two places (split-brain)      | 1–2h    | `docs/ARCHITECTURE.md` has 8 inline ADRs; `docs/adr/` has 6 separate files |
+| Extract a `CommandContext` struct for CLI globals                      | Medium — 9 package-level vars hinder testing        | 2–3h    | `internal/cli/commands.go`: `priority`, `dryRun`, `verbose`, `quiet`, …  |
+| Full `README.md` claim-by-claim audit (~500 lines)                     | Medium — repeated spot-checks, never line-by-line   | 2h      | Only Requirements / example output / CI / Related Projects verified       |
+| Run the full `nix flake check` (with build) at least once              | Medium — hermetic build path unvalidated for 4 sessions | 15min | Only `--no-build` run recently; needs SSH for private flake inputs        |
 
 ## Low Priority
 
-| Task                                                                   | Impact | Effort | Evidence                                                 |
-| ---------------------------------------------------------------------- | ------ | ------ | -------------------------------------------------------- |
-| Register domain message templates for `errorfamily.New()` constructors | Low    | 30min  | `pkg/errors/classification.go` uses bare sentinels       |
-| Add `--preset a --preset b` multi-preset support                       | Low    | 2–3h   | `--preset` currently accepts one value                   |
-| Add `--detect` mode for the format preset (auto-enable swaggo)         | Low    | 1h     | `--detect` exists for configure but not format-specific  |
-| Add `--backup` flag decision (always-on vs opt-in)                     | Low    | 30min  | Product decision needed from user                        |
-| Add preset recommendation based on project analysis                    | Low    | 2–3h   | Detection exists but doesn't feed into preset selection  |
-| Add HTML report CSS regression test                                    | Low    | 1h     | Color values in `pkg/ui/styled_output.go` are unverified |
-| Add CI retry logic for flaky golangci-lint cache steps                 | Low    | 1h     | Cache failures occasionally cause CI flakiness           |
-
-## Completed This Session (2026-07-25)
-
-These items were resolved during the comprehensive quality debt cleanup:
-
-- ~~Adopt `HandleError` at the CLI boundary~~ — Done (`internal/cli/commands.go`)
-- ~~Add `--no-color` flag~~ — Done (sets NO_COLOR=1 env var)
-- ~~Type `OutputConfig.Formats`~~ — Investigated; `map[string]any` is intentional for config round-trip safety
-- ~~Conventional commits/changelog automation~~ — Done (`cliff.toml` added)
-- ~~Implement preset composition~~ — Done (format/house presets compose minimalLinters)
-- ~~Extract ARCHITECTURE.md inline ADRs~~ — Done (no ARCHITECTURE.md exists; ADRs in `docs/adr/`)
+| Task                                                                   | Impact | Effort | Evidence                                                        |
+| ---------------------------------------------------------------------- | ------ | ------ | --------------------------------------------------------------- |
+| Extend docs-integrity test to ALL hardcoded FEATURES.md counts         | Low    | 1h     | `pkg/constants/docs_integrity_test.go` only covers preset counts |
+| Status report lifecycle policy (archive cadence)                       | Low    | 30min  | `docs/status/README.md` index exists; no archive cadence policy |
+| Multi-preset merge correctness tests (dedup, formatter union)          | Low    | 1h     | `--preset a --preset b` shipped without dedicated merge tests   |
+| Swallowed-error governance audit (deeper than the 2-site pass)         | Low    | 1h     | Prior audit found only 2 benign `defer Close()` sites          |
+| `shortRunID` panic guard (`parts[2][:4]` without length check)         | Low    | 15min  | `internal/cli/cmd_audit.go`; accepts arbitrary input           |

@@ -12,7 +12,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Feature          | Command        | Status           | Notes                                                                                                    |
 | ---------------- | -------------- | ---------------- | -------------------------------------------------------------------------------------------------------- |
 | Auto-configure   | `configure`    | FULLY_FUNCTIONAL | Enables recommended linters, applies fixes, backs up config                                              |
-| List presets     | `presets`      | FULLY_FUNCTIONAL | Lists all presets with descriptions                                                                      |
+| List presets     | `presets`      | FULLY_FUNCTIONAL | Lists all presets with descriptions; `--json` for structured output                                       |
 | Analyze config   | `analyze`      | FULLY_FUNCTIONAL | Reports missing/extra linters, supports SARIF/finding JSON                                               |
 | Validate config  | `validate`     | FULLY_FUNCTIONAL | Checks YAML validity, supports SARIF output                                                              |
 | Generate report  | `report`       | FULLY_FUNCTIONAL | HTML, JSON, SARIF, finding report formats                                                                |
@@ -77,6 +77,8 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | golines formatter defaults (max-len: 120)                | FULLY_FUNCTIONAL | When enabled via lll replacement                                                                                                                                |
 | gosec defaults (G304, G115 excluded)                     | FULLY_FUNCTIONAL | Curated excludes for common false-positive security findings                                                                                                    |
 | errcheck defaults (exclude-functions for Close, Fprint*) | FULLY_FUNCTIONAL | Curated exclude-functions reducing defer/fmt noise                                                                                                              |
+| wrapcheck defaults (curated ignore-sigs)                 | FULLY_FUNCTIONAL | Reduces wrapping noise for common stdlib signatures                                                                                                             |
+| Settings key validation (soft warnings)                  | FULLY_FUNCTIONAL | Warns on unknown linter settings keys at config load time                                                                                                       |
 | output.formats initialization                            | FULLY_FUNCTIONAL | Empty map to prevent nil issues                                                                                                                                 |
 
 ## Exclusion Automation
@@ -179,6 +181,9 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | ---------------------------------------------------------------------------- | ---------------- | ---------------------- |
 | Custom error types (ConfigError, AnalysisError, ReportError, MigrationError) | FULLY_FUNCTIONAL | `pkg/errors/errors.go` |
 | Error wrapping with context (%w)                                             | FULLY_FUNCTIONAL |                        |
+| `HandleError` at CLI boundary (classified rendering)                         | FULLY_FUNCTIONAL | Replaces raw `slog.Error`; renders user-friendly What/Why/Fix/WayOut messages |
+| Domain message templates (27 Wix-style error messages)                       | FULLY_FUNCTIONAL | `pkg/errors/templates.go`; registered with `errorfamily.New()` |
+| `CommandResult` structured return type                                       | FULLY_FUNCTIONAL | Optional message + explicit exit code alongside the standard error (`internal/cli/result.go`) |
 | Structured logging (charmbracelet/log)                                       | FULLY_FUNCTIONAL |                        |
 | Panic-free finding builder                                                   | FULLY_FUNCTIONAL | `pkg/finding/`         |
 
@@ -194,6 +199,12 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Committed templ output (\_templ.go) | FULLY_FUNCTIONAL | No build-time generation needed                                     |
 | Govulncheck security scanning       | FULLY_FUNCTIONAL | CI job runs govulncheck ./...                                       |
 | Coverage threshold gate             | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 60% threshold)                      |
+| GitHub Actions pinned to SHAs       | FULLY_FUNCTIONAL | 21 actions across 4 workflows pinned to immutable commit hashes     |
+| Settings struct codegen             | FULLY_FUNCTIONAL | `cmd/generate-settings` generates 88 structs from JSON Schema       |
+| CI retry logic                      | FULLY_FUNCTIONAL | 3-attempt retry for nix build; resilient magic-nix-cache           |
+| Dependabot automation               | FULLY_FUNCTIONAL | `.github/dependabot.yml` for Actions + Go modules                  |
+| `git-cliff` changelog automation    | FULLY_FUNCTIONAL | `cliff.toml` config for changelog generation from commits          |
+| `--no-color` flag                   | FULLY_FUNCTIONAL | CI/scripting output (sets `NO_COLOR=1`)                             |
 | Fuzz + property tests               | FULLY_FUNCTIONAL | Set algebra invariants (commutative, idempotent, subset)            |
 | `--json-errors` flag                | FULLY_FUNCTIONAL | JSON error output for CI/CD                                         |
 | `encoding/json/v2` migration        | FULLY_FUNCTIONAL | All files migrated; GOEXPERIMENT=jsonv2 in flake.nix + CI workflows |
