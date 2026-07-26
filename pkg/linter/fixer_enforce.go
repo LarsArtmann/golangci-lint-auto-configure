@@ -64,12 +64,12 @@ func (f *Fixer) enforceDisableReasons(cfg *types.Config) int {
 // tryReEnableLinter checks whether the given linter should be re-enabled (it is
 // disabled without justification) and, if so, moves it from the disable set to
 // the enable set and records the action in the audit ledger.
-func (f *Fixer) tryReEnableLinter(linter string, enableSet, disableSet types.Set[string]) bool {
+func (f *Fixer) tryReEnableLinter(linter types.LinterName, enableSet, disableSet types.Set[types.LinterName]) bool {
 	if isToolLevelDisabled(linter) {
 		return false
 	}
 
-	if f.pol.IsJustified(linter) {
+	if f.pol.IsJustified(string(linter)) {
 		return false
 	}
 
@@ -78,7 +78,7 @@ func (f *Fixer) tryReEnableLinter(linter string, enableSet, disableSet types.Set
 
 	f.logger.Infof("📋 Re-enabling %s: disabled without a justification in %s",
 		linter, policy.SidecarFileName)
-	f.ledger.Record(audit.ActionReEnabled, linter,
+	f.ledger.Record(audit.ActionReEnabled, string(linter),
 		"unjustified disable (no entry in sidecar)")
 
 	return true
@@ -86,8 +86,8 @@ func (f *Fixer) tryReEnableLinter(linter string, enableSet, disableSet types.Set
 
 // isToolLevelDisabled reports whether the linter is in the tool's hardcoded
 // DisabledLinters set (funcorder, noinlineerr, depguard, etc.).
-func isToolLevelDisabled(linter string) bool {
-	_, ok := constants.DisabledLinters[types.LinterName(linter)]
+func isToolLevelDisabled(linter types.LinterName) bool {
+	_, ok := constants.DisabledLinters[linter]
 
 	return ok
 }

@@ -238,7 +238,7 @@ func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logg
 // Returns the count of default settings injected.
 func updateConfigFromSets(
 	cfg *types.Config,
-	linterSet types.Set[string],
+	linterSet types.Set[types.LinterName],
 	formatterSet types.Set[string],
 	formatterManager *FormatterManager,
 	logger *log.Logger,
@@ -250,8 +250,8 @@ func updateConfigFromSets(
 	// making the disabledSet guard in enableRecommendedLinters useless on the next run.
 	disabledSet := types.NewSet(cfg.Linters.Disable...)
 
-	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter string) bool {
-		if reason, ok := constants.DisabledLinters[types.LinterName(linter)]; ok {
+	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter types.LinterName) bool {
+		if reason, ok := constants.DisabledLinters[linter]; ok {
 			disabledSet.Add(linter)
 			logger.Debugf("Moving disabled linter to disable list: %s (%s)", linter, reason)
 
@@ -290,7 +290,7 @@ func updateConfigFromSets(
 // pruneDisabledLinterSettings removes settings blocks for linters that are in the
 // disable list. These blocks are orphaned (the linter is disabled, so its settings
 // have no effect) and previously caused confusion by implying the linter was active.
-func pruneDisabledLinterSettings(cfg *types.Config, disabledLinters []string, logger *log.Logger) int {
+func pruneDisabledLinterSettings(cfg *types.Config, disabledLinters []types.LinterName, logger *log.Logger) int {
 	if len(cfg.Linters.Settings) == 0 || len(disabledLinters) == 0 {
 		return 0
 	}
@@ -298,8 +298,9 @@ func pruneDisabledLinterSettings(cfg *types.Config, disabledLinters []string, lo
 	pruned := 0
 
 	for _, linter := range disabledLinters {
-		if _, exists := cfg.Linters.Settings[linter]; exists {
-			delete(cfg.Linters.Settings, linter)
+		key := string(linter)
+		if _, exists := cfg.Linters.Settings[key]; exists {
+			delete(cfg.Linters.Settings, key)
 			logger.Debugf("Pruned orphaned settings for disabled linter: %s", linter)
 
 			pruned++
@@ -313,22 +314,23 @@ func pruneDisabledLinterSettings(cfg *types.Config, disabledLinters []string, lo
 // configuration, but only if the config doesn't already have meaningful settings for them.
 // Empty or nil values are treated as missing and will be overwritten with defaults.
 // Returns the number of settings injected.
-func injectDefaultSettings(cfg *types.Config, enabledLinters []string) int {
+func injectDefaultSettings(cfg *types.Config, enabledLinters []types.LinterName) int {
 	injected := 0
 
 	for _, linterName := range enabledLinters {
-		defaults, hasDefaults := constants.DefaultLinterSettings[types.LinterName(linterName)]
+		defaults, hasDefaults := constants.DefaultLinterSettings[linterName]
 		if !hasDefaults {
 			continue
 		}
 
 		types.InitLintersSettings(&cfg.Linters)
 
-		if existing, exists := cfg.Linters.Settings[linterName]; exists && !isEmptySettingsValue(existing) {
+		key := string(linterName)
+		if existing, exists := cfg.Linters.Settings[key]; exists && !isEmptySettingsValue(existing) {
 			continue
 		}
 
-		cfg.Linters.Settings[linterName] = defaults.ToMap()
+		cfg.Linters.Settings[key] = defaults.ToMap()
 		injected++
 	}
 
