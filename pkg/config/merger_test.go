@@ -287,7 +287,7 @@ formatters:
 			cfg, _, err := merger.MergeConfigs([]string{ymlPath, yamlPath})
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(cfg.Formatters.Enable).To(ContainElements("gofmt", "goimports"))
+			Expect(cfg.Formatters.Enable).To(ContainElements(types.FormatterName("gofmt"), types.FormatterName("goimports")))
 		})
 	})
 
