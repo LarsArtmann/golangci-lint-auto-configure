@@ -12,12 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// detectedExtraFormatters holds format-specific formatters detected by --detect
-// (e.g., swaggo when Swagger annotations are found). Populated by resolvePresets.
-//
-//nolint:gochecknoglobals // populated by detection, read by savePresetConfig
-var detectedExtraFormatters []types.FormatterName
-
 // presetConfigLoader defines the interface needed for applyPreset.
 type presetConfigLoader interface {
 	LoadConfig(path string) (*types.Config, error)
@@ -136,19 +130,19 @@ func runDetectOrConfigure(
 	presets []string,
 	detect bool,
 ) error {
+	resolvedPresets, extraFormatters := resolvePresets(presets, detect, logger)
+
 	return runConfigure(
 		cmd.Context(),
 		logger,
 		analyzer,
 		configLoader,
 		flags,
-		resolvePresets(presets, detect, logger),
+		resolvedPresets,
+		extraFormatters,
 	)
 }
 
-// runConfigure executes the configure command logic.
-//
-//nolint:funlen // dispatcher: length is from multi-arg delegate calls, not complexity
 func runConfigure(
 	ctx context.Context,
 	logger *log.Logger,
@@ -156,6 +150,7 @@ func runConfigure(
 	configLoader *config.Loader,
 	flags *Flags,
 	presets []string,
+	extraFormatters []types.FormatterName,
 ) error {
 	isDryRun := flags.Check || flags.DryRun
 
@@ -169,28 +164,9 @@ func runConfigure(
 	logger.Infof("Configuring golangci-lint with config: %s", configFile)
 
 	if len(presets) > 0 {
-		return handlePresetMode(
-			ctx,
-			logger,
-			configLoader,
-			analyzer,
-			configFile,
-			presets,
-			isDryRun,
-			flags.NoAudit,
-		)
+		return handlePresetMode(ctx, logger, configLoader, analyzer,
+			configFile, presets, flags, extraFormatters)
 	}
 
-	return runFixerMode(
-		ctx,
-		logger,
-		analyzer,
-		configLoader,
-		configFile,
-		flags.Priority,
-		isDryRun,
-		flags.Check,
-		flags.ShowDiff,
-		flags.NoAudit,
-	)
+	return runFixerMode(ctx, logger, analyzer, configLoader, configFile, flags)
 }

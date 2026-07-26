@@ -82,14 +82,14 @@ func TestResolvePresetNoDetect(t *testing.T) {
 	logger := silentLogger()
 
 	t.Run("returns preset as-is when detect is false", func(t *testing.T) {
-		got := resolvePresets([]string{"strict"}, false, logger)
+		got, _ := resolvePresets([]string{"strict"}, false, logger)
 		if len(got) != 1 || got[0] != "strict" {
 			t.Errorf("expected ['strict'], got %v", got)
 		}
 	})
 
 	t.Run("returns empty when preset empty and no detect", func(t *testing.T) {
-		got := resolvePresets(nil, false, logger)
+		got, _ := resolvePresets(nil, false, logger)
 		if len(got) != 0 {
 			t.Errorf("expected empty, got %v", got)
 		}

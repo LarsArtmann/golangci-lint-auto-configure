@@ -124,6 +124,7 @@ func TestApplyPreset_ValidPreset(t *testing.T) {
 		"/test/config.yml",
 		[]string{"minimal"},
 		false,
+		nil,
 	)
 	if err != nil {
 		t.Errorf("applyPreset() error = %v, want nil", err)
@@ -156,6 +157,7 @@ func TestApplyPreset_DryRun(t *testing.T) {
 		"/test/config.yml",
 		[]string{"minimal"},
 		true,
+		nil,
 	)
 	if err != nil {
 		t.Errorf("applyPreset() dry-run error = %v, want nil", err)
@@ -178,6 +180,7 @@ func TestApplyPreset_UnknownPreset(t *testing.T) {
 		"/test/config.yml",
 		[]string{"nonexistent"},
 		false,
+		nil,
 	)
 	if err == nil {
 		t.Error("applyPreset() expected error for unknown preset, got nil")
@@ -197,6 +200,7 @@ func TestApplyPreset_LoadError(t *testing.T) {
 		"/test/config.yml",
 		[]string{"minimal"},
 		false,
+		nil,
 	)
 	if err == nil {
 		t.Error("applyPreset() expected error when load fails, got nil")
@@ -216,6 +220,7 @@ func TestApplyPreset_SaveError(t *testing.T) {
 		"/test/config.yml",
 		[]string{"minimal"},
 		false,
+		nil,
 	)
 	if err == nil {
 		t.Error("applyPreset() expected error when save fails, got nil")
@@ -245,6 +250,7 @@ func TestApplyPreset_AllPresets(t *testing.T) {
 				"/test/config.yml",
 				[]string{preset},
 				false,
+				nil,
 			)
 			if err != nil {
 				t.Errorf("applyPreset(%q) error = %v, want nil", preset, err)
@@ -269,6 +275,7 @@ func TestApplyPreset_FormatEnablesFormatters(t *testing.T) {
 		"/test/config.yml",
 		[]string{"format"},
 		false,
+		nil,
 	)
 	if err != nil {
 		t.Fatalf("applyPreset(\"format\") error = %v, want nil", err)
@@ -373,6 +380,7 @@ func TestApplyPreset_FormatYAMLIntegration(t *testing.T) {
 		"/test/config.yml",
 		[]string{"format"},
 		false,
+		nil,
 	)
 	if err != nil {
 		t.Fatalf("applyPreset(\"format\") error = %v, want nil", err)

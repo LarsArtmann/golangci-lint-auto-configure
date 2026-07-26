@@ -15,23 +15,25 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-func resolvePresets(presets []string, detect bool, logger *log.Logger) []string {
-	detectedExtraFormatters = nil
-
+func resolvePresets(
+	presets []string,
+	detect bool,
+	logger *log.Logger,
+) ([]string, []types.FormatterName) {
 	if !detect {
-		return presets
+		return presets, nil
 	}
 
 	detector := detection.NewDetector(".")
 
 	if slices.Contains(presets, "format") {
 		if hasSwaggo, err := detector.HasSwaggo(); err == nil && hasSwaggo {
-			detectedExtraFormatters = []types.FormatterName{"swaggo"}
-
 			logger.Infof("🔍 Detected swaggo usage — adding swaggo formatter to format preset")
+
+			return presets, []types.FormatterName{"swaggo"}
 		}
 
-		return presets
+		return presets, nil
 	}
 
 	projectType := detector.Detect()
@@ -39,7 +41,7 @@ func resolvePresets(presets []string, detect bool, logger *log.Logger) []string 
 	logger.Infof("🔍 Detected project type: %s", projectType.String())
 	logger.Infof("📋 Selected preset: %s", projectType.Preset())
 
-	return []string{projectType.Preset()}
+	return []string{projectType.Preset()}, nil
 }
 
 func handlePresetMode(
@@ -49,10 +51,20 @@ func handlePresetMode(
 	analyzer *linter.Analyzer,
 	configFile string,
 	presets []string,
-	dryRun bool,
-	_ bool, // noAudit — presets don't record to the ledger (yet)
+	flags *Flags,
+	extraFormatters []types.FormatterName,
 ) error {
-	if err := applyPreset(ctx, logger, configLoader, configFile, presets, dryRun); err != nil {
+	dryRun := flags.Check || flags.DryRun
+
+	if err := applyPreset(
+		ctx,
+		logger,
+		configLoader,
+		configFile,
+		presets,
+		dryRun,
+		extraFormatters,
+	); err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.preset",
 			"apply preset failed (presets=%v, dryRun=%t)", presets, dryRun)
 	}
@@ -104,11 +116,12 @@ func savePresetConfig(
 	configFile string,
 	presets []string,
 	linterNames []types.LinterName,
+	extraFormatters []types.FormatterName,
 ) error {
 	cfg.Linters.Enable = linterNames
 	cfg.Linters.Disable = []types.LinterName{}
 
-	applyPresetFormatters(logger, cfg, presets)
+	applyPresetFormatters(logger, cfg, presets, extraFormatters)
 
 	generatedCount := linter.ApplyGeneratedExclusions(logger, cfg, configFile)
 	if generatedCount > 0 {
@@ -130,7 +143,12 @@ func savePresetConfig(
 	return nil
 }
 
-func applyPresetFormatters(logger *log.Logger, cfg *types.Config, presets []string) {
+func applyPresetFormatters(
+	logger *log.Logger,
+	cfg *types.Config,
+	presets []string,
+	extraFormatters []types.FormatterName,
+) {
 	formatterSet := types.NewSet[types.FormatterName]()
 
 	for _, preset := range presets {
@@ -149,13 +167,12 @@ func applyPresetFormatters(logger *log.Logger, cfg *types.Config, presets []stri
 	}
 
 	formatterNames := types.ToSortedSlice(formatterSet)
-	formatterNames = append(formatterNames, detectedExtraFormatters...)
+	formatterNames = append(formatterNames, extraFormatters...)
 	cfg.Formatters.Enable = formatterNames
 
 	logger.Infof("Enabling %d formatters from presets: %v", len(formatterNames), formatterNames)
 }
 
-// applyPreset applies a preset linter configuration.
 func applyPreset(
 	_ context.Context,
 	logger *log.Logger,
@@ -163,6 +180,7 @@ func applyPreset(
 	configFile string,
 	presets []string,
 	dryRun bool,
+	extraFormatters []types.FormatterName,
 ) error {
 	cfg, linterNames, err := loadPresetConfig(logger, configLoader, configFile, presets, dryRun)
 	if err != nil {
@@ -182,7 +200,15 @@ func applyPreset(
 			"failed to backup config before preset application (file=%s)", configFile)
 	}
 
-	return savePresetConfig(logger, configLoader, cfg, configFile, presets, linterNames)
+	return savePresetConfig(
+		logger,
+		configLoader,
+		cfg,
+		configFile,
+		presets,
+		linterNames,
+		extraFormatters,
+	)
 }
 
 func logDryRunPreset(logger *log.Logger, presets []string, linterNames []types.LinterName) {

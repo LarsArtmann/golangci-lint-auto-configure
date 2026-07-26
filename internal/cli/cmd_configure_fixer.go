@@ -34,32 +34,36 @@ func runFixerMode(
 	logger *log.Logger,
 	analyzer *linter.Analyzer,
 	configLoader *config.Loader,
-	configFile, priorityParam string,
-	isDryRun,
-	check,
-	showDiff bool,
-	noAudit bool,
+	configFile string,
+	flags *Flags,
 ) error {
-	fixer := newConfiguredFixer(ctx, logger, analyzer, configLoader, configFile, noAudit)
+	isDryRun := flags.Check || flags.DryRun
 
-	linterPriority, err := ParsePriorityParam(priorityParam)
+	fixer := newConfiguredFixer(ctx, logger, analyzer, configLoader, configFile, flags.NoAudit)
+
+	linterPriority, err := ParsePriorityParam(flags.Priority)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.parse_priority",
-			"invalid priority %q", priorityParam)
+			"invalid priority %q", flags.Priority)
 	}
 
-	originalCfg := captureOriginalConfig(showDiff, configLoader, configFile, logger)
-	effectiveDryRun := effectiveDryRunForCheckDiff(isDryRun, check, showDiff, originalCfg)
+	originalCfg := captureOriginalConfig(flags.ShowDiff, configLoader, configFile, logger)
+	effectiveDryRun := effectiveDryRunForCheckDiff(
+		isDryRun,
+		flags.Check,
+		flags.ShowDiff,
+		originalCfg,
+	)
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, effectiveDryRun)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.fixer",
 			"failed to fix configuration (priority=%s, dryRun=%t)",
-			priorityParam, isDryRun)
+			flags.Priority, isDryRun)
 	}
 
 	return finalizeFixerResult(ctx, logger, analyzer, configLoader,
-		originalCfg, configFile, result, isDryRun, check, showDiff)
+		originalCfg, configFile, result, isDryRun, flags.Check, flags.ShowDiff)
 }
 
 func finalizeFixerResult(
