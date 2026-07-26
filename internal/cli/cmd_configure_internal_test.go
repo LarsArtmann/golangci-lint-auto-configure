@@ -35,8 +35,8 @@ func (m *mockPresetConfigLoader) LoadConfig(path string) (*types.Config, error) 
 	return &types.Config{
 		Version: "2",
 		Linters: types.LintersConfig{
-			Enable:  []string{"errcheck"},
-			Disable: []string{},
+			Enable:  []types.LinterName{"errcheck"},
+			Disable: []types.LinterName{},
 		},
 	}, nil
 }

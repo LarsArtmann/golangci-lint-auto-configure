@@ -24,8 +24,8 @@ var _ = Describe("Config.Clone", func() {
 				SortOrder: []string{"linter", "severity"},
 			},
 			Linters: types.LintersConfig{
-				Enable:  []string{"gosec", "errcheck"},
-				Disable: []string{"typecheck"},
+				Enable:  []LinterName{"gosec", "errcheck"},
+				Disable: []LinterName{"typecheck"},
 				Settings: map[string]any{
 					"funlen": map[string]any{"lines": 80},
 				},
@@ -38,7 +38,7 @@ var _ = Describe("Config.Clone", func() {
 				},
 			},
 			Formatters: types.FormattersConfig{
-				Enable: []string{"gofmt"},
+				Enable: []LinterName{"gofmt"},
 				Exclusions: types.FormattersExclusionsConfig{
 					Paths: []string{"generated"},
 				},

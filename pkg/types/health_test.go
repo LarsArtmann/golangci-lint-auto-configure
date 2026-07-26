@@ -45,7 +45,7 @@ var _ = Describe("ConfigHealth", func() {
 		When("disable list has duplicates", func() {
 			It("reports warning", func() {
 				cfg := validConfig()
-				cfg.Linters.Disable = []string{"nlreturn", "nlreturn"}
+				cfg.Linters.Disable = []LinterName{"nlreturn", "nlreturn"}
 
 				health := types.CheckConfigHealth(cfg)
 
@@ -59,7 +59,7 @@ var _ = Describe("ConfigHealth", func() {
 			It("reports both", func() {
 				cfg := validConfig()
 				cfg.Linters.Enable = append(cfg.Linters.Enable, "errcheck", "staticcheck")
-				cfg.Linters.Disable = []string{"nlreturn", "nlreturn"}
+				cfg.Linters.Disable = []LinterName{"nlreturn", "nlreturn"}
 
 				health := types.CheckConfigHealth(cfg)
 
@@ -73,7 +73,7 @@ var _ = Describe("ConfigHealth", func() {
 			It("reports warning", func() {
 				cfg := validConfig()
 				cfg.Linters.Enable = append(cfg.Linters.Enable, "nlreturn")
-				cfg.Linters.Disable = []string{"nlreturn"}
+				cfg.Linters.Disable = []LinterName{"nlreturn"}
 
 				health := types.CheckConfigHealth(cfg)
 
@@ -88,7 +88,7 @@ var _ = Describe("ConfigHealth", func() {
 			It("reports each", func() {
 				cfg := validConfig()
 				cfg.Linters.Enable = append(cfg.Linters.Enable, "nlreturn", "godox")
-				cfg.Linters.Disable = []string{"nlreturn", "godox"}
+				cfg.Linters.Disable = []LinterName{"nlreturn", "godox"}
 
 				health := types.CheckConfigHealth(cfg)
 
@@ -102,7 +102,7 @@ var _ = Describe("ConfigHealth", func() {
 		When("errcheck is missing", func() {
 			It("reports warning", func() {
 				cfg := validConfig()
-				cfg.Linters.Enable = []string{"staticcheck", "govet"}
+				cfg.Linters.Enable = []LinterName{"staticcheck", "govet"}
 
 				health := types.CheckConfigHealth(cfg)
 
@@ -115,7 +115,7 @@ var _ = Describe("ConfigHealth", func() {
 		When("all critical linters are missing", func() {
 			It("reports each one", func() {
 				cfg := validConfig()
-				cfg.Linters.Enable = []string{"gosec"}
+				cfg.Linters.Enable = []LinterName{"gosec"}
 
 				health := types.CheckConfigHealth(cfg)
 
@@ -127,8 +127,8 @@ var _ = Describe("ConfigHealth", func() {
 		When("critical linter is explicitly disabled", func() {
 			It("does not report it as missing", func() {
 				cfg := validConfig()
-				cfg.Linters.Enable = []string{"staticcheck", "govet"}
-				cfg.Linters.Disable = []string{"errcheck"}
+				cfg.Linters.Enable = []LinterName{"staticcheck", "govet"}
+				cfg.Linters.Disable = []LinterName{"errcheck"}
 
 				health := types.CheckConfigHealth(cfg)
 
@@ -290,7 +290,7 @@ func validConfig() *types.Config {
 			Timeout: "5m",
 		},
 		Linters: types.LintersConfig{
-			Enable: []string{"errcheck", "staticcheck", "govet"},
+			Enable: []LinterName{"errcheck", "staticcheck", "govet"},
 		},
 	}
 }

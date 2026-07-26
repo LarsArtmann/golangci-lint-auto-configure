@@ -66,7 +66,7 @@ func writeSidecar(t *testing.T, dir, content string) {
 func TestIsToolLevelDisabled(t *testing.T) {
 	tests := []struct {
 		name   string
-		linter string
+		linter types.LinterName
 		want   bool
 	}{
 		{"funcorder is tool-level disabled", "funcorder", true},
@@ -150,7 +150,7 @@ func TestEnforceDisableReasons_NoPolicy(t *testing.T) {
 	f := newEnforceFixer()
 	// f.pol is nil by default — enforcement must be a no-op.
 
-	cfg := &types.Config{Linters: types.LintersConfig{Disable: []string{"errcheck", "gofmt"}}}
+	cfg := &types.Config{Linters: types.LintersConfig{Disable: []types.LinterName{"errcheck", "gofmt"}}}
 
 	if count := f.enforceDisableReasons(cfg); count != 0 {
 		t.Fatalf("expected 0 re-enables with no policy, got %d", count)
@@ -172,7 +172,7 @@ func TestEnforceDisableReasons_ReEnablesUnjustified(t *testing.T) {
 	}}
 
 	cfg := &types.Config{Linters: types.LintersConfig{
-		Disable: []string{"gofmt", "errcheck"},
+		Disable: []types.LinterName{"gofmt", "errcheck"},
 	}}
 
 	count := f.enforceDisableReasons(cfg)
@@ -203,7 +203,7 @@ func TestEnforceDisableReasons_ToolLevelExempt(t *testing.T) {
 	f.pol = &policy.Policy{} // present but no justifications
 
 	cfg := &types.Config{Linters: types.LintersConfig{
-		Disable: []string{"funcorder", "errcheck"},
+		Disable: []types.LinterName{"funcorder", "errcheck"},
 	}}
 
 	count := f.enforceDisableReasons(cfg)
@@ -230,7 +230,7 @@ func TestEnforceDisableReasons_AllJustified(t *testing.T) {
 	}}
 
 	cfg := &types.Config{Linters: types.LintersConfig{
-		Disable: []string{"gofmt", "errcheck"},
+		Disable: []types.LinterName{"gofmt", "errcheck"},
 	}}
 
 	if count := f.enforceDisableReasons(cfg); count != 0 {
@@ -325,6 +325,6 @@ func TestTryReEnableLinter(t *testing.T) {
 	})
 }
 
-func sliceHas(slice []string, want string) bool {
+func sliceHas(slice []types.LinterName, want string) bool {
 	return slices.Contains(slice, want)
 }

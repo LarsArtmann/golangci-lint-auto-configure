@@ -85,7 +85,7 @@ func TestReplacementAvailable(t *testing.T) {
 }
 
 func TestHasDeprecatedLinters_VersionGated(t *testing.T) {
-	linters := []string{"gomodguard", "gosec"}
+	linters := []types.LinterName{"gomodguard", "gosec"}
 
 	if !hasDeprecatedLinters(linters, "v2.12.0") {
 		t.Error("expected gomodguard to be deprecated for v2.12.0+")

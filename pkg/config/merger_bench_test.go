@@ -26,15 +26,15 @@ func BenchmarkMergeConfigInto(b *testing.B) {
 				Timeout: "5m",
 			},
 			Linters: types.LintersConfig{
-				Enable:  []string{"linterE", "linterA", "linterD"},
-				Disable: []string{"typecheck"},
+				Enable:  []types.LinterName{"linterE", "linterA", "linterD"},
+				Disable: []types.LinterName{"typecheck"},
 			},
 		}
 
 		secondary := &types.Config{
 			Version: "2",
 			Linters: types.LintersConfig{
-				Enable: []string{"linterA", "linterB", "linterC"},
+				Enable: []types.LinterName{"linterA", "linterB", "linterC"},
 				Exclusions: types.LintersExclusionsConfig{
 					Paths: []string{"zz_generated"},
 				},

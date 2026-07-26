@@ -14,7 +14,7 @@ import (
 var _ = Describe("--pragmatic flag", func() {
 	// parseEnableList reads a golangci-lint config YAML file and returns the
 	// linters.enable list.
-	parseEnableList := func(configPath string) []string {
+	parseEnableList := func(configPath string) []types.LinterName {
 		data, err := os.ReadFile(configPath)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -25,8 +25,8 @@ var _ = Describe("--pragmatic flag", func() {
 	}
 
 	// containsAny checks whether any element of needles appears in haystack.
-	containsAny := func(haystack, needles []string) bool {
-		set := make(map[string]struct{}, len(haystack))
+	containsAny := func(haystack, needles []types.LinterName) bool {
+		set := make(map[types.LinterName]struct{}, len(haystack))
 		for _, h := range haystack {
 			set[h] = struct{}{}
 		}
@@ -41,10 +41,10 @@ var _ = Describe("--pragmatic flag", func() {
 	}
 
 	// pragmaticNoiseNames extracts linter names from PragmaticNoiseLinters.
-	pragmaticNoiseNames := func() []string {
-		names := make([]string, 0, len(constants.PragmaticNoiseLinters))
+	pragmaticNoiseNames := func() []types.LinterName {
+		names := make([]types.LinterName, 0, len(constants.PragmaticNoiseLinters))
 		for name := range constants.PragmaticNoiseLinters {
-			names = append(names, string(name))
+			names = append(names, name)
 		}
 
 		return names

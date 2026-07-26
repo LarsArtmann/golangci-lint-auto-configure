@@ -69,7 +69,7 @@ func loadPresetConfig(
 	configFile string,
 	presets []string,
 	dryRun bool,
-) (*types.Config, []string, error) {
+) (*types.Config, []types.LinterName, error) {
 	logger.Infof("Applying presets: %s", strings.Join(presets, "+"))
 
 	cfg, err := configLoader.LoadConfig(configFile)
@@ -78,7 +78,7 @@ func loadPresetConfig(
 			"failed to load config (presets=%v, dryRun=%t)", presets, dryRun)
 	}
 
-	linterSet := make(map[string]struct{})
+	linterSet := types.NewSet[types.LinterName]()
 
 	for _, preset := range presets {
 		linters, ok := constants.PresetLinters[preset]
@@ -89,11 +89,11 @@ func loadPresetConfig(
 		}
 
 		for _, l := range linters {
-			linterSet[string(l)] = struct{}{}
+			linterSet.Add(l)
 		}
 	}
 
-	return cfg, mapKeys(linterSet), nil
+	return cfg, types.ToSortedSlice(linterSet), nil
 }
 
 func savePresetConfig(
@@ -180,7 +180,7 @@ func applyPreset(
 	return savePresetConfig(logger, configLoader, cfg, configFile, presets, linterNames)
 }
 
-func logDryRunPreset(logger *log.Logger, presets []string, linterNames []string) {
+func logDryRunPreset(logger *log.Logger, presets []string, linterNames []types.LinterName) {
 	logger.Infof("[DRY-RUN] Would apply presets %s with %d linters:", strings.Join(presets, "+"), len(linterNames))
 
 	for _, l := range linterNames {

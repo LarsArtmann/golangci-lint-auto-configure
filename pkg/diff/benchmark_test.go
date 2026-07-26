@@ -12,17 +12,17 @@ func BenchmarkCompare(b *testing.B) {
 	old := &types.Config{
 		Version: "2",
 		Linters: types.LintersConfig{
-			Enable: []string{"gosec", "errcheck", "staticcheck", "govet"},
+			Enable: []types.LinterName{"gosec", "errcheck", "staticcheck", "govet"},
 		},
 	}
 
 	newConfig := &types.Config{
 		Version: "2",
 		Linters: types.LintersConfig{
-			Enable: []string{"gosec", "errcheck", "staticcheck", "govet", "gocritic", "unused", "ineffassign"},
+			Enable: []types.LinterName{"gosec", "errcheck", "staticcheck", "govet", "gocritic", "unused", "ineffassign"},
 		},
 		Formatters: types.FormattersConfig{
-			Enable: []string{"gci", "gofumpt"},
+			Enable: []types.LinterName{"gci", "gofumpt"},
 		},
 	}
 

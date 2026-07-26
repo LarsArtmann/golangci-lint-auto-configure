@@ -63,8 +63,8 @@ var _ = Describe("NewConfig", func() {
 		})
 
 		It("applies WithLinters", func() {
-			cfg := types.NewConfig(types.WithLinters([]string{"gosec", "errcheck"}))
-			Expect(cfg.Linters.Enable).To(Equal([]string{"gosec", "errcheck"}))
+			cfg := types.NewConfig(types.WithLinters([]types.LinterName{"gosec", "errcheck"}))
+			Expect(cfg.Linters.Enable).To(Equal([]types.LinterName{"gosec", "errcheck"}))
 		})
 
 		It("applies WithFormatters", func() {
@@ -76,11 +76,11 @@ var _ = Describe("NewConfig", func() {
 			cfg := types.NewConfig(
 				types.WithTimeout("10m"),
 				types.WithGoVersion("1.25"),
-				types.WithLinters([]string{"gosec"}),
+				types.WithLinters([]types.LinterName{"gosec"}),
 			)
 			Expect(cfg.Run.Timeout).To(Equal("10m"))
 			Expect(cfg.Run.Go).To(Equal("1.25"))
-			Expect(cfg.Linters.Enable).To(Equal([]string{"gosec"}))
+			Expect(cfg.Linters.Enable).To(Equal([]types.LinterName{"gosec"}))
 		})
 
 		It("later options override earlier ones", func() {

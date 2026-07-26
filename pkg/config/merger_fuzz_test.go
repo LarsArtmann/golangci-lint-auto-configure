@@ -97,19 +97,19 @@ func configFromLinters(linters string) *Config {
 	}
 }
 
-func parseLinters(s string) []string {
+func parseLinters(s string) []types.LinterName {
 	if s == "" {
 		return nil
 	}
 
 	parts := strings.Split(s, ",")
 
-	var result []string
+	var result []types.LinterName
 
 	for _, p := range parts {
 		p = strings.TrimSpace(p)
 		if p != "" {
-			result = append(result, p)
+			result = append(result, types.LinterName(p))
 		}
 	}
 
