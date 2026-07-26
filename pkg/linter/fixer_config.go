@@ -215,7 +215,7 @@ func (cu *configUpdater) updateIssuesSettings(cfg *types.Config) int {
 // and injects exclusion paths into the config. This is the public entry point
 // used by both the fixer flow and the preset flow.
 func ApplyGeneratedExclusions(logger *log.Logger, cfg *types.Config, configPath string) int {
-	updater := newConfigUpdater(logger)
+	updater := newConfigUpdater(logger, nil)
 
 	return updater.updateGeneratedExclusions(cfg, configPath)
 }

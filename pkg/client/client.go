@@ -47,10 +47,13 @@ func New(opts Options) *Client {
 
 	configLoader := config.NewLoader(logger)
 
+	fixer := linter.NewFixer(logger, analyzer, configLoader)
+	fixer.SetGoVersionProvider(config.GetLocalGoVersion)
+
 	return &Client{
 		configLoader: configLoader,
 		analyzer:     analyzer,
-		fixer:        linter.NewFixer(logger, analyzer, configLoader),
+		fixer:        fixer,
 		logger:       logger,
 	}
 }
