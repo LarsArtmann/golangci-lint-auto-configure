@@ -25,7 +25,9 @@ func newPresetsCommand(builder *CommandBuilder) *cobra.Command {
 		},
 	)
 
-	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output presets as JSON for scripting") //art-dupl:accept Cobra flag registration boilerplate
+	cmd.Flags().
+		BoolVar(&jsonOutput, "json", false, "Output presets as JSON for scripting")
+		//art-dupl:accept Cobra flag registration boilerplate
 
 	return cmd
 }
