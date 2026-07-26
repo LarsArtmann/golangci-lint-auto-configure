@@ -22,7 +22,7 @@ func NewGenerator(logger *log.Logger) *Generator {
 }
 
 // GenerateReport generates an HTML report for given analysis.
-func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAnalysis, outputPath string) error {
+func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAnalysis, outputPath string) (err error) {
 	g.logger.Infof("Generating HTML report: %s", outputPath)
 
 	data := ReportData{
@@ -35,7 +35,12 @@ func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAn
 			"failed to create output file (outputPath=%s)", outputPath)
 	}
 
-	defer func() { _ = outputFile.Close() }()
+	defer func() {
+		if cerr := outputFile.Close(); cerr != nil && err == nil {
+			err = errorfamily.WrapCorruptionf(cerr, "report.close_output",
+				"failed to close output file (outputPath=%s)", outputPath)
+		}
+	}()
 
 	//nolint:contextcheck // Context comes from caller; templ.Render receives it correctly
 	err = Report(data).Render(ctx, outputFile)

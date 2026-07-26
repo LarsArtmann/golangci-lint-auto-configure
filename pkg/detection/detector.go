@@ -23,7 +23,7 @@ const (
 )
 
 func closeFile(c io.Closer) {
-	_ = c.Close()
+	_ = c.Close() //nolint:erraudit // read-path close in best-effort cleanup helper; error is not actionable
 }
 
 // walkGoFiles walks all .go files in the directory and calls processFile for each.
@@ -211,7 +211,7 @@ func (d *Detector) detect() ProjectType {
 		return ProjectTypeMonorepo
 	}
 
-	modulePath, imports, _ := d.analyzeGoModWithError()
+	modulePath, imports, _ := d.analyzeGoModWithError() //nolint:erraudit // best-effort detection: unreadable go.mod degrades gracefully to ProjectTypeUnknown
 	hasMain := d.hasMainPackage()
 	hasHTTP := d.hasHTTPFramework(imports)
 	hasCLI := d.hasCLIFramework(imports)
@@ -241,7 +241,7 @@ func classifyProject(modulePath string, hasMain, hasHTTP, hasCLI, hasAPI bool) P
 func (d *Detector) isMonorepo() bool {
 	count := 0
 
-	_ = filepath.Walk(d.rootDir, func(_ string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(d.rootDir, func(_ string, info os.FileInfo, err error) error { //nolint:erraudit // best-effort monorepo heuristic: walk failure degrades to non-monorepo
 		if err != nil {
 			return filepath.SkipDir
 		}
@@ -340,7 +340,7 @@ func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 func (d *Detector) hasMainPackage() bool {
 	found := false
 
-	_ = d.walkGoFiles(func(file *os.File) error {
+	_ = d.walkGoFiles(func(file *os.File) error { //nolint:erraudit // best-effort heuristic: walk failure degrades to false (pattern not found)
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := strings.TrimSpace(scanner.Text())
@@ -351,9 +351,7 @@ func (d *Detector) hasMainPackage() bool {
 			}
 		}
 
-		_ = scanner.Err()
-
-		return nil
+		return scanner.Err()
 	})
 
 	return found
@@ -386,7 +384,7 @@ func (d *Detector) hasCLIFramework(imports []string) bool {
 func (d *Detector) hasAPICodePatterns() bool {
 	found := false
 
-	_ = d.walkGoFiles(func(file *os.File) error {
+	_ = d.walkGoFiles(func(file *os.File) error { //nolint:erraudit // best-effort heuristic: walk failure degrades to false (pattern not found)
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -399,9 +397,7 @@ func (d *Detector) hasAPICodePatterns() bool {
 			}
 		}
 
-		_ = scanner.Err()
-
-		return nil
+		return scanner.Err()
 	})
 
 	return found
@@ -448,9 +444,7 @@ func (d *Detector) scanFileForSwaggo(file *os.File, found *bool) error {
 		}
 	}
 
-	_ = scanner.Err()
-
-	return nil
+	return scanner.Err()
 }
 
 func (d *Detector) containsSwaggoPattern(line string) bool {

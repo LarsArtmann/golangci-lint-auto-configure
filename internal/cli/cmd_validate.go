@@ -248,7 +248,7 @@ func healthIssuesToFindings(
 			WithFixStrategy(finding.FixStrategySuggest).
 			WithSuggestion(issue.Suggestion).
 			Build()
-		if err != nil {
+		if err != nil { //nolint:erraudit // best-effort: skip one finding that fails to build, continue emitting the rest
 			logger.Warnf("⚠️  Failed to build finding for rule %q: %v", issue.Rule, err)
 
 			continue
@@ -337,7 +337,7 @@ func outputValidationSARIF(_ *types.Config, configFile string, errors []error) e
 			"failed to format SARIF")
 	}
 
-	_, writeErr := os.Stdout.Write(pretty)
+	_, writeErr := os.Stdout.Write(pretty) //nolint:erraudit // _ is the byte count, not an error; writeErr is checked below
 	if writeErr != nil {
 		return errorfamily.WrapRejectionf(writeErr, "validate.sarif_write",
 			"failed to write SARIF output")
