@@ -237,7 +237,11 @@ func TestOutputEntries_EmptyReturnsNoError(t *testing.T) {
 func TestOutputEntries_Table(t *testing.T) {
 	logger := testAuditLogger()
 	entries := []audit.Entry{
-		sampleEntry("errcheck", audit.ActionAddedToEnable, time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC)),
+		sampleEntry(
+			"errcheck",
+			audit.ActionAddedToEnable,
+			time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC),
+		),
 	}
 
 	out := captureStdout(t, func() {
@@ -258,7 +262,11 @@ func TestOutputEntries_Table(t *testing.T) {
 func TestOutputEntries_JSON(t *testing.T) {
 	logger := testAuditLogger()
 	entries := []audit.Entry{
-		sampleEntry("errcheck", audit.ActionReEnabled, time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC)),
+		sampleEntry(
+			"errcheck",
+			audit.ActionReEnabled,
+			time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC),
+		),
 	}
 
 	out := captureStdout(t, func() {
@@ -302,9 +310,18 @@ func TestDisplayAuditEntries_ReadsAndFilters(t *testing.T) {
 	ledgerPath := filepath.Join(dir, "audit.jsonl")
 
 	writeTestLedger(
-		t, ledgerPath,
-		sampleEntry("errcheck", audit.ActionAddedToEnable, time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC)),
-		sampleEntry("gofmt", audit.ActionMovedToDisable, time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC)),
+		t,
+		ledgerPath,
+		sampleEntry(
+			"errcheck",
+			audit.ActionAddedToEnable,
+			time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC),
+		),
+		sampleEntry(
+			"gofmt",
+			audit.ActionMovedToDisable,
+			time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC),
+		),
 	)
 
 	out := captureStdout(t, func() {

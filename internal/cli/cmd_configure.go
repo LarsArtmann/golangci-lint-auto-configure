@@ -189,5 +189,15 @@ func runPresetOrFixer(
 		return handlePresetMode(ctx, logger, configLoader, analyzer, configFile, presets, isDryRun)
 	}
 
-	return runFixerMode(ctx, logger, analyzer, configLoader, configFile, priorityParam, isDryRun, check, showDiff)
+	return runFixerMode(
+		ctx,
+		logger,
+		analyzer,
+		configLoader,
+		configFile,
+		priorityParam,
+		isDryRun,
+		check,
+		showDiff,
+	)
 }

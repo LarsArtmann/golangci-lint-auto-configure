@@ -117,7 +117,14 @@ func TestApplyPreset_ValidPreset(t *testing.T) {
 	mock := &mockPresetConfigLoader{}
 	logger := newTestLogger()
 
-	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", []string{"minimal"}, false)
+	err := applyPreset(
+		context.Background(),
+		logger,
+		mock,
+		"/test/config.yml",
+		[]string{"minimal"},
+		false,
+	)
 	if err != nil {
 		t.Errorf("applyPreset() error = %v, want nil", err)
 	}
@@ -142,7 +149,14 @@ func TestApplyPreset_DryRun(t *testing.T) {
 	mock := &mockPresetConfigLoader{}
 	logger := newTestLogger()
 
-	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", []string{"minimal"}, true)
+	err := applyPreset(
+		context.Background(),
+		logger,
+		mock,
+		"/test/config.yml",
+		[]string{"minimal"},
+		true,
+	)
 	if err != nil {
 		t.Errorf("applyPreset() dry-run error = %v, want nil", err)
 	}
@@ -157,7 +171,14 @@ func TestApplyPreset_UnknownPreset(t *testing.T) {
 	mock := &mockPresetConfigLoader{}
 	logger := newTestLogger()
 
-	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", []string{"nonexistent"}, false)
+	err := applyPreset(
+		context.Background(),
+		logger,
+		mock,
+		"/test/config.yml",
+		[]string{"nonexistent"},
+		false,
+	)
 	if err == nil {
 		t.Error("applyPreset() expected error for unknown preset, got nil")
 	}
@@ -169,7 +190,14 @@ func TestApplyPreset_LoadError(t *testing.T) {
 	}
 	logger := newTestLogger()
 
-	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", []string{"minimal"}, false)
+	err := applyPreset(
+		context.Background(),
+		logger,
+		mock,
+		"/test/config.yml",
+		[]string{"minimal"},
+		false,
+	)
 	if err == nil {
 		t.Error("applyPreset() expected error when load fails, got nil")
 	}
@@ -181,14 +209,29 @@ func TestApplyPreset_SaveError(t *testing.T) {
 	}
 	logger := newTestLogger()
 
-	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", []string{"minimal"}, false)
+	err := applyPreset(
+		context.Background(),
+		logger,
+		mock,
+		"/test/config.yml",
+		[]string{"minimal"},
+		false,
+	)
 	if err == nil {
 		t.Error("applyPreset() expected error when save fails, got nil")
 	}
 }
 
 func TestApplyPreset_AllPresets(t *testing.T) {
-	presets := []string{"minimal", "standard", "strict", "security", "performance", "reference", "format"}
+	presets := []string{
+		"minimal",
+		"standard",
+		"strict",
+		"security",
+		"performance",
+		"reference",
+		"format",
+	}
 
 	for _, preset := range presets {
 		t.Run(preset, func(t *testing.T) {
@@ -237,7 +280,11 @@ func TestApplyPreset_FormatEnablesFormatters(t *testing.T) {
 
 	expectedFormatters := []types.FormatterName{"gci", "gofumpt", "goimports"}
 	if len(mock.savedCfg.Formatters.Enable) != len(expectedFormatters) {
-		t.Fatalf("expected %d formatters, got %d", len(expectedFormatters), len(mock.savedCfg.Formatters.Enable))
+		t.Fatalf(
+			"expected %d formatters, got %d",
+			len(expectedFormatters),
+			len(mock.savedCfg.Formatters.Enable),
+		)
 	}
 
 	formatterSet := make(map[types.FormatterName]bool)
@@ -319,7 +366,14 @@ func TestApplyPreset_FormatYAMLIntegration(t *testing.T) {
 	mock := &mockPresetConfigLoader{}
 	logger := newTestLogger()
 
-	err := applyPreset(context.Background(), logger, mock, "/test/config.yml", []string{"format"}, false)
+	err := applyPreset(
+		context.Background(),
+		logger,
+		mock,
+		"/test/config.yml",
+		[]string{"format"},
+		false,
+	)
 	if err != nil {
 		t.Fatalf("applyPreset(\"format\") error = %v, want nil", err)
 	}

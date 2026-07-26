@@ -56,7 +56,11 @@ linters:
 	})
 
 	It("should generate SARIF report", func() {
-		testReportFormat("sarif.json", "sarif", []string{`"$schema"`, `"golangci-lint-auto-configure"`})
+		testReportFormat(
+			"sarif.json",
+			"sarif",
+			[]string{`"$schema"`, `"golangci-lint-auto-configure"`},
+		)
 	})
 
 	It("should generate finding report", func() {

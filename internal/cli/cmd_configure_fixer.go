@@ -136,7 +136,12 @@ func handleCheckMode(check bool, result *types.MigrationResult, logger *log.Logg
 	return nil
 }
 
-func showConfigDiff(configLoader *config.Loader, oldCfg *types.Config, configFile string, logger *log.Logger) {
+func showConfigDiff(
+	configLoader *config.Loader,
+	oldCfg *types.Config,
+	configFile string,
+	logger *log.Logger,
+) {
 	newCfg, err := configLoader.LoadConfig(configFile)
 	if err != nil {
 		logger.Debugf("Failed to load modified config for diff: %v", err)

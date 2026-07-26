@@ -96,6 +96,9 @@ func TestRunListPresets_ShowsLinterCount(t *testing.T) {
 	}
 
 	if !strings.Contains(output, "formatters") {
-		t.Errorf("runListPresets() output should mention 'formatters' count for format preset:\n%s", output)
+		t.Errorf(
+			"runListPresets() output should mention 'formatters' count for format preset:\n%s",
+			output,
+		)
 	}
 }

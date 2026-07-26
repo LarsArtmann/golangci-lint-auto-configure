@@ -309,7 +309,15 @@ var _ = Describe("CLI Integration", func() {
 			configPath := writeMinimalTestConfig(tempDir)
 
 			reportPath := filepath.Join(tempDir, "report.json")
-			output, err := runCLI("report", "--config", configPath, "--format", "json", "--output", reportPath)
+			output, err := runCLI(
+				"report",
+				"--config",
+				configPath,
+				"--format",
+				"json",
+				"--output",
+				reportPath,
+			)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(string(output)).To(ContainSubstring("Report generated"))
@@ -322,7 +330,15 @@ var _ = Describe("CLI Integration", func() {
 			configPath := writeMinimalTestConfig(tempDir)
 
 			reportPath := filepath.Join(tempDir, "report.json")
-			_, err := runCLI("report", "--config", configPath, "--format", "json", "--output", reportPath)
+			_, err := runCLI(
+				"report",
+				"--config",
+				configPath,
+				"--format",
+				"json",
+				"--output",
+				reportPath,
+			)
 			Expect(err).NotTo(HaveOccurred())
 
 			data, readErr := os.ReadFile(reportPath)
@@ -382,14 +398,28 @@ linters:
 			err := os.WriteFile(configPath, []byte(initialContent), 0o644)
 			Expect(err).NotTo(HaveOccurred())
 
-			_, err = runCLI("configure", "--config", configPath, "--priority", "critical", "--check")
+			_, err = runCLI(
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+				"--check",
+			)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("should exit 1 for suboptimal config", func() {
 			configPath := writeMinimalTestConfig(tempDir)
 
-			_, err := runCLI("configure", "--config", configPath, "--priority", "critical", "--check")
+			_, err := runCLI(
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+				"--check",
+			)
 			Expect(err).To(HaveOccurred())
 		})
 	})
@@ -398,7 +428,14 @@ linters:
 		It("should show diff for changes", func() {
 			configPath := writeMinimalTestConfig(tempDir)
 
-			output, err := runCLI("configure", "--config", configPath, "--priority", "critical", "--diff")
+			output, err := runCLI(
+				"configure",
+				"--config",
+				configPath,
+				"--priority",
+				"critical",
+				"--diff",
+			)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(string(output)).To(ContainSubstring("Added"))

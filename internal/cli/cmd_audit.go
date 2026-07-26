@@ -103,7 +103,13 @@ func newAuditCommand(builder *CommandBuilder) *cobra.Command {
 		"audit",
 		"Show the audit trail of config changes",
 		func(_ *cobra.Command, _ []string) error {
-			return runAuditCommand(builder.Logger(), jsonOutput, sinceFilter, linterFilter, clearLedger)
+			return runAuditCommand(
+				builder.Logger(),
+				jsonOutput,
+				sinceFilter,
+				linterFilter,
+				clearLedger,
+			)
 		},
 		WithLong(auditLong),
 	)
@@ -241,7 +247,11 @@ func parseSinceDuration(since string) (time.Duration, error) {
 	if dayStr, ok := strings.CutSuffix(since, "d"); ok {
 		dayCount, err := strconv.Atoi(dayStr)
 		if err != nil {
-			return 0, fmt.Errorf("invalid --since %q: expected a day count (e.g. 7d): %w", since, err)
+			return 0, fmt.Errorf(
+				"invalid --since %q: expected a day count (e.g. 7d): %w",
+				since,
+				err,
+			)
 		}
 
 		return time.Duration(dayCount) * cliHoursPerDay * time.Hour, nil
@@ -249,7 +259,11 @@ func parseSinceDuration(since string) (time.Duration, error) {
 
 	duration, err := time.ParseDuration(since)
 	if err != nil {
-		return 0, fmt.Errorf("invalid --since %q: use Go duration (24h) or days (7d): %w", since, err)
+		return 0, fmt.Errorf(
+			"invalid --since %q: use Go duration (24h) or days (7d): %w",
+			since,
+			err,
+		)
 	}
 
 	return duration, nil

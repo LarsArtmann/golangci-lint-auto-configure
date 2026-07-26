@@ -71,7 +71,8 @@ var _ = Context("exit codes", func() {
 		binaryPath := buildBinary()
 		configPath := writeConfig(testConfigContentMinimal)
 
-		err := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "critical").Run()
+		err := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "critical").
+			Run()
 		Expect(err).ToNot(HaveOccurred())
 	})
 
@@ -81,7 +82,8 @@ var _ = Context("exit codes", func() {
 		binaryPath := buildBinary()
 		configPath := writeConfig(testConfigContentMinimal)
 
-		err := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "invalid-priority").Run()
+		err := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "invalid-priority").
+			Run()
 		Expect(err).To(HaveOccurred())
 
 		exitErr, ok := errors.AsType[*exec.ExitError](err)
@@ -96,7 +98,13 @@ var _ = Context("exit codes", func() {
 		configPath := writeConfig(testConfigContentMinimal)
 
 		output, err := exec.Command(
-			binaryPath, "configure", "--config", configPath, "--priority", "invalid-priority", "--json-errors",
+			binaryPath,
+			"configure",
+			"--config",
+			configPath,
+			"--priority",
+			"invalid-priority",
+			"--json-errors",
 		).CombinedOutput()
 
 		Expect(err).To(HaveOccurred())
@@ -113,7 +121,14 @@ var _ = Context("exit codes", func() {
 		binaryPath := buildBinary()
 		configPath := writeConfig(testConfigContentMinimal)
 
-		cmd := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "critical")
+		cmd := exec.Command(
+			binaryPath,
+			"configure",
+			"--config",
+			configPath,
+			"--priority",
+			"critical",
+		)
 		cmd.Env = envWithPATH(pathWithoutGolangciLint())
 
 		err := cmd.Run()
@@ -134,7 +149,14 @@ var _ = Context("exit codes", func() {
 		writeFakeGolangciLint(fakeDir)
 
 		shadowedPath := fakeDir + string(filepath.ListSeparator) + os.Getenv("PATH")
-		cmd := exec.Command(binaryPath, "configure", "--config", configPath, "--priority", "critical")
+		cmd := exec.Command(
+			binaryPath,
+			"configure",
+			"--config",
+			configPath,
+			"--priority",
+			"critical",
+		)
 		cmd.Env = envWithPATH(shadowedPath)
 
 		err := cmd.Run()

@@ -131,7 +131,11 @@ func resolveAnalyzeConfig(configLoader *config.Loader, _ string) (string, error)
 func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) error {
 	switch format {
 	case formatJSON:
-		data, err := json.Marshal(analysis, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
+		data, err := json.Marshal(
+			analysis,
+			jsontext.WithIndentPrefix(""),
+			jsontext.WithIndent("  "),
+		)
 		if err != nil {
 			return apperrors.WrapClassifiedf(err, "analyze.marshal_json",
 				"failed to marshal analysis to JSON (format=%s)", format)

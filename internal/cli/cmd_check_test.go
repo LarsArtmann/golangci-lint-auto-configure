@@ -22,7 +22,12 @@ var _ = Context("check mode combinations", func() {
 
 	It("should exit 0 with --check --priority critical after configure", func() {
 		initGitRepo()
-		configureThenCheck(buildBinary(), writeConfig(testConfigContentMinimal), "priority", "critical")
+		configureThenCheck(
+			buildBinary(),
+			writeConfig(testConfigContentMinimal),
+			"priority",
+			"critical",
+		)
 	})
 
 	It("should not modify file with --check --dry-run", func() {
@@ -47,7 +52,12 @@ var _ = Context("check mode combinations", func() {
 
 	It("should exit 0 with --check --preset after configure", func() {
 		initGitRepo()
-		configureThenCheck(buildBinary(), writeConfig(testConfigContentMinimal), "preset", "minimal")
+		configureThenCheck(
+			buildBinary(),
+			writeConfig(testConfigContentMinimal),
+			"preset",
+			"minimal",
+		)
 	})
 
 	It("should restore config after --check --diff", func() {

@@ -227,7 +227,7 @@ var _ = Describe("Format preset", func() {
 
 	It("should have formatters in canonical order matching FormatterOrder", func() {
 		formatters := constants.PresetFormatters["format"]
-		Expect(formatters).To(HaveLen(3))
+		Expect(formatters).To(HaveLen(4))
 
 		for i, f := range formatters {
 			expected := constants.FormatterOrder[i]

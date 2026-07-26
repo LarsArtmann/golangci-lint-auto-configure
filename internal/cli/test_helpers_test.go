@@ -132,7 +132,13 @@ func testCommandSuccess(configContent, command, expectedOutput string) {
 // Helper function to test missing config file error.
 func testMissingConfigError(command string) {
 	binaryPath := buildBinary()
-	cmd := exec.CommandContext(context.Background(), binaryPath, command, "--config", "/non/existent/path.yml")
+	cmd := exec.CommandContext(
+		context.Background(),
+		binaryPath,
+		command,
+		"--config",
+		"/non/existent/path.yml",
+	)
 	_, err := cmd.CombinedOutput()
 	Expect(err).To(HaveOccurred())
 }

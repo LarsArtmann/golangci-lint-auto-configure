@@ -120,7 +120,11 @@ func savePresetConfig(
 			presets, len(linterNames))
 	}
 
-	logger.Infof("✅ Applied presets %s with %d linters", strings.Join(presets, "+"), len(linterNames))
+	logger.Infof(
+		"✅ Applied presets %s with %d linters",
+		strings.Join(presets, "+"),
+		len(linterNames),
+	)
 
 	return nil
 }
@@ -181,7 +185,11 @@ func applyPreset(
 }
 
 func logDryRunPreset(logger *log.Logger, presets []string, linterNames []types.LinterName) {
-	logger.Infof("[DRY-RUN] Would apply presets %s with %d linters:", strings.Join(presets, "+"), len(linterNames))
+	logger.Infof(
+		"[DRY-RUN] Would apply presets %s with %d linters:",
+		strings.Join(presets, "+"),
+		len(linterNames),
+	)
 
 	for _, l := range linterNames {
 		logger.Infof("  - %s", l)
