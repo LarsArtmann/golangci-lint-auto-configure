@@ -9,7 +9,7 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	RegisterFailHandler(Fail)
+	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
 	RunSpecs(t, "Version Suite")
 }
 

@@ -19,7 +19,7 @@ func writeMainGo(dir string) {
 }
 
 func TestScanner(t *testing.T) {
-	RegisterFailHandler(Fail)
+	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
 	RunSpecs(t, "GoGenFilter Scanner Suite")
 }
 

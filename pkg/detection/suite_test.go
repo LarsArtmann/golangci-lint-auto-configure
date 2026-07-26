@@ -8,6 +8,6 @@ import (
 )
 
 func TestDetection(t *testing.T) {
-	RegisterFailHandler(Fail)
+	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
 	RunSpecs(t, "Detection Suite")
 }

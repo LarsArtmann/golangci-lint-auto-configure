@@ -3,7 +3,6 @@ package cli
 import (
 	"encoding/json/v2"
 	"fmt"
-	"os"
 	"sort"
 
 	"charm.land/log/v2"
@@ -26,7 +25,7 @@ func newPresetsCommand(builder *CommandBuilder) *cobra.Command {
 		},
 	)
 
-	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output presets as JSON for scripting")
+	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output presets as JSON for scripting") //art-dupl:accept Cobra flag registration boilerplate
 
 	return cmd
 }

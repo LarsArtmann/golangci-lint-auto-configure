@@ -10,6 +10,6 @@ import (
 func TestPolicy(t *testing.T) {
 	t.Parallel()
 
-	RegisterFailHandler(Fail)
+	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
 	RunSpecs(t, "Policy Suite")
 }

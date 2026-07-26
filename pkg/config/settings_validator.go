@@ -21,7 +21,7 @@ func ValidateSettingsKeys(config *types.Config) []string {
 		warnings = append(warnings, warning...)
 	}
 
-	slices.Sort(warnings)
+	slices.Sort(warnings) //art-dupl:accept coincidental stdlib call, different slice types
 
 	return warnings
 }

@@ -8,6 +8,6 @@ import (
 )
 
 func TestDiff(t *testing.T) {
-	RegisterFailHandler(Fail)
+	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
 	RunSpecs(t, "Diff Suite")
 }

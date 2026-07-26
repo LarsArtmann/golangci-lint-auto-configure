@@ -224,7 +224,7 @@ type LinterList struct {
 // getAllLinterNames fetches all available linter names from golangci-lint.
 func (l *Loader) getAllLinterNames(ctx context.Context) ([]types.LinterName, error) {
 	ctx, cancel := context.WithTimeout(ctx, LintersTimeout)
-	defer cancel()
+	defer cancel() //art-dupl:accept standard context cleanup idiom
 
 	//nolint:gosec // binary name is a constant, not user input
 	cmd := exec.CommandContext(ctx, constants.GolangciLintBinaryName, "linters", "--json")

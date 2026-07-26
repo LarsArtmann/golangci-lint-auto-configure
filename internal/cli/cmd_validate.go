@@ -86,7 +86,7 @@ func validateConfig(
 	configFile string,
 	_ bool,
 ) error {
-	err := validateLoadedConfig(configLoader, logger, configFile)
+	err := validateLoadedConfig(configLoader, logger, configFile) //art-dupl:accept standard Go early-return idiom
 	if err == nil {
 		return nil
 	}

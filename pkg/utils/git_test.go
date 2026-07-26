@@ -15,7 +15,7 @@ import (
 )
 
 func TestUtils(t *testing.T) {
-	RegisterFailHandler(Fail)
+	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
 	RunSpecs(t, "Utils Suite")
 }
 

@@ -166,7 +166,7 @@ func outputSARIF(analysis *types.ConfigAnalysis) error {
 		return apperrors.WrapClassified(err, "analyze.sarif", "failed to generate SARIF")
 	}
 
-	printBytesToStdout(sarif)
+	printBytesToStdout(sarif) //art-dupl:accept correct reuse of shared output helper
 
 	return nil
 }

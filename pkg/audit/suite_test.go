@@ -8,6 +8,6 @@ import (
 )
 
 func TestAudit(t *testing.T) {
-	RegisterFailHandler(Fail)
+	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
 	RunSpecs(t, "Audit Suite")
 }
