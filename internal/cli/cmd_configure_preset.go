@@ -130,7 +130,11 @@ func savePresetConfig(
 			presets, len(linterNames))
 	}
 
-	logger.Infof("✅ Applied presets %s with %d linters", strings.Join(presets, "+"), len(linterNames))
+	logger.Infof(
+		"✅ Applied presets %s with %d linters",
+		strings.Join(presets, "+"),
+		len(linterNames),
+	)
 
 	return nil
 }
@@ -173,7 +177,12 @@ func applyPreset(
 	cfg, linterNames, err := loadPresetConfig(logger, configLoader, configFile, presets, dryRun)
 	if err != nil {
 		return apperrors.WrapClassifiedf(
-			err, "configure.load_preset", "load preset config failed (presets=%v, dryRun=%t)", presets, dryRun)
+			err,
+			"configure.load_preset",
+			"load preset config failed (presets=%v, dryRun=%t)",
+			presets,
+			dryRun,
+		)
 	}
 
 	if dryRun {

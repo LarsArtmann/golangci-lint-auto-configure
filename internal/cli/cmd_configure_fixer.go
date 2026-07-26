@@ -44,7 +44,12 @@ func runFixerMode(
 	}
 
 	originalCfg := captureOriginalConfig(flags.ShowDiff, configLoader, configFile, logger)
-	effectiveDryRun := effectiveDryRunForCheckDiff(isDryRun, flags.Check, flags.ShowDiff, originalCfg)
+	effectiveDryRun := effectiveDryRunForCheckDiff(
+		isDryRun,
+		flags.Check,
+		flags.ShowDiff,
+		originalCfg,
+	)
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, effectiveDryRun)
 	if err != nil {

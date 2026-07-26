@@ -66,27 +66,31 @@ func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding,
 	}
 
 	findings := make([]finding.Finding, 0, initialFindingsCapacity)
-	filteredLinterRecs := filterLinterRecommendationsByPriority(analysis.LinterRecommendations, d.priority)
-	filteredFormatterRecs := filterFormatterRecommendationsByPriority(analysis.FormatterRecommendations, d.priority)
 
-	err = appendDetectorFindings(&findings, analysis.ConfigPath, "detector.convert_recommendations",
-		RecommendationsToFindings, filteredLinterRecs)
-	if err != nil {
-		return nil, err
+	return findings, appendAnalysisFindings(&findings, analysis, d.priority)
+}
+
+func appendAnalysisFindings(
+	findings *[]finding.Finding,
+	analysis *types.ConfigAnalysis,
+	priority types.LinterPriority,
+) error {
+	linterRecs := filterLinterRecommendationsByPriority(analysis.LinterRecommendations, priority)
+
+	if err := appendDetectorFindings(findings, analysis.ConfigPath, "detector.convert_recommendations",
+		RecommendationsToFindings, linterRecs); err != nil {
+		return err
 	}
 
-	err = appendDetectorFindings(&findings, analysis.ConfigPath, "detector.convert_formatters",
-		FormatterRecommendationsToFindings, filteredFormatterRecs)
-	if err != nil {
-		return nil, err
+	formatterRecs := filterFormatterRecommendationsByPriority(analysis.FormatterRecommendations, priority)
+
+	if err := appendDetectorFindings(findings, analysis.ConfigPath, "detector.convert_formatters",
+		FormatterRecommendationsToFindings, formatterRecs); err != nil {
+		return err
 	}
 
-	err = appendDetectorFindings(&findings, analysis.ConfigPath, "detector.convert_deprecated", DeprecatedLintersToFindings, analysis.DeprecatedLinters)
-	if err != nil {
-		return nil, err
-	}
-
-	return findings, nil
+	return appendDetectorFindings(findings, analysis.ConfigPath, "detector.convert_deprecated",
+		DeprecatedLintersToFindings, analysis.DeprecatedLinters)
 }
 
 // convertFunc is a generic converter that transforms domain data into Findings.
