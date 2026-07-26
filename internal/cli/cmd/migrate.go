@@ -48,8 +48,7 @@ func runMigrate(
 	configLoader *config.Loader,
 	skipValidation bool,
 ) error {
-	verbose, _ := cmd.Flags().
-		GetBool("verbose")
+	verbose, _ := cmd.Flags().GetBool("verbose")
 	if verbose {
 		logger.SetLevel(log.DebugLevel)
 	}
@@ -60,8 +59,7 @@ func runMigrate(
 			"resolve migrate config failed (verbose=%t)", verbose)
 	}
 
-	dryRun, _ := cmd.Flags().
-		GetBool("dry-run")
+	dryRun, _ := cmd.Flags().GetBool("dry-run")
 
 	return executeMigration(logger, configLoader, configFile, dryRun, skipValidation, verbose)
 }
@@ -71,8 +69,7 @@ func resolveMigrateConfig(
 	configLoader *config.Loader,
 	verbose bool,
 ) (string, error) {
-	configFile, _ := cmd.Flags().
-		GetString("config")
+	configFile, _ := cmd.Flags().GetString("config")
 	if configFile == "" {
 		var err error
 

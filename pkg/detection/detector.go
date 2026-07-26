@@ -444,7 +444,11 @@ func (d *Detector) scanFileForSwaggo(file *os.File, found *bool) error {
 		}
 	}
 
-	return scanner.Err()
+	if err := scanner.Err(); err != nil {
+		return errorfamily.WrapTransient(err, "detector.scan_swaggo", "scan swaggo patterns")
+	}
+
+	return nil
 }
 
 func (d *Detector) containsSwaggoPattern(line string) bool {
