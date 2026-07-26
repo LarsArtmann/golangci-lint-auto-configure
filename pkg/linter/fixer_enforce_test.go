@@ -259,7 +259,7 @@ func TestTryReEnableLinter(t *testing.T) {
 		f.pol = &policy.Policy{} // no justifications
 
 		enable := types.NewSet[types.LinterName]()
-		disable := types.NewSet("errcheck")
+		disable := types.NewSet[types.LinterName]("errcheck")
 
 		if !f.tryReEnableLinter("errcheck", enable, disable) {
 			t.Fatal("expected tryReEnableLinter to re-enable unjustified linter")
@@ -283,7 +283,7 @@ func TestTryReEnableLinter(t *testing.T) {
 		f.pol = &policy.Policy{}
 
 		enable := types.NewSet[types.LinterName]()
-		disable := types.NewSet("funcorder")
+		disable := types.NewSet[types.LinterName]("funcorder")
 
 		if f.tryReEnableLinter("funcorder", enable, disable) {
 			t.Fatal("expected false for tool-level disabled linter")
@@ -309,7 +309,7 @@ func TestTryReEnableLinter(t *testing.T) {
 		}}
 
 		enable := types.NewSet[types.LinterName]()
-		disable := types.NewSet("gofmt")
+		disable := types.NewSet[types.LinterName]("gofmt")
 
 		if f.tryReEnableLinter("gofmt", enable, disable) {
 			t.Fatal("expected false for justified linter")

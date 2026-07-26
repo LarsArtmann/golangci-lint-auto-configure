@@ -239,8 +239,8 @@ var _ = Describe("JSON Tag Serialization", func() {
 						ShowStats:  true,
 					},
 					Linters: types.LintersConfig{
-						Enable:  []string{"govet"},
-						Disable: []string{"gosec"},
+						Enable:  []types.LinterName{"govet"},
+						Disable: []types.LinterName{"gosec"},
 						Default: "standard",
 					},
 					Issues: types.IssuesConfig{

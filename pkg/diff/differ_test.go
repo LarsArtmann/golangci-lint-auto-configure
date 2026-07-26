@@ -40,25 +40,25 @@ var compareTests = []struct {
 	{
 		"linter added",
 		baseV2,
-		newTestConfig("2", "", []string{"errcheck", "gosec"}),
+		newTestConfig("2", "", []types.LinterName{"errcheck", "gosec"}),
 		1,
 	},
 	{
 		"linter removed",
-		newTestConfig("2", "", []string{"errcheck", "gosec"}),
+		newTestConfig("2", "", []types.LinterName{"errcheck", "gosec"}),
 		baseV2,
 		1,
 	},
 	{
 		"multiple changes",
-		newTestConfig("1", "5m", []string{"errcheck"}),
-		newTestConfig("2", "10m", []string{"gosec"}),
+		newTestConfig("1", "5m", []types.LinterName{"errcheck"}),
+		newTestConfig("2", "10m", []types.LinterName{"gosec"}),
 		4,
 	},
 	{"no changes", baseV2, baseV2, 0},
 }
 
-func newTestConfig(version, timeout string, linters []string) *types.Config {
+func newTestConfig(version, timeout string, linters []types.LinterName) *types.Config {
 	return &types.Config{
 		Version: types.Version(version),
 		Run:     types.RunConfig{Timeout: timeout},
@@ -67,7 +67,7 @@ func newTestConfig(version, timeout string, linters []string) *types.Config {
 }
 
 func newTestConfigV1(linters string) *types.Config {
-	return newTestConfig("1", "", []string{linters})
+	return newTestConfig("1", "", []types.LinterName{types.LinterName(linters)})
 }
 
 func TestDiffer_FormatChanges(t *testing.T) {
