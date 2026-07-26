@@ -240,7 +240,7 @@ func TestApplyPreset_FormatEnablesFormatters(t *testing.T) {
 		t.Fatalf("expected %d formatters, got %d", len(expectedFormatters), len(mock.savedCfg.Formatters.Enable))
 	}
 
-	formatterSet := make(map[string]bool)
+	formatterSet := make(map[types.FormatterName]bool)
 	for _, f := range mock.savedCfg.Formatters.Enable {
 		formatterSet[f] = true
 	}

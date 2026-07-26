@@ -455,13 +455,13 @@ var _ = Describe("CoreFormatters alignment", func() {
 	It("should match the house preset formatters", func() {
 		houseFormatters := constants.PresetFormatters["house"]
 
-		coreSet := make(map[string]struct{}, len(constants.CoreFormatters))
+		coreSet := make(map[types.FormatterName]struct{}, len(constants.CoreFormatters))
 		for _, f := range constants.CoreFormatters {
 			coreSet[f] = struct{}{}
 		}
 
 		for _, f := range houseFormatters {
-			_, ok := coreSet[string(f)]
+			_, ok := coreSet[f]
 			Expect(ok).
 				To(BeTrue(), "house preset formatter %q is missing from CoreFormatters", f)
 		}
