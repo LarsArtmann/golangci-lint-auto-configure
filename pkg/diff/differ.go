@@ -124,7 +124,7 @@ func (d *Differ) addTestChangeIfDifferent(changes []Change, oldTests, newTests b
 	return changes
 }
 
-func (d *Differ) compareListChanges(oldItems, newItems []string, pathPrefix, entityName, subKey string) []Change {
+func (d *Differ) compareListChanges[T ~string](oldItems, newItems []T, pathPrefix, entityName, subKey string) []Change {
 	oldSet := types.NewSet(oldItems...)
 	newSet := types.NewSet(newItems...)
 
@@ -132,13 +132,13 @@ func (d *Differ) compareListChanges(oldItems, newItems []string, pathPrefix, ent
 
 	for item := range newSet {
 		if !oldSet.Contains(item) {
-			changes = append(changes, d.makeAddedChange(pathPrefix, subKey, entityName, item))
+			changes = append(changes, d.makeAddedChange(pathPrefix, subKey, entityName, string(item)))
 		}
 	}
 
 	for item := range oldSet {
 		if !newSet.Contains(item) {
-			changes = append(changes, d.makeRemovedChange(pathPrefix, subKey, entityName, item))
+			changes = append(changes, d.makeRemovedChange(pathPrefix, subKey, entityName, string(item)))
 		}
 	}
 
@@ -181,8 +181,10 @@ func (d *Differ) compareFormatters(old, newCfg types.FormattersConfig) []Change 
 	return d.compareEnableDisable(old.Enable, old.Disable, newCfg.Enable, newCfg.Disable, "formatters", "formatter")
 }
 
-func (d *Differ) compareEnableDisable(
-	oldEnable, oldDisable, newEnable, newDisable []string,
+func (d *Differ) compareEnableDisable[
+	T ~string,
+](
+	oldEnable, oldDisable, newEnable, newDisable []T,
 	pathPrefix, entityName string,
 ) []Change {
 	changes := make([]Change, 0, len(oldEnable)+len(oldDisable)+len(newEnable)+len(newDisable))

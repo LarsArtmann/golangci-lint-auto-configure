@@ -129,6 +129,6 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 // the health check enforces. Other critical-priority linters (gosec, musttag,
 // etc.) are also critical but the health check focuses on these three as
 // the absolute minimum baseline.
-func CriticalLinters() []string {
-	return []string{"errcheck", "staticcheck", "govet"}
+func CriticalLinters() []types.LinterName {
+	return []types.LinterName{"errcheck", "staticcheck", "govet"}
 }

@@ -207,12 +207,12 @@ func (h *ConfigHealth) CountBySeverity(severity HealthSeverity) int {
 // Uses the default set of critical linters (errcheck, staticcheck, govet).
 // Use CheckConfigHealthWithCriticalLinters for a custom critical linter set.
 func CheckConfigHealth(cfg *Config) *ConfigHealth {
-	return CheckConfigHealthWithCriticalLinters(cfg, []string{"errcheck", "staticcheck", "govet"})
+	return CheckConfigHealthWithCriticalLinters(cfg, []LinterName{"errcheck", "staticcheck", "govet"})
 }
 
 // CheckConfigHealthWithCriticalLinters performs structural health checks on a config
 // with a configurable set of critical linter names.
-func CheckConfigHealthWithCriticalLinters(cfg *Config, criticalLinters []string) *ConfigHealth {
+func CheckConfigHealthWithCriticalLinters(cfg *Config, criticalLinters []LinterName) *ConfigHealth {
 	if cfg == nil {
 		return &ConfigHealth{}
 	}
@@ -237,7 +237,7 @@ func (h *ConfigHealth) addIssue(severity HealthSeverity, rule, message, field, s
 }
 
 func (h *ConfigHealth) checkDuplicateLinters(cfg *Config) {
-	seen := make(map[string]int)
+	seen := make(map[LinterName]int)
 	for _, name := range cfg.Linters.Enable {
 		seen[name]++
 	}
@@ -254,7 +254,7 @@ func (h *ConfigHealth) checkDuplicateLinters(cfg *Config) {
 		}
 	}
 
-	seenDisable := make(map[string]int)
+	seenDisable := make(map[LinterName]int)
 	for _, name := range cfg.Linters.Disable {
 		seenDisable[name]++
 	}
@@ -288,7 +288,7 @@ func (h *ConfigHealth) checkEnableDisableOverlap(cfg *Config) {
 	}
 }
 
-func (h *ConfigHealth) checkMissingCriticalLinters(cfg *Config, criticalLinters []string) {
+func (h *ConfigHealth) checkMissingCriticalLinters(cfg *Config, criticalLinters []LinterName) {
 	enabledSet := NewSet(cfg.Linters.Enable...)
 	disabledSet := NewSet(cfg.Linters.Disable...)
 
