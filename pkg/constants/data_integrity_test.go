@@ -231,7 +231,7 @@ var _ = Describe("Format preset", func() {
 
 		for i, f := range formatters {
 			expected := constants.FormatterOrder[i]
-			Expect(string(f)).To(Equal(expected),
+			Expect(f).To(Equal(expected),
 				"format preset formatter at index %d: got %s, want %s", i, f, expected)
 		}
 	})
@@ -449,7 +449,7 @@ var _ = Describe("PragmaticNoiseLinters", func() {
 var _ = Describe("CoreFormatters alignment", func() {
 	It("should contain exactly the validated formatter quadruple", func() {
 		Expect(constants.CoreFormatters).
-			To(Equal([]string{"gci", "goimports", "gofumpt", "golines"}))
+			To(Equal([]types.FormatterName{"gci", "goimports", "gofumpt", "golines"}))
 	})
 
 	It("should match the house preset formatters", func() {

@@ -235,7 +235,7 @@ func TestApplyPreset_FormatEnablesFormatters(t *testing.T) {
 		t.Fatal("applyPreset(\"format\") did not save config")
 	}
 
-	expectedFormatters := []string{"gci", "gofumpt", "goimports"}
+	expectedFormatters := []types.FormatterName{"gci", "gofumpt", "goimports"}
 	if len(mock.savedCfg.Formatters.Enable) != len(expectedFormatters) {
 		t.Fatalf("expected %d formatters, got %d", len(expectedFormatters), len(mock.savedCfg.Formatters.Enable))
 	}
