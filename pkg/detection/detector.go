@@ -3,6 +3,7 @@ package detection
 import (
 	"bufio"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -340,7 +341,7 @@ func (d *Detector) analyzeGoModWithError() (string, []string, error) {
 func (d *Detector) hasMainPackage() bool {
 	found := false
 
-	_ = d.walkGoFiles(func(file *os.File) error {
+	if walkErr := d.walkGoFiles(func(file *os.File) error {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := strings.TrimSpace(scanner.Text())
@@ -352,7 +353,10 @@ func (d *Detector) hasMainPackage() bool {
 		}
 
 		return scanner.Err()
-	})
+	}); walkErr != nil {
+		// Best-effort by design: scan failures degrade safely to ProjectTypeUnknown.
+		slog.Debug("detector: hasMainPackage scan failed", "error", walkErr)
+	}
 
 	return found
 }
@@ -384,7 +388,7 @@ func (d *Detector) hasCLIFramework(imports []string) bool {
 func (d *Detector) hasAPICodePatterns() bool {
 	found := false
 
-	_ = d.walkGoFiles(func(file *os.File) error {
+	if walkErr := d.walkGoFiles(func(file *os.File) error {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -398,7 +402,10 @@ func (d *Detector) hasAPICodePatterns() bool {
 		}
 
 		return scanner.Err()
-	})
+	}); walkErr != nil {
+		// Best-effort by design: scan failures degrade safely to ProjectTypeUnknown.
+		slog.Debug("detector: hasAPICodePatterns scan failed", "error", walkErr)
+	}
 
 	return found
 }
