@@ -58,7 +58,7 @@ linters:
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result.IsSuccess()).To(BeTrue())
 			Expect(result.PrimaryConfig).To(Equal(ymlPath))
-			Expect(cfg.Version).To(Equal("2"))
+			Expect(cfg.Version).To(Equal(types.ConfigVersionV2))
 			Expect(cfg.Run.Timeout).To(Equal("5m"))
 			Expect(cfg.Linters.Enable).To(ContainElement("gosec"))
 		})

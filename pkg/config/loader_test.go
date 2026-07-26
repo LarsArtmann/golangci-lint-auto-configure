@@ -7,6 +7,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -61,7 +62,7 @@ linters:
 			cfg, err := loader.LoadConfig(testConfig)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(cfg.Version).To(Equal("1"))
+			Expect(cfg.Version).To(Equal(types.Version("1")))
 			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
 		})
 
@@ -152,7 +153,7 @@ timeout = "5m"
 			cfg, err := loader.LoadConfig(tomlConfig)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(cfg.Version).To(Equal("2"))
+			Expect(cfg.Version).To(Equal(types.ConfigVersionV2))
 			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
 			Expect(cfg.Run.Timeout).To(Equal("5m"))
 		})
@@ -173,7 +174,7 @@ timeout = "5m"
 			cfg, err := loader.LoadConfig(jsonConfig)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(cfg.Version).To(Equal("2"))
+			Expect(cfg.Version).To(Equal(types.ConfigVersionV2))
 			Expect(cfg.Linters.Enable).To(ContainElements("gosec", "errcheck"))
 		})
 

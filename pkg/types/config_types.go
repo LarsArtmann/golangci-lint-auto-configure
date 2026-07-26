@@ -41,8 +41,8 @@ type OutputConfig struct {
 }
 
 type LintersConfig struct {
-	Enable     []string                `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
-	Disable    []string                `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
+	Enable     []LinterName            `json:"enable,omitempty"   toml:"enable,omitempty"     yaml:"enable,omitempty"`
+	Disable    []LinterName            `json:"disable,omitempty"  toml:"disable,omitempty"    yaml:"disable,omitempty"`
 	Default    string                  `json:"default,omitempty"  toml:"default,omitempty"    yaml:"default,omitempty"`
 	Settings   map[string]any          `json:"settings,omitempty" toml:"settings,omitempty"   yaml:"settings,omitempty"`
 	Exclusions LintersExclusionsConfig `json:"exclusions"         toml:"exclusions,omitempty" yaml:"exclusions,omitempty"`

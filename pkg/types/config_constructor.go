@@ -60,7 +60,7 @@ func WithGoVersion(version string) ConfigOption {
 }
 
 // WithLinters sets the linters.enable list.
-func WithLinters(linters []string) ConfigOption {
+func WithLinters(linters []LinterName) ConfigOption {
 	return func(c *Config) {
 		c.Linters.Enable = linters
 	}
