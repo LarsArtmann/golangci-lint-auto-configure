@@ -69,6 +69,7 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 	"nilnesserr":       types.LinterPriorityHigh,
 
 	// Medium value linters - optional but recommended
+	"exhaustruct":                 types.LinterPriorityMedium,
 	"dupword":                   types.LinterPriorityMedium,
 	"godot":                     types.LinterPriorityMedium,
 	"godox":                     types.LinterPriorityMedium,

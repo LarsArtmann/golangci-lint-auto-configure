@@ -118,7 +118,7 @@ func addConfigureFlags(
 	cmd.Flags().
 		BoolVar(&flags.NoAudit, "no-audit", false, "Skip writing to the audit ledger (also: "+auditEnvVar+" env var)")
 	cmd.Flags().
-		BoolVar(&flags.Pragmatic, "pragmatic", false, "Drop the 5 highest-noise linters (exhaustruct, gochecknoglobals, wrapcheck, ireturn, funlen) from the enable set")
+		BoolVar(&flags.Pragmatic, "pragmatic", false, "Drop the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen) from the enable set")
 }
 
 func runDetectOrConfigure(

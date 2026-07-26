@@ -34,9 +34,9 @@ func (f *Fixer) loadPolicy(configPath string) {
 }
 
 // enforceDisableReasons re-enables linters that are in the disable list without
-// a justification in the policy sidecar. Tool-level disabled linters (defined in
-// constants.DisabledLinters) are always exempt — they are disabled by this tool,
-// not by user choice.
+// a justification in the policy sidecar. Tool-level managed linters (defined in
+// constants.DisabledLinters and constants.NeverAutoEnableLinters) are always
+// exempt — their enable/disable state is a tool-level decision, not user choice.
 func (f *Fixer) enforceDisableReasons(cfg *types.Config) int {
 	if f.pol == nil {
 		return 0
@@ -65,7 +65,7 @@ func (f *Fixer) enforceDisableReasons(cfg *types.Config) int {
 // disabled without justification) and, if so, moves it from the disable set to
 // the enable set and records the action in the audit ledger.
 func (f *Fixer) tryReEnableLinter(linter types.LinterName, enableSet, disableSet types.Set[types.LinterName]) bool {
-	if isToolLevelDisabled(linter) {
+	if isToolLevelManaged(linter) {
 		return false
 	}
 
@@ -84,10 +84,17 @@ func (f *Fixer) tryReEnableLinter(linter types.LinterName, enableSet, disableSet
 	return true
 }
 
-// isToolLevelDisabled reports whether the linter is in the tool's hardcoded
-// DisabledLinters set (funcorder, noinlineerr, depguard, etc.).
-func isToolLevelDisabled(linter types.LinterName) bool {
-	_, ok := constants.DisabledLinters[linter]
+// isToolLevelManaged reports whether the linter's enable/disable state is
+// managed at the tool level. This includes both DisabledLinters (funcorder,
+// noinlineerr, depguard — forcibly disabled) and NeverAutoEnableLinters
+// (exhaustruct — never auto-enabled but respected if manually enabled).
+// Tool-level managed linters are exempt from policy enforcement.
+func isToolLevelManaged(linter types.LinterName) bool {
+	if _, ok := constants.DisabledLinters[linter]; ok {
+		return true
+	}
+
+	_, ok := constants.NeverAutoEnableLinters[linter]
 
 	return ok
 }

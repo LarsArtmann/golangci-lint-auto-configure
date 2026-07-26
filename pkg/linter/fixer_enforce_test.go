@@ -63,7 +63,7 @@ func writeSidecar(t *testing.T, dir, content string) {
 	}
 }
 
-func TestIsToolLevelDisabled(t *testing.T) {
+func TestIsToolLevelManaged(t *testing.T) {
 	tests := []struct {
 		name   string
 		linter types.LinterName
@@ -72,15 +72,16 @@ func TestIsToolLevelDisabled(t *testing.T) {
 		{"funcorder is tool-level disabled", "funcorder", true},
 		{"noinlineerr is tool-level disabled", "noinlineerr", true},
 		{"depguard is tool-level disabled", "depguard", true},
-		{"errcheck is not tool-level disabled", "errcheck", false},
-		{"gofmt is not tool-level disabled", "gofmt", false},
-		{"unknown linter is not tool-level disabled", "does-not-exist", false},
+		{"exhaustruct is tool-level managed (never-auto-enable)", "exhaustruct", true},
+		{"errcheck is not tool-level managed", "errcheck", false},
+		{"gofmt is not tool-level managed", "gofmt", false},
+		{"unknown linter is not tool-level managed", "does-not-exist", false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isToolLevelDisabled(tt.linter); got != tt.want {
-				t.Errorf("isToolLevelDisabled(%q) = %v, want %v", tt.linter, got, tt.want)
+			if got := isToolLevelManaged(tt.linter); got != tt.want {
+				t.Errorf("isToolLevelManaged(%q) = %v, want %v", tt.linter, got, tt.want)
 			}
 		})
 	}
