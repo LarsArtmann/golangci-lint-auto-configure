@@ -68,8 +68,8 @@ var _ = Describe("NewConfig", func() {
 		})
 
 		It("applies WithFormatters", func() {
-			cfg := types.NewConfig(types.WithFormatters([]string{"gci", "gofumpt"}))
-			Expect(cfg.Formatters.Enable).To(Equal([]string{"gci", "gofumpt"}))
+			cfg := types.NewConfig(types.WithFormatters([]types.FormatterName{"gci", "gofumpt"}))
+			Expect(cfg.Formatters.Enable).To(Equal([]types.FormatterName{"gci", "gofumpt"}))
 		})
 
 		It("applies multiple options in order", func() {

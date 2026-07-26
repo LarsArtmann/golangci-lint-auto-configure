@@ -38,7 +38,7 @@ var _ = Describe("Config.Clone", func() {
 				},
 			},
 			Formatters: types.FormattersConfig{
-				Enable: []string{"gofmt"},
+				Enable: []types.FormatterName{"gofmt"},
 				Exclusions: types.FormattersExclusionsConfig{
 					Paths: []string{"generated"},
 				},

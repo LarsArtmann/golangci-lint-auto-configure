@@ -16,7 +16,7 @@ import (
 // (e.g., swaggo when Swagger annotations are found). Populated by resolvePresets.
 //
 //nolint:gochecknoglobals // populated by detection, read by savePresetConfig
-var detectedExtraFormatters []string
+var detectedExtraFormatters []types.FormatterName
 
 // presetConfigLoader defines the interface needed for applyPreset.
 type presetConfigLoader interface {

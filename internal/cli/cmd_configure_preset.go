@@ -26,7 +26,7 @@ func resolvePresets(presets []string, detect bool, logger *log.Logger) []string 
 
 	if slices.Contains(presets, "format") {
 		if hasSwaggo, err := detector.HasSwaggo(); err == nil && hasSwaggo {
-			detectedExtraFormatters = []string{"swaggo"}
+			detectedExtraFormatters = []types.FormatterName{"swaggo"}
 
 			logger.Infof("🔍 Detected swaggo usage — adding swaggo formatter to format preset")
 		}
@@ -126,7 +126,7 @@ func savePresetConfig(
 }
 
 func applyPresetFormatters(logger *log.Logger, cfg *types.Config, presets []string) {
-	formatterSet := make(map[string]struct{})
+	formatterSet := types.NewSet[types.FormatterName]()
 
 	for _, preset := range presets {
 		formatters, ok := constants.PresetFormatters[preset]
@@ -135,15 +135,15 @@ func applyPresetFormatters(logger *log.Logger, cfg *types.Config, presets []stri
 		}
 
 		for _, f := range formatters {
-			formatterSet[string(f)] = struct{}{}
+			formatterSet.Add(f)
 		}
 	}
 
-	if len(formatterSet) == 0 {
+	if formatterSet.Len() == 0 {
 		return
 	}
 
-	formatterNames := mapKeys(formatterSet)
+	formatterNames := types.ToSortedSlice(formatterSet)
 	formatterNames = append(formatterNames, detectedExtraFormatters...)
 	cfg.Formatters.Enable = formatterNames
 

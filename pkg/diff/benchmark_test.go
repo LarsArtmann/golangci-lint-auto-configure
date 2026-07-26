@@ -22,7 +22,7 @@ func BenchmarkCompare(b *testing.B) {
 			Enable: []types.LinterName{"gosec", "errcheck", "staticcheck", "govet", "gocritic", "unused", "ineffassign"},
 		},
 		Formatters: types.FormattersConfig{
-			Enable: []string{"gci", "gofumpt"},
+			Enable: []types.FormatterName{"gci", "gofumpt"},
 		},
 	}
 
