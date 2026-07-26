@@ -161,6 +161,11 @@ var NeverAutoEnableLinters = map[types.LinterName]string{
 // They stay enabled by default; --pragmatic is an opt-in escape hatch for
 // projects that find them too noisy. (exhaustruct, the former #1 at 6.5, is
 // now in NeverAutoEnableLinters — never auto-enabled at all.)
+//
+// Tier boundary: these stay recommendable (not NeverAutoEnable) because, unlike
+// exhaustruct, they function correctly without per-project tuning. Promoting any
+// of them to NeverAutoEnable changes default lint coverage and needs explicit
+// sign-off; --pragmatic remains the opt-out escape hatch.
 var PragmaticNoiseLinters = map[types.LinterName]string{
 	"gochecknoglobals": "fights standard Go patterns like registries and sentinels (friction 5.1, no config knobs)",
 	"wrapcheck":        "demands every error be wrapped (friction 1.8)",

@@ -68,7 +68,10 @@ func main() {
 	formattersWithoutPriorities := checkFormatterPriorities()
 	if len(formattersWithoutPriorities) > 0 {
 		exitCode = 1
-		fmt.Printf("   ❌ FAIL: %s missing priorities:\n", noun(len(formattersWithoutPriorities), "formatter", "formatters"))
+		fmt.Printf(
+			"   ❌ FAIL: %s missing priorities:\n",
+			noun(len(formattersWithoutPriorities), "formatter", "formatters"),
+		)
 		for _, formatter := range formattersWithoutPriorities {
 			fmt.Printf("      - %s\n", formatter)
 		}
@@ -82,7 +85,10 @@ func main() {
 	orphanFormatterPriorities := checkOrphanFormatterPriorities()
 	if len(orphanFormatterPriorities) > 0 {
 		exitCode = 1
-		fmt.Printf("   ❌ FAIL: %s without info:\n", noun(len(orphanFormatterPriorities), "formatter priority", "formatter priorities"))
+		fmt.Printf(
+			"   ❌ FAIL: %s without info:\n",
+			noun(len(orphanFormatterPriorities), "formatter priority", "formatter priorities"),
+		)
 		for _, formatter := range orphanFormatterPriorities {
 			fmt.Printf("      - %s\n", formatter)
 		}
@@ -96,7 +102,10 @@ func main() {
 	disabledInPrioritiesOrReasons := checkDisabledLintersConsistency()
 	if len(disabledInPrioritiesOrReasons) > 0 {
 		exitCode = 1
-		fmt.Printf("   ❌ FAIL: %s found in priorities or reasons:\n", noun(len(disabledInPrioritiesOrReasons), "disabled linter", "disabled linters"))
+		fmt.Printf(
+			"   ❌ FAIL: %s found in priorities or reasons:\n",
+			noun(len(disabledInPrioritiesOrReasons), "disabled linter", "disabled linters"),
+		)
 		for _, linter := range disabledInPrioritiesOrReasons {
 			fmt.Printf("      - %s\n", linter)
 		}
@@ -110,7 +119,10 @@ func main() {
 	emptyReasons := checkDisabledLinterReasons()
 	if len(emptyReasons) > 0 {
 		exitCode = 1
-		fmt.Printf("   ❌ FAIL: %s with empty reasons:\n", noun(len(emptyReasons), "disabled linter", "disabled linters"))
+		fmt.Printf(
+			"   ❌ FAIL: %s with empty reasons:\n",
+			noun(len(emptyReasons), "disabled linter", "disabled linters"),
+		)
 		for _, linter := range emptyReasons {
 			fmt.Printf("      - %s\n", linter)
 		}
@@ -124,7 +136,10 @@ func main() {
 	neverAutoEnableMissing := checkNeverAutoEnableLintersConsistency()
 	if len(neverAutoEnableMissing) > 0 {
 		exitCode = 1
-		fmt.Printf("   ❌ FAIL: %s missing from priorities or reasons:\n", noun(len(neverAutoEnableMissing), "never-auto-enable linter", "never-auto-enable linters"))
+		fmt.Printf(
+			"   ❌ FAIL: %s missing from priorities or reasons:\n",
+			noun(len(neverAutoEnableMissing), "never-auto-enable linter", "never-auto-enable linters"),
+		)
 		for _, linter := range neverAutoEnableMissing {
 			fmt.Printf("      - %s\n", linter)
 		}
@@ -140,7 +155,10 @@ func main() {
 	neverAutoEnableBad := checkNeverAutoEnableLinterReasons()
 	if len(neverAutoEnableBad) > 0 {
 		exitCode = 1
-		fmt.Printf("   ❌ FAIL: %s with empty reasons or tier overlap:\n", noun(len(neverAutoEnableBad), "never-auto-enable linter", "never-auto-enable linters"))
+		fmt.Printf(
+			"   ❌ FAIL: %s with empty reasons or tier overlap:\n",
+			noun(len(neverAutoEnableBad), "never-auto-enable linter", "never-auto-enable linters"),
+		)
 		for _, linter := range neverAutoEnableBad {
 			fmt.Printf("      - %s\n", linter)
 		}
