@@ -20,16 +20,33 @@ type recordedEnforceAction struct {
 
 // enforceRecorder is a test double for audit.Recorder that records every call.
 type enforceRecorder struct {
-	actions []recordedEnforceAction
+	actions           []recordedEnforceAction
+	previouslyEnabled map[string]bool
 }
 
 func (r *enforceRecorder) Record(action audit.Action, linter, reason string) {
 	r.actions = append(r.actions, recordedEnforceAction{action: action, linter: linter, reason: reason})
 }
 
+// PreviouslyAutoEnabled implements ledgerReader so cycle-detection tests
+// can inject a fake "previously auto-enabled" set.
+func (r *enforceRecorder) PreviouslyAutoEnabled() map[string]bool {
+	return r.previouslyEnabled
+}
+
 func (r *enforceRecorder) hasReEnable(linter string) bool {
 	for _, a := range r.actions {
 		if a.action == audit.ActionReEnabled && a.linter == linter {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (r *enforceRecorder) hasSuppressedReEnable(linter string) bool {
+	for _, a := range r.actions {
+		if a.action == audit.ActionSuppressedReEnable && a.linter == linter {
 			return true
 		}
 	}
@@ -359,4 +376,149 @@ func TestTryReEnableLinter(t *testing.T) {
 
 func sliceHas(slice []types.LinterName, want types.LinterName) bool {
 	return slices.Contains(slice, want)
+}
+
+func TestEnableRecommendedLinters_NeverEnableSidecar(t *testing.T) {
+	f := newEnforceFixer()
+	f.pol = &policy.Policy{
+		NeverEnable: map[types.LinterName]policy.DisableJustification{
+			"godoclint": {Reason: "incompatible with templ", Category: policy.CategoryConvention},
+		},
+	}
+
+	linterSet := types.NewSet[types.LinterName]()
+	analysis := &types.ConfigAnalysis{
+		LinterRecommendations: []types.LinterRecommendation{
+			{Name: "godoclint", Priority: types.LinterPriorityHigh, Reason: "doc linting"},
+			{Name: "errcheck", Priority: types.LinterPriorityHigh, Reason: "error checking"},
+		},
+	}
+
+	count := f.enableRecommendedLinters(linterSet, nil, analysis, types.LinterPriorityCritical, false)
+
+	if count != 1 {
+		t.Fatalf("expected 1 linter enabled (errcheck only), got %d", count)
+	}
+
+	if linterSet.Contains("godoclint") {
+		t.Error("godoclint must NOT be enabled (listed in neverEnable sidecar)")
+	}
+
+	if !linterSet.Contains("errcheck") {
+		t.Error("errcheck should be enabled (not in neverEnable)")
+	}
+}
+
+func TestEnableRecommendedLinters_CycleDetection(t *testing.T) {
+	recorder := &enforceRecorder{
+		previouslyEnabled: map[string]bool{"godoclint": true},
+	}
+	f := &Fixer{
+		logger: NewTestLogger(),
+		ledger: recorder,
+		reader: recorder,
+	}
+
+	linterSet := types.NewSet[types.LinterName]()
+	analysis := &types.ConfigAnalysis{
+		LinterRecommendations: []types.LinterRecommendation{
+			{Name: "godoclint", Priority: types.LinterPriorityHigh, Reason: "doc linting"},
+			{Name: "errcheck", Priority: types.LinterPriorityHigh, Reason: "error checking"},
+		},
+	}
+
+	count := f.enableRecommendedLinters(linterSet, nil, analysis, types.LinterPriorityCritical, false)
+
+	if count != 1 {
+		t.Fatalf("expected 1 linter enabled (errcheck only), got %d", count)
+	}
+
+	if linterSet.Contains("godoclint") {
+		t.Error("godoclint must NOT be re-enabled (regression loop detected)")
+	}
+
+	if !linterSet.Contains("errcheck") {
+		t.Error("errcheck should be enabled (no cycle)")
+	}
+
+	if !recorder.hasSuppressedReEnable("godoclint") {
+		t.Error("expected ActionSuppressedReEnable audit record for godoclint")
+	}
+}
+
+func TestEnableRecommendedLinters_CycleDetectionDryRun(t *testing.T) {
+	recorder := &enforceRecorder{
+		previouslyEnabled: map[string]bool{"godoclint": true},
+	}
+	f := &Fixer{
+		logger: NewTestLogger(),
+		ledger: recorder,
+		reader: recorder,
+	}
+
+	linterSet := types.NewSet[types.LinterName]()
+	analysis := &types.ConfigAnalysis{
+		LinterRecommendations: []types.LinterRecommendation{
+			{Name: "godoclint", Priority: types.LinterPriorityHigh, Reason: "doc linting"},
+		},
+	}
+
+	count := f.enableRecommendedLinters(linterSet, nil, analysis, types.LinterPriorityCritical, true)
+
+	if count != 0 {
+		t.Fatalf("expected 0 linters enabled in dry-run (godoclint suppressed), got %d", count)
+	}
+
+	if recorder.hasSuppressedReEnable("godoclint") {
+		t.Error("dry-run must NOT record ActionSuppressedReEnable (no actual change)")
+	}
+}
+
+func TestEnableRecommendedLinters_NoReaderNoCycleDetection(t *testing.T) {
+	f := newEnforceFixer()
+
+	linterSet := types.NewSet[types.LinterName]()
+	analysis := &types.ConfigAnalysis{
+		LinterRecommendations: []types.LinterRecommendation{
+			{Name: "godoclint", Priority: types.LinterPriorityHigh, Reason: "doc linting"},
+		},
+	}
+
+	count := f.enableRecommendedLinters(linterSet, nil, analysis, types.LinterPriorityCritical, false)
+
+	if count != 1 {
+		t.Fatalf("expected 1 linter enabled (no reader → no cycle detection), got %d", count)
+	}
+
+	if !linterSet.Contains("godoclint") {
+		t.Error("godoclint should be enabled when no ledger reader is available")
+	}
+}
+
+func TestEnableRecommendedLinters_DisabledNotAffectedByCycle(t *testing.T) {
+	recorder := &enforceRecorder{
+		previouslyEnabled: map[string]bool{"errcheck": true},
+	}
+	f := &Fixer{
+		logger: NewTestLogger(),
+		ledger: recorder,
+		reader: recorder,
+	}
+
+	linterSet := types.NewSet[types.LinterName]()
+	analysis := &types.ConfigAnalysis{
+		LinterRecommendations: []types.LinterRecommendation{
+			{Name: "errcheck", Priority: types.LinterPriorityHigh, Reason: "error checking"},
+		},
+	}
+
+	count := f.enableRecommendedLinters(linterSet, []types.LinterName{"errcheck"}, analysis, types.LinterPriorityCritical, false)
+
+	if count != 0 {
+		t.Fatalf("expected 0 (errcheck in disable list, skipped before cycle check), got %d", count)
+	}
+
+	if recorder.hasSuppressedReEnable("errcheck") {
+		t.Error("disabled linters must not trigger cycle detection (they are already in disable)")
+	}
 }

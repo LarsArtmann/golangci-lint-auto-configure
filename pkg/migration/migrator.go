@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
 
@@ -42,7 +43,8 @@ type Migrator struct {
 // NewMigrator creates a new configuration migrator with the given path.
 func NewMigrator(path string, verbose bool) (*Migrator, error) {
 	if path == "" {
-		return nil, ErrConfigPathEmpty
+		return nil, errorfamily.WrapRejection(ErrConfigPathEmpty,
+			"migrate.empty_path", "config path cannot be empty")
 	}
 
 	return &Migrator{

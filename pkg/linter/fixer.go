@@ -380,14 +380,18 @@ func (f *Fixer) enableRecommendedLinters(
 			continue
 		}
 
-		if previouslyAutoEnabled[lintName] {
+		if previouslyAutoEnabled[string(lintName)] {
 			f.logger.Warnf(
 				"⚠️  Skipping %s: was auto-enabled in a previous run and subsequently removed. "+
 					"To make this permanent, add it to linters.disable or %s under neverEnable.",
 				lintName, policy.SidecarFileName,
 			)
-			f.ledger.Record(audit.ActionSuppressedReEnable, string(lintName),
-				"regression loop: previously auto-enabled, then removed by user")
+
+			if !dryRun {
+				f.ledger.Record(audit.ActionSuppressedReEnable, string(lintName),
+					"regression loop: previously auto-enabled, then removed by user")
+			}
+
 			continue
 		}
 

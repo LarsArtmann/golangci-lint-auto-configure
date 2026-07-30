@@ -123,4 +123,94 @@ var _ = Describe("Policy", func() {
 			Expect(ok).To(BeFalse())
 		})
 	})
+
+	Describe("NeverEnable", func() {
+		It("parses a sidecar with neverEnable entries", func() {
+			content := `disabled:
+  mnd:
+    reason: "false-positives"
+    category: false-positives
+neverEnable:
+  godoclint:
+    reason: "demands per-package godoc; this repo documents per-file"
+    category: convention
+  ireturn:
+    reason: "every component returns templ.Component by design"
+    category: convention`
+			Expect(os.WriteFile(path, []byte(content), 0o600)).To(Succeed())
+
+			pol, err := policy.Load(path)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(pol).NotTo(BeNil())
+			Expect(pol.Disabled).To(HaveLen(1))
+			Expect(pol.NeverEnable).To(HaveLen(2))
+			Expect(pol.NeverEnable["godoclint"].Category).To(Equal(policy.CategoryConvention))
+			Expect(pol.NeverEnable["ireturn"].Reason).To(ContainSubstring("templ.Component"))
+		})
+
+		It("handles a sidecar with only neverEnable (no disabled)", func() {
+			content := `neverEnable:
+  testableexamples:
+    reason: "Example funcs render verbose HTML output"
+    category: convention`
+			Expect(os.WriteFile(path, []byte(content), 0o600)).To(Succeed())
+
+			pol, err := policy.Load(path)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(pol.Disabled).To(BeEmpty())
+			Expect(pol.NeverEnable).To(HaveLen(1))
+		})
+	})
+
+	Describe("IsNeverEnable", func() {
+		It("returns true for a linter in the neverEnable section", func() {
+			pol := &policy.Policy{
+				NeverEnable: map[types.LinterName]policy.DisableJustification{
+					"godoclint": {Reason: "incompatible", Category: policy.CategoryConvention},
+				},
+			}
+
+			Expect(pol.IsNeverEnable("godoclint")).To(BeTrue())
+		})
+
+		It("returns false for a linter not in neverEnable", func() {
+			pol := &policy.Policy{
+				NeverEnable: map[types.LinterName]policy.DisableJustification{
+					"godoclint": {Reason: "incompatible", Category: policy.CategoryConvention},
+				},
+			}
+
+			Expect(pol.IsNeverEnable("errcheck")).To(BeFalse())
+		})
+
+		It("returns false when the policy is nil", func() {
+			var pol *policy.Policy
+			Expect(pol.IsNeverEnable("godoclint")).To(BeFalse())
+		})
+	})
+
+	Describe("NeverEnableJustification", func() {
+		It("returns the justification and true for a never-enable linter", func() {
+			expected := policy.DisableJustification{
+				Reason:   "incompatible with templ",
+				Category: policy.CategoryConvention,
+			}
+			pol := &policy.Policy{
+				NeverEnable: map[types.LinterName]policy.DisableJustification{
+					"ireturn": expected,
+				},
+			}
+
+			just, ok := pol.NeverEnableJustification("ireturn")
+			Expect(ok).To(BeTrue())
+			Expect(just).To(Equal(expected))
+		})
+
+		It("returns zero and false for a linter not in neverEnable", func() {
+			pol := &policy.Policy{}
+
+			_, ok := pol.NeverEnableJustification("ireturn")
+			Expect(ok).To(BeFalse())
+		})
+	})
 })

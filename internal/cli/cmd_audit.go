@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"charm.land/log/v2"
+	errorfamily "github.com/larsartmann/go-error-family"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/spf13/cobra"
@@ -136,7 +138,8 @@ func runAuditCommand(
 ) error {
 	path := audit.DefaultLedgerPath()
 	if path == "" {
-		return errLedgerPathUnavailable
+		return errorfamily.WrapRejection(errLedgerPathUnavailable, "audit.ledger_path",
+			"cannot resolve audit ledger path: OS cache directory unavailable")
 	}
 
 	if clearLedger {
@@ -154,7 +157,7 @@ func displayAuditEntries(
 ) error {
 	entries, err := audit.ReadAll(path)
 	if err != nil {
-		// errors.Is unwraps the fmt.Errorf %w chain that audit.ReadAll adds;
+		// errors.Is unwraps the errorfamily.WrapTransientf chain that audit.ReadAll adds;
 		// os.IsNotExist does not unwrap and would miss the wrapped *PathError.
 		if errors.Is(err, os.ErrNotExist) {
 			logger.Infof("No audit ledger found at %s", path)
@@ -162,7 +165,7 @@ func displayAuditEntries(
 			return nil
 		}
 
-		return fmt.Errorf("read audit ledger: %w", err)
+		return apperrors.WrapClassified(err, "audit.read_ledger", "read audit ledger")
 	}
 
 	entries, err = filterAuditEntries(entries, sinceFilter, linterFilter)
@@ -197,7 +200,7 @@ func outputEntries(
 func clearAuditLedger(logger *log.Logger, path string) error {
 	err := audit.Clear(path)
 	if err != nil {
-		return fmt.Errorf("clear audit ledger: %w", err)
+		return apperrors.WrapClassified(err, "audit.clear_ledger", "clear audit ledger")
 	}
 
 	logger.Infof("Cleared audit ledger at %s", path)
@@ -252,11 +255,8 @@ func parseSinceDuration(since string) (time.Duration, error) {
 	if dayStr, ok := strings.CutSuffix(since, "d"); ok {
 		dayCount, err := strconv.Atoi(dayStr)
 		if err != nil {
-			return 0, fmt.Errorf(
-				"invalid --since %q: expected a day count (e.g. 7d): %w",
-				since,
-				err,
-			)
+			return 0, errorfamily.WrapRejectionf(err, "audit.parse_since_days",
+				"invalid --since %q: expected a day count (e.g. 7d)", since)
 		}
 
 		return time.Duration(dayCount) * cliHoursPerDay * time.Hour, nil
@@ -264,11 +264,8 @@ func parseSinceDuration(since string) (time.Duration, error) {
 
 	duration, err := time.ParseDuration(since)
 	if err != nil {
-		return 0, fmt.Errorf(
-			"invalid --since %q: use Go duration (24h) or days (7d): %w",
-			since,
-			err,
-		)
+		return 0, errorfamily.WrapRejectionf(err, "audit.parse_since_duration",
+			"invalid --since %q: use Go duration (24h) or days (7d)", since)
 	}
 
 	return duration, nil
@@ -277,7 +274,7 @@ func parseSinceDuration(since string) (time.Duration, error) {
 func outputAuditJSON(entries []audit.Entry) error {
 	data, err := json.Marshal(entries, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 	if err != nil {
-		return fmt.Errorf("marshal audit entries: %w", err)
+		return errorfamily.WrapCorruptionf(err, "audit.marshal_json", "marshal audit entries")
 	}
 
 	printBytesToStdout(data)

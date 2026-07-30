@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"slices"
 
@@ -97,13 +96,13 @@ func backupConfigFile(logger *log.Logger, configFile string) error {
 
 	data, err := os.ReadFile(configFile)
 	if err != nil {
-		return fmt.Errorf("read config for backup: %w", err)
+		return apperrors.WrapClassified(err, "configure.backup_read", "read config for backup")
 	}
 
 	backupPath := configFile + ".bak"
 
 	if err := os.WriteFile(backupPath, data, 0o600); err != nil { //nolint:gosec,mnd
-		return fmt.Errorf("write backup file: %w", err)
+		return apperrors.WrapClassified(err, "configure.backup_write", "write backup file")
 	}
 
 	logger.Infof("📦 Backed up config to %s", backupPath)

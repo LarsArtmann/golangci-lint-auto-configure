@@ -12,7 +12,9 @@ import (
 // loadPolicy reads the disable-reason sidecar file (if it exists) alongside the
 // config file. When the sidecar is present, the fixer enforces that every
 // user-disabled linter has a justification entry — unjustified disables are
-// re-enabled. When the sidecar is absent, all disables are respected as before.
+// re-enabled. The neverEnable section lists linters the tool must never add to
+// enable (durable signal for intentionally removed linters). When the sidecar is
+// absent, all disables are respected as before.
 func (f *Fixer) loadPolicy(configPath string) {
 	sidecarPath := filepath.Join(filepath.Dir(configPath), policy.SidecarFileName)
 
@@ -26,8 +28,8 @@ func (f *Fixer) loadPolicy(configPath string) {
 	}
 
 	if pol != nil {
-		f.logger.Infof("📋 Loaded disable-reason policy from %s (%d justified disables)",
-			sidecarPath, len(pol.Disabled))
+		f.logger.Infof("📋 Loaded policy from %s (%d justified disables, %d never-enable)",
+			sidecarPath, len(pol.Disabled), len(pol.NeverEnable))
 	}
 
 	f.pol = pol

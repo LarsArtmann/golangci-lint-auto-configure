@@ -2,10 +2,10 @@ package cli
 
 import (
 	"encoding/json/v2"
-	"fmt"
 	"sort"
 
 	"charm.land/log/v2"
+	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/spf13/cobra"
 )
@@ -58,7 +58,7 @@ func outputPresetsJSON() error {
 
 	data, err := json.Marshal(output)
 	if err != nil {
-		return fmt.Errorf("marshal presets JSON: %w", err)
+		return errorfamily.WrapCorruptionf(err, "presets.marshal_json", "marshal presets JSON")
 	}
 
 	printBytesToStdout(data)
