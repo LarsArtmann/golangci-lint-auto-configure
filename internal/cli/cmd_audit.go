@@ -15,8 +15,8 @@ import (
 
 	"charm.land/log/v2"
 	errorfamily "github.com/larsartmann/go-error-family"
-	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/spf13/cobra"
 )

@@ -309,3 +309,104 @@ var _ = Describe("DefaultRetention", func() {
 		Expect(retention).To(BeNumerically("<", 91*24*time.Hour))
 	})
 })
+
+var _ = Describe("PreviouslyAutoEnabled", func() {
+	var (
+		tmpDir string
+		path   string
+	)
+
+	BeforeEach(func() {
+		var err error
+
+		tmpDir, err = os.MkdirTemp("", "audit-previously-enabled-test")
+		Expect(err).NotTo(HaveOccurred())
+
+		path = filepath.Join(tmpDir, "audit.jsonl")
+	})
+
+	AfterEach(func() {
+		_ = os.RemoveAll(tmpDir)
+	})
+
+	It("returns linters auto-enabled for the matching repoHash", func() {
+		runCtx := audit.RunContext{RunID: "r", RepoHash: "hash-a", RepoPath: "/repo-a"}
+		ledger := audit.NewLedger(newTestLogger(), runCtx, path)
+
+		ledger.Record(audit.ActionAddedToEnable, "godoclint", "recommended")
+		ledger.Record(audit.ActionAddedToEnable, "ireturn", "recommended")
+		ledger.Record(audit.ActionPreservedDisable, "mnd", "user intent")
+
+		result := audit.PreviouslyAutoEnabled(path, "hash-a")
+		Expect(result).To(HaveLen(2))
+		Expect(result["godoclint"]).To(BeTrue())
+		Expect(result["ireturn"]).To(BeTrue())
+		Expect(result["mnd"]).To(BeFalse())
+	})
+
+	It("filters by repoHash (ignores entries from other repos)", func() {
+		runCtxA := audit.RunContext{RunID: "r1", RepoHash: "hash-a", RepoPath: "/repo-a"}
+		ledgerA := audit.NewLedger(newTestLogger(), runCtxA, path)
+		ledgerA.Record(audit.ActionAddedToEnable, "godoclint", "recommended")
+
+		runCtxB := audit.RunContext{RunID: "r2", RepoHash: "hash-b", RepoPath: "/repo-b"}
+		ledgerB := audit.NewLedger(newTestLogger(), runCtxB, path)
+		ledgerB.Record(audit.ActionAddedToEnable, "ireturn", "recommended")
+
+		resultA := audit.PreviouslyAutoEnabled(path, "hash-a")
+		Expect(resultA).To(HaveLen(1))
+		Expect(resultA["godoclint"]).To(BeTrue())
+		Expect(resultA["ireturn"]).To(BeFalse())
+
+		resultB := audit.PreviouslyAutoEnabled(path, "hash-b")
+		Expect(resultB).To(HaveLen(1))
+		Expect(resultB["ireturn"]).To(BeTrue())
+		Expect(resultB["godoclint"]).To(BeFalse())
+	})
+
+	It("returns nil for empty path", func() {
+		Expect(audit.PreviouslyAutoEnabled("", "hash-a")).To(BeNil())
+	})
+
+	It("returns nil for empty repoHash", func() {
+		Expect(audit.PreviouslyAutoEnabled(path, "")).To(BeNil())
+	})
+
+	It("returns nil when the file does not exist", func() {
+		Expect(audit.PreviouslyAutoEnabled(filepath.Join(tmpDir, "missing.jsonl"), "hash-a")).To(BeNil())
+	})
+
+	It("returns empty map when no entries match", func() {
+		runCtx := audit.RunContext{RunID: "r", RepoHash: "hash-a", RepoPath: "/r"}
+		ledger := audit.NewLedger(newTestLogger(), runCtx, path)
+		ledger.Record(audit.ActionPreservedDisable, "mnd", "user intent")
+
+		result := audit.PreviouslyAutoEnabled(path, "hash-a")
+		Expect(result).To(BeEmpty())
+	})
+
+	Describe("Ledger.PreviouslyAutoEnabled", func() {
+		It("returns the set for this ledger's repo", func() {
+			runCtx := audit.RunContext{RunID: "r", RepoHash: "hash-x", RepoPath: "/repo-x"}
+			ledger := audit.NewLedger(newTestLogger(), runCtx, path)
+			ledger.Record(audit.ActionAddedToEnable, "testableexamples", "recommended")
+
+			result := ledger.PreviouslyAutoEnabled()
+			Expect(result).To(HaveLen(1))
+			Expect(result["testableexamples"]).To(BeTrue())
+		})
+
+		It("returns nil when disabled (empty path)", func() {
+			runCtx := audit.RunContext{RunID: "r", RepoHash: "hash-x", RepoPath: "/repo-x"}
+			ledger := audit.NewLedger(newTestLogger(), runCtx, "")
+
+			Expect(ledger.PreviouslyAutoEnabled()).To(BeNil())
+		})
+	})
+
+	Describe("NoopRecorder.PreviouslyAutoEnabled", func() {
+		It("returns nil", func() {
+			Expect(audit.NoopRecorder{}.PreviouslyAutoEnabled()).To(BeNil())
+		})
+	})
+})

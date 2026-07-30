@@ -389,8 +389,8 @@ func TestEnableRecommendedLinters_NeverEnableSidecar(t *testing.T) {
 	linterSet := types.NewSet[types.LinterName]()
 	analysis := &types.ConfigAnalysis{
 		LinterRecommendations: []types.LinterRecommendation{
-			{Name: "godoclint", Priority: types.LinterPriorityHigh, Reason: "doc linting"},
-			{Name: "errcheck", Priority: types.LinterPriorityHigh, Reason: "error checking"},
+			{Name: "godoclint", Priority: types.LinterPriorityCritical, Reason: "doc linting"},
+			{Name: "errcheck", Priority: types.LinterPriorityCritical, Reason: "error checking"},
 		},
 	}
 
@@ -422,8 +422,8 @@ func TestEnableRecommendedLinters_CycleDetection(t *testing.T) {
 	linterSet := types.NewSet[types.LinterName]()
 	analysis := &types.ConfigAnalysis{
 		LinterRecommendations: []types.LinterRecommendation{
-			{Name: "godoclint", Priority: types.LinterPriorityHigh, Reason: "doc linting"},
-			{Name: "errcheck", Priority: types.LinterPriorityHigh, Reason: "error checking"},
+			{Name: "godoclint", Priority: types.LinterPriorityCritical, Reason: "doc linting"},
+			{Name: "errcheck", Priority: types.LinterPriorityCritical, Reason: "error checking"},
 		},
 	}
 
@@ -459,7 +459,7 @@ func TestEnableRecommendedLinters_CycleDetectionDryRun(t *testing.T) {
 	linterSet := types.NewSet[types.LinterName]()
 	analysis := &types.ConfigAnalysis{
 		LinterRecommendations: []types.LinterRecommendation{
-			{Name: "godoclint", Priority: types.LinterPriorityHigh, Reason: "doc linting"},
+			{Name: "godoclint", Priority: types.LinterPriorityCritical, Reason: "doc linting"},
 		},
 	}
 
@@ -480,7 +480,7 @@ func TestEnableRecommendedLinters_NoReaderNoCycleDetection(t *testing.T) {
 	linterSet := types.NewSet[types.LinterName]()
 	analysis := &types.ConfigAnalysis{
 		LinterRecommendations: []types.LinterRecommendation{
-			{Name: "godoclint", Priority: types.LinterPriorityHigh, Reason: "doc linting"},
+			{Name: "godoclint", Priority: types.LinterPriorityCritical, Reason: "doc linting"},
 		},
 	}
 
@@ -508,7 +508,7 @@ func TestEnableRecommendedLinters_DisabledNotAffectedByCycle(t *testing.T) {
 	linterSet := types.NewSet[types.LinterName]()
 	analysis := &types.ConfigAnalysis{
 		LinterRecommendations: []types.LinterRecommendation{
-			{Name: "errcheck", Priority: types.LinterPriorityHigh, Reason: "error checking"},
+			{Name: "errcheck", Priority: types.LinterPriorityCritical, Reason: "error checking"},
 		},
 	}
 
