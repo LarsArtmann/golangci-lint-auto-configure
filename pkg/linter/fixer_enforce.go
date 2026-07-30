@@ -65,9 +65,17 @@ func (f *Fixer) enforceDisableReasons(cfg *types.Config) int {
 
 // tryReEnableLinter checks whether the given linter should be re-enabled (it is
 // disabled without justification) and, if so, moves it from the disable set to
-// the enable set and records the action in the audit ledger.
+// the enable set and records the action in the audit ledger. Linters listed in
+// the neverEnable section of the sidecar are always skipped — never-enable is
+// the strongest signal and takes priority over anti-gaming enforcement.
 func (f *Fixer) tryReEnableLinter(linter types.LinterName, enableSet, disableSet types.Set[types.LinterName]) bool {
 	if isToolLevelManaged(linter) {
+		return false
+	}
+
+	if f.pol.IsNeverEnable(linter) {
+		f.logger.Debugf("Skipping never-enable linter during enforcement: %s", linter)
+
 		return false
 	}
 

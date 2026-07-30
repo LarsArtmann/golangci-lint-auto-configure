@@ -271,6 +271,45 @@ func TestEnforceDisableReasons_NeverAutoEnableExempt(t *testing.T) {
 	}
 }
 
+func TestEnforceDisableReasons_NeverEnableOverridesUnjustified(t *testing.T) {
+	f := newEnforceFixer()
+	// godoclint is in never-enable AND disabled without justification.
+	// Without the never-enable check, anti-gaming enforcement would re-enable it.
+	// never-enable must take priority: the linter stays disabled.
+	f.pol = &policy.Policy{
+		NeverEnable: map[types.LinterName]policy.DisableJustification{
+			"godoclint": {Reason: "incompatible with templ", Category: policy.CategoryConvention},
+		},
+	}
+
+	cfg := &types.Config{Linters: types.LintersConfig{
+		Disable: []types.LinterName{"godoclint", "errcheck"},
+	}}
+
+	count := f.enforceDisableReasons(cfg)
+
+	// Only errcheck is re-enabled; godoclint is protected by never-enable.
+	if count != 1 {
+		t.Fatalf("expected 1 re-enable (errcheck only), got %d", count)
+	}
+
+	if !sliceHas(cfg.Linters.Disable, "godoclint") {
+		t.Errorf("godoclint must stay disabled (never-enable); disable=%v", cfg.Linters.Disable)
+	}
+
+	if sliceHas(cfg.Linters.Enable, "godoclint") {
+		t.Errorf("godoclint must never be force-enabled (never-enable); enable=%v", cfg.Linters.Enable)
+	}
+
+	if !sliceHas(cfg.Linters.Enable, "errcheck") {
+		t.Errorf("errcheck should be re-enabled (unjustified, not never-enable); enable=%v", cfg.Linters.Enable)
+	}
+
+	if f.recorder().hasReEnable("godoclint") {
+		t.Error("godoclint must never be recorded as re-enabled (never-enable)")
+	}
+}
+
 func TestEnforceDisableReasons_AllJustified(t *testing.T) {
 	f := newEnforceFixer()
 	f.pol = &policy.Policy{Disabled: map[types.LinterName]policy.DisableJustification{
@@ -370,6 +409,34 @@ func TestTryReEnableLinter(t *testing.T) {
 
 		if !disable.Contains("gofmt") {
 			t.Error("justified linter must remain in disable")
+		}
+	})
+
+	t.Run("keeps never-enable linter even when unjustified", func(t *testing.T) {
+		f := newEnforceFixer()
+		f.pol = &policy.Policy{
+			NeverEnable: map[types.LinterName]policy.DisableJustification{
+				"godoclint": {Reason: "incompatible with templ", Category: policy.CategoryConvention},
+			},
+		}
+
+		enable := types.NewSet[types.LinterName]()
+		disable := types.NewSet[types.LinterName]("godoclint")
+
+		if f.tryReEnableLinter("godoclint", enable, disable) {
+			t.Fatal("expected false for never-enable linter")
+		}
+
+		if enable.Contains("godoclint") {
+			t.Error("never-enable linter must not be added to enable")
+		}
+
+		if !disable.Contains("godoclint") {
+			t.Error("never-enable linter must remain in disable")
+		}
+
+		if len(f.recorder().actions) != 0 {
+			t.Errorf("no audit record expected; got %v", f.recorder().actions)
 		}
 	})
 }
