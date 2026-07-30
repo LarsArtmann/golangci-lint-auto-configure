@@ -320,7 +320,7 @@ func updateConfigFromSets(
 	settingsChanges += pruneDisabledLinterSettings(cfg, disabledLintersList, logger)
 
 	if formatterSet.Len() > 0 {
-		settingsChanges += injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable)
+		settingsChanges += injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable, forceSettings)
 	}
 
 	return settingsChanges
@@ -393,10 +393,12 @@ func isEmptySettingsValue(v any) bool {
 }
 
 // injectDefaultFormatterSettings injects safe default settings for formatters that require
-// configuration, but only if the config doesn't already have meaningful settings for them.
-// Empty or nil values are treated as missing and will be overwritten with defaults.
+// configuration. When force is false (default), settings are only injected if the config
+// doesn't already have meaningful settings for the formatter. When force is true
+// (--force-settings), existing settings are overwritten with the curated defaults.
+// Empty or nil values are always treated as missing and overwritten.
 // Returns the number of settings injected.
-func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []types.FormatterName) int {
+func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []types.FormatterName, force bool) int {
 	injected := 0
 
 	for _, formatterName := range enabledFormatters {
@@ -409,12 +411,15 @@ func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []types
 			cfg.Formatters.Settings = make(map[string]any)
 		}
 
-		if existing, exists := cfg.Formatters.Settings[string(formatterName)]; exists &&
-			!isEmptySettingsValue(existing) {
-			continue
+		key := string(formatterName)
+		if !force {
+			if existing, exists := cfg.Formatters.Settings[key]; exists &&
+				!isEmptySettingsValue(existing) {
+				continue
+			}
 		}
 
-		cfg.Formatters.Settings[string(formatterName)] = defaults.ToMap()
+		cfg.Formatters.Settings[key] = defaults.ToMap()
 		injected++
 	}
 

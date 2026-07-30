@@ -342,75 +342,90 @@ func TestEnforceDisableReasons_EmptyDisable(t *testing.T) {
 }
 
 func TestTryReEnableLinter(t *testing.T) {
-	t.Run("re-enables unjustified non-tool linter", func(t *testing.T) {
-		f := newEnforceFixer()
-		f.pol = &policy.Policy{} // no justifications
+	tests := []struct {
+		name            string
+		linter          string
+		pol             *policy.Policy
+		wantReEnable    bool
+		wantInEnable    bool
+		wantInDisable   bool
+		wantReEnableRec bool
+		wantNoAuditRecs bool
+	}{
+		{
+			name:            "re-enables unjustified non-tool linter",
+			linter:          "errcheck",
+			pol:             &policy.Policy{},
+			wantReEnable:    true,
+			wantInEnable:    true,
+			wantInDisable:   false,
+			wantReEnableRec: true,
+		},
+		{
+			name:            "keeps tool-level managed linter",
+			linter:          "funcorder",
+			pol:             &policy.Policy{},
+			wantReEnable:    false,
+			wantInEnable:    false,
+			wantInDisable:   true,
+			wantNoAuditRecs: true,
+		},
+		{
+			name:         "keeps justified linter",
+			linter:       "gofmt",
+			pol: &policy.Policy{Disabled: map[types.LinterName]policy.DisableJustification{
+				"gofmt": {Reason: "prefer golines", Category: policy.CategoryConvention},
+			}},
+			wantReEnable:  false,
+			wantInEnable:  false,
+			wantInDisable: true,
+		},
+	}
 
-		enable := types.NewSet[types.LinterName]()
-		disable := types.NewSet[types.LinterName]("errcheck")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newEnforceFixer()
+			f.pol = tt.pol
 
-		if !f.tryReEnableLinter("errcheck", enable, disable) {
-			t.Fatal("expected tryReEnableLinter to re-enable unjustified linter")
-		}
+			enable := types.NewSet[types.LinterName]()
+			disable := types.NewSet[types.LinterName](types.LinterName(tt.linter))
 
-		if !enable.Contains("errcheck") {
-			t.Error("errcheck should be moved into the enable set")
-		}
+			got := f.tryReEnableLinter(tt.linter, enable, disable)
+			assertReEnableResult(t, got, tt.wantReEnable, enable, disable, tt.linter,
+				tt.wantInEnable, tt.wantInDisable)
+			assertReEnableAudit(t, f, tt.linter, tt.wantReEnableRec, tt.wantNoAuditRecs)
+		})
+	}
+}
 
-		if disable.Contains("errcheck") {
-			t.Error("errcheck should be removed from the disable set")
-		}
+func assertReEnableResult(t *testing.T, got, wantReEnable bool, enable, disable types.Set[types.LinterName],
+	linter string, wantInEnable, wantInDisable bool,
+) {
+	t.Helper()
 
-		if !f.recorder().hasReEnable("errcheck") {
-			t.Error("expected audit record for re-enabled errcheck")
-		}
-	})
+	if got != wantReEnable {
+		t.Fatalf("tryReEnableLinter() = %v, want %v", got, wantReEnable)
+	}
 
-	t.Run("keeps tool-level managed linter", func(t *testing.T) {
-		f := newEnforceFixer()
-		f.pol = &policy.Policy{}
+	if enable.Contains(types.LinterName(linter)) != wantInEnable {
+		t.Errorf("linter %s in enable: got %v, want %v", linter, wantInEnable, !wantInEnable)
+	}
 
-		enable := types.NewSet[types.LinterName]()
-		disable := types.NewSet[types.LinterName]("funcorder")
+	if disable.Contains(types.LinterName(linter)) != wantInDisable {
+		t.Errorf("linter %s in disable: got %v, want %v", linter, wantInDisable, !wantInDisable)
+	}
+}
 
-		if f.tryReEnableLinter("funcorder", enable, disable) {
-			t.Fatal("expected false for tool-level managed linter")
-		}
+func assertReEnableAudit(t *testing.T, f *enforceFixer, linter string, wantRec, wantNoRecs bool) {
+	t.Helper()
 
-		if enable.Contains("funcorder") {
-			t.Error("funcorder must not be added to enable")
-		}
+	if wantNoRecs && len(f.recorder().actions) != 0 {
+		t.Errorf("no audit record expected; got %v", f.recorder().actions)
+	}
 
-		if !disable.Contains("funcorder") {
-			t.Error("funcorder must remain in disable")
-		}
-
-		if len(f.recorder().actions) != 0 {
-			t.Errorf("no audit record expected; got %v", f.recorder().actions)
-		}
-	})
-
-	t.Run("keeps justified linter", func(t *testing.T) {
-		f := newEnforceFixer()
-		f.pol = &policy.Policy{Disabled: map[types.LinterName]policy.DisableJustification{
-			"gofmt": {Reason: "prefer golines", Category: policy.CategoryConvention},
-		}}
-
-		enable := types.NewSet[types.LinterName]()
-		disable := types.NewSet[types.LinterName]("gofmt")
-
-		if f.tryReEnableLinter("gofmt", enable, disable) {
-			t.Fatal("expected false for justified linter")
-		}
-
-		if enable.Contains("gofmt") {
-			t.Error("justified linter must not be added to enable")
-		}
-
-		if !disable.Contains("gofmt") {
-			t.Error("justified linter must remain in disable")
-		}
-	})
+	if wantRec && !f.recorder().hasReEnable(linter) {
+		t.Errorf("expected audit record for re-enabled %s", linter)
+	}
 }
 
 func TestTryReEnableLinter_NeverEnable(t *testing.T) {

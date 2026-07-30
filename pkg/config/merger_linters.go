@@ -91,19 +91,38 @@ func (cm *Merger) mergeLintersExclusionPresets(primary, secondary *types.Linters
 }
 
 func (cm *Merger) mergeLintersExclusionRules(primary, secondary *types.LintersExclusionsConfig) int {
-	if len(primary.Rules) == 0 && len(secondary.Rules) > 0 {
+	if len(secondary.Rules) == 0 {
+		return 0
+	}
+
+	if len(primary.Rules) == 0 {
 		primary.Rules = secondary.Rules
 
 		return len(secondary.Rules)
 	}
 
-	if len(secondary.Rules) > 0 {
-		primary.Rules = append(primary.Rules, secondary.Rules...)
-
-		return len(secondary.Rules)
+	primaryKeyByID := make(map[string]int, len(primary.Rules))
+	for i := range primary.Rules {
+		primaryKeyByID[primary.Rules[i].RuleKey()] = i
 	}
 
-	return 0
+	changes := 0
+	for _, rule := range secondary.Rules {
+		key := rule.RuleKey()
+		if idx, exists := primaryKeyByID[key]; exists {
+			merged, added := mergeUniqueItems(primary.Rules[idx].Linters, rule.Linters)
+			if added > 0 {
+				primary.Rules[idx].Linters = merged
+				changes++
+			}
+		} else {
+			primary.Rules = append(primary.Rules, rule)
+			primaryKeyByID[key] = len(primary.Rules) - 1
+			changes++
+		}
+	}
+
+	return changes
 }
 
 func (cm *Merger) mergeLintersExclusionPaths(primary, secondary *types.LintersExclusionsConfig) int {
