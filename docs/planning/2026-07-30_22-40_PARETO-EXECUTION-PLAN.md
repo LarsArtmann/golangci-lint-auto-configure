@@ -346,10 +346,10 @@ graph TD
 
 ## Definition of Done
 
-- [ ] All 6 unpushed commits are on origin/master
-- [ ] `shortRunID` panic guard is fixed and tested
-- [ ] This planning doc is committed and pushed
-- [ ] TODO_LIST.md, FEATURES.md, CHANGELOG.md are up to date
-- [ ] `go build ./...` passes
-- [ ] `go test ./pkg/... ./internal/...` passes
-- [ ] `golangci-lint run` passes with 0 issues
+- [x] All 6 unpushed commits are on origin/master
+- [x] `shortRunID` panic guard is fixed and tested
+- [x] This planning doc is committed and pushed
+- [x] TODO_LIST.md, FEATURES.md, CHANGELOG.md are up to date
+- [x] `go build ./...` passes
+- [x] `go test ./pkg/... ./internal/...` passes
+- [x] `golangci-lint run` passes with 0 issues

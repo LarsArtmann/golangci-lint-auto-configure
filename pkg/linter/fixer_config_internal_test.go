@@ -164,7 +164,7 @@ func TestInjectDefaultFormatterSettings_ForceOverwrites(t *testing.T) {
 		Formatters: types.FormattersConfig{
 			Enable: []types.FormatterName{"golines"},
 			Settings: map[string]any{
-				"golines": map[string]any{"tab-len": 99},
+				"golines": map[string]any{"max-len": 99},
 			},
 		},
 	}
@@ -175,13 +175,13 @@ func TestInjectDefaultFormatterSettings_ForceOverwrites(t *testing.T) {
 	}
 
 	settings, _ := types.AsSettingsMap(cfg.Formatters.Settings["golines"])
-	tabLen, ok := settings["tab-len"]
+	maxLen, ok := settings["max-len"]
 	if !ok {
-		t.Fatal("expected tab-len to exist after force")
+		t.Fatal("expected max-len to exist after force")
 	}
 
-	if tabLen == 99 {
-		t.Error("expected forced overwrite to replace stale value 99")
+	if maxLen == 99 {
+		t.Error("expected forced overwrite to replace stale value 99 with default 120")
 	}
 }
 

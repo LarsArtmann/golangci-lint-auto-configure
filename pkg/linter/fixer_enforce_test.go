@@ -390,7 +390,7 @@ func TestTryReEnableLinter(t *testing.T) {
 			enable := types.NewSet[types.LinterName]()
 			disable := types.NewSet[types.LinterName](types.LinterName(tt.linter))
 
-			got := f.tryReEnableLinter(tt.linter, enable, disable)
+			got := f.tryReEnableLinter(types.LinterName(tt.linter), enable, disable)
 			assertReEnableResult(t, got, tt.wantReEnable, enable, disable, tt.linter,
 				tt.wantInEnable, tt.wantInDisable)
 			assertReEnableAudit(t, f, tt.linter, tt.wantReEnableRec, tt.wantNoAuditRecs)
@@ -416,7 +416,7 @@ func assertReEnableResult(t *testing.T, got, wantReEnable bool, enable, disable 
 	}
 }
 
-func assertReEnableAudit(t *testing.T, f *enforceFixer, linter string, wantRec, wantNoRecs bool) {
+func assertReEnableAudit(t *testing.T, f *Fixer, linter string, wantRec, wantNoRecs bool) {
 	t.Helper()
 
 	if wantNoRecs && len(f.recorder().actions) != 0 {
