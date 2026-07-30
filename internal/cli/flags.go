@@ -17,4 +17,5 @@ type Flags struct {
 	NoAudit      bool
 	Pragmatic    bool
 	Check        bool
+	ForceSettings bool
 }

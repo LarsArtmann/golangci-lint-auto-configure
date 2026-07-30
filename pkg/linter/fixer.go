@@ -34,6 +34,7 @@ type Fixer struct {
 	reader            ledgerReader
 	pol               *policy.Policy
 	goVersionProvider GoVersionProvider
+	forceSettings     bool
 }
 
 // NewFixer creates a new fixer.
@@ -76,6 +77,12 @@ func (f *Fixer) SetGoVersionProvider(provider GoVersionProvider) {
 	}
 
 	f.goVersionProvider = provider
+}
+
+// SetForceSettings controls whether injectDefaultSettings overwrites existing
+// linter settings (true) or only fills missing ones (false, the default).
+func (f *Fixer) SetForceSettings(force bool) {
+	f.forceSettings = force
 }
 
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
@@ -317,7 +324,7 @@ func (f *Fixer) applyAndSave(
 	rec.normalize(func() int { return updater.updateBuildTags(cfg) })
 	rec.normalize(func() int { return updater.updateOutputFormats(cfg) })
 	rec.normalize(func() int {
-		return updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager, f.logger)
+		return updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager, f.logger, f.forceSettings)
 	})
 
 	if f.pol != nil && !dryRun {

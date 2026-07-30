@@ -245,6 +245,7 @@ func updateConfigFromSets(
 	formatterSet types.Set[types.FormatterName],
 	formatterManager *FormatterManager,
 	logger *log.Logger,
+	forceSettings bool,
 ) int {
 	enabledLinters := types.ToSortedSlice(linterSet)
 
@@ -280,7 +281,7 @@ func updateConfigFromSets(
 		cfg.Formatters.Enable = formatterManager.ToOrderedSlice(formatterSet)
 	}
 
-	settingsChanges += injectDefaultSettings(cfg, enabledLinters)
+	settingsChanges += injectDefaultSettings(cfg, enabledLinters, forceSettings)
 	settingsChanges += pruneDisabledLinterSettings(cfg, disabledLintersList, logger)
 
 	if formatterSet.Len() > 0 {
@@ -314,10 +315,12 @@ func pruneDisabledLinterSettings(cfg *types.Config, disabledLinters []types.Lint
 }
 
 // injectDefaultSettings injects safe default settings for linters that require
-// configuration, but only if the config doesn't already have meaningful settings for them.
-// Empty or nil values are treated as missing and will be overwritten with defaults.
+// configuration. When force is false (default), settings are only injected if the
+// config doesn't already have meaningful settings for the linter. When force is true
+// (--force-settings), existing settings are overwritten with the curated defaults.
+// Empty or nil values are always treated as missing and overwritten.
 // Returns the number of settings injected.
-func injectDefaultSettings(cfg *types.Config, enabledLinters []types.LinterName) int {
+func injectDefaultSettings(cfg *types.Config, enabledLinters []types.LinterName, force bool) int {
 	injected := 0
 
 	for _, linterName := range enabledLinters {
@@ -329,8 +332,10 @@ func injectDefaultSettings(cfg *types.Config, enabledLinters []types.LinterName)
 		types.InitLintersSettings(&cfg.Linters)
 
 		key := string(linterName)
-		if existing, exists := cfg.Linters.Settings[key]; exists && !isEmptySettingsValue(existing) {
-			continue
+		if !force {
+			if existing, exists := cfg.Linters.Settings[key]; exists && !isEmptySettingsValue(existing) {
+				continue
+			}
 		}
 
 		cfg.Linters.Settings[key] = defaults.ToMap()

@@ -21,10 +21,12 @@ func newConfiguredFixer(
 	configLoader *config.Loader,
 	configFile string,
 	noAudit bool,
+	forceSettings bool,
 ) *linter.Fixer {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
 	fixer.SetLedger(newRunLedger(ctx, logger, configFile, noAudit))
 	fixer.SetGoVersionProvider(config.GetLocalGoVersion)
+	fixer.SetForceSettings(forceSettings)
 
 	return fixer
 }
@@ -35,7 +37,7 @@ func runFixerMode(
 ) error {
 	isDryRun := flags.Check || flags.DryRun
 
-	fixer := newConfiguredFixer(ctx, logger, analyzer, configLoader, configFile, flags.NoAudit)
+	fixer := newConfiguredFixer(ctx, logger, analyzer, configLoader, configFile, flags.NoAudit, flags.ForceSettings)
 
 	linterPriority, err := ParsePriorityParam(flags.Priority)
 	if err != nil {
