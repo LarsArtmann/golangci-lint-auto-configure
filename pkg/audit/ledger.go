@@ -14,7 +14,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json/v2"
-	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -22,6 +21,7 @@ import (
 	"sync"
 	"time"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	"charm.land/log/v2"
 )
 
@@ -48,6 +48,12 @@ const (
 	ActionPrunedSettings     Action = "pruned-settings"
 	// ActionReEnabled records that an unjustified disable was undone (Pillar C enforcement).
 	ActionReEnabled Action = "re-enabled"
+	// ActionSuppressedReEnable records that a linter was NOT re-added to enable
+	// because the tool detected a regression loop: the linter was auto-enabled in
+	// a previous run and subsequently removed by the user. This breaks the cycle
+	// where configure keeps re-adding linters the user deliberately omitted from
+	// enable (the documented golangci-lint v2 way to disable a linter).
+	ActionSuppressedReEnable Action = "suppressed-re-enable"
 	// ActionFormatterAddedToEnable records a formatter (e.g. gofmt, goimports) being enabled.
 	ActionFormatterAddedToEnable Action = "formatter-added-to-enable"
 	// ActionFormatterRemovedFromEnable records a formatter being removed from the enable list.
@@ -85,6 +91,9 @@ type NoopRecorder struct{}
 
 // Record implements Recorder by discarding the entry.
 func (NoopRecorder) Record(Action, string, string) {}
+
+// PreviouslyAutoEnabled returns nil for the noop recorder (no ledger history).
+func (NoopRecorder) PreviouslyAutoEnabled() map[string]bool { return nil }
 
 // Ledger is an append-only audit log writer backed by a JSONL file.
 // All operations are best-effort: failures are logged via the provided logger
@@ -156,6 +165,17 @@ func (l *Ledger) Path() string {
 	}
 
 	return l.path
+}
+
+// PreviouslyAutoEnabled returns the set of linter names that the tool has
+// auto-enabled in previous runs for this ledger's repo. Returns nil if the
+// ledger is disabled or the file cannot be read.
+func (l *Ledger) PreviouslyAutoEnabled() map[string]bool {
+	if l == nil || !l.enabled {
+		return nil
+	}
+
+	return PreviouslyAutoEnabled(l.path, l.runCtx.RepoHash)
 }
 
 // Record appends an entry to the ledger. Best-effort: failures are logged, never returned.
@@ -231,7 +251,8 @@ func RepoHashOf(repoPath string) string {
 func ReadAll(path string) ([]Entry, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("open audit ledger %q: %w", path, err)
+		return nil, errorfamily.WrapTransientf(err, "audit.open_ledger",
+			"open audit ledger %q", path)
 	}
 	defer file.Close()
 
@@ -247,7 +268,8 @@ func ReadAll(path string) ([]Entry, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("scan audit ledger %q: %w", path, err)
+		return nil, errorfamily.WrapTransientf(err, "audit.scan_ledger",
+			"scan audit ledger %q", path)
 	}
 
 	return entries, nil
@@ -267,6 +289,36 @@ func parseEntry(line string) (Entry, bool) {
 	}
 
 	return entry, true
+}
+
+// PreviouslyAutoEnabled reads the ledger at path and returns the set of linter
+// names that the tool has auto-enabled (ActionAddedToEnable) for the given
+// repoHash. This is used by the fixer to detect regression loops: if a linter
+// was auto-enabled in a previous run and is now absent from both enable and
+// disable, the user deliberately removed it and the tool should not re-add it.
+//
+// Returns nil if path is empty, the file does not exist, or no entries match.
+// Errors are not returned — cycle detection is best-effort and must never block
+// a configure run.
+func PreviouslyAutoEnabled(path, repoHash string) map[string]bool {
+	if path == "" || repoHash == "" {
+		return nil
+	}
+
+	entries, err := ReadAll(path)
+	if err != nil {
+		return nil
+	}
+
+	result := make(map[string]bool)
+
+	for _, entry := range entries {
+		if entry.RepoHash == repoHash && entry.Action == ActionAddedToEnable {
+			result[entry.Linter] = true
+		}
+	}
+
+	return result
 }
 
 const (
@@ -314,7 +366,8 @@ func PurgeOlder(path string, maxAge time.Duration) (int, error) {
 func Clear(path string) error {
 	file, err := os.OpenFile(path, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, filePermissions)
 	if err != nil {
-		return fmt.Errorf("clear audit ledger %q: %w", path, err)
+		return errorfamily.WrapTransientf(err, "audit.clear_ledger",
+			"clear audit ledger %q", path)
 	}
 
 	defer file.Close()
@@ -346,7 +399,8 @@ func (l *Ledger) PurgeRetention(maxAge time.Duration) {
 func rewriteLedger(path string, entries []Entry) error {
 	file, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("rewrite audit ledger %q: %w", path, err)
+		return errorfamily.WrapTransientf(err, "audit.rewrite_ledger",
+			"rewrite audit ledger %q", path)
 	}
 	defer file.Close()
 
@@ -359,7 +413,8 @@ func rewriteLedger(path string, entries []Entry) error {
 		}
 
 		if _, err := file.Write(append(line, '\n')); err != nil {
-			return fmt.Errorf("write audit ledger %q: %w", path, err)
+			return errorfamily.WrapTransientf(err, "audit.write_ledger",
+			"write audit ledger %q", path)
 		}
 	}
 

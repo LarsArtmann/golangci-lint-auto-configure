@@ -17,6 +17,13 @@ type fixerConfigLoader interface {
 	types.ConfigInspector
 }
 
+// ledgerReader queries the audit ledger for past auto-enable decisions.
+// Both *audit.Ledger and audit.NoopRecorder satisfy this interface (duck-typed).
+// When the recorder does not implement it, cycle detection is silently disabled.
+type ledgerReader interface {
+	PreviouslyAutoEnabled() map[string]bool
+}
+
 // Fixer provides functionality to fix golangci-lint configurations.
 type Fixer struct {
 	configLoader      fixerConfigLoader
@@ -24,6 +31,7 @@ type Fixer struct {
 	logger            *log.Logger
 	formatterManager  *FormatterManager
 	ledger            audit.Recorder
+	reader            ledgerReader
 	pol               *policy.Policy
 	goVersionProvider GoVersionProvider
 }
@@ -43,12 +51,20 @@ func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader fi
 
 // SetLedger sets the audit recorder used to log every config change the fixer makes.
 // If recorder is nil, the fixer falls back to a NoopRecorder (no recording).
+// If the recorder also implements ledgerReader, it is used for cycle detection
+// (preventing re-adding linters the user previously removed after auto-enable).
 func (f *Fixer) SetLedger(recorder audit.Recorder) {
 	if recorder == nil {
 		recorder = audit.NoopRecorder{}
 	}
 
 	f.ledger = recorder
+
+	if r, ok := recorder.(ledgerReader); ok {
+		f.reader = r
+	} else {
+		f.reader = nil
+	}
 }
 
 // SetGoVersionProvider sets the function used to detect the local Go version.
@@ -333,7 +349,9 @@ func (f *Fixer) applyAndSave(
 	return successResult(counts)
 }
 
-// enableRecommendedLinters enables recommended linters that aren't already enabled or explicitly disabled.
+// enableRecommendedLinters enables recommended linters that aren't already
+// enabled, explicitly disabled, listed in the sidecar neverEnable section, or
+// detected as a regression-loop target (previously auto-enabled then removed).
 func (f *Fixer) enableRecommendedLinters(
 	linterSet types.Set[types.LinterName],
 	disabledLinters []types.LinterName,
@@ -344,6 +362,7 @@ func (f *Fixer) enableRecommendedLinters(
 	count := 0
 
 	disabledSet := types.NewSet(disabledLinters...)
+	previouslyAutoEnabled := f.previouslyAutoEnabledLinters()
 
 	for _, rec := range analysis.LinterRecommendations {
 		if rec.Priority > priority {
@@ -353,6 +372,22 @@ func (f *Fixer) enableRecommendedLinters(
 		lintName := resolveLinterName(rec.Name)
 
 		if linterSet.Contains(lintName) || disabledSet.Contains(lintName) {
+			continue
+		}
+
+		if f.pol != nil && f.pol.IsNeverEnable(lintName) {
+			f.logger.Debugf("Skipping never-enable linter (sidecar): %s", lintName)
+			continue
+		}
+
+		if previouslyAutoEnabled[lintName] {
+			f.logger.Warnf(
+				"⚠️  Skipping %s: was auto-enabled in a previous run and subsequently removed. "+
+					"To make this permanent, add it to linters.disable or %s under neverEnable.",
+				lintName, policy.SidecarFileName,
+			)
+			f.ledger.Record(audit.ActionSuppressedReEnable, string(lintName),
+				"regression loop: previously auto-enabled, then removed by user")
 			continue
 		}
 
@@ -367,4 +402,15 @@ func (f *Fixer) enableRecommendedLinters(
 	}
 
 	return count
+}
+
+// previouslyAutoEnabledLinters queries the audit ledger for linters the tool
+// has auto-enabled in past runs for this repo. Returns nil when the ledger
+// reader is unavailable (noop recorder, audit disabled, or read failure).
+func (f *Fixer) previouslyAutoEnabledLinters() map[string]bool {
+	if f.reader == nil {
+		return nil
+	}
+
+	return f.reader.PreviouslyAutoEnabled()
 }
