@@ -24,6 +24,9 @@ If a word means something different to a developer than to a user, define it her
 | Deprecation            | A linter that has been superseded by a newer version (e.g. wsl → wsl_v5)                                                                                                                                                | Auto-replaced by the fixer                      |
 | Version-Gated          | A linter that requires a minimum golangci-lint version to be available                                                                                                                                                  | `LinterMinVersions` map                         |
 | Linter Management Tier | How the tool governs a linter's lifecycle: **Disabled** (never enabled), **NeverAutoEnable** (never recommended but respected if manually added), or **PragmaticNoise** (enabled by default, opt-out via `--pragmatic`) | Three disjoint maps in `pkg/constants/rules.go` |
+| Sidecar           | The `.golangci-lint-auto-configure.yml` file placed alongside `.golangci.yml` that carries policy directives                                                                                                            | `pkg/policy/` — committed to git for team-wide consistency |
+| Never-Enable      | A sidecar section (`never-enable:`) listing linters the tool must never add to `enable`, even when recommended or unjustified in `disable`                                                                              | Strongest protection signal; checked in both recommendation and enforcement paths |
+| Regression Loop   | The cycle where `configure` re-adds a linter the user deliberately removed from `enable` (in v2, omitting from `enable` is the documented disable method)                                                                | Detected automatically via audit ledger; prevented permanently via `never-enable` |
 | Exclusion Path         | A regex pattern that excludes files from linting (e.g. `_templ\.go$`, `vendor/`)                                                                                                                                        | RE2 syntax, injected into config                |
 | Migration              | Converting a v1 golangci-lint config to v2 schema format                                                                                                                                                                | `migrate` command                               |
 | Validation             | Checking a config for correctness (YAML validity, schema compliance)                                                                                                                                                    | `validate` command                              |
@@ -57,6 +60,8 @@ Immutable objects defined by attributes.
 | Change               | A single diff change (addition, removal, or modification of a config line) | `pkg/diff/differ.go`                |
 | GolangciLintIssue    | A single issue from `golangci-lint run --out-format json` output           | `pkg/finding/golangci_lint.go`      |
 | Set[T]               | A generic set with full algebra (union, intersection, difference)          | `pkg/types/set.go`                  |
+| DisableJustification | A reason+category pair justifying an intentional disable or never-enable   | `pkg/policy/policy.go`              |
+| AuditEntry           | A single record in the audit ledger: action, linter, reason, timestamp     | `pkg/audit/ledger.go`               |
 
 ## Commands
 
@@ -89,7 +94,7 @@ Subsystems with distinct vocabulary.
 | Reporting      | Generating HTML/JSON/SARIF/finding output                                | `pkg/report/`         |
 | Error Handling | Structured error classification with BSD sysexits exit codes             | `pkg/errors/`         |
 | Audit Trail    | Append-only JSONL ledger recording every config mutation                 | `pkg/audit/`          |
-| Policy         | Disable-reason sidecar enforcement (anti-gaming)                         | `pkg/policy/`         |
+| Policy         | Disable-reason sidecar enforcement (anti-gaming), never-enable directives, and regression-loop prevention                | `pkg/policy/`         |
 | Linter Data    | Static constants: priorities, reasons, presets, deprecated mappings      | `pkg/constants/`      |
 
 ---

@@ -1,6 +1,6 @@
 # golangci-lint-auto-configure — TODO List
 
-**Last Updated:** 2026-07-27
+**Last Updated:** 2026-07-30
 
 Short- and mid-term actionable work. Completed items live in `CHANGELOG.md`;
 long-term ideas live in `ROADMAP.md`. **This file contains OPEN work only** —

@@ -411,34 +411,34 @@ func TestTryReEnableLinter(t *testing.T) {
 			t.Error("justified linter must remain in disable")
 		}
 	})
+}
 
-	t.Run("keeps never-enable linter even when unjustified", func(t *testing.T) {
-		f := newEnforceFixer()
-		f.pol = &policy.Policy{
-			NeverEnable: map[types.LinterName]policy.DisableJustification{
-				"godoclint": {Reason: "incompatible with templ", Category: policy.CategoryConvention},
-			},
-		}
+func TestTryReEnableLinter_NeverEnable(t *testing.T) {
+	f := newEnforceFixer()
+	f.pol = &policy.Policy{
+		NeverEnable: map[types.LinterName]policy.DisableJustification{
+			"godoclint": {Reason: "incompatible with templ", Category: policy.CategoryConvention},
+		},
+	}
 
-		enable := types.NewSet[types.LinterName]()
-		disable := types.NewSet[types.LinterName]("godoclint")
+	enable := types.NewSet[types.LinterName]()
+	disable := types.NewSet[types.LinterName]("godoclint")
 
-		if f.tryReEnableLinter("godoclint", enable, disable) {
-			t.Fatal("expected false for never-enable linter")
-		}
+	if f.tryReEnableLinter("godoclint", enable, disable) {
+		t.Fatal("expected false for never-enable linter")
+	}
 
-		if enable.Contains("godoclint") {
-			t.Error("never-enable linter must not be added to enable")
-		}
+	if enable.Contains("godoclint") {
+		t.Error("never-enable linter must not be added to enable")
+	}
 
-		if !disable.Contains("godoclint") {
-			t.Error("never-enable linter must remain in disable")
-		}
+	if !disable.Contains("godoclint") {
+		t.Error("never-enable linter must remain in disable")
+	}
 
-		if len(f.recorder().actions) != 0 {
-			t.Errorf("no audit record expected; got %v", f.recorder().actions)
-		}
-	})
+	if len(f.recorder().actions) != 0 {
+		t.Errorf("no audit record expected; got %v", f.recorder().actions)
+	}
 }
 
 func sliceHas(slice []types.LinterName, want types.LinterName) bool {

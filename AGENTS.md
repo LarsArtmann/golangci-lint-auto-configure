@@ -129,6 +129,8 @@ nix develop
         category: convention
     ```
 
+    The `never-enable` check is applied in **both** code paths: recommendation (`enableRecommendedLinters` in `fixer.go`) and anti-gaming enforcement (`tryReEnableLinter` in `fixer_enforce.go`). Without the enforcement check, a linter in both `disable` (unjustified) and `never-enable` would be re-enabled by enforcement, defeating the protection. `never-enable` takes priority over all other mechanisms.
+
     The `Fixer.reader` field (type `ledgerReader`, duck-typed interface with `PreviouslyAutoEnabled() map[string]bool`) is set in `SetLedger` via type assertion. Both `*audit.Ledger` and `audit.NoopRecorder` satisfy it. When the recorder doesn't implement it (e.g., test doubles without the method), cycle detection is silently disabled.
 
 | Topic                                                  | Location                                        |
