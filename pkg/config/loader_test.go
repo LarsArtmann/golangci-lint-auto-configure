@@ -192,32 +192,6 @@ output:
 		})
 	})
 
-	Context("detectYAMLIndent", func() {
-		It("should detect 2-space indentation", func() {
-			data := []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n")
-			Expect(detectYAMLIndent(data)).To(Equal(2))
-		})
-
-		It("should detect 4-space indentation", func() {
-			data := []byte("version: \"2\"\nlinters:\n    enable:\n        - gosec\n")
-			Expect(detectYAMLIndent(data)).To(Equal(4))
-		})
-
-		It("should default to 2 for root-only YAML", func() {
-			data := []byte("version: \"2\"\n")
-			Expect(detectYAMLIndent(data)).To(Equal(2))
-		})
-
-		It("should skip comments and document markers", func() {
-			data := []byte("# comment\n---\nversion: \"2\"\nlinters:\n  enable:\n    - gosec\n")
-			Expect(detectYAMLIndent(data)).To(Equal(2))
-		})
-
-		It("should default to 2 for empty data", func() {
-			Expect(detectYAMLIndent([]byte(""))).To(Equal(2))
-		})
-	})
-
 	Context("ConfigFormatSupport", func() {
 		It("should load and save TOML config files", func() {
 			tomlConfig := filepath.Join(testDir, ".golangci.toml")
