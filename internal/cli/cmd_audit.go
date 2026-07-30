@@ -312,7 +312,7 @@ func writeAuditRow(writer *tabwriter.Writer, entry audit.Entry) {
 // shortRunID truncates the run ID for table display (keeps timestamp + first hex chars).
 func shortRunID(runID string) string {
 	parts := strings.Split(runID, runIDPartSep)
-	if len(parts) < runIDMinParts {
+	if len(parts) < runIDMinParts || len(parts[2]) < runIDHexPrefix {
 		return runID
 	}
 

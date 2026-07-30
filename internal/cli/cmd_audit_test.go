@@ -135,6 +135,16 @@ func TestShortRunID(t *testing.T) {
 			"20260101-120000",
 			"20260101-120000",
 		},
+		{
+			"third part too short returned as-is",
+			"20260101-120000-ab",
+			"20260101-120000-ab",
+		},
+		{
+			"third part empty returned as-is",
+			"20260101-120000-",
+			"20260101-120000-",
+		},
 	}
 
 	for _, tt := range tests {
