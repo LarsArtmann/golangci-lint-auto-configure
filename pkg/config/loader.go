@@ -43,6 +43,10 @@ const (
 
 	// defaultYAMLIndent is the indentation used when no existing file is detected.
 	defaultYAMLIndent = 2
+
+	// maxValidYAMLIndent is the upper bound for detected indentation widths.
+	// Anything outside [1, maxValidYAMLIndent] falls back to defaultYAMLIndent.
+	maxValidYAMLIndent = 8
 )
 
 // FS defines the filesystem operations needed by the config package.
@@ -409,7 +413,9 @@ func marshalYAML(config *types.Config, indent int) ([]byte, error) {
 }
 
 // detectYAMLIndent scans YAML data for the indentation width of the first
-// indented line. Returns defaultYAMLIndent when no indented line is found.
+// indented line. Returns defaultYAMLIndent when no indented line is found,
+// when indentation uses tabs (invalid YAML), or when the width exceeds
+// maxValidYAMLIndent.
 func detectYAMLIndent(data []byte) int {
 	for line := range strings.SplitSeq(string(data), "\n") {
 		trimmed := strings.TrimSpace(line)
@@ -417,8 +423,13 @@ func detectYAMLIndent(data []byte) int {
 			continue
 		}
 
+		// Tab indentation is invalid YAML; skip these lines.
+		if strings.HasPrefix(line, "\t") {
+			continue
+		}
+
 		spaces := len(line) - len(strings.TrimLeft(line, " "))
-		if spaces > 0 {
+		if spaces >= 1 && spaces <= maxValidYAMLIndent {
 			return spaces
 		}
 	}

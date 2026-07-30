@@ -40,6 +40,31 @@ func TestDetectYAMLIndent(t *testing.T) {
 			[]byte("\n\n\n"),
 			2,
 		},
+		{
+			"rejects tab indentation, falls back to default",
+			[]byte("version: \"2\"\nlinters:\n\tenable:\n\t\t- gosec\n"),
+			2,
+		},
+		{
+			"skips tab lines, finds space indent after",
+			[]byte("version: \"2\"\nlinters:\n\tenable:\n  disable:\n    - gosec\n"),
+			2,
+		},
+		{
+			"rejects indent wider than max (10 spaces falls back to 2)",
+			[]byte("version: \"2\"\nlinters:\n          enable:\n"),
+			2,
+		},
+		{
+			"accepts 8-space indent (boundary)",
+			[]byte("version: \"2\"\nlinters:\n        enable:\n"),
+			8,
+		},
+		{
+			"accepts 1-space indent (boundary)",
+			[]byte("version: \"2\"\nlinters:\n enable:\n"),
+			1,
+		},
 	}
 
 	for _, tt := range tests {
