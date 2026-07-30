@@ -393,30 +393,36 @@ func marshalConfig(config *types.Config, format ConfigFormat, indent int) ([]byt
 // marshalYAML encodes a config using a yaml.Encoder with the given indent.
 func marshalYAML(config *types.Config, indent int) ([]byte, error) {
 	var buf bytes.Buffer
+
 	encoder := yaml.NewEncoder(&buf)
 	encoder.SetIndent(indent)
+
 	if err := encoder.Encode(config); err != nil {
 		return nil, err
 	}
+
 	if err := encoder.Close(); err != nil {
 		return nil, err
 	}
+
 	return buf.Bytes(), nil
 }
 
 // detectYAMLIndent scans YAML data for the indentation width of the first
 // indented line. Returns defaultYAMLIndent when no indented line is found.
 func detectYAMLIndent(data []byte) int {
-	for _, line := range strings.Split(string(data), "\n") {
+	for line := range strings.SplitSeq(string(data), "\n") {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" || strings.HasPrefix(trimmed, "#") || trimmed == "---" {
 			continue
 		}
+
 		spaces := len(line) - len(strings.TrimLeft(line, " "))
 		if spaces > 0 {
 			return spaces
 		}
 	}
+
 	return defaultYAMLIndent
 }
 
@@ -425,6 +431,7 @@ func (l *Loader) SaveConfig(config *types.Config, path string) error {
 	format := detectFormat(path)
 
 	indent := defaultYAMLIndent
+
 	if format == ConfigFormatYAML || format == "" {
 		if existing, err := l.fs.ReadFile(path); err == nil {
 			indent = detectYAMLIndent(existing)
