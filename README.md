@@ -231,6 +231,35 @@ Without a sidecar file, all disables are respected (backward compatible). Commit
 the sidecar to git so the team shares a baseline — agents must add entries to
 justify new disables, which is visible in code review.
 
+#### Prevent Re-Adding Removed Linters (`never-enable`)
+
+In golangci-lint v2, removing a linter from `linters.enable` is the documented
+way to disable it. The `configure` command may re-add linters it recommends,
+creating a regression loop (remove -> tool re-adds -> remove again). The
+`never-enable` section in the sidecar is the durable, cross-machine signal that
+a linter must never be added to `enable`:
+
+```yaml
+# .golangci-lint-auto-configure.yml
+never-enable:
+  godoclint:
+    reason: "incompatible with templ components"
+    category: convention
+  ireturn:
+    reason: "interface returns are idiomatic in this codebase"
+    category: convention
+```
+
+Linters in `never-enable` are skipped during both recommendation (never added to
+`enable`) and anti-gaming enforcement (never force-re-enabled even when
+unjustified in `disabled`). This takes priority over all other mechanisms.
+
+The tool also detects regression loops **automatically** via the audit ledger:
+if a linter was auto-enabled in a past run and then removed, it is skipped on
+the next run (with a warning). The `never-enable` section makes this permanent
+and works across machines and CI (the audit ledger is local and purged after 90
+days).
+
 ### Validate Configuration
 
 Check if your config is valid:

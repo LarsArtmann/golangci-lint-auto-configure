@@ -1,7 +1,7 @@
 # golangci-lint-auto-configure — Feature Audit
 
 **Version:** v0.6.0
-**Last Audited:** 2026-07-27
+**Last Audited:** 2026-07-30
 
 Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `PLANNED`.
 
@@ -47,6 +47,8 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Preserve user `linters.disable`      | FULLY_FUNCTIONAL | `repair`/`configure` never re-adds a disabled linter; orphaned settings pruned (`fixer_config.go`)                            |
 | Audit ledger (config-mutation JSONL) | FULLY_FUNCTIONAL | Append-only `~/.cache/.../audit.jsonl`; 90-day retention; tested in `ledger_test.go`                                          |
 | Disable-reason sidecar enforcement   | FULLY_FUNCTIONAL | `.golangci-lint-auto-configure.yml` justifies disables (anti-gaming); `pkg/linter/fixer_enforce.go` + `fixer_enforce_test.go` |
+| `never-enable` sidecar section       | FULLY_FUNCTIONAL | Durable cross-machine signal to never add a linter to `enable`; checked in recommendation + enforcement paths                 |
+| Regression loop detection            | FULLY_FUNCTIONAL | Audit-ledger cycle detection: skips re-adding linters that were auto-enabled then removed; `ActionSuppressedReEnable` action  |
 | Tool-level disabled linters exempt   | FULLY_FUNCTIONAL | `constants.DisabledLinters`: funcorder, noinlineerr, depguard (`pkg/constants/rules.go`)                                      |
 
 ## Error Handling & Exit Codes
