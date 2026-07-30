@@ -136,6 +136,86 @@ output:
 			Expect(loaded.Linters.Enable).To(HaveLen(2))
 			Expect(loaded.Linters.Disable).To(HaveLen(1))
 		})
+
+		It("should preserve 2-space indentation from existing file", func() {
+			original := "version: \"2\"\nlinters:\n  enable:\n    - gosec\n  disable:\n    - unused\n"
+			Expect(os.WriteFile(testConfig, []byte(original), 0o644)).To(Succeed())
+
+			cfg := &types.Config{
+				Version: "2",
+				Linters: types.LintersConfig{
+					Enable:  []types.LinterName{"gosec", "errcheck"},
+					Disable: []types.LinterName{"unused"},
+				},
+			}
+			err := loader.SaveConfig(cfg, testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("\n  enable:\n"))
+		})
+
+		It("should preserve 4-space indentation from existing file", func() {
+			original := "version: \"2\"\nlinters:\n    enable:\n        - gosec\n    disable:\n        - unused\n"
+			Expect(os.WriteFile(testConfig, []byte(original), 0o644)).To(Succeed())
+
+			cfg := &types.Config{
+				Version: "2",
+				Linters: types.LintersConfig{
+					Enable:  []types.LinterName{"gosec", "errcheck"},
+					Disable: []types.LinterName{"unused"},
+				},
+			}
+			err := loader.SaveConfig(cfg, testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("\n    enable:\n"))
+		})
+
+		It("should default to 2-space indent for new file", func() {
+			cfg := &types.Config{
+				Version: "2",
+				Linters: types.LintersConfig{
+					Enable: []types.LinterName{"gosec"},
+				},
+			}
+			err := loader.SaveConfig(cfg, testConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := os.ReadFile(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("\n  enable:\n"))
+			Expect(string(content)).NotTo(ContainSubstring("\n    enable:\n"))
+		})
+	})
+
+	Context("detectYAMLIndent", func() {
+		It("should detect 2-space indentation", func() {
+			data := []byte("version: \"2\"\nlinters:\n  enable:\n    - gosec\n")
+			Expect(detectYAMLIndent(data)).To(Equal(2))
+		})
+
+		It("should detect 4-space indentation", func() {
+			data := []byte("version: \"2\"\nlinters:\n    enable:\n        - gosec\n")
+			Expect(detectYAMLIndent(data)).To(Equal(4))
+		})
+
+		It("should default to 2 for root-only YAML", func() {
+			data := []byte("version: \"2\"\n")
+			Expect(detectYAMLIndent(data)).To(Equal(2))
+		})
+
+		It("should skip comments and document markers", func() {
+			data := []byte("# comment\n---\nversion: \"2\"\nlinters:\n  enable:\n    - gosec\n")
+			Expect(detectYAMLIndent(data)).To(Equal(2))
+		})
+
+		It("should default to 2 for empty data", func() {
+			Expect(detectYAMLIndent([]byte(""))).To(Equal(2))
+		})
 	})
 
 	Context("ConfigFormatSupport", func() {
