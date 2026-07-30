@@ -1008,6 +1008,34 @@ linters:
 
 			testRuleCount := countSubstring(content, "_test\\.go")
 			Expect(testRuleCount).To(Equal(2))
+
+			By("propagating new default linters into the existing rule")
+			Expect(content).To(ContainSubstring("gosec"))
+			Expect(content).To(ContainSubstring("errcheck"))
+			Expect(content).To(ContainSubstring("wrapcheck"))
+		})
+
+		It("should preserve user-added linters in merged exclusion rules", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - mycustomlinter
+          - exhaustruct
+`
+			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			By("keeping the user's custom linter")
+			Expect(content).To(ContainSubstring("mycustomlinter"))
+
+			By("also containing the default linters")
+			Expect(content).To(ContainSubstring("gosec"))
+			Expect(content).To(ContainSubstring("errcheck"))
 		})
 
 		It("should add .gen.go to default exclusion paths", func() {

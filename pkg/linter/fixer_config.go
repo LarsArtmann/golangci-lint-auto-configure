@@ -167,27 +167,62 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 	return totalAdded
 }
 
-// updateExclusionRules injects default exclusion rules for test files.
-// These suppress linters that are noisy or inappropriate in test code.
+// updateExclusionRules injects default exclusion rules for test files and
+// propagates new linters into existing rules with the same Path|Text|Source key.
+// When a default rule matches an existing rule by key, their linter lists are
+// merged (union) so that stale configs receive newly added default linters.
 func (cu *configUpdater) updateExclusionRules(cfg *types.Config) int {
-	existingKeys := types.NewSetWithFunc(len(cfg.Linters.Exclusions.Rules), func(i int) string {
-		return cfg.Linters.Exclusions.Rules[i].RuleKey()
-	})
+	existingByKey := make(map[string]int, len(cfg.Linters.Exclusions.Rules))
+	for i := range cfg.Linters.Exclusions.Rules {
+		existingByKey[cfg.Linters.Exclusions.Rules[i].RuleKey()] = i
+	}
 
-	added := 0
+	changed := 0
 
-	for _, rule := range constants.DefaultExclusionRules {
-		if !existingKeys.Contains(rule.RuleKey()) {
-			cfg.Linters.Exclusions.Rules = append(cfg.Linters.Exclusions.Rules, rule)
-			added++
+	for _, defaultRule := range constants.DefaultExclusionRules {
+		key := defaultRule.RuleKey()
+		if idx, exists := existingByKey[key]; exists {
+			merged := mergeExclusionLinters(cfg.Linters.Exclusions.Rules[idx].Linters, defaultRule.Linters)
+			if len(merged) > len(cfg.Linters.Exclusions.Rules[idx].Linters) {
+				cfg.Linters.Exclusions.Rules[idx].Linters = merged
+				changed++
+			}
+
+			continue
+		}
+
+		cfg.Linters.Exclusions.Rules = append(cfg.Linters.Exclusions.Rules, defaultRule)
+		changed++
+	}
+
+	if changed > 0 {
+		cu.logger.Infof("Added/updated %d default exclusion rules for test files", changed)
+	}
+
+	return changed
+}
+
+// mergeExclusionLinters returns the union of two linter lists, preserving the
+// order of the existing list and appending new linters from defaults.
+func mergeExclusionLinters(existing, defaults []string) []string {
+	seen := make(map[string]bool, len(existing)+len(defaults))
+	merged := make([]string, 0, len(existing)+len(defaults))
+
+	for _, l := range existing {
+		if !seen[l] {
+			seen[l] = true
+			merged = append(merged, l)
 		}
 	}
 
-	if added > 0 {
-		cu.logger.Infof("Added %d default exclusion rules for test files", added)
+	for _, l := range defaults {
+		if !seen[l] {
+			seen[l] = true
+			merged = append(merged, l)
+		}
 	}
 
-	return added
+	return merged
 }
 
 // updateIssuesSettings injects default issue limits when they are missing.
