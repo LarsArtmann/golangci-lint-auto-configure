@@ -17,31 +17,31 @@ Implemented a two-layer fix for the regression loop where `configure` re-adds li
 
 ## (a) FULLY DONE
 
-| # | Work item | Files | Verified |
-|---|-----------|-------|----------|
-| 1 | `Policy.NeverEnable` map + `IsNeverEnable()` + `NeverEnableJustification()` | `pkg/policy/policy.go` | 7 BDD specs pass |
-| 2 | `audit.PreviouslyAutoEnabled(path, repoHash)` package function | `pkg/audit/ledger.go` | 8 BDD specs pass |
-| 3 | `Ledger.PreviouslyAutoEnabled()` + `NoopRecorder.PreviouslyAutoEnabled()` | `pkg/audit/ledger.go` | Duck-typed via `ledgerReader` interface |
-| 4 | `ActionSuppressedReEnable` audit action constant | `pkg/audit/ledger.go` | Visible in `audit` subcommand |
-| 5 | Cycle detection + neverEnable checks in `enableRecommendedLinters` | `pkg/linter/fixer.go` | 5 unit tests pass |
-| 6 | `ledgerReader` interface + `Fixer.reader` field + `SetLedger` wiring | `pkg/linter/fixer.go` | Compiles, type assertion tested |
-| 7 | `loadPolicy` logging updated (never-enable count) | `pkg/linter/fixer_enforce.go` | Test passes |
-| 8 | AGENTS.md updated (gotcha #27, tech stack, audit description) | `AGENTS.md` | — |
-| 9 | Feedback moved to resolved with full resolution writeup | `docs/feedback/resolved/` | — |
-| 10 | Full test suite passes (18 packages, 93 Ginkgo specs + all stdlib tests) | — | `go test ./pkg/... ./internal/...` |
-| 11 | Lint passes clean on all 3 changed packages | — | `golangci-lint run` |
-| 12 | Build passes clean | — | `go build ./...` |
-| 13 | Coverage: policy 88.5%, audit 78.8%, linter 84.9% | — | All above 60% gate |
+| #   | Work item                                                                   | Files                         | Verified                                |
+| --- | --------------------------------------------------------------------------- | ----------------------------- | --------------------------------------- |
+| 1   | `Policy.NeverEnable` map + `IsNeverEnable()` + `NeverEnableJustification()` | `pkg/policy/policy.go`        | 7 BDD specs pass                        |
+| 2   | `audit.PreviouslyAutoEnabled(path, repoHash)` package function              | `pkg/audit/ledger.go`         | 8 BDD specs pass                        |
+| 3   | `Ledger.PreviouslyAutoEnabled()` + `NoopRecorder.PreviouslyAutoEnabled()`   | `pkg/audit/ledger.go`         | Duck-typed via `ledgerReader` interface |
+| 4   | `ActionSuppressedReEnable` audit action constant                            | `pkg/audit/ledger.go`         | Visible in `audit` subcommand           |
+| 5   | Cycle detection + neverEnable checks in `enableRecommendedLinters`          | `pkg/linter/fixer.go`         | 5 unit tests pass                       |
+| 6   | `ledgerReader` interface + `Fixer.reader` field + `SetLedger` wiring        | `pkg/linter/fixer.go`         | Compiles, type assertion tested         |
+| 7   | `loadPolicy` logging updated (never-enable count)                           | `pkg/linter/fixer_enforce.go` | Test passes                             |
+| 8   | AGENTS.md updated (gotcha #27, tech stack, audit description)               | `AGENTS.md`                   | —                                       |
+| 9   | Feedback moved to resolved with full resolution writeup                     | `docs/feedback/resolved/`     | —                                       |
+| 10  | Full test suite passes (18 packages, 93 Ginkgo specs + all stdlib tests)    | —                             | `go test ./pkg/... ./internal/...`      |
+| 11  | Lint passes clean on all 3 changed packages                                 | —                             | `golangci-lint run`                     |
+| 12  | Build passes clean                                                          | —                             | `go build ./...`                        |
+| 13  | Coverage: policy 88.5%, audit 78.8%, linter 84.9%                           | —                             | All above 60% gate                      |
 
 ---
 
 ## (b) PARTIALLY DONE
 
-| # | Item | What's done | What's missing |
-|---|------|-------------|----------------|
-| 1 | **Unit tests** | 20 new test cases across policy/audit/linter | No integration test through the full `FixConfig` flow (see bugs section) |
-| 2 | **Documentation** | AGENTS.md fully updated, feedback resolution written | README.md sidecar section NOT updated (still only mentions `disabled:`, not `never-enable:`); FEATURES.md NOT updated; DOMAIN_LANGUAGE.md NOT updated |
-| 3 | **The `enforceRecorder` test double** | Extended with `previouslyEnabled` field + `PreviouslyAutoEnabled()` method + `hasSuppressedReEnable()` helper | `newEnforceFixer()` doesn't call `SetLedger()`, so `f.reader` stays nil — correct but undocumented in the test helper |
+| #   | Item                                  | What's done                                                                                                   | What's missing                                                                                                                                        |
+| --- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Unit tests**                        | 20 new test cases across policy/audit/linter                                                                  | No integration test through the full `FixConfig` flow (see bugs section)                                                                              |
+| 2   | **Documentation**                     | AGENTS.md fully updated, feedback resolution written                                                          | README.md sidecar section NOT updated (still only mentions `disabled:`, not `never-enable:`); FEATURES.md NOT updated; DOMAIN_LANGUAGE.md NOT updated |
+| 3   | **The `enforceRecorder` test double** | Extended with `previouslyEnabled` field + `PreviouslyAutoEnabled()` method + `hasSuppressedReEnable()` helper | `newEnforceFixer()` doesn't call `SetLedger()`, so `f.reader` stays nil — correct but undocumented in the test helper                                 |
 
 ---
 
@@ -63,6 +63,7 @@ Implemented a two-layer fix for the regression loop where `configure` re-adds li
 **This is the biggest issue.** If a linter is in both `linters.disable` (without justification in `disabled:`) AND `never-enable:`, the enforcement path will **re-enable it**, bypassing the never-enable check entirely.
 
 The execution order in `applyAndSave` (`fixer.go:285-334`):
+
 1. `enableRecommendedLinters` — skips linter (it's in disable set) ✅
 2. `updateConfigFromSets` — writes sets back, linter stays in disable ✅
 3. `enforceDisableReasons` — re-enables linter (unjustified disable, sidecar present) ❌ **BYPASSES never-enable**
@@ -70,6 +71,7 @@ The execution order in `applyAndSave` (`fixer.go:285-334`):
 **Impact:** An AI agent could put a linter in `disable` to game the lint gate. The user adds it to `never-enable` to prevent re-adding. But `enforceDisableReasons` re-enables it anyway because it doesn't check `never-enable`. The enforcement path defeats the protection.
 
 **Fix needed:** Add a `never-enable` check to `tryReEnableLinter` (`fixer_enforce.go:67`):
+
 ```go
 if f.pol.IsNeverEnable(linter) {
     return false  // never-enable takes precedence over enforcement
@@ -79,6 +81,7 @@ if f.pol.IsNeverEnable(linter) {
 ### BUG 2: Auto-commit daemon committed unrelated changes
 
 The daemon's commits (`de75c74`, `8194de3`) include changes I did NOT make:
+
 - `internal/cli/cmd_audit.go` — migrated `fmt.Errorf` to `errorfamily.Wrap*` and `apperrors.WrapClassified`
 - `internal/cli/cmd_configure_config.go` — migrated `fmt.Errorf` to `apperrors.WrapClassified`
 - `internal/cli/cmd_presets.go` — migrated `fmt.Errorf` to `errorfamily.WrapCorruptionf`
@@ -195,6 +198,7 @@ The daemon committed my work under the message `"fix(linter): ensure repair re-a
 ### 1. Should `enforceDisableReasons` respect `never-enable`?
 
 I believe this is a **bug** (BUG 1 above), not a design choice. But the enforcement path was designed before `never-enable` existed. Should I:
+
 - **(a)** Fix it now (add `never-enable` check to `tryReEnableLinter`) — makes the feature correct
 - **(b)** Leave it and document the interaction — the enforcement is opt-in (requires sidecar), and a user with `never-enable` entries is sophisticated enough to also justify their `disabled` entries
 

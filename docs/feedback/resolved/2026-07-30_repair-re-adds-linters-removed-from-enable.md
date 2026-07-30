@@ -32,11 +32,11 @@ removes again → repair re-adds again.
 This is a **templ UI component library** where three linters are fundamentally
 incompatible:
 
-| Linter | Why it's incompatible |
-|--------|----------------------|
-| `godoclint` | Demands exactly one `// Package` godoc per package; the repo intentionally documents per-file |
-| `ireturn` | Every component returns `templ.Component` (an interface) by design; the linter's premise is antithetical to templ |
-| `testableexamples` | `Example*` funcs render verbose HTML output that isn't asserted; noisy and version-dependent |
+| Linter             | Why it's incompatible                                                                                             |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `godoclint`        | Demands exactly one `// Package` godoc per package; the repo intentionally documents per-file                     |
+| `ireturn`          | Every component returns `templ.Component` (an interface) by design; the linter's premise is antithetical to templ |
+| `testableexamples` | `Example*` funcs render verbose HTML output that isn't asserted; noisy and version-dependent                      |
 
 ### Step 1 — User removes the linters from `enable` and deletes orphaned settings
 
@@ -46,8 +46,8 @@ settings block is also deleted (it has no effect once ireturn is disabled).
 The `disable:` list currently contains only `depguard`:
 
 ```yaml
-  disable:
-    - depguard
+disable:
+  - depguard
 ```
 
 ### Step 2 — BuildFlow pre-commit `repair` re-adds all three
@@ -104,11 +104,11 @@ intent.
 The tool's three-tier system in `pkg/constants/rules.go` does not include
 `godoclint` or `testableexamples` in any tier:
 
-| Tier | Linters | Behavior |
-|------|---------|----------|
-| `DisabledLinters` | `funcorder`, `noinlineerr`, `depguard` | Forcibly moved to `disable`, never recommended |
-| `NeverAutoEnableLinters` | `exhaustruct` | Never auto-enabled, respected if manual |
-| `PragmaticNoiseLinters` | `gochecknoglobals`, `wrapcheck`, `ireturn`, `funlen` | Enabled by default, dropped only with `--pragmatic` |
+| Tier                     | Linters                                              | Behavior                                            |
+| ------------------------ | ---------------------------------------------------- | --------------------------------------------------- |
+| `DisabledLinters`        | `funcorder`, `noinlineerr`, `depguard`               | Forcibly moved to `disable`, never recommended      |
+| `NeverAutoEnableLinters` | `exhaustruct`                                        | Never auto-enabled, respected if manual             |
+| `PragmaticNoiseLinters`  | `gochecknoglobals`, `wrapcheck`, `ireturn`, `funlen` | Enabled by default, dropped only with `--pragmatic` |
 
 `ireturn` is in `PragmaticNoiseLinters` (enabled by default), and
 `godoclint`/`testableexamples` are in no special tier at all — so the tool
@@ -151,11 +151,11 @@ value to a templ project.
 The project can add all three to `linters.disable`:
 
 ```yaml
-  disable:
-    - depguard
-    - godoclint
-    - ireturn
-    - testableexamples
+disable:
+  - depguard
+  - godoclint
+  - ireturn
+  - testableexamples
 ```
 
 This should prevent `repair` from re-adding them (per the 2026-07-25 fix). But

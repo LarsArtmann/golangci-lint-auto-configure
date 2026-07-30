@@ -20,42 +20,42 @@ The previous session implemented two-layer regression loop prevention (audit-led
 
 ## a) FULLY DONE
 
-| Item | Details |
-|------|---------|
-| **BUG 1 fix** | `tryReEnableLinter` now checks `f.pol.IsNeverEnable(linter)` before re-enabling (`fixer_enforce.go:75`). Returns false + debug log. Never-enable takes priority over anti-gaming enforcement. |
-| **Test: enforcement-level** | `TestEnforceDisableReasons_NeverEnableOverridesUnjustified` — linter in both `disabled` (unjustified) + `never-enable` stays disabled; only unjustified non-never-enable linters re-enabled |
-| **Test: unit-level** | `TestTryReEnableLinter_NeverEnable` — standalone test (extracted from `TestTryReEnableLinter` to satisfy gocognit ≤25) |
-| **README.md** | New `never-enable:` subsection with YAML example, explanation of both layers, how cycle detection works alongside the sidecar |
-| **FEATURES.md** | Two new rows: `never-enable sidecar section` + `Regression loop detection`; audit date bumped to 2026-07-30 |
-| **DOMAIN_LANGUAGE.md** | Three new glossary terms (Sidecar, Never-Enable, Regression Loop), two value objects (DisableJustification, AuditEntry), updated Policy bounded context description |
-| **AGENTS.md gotcha #27** | Added paragraph: never-enable checked in both code paths (recommendation + enforcement); explains why enforcement check is critical |
-| **Feedback resolution doc** | Updated section (d) with enforcement-path detail; added 2 new test names to Tests section |
+| Item                              | Details                                                                                                                                                                                                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **BUG 1 fix**                     | `tryReEnableLinter` now checks `f.pol.IsNeverEnable(linter)` before re-enabling (`fixer_enforce.go:75`). Returns false + debug log. Never-enable takes priority over anti-gaming enforcement.                                                                |
+| **Test: enforcement-level**       | `TestEnforceDisableReasons_NeverEnableOverridesUnjustified` — linter in both `disabled` (unjustified) + `never-enable` stays disabled; only unjustified non-never-enable linters re-enabled                                                                  |
+| **Test: unit-level**              | `TestTryReEnableLinter_NeverEnable` — standalone test (extracted from `TestTryReEnableLinter` to satisfy gocognit ≤25)                                                                                                                                       |
+| **README.md**                     | New `never-enable:` subsection with YAML example, explanation of both layers, how cycle detection works alongside the sidecar                                                                                                                                |
+| **FEATURES.md**                   | Two new rows: `never-enable sidecar section` + `Regression loop detection`; audit date bumped to 2026-07-30                                                                                                                                                  |
+| **DOMAIN_LANGUAGE.md**            | Three new glossary terms (Sidecar, Never-Enable, Regression Loop), two value objects (DisableJustification, AuditEntry), updated Policy bounded context description                                                                                          |
+| **AGENTS.md gotcha #27**          | Added paragraph: never-enable checked in both code paths (recommendation + enforcement); explains why enforcement check is critical                                                                                                                          |
+| **Feedback resolution doc**       | Updated section (d) with enforcement-path detail; added 2 new test names to Tests section                                                                                                                                                                    |
 | **Error-family migration review** | Reviewed `cmd_audit.go`, `cmd_configure_config.go`, `cmd_presets.go` diffs. All replace bare `fmt.Errorf` with `WrapClassified`/`WrapRejectionf`/`WrapCorruptionf`. Consistent with project architecture (AGENTS.md gotcha #5). **Kept — no action needed.** |
-| **Full test suite** | 18 packages pass (pkg + internal). 0 failures. |
-| **Lint** | 0 issues on changed packages (linter, policy, audit). gocognit resolved by extraction. |
-| **Coverage** | policy 88.5%, audit 78.8%, linter 85.0% — all above 60% gate |
-| **Build** | `GOEXPERIMENT=jsonv2 go build ./...` — clean |
+| **Full test suite**               | 18 packages pass (pkg + internal). 0 failures.                                                                                                                                                                                                               |
+| **Lint**                          | 0 issues on changed packages (linter, policy, audit). gocognit resolved by extraction.                                                                                                                                                                       |
+| **Coverage**                      | policy 88.5%, audit 78.8%, linter 85.0% — all above 60% gate                                                                                                                                                                                                 |
+| **Build**                         | `GOEXPERIMENT=jsonv2 go build ./...` — clean                                                                                                                                                                                                                 |
 
 ---
 
 ## b) PARTIALLY DONE
 
-| Item | What's done | What's missing |
-|------|-------------|----------------|
-| **Test coverage of never-enable** | Unit tests cover `tryReEnableLinter` + `enforceDisableReasons` + `enableRecommendedLinters` in isolation | No integration test through the full `FixConfig` pipeline (see section c) |
-| **Documentation** | README, FEATURES, DOMAIN_LANGUAGE, AGENTS updated | `docs/references/working-with-codebase.md` not checked for stale sidecar references |
+| Item                              | What's done                                                                                              | What's missing                                                                      |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Test coverage of never-enable** | Unit tests cover `tryReEnableLinter` + `enforceDisableReasons` + `enableRecommendedLinters` in isolation | No integration test through the full `FixConfig` pipeline (see section c)           |
+| **Documentation**                 | README, FEATURES, DOMAIN_LANGUAGE, AGENTS updated                                                        | `docs/references/working-with-codebase.md` not checked for stale sidecar references |
 
 ---
 
 ## c) NOT STARTED
 
-| Item | Why it matters |
-|------|----------------|
-| **Integration test: full `FixConfig` flow** | The BUG 1 scenario was a pipeline-ordering bug (`enforceDisableReasons` runs AFTER `enableRecommendedLinters` in `applyAndSave`). Unit tests prove each function works, but don't prove the pipeline as a whole respects never-enable end-to-end. A test that creates a real sidecar file + config, calls `FixConfig`, and asserts the linter is absent from the output would close this gap. |
-| **Deprecated linter replacement → never-enable interaction** | `replaceLinters` (deprecated handler) adds successor linters to the enable set. If a deprecated linter's successor is in `never-enable`, does the replacement respect it? **Not tested.** Likely NOT — `replaceLinters` operates on `linterSet` directly and doesn't check `f.pol`. |
-| **Never-enable linter already in `enable`** | Contradictory state: user has a linter in both `enable` and `never-enable`. Current behavior: tool doesn't remove it (never-enable only blocks adding, not removes existing). No warning logged. Could confuse users. |
-| **`--pragmatic` + `never-enable` composition test** | Both filter the recommendation set independently. Should compose correctly but untested together. |
-| **Updating previous status report** | `docs/status/2026-07-30_22-39_...md` still lists BUG 1 as unfixed and 3 questions as unanswered. |
+| Item                                                         | Why it matters                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Integration test: full `FixConfig` flow**                  | The BUG 1 scenario was a pipeline-ordering bug (`enforceDisableReasons` runs AFTER `enableRecommendedLinters` in `applyAndSave`). Unit tests prove each function works, but don't prove the pipeline as a whole respects never-enable end-to-end. A test that creates a real sidecar file + config, calls `FixConfig`, and asserts the linter is absent from the output would close this gap. |
+| **Deprecated linter replacement → never-enable interaction** | `replaceLinters` (deprecated handler) adds successor linters to the enable set. If a deprecated linter's successor is in `never-enable`, does the replacement respect it? **Not tested.** Likely NOT — `replaceLinters` operates on `linterSet` directly and doesn't check `f.pol`.                                                                                                           |
+| **Never-enable linter already in `enable`**                  | Contradictory state: user has a linter in both `enable` and `never-enable`. Current behavior: tool doesn't remove it (never-enable only blocks adding, not removes existing). No warning logged. Could confuse users.                                                                                                                                                                         |
+| **`--pragmatic` + `never-enable` composition test**          | Both filter the recommendation set independently. Should compose correctly but untested together.                                                                                                                                                                                                                                                                                             |
+| **Updating previous status report**                          | `docs/status/2026-07-30_22-39_...md` still lists BUG 1 as unfixed and 3 questions as unanswered.                                                                                                                                                                                                                                                                                              |
 
 ---
 
