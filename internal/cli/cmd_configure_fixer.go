@@ -37,7 +37,15 @@ func runFixerMode(
 ) error {
 	isDryRun := flags.Check || flags.DryRun
 
-	fixer := newConfiguredFixer(ctx, logger, analyzer, configLoader, configFile, flags.NoAudit, flags.ForceSettings)
+	fixer := newConfiguredFixer(
+		ctx,
+		logger,
+		analyzer,
+		configLoader,
+		configFile,
+		flags.NoAudit,
+		flags.ForceSettings,
+	)
 
 	linterPriority, err := ParsePriorityParam(flags.Priority)
 	if err != nil {
