@@ -268,6 +268,12 @@ never-enable:
 This is the durable, committed-to-git signal that works across machines and CI.
 When no sidecar exists, only the automatic cycle detection applies.
 
+The `never-enable` check is applied in **both** code paths: recommendation
+(`enableRecommendedLinters` in `fixer.go`) and anti-gaming enforcement
+(`tryReEnableLinter` in `fixer_enforce.go`). Without the enforcement check, a
+linter in both `disable` (unjustified) and `never-enable` would be re-enabled by
+enforcement, defeating the protection.
+
 ### Not implemented
 
 - **(a)** Not viable — `configure` and `repair` are the same code path (no
@@ -285,5 +291,7 @@ When no sidecar exists, only the automatic cycle detection applies.
 - `TestEnableRecommendedLinters_CycleDetectionDryRun` — dry-run warns but doesn't record
 - `TestEnableRecommendedLinters_NoReaderNoCycleDetection` — no reader = normal behavior
 - `TestEnableRecommendedLinters_DisabledNotAffectedByCycle` — disabled linters skip before cycle check
+- `TestEnforceDisableReasons_NeverEnableOverridesUnjustified` — never-enable blocks enforcement re-enable
+- `TestTryReEnableLinter_NeverEnable` — unit test: never-enable linter stays disabled
 - Policy tests for `never-enable` parsing, `IsNeverEnable`, `NeverEnableJustification`
 - Audit tests for `PreviouslyAutoEnabled` (matching repoHash, cross-repo filtering, edge cases)
