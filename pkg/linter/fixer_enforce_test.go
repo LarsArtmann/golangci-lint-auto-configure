@@ -512,7 +512,8 @@ func TestEnableRecommendedLinters_DisabledNotAffectedByCycle(t *testing.T) {
 		},
 	}
 
-	count := f.enableRecommendedLinters(linterSet, []types.LinterName{"errcheck"}, analysis, types.LinterPriorityCritical, false)
+	disabled := []types.LinterName{"errcheck"}
+	count := f.enableRecommendedLinters(linterSet, disabled, analysis, types.LinterPriorityCritical, false)
 
 	if count != 0 {
 		t.Fatalf("expected 0 (errcheck in disable list, skipped before cycle check), got %d", count)

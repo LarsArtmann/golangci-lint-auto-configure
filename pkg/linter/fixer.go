@@ -377,13 +377,14 @@ func (f *Fixer) enableRecommendedLinters(
 
 		if f.pol != nil && f.pol.IsNeverEnable(lintName) {
 			f.logger.Debugf("Skipping never-enable linter (sidecar): %s", lintName)
+
 			continue
 		}
 
 		if previouslyAutoEnabled[string(lintName)] {
 			f.logger.Warnf(
 				"⚠️  Skipping %s: was auto-enabled in a previous run and subsequently removed. "+
-					"To make this permanent, add it to linters.disable or %s under neverEnable.",
+					"To make this permanent, add it to linters.disable or %s under never-enable.",
 				lintName, policy.SidecarFileName,
 			)
 

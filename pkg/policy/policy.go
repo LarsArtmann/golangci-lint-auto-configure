@@ -46,8 +46,8 @@ type DisableJustification struct {
 // Policy is the parsed sidecar file. A nil *Policy means no sidecar was found
 // (enforcement is inactive; all disables are respected).
 type Policy struct {
-	Disabled   map[types.LinterName]DisableJustification `yaml:"disabled"`
-	NeverEnable map[types.LinterName]DisableJustification `yaml:"neverEnable"`
+	Disabled    map[types.LinterName]DisableJustification `yaml:"disabled"`
+	NeverEnable map[types.LinterName]DisableJustification `yaml:"never-enable"`
 }
 
 // Load reads the sidecar file at path. Returns (nil, nil) when the file does

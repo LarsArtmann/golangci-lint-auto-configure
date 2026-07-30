@@ -130,7 +130,7 @@ var _ = Describe("Policy", func() {
   mnd:
     reason: "false-positives"
     category: false-positives
-neverEnable:
+never-enable:
   godoclint:
     reason: "demands per-package godoc; this repo documents per-file"
     category: convention
@@ -149,7 +149,7 @@ neverEnable:
 		})
 
 		It("handles a sidecar with only neverEnable (no disabled)", func() {
-			content := `neverEnable:
+			content := `never-enable:
   testableexamples:
     reason: "Example funcs render verbose HTML output"
     category: convention`
