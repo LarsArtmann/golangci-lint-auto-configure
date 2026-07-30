@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 
-	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	errorfamily "github.com/larsartmann/go-error-family"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
 

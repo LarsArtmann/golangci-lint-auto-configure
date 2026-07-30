@@ -210,3 +210,80 @@ _Same pattern as the 2026-07-20 feedback, but triggered by a different code
 path: that one was `repair` rebuilding `disable` from scratch (dropping user
 disables). This one is `repair` re-adding to `enable` when a linter is absent
 from both lists. The 2026-07-25 fix for the former does not address the latter._
+
+---
+
+## Resolution (2026-07-30)
+
+**FIXED — options (b) and (d) shipped.** Two complementary mechanisms now prevent
+the regression loop where `configure` re-adds linters the user deliberately
+removed from `enable`.
+
+### (b) Automatic cycle detection via audit ledger
+
+`enableRecommendedLinters` (`pkg/linter/fixer.go`) now queries the audit ledger
+before adding a linter to `enable`. If the ledger has an `ActionAddedToEnable`
+entry for the linter (meaning the tool previously auto-enabled it), the tool
+skips re-adding and logs a warning:
+
+```
+⚠️  Skipping godoclint: was auto-enabled in a previous run and subsequently removed.
+    To make this permanent, add it to linters.disable or .golangci-lint-auto-configure.yml under never-enable.
+```
+
+This breaks the loop automatically on the second cycle (first cycle: tool adds +
+records; user removes; second cycle: tool detects + skips). The suppression is
+recorded as `ActionSuppressedReEnable` in the ledger, visible via the `audit`
+subcommand.
+
+Implementation: `audit.PreviouslyAutoEnabled(path, repoHash)` reads the ledger
+and returns the set of auto-enabled linters. `Ledger.PreviouslyAutoEnabled()`
+and `NoopRecorder.PreviouslyAutoEnabled()` satisfy the `ledgerReader` interface
+(duck-typed in the linter package). The `Fixer.reader` field is set in
+`SetLedger` via type assertion.
+
+Best-effort: requires the audit ledger (disabled with `--no-audit`), is
+per-machine, and entries are purged after 90 days. When unavailable, behavior is
+unchanged (linter is added as before).
+
+### (d) Durable `never-enable` sidecar section
+
+The sidecar `.golangci-lint-auto-configure.yml` now supports a `never-enable:`
+section (kebab-case YAML key) alongside the existing `disabled:` section.
+Linters listed there are never added to `enable` by any code path.
+
+```yaml
+never-enable:
+  godoclint:
+    reason: "demands per-package godoc; this repo documents per-file"
+    category: convention
+  ireturn:
+    reason: "every component returns templ.Component by design"
+    category: convention
+  testableexamples:
+    reason: "Example* funcs render verbose HTML output that isn't asserted"
+    category: convention
+```
+
+This is the durable, committed-to-git signal that works across machines and CI.
+When no sidecar exists, only the automatic cycle detection applies.
+
+### Not implemented
+
+- **(a)** Not viable — `configure` and `repair` are the same code path (no
+  separate `repair` subcommand exists).
+- **(c)** Superseded by (b)'s warning message, which proactively suggests
+  `disable` or the sidecar.
+- **(e)** Not implemented — `godoclint` and `testableexamples` may add value to
+  some projects. The general mechanisms (b)+(d) cover them without a global
+  policy change. Users can add them to `never-enable` per-project.
+
+### Tests
+
+- `TestEnableRecommendedLinters_NeverEnableSidecar` — sidecar never-enable skips linter
+- `TestEnableRecommendedLinters_CycleDetection` — ledger-based cycle detection skips + records
+- `TestEnableRecommendedLinters_CycleDetectionDryRun` — dry-run warns but doesn't record
+- `TestEnableRecommendedLinters_NoReaderNoCycleDetection` — no reader = normal behavior
+- `TestEnableRecommendedLinters_DisabledNotAffectedByCycle` — disabled linters skip before cycle check
+- Policy tests for `never-enable` parsing, `IsNeverEnable`, `NeverEnableJustification`
+- Audit tests for `PreviouslyAutoEnabled` (matching repoHash, cross-repo filtering, edge cases)

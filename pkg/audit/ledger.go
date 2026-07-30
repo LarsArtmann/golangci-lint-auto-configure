@@ -21,8 +21,8 @@ import (
 	"sync"
 	"time"
 
-	errorfamily "github.com/larsartmann/go-error-family"
 	"charm.land/log/v2"
+	errorfamily "github.com/larsartmann/go-error-family"
 )
 
 const (
@@ -414,7 +414,7 @@ func rewriteLedger(path string, entries []Entry) error {
 
 		if _, err := file.Write(append(line, '\n')); err != nil {
 			return errorfamily.WrapTransientf(err, "audit.write_ledger",
-			"write audit ledger %q", path)
+				"write audit ledger %q", path)
 		}
 	}
 

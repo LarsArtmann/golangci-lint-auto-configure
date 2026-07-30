@@ -45,6 +45,7 @@ func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader fi
 		goVersionProvider: func(context.Context) string { return "" },
 		formatterManager:  NewFormatterManager(logger),
 		ledger:            audit.NoopRecorder{},
+		reader:            nil,
 		pol:               nil,
 	}
 }
