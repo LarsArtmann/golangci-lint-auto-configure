@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added — Config output quality
 
 - YAML indentation preservation: SaveConfig now detects the existing file's indentation width (2 or 4 spaces) and preserves it on re-save, eliminating massive whitespace-only diffs that obscured real config changes
+- `--force-settings` flag: overwrites existing linter settings with curated defaults, solving the idempotency trap where stale settings could never be refreshed by re-running the tool
 
 ### Changed — Error classification (erraudit review)
 
