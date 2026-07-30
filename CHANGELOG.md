@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Policy enforcement
+
+- `never-enable` sidecar section: durable cross-machine signal to never add a linter to `enable`, checked in recommendation and enforcement paths
+- Repair re-adds linters removed from `enable` list (prevents regression loops when the tool's own recommendations are undone)
+- Regression loop detection via audit ledger: skips re-adding linters that were auto-enabled then manually removed
+- Anti-gaming enforcement skips never-enable linters even when they lack a justification entry
+
+### Changed — Error classification (erraudit review)
+
+- 15 `fmt.Errorf` calls converted to `errorfamily.Wrap*` constructors across 5 files (`ledger.go`, `policy.go`, `cmd_audit.go`, `cmd_configure_config.go`, `cmd_presets.go`)
+- 2 unregistered sentinels wrapped at return sites (`errLedgerPathUnavailable`, `ErrConfigPathEmpty`)
+- erraudit findings reduced from 218 to 194 (remaining are intentional `context_loss` noise and idiomatic patterns)
+
+### Fixed
+
+- `shortRunID` panic guard: `parts[2][:4]` crashed on malformed audit entry IDs with fewer than 4 hex characters in the third segment
+
 ## [0.6.0] - 2026-07-27
 
 A large release covering the friction-reduction Pareto plan and the

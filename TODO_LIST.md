@@ -26,10 +26,9 @@ _All high-priority items resolved in v0.6.0 — see CHANGELOG.md._
 
 ## Low Priority
 
-| Task                                                           | Impact | Effort | Evidence                                                         |
-| -------------------------------------------------------------- | ------ | ------ | ---------------------------------------------------------------- |
-| Extend docs-integrity test to ALL hardcoded FEATURES.md counts | Low    | 1h     | `pkg/constants/docs_integrity_test.go` only covers preset counts |
-| Status report lifecycle policy (archive cadence)               | Low    | 30min  | `docs/status/README.md` index exists; no archive cadence policy  |
-| Multi-preset merge correctness tests (dedup, formatter union)  | Low    | 1h     | `--preset a --preset b` shipped without dedicated merge tests    |
-| Swallowed-error governance audit (deeper than the 2-site pass) | Low    | 1h     | Prior audit found only 2 benign `defer Close()` sites            |
-| `shortRunID` panic guard (`parts[2][:4]` without length check) | Low    | 15min  | `internal/cli/cmd_audit.go`; accepts arbitrary input             |
+| Task                                                            | Impact | Effort | Evidence                                                                         |
+| --------------------------------------------------------------- | ------ | ------ | -------------------------------------------------------------------------------- |
+| Extend docs-integrity test to ALL hardcoded FEATURES.md counts  | Low    | 1h     | `pkg/constants/docs_integrity_test.go` only covers preset counts                 |
+| Status report lifecycle policy (archive cadence)                | Low    | 30min  | `docs/status/README.md` index exists; no archive cadence policy                  |
+| Multi-preset merge correctness tests (dedup, formatter union)   | Low    | 1h     | `--preset a --preset b` shipped without dedicated merge tests                    |
+| Swallowed-error governance audit (erraudit + periodic re-check) | Low    | 1h     | 194 findings reviewed 2026-07-30; 141 `context_loss` are noise; re-run quarterly |
