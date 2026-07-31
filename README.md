@@ -162,6 +162,9 @@ golangci-lint-auto-configure configure --diff
 # Combine flags
 golangci-lint-auto-configure configure --check --diff        # CI diff preview
 golangci-lint-auto-configure configure --dry-run --diff      # Preview without saving
+
+# Overwrite stale linter/formatter settings with curated defaults
+golangci-lint-auto-configure configure --force-settings
 ```
 
 > **Note:** When combining `--check` with `--diff`, the tool temporarily applies changes to compute the diff, then restores the original config before exiting. The file on disk is never modified.
@@ -385,6 +388,7 @@ esac
 | `--output`        | Output path for report file                                                        |
 | `--no-auto-merge` | Disable automatic merging of multiple config files                                 |
 | `--no-audit`      | Skip writing to the audit ledger                                                   |
+| `--force-settings`| Overwrite existing linter/formatter settings with curated defaults                 |
 | `--no-color`      | Disable colored output (also honored via NO_COLOR env var)                         |
 
 ## Project-Specific Examples

@@ -101,23 +101,34 @@ func (cm *Merger) mergeLintersExclusionRules(primary, secondary *types.LintersEx
 		return len(secondary.Rules)
 	}
 
-	primaryKeyByID := make(map[string]int, len(primary.Rules))
-	for i := range primary.Rules {
-		primaryKeyByID[primary.Rules[i].RuleKey()] = i
+	keyIndex := buildRuleKeyIndex(primary.Rules)
+
+	return mergeSecondaryRules(&primary.Rules, secondary.Rules, keyIndex)
+}
+
+func buildRuleKeyIndex(rules []types.ExclusionRuleConfig) map[string]int {
+	index := make(map[string]int, len(rules))
+	for i := range rules {
+		index[rules[i].RuleKey()] = i
 	}
 
+	return index
+}
+
+func mergeSecondaryRules(rules *[]types.ExclusionRuleConfig, secondary []types.ExclusionRuleConfig, keyIndex map[string]int) int {
 	changes := 0
+
 	for _, rule := range secondary.Rules {
 		key := rule.RuleKey()
-		if idx, exists := primaryKeyByID[key]; exists {
-			merged, added := mergeUniqueItems(primary.Rules[idx].Linters, rule.Linters)
+		if idx, exists := keyIndex[key]; exists {
+			merged, added := mergeUniqueItems((*rules)[idx].Linters, rule.Linters)
 			if added > 0 {
-				primary.Rules[idx].Linters = merged
+				(*rules)[idx].Linters = merged
 				changes++
 			}
 		} else {
-			primary.Rules = append(primary.Rules, rule)
-			primaryKeyByID[key] = len(primary.Rules) - 1
+			*rules = append(*rules, rule)
+			keyIndex[key] = len(*rules) - 1
 			changes++
 		}
 	}

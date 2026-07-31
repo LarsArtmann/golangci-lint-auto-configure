@@ -389,7 +389,7 @@ func marshalConfig(config *types.Config, format ConfigFormat, indent int) ([]byt
 		return toml.Marshal(config)
 	case ConfigFormatJSON:
 		return json.Marshal(config, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
-	default:
+	case ConfigFormatYAML, "":
 		return marshalYAML(config, indent)
 	}
 }

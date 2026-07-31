@@ -371,8 +371,8 @@ func TestTryReEnableLinter(t *testing.T) {
 			wantNoAuditRecs: true,
 		},
 		{
-			name:         "keeps justified linter",
-			linter:       "gofmt",
+			name:   "keeps justified linter",
+			linter: "gofmt",
 			pol: &policy.Policy{Disabled: map[types.LinterName]policy.DisableJustification{
 				"gofmt": {Reason: "prefer golines", Category: policy.CategoryConvention},
 			}},

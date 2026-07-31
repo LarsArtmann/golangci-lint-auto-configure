@@ -48,6 +48,7 @@ func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader fi
 		ledger:            audit.NoopRecorder{},
 		reader:            nil,
 		pol:               nil,
+		forceSettings:     false,
 	}
 }
 

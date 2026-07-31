@@ -175,6 +175,7 @@ func TestInjectDefaultFormatterSettings_ForceOverwrites(t *testing.T) {
 	}
 
 	settings, _ := types.AsSettingsMap(cfg.Formatters.Settings["golines"])
+
 	maxLen, ok := settings["max-len"]
 	if !ok {
 		t.Fatal("expected max-len to exist after force")
