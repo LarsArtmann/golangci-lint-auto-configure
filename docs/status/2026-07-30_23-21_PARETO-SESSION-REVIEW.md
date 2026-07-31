@@ -10,47 +10,47 @@
 
 ## A) FULLY DONE (shipped and verified)
 
-| # | Task | Evidence |
-|---|------|----------|
-| 1 | **Push all commits to origin/master** | 8 commits pushed; origin/master now in sync (except 1 daemon commit) |
-| 2 | **Fix `shortRunID` panic guard** | `internal/cli/cmd_audit.go:315` — added `len(parts[2]) < runIDHexPrefix` guard; 5 test cases pass |
-| 3 | **YAML indentation preservation** | `pkg/config/loader.go` — `detectYAMLIndent()` + `marshalYAML()` using encoder with detected indent; 6 unit tests + 3 Ginkgo integration tests; new files default to 2-space |
-| 4 | **`--force-settings` flag** | `internal/cli/flags.go:ForceSettings`, `pkg/linter/fixer.go:SetForceSettings`, `pkg/linter/fixer_config.go:injectDefaultSettings(force bool)`; 3 unit tests (preserve/overwrite/inject-missing); CLI flag registered on configure command |
-| 5 | **RuleKey merge strategy** | `pkg/linter/fixer_config.go:updateExclusionRules` — now unions linter lists instead of skipping same-key rules; `mergeExclusionLinters()` helper; 2 Ginkgo specs updated (propagation + user-linter preservation) |
-| 6 | **TODO_LIST.md updated** | Removed 5 shipped items (shortRunID, YAML indent, force-settings, RuleKey, CommandContext); updated erraudit task description; date set to 2026-07-30 |
-| 7 | **FEATURES.md updated** | Added never-enable sidecar + regression loop detection rows; Last Audited: 2026-07-30 |
-| 8 | **CHANGELOG.md updated** | Full Unreleased section: policy enforcement, config output quality, erraudit conversions, shortRunID fix |
-| 9 | **Never-enable enforcement** | `pkg/linter/fixer_enforce.go:tryReEnableLinter` skips never-enable linters during anti-gaming enforcement; 2 test cases |
-| 10 | **CommandContext investigation** | Confirmed already shipped — Flags struct replaces all 9 globals; removed stale TODO |
+| #   | Task                                  | Evidence                                                                                                                                                                                                                                  |
+| --- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Push all commits to origin/master** | 8 commits pushed; origin/master now in sync (except 1 daemon commit)                                                                                                                                                                      |
+| 2   | **Fix `shortRunID` panic guard**      | `internal/cli/cmd_audit.go:315` — added `len(parts[2]) < runIDHexPrefix` guard; 5 test cases pass                                                                                                                                         |
+| 3   | **YAML indentation preservation**     | `pkg/config/loader.go` — `detectYAMLIndent()` + `marshalYAML()` using encoder with detected indent; 6 unit tests + 3 Ginkgo integration tests; new files default to 2-space                                                               |
+| 4   | **`--force-settings` flag**           | `internal/cli/flags.go:ForceSettings`, `pkg/linter/fixer.go:SetForceSettings`, `pkg/linter/fixer_config.go:injectDefaultSettings(force bool)`; 3 unit tests (preserve/overwrite/inject-missing); CLI flag registered on configure command |
+| 5   | **RuleKey merge strategy**            | `pkg/linter/fixer_config.go:updateExclusionRules` — now unions linter lists instead of skipping same-key rules; `mergeExclusionLinters()` helper; 2 Ginkgo specs updated (propagation + user-linter preservation)                         |
+| 6   | **TODO_LIST.md updated**              | Removed 5 shipped items (shortRunID, YAML indent, force-settings, RuleKey, CommandContext); updated erraudit task description; date set to 2026-07-30                                                                                     |
+| 7   | **FEATURES.md updated**               | Added never-enable sidecar + regression loop detection rows; Last Audited: 2026-07-30                                                                                                                                                     |
+| 8   | **CHANGELOG.md updated**              | Full Unreleased section: policy enforcement, config output quality, erraudit conversions, shortRunID fix                                                                                                                                  |
+| 9   | **Never-enable enforcement**          | `pkg/linter/fixer_enforce.go:tryReEnableLinter` skips never-enable linters during anti-gaming enforcement; 2 test cases                                                                                                                   |
+| 10  | **CommandContext investigation**      | Confirmed already shipped — Flags struct replaces all 9 globals; removed stale TODO                                                                                                                                                       |
 
 ---
 
 ## B) PARTIALLY DONE (started but incomplete)
 
-| # | Task | What's done | What's missing |
-|---|------|-------------|----------------|
-| 1 | **Pareto plan Definition of Done checklist** | 7 of 7 items completed | Checklist in the planning doc was never updated with `[x]` marks |
-| 2 | **AGENTS.md gotcha updates** | Gotcha #26 was updated in a prior session (erraudit) | No new gotchas added for YAML indent preservation, --force-settings, or RuleKey merge behavior — these are non-obvious behaviors future sessions will trip over |
-| 3 | **Commit message quality** | My commits had clear messages | Auto-commit daemon mangled 3+ commit messages: `"inter): enforce linter configuration auto-fixes"`, `"feat(linter): add fixer configuration support with comprehensive testing"` — these are garbage messages that pollute git history |
+| #   | Task                                         | What's done                                          | What's missing                                                                                                                                                                                                                         |
+| --- | -------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Pareto plan Definition of Done checklist** | 7 of 7 items completed                               | Checklist in the planning doc was never updated with `[x]` marks                                                                                                                                                                       |
+| 2   | **AGENTS.md gotcha updates**                 | Gotcha #26 was updated in a prior session (erraudit) | No new gotchas added for YAML indent preservation, --force-settings, or RuleKey merge behavior — these are non-obvious behaviors future sessions will trip over                                                                        |
+| 3   | **Commit message quality**                   | My commits had clear messages                        | Auto-commit daemon mangled 3+ commit messages: `"inter): enforce linter configuration auto-fixes"`, `"feat(linter): add fixer configuration support with comprehensive testing"` — these are garbage messages that pollute git history |
 
 ---
 
 ## C) NOT STARTED (from Pareto plan, remaining 12 tasks)
 
-| # | Task | Priority | Effort |
-|---|------|----------|--------|
-| 1 | Consolidate ARCHITECTURE.md inline ADRs into `docs/adr/` | P2 | 1-2h |
-| 2 | README.md claim-by-claim audit (~500 lines) | P2 | 2h |
-| 3 | Full `nix flake check` (with build) | P2 | 15min |
-| 4 | Docs-integrity test extension (all FEATURES.md counts) | P2 | 1h |
-| 5 | Multi-preset merge correctness tests | P2 | 1h |
-| 6 | Status report lifecycle policy | P3 | 30min |
-| 7 | Swallowed-error governance audit (periodic) | P3 | 1h |
-| 8 | `LinterMinVersions` accuracy audit | P3 | 1-2h |
-| 9 | `DeprecatedLinters` target audit | P3 | 1h |
-| 10 | Auto-commit hook improvement | P3 | 1h |
-| 11 | Narrow interface adoption (ConfigReader/ConfigWriter) | P3 | 1-2h |
-| 12 | Document coverage-check standalone error strategy | P3 | 15min |
+| #   | Task                                                     | Priority | Effort |
+| --- | -------------------------------------------------------- | -------- | ------ |
+| 1   | Consolidate ARCHITECTURE.md inline ADRs into `docs/adr/` | P2       | 1-2h   |
+| 2   | README.md claim-by-claim audit (~500 lines)              | P2       | 2h     |
+| 3   | Full `nix flake check` (with build)                      | P2       | 15min  |
+| 4   | Docs-integrity test extension (all FEATURES.md counts)   | P2       | 1h     |
+| 5   | Multi-preset merge correctness tests                     | P2       | 1h     |
+| 6   | Status report lifecycle policy                           | P3       | 30min  |
+| 7   | Swallowed-error governance audit (periodic)              | P3       | 1h     |
+| 8   | `LinterMinVersions` accuracy audit                       | P3       | 1-2h   |
+| 9   | `DeprecatedLinters` target audit                         | P3       | 1h     |
+| 10  | Auto-commit hook improvement                             | P3       | 1h     |
+| 11  | Narrow interface adoption (ConfigReader/ConfigWriter)    | P3       | 1-2h   |
+| 12  | Document coverage-check standalone error strategy        | P3       | 15min  |
 
 ---
 
@@ -187,6 +187,7 @@ I added the flag, updated CHANGELOG and TODO_LIST, but never added it to README.
 ### 1. Should we fix the auto-commit daemon's mangled commit messages?
 
 The daemon created commits like `"inter): enforce linter configuration auto-fixes"` (truncated). Options:
+
 - **A)** `git rebase -i` to reword them (rewrites history, requires force push — your global policy says NEVER force push)
 - **B)** Leave them as-is and accept the noise (safe but ugly)
 - **C)** Add a `git notes` annotation explaining what each commit actually contains (non-destructive)
@@ -200,6 +201,7 @@ This requires your decision because it touches git history policy.
 ### 3. What should happen when `detectYAMLIndent` encounters tab indentation?
 
 Tabs are technically invalid in YAML, but could exist in manually-edited files. Should I:
+
 - **A)** Reject tabs and fall back to default 2-space (safe)
 - **B)** Pass the tab count to `SetIndent` and let the encoder decide (current behavior, may produce mixed indent)
 - **C)** Convert tabs to spaces before detecting indent (lossy but consistent)
