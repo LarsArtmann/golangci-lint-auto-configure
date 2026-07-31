@@ -35,41 +35,39 @@ func runFixerMode(
 	ctx context.Context, logger *log.Logger, analyzer *linter.Analyzer,
 	configLoader *config.Loader, configFile string, flags *Flags,
 ) error {
-	isDryRun := flags.Check || flags.DryRun
-
-	fixer := newConfiguredFixer(
-		ctx,
-		logger,
-		analyzer,
-		configLoader,
-		configFile,
-		flags.NoAudit,
-		flags.ForceSettings,
-	)
-
-	linterPriority, err := ParsePriorityParam(flags.Priority)
+	fixer, linterPriority, err := prepareFixerRun(ctx, logger, analyzer, configLoader, configFile, flags)
 	if err != nil {
-		return apperrors.WrapClassifiedf(err, "configure.parse_priority",
-			"invalid priority %q", flags.Priority)
+		return err
 	}
 
+	isDryRun := flags.Check || flags.DryRun
 	originalCfg := captureOriginalConfig(flags.ShowDiff, configLoader, configFile, logger)
-	effectiveDryRun := effectiveDryRunForCheckDiff(
-		isDryRun,
-		flags.Check,
-		flags.ShowDiff,
-		originalCfg,
-	)
+	effectiveDryRun := effectiveDryRunForCheckDiff(isDryRun, flags.Check, flags.ShowDiff, originalCfg)
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, effectiveDryRun)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.fixer",
-			"failed to fix configuration (priority=%s, dryRun=%t)",
-			flags.Priority, isDryRun)
+			"failed to fix configuration (priority=%s, dryRun=%t)", flags.Priority, isDryRun)
 	}
 
 	return finalizeFixerResult(ctx, logger, analyzer, configLoader,
 		originalCfg, configFile, result, isDryRun, flags.Check, flags.ShowDiff)
+}
+
+func prepareFixerRun(
+	ctx context.Context, logger *log.Logger, analyzer *linter.Analyzer,
+	configLoader *config.Loader, configFile string, flags *Flags,
+) (*linter.Fixer, types.LinterPriority, error) {
+	fixer := newConfiguredFixer(ctx, logger, analyzer, configLoader, configFile,
+		flags.NoAudit, flags.ForceSettings)
+
+	linterPriority, err := ParsePriorityParam(flags.Priority)
+	if err != nil {
+		return nil, 0, apperrors.WrapClassifiedf(err, "configure.parse_priority",
+			"invalid priority %q", flags.Priority)
+	}
+
+	return fixer, linterPriority, nil
 }
 
 func finalizeFixerResult(

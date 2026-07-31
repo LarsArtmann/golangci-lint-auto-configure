@@ -118,7 +118,7 @@ func buildRuleKeyIndex(rules []types.ExclusionRuleConfig) map[string]int {
 func mergeSecondaryRules(rules *[]types.ExclusionRuleConfig, secondary []types.ExclusionRuleConfig, keyIndex map[string]int) int {
 	changes := 0
 
-	for _, rule := range secondary.Rules {
+	for _, rule := range secondary {
 		key := rule.RuleKey()
 		if idx, exists := keyIndex[key]; exists {
 			merged, added := mergeUniqueItems((*rules)[idx].Linters, rule.Linters)
