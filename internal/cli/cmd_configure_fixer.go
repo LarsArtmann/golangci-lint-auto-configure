@@ -36,34 +36,37 @@ func runFixerMode(
 	configLoader *config.Loader, configFile string, flags *Flags,
 ) error {
 	fixer, linterPriority, err := prepareFixerRun(
-		ctx,
-		logger,
-		analyzer,
-		configLoader,
-		configFile,
-		flags,
+		ctx, logger, analyzer, configLoader, configFile, flags,
 	)
 	if err != nil {
 		return err
 	}
 
-	isDryRun := flags.Check || flags.DryRun
-	originalCfg := captureOriginalConfig(flags.ShowDiff, configLoader, configFile, logger)
-	effectiveDryRun := effectiveDryRunForCheckDiff(
-		isDryRun,
-		flags.Check,
-		flags.ShowDiff,
-		originalCfg,
+	isDryRun, originalCfg, effectiveDryRun := computeDryRunState(
+		flags, configLoader, configFile, logger,
 	)
 
 	result, err := fixer.FixConfig(ctx, configFile, linterPriority, effectiveDryRun)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.fixer",
-			"failed to fix configuration (priority=%s, dryRun=%t)", flags.Priority, isDryRun)
+			"failed to fix configuration (priority=%s, dryRun=%t)",
+			flags.Priority, isDryRun)
 	}
 
 	return finalizeFixerResult(ctx, logger, analyzer, configLoader,
 		originalCfg, configFile, result, isDryRun, flags.Check, flags.ShowDiff)
+}
+
+func computeDryRunState(
+	flags *Flags, configLoader *config.Loader, configFile string, logger *log.Logger,
+) (bool, *types.Config, bool) {
+	isDryRun := flags.Check || flags.DryRun
+	originalCfg := captureOriginalConfig(flags.ShowDiff, configLoader, configFile, logger)
+	effectiveDryRun := effectiveDryRunForCheckDiff(
+		isDryRun, flags.Check, flags.ShowDiff, originalCfg,
+	)
+
+	return isDryRun, originalCfg, effectiveDryRun
 }
 
 func prepareFixerRun(
