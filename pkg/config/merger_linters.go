@@ -115,7 +115,11 @@ func buildRuleKeyIndex(rules []types.ExclusionRuleConfig) map[string]int {
 	return index
 }
 
-func mergeSecondaryRules(rules *[]types.ExclusionRuleConfig, secondary []types.ExclusionRuleConfig, keyIndex map[string]int) int {
+func mergeSecondaryRules(
+	rules *[]types.ExclusionRuleConfig,
+	secondary []types.ExclusionRuleConfig,
+	keyIndex map[string]int,
+) int {
 	changes := 0
 
 	for _, rule := range secondary {
