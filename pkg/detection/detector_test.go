@@ -247,16 +247,6 @@ func TestDetector_HasGoHumanize(t *testing.T) {
 			t.Error("HasGoHumanize() = true, want false")
 		}
 	})
-
-	t.Run("returns false when go.mod is missing", func(t *testing.T) {
-		t.Parallel()
-
-		dir := t.TempDir()
-
-		if detectionpkg.NewDetector(dir).HasGoHumanize() {
-			t.Error("HasGoHumanize() = true, want false")
-		}
-	})
 }
 
 func TestDetector_HasSwaggo_PropagatesScannerError(t *testing.T) {

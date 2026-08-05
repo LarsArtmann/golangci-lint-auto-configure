@@ -3,6 +3,7 @@ package linter_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -345,13 +346,15 @@ func setupProjectWithGoMod(t GinkgoTInterface, prefix string, requires ...string
 	t.Helper()
 
 	dir := t.TempDir()
-	content := prefix
+
+	var b strings.Builder
+	b.WriteString(prefix)
 
 	for _, req := range requires {
-		content += "\nrequire " + req
+		b.WriteString("\nrequire " + req)
 	}
 
-	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(content+"\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(b.String()+"\n"), 0o644); err != nil {
 		t.Fatalf("write go.mod: %v", err)
 	}
 
