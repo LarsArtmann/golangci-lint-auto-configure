@@ -51,7 +51,7 @@ User asked: "Should we autoconfigure it EVERYWHERE?" for a new linter that detec
 22. **TODO_LIST.md** on this repo not updated to record the integration (and the follow-up work in section (e) below).
 23. **CHANGELOG.md** on this repo not updated.
 24. **README.md** on this repo not updated to mention "now supports 3 project-specific linters including gohumanize".
-25. **Dry-run / report integration.** When gohumanize is recommended, the CLI report output (HTML/JSON) should ideally explain *why* (project uses go-humanize dep). Currently the recommendation comes through with the same shape as any other linter.
+25. **Dry-run / report integration.** When gohumanize is recommended, the CLI report output (HTML/JSON) should ideally explain _why_ (project uses go-humanize dep). Currently the recommendation comes through with the same shape as any other linter.
 26. **Cross-project sweep on the 160 sibling projects** to count how many actually depend on `dustin/go-humanize` and would benefit. Without that data, the value proposition is unquantified.
 27. **Adding gohumanize to the `reference` preset** as a future step (deliberately deferred — only when H008/H009 corpus sweep is done).
 28. **CI workflow verification** — I did not run `nix flake check` (only `go build` + `go test` + `golangci-lint`). The flake's `vendorHash` could be stale (it shouldn't, since I touched no go.mod/go.sum, but I didn't verify).
@@ -64,7 +64,7 @@ User asked: "Should we autoconfigure it EVERYWHERE?" for a new linter that detec
 
 Nothing fundamentally broken. Two cosmetic concerns:
 
-31. **Did not ask user up-front about the "no custom: block" decision.** The user *did* correct me mid-flight with the link to golangci-lint.run/docs/plugins/module-plugins/, but I had already specced out a wrong implementation path (injecting `custom:` block) before being corrected. The corrected approach is what shipped, but I lost ~1 round-trip due to over-speculation before doing the minimal first read.
+31. **Did not ask user up-front about the "no custom: block" decision.** The user _did_ correct me mid-flight with the link to golangci-lint.run/docs/plugins/module-plugins/, but I had already specced out a wrong implementation path (injecting `custom:` block) before being corrected. The corrected approach is what shipped, but I lost ~1 round-trip due to over-speculation before doing the minimal first read.
 32. **Dupl lint issue required rework.** I initially wrote a 3-sub-test HasGoHumanize to match HasClickHouse's structure, which tripped the default dupl threshold. Reworked to 2 sub-tests matching HasArangoDB's pattern. Time cost: one linter-rerun cycle. Not catastrophic, but a pattern-recognition miss — I should have grep'd `.golangci.yml` for `dupl` config first.
 
 ---
@@ -77,7 +77,7 @@ Nothing fundamentally broken. Two cosmetic concerns:
 36. **No telemetry/observability** for "how often does this gate actually trigger?" If we had a counter or audit event for "gohumanize: dep detected, linter recommended", we could empirically validate the value proposition across runs.
 37. **The 3-project-specific-linters (`clickhouselint`, `arangolint`, `gohumanize`) now have 3 different "what to do if the technology isn't detected" stories** — clickhouselint/arangolint are bundled with stock golangci-lint (safe); gohumanize requires a custom binary (different failure mode). The `hasTechnology` switch returns `true` on detection error (fail-open), which is correct for the bundled pair but WRONG for gohumanize: if we fail-open and the user actually has the dep but our `analyzeGoModWithError()` failed (e.g., unreadable go.mod), we'd silently recommend a linter that will break their build. This is a latent correctness issue I did NOT address.
 38. **The comment block in `pkg/constants/config.go`** documents the custom-binary requirement in prose, but there's no machine-enforceable invariant. A `//nolint`/`go vet` style check could fail CI if someone tries to add a project-specific linter without documenting the binary requirement. Out of scope but worth tracking.
-39. **The fail-open behavior of `hasTechnology` is asymmetric across tech keys.** `case "go-humanize"` returns `detector.HasGoHumanize()` which itself returns `false` on detection errors (line in detector.go: `if err != nil { return false }`). So for gohumanize specifically, the fail-open semantics in `hasTechnology` are NOT actually fail-open — they fail-CLOSED. For bundled linters (clickhouse/arangodb), fail-open in `hasTechnology` + fail-open in detector = double fail-open = effectively "always recommend". For gohumanize, fail-open in `hasTechnology` + fail-closed in detector = single fail-closed = "only recommend when explicitly detected". The behavior is correct for gohumanize (don't break stock binaries) but the *comments* on `hasTechnology` are misleading for this case. Should clarify the docs.
+39. **The fail-open behavior of `hasTechnology` is asymmetric across tech keys.** `case "go-humanize"` returns `detector.HasGoHumanize()` which itself returns `false` on detection errors (line in detector.go: `if err != nil { return false }`). So for gohumanize specifically, the fail-open semantics in `hasTechnology` are NOT actually fail-open — they fail-CLOSED. For bundled linters (clickhouse/arangodb), fail-open in `hasTechnology` + fail-open in detector = double fail-open = effectively "always recommend". For gohumanize, fail-open in `hasTechnology` + fail-closed in detector = single fail-closed = "only recommend when explicitly detected". The behavior is correct for gohumanize (don't break stock binaries) but the _comments_ on `hasTechnology` are misleading for this case. Should clarify the docs.
 
 ---
 
@@ -88,7 +88,7 @@ Nothing fundamentally broken. Two cosmetic concerns:
 42. [HIGH] **Update `TODO_LIST.md`** with: H008/H009 sweep dependency, sidecar policy doc update, FEATURES/CHANGELOG/README sweep.
 43. [HIGH] **Verify with real `golangci-lint custom`** build + apply tool's output to a fixture project that depends on `dustin/go-humanize`. Confirm the produced YAML is valid for the custom binary.
 44. [MEDIUM] **Update `pkg/policy/policy.go` docs / sidecar examples** to mention that `gohumanize` requires a custom binary. The sidecar is the right place to communicate this durable constraint.
-45. [MEDIUM] **Add a `--explain-gohumanize` or report-level rationale** so the recommendation output explains *why* it was surfaced (project uses dustin/go-humanize).
+45. [MEDIUM] **Add a `--explain-gohumanize` or report-level rationale** so the recommendation output explains _why_ it was surfaced (project uses dustin/go-humanize).
 46. [MEDIUM] **Audit the fail-open asymmetry in `hasTechnology`** (see #37, #39). Either document the asymmetry explicitly with code-level invariants or unify the failure mode.
 47. [MEDIUM] **Move `SetProjectRoot` behind a test-only build tag** or rename to make it clear it's a test seam, not production API.
 48. [MEDIUM] **Update `CHANGELOG.md`** with a one-liner about the gohumanize integration.
@@ -102,7 +102,7 @@ Nothing fundamentally broken. Two cosmetic concerns:
 56. [LOW] **Add a BDD spec for the fixer end-to-end path**: project with go-humanize dep → fixer runs → `linters.enable` contains `gohumanize`. Currently only the categorizer path is tested.
 57. [LOW] **Run `nix flake check`** to verify the flake build + check + lint all still pass. I bypassed it.
 58. [LOW] **Run `markdownlint-cli2`** on the AGENTS.md change.
-59. [LOW] **Consider extracting `ProjectSpecificLinters` + `hasTechnology` + detector Has* methods into a plugin pattern** so adding a new project-specific linter is a one-line config change. Currently it's 4 file edits (config.go, patterns.go, detector.go, categorizer.go) — should be 1 or 2.
+59. [LOW] _*Consider extracting `ProjectSpecificLinters` + `hasTechnology` + detector Has* methods into a plugin pattern_* so adding a new project-specific linter is a one-line config change. Currently it's 4 file edits (config.go, patterns.go, detector.go, categorizer.go) — should be 1 or 2.
 60. [LOW] **Document the 3-tier linter management system** (DisabledLinters / NeverAutoEnableLinters / ProjectSpecificLinters) in `docs/references/` if not already. Currently scattered across comments.
 61. [LOW] **Add a `pkg/constants/linter_reasons.go` test** that verifies every `LinterReasons` entry is non-empty (similar to data_integrity_test.go for the priority/reason consistency).
 62. [LOW] **Add an integration test that exercises the full fixer pipeline** with gohumanize: stub the linter analyzer to report gohumanize as disabled in a project with go-humanize dep, then assert it ends up in `linters.enable`.

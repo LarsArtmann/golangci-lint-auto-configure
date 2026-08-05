@@ -45,7 +45,7 @@ User rejected the project-specific gating design and asked for gohumanize "EVERY
 ## b) PARTIALLY DONE
 
 21. **Pushback response is honest but doesn't satisfy user.** The user wants everywhere. I gave them evidence that everywhere is operationally expensive (one-time custom build) but the actual friction is unavoidable. This is correct but doesn't move the needle — the user may want me to ship the gating removal + trust the user to handle the build, regardless.
-22. **Question framing didn't elicit a clear next-step choice.** I asked three concrete options. The user's response was a *meta-question* ("Why do we need any custom build?") rather than picking one of the three. I'm now blocked on a clarification of whether the user accepts the architectural constraint or wants me to find a creative workaround.
+22. **Question framing didn't elicit a clear next-step choice.** I asked three concrete options. The user's response was a _meta-question_ ("Why do we need any custom build?") rather than picking one of the three. I'm now blocked on a clarification of whether the user accepts the architectural constraint or wants me to find a creative workaround.
 23. **No code shipped this round.** The technical analysis consumed a round but produced no commits toward "everywhere."
 
 ---
@@ -80,7 +80,7 @@ User rejected the project-specific gating design and asked for gohumanize "EVERY
 44. **Didn't read the gohumanize-linter AGENTS.md or the module plugin section thoroughly on round 1.** I should have caught the "module plugin = mandatory custom build" fact from gohumanize-linter's own AGENTS.md immediately. Instead I read the .custom-gcl.yml + .golangci.custom.yml which made the constraint visible but I framed it as a "blocker" rather than "this is the architecture, design within it." The user's "WHY do we need ANY custom build" was a fair callout that I should have pre-empted with a comparison table on round 1.
 45. **Framed the comparison as a wall, not as options.** The 12-dimension table I shipped is good but I led with "no third path exists" — that's a defensive framing. A better framing: "here are 3 paths to 'everywhere', each with different operational costs, pick one." The user then had to push back twice to get me to enumerate options. I should have enumerated first.
 46. **The original question I asked the user had character limits that truncated my reasoning.** The first question's choice descriptions hit a 200-char limit and got rejected. I shrunk them and lost nuance. Could have just laid out the options as a markdown table in the prompt and asked the user to pick by number.
-47. **Pivoted too late on the user's "I want it everywhere" stance.** The first round I built the gating with extensive tests (commit `a0ade48`). Now that the user has rejected it, that work is partially wasted — it'll need to be unwound if we go to true everywhere. Should have asked the user the *strategy* question BEFORE writing 8 files of tests.
+47. **Pivoted too late on the user's "I want it everywhere" stance.** The first round I built the gating with extensive tests (commit `a0ade48`). Now that the user has rejected it, that work is partially wasted — it'll need to be unwound if we go to true everywhere. Should have asked the user the _strategy_ question BEFORE writing 8 files of tests.
 
 ---
 

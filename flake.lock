@@ -57,11 +57,11 @@
     "gogenfilterSrc": {
       "flake": false,
       "locked": {
-        "lastModified": 1785428074,
-        "narHash": "sha256-QWRgjO9CBn9xonGuIyowSyzk5R3BMglE988jMzFHHks=",
+        "lastModified": 1785893722,
+        "narHash": "sha256-/y3EyyMcTYTeBWGTQ4CIhl1tcKZxAsd5AiN0Kgdyr0w=",
         "ref": "master",
-        "rev": "13d7f74d29f9e86edf055a0616ccb64b80068145",
-        "revCount": 806,
+        "rev": "2bb978380a8b2458fdfb7767484561caa3e34549",
+        "revCount": 807,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/gogenfilter"
       },
