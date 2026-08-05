@@ -137,6 +137,25 @@ var _ = Describe("LinterPriorities and LinterReasons consistency", func() {
 	})
 })
 
+var _ = Describe("gohumanize linter metadata", func() {
+	It("should have a priority entry", func() {
+		_, exists := constants.LinterPriorities["gohumanize"]
+		Expect(exists).To(BeTrue(), "gohumanize must have a LinterPriorities entry to be recommendable")
+	})
+
+	It("should have a reason entry", func() {
+		reason, exists := constants.LinterReasons["gohumanize"]
+		Expect(exists).To(BeTrue(), "gohumanize must have a LinterReasons entry")
+		Expect(reason).ToNot(BeEmpty(), "gohumanize reason must explain the plugin/custom-binary requirement")
+	})
+
+	It("should be registered as a project-specific linter gated on go-humanize", func() {
+		tech, exists := constants.ProjectSpecificLinters["gohumanize"]
+		Expect(exists).To(BeTrue(), "gohumanize must be in ProjectSpecificLinters")
+		Expect(tech).To(Equal("go-humanize"), "gohumanize tech key must be \"go-humanize\"")
+	})
+})
+
 var _ = Describe("Linter and formatter separation", func() {
 	It("should not have any formatter names in LinterPriorities", func() {
 		for formatter := range constants.FormatterInfo {

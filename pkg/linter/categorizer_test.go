@@ -136,7 +136,7 @@ var _ = Describe("CategorizeLinters", func() {
 		})
 
 		It("should skip gohumanize when project does NOT depend on dustin/go-humanize", func() {
-			dir := setupProjectWithGoMod(t, "module test\n\ngo 1.21\n", "github.com/gin-gonic/gin v1.9.0")
+			dir := setupProjectWithGoMod(GinkgoT(), "module test\n\ngo 1.21\n", "github.com/gin-gonic/gin v1.9.0")
 			analyzer.SetProjectRoot(dir)
 
 			disabledLinters := []types.LinterInfo{
@@ -151,7 +151,7 @@ var _ = Describe("CategorizeLinters", func() {
 		})
 
 		It("should recommend gohumanize when project depends on dustin/go-humanize", func() {
-			dir := setupProjectWithGoMod(t, "module test\n\ngo 1.21\n", "github.com/dustin/go-humanize v1.0.1")
+			dir := setupProjectWithGoMod(GinkgoT(), "module test\n\ngo 1.21\n", "github.com/dustin/go-humanize v1.0.1")
 			analyzer.SetProjectRoot(dir)
 
 			disabledLinters := []types.LinterInfo{
