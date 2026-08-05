@@ -177,6 +177,18 @@ func (d *Detector) HasArangoDB() bool {
 	return hasAnyImport(imports, ArangoDBImports)
 }
 
+// HasGoHumanize returns true if the project depends on dustin/go-humanize.
+// Used to gate the gohumanize linter (a golangci-lint v2 module plugin) —
+// the linter only makes sense when the project already uses the library.
+func (d *Detector) HasGoHumanize() bool {
+	_, imports, err := d.analyzeGoModWithError()
+	if err != nil {
+		return false
+	}
+
+	return hasAnyImport(imports, GoHumanizeImports)
+}
+
 func hasAnyImport(imports, targets []string) bool {
 	for _, imp := range imports {
 		for _, target := range targets {

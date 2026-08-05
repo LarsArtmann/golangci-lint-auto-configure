@@ -209,7 +209,7 @@ func (a *Analyzer) shouldSkipFormatter(
 }
 
 // hasTechnology checks if the project uses a given technology (swaggo,
-// clickhouse, arangodb, etc.) by delegating to the detection package.
+// clickhouse, arangodb, go-humanize, etc.) by delegating to the detection package.
 // Returns true when the technology cannot be determined (fail-open)
 // to avoid suppressing valid recommendations.
 func (a *Analyzer) hasTechnology(tech string) bool {
@@ -231,6 +231,8 @@ func (a *Analyzer) hasTechnology(tech string) bool {
 		return detector.HasClickHouse()
 	case "arangodb":
 		return detector.HasArangoDB()
+	case "go-humanize":
+		return detector.HasGoHumanize()
 	default:
 		return true
 	}

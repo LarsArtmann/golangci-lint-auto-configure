@@ -55,6 +55,13 @@ var ArangoDBImports = []string{
 	"github.com/arangodb/go-driver",
 }
 
+// GoHumanizeImports contains the canonical go-humanize module path.
+// Used to gate the gohumanize linter recommendation — projects must already
+// depend on the library for the linter to be relevant.
+var GoHumanizeImports = []string{
+	"github.com/dustin/go-humanize",
+}
+
 // SwaggoPatterns contains swaggo annotation patterns to search for in code.
 var SwaggoPatterns = []string{
 	"@Summary",

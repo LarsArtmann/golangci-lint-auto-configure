@@ -61,6 +61,12 @@ var ProjectSpecificFormatters = map[types.FormatterName]string{
 var ProjectSpecificLinters = map[types.LinterName]string{
 	"clickhouselint": "clickhouse",
 	"arangolint":     "arangodb",
+	// gohumanize is a golangci-lint v2 module plugin (requires a custom binary
+	// built with `golangci-lint custom`). Only recommend when the project
+	// already depends on dustin/go-humanize, indicating intent to use the
+	// library and tolerance for plugin build complexity. Without this gating,
+	// stock golangci-lint would report "unknown linters: gohumanize".
+	"gohumanize": "go-humanize",
 }
 
 // DefaultLinterExclusionPaths are exclusion paths always injected into linters.exclusions.paths
