@@ -1,6 +1,9 @@
 package linter_test
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -117,6 +120,48 @@ var _ = Describe("CategorizeLinters", func() {
 			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
 
 			Expect(names).To(ContainElement("clickhouselint"))
+			Expect(names).To(ContainElement("misspell"))
+		})
+
+		It("should skip gohumanize when projectRoot is empty (fail-open)", func() {
+			disabledLinters := []types.LinterInfo{
+				{Name: "gohumanize"},
+				{Name: "misspell"},
+			}
+
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
+
+			Expect(names).To(ContainElement("gohumanize"))
+			Expect(names).To(ContainElement("misspell"))
+		})
+
+		It("should skip gohumanize when project does NOT depend on dustin/go-humanize", func() {
+			dir := setupProjectWithGoMod(t, "module test\n\ngo 1.21\n", "github.com/gin-gonic/gin v1.9.0")
+			analyzer.SetProjectRoot(dir)
+
+			disabledLinters := []types.LinterInfo{
+				{Name: "gohumanize"},
+				{Name: "misspell"},
+			}
+
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
+
+			Expect(names).NotTo(ContainElement("gohumanize"))
+			Expect(names).To(ContainElement("misspell"))
+		})
+
+		It("should recommend gohumanize when project depends on dustin/go-humanize", func() {
+			dir := setupProjectWithGoMod(t, "module test\n\ngo 1.21\n", "github.com/dustin/go-humanize v1.0.1")
+			analyzer.SetProjectRoot(dir)
+
+			disabledLinters := []types.LinterInfo{
+				{Name: "gohumanize"},
+				{Name: "misspell"},
+			}
+
+			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
+
+			Expect(names).To(ContainElement("gohumanize"))
 			Expect(names).To(ContainElement("misspell"))
 		})
 	})
@@ -292,3 +337,23 @@ var _ = Describe("CategorizeFormatters", func() {
 		})
 	})
 })
+
+// setupProjectWithGoMod creates a temp directory containing a go.mod with the
+// given prefix and require directives. Returns the directory path for use as
+// projectRoot in tests that exercise project-specific linter gating.
+func setupProjectWithGoMod(t GinkgoTInterface, prefix string, requires ...string) string {
+	t.Helper()
+
+	dir := t.TempDir()
+	content := prefix
+
+	for _, req := range requires {
+		content += "\nrequire " + req
+	}
+
+	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(content+"\n"), 0o644); err != nil {
+		t.Fatalf("write go.mod: %v", err)
+	}
+
+	return dir
+}

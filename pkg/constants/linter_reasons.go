@@ -70,6 +70,7 @@ var LinterReasons = map[types.LinterName]string{
 	"nilnesserr":       "Reports constructs that check err != nil but return different nil value error",
 
 	// Medium value linters
+	"gohumanize":                "AST linter detecting hand-rolled reimplementations of github.com/dustin/go-humanize (H001-H009: bytes, comma, time, plural, SI, ftoa, parse-bytes, ordinal, comma-float). Requires a custom golangci-lint binary built with the gohumanize module plugin; auto-injected settings scope the linter to the highest-value rules (H001/H002/H003/H007).",
 	"dupword":                   "Checks for duplicate words in the source code",
 	"godot":                     "Check if comments end in a period",
 	"godox":                     "Check for comments that begin with certain prefixes (TODO, FIXME, etc.)",

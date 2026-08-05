@@ -217,6 +217,48 @@ func TestDetector_HasArangoDB(t *testing.T) {
 	})
 }
 
+func TestDetector_HasGoHumanize(t *testing.T) {
+	t.Parallel()
+
+	t.Run("detects go-humanize dependency in go.mod", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		err := writeGoMod(dir, "github.com/dustin/go-humanize v1.0.1")
+		if err != nil {
+			t.Fatalf("Setup failed: %v", err)
+		}
+
+		if !detectionpkg.NewDetector(dir).HasGoHumanize() {
+			t.Error("HasGoHumanize() = false, want true")
+		}
+	})
+
+	t.Run("returns false for project without go-humanize", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		err := writeGoMod(dir, "github.com/gin-gonic/gin v1.9.0")
+		if err != nil {
+			t.Fatalf("Setup failed: %v", err)
+		}
+
+		if detectionpkg.NewDetector(dir).HasGoHumanize() {
+			t.Error("HasGoHumanize() = true, want false")
+		}
+	})
+
+	t.Run("returns false when go.mod is missing", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+
+		if detectionpkg.NewDetector(dir).HasGoHumanize() {
+			t.Error("HasGoHumanize() = true, want false")
+		}
+	})
+}
+
 func TestDetector_HasSwaggo_PropagatesScannerError(t *testing.T) {
 	t.Parallel()
 

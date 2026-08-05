@@ -50,6 +50,14 @@ func (a *Analyzer) SetPragmatic(enabled bool) {
 	a.pragmatic = enabled
 }
 
+// SetProjectRoot sets the directory used for project-specific linter technology
+// detection (e.g. dustin/go-humanize → gohumanize linter, ClickHouse driver →
+// clickhouselint). Normally derived from config path inside buildAnalysis;
+// exposed for tests that exercise categorizer behavior in isolation.
+func (a *Analyzer) SetProjectRoot(root string) {
+	a.projectRoot = root
+}
+
 // GetDetectedVersion returns the detected golangci-lint version, or empty string if not yet checked.
 func (a *Analyzer) GetDetectedVersion() string {
 	return a.detectedVersion

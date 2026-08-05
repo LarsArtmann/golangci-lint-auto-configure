@@ -70,6 +70,7 @@ var LinterPriorities = map[types.LinterName]types.LinterPriority{
 
 	// Medium value linters - optional but recommended
 	"exhaustruct":               types.LinterPriorityMedium,
+	"gohumanize":                types.LinterPriorityMedium, // golangci-lint v2 module plugin; project-specific (requires dustin/go-humanize dep + custom binary)
 	"dupword":                   types.LinterPriorityMedium,
 	"godot":                     types.LinterPriorityMedium,
 	"godox":                     types.LinterPriorityMedium,
