@@ -528,7 +528,7 @@ linters:
 			Expect(parsed.Linters.Disable).To(ContainElement(types.LinterName("noinlineerr")))
 		})
 
-		It("should move depguard from enable to disable", func() {
+		It("should respect depguard when manually enabled (never-auto-enable)", func() {
 			configContent := `version: "2"
 linters:
   enable:
@@ -541,8 +541,8 @@ linters:
 
 			parsed, err := configTypes.LoadConfig(testConfig)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(parsed.Linters.Enable).NotTo(ContainElement(types.LinterName("depguard")))
-			Expect(parsed.Linters.Disable).To(ContainElement(types.LinterName("depguard")))
+			Expect(parsed.Linters.Enable).To(ContainElement(types.LinterName("depguard")))
+			Expect(parsed.Linters.Disable).NotTo(ContainElement(types.LinterName("depguard")))
 		})
 	})
 

@@ -88,7 +88,7 @@ func TestIsToolLevelManaged(t *testing.T) {
 	}{
 		{"funcorder is tool-level managed (forcibly disabled)", "funcorder", true},
 		{"noinlineerr is tool-level managed (forcibly disabled)", "noinlineerr", true},
-		{"depguard is tool-level managed (forcibly disabled)", "depguard", true},
+		{"depguard is tool-level managed (never-auto-enable)", "depguard", true},
 		{"exhaustruct is tool-level managed (never-auto-enable)", "exhaustruct", true},
 		{"errcheck is not tool-level managed", "errcheck", false},
 		{"gofmt is not tool-level managed", "gofmt", false},

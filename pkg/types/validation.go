@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	errorfamily "github.com/larsartmann/go-error-family"
 )
@@ -11,10 +12,12 @@ const (
 	// ConfigVersionV2 is the golangci-lint v2 config schema version.
 	ConfigVersionV2 Version = "2"
 
-	RuleDuplicateLinter       = "duplicate-linter"
-	RuleEnableDisableOverlap  = "enable-disable-overlap"
-	RuleMissingCriticalLinter = "missing-critical-linter"
-	RuleV1SyntaxInV2          = "v1-syntax-in-v2"
+	RuleDuplicateLinter         = "duplicate-linter"
+	RuleEnableDisableOverlap    = "enable-disable-overlap"
+	RuleMissingCriticalLinter   = "missing-critical-linter"
+	RuleV1SyntaxInV2            = "v1-syntax-in-v2"
+	RuleAbsolutePathExclusion   = "absolute-path-exclusion"
+	RuleDuplicateExclusionLinter = "duplicate-exclusion-linter"
 )
 
 var (
@@ -222,6 +225,8 @@ func CheckConfigHealthWithCriticalLinters(cfg *Config, criticalLinters []LinterN
 	health.checkEnableDisableOverlap(cfg)
 	health.checkMissingCriticalLinters(cfg, criticalLinters)
 	health.checkV1SyntaxMixing(cfg)
+	health.checkAbsolutePathExclusions(cfg)
+	health.checkDuplicateExclusionLinters(cfg)
 
 	return health
 }
@@ -314,5 +319,54 @@ func (h *ConfigHealth) checkV1SyntaxMixing(cfg *Config) {
 			"linters-settings",
 			"Move settings into linters.settings block and remove top-level linters-settings",
 		)
+	}
+}
+
+func (h *ConfigHealth) checkAbsolutePathExclusions(cfg *Config) {
+	for _, path := range cfg.Linters.Exclusions.Paths {
+		if isAbsolutePath(path) {
+			h.addIssue(
+				HealthSeverityWarning,
+				RuleAbsolutePathExclusion,
+				fmt.Sprintf("Absolute path %q in linters.exclusions.paths is non-portable across machines", path),
+				"linters.exclusions.paths",
+				"Use a relative path or glob pattern instead",
+			)
+		}
+	}
+	for _, path := range cfg.Formatters.Exclusions.Paths {
+		if isAbsolutePath(path) {
+			h.addIssue(
+				HealthSeverityWarning,
+				RuleAbsolutePathExclusion,
+				fmt.Sprintf("Absolute path %q in formatters.exclusions.paths is non-portable across machines", path),
+				"formatters.exclusions.paths",
+				"Use a relative path or glob pattern instead",
+			)
+		}
+	}
+}
+
+func isAbsolutePath(path string) bool {
+	return strings.HasPrefix(path, "/") || (len(path) >= 3 && path[1] == ':' && (path[2] == '/' || path[2] == '\\\\'))
+}
+
+func (h *ConfigHealth) checkDuplicateExclusionLinters(cfg *Config) {
+	for _, rule := range cfg.Linters.Exclusions.Rules {
+		seen := make(map[string]int, len(rule.Linters))
+		for _, l := range rule.Linters {
+			seen[l]++
+		}
+		for linter, count := range seen {
+			if count > 1 {
+				h.addIssue(
+					HealthSeverityWarning,
+					RuleDuplicateExclusionLinter,
+					fmt.Sprintf("Linter %q appears %d times in an exclusion rule (path: %q)", linter, count, rule.Path),
+					"linters.exclusions.rules",
+					fmt.Sprintf("Remove duplicate entries of %q from the exclusion rule", linter),
+				)
+			}
+		}
 	}
 }
