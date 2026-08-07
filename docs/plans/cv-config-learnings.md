@@ -7,26 +7,26 @@
 
 ## Task Table (sorted by priority)
 
-| # | Task | Impact | Effort | Category |
-|---|------|--------|--------|----------|
-| 1 | Enrich `mnd` defaults: add `IgnoredFiles` field + test-file exclusion + more numbers | High | S | Settings |
-| 2 | Enrich `wrapcheck` defaults: add `IgnoreSigRegexps` field + stdlib regexps | High | S | Settings |
-| 3 | Enrich `errcheck` defaults: add `CheckTypeAssertions` field + enable it | High | XS | Settings |
-| 4 | Enrich `varnamelen` defaults: add `IgnoreDecls`, `MaxDistance`, `MinNameLength` | High | S | Settings |
-| 5 | Add `gocognit` settings struct + curated default (min-complexity: 25) | Medium | XS | Settings |
-| 6 | Add `gocyclo` settings struct + curated default (min-complexity: 20) | Medium | XS | Settings |
-| 7 | Add `nestif` settings struct + curated default (min-complexity: 6) | Medium | XS | Settings |
-| 8 | Add `goconst` settings struct + curated default (min-length: 4, min-occurrences: 5, ignore-tests) | Medium | XS | Settings |
-| 9 | Move depguard from `DisabledLinters` to `NeverAutoEnableLinters` | High | M | Policy |
-| 10 | Add depguard to `LinterPriorities` + `LinterReasons` (required by validator) | High | XS | Policy |
-| 11 | Update depguard test in `fixer_test.go` (no longer forcibly disabled) | High | XS | Policy |
-| 12 | Update depguard test in `fixer_enforce_test.go` (now never-auto-enable) | High | XS | Policy |
-| 13 | Add `checkAbsolutePathExclusions` health check | Medium | S | Health |
-| 14 | Add `checkDuplicateExclusionLinters` health check | Medium | S | Health |
-| 15 | Add `pruneUnenabledLinterSettings` to fixer | Medium | S | Fixer |
-| 16 | Add `tagalign` settings struct + curated default ordering | Low | S | Settings |
-| 17 | Run full test suite + validate linter data | Critical | XS | Verify |
-| 18 | Update AGENTS.md with all changes | Medium | XS | Docs |
+| #   | Task                                                                                              | Impact   | Effort | Category |
+| --- | ------------------------------------------------------------------------------------------------- | -------- | ------ | -------- |
+| 1   | Enrich `mnd` defaults: add `IgnoredFiles` field + test-file exclusion + more numbers              | High     | S      | Settings |
+| 2   | Enrich `wrapcheck` defaults: add `IgnoreSigRegexps` field + stdlib regexps                        | High     | S      | Settings |
+| 3   | Enrich `errcheck` defaults: add `CheckTypeAssertions` field + enable it                           | High     | XS     | Settings |
+| 4   | Enrich `varnamelen` defaults: add `IgnoreDecls`, `MaxDistance`, `MinNameLength`                   | High     | S      | Settings |
+| 5   | Add `gocognit` settings struct + curated default (min-complexity: 25)                             | Medium   | XS     | Settings |
+| 6   | Add `gocyclo` settings struct + curated default (min-complexity: 20)                              | Medium   | XS     | Settings |
+| 7   | Add `nestif` settings struct + curated default (min-complexity: 6)                                | Medium   | XS     | Settings |
+| 8   | Add `goconst` settings struct + curated default (min-length: 4, min-occurrences: 5, ignore-tests) | Medium   | XS     | Settings |
+| 9   | Move depguard from `DisabledLinters` to `NeverAutoEnableLinters`                                  | High     | M      | Policy   |
+| 10  | Add depguard to `LinterPriorities` + `LinterReasons` (required by validator)                      | High     | XS     | Policy   |
+| 11  | Update depguard test in `fixer_test.go` (no longer forcibly disabled)                             | High     | XS     | Policy   |
+| 12  | Update depguard test in `fixer_enforce_test.go` (now never-auto-enable)                           | High     | XS     | Policy   |
+| 13  | Add `checkAbsolutePathExclusions` health check                                                    | Medium   | S      | Health   |
+| 14  | Add `checkDuplicateExclusionLinters` health check                                                 | Medium   | S      | Health   |
+| 15  | Add `pruneUnenabledLinterSettings` to fixer                                                       | Medium   | S      | Fixer    |
+| 16  | Add `tagalign` settings struct + curated default ordering                                         | Low      | S      | Settings |
+| 17  | Run full test suite + validate linter data                                                        | Critical | XS     | Verify   |
+| 18  | Update AGENTS.md with all changes                                                                 | Medium   | XS     | Docs     |
 
 ---
 
@@ -70,6 +70,7 @@
 **Files:** `pkg/constants/linter_settings.go`
 
 For each of `gocognit`, `gocyclo`, `nestif`, `goconst`:
+
 1. Add hand-maintained struct with yaml tags
 2. Add `ToMap()` method
 3. Add compile-time `SettingsConverter` check

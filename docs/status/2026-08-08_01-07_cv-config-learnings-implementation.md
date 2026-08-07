@@ -2,36 +2,38 @@
 
 **Date:** 2026-08-08 01:07  
 **Session start:** Analyzed `~/projects/CV/.golangci.yaml`  
-**Session end:** This report  
+**Session end:** This report
 
 ---
 
 ## a) FULLY DONE (Verified: build passes, lint clean, tests green)
 
 ### Source Analysis
+
 - Read and analyzed `~/projects/CV/.golangci.yaml` (467 lines, ~100 linters, architectural depguard rules)
 - Produced `docs/plans/cv-config-learnings.md` with 11 improvements across 4 categories
 - Cross-referenced every CV config setting against the tool's known settings/structs/constants
 
 ### Code Changes (10 files, +397/-17 lines)
 
-| Change | Files | Details |
-|--------|-------|---------|
-| `mnd` defaults enriched | `linter_settings.go` | Added `IgnoredFiles: ["_test\\.go"]`, expanded `IgnoredNumbers` to 10 values |
-| `wrapcheck` defaults enriched | `linter_settings.go` | Added `IgnoreSigRegexps` field + 16 stdlib regexps (fmt, errors, slices, maps, sort, time, os, io, strings, strconv, path, filepath, etc.) |
-| `errcheck` defaults enriched | `linter_settings.go` | Added `CheckTypeAssertions: true` |
-| `varnamelen` defaults enriched | `linter_settings.go` | Added `IgnoreDecls` (18 typed declarations), `MaxDistance: 15`, `MinNameLength: 2` |
-| 4 new complexity structs | `linter_settings.go` | `GocognitSettings` (25), `GocycloSettings` (20), `NestifSettings` (6), `GoconstSettings` (min-length 4, min-occurrences 5, ignore-tests) |
-| `tagalign` default | `linter_settings.go` | `TagalignSettings` struct + curated ordering (binding, json, yaml, xml, toml, validate, mapstructure) |
-| Depguard policy change | `rules.go`, `linter_priorities.go`, `linter_reasons.go` | Moved from `DisabledLinters` to `NeverAutoEnableLinters` with architectural-enforcement rationale |
-| Depguard tests updated | `fixer_test.go`, `fixer_enforce_test.go` | Test now verifies depguard is respected (not forcibly disabled); enforce test updated to "never-auto-enable" |
-| Absolute path health check | `validation.go` | `RuleAbsolutePathExclusion` + `checkAbsolutePathExclusions()` for both linter and formatter exclusion paths |
-| Duplicate exclusion linter health check | `validation.go` | `RuleDuplicateExclusionLinter` + `checkDuplicateExclusionLinters()` |
-| Orphaned settings pruning | `fixer_config.go` | `pruneUnenabledLinterSettings()` removes settings for linters neither enabled nor disabled |
-| AGENTS.md updated | `AGENTS.md` | Gotchas #7, #10, #15 updated to reflect all changes |
-| Compile-time checks | `linter_settings.go` | 5 new `SettingsConverter` compliance checks added |
+| Change                                  | Files                                                   | Details                                                                                                                                    |
+| --------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `mnd` defaults enriched                 | `linter_settings.go`                                    | Added `IgnoredFiles: ["_test\\.go"]`, expanded `IgnoredNumbers` to 10 values                                                               |
+| `wrapcheck` defaults enriched           | `linter_settings.go`                                    | Added `IgnoreSigRegexps` field + 16 stdlib regexps (fmt, errors, slices, maps, sort, time, os, io, strings, strconv, path, filepath, etc.) |
+| `errcheck` defaults enriched            | `linter_settings.go`                                    | Added `CheckTypeAssertions: true`                                                                                                          |
+| `varnamelen` defaults enriched          | `linter_settings.go`                                    | Added `IgnoreDecls` (18 typed declarations), `MaxDistance: 15`, `MinNameLength: 2`                                                         |
+| 4 new complexity structs                | `linter_settings.go`                                    | `GocognitSettings` (25), `GocycloSettings` (20), `NestifSettings` (6), `GoconstSettings` (min-length 4, min-occurrences 5, ignore-tests)   |
+| `tagalign` default                      | `linter_settings.go`                                    | `TagalignSettings` struct + curated ordering (binding, json, yaml, xml, toml, validate, mapstructure)                                      |
+| Depguard policy change                  | `rules.go`, `linter_priorities.go`, `linter_reasons.go` | Moved from `DisabledLinters` to `NeverAutoEnableLinters` with architectural-enforcement rationale                                          |
+| Depguard tests updated                  | `fixer_test.go`, `fixer_enforce_test.go`                | Test now verifies depguard is respected (not forcibly disabled); enforce test updated to "never-auto-enable"                               |
+| Absolute path health check              | `validation.go`                                         | `RuleAbsolutePathExclusion` + `checkAbsolutePathExclusions()` for both linter and formatter exclusion paths                                |
+| Duplicate exclusion linter health check | `validation.go`                                         | `RuleDuplicateExclusionLinter` + `checkDuplicateExclusionLinters()`                                                                        |
+| Orphaned settings pruning               | `fixer_config.go`                                       | `pruneUnenabledLinterSettings()` removes settings for linters neither enabled nor disabled                                                 |
+| AGENTS.md updated                       | `AGENTS.md`                                             | Gotchas #7, #10, #15 updated to reflect all changes                                                                                        |
+| Compile-time checks                     | `linter_settings.go`                                    | 5 new `SettingsConverter` compliance checks added                                                                                          |
 
 ### Verification Results
+
 - `go build ./...` — passes
 - `golangci-lint run` — 0 issues
 - `go run ./scripts/validate_linter_data.go` — ALL 8 CHECKS PASSED
@@ -46,21 +48,22 @@
 
 This is the biggest gap. We modified 6 production files that have **zero new tests** written for the new functionality:
 
-| New Feature | Test File | Tests Written? |
-|-------------|-----------|----------------|
-| `mnd.IgnoredFiles` field + expanded numbers | `linter_settings_internal_test.go` | **NO** |
-| `wrapcheck.IgnoreSigRegexps` field + defaults | `linter_settings_internal_test.go` | **NO** |
-| `errcheck.CheckTypeAssertions` field | `linter_settings_internal_test.go` | **NO** |
-| `varnamelen.IgnoreDecls` / `MaxDistance` / `MinNameLength` | `linter_settings_internal_test.go` | **NO** |
-| `GocognitSettings` / `GocycloSettings` / `NestifSettings` / `GoconstSettings` | `linter_settings_internal_test.go` | **NO** |
-| `TagalignSettings` | `linter_settings_internal_test.go` | **NO** |
-| `RuleAbsolutePathExclusion` health check | `validation_test.go` | **NO** |
-| `RuleDuplicateExclusionLinter` health check | `validation_test.go` | **NO** |
-| `pruneUnenabledLinterSettings` function | `fixer_test.go` | **NO** (only existing tests adapted) |
+| New Feature                                                                   | Test File                          | Tests Written?                       |
+| ----------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------ |
+| `mnd.IgnoredFiles` field + expanded numbers                                   | `linter_settings_internal_test.go` | **NO**                               |
+| `wrapcheck.IgnoreSigRegexps` field + defaults                                 | `linter_settings_internal_test.go` | **NO**                               |
+| `errcheck.CheckTypeAssertions` field                                          | `linter_settings_internal_test.go` | **NO**                               |
+| `varnamelen.IgnoreDecls` / `MaxDistance` / `MinNameLength`                    | `linter_settings_internal_test.go` | **NO**                               |
+| `GocognitSettings` / `GocycloSettings` / `NestifSettings` / `GoconstSettings` | `linter_settings_internal_test.go` | **NO**                               |
+| `TagalignSettings`                                                            | `linter_settings_internal_test.go` | **NO**                               |
+| `RuleAbsolutePathExclusion` health check                                      | `validation_test.go`               | **NO**                               |
+| `RuleDuplicateExclusionLinter` health check                                   | `validation_test.go`               | **NO**                               |
+| `pruneUnenabledLinterSettings` function                                       | `fixer_test.go`                    | **NO** (only existing tests adapted) |
 
 The existing tests pass because the changes are additive (new struct fields, new health checks that only fire when the specific pattern is present). But there are **no specs verifying the new behavior works correctly** — only the modified depguard test was adapted.
 
 ### Plan Document — partially actionable
+
 The plan in `docs/plans/cv-config-learnings.md` was written before implementation and served as a guide, but it was not updated to mark items as completed or add notes about what diverged from plan.
 
 ---
@@ -69,14 +72,14 @@ The plan in `docs/plans/cv-config-learnings.md` was written before implementatio
 
 The following items from the original analysis were explicitly deferred ("Chose NOT to do") and remain unstarted:
 
-| Item | Reason for Deferral |
-|------|---------------------|
-| `funlen` threshold change to 120/80 | Kept 200/100 (calibrated across 160 projects) |
-| `cyclop` threshold change to 15 | Kept 12 (tighter, calibrated) |
-| `gosec` G104 exclusion | Already covered by `errcheck` |
-| `staticcheck` SA1019 disable | Project-specific, not a good default |
-| `wrapcheck` `ignore-package-globs` | `ignore-sig-regexps` covers the same ground |
-| Depguard smart detection (file-pattern vs deny-list) | Decided: NeverAutoEnable is simpler |
+| Item                                                 | Reason for Deferral                           |
+| ---------------------------------------------------- | --------------------------------------------- |
+| `funlen` threshold change to 120/80                  | Kept 200/100 (calibrated across 160 projects) |
+| `cyclop` threshold change to 15                      | Kept 12 (tighter, calibrated)                 |
+| `gosec` G104 exclusion                               | Already covered by `errcheck`                 |
+| `staticcheck` SA1019 disable                         | Project-specific, not a good default          |
+| `wrapcheck` `ignore-package-globs`                   | `ignore-sig-regexps` covers the same ground   |
+| Depguard smart detection (file-pattern vs deny-list) | Decided: NeverAutoEnable is simpler           |
 
 ---
 
