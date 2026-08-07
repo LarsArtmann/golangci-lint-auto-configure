@@ -286,7 +286,7 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 		IgnoreNames:        []string{"err", "ok", "tt", "fn", "t", "i", "m", "g", "a", "b", "v"},
 		IgnoreTypeAssertOk: true,
 		MaxDistance:        15, //nolint:mnd // intentional default max distance for short variable names
-		MinNameLength:      2,  //nolint:mnd // intentional default minimum variable name length
+		MinNameLength:      2,
 	},
 	"gomoddirectives": GomoddirectivesSettings{
 		ReplaceLocal: true,
