@@ -429,15 +429,14 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 		Expect(fnsSlice).To(ContainElement(Equal("fmt.Fprintf")))
 	})
 
-	It("mnd should produce ignored-numbers list", func() {
+	It("mnd should produce ignored-files list for test exclusion", func() {
 		m := constants.DefaultLinterSettings["mnd"].ToMap()
-		numbers, ok := m["ignored-numbers"]
-		Expect(ok).To(BeTrue(), "mnd settings missing ignored-numbers key")
+		files, ok := m["ignored-files"]
+		Expect(ok).To(BeTrue(), "mnd settings missing ignored-files key")
 
-		numbersSlice, ok := numbers.([]any)
-		Expect(ok).To(BeTrue(), "mnd ignored-numbers is not []any")
-		Expect(numbersSlice).To(ContainElement(Equal("0")))
-		Expect(numbersSlice).To(ContainElement(Equal("1")))
+		filesSlice, ok := files.([]any)
+		Expect(ok).To(BeTrue(), "mnd ignored-files is not []any")
+		Expect(filesSlice).To(ContainElement(Equal("_test\\.go")))
 	})
 })
 
