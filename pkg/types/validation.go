@@ -12,11 +12,11 @@ const (
 	// ConfigVersionV2 is the golangci-lint v2 config schema version.
 	ConfigVersionV2 Version = "2"
 
-	RuleDuplicateLinter         = "duplicate-linter"
-	RuleEnableDisableOverlap    = "enable-disable-overlap"
-	RuleMissingCriticalLinter   = "missing-critical-linter"
-	RuleV1SyntaxInV2            = "v1-syntax-in-v2"
-	RuleAbsolutePathExclusion   = "absolute-path-exclusion"
+	RuleDuplicateLinter          = "duplicate-linter"
+	RuleEnableDisableOverlap     = "enable-disable-overlap"
+	RuleMissingCriticalLinter    = "missing-critical-linter"
+	RuleV1SyntaxInV2             = "v1-syntax-in-v2"
+	RuleAbsolutePathExclusion    = "absolute-path-exclusion"
 	RuleDuplicateExclusionLinter = "duplicate-exclusion-linter"
 )
 
@@ -334,6 +334,7 @@ func (h *ConfigHealth) checkAbsolutePathExclusions(cfg *Config) {
 			)
 		}
 	}
+
 	for _, path := range cfg.Formatters.Exclusions.Paths {
 		if isAbsolutePath(path) {
 			h.addIssue(
@@ -357,6 +358,7 @@ func (h *ConfigHealth) checkDuplicateExclusionLinters(cfg *Config) {
 		for _, l := range rule.Linters {
 			seen[l]++
 		}
+
 		for linter, count := range seen {
 			if count > 1 {
 				h.addIssue(

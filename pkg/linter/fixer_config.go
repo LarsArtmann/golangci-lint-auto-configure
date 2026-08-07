@@ -369,14 +369,18 @@ func pruneUnenabledLinterSettings(cfg *types.Config, enabledLinters []types.Lint
 
 	for key := range cfg.Linters.Settings {
 		linter := types.LinterName(key)
+
 		if enabledSet[linter] {
 			continue
 		}
+
 		if _, disabled := constants.DisabledLinters[linter]; disabled {
 			continue
 		}
+
 		delete(cfg.Linters.Settings, key)
 		logger.Debugf("Pruned orphaned settings for unenabled linter: %s", linter)
+
 		pruned++
 	}
 

@@ -150,7 +150,7 @@ var RedundantLinters = map[types.LinterName]types.LinterToFormatter{
 // recommends them. They still receive safe default settings and test-file
 // exclusions (via DefaultExclusionRules) when manually enabled.
 var NeverAutoEnableLinters = map[types.LinterName]string{
-	"depguard": "never auto-enabled; use library-policy for banned-library governance, but respect manual configuration for architectural enforcement (layer dependency rules, feature isolation) via file-pattern rules that library-policy cannot replicate",
+	"depguard":    "never auto-enabled; use library-policy for banned-library governance, but respect manual configuration for architectural enforcement (layer dependency rules, feature isolation) via file-pattern rules that library-policy cannot replicate",
 	"exhaustruct": "highest-friction linter across 160 sibling projects (6.5 nolint ratio); never auto-enabled, but respected with curated stdlib excludes when added manually",
 }
 
