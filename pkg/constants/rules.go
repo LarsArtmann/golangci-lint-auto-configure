@@ -133,7 +133,6 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 var DisabledLinters = map[types.LinterName]string{
 	"funcorder":   "provides minimal value and can be confusing for users",
 	"noinlineerr": "conflicts with formatters (gofumpt, goimports) that reformat error handling expressions, causing noisy churn and contradictory findings",
-	"depguard":    "superseded by the dedicated library-policy tool (github.com/LarsArtmann/library-policy) which provides AST-based banned-library governance across all projects; depguard's per-config allow-list model is redundant and weaker",
 }
 
 // RedundantLinters maps linter names that are superseded by formatters.
@@ -151,6 +150,7 @@ var RedundantLinters = map[types.LinterName]types.LinterToFormatter{
 // recommends them. They still receive safe default settings and test-file
 // exclusions (via DefaultExclusionRules) when manually enabled.
 var NeverAutoEnableLinters = map[types.LinterName]string{
+	"depguard": "never auto-enabled; use library-policy for banned-library governance, but respect manual configuration for architectural enforcement (layer dependency rules, feature isolation) via file-pattern rules that library-policy cannot replicate",
 	"exhaustruct": "highest-friction linter across 160 sibling projects (6.5 nolint ratio); never auto-enabled, but respected with curated stdlib excludes when added manually",
 }
 

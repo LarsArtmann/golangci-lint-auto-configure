@@ -60,6 +60,11 @@ var (
 	_ SettingsConverter = MndSettings{}
 	_ SettingsConverter = GosecSettings{}
 	_ SettingsConverter = ErrcheckSettings{}
+	_ SettingsConverter = GocognitSettings{}
+	_ SettingsConverter = GocycloSettings{}
+	_ SettingsConverter = NestifSettings{}
+	_ SettingsConverter = GoconstSettings{}
+	_ SettingsConverter = TagalignSettings{}
 	_ SettingsConverter = WrapcheckSettings{}
 	_ SettingsConverter = GolinesFormatterSettings{}
 )
@@ -166,6 +171,40 @@ type ErrcheckSettings struct {
 }
 
 func (s ErrcheckSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
+
+type GocognitSettings struct {
+	MinComplexity int `yaml:"min-complexity"`
+}
+
+func (s GocognitSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
+
+type GocycloSettings struct {
+	MinComplexity int `yaml:"min-complexity"`
+}
+
+func (s GocycloSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
+
+type NestifSettings struct {
+	MinComplexity int `yaml:"min-complexity"`
+}
+
+func (s NestifSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
+
+type GoconstSettings struct {
+	IgnoreTests    bool `yaml:"ignore-tests"`
+	MinLength      int  `yaml:"min-length"`
+	MinOccurrences int  `yaml:"min-occurrences"`
+}
+
+func (s GoconstSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
+
+type TagalignSettings struct {
+	Align bool     `yaml:"align"`
+	Order []string `yaml:"order,omitempty"`
+	Sort  bool     `yaml:"sort"`
+}
+
+func (s TagalignSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type WrapcheckSettings struct {
 	IgnoreSigs       []string `yaml:"ignore-sigs,omitempty"`
@@ -335,6 +374,33 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 			"compress/gzip",
 			"\\(context\\.Context\\)\\.Err",
 		},
+	},
+	"gocognit": GocognitSettings{
+		MinComplexity: 25, //nolint:mnd // intentional default cognitive complexity threshold
+	},
+	"gocyclo": GocycloSettings{
+		MinComplexity: 20, //nolint:mnd // intentional default cyclomatic complexity threshold
+	},
+	"nestif": NestifSettings{
+		MinComplexity: 6, //nolint:mnd // intentional default nesting complexity threshold
+	},
+	"goconst": GoconstSettings{
+		IgnoreTests:    true,
+		MinLength:      4, //nolint:mnd // intentional default minimum constant length
+		MinOccurrences: 5, //nolint:mnd // intentional default minimum occurrences
+	},
+	"tagalign": TagalignSettings{
+		Align: false,
+		Order: []string{
+			"binding",
+			"json",
+			"yaml",
+			"xml",
+			"toml",
+			"validate",
+			"mapstructure",
+		},
+		Sort: true,
 	},
 }
 
