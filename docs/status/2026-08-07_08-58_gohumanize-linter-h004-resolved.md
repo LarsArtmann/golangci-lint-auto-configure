@@ -54,14 +54,14 @@ The core insight: `github.com/dustin/go-humanize/english` **does** export `Plura
 
 ### 6. Comprehensive verification — all green
 
-| Check | Command | Result |
-| --- | --- | --- |
-| go-humanize-linter | `go-humanize-linter .` | **0 findings** |
-| Validation script | `go run scripts/validate_linter_data.go` | **ALL CHECKS PASSED** (exit 0) |
-| Go build | `go build ./...` | **Clean** (exit 0) |
-| Test suite (race) | `CGO_ENABLED=1 go test -race ./pkg/... ./internal/...` | **All 18 packages pass** (exit 0) |
-| golangci-lint | `golangci-lint run --config=.golangci.yml --timeout=5m` | **0 issues** (exit 0) |
-| Working tree | `git status --short` | **Clean** |
+| Check              | Command                                                 | Result                            |
+| ------------------ | ------------------------------------------------------- | --------------------------------- |
+| go-humanize-linter | `go-humanize-linter .`                                  | **0 findings**                    |
+| Validation script  | `go run scripts/validate_linter_data.go`                | **ALL CHECKS PASSED** (exit 0)    |
+| Go build           | `go build ./...`                                        | **Clean** (exit 0)                |
+| Test suite (race)  | `CGO_ENABLED=1 go test -race ./pkg/... ./internal/...`  | **All 18 packages pass** (exit 0) |
+| golangci-lint      | `golangci-lint run --config=.golangci.yml --timeout=5m` | **0 issues** (exit 0)             |
+| Working tree       | `git status --short`                                    | **Clean**                         |
 
 ## b) PARTIALLY DONE
 
@@ -123,28 +123,28 @@ Unlike the prior session, no dependencies were guessed, no wrong module paths we
 
 ## f) Up to 50 things we should get done next
 
-| # | Task | Impact | Effort | Category |
-| ---: | --- | --- | :---: | --- |
-| 1 | Run `nix fmt` to verify the comment formatting is gofumpt-clean | High | S | Quality |
-| 2 | Run `nix build` to confirm the Nix build is unaffected | Medium | S | Quality |
-| 3 | Run `nix flake check` for full project validation | Medium | M | Quality |
-| 4 | Add AGENTS.md gotcha about the gohumanize self-detection suppression in `scripts/validate_linter_data.go` | High | S | Documentation |
-| 5 | Annotate `docs/status/2026-08-05_03-25_humanize-linter-status.md` as resolved with a pointer to this report | Medium | S | Documentation |
-| 6 | Add `go-humanize-linter .` to CI (`.github/workflows/` or `.buildflow.yml`) as a gate | Medium | M | Quality |
-| 7 | Add a focused unit test for `noun(1, ...)`, `noun(0, ...)`, `noun(2, ...)` boundary cases | Low | S | Quality |
-| 8 | Evaluate whether `--config` YAML suppression is more appropriate than inline `//nolint:gohumanize` | Low | S | Quality |
-| 9 | Consider whether `HasGoHumanize()` should exclude self-references (the tool's own module path) to avoid the self-detection trap entirely | Medium | M | Architecture |
-| 10 | Document the `english.Plural` / `english.PluralWord` API in AGENTS.md or a reference doc for future sessions | Low | S | Documentation |
-| 11 | Review whether any other `//go:build ignore` scripts in the repo have similar dependency-suppression issues | Low | S | Cleanup |
-| 12 | Add the `gohumanize` linter to the project's own `.golangci-lint-auto-configure.yml` sidecar `never-enable` section (if one is created) | Low | S | Configuration |
-| 13 | Review whether the 3 auto-git commits from this session should be squashed | Low | S | Process |
-| 14 | Verify the `//nolint:gohumanize` directive survives `gofumpt` formatting (gofumpt can reformat comment groups) | Medium | S | Quality |
-| 15 | Check if `nolintlint` with `require-explanation: true` would break the bare `//nolint:gohumanize` (no inline reason) | Medium | S | Quality |
-| 16 | Consider adding a `// Reason: ...` convention for gohumanize nolint directives if the linter supports it | Low | S | Quality |
-| 17 | Audit all 9 gohumanize rules (H001-H009) against the codebase to find latent findings the linter might report in future | Medium | M | Quality |
-| 18 | Document the Nix package name for `go-humanize-linter` in AGENTS.md for reproducibility | Low | S | Documentation |
-| 19 | Verify the linter version (`7b9e155`) is pinned or documented somewhere | Low | S | Reproducibility |
-| 20 | Consider whether the `noun()` function could be moved to a non-ignored shared utility in `pkg/` (would allow importing go-humanize, but still hits self-detection trap) | Low | M | Architecture |
+|   # | Task                                                                                                                                                                    | Impact | Effort | Category        |
+| --: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | :----: | --------------- |
+|   1 | Run `nix fmt` to verify the comment formatting is gofumpt-clean                                                                                                         | High   |   S    | Quality         |
+|   2 | Run `nix build` to confirm the Nix build is unaffected                                                                                                                  | Medium |   S    | Quality         |
+|   3 | Run `nix flake check` for full project validation                                                                                                                       | Medium |   M    | Quality         |
+|   4 | Add AGENTS.md gotcha about the gohumanize self-detection suppression in `scripts/validate_linter_data.go`                                                               | High   |   S    | Documentation   |
+|   5 | Annotate `docs/status/2026-08-05_03-25_humanize-linter-status.md` as resolved with a pointer to this report                                                             | Medium |   S    | Documentation   |
+|   6 | Add `go-humanize-linter .` to CI (`.github/workflows/` or `.buildflow.yml`) as a gate                                                                                   | Medium |   M    | Quality         |
+|   7 | Add a focused unit test for `noun(1, ...)`, `noun(0, ...)`, `noun(2, ...)` boundary cases                                                                               | Low    |   S    | Quality         |
+|   8 | Evaluate whether `--config` YAML suppression is more appropriate than inline `//nolint:gohumanize`                                                                      | Low    |   S    | Quality         |
+|   9 | Consider whether `HasGoHumanize()` should exclude self-references (the tool's own module path) to avoid the self-detection trap entirely                                | Medium |   M    | Architecture    |
+|  10 | Document the `english.Plural` / `english.PluralWord` API in AGENTS.md or a reference doc for future sessions                                                            | Low    |   S    | Documentation   |
+|  11 | Review whether any other `//go:build ignore` scripts in the repo have similar dependency-suppression issues                                                             | Low    |   S    | Cleanup         |
+|  12 | Add the `gohumanize` linter to the project's own `.golangci-lint-auto-configure.yml` sidecar `never-enable` section (if one is created)                                 | Low    |   S    | Configuration   |
+|  13 | Review whether the 3 auto-git commits from this session should be squashed                                                                                              | Low    |   S    | Process         |
+|  14 | Verify the `//nolint:gohumanize` directive survives `gofumpt` formatting (gofumpt can reformat comment groups)                                                          | Medium |   S    | Quality         |
+|  15 | Check if `nolintlint` with `require-explanation: true` would break the bare `//nolint:gohumanize` (no inline reason)                                                    | Medium |   S    | Quality         |
+|  16 | Consider adding a `// Reason: ...` convention for gohumanize nolint directives if the linter supports it                                                                | Low    |   S    | Quality         |
+|  17 | Audit all 9 gohumanize rules (H001-H009) against the codebase to find latent findings the linter might report in future                                                 | Medium |   M    | Quality         |
+|  18 | Document the Nix package name for `go-humanize-linter` in AGENTS.md for reproducibility                                                                                 | Low    |   S    | Documentation   |
+|  19 | Verify the linter version (`7b9e155`) is pinned or documented somewhere                                                                                                 | Low    |   S    | Reproducibility |
+|  20 | Consider whether the `noun()` function could be moved to a non-ignored shared utility in `pkg/` (would allow importing go-humanize, but still hits self-detection trap) | Low    |   M    | Architecture    |
 
 ## g) Questions that cannot be figured out from the current repository alone
 
