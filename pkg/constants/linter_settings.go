@@ -315,7 +315,9 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 		IgnoredFiles: []string{
 			"_test\\.go",
 		},
-		IgnoredNumbers: []string{"0", "1", "2", "3", "4", "5", "10", "100", "1000", "1024"},
+		// IgnoredNumbers intentionally empty: magic-number suppression is per-project,
+		// not universal. Injecting a curated list creates a perpetual maintenance game
+		// (CV expanded from 10 to 21 values and growing). Let each project decide.
 	},
 	"gosec": GosecSettings{
 		Excludes: []string{
