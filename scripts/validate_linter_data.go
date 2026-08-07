@@ -187,6 +187,8 @@ func sorted[T types.LinterName | types.FormatterName](items []T) []T {
 
 // noun renders a count with the correct singular or plural noun form, e.g.
 // noun(1, "linter", "linters") -> "1 linter", noun(2, "linter", "linters") -> "2 linters".
+//
+//nolint:gohumanize // //go:build ignore script: go mod tidy strips deps from ignored files, and adding dustin/go-humanize to the main module would trigger HasGoHumanize() detection, causing the tool to recommend the gohumanize module-plugin linter for its own config (breaks stock golangci-lint).
 func noun(n int, singular, pluralNoun string) string {
 	if n == 1 {
 		return fmt.Sprintf("%d %s", n, singular)
