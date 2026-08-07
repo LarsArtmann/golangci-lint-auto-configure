@@ -98,9 +98,12 @@ type ReviveRule struct {
 func (s ReviveSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type VarnamelenSettings struct {
+	IgnoreDecls        []string `yaml:"ignore-decls,omitempty"`
 	IgnoreMapIndexOk   bool     `yaml:"ignore-map-index-ok"`
-	IgnoreNames        []string `yaml:"ignore-names"`
+	IgnoreNames        []string `yaml:"ignore-names,omitempty"`
 	IgnoreTypeAssertOk bool     `yaml:"ignore-type-assert-ok"`
+	MaxDistance        int      `yaml:"max-distance,omitempty"`
+	MinNameLength      int      `yaml:"min-name-length,omitempty"`
 }
 
 func (s VarnamelenSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
@@ -145,7 +148,8 @@ type FunlenSettings struct {
 func (s FunlenSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type MndSettings struct {
-	IgnoredNumbers []string `yaml:"ignored-numbers"`
+	IgnoredFiles   []string `yaml:"ignored-files,omitempty"`
+	IgnoredNumbers []string `yaml:"ignored-numbers,omitempty"`
 }
 
 func (s MndSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
@@ -157,13 +161,15 @@ type GosecSettings struct {
 func (s GosecSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type ErrcheckSettings struct {
-	ExcludeFunctions []string `yaml:"exclude-functions"`
+	CheckTypeAssertions bool     `yaml:"check-type-assertions"`
+	ExcludeFunctions    []string `yaml:"exclude-functions,omitempty"`
 }
 
 func (s ErrcheckSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type WrapcheckSettings struct {
-	IgnoreSigs []string `yaml:"ignore-sigs"`
+	IgnoreSigs       []string `yaml:"ignore-sigs,omitempty"`
+	IgnoreSigRegexps []string `yaml:"ignore-sig-regexps,omitempty"`
 }
 
 func (s WrapcheckSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
@@ -217,9 +223,31 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 		},
 	},
 	"varnamelen": VarnamelenSettings{
+		IgnoreDecls: []string{
+			"err error",
+			"wg sync.WaitGroup",
+			"mu sync.Mutex",
+			"c *gin.Context",
+			"c context.Context",
+			"r *http.Request",
+			"w http.ResponseWriter",
+			"t *testing.T",
+			"b *testing.B",
+			"f *testing.F",
+			"db *sql.DB",
+			"tx *sql.Tx",
+			"ok bool",
+			"id string",
+			"n int",
+			"fn func()",
+			"i int",
+			"j int",
+		},
 		IgnoreMapIndexOk:   true,
 		IgnoreNames:        []string{"err", "ok", "tt", "fn", "t", "i", "m", "g", "a", "b", "v"},
 		IgnoreTypeAssertOk: true,
+		MaxDistance:        15,
+		MinNameLength:      2,
 	},
 	"gomoddirectives": GomoddirectivesSettings{
 		ReplaceLocal: true,
@@ -245,7 +273,10 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 		Statements: 100,
 	},
 	"mnd": MndSettings{
-		IgnoredNumbers: []string{"0", "1", "2", "100"},
+		IgnoredFiles: []string{
+			"_test\\.go",
+		},
+		IgnoredNumbers: []string{"0", "1", "2", "3", "4", "5", "10", "100", "1000", "1024"},
 	},
 	"gosec": GosecSettings{
 		Excludes: []string{
@@ -254,6 +285,7 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 		},
 	},
 	"errcheck": ErrcheckSettings{
+		CheckTypeAssertions: true,
 		ExcludeFunctions: []string{
 			"(*os.File).Close",
 			"(io.Closer).Close",
@@ -284,6 +316,24 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 			".WithMessage(",
 			".WithMessagef(",
 			".WithStack(",
+		},
+		IgnoreSigRegexps: []string{
+			"encoding/json",
+			"fmt\\.",
+			"errors\\.",
+			"slices\\.",
+			"maps\\.",
+			"sort\\.",
+			"time\\.",
+			"net/http",
+			"os\\.",
+			"io\\.",
+			"strings\\.",
+			"strconv\\.",
+			"path\\.",
+			"filepath\\.",
+			"compress/gzip",
+			"\\(context\\.Context\\)\\.Err",
 		},
 	},
 }
