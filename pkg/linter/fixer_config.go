@@ -318,6 +318,7 @@ func updateConfigFromSets(
 
 	settingsChanges += injectDefaultSettings(cfg, enabledLinters, forceSettings)
 	settingsChanges += pruneDisabledLinterSettings(cfg, disabledLintersList, logger)
+	settingsChanges += pruneUnenabledLinterSettings(cfg, enabledLinters, logger)
 
 	if formatterSet.Len() > 0 {
 		settingsChanges += injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable, forceSettings)
@@ -344,6 +345,39 @@ func pruneDisabledLinterSettings(cfg *types.Config, disabledLinters []types.Lint
 
 			pruned++
 		}
+	}
+
+	return pruned
+}
+
+// pruneUnenabledLinterSettings removes settings blocks for linters that are neither
+// enabled nor explicitly disabled. With `default: none` (which the tool injects),
+// linters absent from the enable list do not run — their settings are dead weight
+// that bloats the config and confuses readers. Settings for linters in the disable
+// list are already handled by pruneDisabledLinterSettings.
+func pruneUnenabledLinterSettings(cfg *types.Config, enabledLinters []types.LinterName, logger *log.Logger) int {
+	if len(cfg.Linters.Settings) == 0 {
+		return 0
+	}
+
+	enabledSet := make(map[types.LinterName]bool, len(enabledLinters))
+	for _, l := range enabledLinters {
+		enabledSet[l] = true
+	}
+
+	pruned := 0
+
+	for key := range cfg.Linters.Settings {
+		linter := types.LinterName(key)
+		if enabledSet[linter] {
+			continue
+		}
+		if _, disabled := constants.DisabledLinters[linter]; disabled {
+			continue
+		}
+		delete(cfg.Linters.Settings, key)
+		logger.Debugf("Pruned orphaned settings for unenabled linter: %s", linter)
+		pruned++
 	}
 
 	return pruned

@@ -348,7 +348,7 @@ func (h *ConfigHealth) checkAbsolutePathExclusions(cfg *Config) {
 }
 
 func isAbsolutePath(path string) bool {
-	return strings.HasPrefix(path, "/") || (len(path) >= 3 && path[1] == ':' && (path[2] == '/' || path[2] == '\\\\'))
+	return strings.HasPrefix(path, "/") || (len(path) >= 3 && path[1] == ':' && (path[2] == '/' || path[2] == '\\'))
 }
 
 func (h *ConfigHealth) checkDuplicateExclusionLinters(cfg *Config) {
