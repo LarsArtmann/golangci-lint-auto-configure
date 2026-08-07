@@ -38,19 +38,13 @@ func LoadConfig(path string) (*Config, error) {
 
 // SaveConfig saves a golangci-lint configuration to a YAML file.
 func SaveConfig(config *Config, path string) error {
-	var buf bytes.Buffer
-
-	encoder := yaml.NewEncoder(&buf)
-
-	encoder.SetIndent(2)
-
-	err := encoder.Encode(config)
+	data, err := yaml.Marshal(config)
 	if err != nil {
 		return errorfamily.WrapCorruptionf(err, "migration.encode_yaml",
 			"failed to encode YAML %s", path)
 	}
 
-	err = os.WriteFile(path, buf.Bytes(), permOwnerOnly)
+	err = os.WriteFile(path, data, permOwnerOnly)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "migration.write_config",
 			"failed to write config file %s", path)
