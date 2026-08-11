@@ -23,25 +23,25 @@ echo -e "${GREEN}✓${NC} Documentation files: $ACTUAL_COUNT"
 
 # Calculate completion percentage
 if [ "$EXPECTED_COUNT" -gt 0 ]; then
-    PERCENTAGE=$(echo "scale=1; $ACTUAL_COUNT * 100 / $EXPECTED_COUNT" | bc 2>/dev/null || echo "0")
-    echo -e "${GREEN}✓${NC} Completion: ${PERCENTAGE}%"
+	PERCENTAGE=$(echo "scale=1; $ACTUAL_COUNT * 100 / $EXPECTED_COUNT" | bc 2>/dev/null || echo "0")
+	echo -e "${GREEN}✓${NC} Completion: ${PERCENTAGE}%"
 else
-    echo -e "${RED}✗${NC} ERROR: Invalid expected count"
-    exit 1
+	echo -e "${RED}✗${NC} ERROR: Invalid expected count"
+	exit 1
 fi
 
 # Check for mismatch
 if [ "$ACTUAL_COUNT" -eq "$EXPECTED_COUNT" ]; then
-    echo -e "\n${GREEN}✓ SUCCESS${NC}: All linters documented!"
-    exit 0
+	echo -e "\n${GREEN}✓ SUCCESS${NC}: All linters documented!"
+	exit 0
 elif [ "$ACTUAL_COUNT" -lt "$EXPECTED_COUNT" ]; then
-    MISSING=$((EXPECTED_COUNT - ACTUAL_COUNT))
-    echo -e "\n${YELLOW}⚠ WARNING${NC}: $MISSING linter(s) not yet documented"
-    echo "Expected: $EXPECTED_COUNT, Actual: $ACTUAL_COUNT"
-    exit 0
+	MISSING=$((EXPECTED_COUNT - ACTUAL_COUNT))
+	echo -e "\n${YELLOW}⚠ WARNING${NC}: $MISSING linter(s) not yet documented"
+	echo "Expected: $EXPECTED_COUNT, Actual: $ACTUAL_COUNT"
+	exit 0
 else
-    EXTRA=$((ACTUAL_COUNT - EXPECTED_COUNT))
-    echo -e "\n${RED}✗ ERROR${NC}: $EXTRA extra documentation file(s) found"
-    echo "Expected: $EXPECTED_COUNT, Actual: $ACTUAL_COUNT"
-    exit 1
+	EXTRA=$((ACTUAL_COUNT - EXPECTED_COUNT))
+	echo -e "\n${RED}✗ ERROR${NC}: $EXTRA extra documentation file(s) found"
+	echo "Expected: $EXPECTED_COUNT, Actual: $ACTUAL_COUNT"
+	exit 1
 fi

@@ -68,11 +68,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1786370176,
-        "narHash": "sha256-5XR8vuKgilVrPf+pkA2UpTpiS6JT5pFjZk5lUd25gco=",
+        "lastModified": 1786374450,
+        "narHash": "sha256-xynqP898epL7hJQsOSPsxN+YpDBht4OAiam9fFFetrw=",
         "ref": "master",
-        "rev": "2f3b6b2b45bf08980446fedaffe52ac3ab3916ba",
-        "revCount": 134,
+        "rev": "0122702048ca9b063b9001be0273ae3deba6cfda",
+        "revCount": 137,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
       },
@@ -85,11 +85,11 @@
     "gogenfilter": {
       "flake": false,
       "locked": {
-        "lastModified": 1786370141,
-        "narHash": "sha256-7jXXlSHfeZrvBwyJB0mnDLDWJ4CiavY8fmXSHOrk/DM=",
+        "lastModified": 1786421025,
+        "narHash": "sha256-ocW+7A3ZrUXk40jhrY3kVe7EqLndoZRmn8vgyH1grRY=",
         "ref": "master",
-        "rev": "a50d57b2def1d81afbaf3865585a0ddbef90ad73",
-        "revCount": 844,
+        "rev": "386909a2dc3bcda28067b6b51b54175de157129b",
+        "revCount": 855,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/gogenfilter"
       },
@@ -101,11 +101,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1785967620,
-        "narHash": "sha256-IItrdb7Puk05RqOBWZYFC5X6Wl1sJmCfh5MWVHw5iMM=",
+        "lastModified": 1786247143,
+        "narHash": "sha256-8S3Kcxs7D4UtxJxSJZz0m14CGhuW0MxfrIwJxeGWGnQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b7c2ada94fe99c15b0dbcf4d11fd7850b957a436",
+        "rev": "279b4a8275f032c566576b3f181fa0f27197f588",
         "type": "github"
       },
       "original": {

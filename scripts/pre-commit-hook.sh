@@ -7,24 +7,24 @@ set -e
 echo "Running golangci-lint-auto-configure pre-commit hook..."
 
 # Check if golangci-lint-auto-configure is installed
-if ! command -v golangci-lint-auto-configure &> /dev/null; then
-    echo "Error: golangci-lint-auto-configure is not installed"
-    echo "Install it from: https://github.com/LarsArtmann/golangci-lint-auto-configure"
-    exit 1
+if ! command -v golangci-lint-auto-configure &>/dev/null; then
+	echo "Error: golangci-lint-auto-configure is not installed"
+	echo "Install it from: https://github.com/LarsArtmann/golangci-lint-auto-configure"
+	exit 1
 fi
 
 # Find config file
 CONFIG_FILE=""
 for file in ".golangci.yml" ".golangci.yaml"; do
-    if [ -f "$file" ]; then
-        CONFIG_FILE="$file"
-        break
-    fi
+	if [ -f "$file" ]; then
+		CONFIG_FILE="$file"
+		break
+	fi
 done
 
 if [ -z "$CONFIG_FILE" ]; then
-    echo "No .golangci.yml config file found, skipping..."
-    exit 0
+	echo "No .golangci.yml config file found, skipping..."
+	exit 0
 fi
 
 echo "Found config: $CONFIG_FILE"
@@ -32,8 +32,8 @@ echo "Found config: $CONFIG_FILE"
 # Run analyze to check for recommendations
 echo "Analyzing configuration..."
 if ! golangci-lint-auto-configure analyze --config "$CONFIG_FILE"; then
-    echo "Warning: Analysis found issues with your configuration"
-    echo "Run 'golangci-lint-auto-configure configure' to auto-fix"
+	echo "Warning: Analysis found issues with your configuration"
+	echo "Run 'golangci-lint-auto-configure configure' to auto-fix"
 fi
 
 # Optional: Auto-configure (uncomment to enable)
