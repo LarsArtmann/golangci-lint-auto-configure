@@ -41,7 +41,7 @@ The prior report (item 3) asked for a **sidecar enforcement integration test**. 
 | --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1   | Real end-to-end sidecar integration test (write file → load → enforce) | Described in (b) — I wrote the cheaper unit variant instead                                                                                            |
 | 2   | Coverage measurement on the new test (`-cover`)                        | Did not measure whether `isToolLevelManaged`'s NeverAutoEnable branch gained coverage                                                                  |
-| 3   | markdownlint verification of my status-report annotations              | `npx markdownlint-cli2` not on PATH in this shell; CI workflow `.github/workflows/markdown-lint.yml` will catch it later, but I did not verify locally |
+| 3   | markdownlint verification of my status-report annotations              | `pnpm dlx markdownlint-cli2` not on PATH in this shell; CI workflow `.github/workflows/markdown-lint.yml` will catch it later, but I did not verify locally |
 | 4   | Items 5-50 of the prior report's section f                             | Out of this session's scope; most are decisions/research, not code                                                                                     |
 
 ---
