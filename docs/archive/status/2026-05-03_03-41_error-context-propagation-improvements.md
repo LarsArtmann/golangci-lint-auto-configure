@@ -1,7 +1,7 @@
 # Status Report: Error Context Propagation Improvements
 
-**Date:** 2026-05-03_03-41  
-**Branch:** master  
+**Date:** 2026-05-03_03-41\
+**Branch:** master\
 **Status:** ✅ COMPLETED (Partially)
 
 ---
@@ -163,5 +163,5 @@ I've tried:
 
 ---
 
-**Report Generated:** 2026-05-03_03-41  
+**Report Generated:** 2026-05-03_03-41\
 **Analyzer:** branching-flow v0.1.0

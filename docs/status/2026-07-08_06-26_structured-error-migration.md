@@ -11,7 +11,7 @@
 > | AGENTS.md structured error docs              | ✅ Done           | Gotcha #5 documents WrapClassified + classification                           |
 > | encoding/json v1 → v2                        | ✅ Done           | Full migration with GOEXPERIMENT=jsonv2                                       |
 > | go-error-family upgraded                     | ✅ Done           | Now v0.7.0 (was v0.6.1 at report time)                                        |
-> | Exit-code integration tests                  | ⚠️ Partial        | Exit 0 and 75 tested; 69 (Infrastructure) and 65 (Corruption) still missing   |
+> | Exit-code integration tests                  | ⚠️ Partial         | Exit 0 and 75 tested; 69 (Infrastructure) and 65 (Corruption) still missing   |
 > | Error code governance (registry, convention) | ❌ Not done       | ~40 unique codes exist ad-hoc, no registry or test                            |
 > | Split cmd_configure.go (541 lines)           | ❌ Not done       | File still large                                                              |
 > | Split ConfigLoader God Object                | ❌ Not done       | 8-method interface unchanged                                                  |
@@ -163,7 +163,7 @@ Nothing was fucked up. No regressions, no test failures, no broken behavior.
 ### Swallowed errors (20+ identified)
 
 24. **Audit `pkg/detection/detector.go`** — 6 swallowed errors at lines 189, 288, 299, 334, 347, 396
-25. **Audit all `_ = ` patterns** — find intentionally discarded errors
+25. **Audit all `_ =` patterns** — find intentionally discarded errors
 26. **Audit all `if err != nil { return nil }` patterns** — silent failures
 27. **Add `errorfamily.LogError(err, logger)`** at swallow sites that are intentional fallbacks
 

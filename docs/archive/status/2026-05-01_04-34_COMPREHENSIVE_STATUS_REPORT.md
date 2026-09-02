@@ -1,8 +1,8 @@
 # Comprehensive Status Report — 2026-05-01 04:34
 
-**Generated:** 2026-05-01 04:34:12  
-**Branch:** master  
-**Last commit:** 80986ef — `docs(status): add post-migration go-finding published dependency report`  
+**Generated:** 2026-05-01 04:34:12\
+**Branch:** master\
+**Last commit:** 80986ef — `docs(status): add post-migration go-finding published dependency report`\
 **Commits in April 2026:** 192
 
 ---
@@ -112,33 +112,33 @@ Composite coverage: 60.6%
 
 ## F) Top 25 Things To Do Next
 
-| #   | Task                                                                | Impact | Effort |
-| --- | ------------------------------------------------------------------- | ------ | ------ |
-| 1   | Fix `wsl_v5` lint violation in `commands_test.go:39`                | High   | 2 min  |
-| 2   | Increase `internal/cli` test coverage to 50%+                       | High   | 4 hrs  |
-| 3   | Audit and decide on `pkg/client` (test or delete)                   | Medium | 30 min |
-| 4   | Add `pkg/report` unit tests                                         | High   | 2 hrs  |
-| 5   | Increase `pkg/types` test coverage to 70%+                          | Medium | 2 hrs  |
-| 6   | Increase `pkg/finding` test coverage to 75%+                        | Medium | 2 hrs  |
-| 7   | Sync linter catalogue with golangci-lint v2.11.4                    | Medium | 1 hr   |
-| 8   | Add E2E integration test (run binary against fixtures)              | High   | 3 hrs  |
-| 9   | Archive/cleanup old `docs/status/` reports                          | Low    | 15 min |
-| 10  | Create `CHANGELOG.md` with recent changes                           | Medium | 1 hr   |
-| 11  | Add `internal/cli/cmd` tests (migrate, installhook, completion)     | Medium | 2 hrs  |
-| 12  | Remove `justfile` — migrate everything to `flake.nix` per AGENTS.md | Low    | 2 hrs  |
-| 13  | Add Go 1.27 to CI matrix                                            | Low    | 15 min |
-| 14  | Add performance benchmarks for analyzer/fixer                       | Low    | 2 hrs  |
-| 15  | Add Windows CI testing                                              | Low    | 1 hr   |
-| 16  | Write API stability guarantee / semver strategy                     | Medium | 30 min |
-| 17  | Add `--version` output with build info (Go version, commit)         | Low    | 1 hr   |
-| 18  | Document `pkg/client` purpose or remove it                          | Low    | 30 min |
-| 19  | Add SARIF output validation tests                                   | Medium | 1 hr   |
-| 20  | Create hosted documentation (GoDoc or static site)                  | Low    | 3 hrs  |
-| 21  | Add pre-commit hook CI validation                                   | Low    | 1 hr   |
-| 22  | Audit all error messages for consistency                            | Low    | 2 hrs  |
-| 23  | Add shell completion tests                                          | Low    | 1 hr   |
-| 24  | Investigate multi-arch Nix builds (aarch64)                         | Low    | 2 hrs  |
-| 25  | Tag `v0.3.0` release                                                | Medium | 30 min |
+| #  | Task                                                                | Impact | Effort |
+| -- | ------------------------------------------------------------------- | ------ | ------ |
+| 1  | Fix `wsl_v5` lint violation in `commands_test.go:39`                | High   | 2 min  |
+| 2  | Increase `internal/cli` test coverage to 50%+                       | High   | 4 hrs  |
+| 3  | Audit and decide on `pkg/client` (test or delete)                   | Medium | 30 min |
+| 4  | Add `pkg/report` unit tests                                         | High   | 2 hrs  |
+| 5  | Increase `pkg/types` test coverage to 70%+                          | Medium | 2 hrs  |
+| 6  | Increase `pkg/finding` test coverage to 75%+                        | Medium | 2 hrs  |
+| 7  | Sync linter catalogue with golangci-lint v2.11.4                    | Medium | 1 hr   |
+| 8  | Add E2E integration test (run binary against fixtures)              | High   | 3 hrs  |
+| 9  | Archive/cleanup old `docs/status/` reports                          | Low    | 15 min |
+| 10 | Create `CHANGELOG.md` with recent changes                           | Medium | 1 hr   |
+| 11 | Add `internal/cli/cmd` tests (migrate, installhook, completion)     | Medium | 2 hrs  |
+| 12 | Remove `justfile` — migrate everything to `flake.nix` per AGENTS.md | Low    | 2 hrs  |
+| 13 | Add Go 1.27 to CI matrix                                            | Low    | 15 min |
+| 14 | Add performance benchmarks for analyzer/fixer                       | Low    | 2 hrs  |
+| 15 | Add Windows CI testing                                              | Low    | 1 hr   |
+| 16 | Write API stability guarantee / semver strategy                     | Medium | 30 min |
+| 17 | Add `--version` output with build info (Go version, commit)         | Low    | 1 hr   |
+| 18 | Document `pkg/client` purpose or remove it                          | Low    | 30 min |
+| 19 | Add SARIF output validation tests                                   | Medium | 1 hr   |
+| 20 | Create hosted documentation (GoDoc or static site)                  | Low    | 3 hrs  |
+| 21 | Add pre-commit hook CI validation                                   | Low    | 1 hr   |
+| 22 | Audit all error messages for consistency                            | Low    | 2 hrs  |
+| 23 | Add shell completion tests                                          | Low    | 1 hr   |
+| 24 | Investigate multi-arch Nix builds (aarch64)                         | Low    | 2 hrs  |
+| 25 | Tag `v0.3.0` release                                                | Medium | 30 min |
 
 ---
 

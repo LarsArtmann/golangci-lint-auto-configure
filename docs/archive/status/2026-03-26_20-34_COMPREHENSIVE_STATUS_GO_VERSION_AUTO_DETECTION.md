@@ -82,8 +82,8 @@ pkg/formatters/
 
 ### 2. Linter Warnings (Non-blocking)
 
-| File                    | Warning          | Status     |
-| ----------------------- | ---------------- | ---------- |
+| File                    | Warning          | Status    |
+| ----------------------- | ---------------- | --------- |
 | `fixer_preflight.go:54` | `nonamedreturns` | ⚠️ Present |
 | `fixer_preflight.go:70` | `noinlineerr`    | ⚠️ Present |
 
@@ -149,48 +149,48 @@ All changes compile, all tests pass, no breaking changes introduced.
 
 ### Priority 1: Critical (Do Now)
 
-| #   | Task                                                         | Est. Time | Impact |
-| --- | ------------------------------------------------------------ | --------- | ------ |
-| 1   | Commit current changes with detailed message                 | 5 min     | High   |
-| 2   | Run `just lint` to verify no regressions                     | 2 min     | High   |
-| 3   | Test `./bin/golangci-lint-auto-configure configure` manually | 5 min     | High   |
+| # | Task                                                         | Est. Time | Impact |
+| - | ------------------------------------------------------------ | --------- | ------ |
+| 1 | Commit current changes with detailed message                 | 5 min     | High   |
+| 2 | Run `just lint` to verify no regressions                     | 2 min     | High   |
+| 3 | Test `./bin/golangci-lint-auto-configure configure` manually | 5 min     | High   |
 
 ### Priority 2: Important (This Week)
 
-| #   | Task                                                  | Est. Time | Impact |
-| --- | ----------------------------------------------------- | --------- | ------ |
-| 4   | Extract `getLocalGoVersion()` to shared utility       | 15 min    | Medium |
-| 5   | Remove empty `pkg/formatters/` directory or implement | 10 min    | Medium |
-| 6   | Fix `nonamedreturns` warning in fixer_preflight.go    | 5 min     | Low    |
-| 7   | Fix `noinlineerr` warning in fixer_preflight.go       | 5 min     | Low    |
-| 8   | Update AGENTS.md with new feature documentation       | 10 min    | Medium |
-| 9   | Add test for Go version detection                     | 15 min    | Medium |
-| 10  | Push changes to remote                                | 2 min     | High   |
+| #  | Task                                                  | Est. Time | Impact |
+| -- | ----------------------------------------------------- | --------- | ------ |
+| 4  | Extract `getLocalGoVersion()` to shared utility       | 15 min    | Medium |
+| 5  | Remove empty `pkg/formatters/` directory or implement | 10 min    | Medium |
+| 6  | Fix `nonamedreturns` warning in fixer_preflight.go    | 5 min     | Low    |
+| 7  | Fix `noinlineerr` warning in fixer_preflight.go       | 5 min     | Low    |
+| 8  | Update AGENTS.md with new feature documentation       | 10 min    | Medium |
+| 9  | Add test for Go version detection                     | 15 min    | Medium |
+| 10 | Push changes to remote                                | 2 min     | High   |
 
 ### Priority 3: Enhancement (Next Sprint)
 
-| #   | Task                                            | Est. Time | Impact |
-| --- | ----------------------------------------------- | --------- | ------ |
-| 11  | Increase test coverage to 70%                   | 2-4 hours | High   |
-| 12  | Add `--go-version` flag to override detection   | 30 min    | Low    |
-| 13  | Add validation for detected Go version          | 20 min    | Medium |
-| 14  | Update README.md with feature description       | 15 min    | Medium |
-| 15  | Add CHANGELOG entry                             | 10 min    | Medium |
-| 16  | Create integration test for full configure flow | 1 hour    | High   |
+| #  | Task                                            | Est. Time | Impact |
+| -- | ----------------------------------------------- | --------- | ------ |
+| 11 | Increase test coverage to 70%                   | 2-4 hours | High   |
+| 12 | Add `--go-version` flag to override detection   | 30 min    | Low    |
+| 13 | Add validation for detected Go version          | 20 min    | Medium |
+| 14 | Update README.md with feature description       | 15 min    | Medium |
+| 15 | Add CHANGELOG entry                             | 10 min    | Medium |
+| 16 | Create integration test for full configure flow | 1 hour    | High   |
 
 ### Priority 4: Polish (Backlog)
 
-| #   | Task                                          | Est. Time | Impact |
-| --- | --------------------------------------------- | --------- | ------ |
-| 17  | Add warning if Go version too old             | 30 min    | Low    |
-| 18  | Use `strings.FieldsSeq` for optimization      | 10 min    | Low    |
-| 19  | Add version detection to `analyze` command    | 20 min    | Low    |
-| 20  | Add version detection to `validate` command   | 20 min    | Low    |
-| 21  | Document version detection in --help output   | 15 min    | Low    |
-| 22  | Add example config with auto-detected version | 10 min    | Low    |
-| 23  | Create migration guide for users              | 30 min    | Low    |
-| 24  | Add benchmark for version detection           | 15 min    | Low    |
-| 25  | Review and update all status reports          | 30 min    | Low    |
+| #  | Task                                          | Est. Time | Impact |
+| -- | --------------------------------------------- | --------- | ------ |
+| 17 | Add warning if Go version too old             | 30 min    | Low    |
+| 18 | Use `strings.FieldsSeq` for optimization      | 10 min    | Low    |
+| 19 | Add version detection to `analyze` command    | 20 min    | Low    |
+| 20 | Add version detection to `validate` command   | 20 min    | Low    |
+| 21 | Document version detection in --help output   | 15 min    | Low    |
+| 22 | Add example config with auto-detected version | 10 min    | Low    |
+| 23 | Create migration guide for users              | 30 min    | Low    |
+| 24 | Add benchmark for version detection           | 15 min    | Low    |
+| 25 | Review and update all status reports          | 30 min    | Low    |
 
 ---
 
@@ -214,15 +214,15 @@ All changes compile, all tests pass, no breaking changes introduced.
 
 ## Session Statistics
 
-| Metric         | Value                        |
-| -------------- | ---------------------------- |
-| Files Modified | 3                            |
-| Lines Added    | 31                           |
-| Lines Removed  | 110                          |
-| Net Change     | -79 lines                    |
-| Tests Passing  | 7/7 suites                   |
-| Coverage       | 58.8%                        |
-| Build Status   | ✅ Success                   |
+| Metric         | Value                       |
+| -------------- | --------------------------- |
+| Files Modified | 3                           |
+| Lines Added    | 31                          |
+| Lines Removed  | 110                         |
+| Net Change     | -79 lines                   |
+| Tests Passing  | 7/7 suites                  |
+| Coverage       | 58.8%                       |
+| Build Status   | ✅ Success                  |
 | Lint Status    | ⚠️ 2 warnings (non-blocking) |
 
 ---

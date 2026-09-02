@@ -31,11 +31,11 @@
 
 ## Phase 1: Critical Fixes (Immediate - 30-60min each)
 
-| #   | Task                                                      | Impact | Effort | Customer Value       |
-| --- | --------------------------------------------------------- | ------ | ------ | -------------------- |
-| 1   | Fix LSP diagnostics staleness (restart LSP)               | Low    | 5min   | Codebase cleanliness |
-| 2   | Fix pre-existing lint issues (depguard for charm.land/\*) | Medium | 30min  | CI green             |
-| 3   | Fix file size issues (split fixer.go, loader.go)          | Medium | 60min  | Maintainability      |
+| # | Task                                                      | Impact | Effort | Customer Value       |
+| - | --------------------------------------------------------- | ------ | ------ | -------------------- |
+| 1 | Fix LSP diagnostics staleness (restart LSP)               | Low    | 5min   | Codebase cleanliness |
+| 2 | Fix pre-existing lint issues (depguard for charm.land/\*) | Medium | 30min  | CI green             |
+| 3 | Fix file size issues (split fixer.go, loader.go)          | Medium | 60min  | Maintainability      |
 
 ### Task 1: Fix LSP Diagnostics
 
@@ -57,12 +57,12 @@
 
 ## Phase 2: Architectural Improvements (Week 1 - 60-90min each)
 
-| #   | Task                                              | Impact | Effort | Customer Value    |
-| --- | ------------------------------------------------- | ------ | ------ | ----------------- |
-| 4   | Extract UI concerns from LinterAnalyzer interface | High   | 60min  | Better separation |
-| 5   | Integrate MigrationError into fixer flow          | Medium | 45min  | Consistent errors |
-| 6   | Add tests to pkg/client (no tests currently)      | Medium | 45min  | Confidence        |
-| 7   | Remove or implement internal/di/                  | Low    | 30min  | Clean codebase    |
+| # | Task                                              | Impact | Effort | Customer Value    |
+| - | ------------------------------------------------- | ------ | ------ | ----------------- |
+| 4 | Extract UI concerns from LinterAnalyzer interface | High   | 60min  | Better separation |
+| 5 | Integrate MigrationError into fixer flow          | Medium | 45min  | Consistent errors |
+| 6 | Add tests to pkg/client (no tests currently)      | Medium | 45min  | Confidence        |
+| 7 | Remove or implement internal/di/                  | Low    | 30min  | Clean codebase    |
 
 ### Task 4: Extract UI from Analyzer Interface
 
@@ -94,12 +94,12 @@ type LinterAnalyzer interface {
 
 ## Phase 3: Technical Debt (Week 2 - 90-120min each)
 
-| #   | Task                                     | Impact | Effort | Customer Value |
-| --- | ---------------------------------------- | ------ | ------ | -------------- |
-| 8   | Fix local replace for universal-workflow | High   | 30min  | CI works       |
-| 9   | Add samber/do for DI (optional)          | Low    | 90min  | Cleaner code   |
-| 10  | Consolidate Result type usage            | Medium | 60min  | Consistency    |
-| 11  | Add architecture linter (go-arch-lint)   | Medium | 60min  | Enforcement    |
+| #  | Task                                     | Impact | Effort | Customer Value |
+| -- | ---------------------------------------- | ------ | ------ | -------------- |
+| 8  | Fix local replace for universal-workflow | High   | 30min  | CI works       |
+| 9  | Add samber/do for DI (optional)          | Low    | 90min  | Cleaner code   |
+| 10 | Consolidate Result type usage            | Medium | 60min  | Consistency    |
+| 11 | Add architecture linter (go-arch-lint)   | Medium | 60min  | Enforcement    |
 
 ### Task 8: Fix universal-workflow Replace
 
@@ -121,22 +121,22 @@ replace github.com/LarsArtmann/universal-workflow => /Users/larsartmann/projects
 
 ## Phase 4: Enhancement (Week 3 - 60-90min each)
 
-| #   | Task                                       | Impact | Effort | Customer Value |
-| --- | ------------------------------------------ | ------ | ------ | -------------- |
-| 12  | Improve error messages with suggestions    | High   | 45min  | UX             |
-| 13  | Add verbose analysis steps logging         | Medium | 30min  | Debugging      |
-| 14  | Add progress indicators to long operations | Medium | 45min  | UX             |
-| 15  | Document architecture decisions            | Low    | 60min  | Knowledge      |
+| #  | Task                                       | Impact | Effort | Customer Value |
+| -- | ------------------------------------------ | ------ | ------ | -------------- |
+| 12 | Improve error messages with suggestions    | High   | 45min  | UX             |
+| 13 | Add verbose analysis steps logging         | Medium | 30min  | Debugging      |
+| 14 | Add progress indicators to long operations | Medium | 45min  | UX             |
+| 15 | Document architecture decisions            | Low    | 60min  | Knowledge      |
 
 ---
 
 ## Phase 5: Testing Improvements (Ongoing)
 
-| #   | Task                                         | Impact | Effort | Customer Value |
-| --- | -------------------------------------------- | ------ | ------ | -------------- |
-| 16  | Increase test coverage for untested packages | High   | 120min | Confidence     |
-| 17  | Add property-based tests for config parsing  | Medium | 90min  | Robustness     |
-| 18  | Add integration tests for CLI commands       | Medium | 90min  | E2E            |
+| #  | Task                                         | Impact | Effort | Customer Value |
+| -- | -------------------------------------------- | ------ | ------ | -------------- |
+| 16 | Increase test coverage for untested packages | High   | 120min | Confidence     |
+| 17 | Add property-based tests for config parsing  | Medium | 90min  | Robustness     |
+| 18 | Add integration tests for CLI commands       | Medium | 90min  | E2E            |
 
 ---
 

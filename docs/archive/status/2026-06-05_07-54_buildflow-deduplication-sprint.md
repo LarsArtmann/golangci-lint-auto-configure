@@ -171,7 +171,7 @@ The multiedit tool can corrupt newlines when the old_string contains `\n` charac
 
 5. **`samber/mo`** — Already removed from project. Good decision.
 6. **`go-enum`** or **`stringer`** — For enum code generation (Priority types)
-7. **` testify`** — NOT recommended, project uses Ginkgo/Gomega consistently
+7. **`testify`** — NOT recommended, project uses Ginkgo/Gomega consistently
 
 ### Test Infrastructure
 
@@ -189,48 +189,48 @@ Sorted by **Impact × Ease** (Pareto):
 
 ### HIGH IMPACT, LOW EFFORT (Do First)
 
-| #   | Task                                                                                        | Impact      | Effort |
-| --- | ------------------------------------------------------------------------------------------- | ----------- | ------ |
-| 1   | Fix `ineffassign` in `commands_test.go` (dead `configureCmd` at line 909)                   | Clean lint  | 2 min  |
-| 2   | Fix `err113` in `types.go` — sentinel error for `ParseLinterPriority`                       | Clean lint  | 2 min  |
-| 3   | Fix `varnamelen` in `types.go` + `clone.go` (rename `s` → `input`, `cp` → `clone`)          | Clean lint  | 2 min  |
-| 4   | Fix `unparam` in `fixer.go` — remove always-nil error return from `checkDryRunEarlyReturns` | Clean lint  | 5 min  |
-| 5   | Fix `forcetypeassert` in `clone_test.go` — add `ok` checks                                  | Clean lint  | 5 min  |
-| 6   | Extract shared test config helpers to `pkg/testutil/config.go`                              | Dedup       | 15 min |
-| 7   | Fix remaining 2 art-dupl clones in `integration_test.go`                                    | Zero clones | 10 min |
+| # | Task                                                                                        | Impact      | Effort |
+| - | ------------------------------------------------------------------------------------------- | ----------- | ------ |
+| 1 | Fix `ineffassign` in `commands_test.go` (dead `configureCmd` at line 909)                   | Clean lint  | 2 min  |
+| 2 | Fix `err113` in `types.go` — sentinel error for `ParseLinterPriority`                       | Clean lint  | 2 min  |
+| 3 | Fix `varnamelen` in `types.go` + `clone.go` (rename `s` → `input`, `cp` → `clone`)          | Clean lint  | 2 min  |
+| 4 | Fix `unparam` in `fixer.go` — remove always-nil error return from `checkDryRunEarlyReturns` | Clean lint  | 5 min  |
+| 5 | Fix `forcetypeassert` in `clone_test.go` — add `ok` checks                                  | Clean lint  | 5 min  |
+| 6 | Extract shared test config helpers to `pkg/testutil/config.go`                              | Dedup       | 15 min |
+| 7 | Fix remaining 2 art-dupl clones in `integration_test.go`                                    | Zero clones | 10 min |
 
 ### HIGH IMPACT, MEDIUM EFFORT
 
-| #   | Task                                                                        | Impact       | Effort |
-| --- | --------------------------------------------------------------------------- | ------------ | ------ |
-| 8   | Extract `EnableDisableConfig` shared type for Linters/Formatters            | Architecture | 30 min |
-| 9   | Split `AnalysisToReport` (35 lines → ≤30) in `converter.go`                 | Clean lint   | 10 min |
-| 10  | Split `commands_test.go` (945 lines) into per-command test files            | File size    | 20 min |
-| 11  | Split `fixer_test.go` (707 lines) into focused test files                   | File size    | 20 min |
-| 12  | Split `migrator_test.go` (713 lines) into focused test files                | File size    | 20 min |
-| 13  | Use `stringer` for `LinterPriority` and `FormatterPriority` enum generation | DRY          | 15 min |
-| 14  | Fix `gochecknoglobals` — move `linterTagReplacer` to function scope         | Clean lint   | 2 min  |
+| #  | Task                                                                        | Impact       | Effort |
+| -- | --------------------------------------------------------------------------- | ------------ | ------ |
+| 8  | Extract `EnableDisableConfig` shared type for Linters/Formatters            | Architecture | 30 min |
+| 9  | Split `AnalysisToReport` (35 lines → ≤30) in `converter.go`                 | Clean lint   | 10 min |
+| 10 | Split `commands_test.go` (945 lines) into per-command test files            | File size    | 20 min |
+| 11 | Split `fixer_test.go` (707 lines) into focused test files                   | File size    | 20 min |
+| 12 | Split `migrator_test.go` (713 lines) into focused test files                | File size    | 20 min |
+| 13 | Use `stringer` for `LinterPriority` and `FormatterPriority` enum generation | DRY          | 15 min |
+| 14 | Fix `gochecknoglobals` — move `linterTagReplacer` to function scope         | Clean lint   | 2 min  |
 
 ### MEDIUM IMPACT, MEDIUM EFFORT
 
-| #   | Task                                                                                                | Impact     | Effort |
-| --- | --------------------------------------------------------------------------------------------------- | ---------- | ------ |
-| 15  | Unify `LinterRecommendation` / `FormatterRecommendation` with generic base                          | Dedup      | 30 min |
-| 16  | Split `cmd_configure.go` (512 lines) — extract sub-handlers                                         | File size  | 30 min |
-| 17  | Split `loader.go` (462 lines) — extract reader/writer/discovery                                     | File size  | 30 min |
-| 18  | Add `.jscpd.json` config to exclude `docs/archive/`, generated code, and set appropriate thresholds | jscpd pass | 5 min  |
-| 19  | Add fuzz tests (`func Fuzz*(f *testing.F)`) — buildflow reports none found                          | Coverage   | 30 min |
-| 20  | Update `go-finding` replace directive path in `flake.nix` postPatch                                 | Nix build  | 10 min |
+| #  | Task                                                                                                | Impact     | Effort |
+| -- | --------------------------------------------------------------------------------------------------- | ---------- | ------ |
+| 15 | Unify `LinterRecommendation` / `FormatterRecommendation` with generic base                          | Dedup      | 30 min |
+| 16 | Split `cmd_configure.go` (512 lines) — extract sub-handlers                                         | File size  | 30 min |
+| 17 | Split `loader.go` (462 lines) — extract reader/writer/discovery                                     | File size  | 30 min |
+| 18 | Add `.jscpd.json` config to exclude `docs/archive/`, generated code, and set appropriate thresholds | jscpd pass | 5 min  |
+| 19 | Add fuzz tests (`func Fuzz*(f *testing.F)`) — buildflow reports none found                          | Coverage   | 30 min |
+| 20 | Update `go-finding` replace directive path in `flake.nix` postPatch                                 | Nix build  | 10 min |
 
 ### LOWER PRIORITY
 
-| #   | Task                                                                   | Impact              | Effort  |
-| --- | ---------------------------------------------------------------------- | ------------------- | ------- |
-| 21  | Investigate CGO_ENABLED=1 for test-race in nix shell                   | Full buildflow pass | 30 min  |
-| 22  | Investigate buildflow using `ginkgo` instead of `go test` for coverage | Full buildflow pass | Unknown |
-| 23  | Upgrade `templ` CLI to match go.mod version (v0.3.1020)                | Build warning       | 5 min   |
-| 24  | Address remaining jscpd Go-only clones in test files                   | jscpd improvement   | 60 min  |
-| 25  | Comprehensive doc freshness check (AGENTS.md vs actual code)           | Doc quality         | 30 min  |
+| #  | Task                                                                   | Impact              | Effort  |
+| -- | ---------------------------------------------------------------------- | ------------------- | ------- |
+| 21 | Investigate CGO_ENABLED=1 for test-race in nix shell                   | Full buildflow pass | 30 min  |
+| 22 | Investigate buildflow using `ginkgo` instead of `go test` for coverage | Full buildflow pass | Unknown |
+| 23 | Upgrade `templ` CLI to match go.mod version (v0.3.1020)                | Build warning       | 5 min   |
+| 24 | Address remaining jscpd Go-only clones in test files                   | jscpd improvement   | 60 min  |
+| 25 | Comprehensive doc freshness check (AGENTS.md vs actual code)           | Doc quality         | 30 min  |
 
 ---
 

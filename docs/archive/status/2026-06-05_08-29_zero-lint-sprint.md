@@ -104,9 +104,9 @@ Still present. Most are test files. Requires splitting into per-feature/per-comm
 | 🔴       | `pkg/config/loader.go`             | 462   | +112 (32%)  |
 | 🔴       | `pkg/config/loader_test.go`        | 469   | +119 (34%)  |
 | 🔴       | `pkg/finding/converter_test.go`    | 453   | +103 (29%)  |
-| ⚠️       | `pkg/detection/detector.go`        | 421   | +71 (20%)   |
-| ℹ️       | `internal/cli/integration_test.go` | 364   | +14 (4%)    |
-| ℹ️       | `pkg/config/merger_test.go`        | 351   | +1 (0.3%)   |
+| ⚠️        | `pkg/detection/detector.go`        | 421   | +71 (20%)   |
+| ℹ️        | `internal/cli/integration_test.go` | 364   | +14 (4%)    |
+| ℹ️        | `pkg/config/merger_test.go`        | 351   | +1 (0.3%)   |
 
 ### Type Model: Shared EnableDisableConfig
 
@@ -172,48 +172,48 @@ The corrupted newline bug from Sprint 1 (`writeTestConfig` with `")n\t`) was cau
 
 ### HIGH IMPACT, LOW EFFORT (5-15 min each)
 
-| #   | Task                                                             | Impact        | Effort |
-| --- | ---------------------------------------------------------------- | ------------- | ------ |
-| 1   | Upgrade `templ` CLI to v0.3.1020 to match go.mod                 | Build warning | 2 min  |
-| 2   | Split `cmd_configure.go` (512 lines) — extract sub-handlers      | File size     | 20 min |
-| 3   | Split `commands_test.go` (935→~150/each) into per-command files  | File size     | 25 min |
-| 4   | Split `fixer_test.go` (707→~200/each) into focused test files    | File size     | 20 min |
-| 5   | Split `migrator_test.go` (713→~200/each) into focused test files | File size     | 20 min |
-| 6   | Extract shared test config helpers to `pkg/testutil/config.go`   | Dedup         | 15 min |
+| # | Task                                                             | Impact        | Effort |
+| - | ---------------------------------------------------------------- | ------------- | ------ |
+| 1 | Upgrade `templ` CLI to v0.3.1020 to match go.mod                 | Build warning | 2 min  |
+| 2 | Split `cmd_configure.go` (512 lines) — extract sub-handlers      | File size     | 20 min |
+| 3 | Split `commands_test.go` (935→~150/each) into per-command files  | File size     | 25 min |
+| 4 | Split `fixer_test.go` (707→~200/each) into focused test files    | File size     | 20 min |
+| 5 | Split `migrator_test.go` (713→~200/each) into focused test files | File size     | 20 min |
+| 6 | Extract shared test config helpers to `pkg/testutil/config.go`   | Dedup         | 15 min |
 
 ### HIGH IMPACT, MEDIUM EFFORT (20-45 min each)
 
-| #   | Task                                                                            | Impact         | Effort |
-| --- | ------------------------------------------------------------------------------- | -------------- | ------ |
-| 7   | Add `EnableDisableConfig` shared type (embed in LintersConfig/FormattersConfig) | Architecture   | 45 min |
-| 8   | Split `loader.go` (462 lines) — extract reader/writer/discovery                 | File size      | 30 min |
-| 9   | Split `loader_test.go` (469 lines) — per-feature test files                     | File size      | 25 min |
-| 10  | Split `converter_test.go` (453 lines) — per-converter test files                | File size      | 20 min |
-| 11  | Add CGO support to `flake.nix` for test-race                                    | Buildflow pass | 20 min |
-| 12  | Add fuzz tests for `ParseLinterPriority`, `Clone`, `detectFormat`               | Coverage       | 30 min |
-| 13  | Evaluate `go-error-family` adoption vs existing custom errors                   | Error handling | 30 min |
-| 14  | Raise jscpd Go minTokens to 80 to reduce test-pattern noise                     | jscpd pass     | 5 min  |
+| #  | Task                                                                            | Impact         | Effort |
+| -- | ------------------------------------------------------------------------------- | -------------- | ------ |
+| 7  | Add `EnableDisableConfig` shared type (embed in LintersConfig/FormattersConfig) | Architecture   | 45 min |
+| 8  | Split `loader.go` (462 lines) — extract reader/writer/discovery                 | File size      | 30 min |
+| 9  | Split `loader_test.go` (469 lines) — per-feature test files                     | File size      | 25 min |
+| 10 | Split `converter_test.go` (453 lines) — per-converter test files                | File size      | 20 min |
+| 11 | Add CGO support to `flake.nix` for test-race                                    | Buildflow pass | 20 min |
+| 12 | Add fuzz tests for `ParseLinterPriority`, `Clone`, `detectFormat`               | Coverage       | 30 min |
+| 13 | Evaluate `go-error-family` adoption vs existing custom errors                   | Error handling | 30 min |
+| 14 | Raise jscpd Go minTokens to 80 to reduce test-pattern noise                     | jscpd pass     | 5 min  |
 
 ### MEDIUM IMPACT, MEDIUM EFFORT
 
-| #   | Task                                                                     | Impact         | Effort  |
-| --- | ------------------------------------------------------------------------ | -------------- | ------- |
-| 15  | Split `detector.go` (421 lines) — extract detection strategies           | File size      | 25 min  |
-| 16  | Configure buildflow to use `ginkgo` instead of `go test` for coverage    | Buildflow pass | Unknown |
-| 17  | Add `stringer` for `LinterPriority` and `FormatterPriority` enums        | DRY            | 15 min  |
-| 18  | Unify `LinterRecommendation`/`FormatterRecommendation` with generic base | Dedup          | 30 min  |
-| 19  | Add integration test for `ErrInvalidLinterPriority` sentinel error       | Coverage       | 10 min  |
-| 20  | Doc freshness check — verify AGENTS.md matches actual code               | Doc quality    | 30 min  |
+| #  | Task                                                                     | Impact         | Effort  |
+| -- | ------------------------------------------------------------------------ | -------------- | ------- |
+| 15 | Split `detector.go` (421 lines) — extract detection strategies           | File size      | 25 min  |
+| 16 | Configure buildflow to use `ginkgo` instead of `go test` for coverage    | Buildflow pass | Unknown |
+| 17 | Add `stringer` for `LinterPriority` and `FormatterPriority` enums        | DRY            | 15 min  |
+| 18 | Unify `LinterRecommendation`/`FormatterRecommendation` with generic base | Dedup          | 30 min  |
+| 19 | Add integration test for `ErrInvalidLinterPriority` sentinel error       | Coverage       | 10 min  |
+| 20 | Doc freshness check — verify AGENTS.md matches actual code               | Doc quality    | 30 min  |
 
 ### LOWER PRIORITY
 
-| #   | Task                                                   | Impact            | Effort  |
-| --- | ------------------------------------------------------ | ----------------- | ------- |
-| 21  | Address remaining jscpd Go-only clones in test files   | jscpd improvement | 60 min  |
-| 22  | Comprehensive `gogenfilter` integration review         | Architecture      | 30 min  |
-| 23  | Add `go-enum` for stronger type generation             | Code gen          | 20 min  |
-| 24  | Performance benchmarks for hot paths (differ, merger)  | Perf              | 45 min  |
-| 25  | Full buildflow pass (fix all 3 remaining env failures) | CI green          | Unknown |
+| #  | Task                                                   | Impact            | Effort  |
+| -- | ------------------------------------------------------ | ----------------- | ------- |
+| 21 | Address remaining jscpd Go-only clones in test files   | jscpd improvement | 60 min  |
+| 22 | Comprehensive `gogenfilter` integration review         | Architecture      | 30 min  |
+| 23 | Add `go-enum` for stronger type generation             | Code gen          | 20 min  |
+| 24 | Performance benchmarks for hot paths (differ, merger)  | Perf              | 45 min  |
+| 25 | Full buildflow pass (fix all 3 remaining env failures) | CI green          | Unknown |
 
 ---
 

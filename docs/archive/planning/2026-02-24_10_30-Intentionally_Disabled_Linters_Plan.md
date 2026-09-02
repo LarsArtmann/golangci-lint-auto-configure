@@ -1,6 +1,6 @@
 # Intentionally Disabled Linters & Redundant Linter Detection Plan
 
-**Date:** 2026-02-24  
+**Date:** 2026-02-24\
 **Objective:** Improve linter configuration analysis to distinguish between intentionally disabled linters and those disabled due to redundancy with enabled formatters.
 
 ---
@@ -31,9 +31,9 @@ Currently, the `analyze` command shows:
 | ---------------------------------- | ------ | ------ | -------------- |
 | **Fix redundant linter detection** | HIGH   | LOW    | CRITICAL       |
 
-**Core Issue:** The `RedundantLinters` map exists in `constants/linter_data.go` but is NOT used in the analyzer. When `lll` is disabled and `golines` is enabled, we should show:  
-_"Disabled because golines formatter is enabled (automatically fixes long lines)"_  
-Instead of:  
+**Core Issue:** The `RedundantLinters` map exists in `constants/linter_data.go` but is NOT used in the analyzer. When `lll` is disabled and `golines` is enabled, we should show:\
+_"Disabled because golines formatter is enabled (automatically fixes long lines)"_\
+Instead of:\
 _"Linter is disabled but may be useful"_
 
 **Files to modify:**

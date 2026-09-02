@@ -11,10 +11,10 @@
 > | T3: govulncheck CI                | ✅ Done           | CI job added                                                                                  |
 > | T4: Coverage threshold            | ✅ Done           | scripts/coverage-check.sh (60%)                                                               |
 > | T5: Fuzz tests for merger         | ✅ Done           | FuzzMergeConfigInto + FuzzMergeIdempotent                                                     |
-> | T6: Exit-code tests               | ⚠️ Partial        | Exit 0 and 75 tested; Infrastructure (69) and Corruption (65) still missing                   |
+> | T6: Exit-code tests               | ⚠️ Partial         | Exit 0 and 75 tested; Infrastructure (69) and Corruption (65) still missing                   |
 > | T7: --check mode tests            | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases (optimal→0, dry-run, --preset, --diff restore) |
 > | T8: --diff integration tests      | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal                                  |
-> | T9: CLI coverage boost            | ⚠️ Partial        | ~11-13% (target was 25%+) — integration tests exec binary, don't count toward coverage        |
+> | T9: CLI coverage boost            | ⚠️ Partial         | ~11-13% (target was 25%+) — integration tests exec binary, don't count toward coverage        |
 > | T10: Config.Clone()               | ✅ Done           | `pkg/types/clone.go` — 10 Clone methods                                                       |
 > | T11: --json-errors flag           | ✅ Done           | Uses `errorfamily.JSON()` canonical output                                                    |
 > | T12: LinterMinVersions validation | ✅ Done           | Data integrity tests added                                                                    |

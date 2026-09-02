@@ -1,7 +1,7 @@
 # Comprehensive Status Report — 2026-04-03 18:41
 
-**Branch:** `master` (4 commits ahead of origin)  
-**Disk:** 229GB total, 4.5GB free (99%) — improved from 686MB earlier today  
+**Branch:** `master` (4 commits ahead of origin)\
+**Disk:** 229GB total, 4.5GB free (99%) — improved from 686MB earlier today\
 **Go:** 1.26.0 (nix) | **Build cache:** rebuilt & healthy
 
 ---
@@ -138,33 +138,33 @@ No uncommitted changes. All work captured in 4 unpushed commits.
 
 ## f) Top 25 Things to Do Next
 
-| #   | Task                                                                     | Priority | Effort | Impact        |
-| --- | ------------------------------------------------------------------------ | -------- | ------ | ------------- |
-| 1   | **Git push** — 4 commits unpushed                                        | Critical | 1min   | Unblocks CI   |
-| 2   | **Full lint suite** — `golangci-lint run --timeout 5m ./...`             | Critical | 5min   | Baseline      |
-| 3   | **Fix nolintlint** — 51 stale directives                                 | High     | 30min  | Clean lint    |
-| 4   | **Fix funcorder** — 14 violations                                        | High     | 15min  | Clean lint    |
-| 5   | **Fix noinlineerr** — 9 violations                                       | High     | 20min  | Clean lint    |
-| 6   | **Fix gochecknoglobals** — 7 violations                                  | High     | 20min  | Clean lint    |
-| 7   | **Squash funlen commits** into 2-3 clean commits                         | Medium   | 10min  | Clean history |
-| 8   | **CI verification** — Check GitHub Actions passes                        | Medium   | 5min   | Confidence    |
-| 9   | **Coverage report** — `just coverage-html`                               | Medium   | 5min   | Metrics       |
-| 10  | **Fix golines** — 5 violations                                           | Medium   | 10min  | Clean lint    |
-| 11  | **Fix wrapcheck** — 5 violations                                         | Medium   | 15min  | Clean lint    |
-| 12  | **Fix varnamelen** — 3 violations                                        | Medium   | 10min  | Clean lint    |
-| 13  | **Fix nlreturn** — 2 violations                                          | Low      | 5min   | Clean lint    |
-| 14  | **Fix thelper** — 2 violations                                           | Low      | 5min   | Clean lint    |
-| 15  | **Fix wsl_v5** — 2 violations                                            | Low      | 5min   | Clean lint    |
-| 16  | **Fix nonamedreturns** — 2 violations                                    | Low      | 5min   | Clean lint    |
-| 17  | **Fix exhaustive** — 1 violation                                         | Low      | 2min   | Clean lint    |
-| 18  | **Fix exhaustruct** — 1 violation                                        | Low      | 5min   | Clean lint    |
-| 19  | **Fix goconst** — 1 violation                                            | Low      | 2min   | Clean lint    |
-| 20  | **Fix godot** — 1 violation                                              | Low      | 2min   | Clean lint    |
-| 21  | **Fix revive** — 1 violation                                             | Low      | 2min   | Clean lint    |
-| 22  | **Archive old status reports** — Move 50+ to archive/                    | Low      | 5min   | Clean docs    |
-| 23  | **Update AGENTS.md** — Reflect funlen changes                            | Low      | 10min  | Documentation |
-| 24  | **Pre-commit hook test** — Verify hooks work                             | Low      | 5min   | Confidence    |
-| 25  | **Remove go.work or document GOWORK=off** — Blocker for new contributors | Low      | 10min  | DX            |
+| #  | Task                                                                     | Priority | Effort | Impact        |
+| -- | ------------------------------------------------------------------------ | -------- | ------ | ------------- |
+| 1  | **Git push** — 4 commits unpushed                                        | Critical | 1min   | Unblocks CI   |
+| 2  | **Full lint suite** — `golangci-lint run --timeout 5m ./...`             | Critical | 5min   | Baseline      |
+| 3  | **Fix nolintlint** — 51 stale directives                                 | High     | 30min  | Clean lint    |
+| 4  | **Fix funcorder** — 14 violations                                        | High     | 15min  | Clean lint    |
+| 5  | **Fix noinlineerr** — 9 violations                                       | High     | 20min  | Clean lint    |
+| 6  | **Fix gochecknoglobals** — 7 violations                                  | High     | 20min  | Clean lint    |
+| 7  | **Squash funlen commits** into 2-3 clean commits                         | Medium   | 10min  | Clean history |
+| 8  | **CI verification** — Check GitHub Actions passes                        | Medium   | 5min   | Confidence    |
+| 9  | **Coverage report** — `just coverage-html`                               | Medium   | 5min   | Metrics       |
+| 10 | **Fix golines** — 5 violations                                           | Medium   | 10min  | Clean lint    |
+| 11 | **Fix wrapcheck** — 5 violations                                         | Medium   | 15min  | Clean lint    |
+| 12 | **Fix varnamelen** — 3 violations                                        | Medium   | 10min  | Clean lint    |
+| 13 | **Fix nlreturn** — 2 violations                                          | Low      | 5min   | Clean lint    |
+| 14 | **Fix thelper** — 2 violations                                           | Low      | 5min   | Clean lint    |
+| 15 | **Fix wsl_v5** — 2 violations                                            | Low      | 5min   | Clean lint    |
+| 16 | **Fix nonamedreturns** — 2 violations                                    | Low      | 5min   | Clean lint    |
+| 17 | **Fix exhaustive** — 1 violation                                         | Low      | 2min   | Clean lint    |
+| 18 | **Fix exhaustruct** — 1 violation                                        | Low      | 5min   | Clean lint    |
+| 19 | **Fix goconst** — 1 violation                                            | Low      | 2min   | Clean lint    |
+| 20 | **Fix godot** — 1 violation                                              | Low      | 2min   | Clean lint    |
+| 21 | **Fix revive** — 1 violation                                             | Low      | 2min   | Clean lint    |
+| 22 | **Archive old status reports** — Move 50+ to archive/                    | Low      | 5min   | Clean docs    |
+| 23 | **Update AGENTS.md** — Reflect funlen changes                            | Low      | 10min  | Documentation |
+| 24 | **Pre-commit hook test** — Verify hooks work                             | Low      | 5min   | Confidence    |
+| 25 | **Remove go.work or document GOWORK=off** — Blocker for new contributors | Low      | 10min  | DX            |
 
 ---
 

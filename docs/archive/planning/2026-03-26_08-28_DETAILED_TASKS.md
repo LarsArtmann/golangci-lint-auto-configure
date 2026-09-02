@@ -1,6 +1,6 @@
 # Detailed Tasks Breakdown
 
-**Plan Reference:** `2026-03-26_08-28_COMPREHENSIVE_EXECUTION_PLAN.md`  
+**Plan Reference:** `2026-03-26_08-28_COMPREHENSIVE_EXECUTION_PLAN.md`\
 **Created:** 2026-03-26
 
 ---

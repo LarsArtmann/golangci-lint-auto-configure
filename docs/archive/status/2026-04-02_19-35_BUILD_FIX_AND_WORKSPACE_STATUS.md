@@ -1,9 +1,9 @@
 # Comprehensive Status Report — 2026-04-02 19:35
 
-**Project:** golangci-lint-auto-configure  
-**Date:** 2026-04-02 19:35:11 CEST  
-**Branch:** master (1 commit ahead of origin/master)  
-**Head:** `5f6730f` — docs(status): add comprehensive formatter manager extraction status reports  
+**Project:** golangci-lint-auto-configure\
+**Date:** 2026-04-02 19:35:11 CEST\
+**Branch:** master (1 commit ahead of origin/master)\
+**Head:** `5f6730f` — docs(status): add comprehensive formatter manager extraction status reports\
 **Agent:** Crush (GLM-4.5-Air)
 
 ---
@@ -59,8 +59,8 @@ All items from `2026-04-02_19-18_FORMATTER_MANAGER_EXTRACTION_COMPLETE.md` remai
 
 ### 2. File Size Reduction (In Progress)
 
-| File                            | Lines | Target | Status                      |
-| ------------------------------- | ----- | ------ | --------------------------- |
+| File                            | Lines | Target | Status                     |
+| ------------------------------- | ----- | ------ | -------------------------- |
 | `pkg/linter/fixer.go`           | 497   | <350   | ⚠️ 147 lines over           |
 | `pkg/report/report_templ.go`    | ~494  | <350   | ⚠️ Generated (low priority) |
 | `pkg/detection/detector.go`     | 416   | <350   | ⚠️ 66 lines over            |
@@ -124,30 +124,30 @@ All items from `2026-04-02_19-18_FORMATTER_MANAGER_EXTRACTION_COMPLETE.md` remai
 
 ### 1. Nix Go 1.26.0 Standard Library Corruption
 
-**Severity:** Environment-blocking  
-**Impact:** ALL CLI integration tests fail with `package X is not in std`  
-**Root cause:** Nix-managed Go 1.26.0 installation has incomplete/corrupted stdlib  
-**Workaround:** `GOWORK=off GOTOOLCHAIN=local` for builds  
+**Severity:** Environment-blocking\
+**Impact:** ALL CLI integration tests fail with `package X is not in std`\
+**Root cause:** Nix-managed Go 1.26.0 installation has incomplete/corrupted stdlib\
+**Workaround:** `GOWORK=off GOTOOLCHAIN=local` for builds\
 **Fix needed:** Install Go via official installer instead of Nix
 
 ### 2. go.work Version Mismatch (Partially Resolved)
 
-**Severity:** Annoying but manageable  
-**Impact:** Project removed from parent workspace to work around  
-**Current state:** Project is isolated, not part of parent `go.work`  
-**Risk:** Dependency resolution may differ from workspace context  
+**Severity:** Annoying but manageable\
+**Impact:** Project removed from parent workspace to work around\
+**Current state:** Project is isolated, not part of parent `go.work`\
+**Risk:** Dependency resolution may differ from workspace context\
 **Fix needed:** Either upgrade Nix Go to 1.26.1+ or reconsider workspace membership
 
 ### 3. Universal Workflow Local Replace
 
-**Severity:** CI-breaking for contributors  
-**Impact:** `go.mod` has `replace github.com/LarsArtmann/universal-workflow => /Users/larsartmann/projects/universal-workflow`  
-**Who it affects:** All contributors except Lars  
+**Severity:** CI-breaking for contributors\
+**Impact:** `go.mod` has `replace github.com/LarsArtmann/universal-workflow => /Users/larsartmann/projects/universal-workflow`\
+**Who it affects:** All contributors except Lars\
 **Fix needed:** Either publish universal-workflow or vendor it
 
 ### 4. go.mod/go.sum Modified (Uncommitted)
 
-**Severity:** Low (not pushed)  
+**Severity:** Low (not pushed)\
 **Files:**
 
 - `go.mod` — modified
@@ -198,53 +198,53 @@ All items from `2026-04-02_19-18_FORMATTER_MANAGER_EXTRACTION_COMPLETE.md` remai
 
 ### Priority 1: Critical (Unblock Everything)
 
-| #   | Task                                                               | Priority | Effort | Status      |
-| --- | ------------------------------------------------------------------ | -------- | ------ | ----------- |
-| 1   | Fix Nix Go environment (install Go 1.26.1+ via official installer) | CRITICAL | 30min  | NOT STARTED |
-| 2   | Re-add project to go.work (after Go fix)                           | CRITICAL | 5min   | NOT STARTED |
-| 3   | Run `just test` and verify all pkg tests pass                      | CRITICAL | 10min  | NOT STARTED |
-| 4   | Run `just lint` and fix any issues                                 | CRITICAL | 15min  | NOT STARTED |
-| 5   | Fix cobra.ExactValidArgs deprecation in commands.go                | HIGH     | 10min  | NOT STARTED |
-| 6   | Fix detector_test.go `:=` bug on line 98                           | HIGH     | 5min   | NOT STARTED |
+| # | Task                                                               | Priority | Effort | Status      |
+| - | ------------------------------------------------------------------ | -------- | ------ | ----------- |
+| 1 | Fix Nix Go environment (install Go 1.26.1+ via official installer) | CRITICAL | 30min  | NOT STARTED |
+| 2 | Re-add project to go.work (after Go fix)                           | CRITICAL | 5min   | NOT STARTED |
+| 3 | Run `just test` and verify all pkg tests pass                      | CRITICAL | 10min  | NOT STARTED |
+| 4 | Run `just lint` and fix any issues                                 | CRITICAL | 15min  | NOT STARTED |
+| 5 | Fix cobra.ExactValidArgs deprecation in commands.go                | HIGH     | 10min  | NOT STARTED |
+| 6 | Fix detector_test.go `:=` bug on line 98                           | HIGH     | 5min   | NOT STARTED |
 
 ### Priority 2: Architecture (File Size → <350 Lines)
 
-| #   | Task                                                                                           | Priority | Effort | Status      |
-| --- | ---------------------------------------------------------------------------------------------- | -------- | ------ | ----------- |
-| 7   | Extract `ConfigUpdater` from fixer.go (updateGoVersion, updateRunnerSettings, updateBuildTags) | HIGH     | 1hr    | NOT STARTED |
-| 8   | Extract `LinterEnabler` from fixer.go (enableRecommendedLinters + helpers)                     | MEDIUM   | 1hr    | NOT STARTED |
-| 9   | Extract `DeprecationReplacer` from fixer.go (replaceDeprecatedLinters + helpers)               | MEDIUM   | 1hr    | NOT STARTED |
-| 10  | Split config/loader.go (validation from I/O)                                                   | MEDIUM   | 2hr    | NOT STARTED |
-| 11  | Split detection/detector.go (extract patterns)                                                 | MEDIUM   | 2hr    | NOT STARTED |
+| #  | Task                                                                                           | Priority | Effort | Status      |
+| -- | ---------------------------------------------------------------------------------------------- | -------- | ------ | ----------- |
+| 7  | Extract `ConfigUpdater` from fixer.go (updateGoVersion, updateRunnerSettings, updateBuildTags) | HIGH     | 1hr    | NOT STARTED |
+| 8  | Extract `LinterEnabler` from fixer.go (enableRecommendedLinters + helpers)                     | MEDIUM   | 1hr    | NOT STARTED |
+| 9  | Extract `DeprecationReplacer` from fixer.go (replaceDeprecatedLinters + helpers)               | MEDIUM   | 1hr    | NOT STARTED |
+| 10 | Split config/loader.go (validation from I/O)                                                   | MEDIUM   | 2hr    | NOT STARTED |
+| 11 | Split detection/detector.go (extract patterns)                                                 | MEDIUM   | 2hr    | NOT STARTED |
 
 ### Priority 3: Testing & Quality
 
-| #   | Task                                               | Priority | Effort | Status      |
-| --- | -------------------------------------------------- | -------- | ------ | ----------- |
-| 12  | Add `just check` command (fmt + vet + test + lint) | HIGH     | 30min  | NOT STARTED |
-| 13  | Add tests for pkg/constants                        | MEDIUM   | 1hr    | NOT STARTED |
-| 14  | Add tests for pkg/types                            | MEDIUM   | 1hr    | NOT STARTED |
-| 15  | Add tests for pkg/report                           | MEDIUM   | 2hr    | NOT STARTED |
-| 16  | Add integration test for FormatterManager          | MEDIUM   | 1hr    | NOT STARTED |
-| 17  | Add benchmarks for fixer operations                | LOW      | 1hr    | NOT STARTED |
+| #  | Task                                               | Priority | Effort | Status      |
+| -- | -------------------------------------------------- | -------- | ------ | ----------- |
+| 12 | Add `just check` command (fmt + vet + test + lint) | HIGH     | 30min  | NOT STARTED |
+| 13 | Add tests for pkg/constants                        | MEDIUM   | 1hr    | NOT STARTED |
+| 14 | Add tests for pkg/types                            | MEDIUM   | 1hr    | NOT STARTED |
+| 15 | Add tests for pkg/report                           | MEDIUM   | 2hr    | NOT STARTED |
+| 16 | Add integration test for FormatterManager          | MEDIUM   | 1hr    | NOT STARTED |
+| 17 | Add benchmarks for fixer operations                | LOW      | 1hr    | NOT STARTED |
 
 ### Priority 4: Code Quality
 
-| #   | Task                                                     | Priority | Effort | Status      |
-| --- | -------------------------------------------------------- | -------- | ------ | ----------- |
-| 18  | Unify error handling (consistent custom error types)     | MEDIUM   | 2hr    | NOT STARTED |
-| 19  | Add godoc to all exported types                          | LOW      | 2hr    | NOT STARTED |
-| 20  | Fix universal-workflow local replace (publish or vendor) | HIGH     | 3hr    | NOT STARTED |
-| 21  | Add CONTRIBUTING.md                                      | LOW      | 1hr    | NOT STARTED |
-| 22  | Add ADR for FormatterManager extraction                  | LOW      | 30min  | NOT STARTED |
-| 23  | Add file size lint rule (fail CI if >350 lines)          | LOW      | 1hr    | NOT STARTED |
+| #  | Task                                                     | Priority | Effort | Status      |
+| -- | -------------------------------------------------------- | -------- | ------ | ----------- |
+| 18 | Unify error handling (consistent custom error types)     | MEDIUM   | 2hr    | NOT STARTED |
+| 19 | Add godoc to all exported types                          | LOW      | 2hr    | NOT STARTED |
+| 20 | Fix universal-workflow local replace (publish or vendor) | HIGH     | 3hr    | NOT STARTED |
+| 21 | Add CONTRIBUTING.md                                      | LOW      | 1hr    | NOT STARTED |
+| 22 | Add ADR for FormatterManager extraction                  | LOW      | 30min  | NOT STARTED |
+| 23 | Add file size lint rule (fail CI if >350 lines)          | LOW      | 1hr    | NOT STARTED |
 
 ### Priority 5: Features & DX
 
-| #   | Task                                    | Priority | Effort | Status      |
-| --- | --------------------------------------- | -------- | ------ | ----------- |
-| 24  | Add `just watch` command (file watcher) | LOW      | 1hr    | NOT STARTED |
-| 25  | Add config migration dry-run report     | LOW      | 1hr    | NOT STARTED |
+| #  | Task                                    | Priority | Effort | Status      |
+| -- | --------------------------------------- | -------- | ------ | ----------- |
+| 24 | Add `just watch` command (file watcher) | LOW      | 1hr    | NOT STARTED |
+| 25 | Add config migration dry-run report     | LOW      | 1hr    | NOT STARTED |
 
 ---
 

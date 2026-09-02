@@ -1,8 +1,8 @@
 # Comprehensive Status Report: golangci-lint-auto-configure
 
-**Date:** 2026-04-14 00:21  
-**Reporter:** Crush AI Assistant  
-**Branch:** master  
+**Date:** 2026-04-14 00:21\
+**Reporter:** Crush AI Assistant\
+**Branch:** master\
 **Commit:** b555402 (HEAD, ahead of origin by 1 commit)
 
 ---
@@ -227,33 +227,33 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 ## F) TOP #25 THINGS TO GET DONE NEXT! 📋
 
-| #   | Task                                          | Priority | Effort | Blocked By |
-| --- | --------------------------------------------- | -------- | ------ | ---------- |
-| 1   | **Free disk space**                           | P0       | 1h     | Disk full  |
-| 2   | **Add linter data validation script**         | P0       | 2h     | -          |
-| 3   | **Investigate dual yaml dependency**          | P0       | 1h     | -          |
-| 4   | **Build and test binary**                     | P0       | 1h     | Disk space |
-| 5   | **Auto-generate examples from PresetLinters** | P1       | 4h     | -          |
-| 6   | **Fix fixer.go exclusion root causes**        | P1       | 4h     | -          |
-| 7   | **Fix loader.go exclusion root causes**       | P1       | 3h     | -          |
-| 8   | **Run test coverage report**                  | P1       | 1h     | Disk space |
-| 9   | **Split migrator_test.go (642 lines)**        | P1       | 2h     | -          |
-| 10  | **Create ADR for yaml dependency**            | P2       | 1h     | -          |
-| 11  | **Add CI check for linter data integrity**    | P2       | 2h     | -          |
-| 12  | **Generate top 50 linter docs**               | P2       | 6h     | -          |
-| 13  | **Split loader.go (427 lines)**               | P2       | 4h     | -          |
-| 14  | **Add integration tests**                     | P2       | 6h     | Disk space |
-| 15  | **Fix remaining exclusion root causes**       | P2       | 6h     | -          |
-| 16  | **Add benchmarks**                            | P2       | 3h     | -          |
-| 17  | **Create release process**                    | P2       | 2h     | -          |
-| 18  | **Update AGENTS.md (742→377 lines)**          | P3       | 2h     | -          |
-| 19  | **Add severity config section**               | P3       | 1h     | -          |
-| 20  | **Add output format config**                  | P3       | 1h     | -          |
-| 21  | **Cache linter metadata**                     | P3       | 2h     | -          |
-| 22  | **Add metrics/analytics**                     | P3       | 4h     | -          |
-| 23  | **Create troubleshooting guide**              | P3       | 2h     | -          |
-| 24  | **Review depguard rules**                     | P3       | 2h     | -          |
-| 25  | **Add pre-commit for example gen**            | P3       | 1h     | -          |
+| #  | Task                                          | Priority | Effort | Blocked By |
+| -- | --------------------------------------------- | -------- | ------ | ---------- |
+| 1  | **Free disk space**                           | P0       | 1h     | Disk full  |
+| 2  | **Add linter data validation script**         | P0       | 2h     | -          |
+| 3  | **Investigate dual yaml dependency**          | P0       | 1h     | -          |
+| 4  | **Build and test binary**                     | P0       | 1h     | Disk space |
+| 5  | **Auto-generate examples from PresetLinters** | P1       | 4h     | -          |
+| 6  | **Fix fixer.go exclusion root causes**        | P1       | 4h     | -          |
+| 7  | **Fix loader.go exclusion root causes**       | P1       | 3h     | -          |
+| 8  | **Run test coverage report**                  | P1       | 1h     | Disk space |
+| 9  | **Split migrator_test.go (642 lines)**        | P1       | 2h     | -          |
+| 10 | **Create ADR for yaml dependency**            | P2       | 1h     | -          |
+| 11 | **Add CI check for linter data integrity**    | P2       | 2h     | -          |
+| 12 | **Generate top 50 linter docs**               | P2       | 6h     | -          |
+| 13 | **Split loader.go (427 lines)**               | P2       | 4h     | -          |
+| 14 | **Add integration tests**                     | P2       | 6h     | Disk space |
+| 15 | **Fix remaining exclusion root causes**       | P2       | 6h     | -          |
+| 16 | **Add benchmarks**                            | P2       | 3h     | -          |
+| 17 | **Create release process**                    | P2       | 2h     | -          |
+| 18 | **Update AGENTS.md (742→377 lines)**          | P3       | 2h     | -          |
+| 19 | **Add severity config section**               | P3       | 1h     | -          |
+| 20 | **Add output format config**                  | P3       | 1h     | -          |
+| 21 | **Cache linter metadata**                     | P3       | 2h     | -          |
+| 22 | **Add metrics/analytics**                     | P3       | 4h     | -          |
+| 23 | **Create troubleshooting guide**              | P3       | 2h     | -          |
+| 24 | **Review depguard rules**                     | P3       | 2h     | -          |
+| 25 | **Add pre-commit for example gen**            | P3       | 1h     | -          |
 
 ---
 
@@ -360,5 +360,5 @@ The codebase is **structurally sound but operationally blocked**:
 
 ---
 
-_Report generated by Crush AI Assistant_  
+_Report generated by Crush AI Assistant_\
 _💘 Generated with Crush_

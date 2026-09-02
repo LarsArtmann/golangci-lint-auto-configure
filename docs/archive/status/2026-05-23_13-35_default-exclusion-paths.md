@@ -1,8 +1,8 @@
 # Status Report — 2026-05-23
 
-**Generated:** 2026-05-23 13:35 UTC  
-**Branch:** master  
-**Last Release:** v0.2.0 (3f2681b)  
+**Generated:** 2026-05-23 13:35 UTC\
+**Branch:** master\
+**Last Release:** v0.2.0 (3f2681b)\
 **Total LoC:** ~16,467 Go (excluding generated `_templ.go`)
 
 ---
@@ -140,33 +140,33 @@ These are minor and existed before this session.
 
 ## F) TOP #25 THINGS TO DO NEXT
 
-| #   | Priority | Task                                                                                      | Impact                     |
-| --- | -------- | ----------------------------------------------------------------------------------------- | -------------------------- |
-| 1   | Critical | Add default `linters.exclusions.rules` for test files (exhaustruct, funlen, cyclop, etc.) | Every project needs this   |
-| 2   | Critical | Add `revive` default settings (disable `exported`, `package-comments`)                    | Linter noisy without it    |
-| 3   | Critical | Add `varnamelen` default settings (ignore-map-index-ok, common short names)               | Linter noisy without it    |
-| 4   | Critical | Add `gomoddirectives` default settings (`replace-local: true`)                            | Local dev needs this       |
-| 5   | Critical | Add `cyclop` default settings (`max-complexity: 12`)                                      | Default is too strict      |
-| 6   | High     | Add `golines` default settings (`max-len: 120`) when enabled                              | Consistent line length     |
-| 7   | High     | Create `FEATURES.md` with full feature audit                                              | Track what exists          |
-| 8   | High     | Create `TODO_LIST.md` from all status reports                                             | Consolidated task tracking |
-| 9   | High     | Increase CLI integration test coverage (9.0% → 50%+)                                      | Trust in command wiring    |
-| 10  | High     | Add report package tests (0.0% → 50%+)                                                    | HTML output untested       |
-| 11  | High     | Fix pre-existing lint: `command_runner.go` funlen (extract helpers)                       | Clean lint baseline        |
-| 12  | High     | Fix pre-existing lint: `finding_formatter.go` funlen (extract helpers)                    | Clean lint baseline        |
-| 13  | High     | Fix pre-existing lint: `loader.go:269` golines (break long line)                          | Clean lint baseline        |
-| 14  | Medium   | Add default exclusion for `.gen.go` files (oapi-codegen pattern)                          | Common generator           |
-| 15  | Medium   | Increase gogenfilter scanner coverage (59.8% → 80%+)                                      | Error path coverage        |
-| 16  | Medium   | Increase migration coverage (66.8% → 80%+)                                                | Edge case coverage         |
-| 17  | Medium   | Update example configs to reflect current default injection                               | Accurate examples          |
-| 18  | Medium   | Add `exhaustruct` test-file exclusion by default (not just via gogenfilter)               | Noisy in tests             |
-| 19  | Medium   | Add `output.formats: {}` to default config creation                                       | Explicit config            |
-| 20  | Low      | Add `swaggo` formatter detection improvements                                             | Better auto-detection      |
-| 21  | Low      | Add config validation cross-check against reference patterns                              | Consistency                |
-| 22  | Low      | Add benchmarking for analyzer and fixer                                                   | Performance regression     |
-| 23  | Low      | Add `ginkgolinter` to recommended test linters                                            | Test quality               |
-| 24  | Low      | Document exclusion pattern syntax (RE2 regex) in README                                   | User education             |
-| 25  | Low      | Add `--check` mode for CI (exit 1 if config needs changes)                                | CI/CD integration          |
+| #  | Priority | Task                                                                                      | Impact                     |
+| -- | -------- | ----------------------------------------------------------------------------------------- | -------------------------- |
+| 1  | Critical | Add default `linters.exclusions.rules` for test files (exhaustruct, funlen, cyclop, etc.) | Every project needs this   |
+| 2  | Critical | Add `revive` default settings (disable `exported`, `package-comments`)                    | Linter noisy without it    |
+| 3  | Critical | Add `varnamelen` default settings (ignore-map-index-ok, common short names)               | Linter noisy without it    |
+| 4  | Critical | Add `gomoddirectives` default settings (`replace-local: true`)                            | Local dev needs this       |
+| 5  | Critical | Add `cyclop` default settings (`max-complexity: 12`)                                      | Default is too strict      |
+| 6  | High     | Add `golines` default settings (`max-len: 120`) when enabled                              | Consistent line length     |
+| 7  | High     | Create `FEATURES.md` with full feature audit                                              | Track what exists          |
+| 8  | High     | Create `TODO_LIST.md` from all status reports                                             | Consolidated task tracking |
+| 9  | High     | Increase CLI integration test coverage (9.0% → 50%+)                                      | Trust in command wiring    |
+| 10 | High     | Add report package tests (0.0% → 50%+)                                                    | HTML output untested       |
+| 11 | High     | Fix pre-existing lint: `command_runner.go` funlen (extract helpers)                       | Clean lint baseline        |
+| 12 | High     | Fix pre-existing lint: `finding_formatter.go` funlen (extract helpers)                    | Clean lint baseline        |
+| 13 | High     | Fix pre-existing lint: `loader.go:269` golines (break long line)                          | Clean lint baseline        |
+| 14 | Medium   | Add default exclusion for `.gen.go` files (oapi-codegen pattern)                          | Common generator           |
+| 15 | Medium   | Increase gogenfilter scanner coverage (59.8% → 80%+)                                      | Error path coverage        |
+| 16 | Medium   | Increase migration coverage (66.8% → 80%+)                                                | Edge case coverage         |
+| 17 | Medium   | Update example configs to reflect current default injection                               | Accurate examples          |
+| 18 | Medium   | Add `exhaustruct` test-file exclusion by default (not just via gogenfilter)               | Noisy in tests             |
+| 19 | Medium   | Add `output.formats: {}` to default config creation                                       | Explicit config            |
+| 20 | Low      | Add `swaggo` formatter detection improvements                                             | Better auto-detection      |
+| 21 | Low      | Add config validation cross-check against reference patterns                              | Consistency                |
+| 22 | Low      | Add benchmarking for analyzer and fixer                                                   | Performance regression     |
+| 23 | Low      | Add `ginkgolinter` to recommended test linters                                            | Test quality               |
+| 24 | Low      | Document exclusion pattern syntax (RE2 regex) in README                                   | User education             |
+| 25 | Low      | Add `--check` mode for CI (exit 1 if config needs changes)                                | CI/CD integration          |
 
 ---
 

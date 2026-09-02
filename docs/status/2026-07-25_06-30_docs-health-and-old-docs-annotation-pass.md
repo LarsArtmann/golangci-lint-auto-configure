@@ -24,7 +24,7 @@ Read every one of the 27 `2026-07-*` files across `docs/status/`, `docs/planning
 
 | Annotation type                   | Count | Examples                                                                                                                                                                            |
 | --------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Banner-row correction (inline)    | 7     | gosec G204 "❌ Still open" → "✅ Done (8d10df5)" (4 files); `--diff`/`--check` tests "❌ Not done"/"⚠️ Partial" → "✅ Done" (3 files, 6 rows)                                       |
+| Banner-row correction (inline)    | 7     | gosec G204 "❌ Still open" → "✅ Done (8d10df5)" (4 files); `--diff`/`--check` tests "❌ Not done"/"⚠️ Partial" → "✅ Done" (3 files, 6 rows)                                        |
 | Resolution appendix (end-of-file) | 8     | feedback/resolved repair-re-enables (no note → full resolution); depguard-disabled; 09-58 buildflow; 10-38 omitzero; noinlineerr; 50-item sweep; docs-health-audit; P3 architecture |
 | Inline verdict correction         | 2     | "CLI is currently broken" → RESOLVED; "Status: In Progress" → DONE                                                                                                                  |
 
@@ -234,9 +234,9 @@ Per-tag-diff verification completed:
 
 ### Additional fixes applied in this follow-up session
 
-| #   | Gap from report                                     | Fix                                                                                                                                                                                              |
-| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | §d.3: 05-40 forcetypeassert report left unannotated | Corrected stale "FEATURES.md not updated" claim → marked RESOLVED with strikethrough                                                                                                             |
-| 2   | §b.2: README.md not audited                         | Fixed Linter Priorities section: `ineffassign` moved Critical→High, `gocyclo`/`misspell`/`revive` moved Medium→High; added collapsible `<details>` with full lists; added curated-highlight note |
-| 3   | §c: `nix flake check` not run                       | Running now (see below)                                                                                                                                                                          |
-| 4   | §e.5: FEATURES.md hardcoded counts                  | Fixed `strict` preset count (17→20), `reference` count ("60+"→62); added verification note pointing to `pkg/constants/presets.go`                                                                |
+| # | Gap from report                                     | Fix                                                                                                                                                                                              |
+| - | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1 | §d.3: 05-40 forcetypeassert report left unannotated | Corrected stale "FEATURES.md not updated" claim → marked RESOLVED with strikethrough                                                                                                             |
+| 2 | §b.2: README.md not audited                         | Fixed Linter Priorities section: `ineffassign` moved Critical→High, `gocyclo`/`misspell`/`revive` moved Medium→High; added collapsible `<details>` with full lists; added curated-highlight note |
+| 3 | §c: `nix flake check` not run                       | Running now (see below)                                                                                                                                                                          |
+| 4 | §e.5: FEATURES.md hardcoded counts                  | Fixed `strict` preset count (17→20), `reference` count ("60+"→62); added verification note pointing to `pkg/constants/presets.go`                                                                |

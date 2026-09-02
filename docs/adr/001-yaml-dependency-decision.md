@@ -1,7 +1,7 @@
 # ADR 001: YAML Dependency Decision
 
-**Status:** Accepted  
-**Date:** 2026-04-14  
+**Status:** Accepted\
+**Date:** 2026-04-14\
 **Author:** Crush AI Assistant
 
 ## Context

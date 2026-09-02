@@ -167,33 +167,33 @@ This enables:
 
 ## f) Top #25 Things to Get Done Next (Pareto-Sorted)
 
-| #   | Task                                                       | Impact    | Work   | Category     |
-| --- | ---------------------------------------------------------- | --------- | ------ | ------------ |
-| 1   | **Commit go.mod/go.sum dep upgrades + update vendorHash**  | 🟡 Medium | 5 min  | Deps         |
-| 2   | **Exclude `noctx` from test_helpers_test.go**              | 🟡 Medium | 2 min  | Lint         |
-| 3   | **Strongly type `LintersConfig.Settings`**                 | 🔴 High   | Large  | Architecture |
-| 4   | **Add `validator/v10` to `Config.Validate()`**             | 🟡 High   | Medium | Validation   |
-| 5   | **Measure CLI integration test coverage properly**         | 🟡 High   | Medium | Test         |
-| 6   | **Add config schema validation (JSON Schema)**             | 🟡 Medium | Medium | Validation   |
-| 7   | **Plugin registry for linters/formatters**                 | 🟢 High   | Large  | Architecture |
-| 8   | **Parallelize analyzer + fixer pipeline**                  | 🟡 Medium | Medium | Performance  |
-| 9   | **Add `fsnotify` watch mode**                              | 🟢 Medium | Medium | Feature      |
-| 10  | **SARIF schema validation**                                | 🟡 Low    | Small  | Test         |
-| 11  | **Publish `go-finding` as public module**                  | 🟡 Medium | Medium | Release      |
-| 12  | **Add `ginkgolinter` default settings test**               | 🟡 Low    | 10 min | Test         |
-| 13  | **Add `testifylint` default settings test**                | 🟡 Low    | 10 min | Test         |
-| 14  | **Validate `reference` preset against `LinterPriorities`** | 🟡 Medium | 30 min | Test         |
-| 15  | **Add `LinterMinVersions` validation test**                | 🟡 Medium | 30 min | Test         |
-| 16  | **Resolve `--diff` + `--check` interaction**               | 🟡 Medium | Small  | Bug          |
-| 17  | **Add `--check` mode integration tests**                   | 🟡 Medium | Medium | Test         |
-| 18  | **Add `--diff` flag integration tests**                    | 🟡 Medium | Medium | Test         |
-| 19  | **Use `errors.Join` for multi-finding failures**           | 🟡 Low    | Small  | Refactor     |
-| 20  | **Add `DryRun` field to `MigrationResult`**                | 🟡 Low    | Small  | Refactor     |
-| 21  | **Migrate justfile → flake.nix apps**                      | 🟢 Medium | Medium | Build        |
-| 22  | **Decide on `vendor/` in formatter exclusions**            | 🟡 Low    | 5 min  | Config       |
-| 23  | **Replace JSON marshal hack in `Config.Clone()`**          | 🟡 Low    | Medium | Refactor     |
-| 24  | **Add `pkg/client` smoke tests**                           | 🟡 Medium | Medium | Test         |
-| 25  | **Add `isEmptySettingsValue` unit tests**                  | 🟡 Low    | 10 min | Test         |
+| #  | Task                                                       | Impact    | Work   | Category     |
+| -- | ---------------------------------------------------------- | --------- | ------ | ------------ |
+| 1  | **Commit go.mod/go.sum dep upgrades + update vendorHash**  | 🟡 Medium | 5 min  | Deps         |
+| 2  | **Exclude `noctx` from test_helpers_test.go**              | 🟡 Medium | 2 min  | Lint         |
+| 3  | **Strongly type `LintersConfig.Settings`**                 | 🔴 High   | Large  | Architecture |
+| 4  | **Add `validator/v10` to `Config.Validate()`**             | 🟡 High   | Medium | Validation   |
+| 5  | **Measure CLI integration test coverage properly**         | 🟡 High   | Medium | Test         |
+| 6  | **Add config schema validation (JSON Schema)**             | 🟡 Medium | Medium | Validation   |
+| 7  | **Plugin registry for linters/formatters**                 | 🟢 High   | Large  | Architecture |
+| 8  | **Parallelize analyzer + fixer pipeline**                  | 🟡 Medium | Medium | Performance  |
+| 9  | **Add `fsnotify` watch mode**                              | 🟢 Medium | Medium | Feature      |
+| 10 | **SARIF schema validation**                                | 🟡 Low    | Small  | Test         |
+| 11 | **Publish `go-finding` as public module**                  | 🟡 Medium | Medium | Release      |
+| 12 | **Add `ginkgolinter` default settings test**               | 🟡 Low    | 10 min | Test         |
+| 13 | **Add `testifylint` default settings test**                | 🟡 Low    | 10 min | Test         |
+| 14 | **Validate `reference` preset against `LinterPriorities`** | 🟡 Medium | 30 min | Test         |
+| 15 | **Add `LinterMinVersions` validation test**                | 🟡 Medium | 30 min | Test         |
+| 16 | **Resolve `--diff` + `--check` interaction**               | 🟡 Medium | Small  | Bug          |
+| 17 | **Add `--check` mode integration tests**                   | 🟡 Medium | Medium | Test         |
+| 18 | **Add `--diff` flag integration tests**                    | 🟡 Medium | Medium | Test         |
+| 19 | **Use `errors.Join` for multi-finding failures**           | 🟡 Low    | Small  | Refactor     |
+| 20 | **Add `DryRun` field to `MigrationResult`**                | 🟡 Low    | Small  | Refactor     |
+| 21 | **Migrate justfile → flake.nix apps**                      | 🟢 Medium | Medium | Build        |
+| 22 | **Decide on `vendor/` in formatter exclusions**            | 🟡 Low    | 5 min  | Config       |
+| 23 | **Replace JSON marshal hack in `Config.Clone()`**          | 🟡 Low    | Medium | Refactor     |
+| 24 | **Add `pkg/client` smoke tests**                           | 🟡 Medium | Medium | Test         |
+| 25 | **Add `isEmptySettingsValue` unit tests**                  | 🟡 Low    | 10 min | Test         |
 
 ---
 

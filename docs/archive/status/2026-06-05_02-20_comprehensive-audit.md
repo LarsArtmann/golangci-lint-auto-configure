@@ -97,13 +97,13 @@ HTML (templ), JSON, SARIF, finding JSON — all ✅ DONE.
 
 ### 1. Test Coverage (Overall 61.1%)
 
-| Package            | Coverage | Verdict       |
-| ------------------ | -------- | ------------- |
-| `pkg/diff`         | 96.5%    | ✅ Excellent  |
-| `pkg/errors`       | 95.8%    | ✅ Excellent  |
-| `pkg/utils`        | 94.6%    | ✅ Excellent  |
-| `pkg/constants`    | 80.0%    | ✅ Good       |
-| `pkg/linter`       | 81.8%    | ✅ Good       |
+| Package            | Coverage | Verdict      |
+| ------------------ | -------- | ------------ |
+| `pkg/diff`         | 96.5%    | ✅ Excellent |
+| `pkg/errors`       | 95.8%    | ✅ Excellent |
+| `pkg/utils`        | 94.6%    | ✅ Excellent |
+| `pkg/constants`    | 80.0%    | ✅ Good      |
+| `pkg/linter`       | 81.8%    | ✅ Good      |
 | `pkg/report`       | 71.9%    | ⚠️ Adequate   |
 | `pkg/ui`           | 67.7%    | ⚠️ Adequate   |
 | `pkg/migration`    | 66.8%    | ⚠️ Adequate   |
@@ -113,9 +113,9 @@ HTML (templ), JSON, SARIF, finding JSON — all ✅ DONE.
 | `pkg/types`        | 58.8%    | ⚠️ Needs work |
 | `pkg/finding`      | 50.0%    | ⚠️ Needs work |
 | `pkg/version`      | 51.4%    | ⚠️ Needs work |
-| `internal/cli`     | 8.2%     | 🔴 Critical   |
-| `pkg/client`       | 0.0%     | 🔴 No tests   |
-| `internal/cli/cmd` | 0.0%     | 🔴 No tests   |
+| `internal/cli`     | 8.2%     | 🔴 Critical  |
+| `pkg/client`       | 0.0%     | 🔴 No tests  |
+| `internal/cli/cmd` | 0.0%     | 🔴 No tests  |
 
 **~45 exported functions lack dedicated direct tests** (many have indirect coverage through integration tests).
 
@@ -265,33 +265,33 @@ The `LinterMinVersions` map could reference linters that don't exist in `LinterP
 
 ## f) Top #25 Things to Do Next (Sorted by Impact × Effort)
 
-| #   | Priority | Item                                                             | Est.  | Impact          |
-| --- | -------- | ---------------------------------------------------------------- | ----- | --------------- |
-| 1   | CRITICAL | Update TODO_LIST.md (7/10 items stale)                           | 30min | Truth           |
-| 2   | CRITICAL | Fix `varnamelen` in cmd_report.go (`r` → `report`)               | 2min  | Lint clean      |
-| 3   | CRITICAL | Fix `noinlineerr` in detector.go                                 | 2min  | Lint clean      |
-| 4   | HIGH     | Add `--check` mode integration tests                             | 1h    | Correctness     |
-| 5   | HIGH     | Add `LinterMinVersions` validation test                          | 15min | Correctness     |
-| 6   | HIGH     | Validate `reference` preset against `LinterPriorities`           | 15min | Correctness     |
-| 7   | HIGH     | Fix funlen: extract `runFixerMode` helpers (46→≤30 lines)        | 30min | Code quality    |
-| 8   | HIGH     | Fix funlen: extract `newConfigureCommand` helpers (33→≤30)       | 15min | Code quality    |
-| 9   | HIGH     | Fix funlen: extract `CreateDefaultConfig` helpers (33→≤30)       | 15min | Code quality    |
-| 10  | HIGH     | Add `Config.Clone()` method, remove JSON marshal hack            | 30min | Architecture    |
-| 11  | HIGH     | Add `--diff` flag integration tests                              | 1h    | Correctness     |
-| 12  | MEDIUM   | Add tests for ginkgolinter/testifylint default settings          | 30min | Correctness     |
-| 13  | MEDIUM   | Fix funlen: `DeprecatedLintersToFindings` (32→≤30)               | 15min | Code quality    |
-| 14  | MEDIUM   | Fix funlen: `ChangesToFindings` (34→≤30)                         | 15min | Code quality    |
-| 15  | MEDIUM   | Fix funlen: `shouldSkipLinter` (32→≤30)                          | 15min | Code quality    |
-| 16  | MEDIUM   | Extract `findingBuilder` helper in converter.go                  | 1h    | Architecture    |
-| 17  | MEDIUM   | Add `pkg/client` smoke tests                                     | 1h    | Coverage        |
-| 18  | MEDIUM   | Add `--check` + `--diff` interaction handling (warn or fix)      | 1h    | UX              |
-| 19  | MEDIUM   | Document `--check`, `--diff`, `reference` preset in README       | 15min | Docs            |
-| 20  | MEDIUM   | Use `errors.Join` for multi-finding failures in converter        | 30min | Robustness      |
-| 21  | LOW      | Add `DryRun bool` to `MigrationResult`                           | 15min | Type model      |
-| 22  | LOW      | Validate `LinterMinVersions` entries exist in `LinterPriorities` | 15min | Correctness     |
-| 23  | LOW      | Trim AGENTS.md from 912 to ≤377 lines                            | 2h    | Maintainability |
-| 24  | LOW      | Typed linter settings structs (replace `map[string]any`)         | 4h    | Architecture    |
-| 25  | LOW      | Migrate justfile → flake.nix apps                                | 2h    | Build           |
+| #  | Priority | Item                                                             | Est.  | Impact          |
+| -- | -------- | ---------------------------------------------------------------- | ----- | --------------- |
+| 1  | CRITICAL | Update TODO_LIST.md (7/10 items stale)                           | 30min | Truth           |
+| 2  | CRITICAL | Fix `varnamelen` in cmd_report.go (`r` → `report`)               | 2min  | Lint clean      |
+| 3  | CRITICAL | Fix `noinlineerr` in detector.go                                 | 2min  | Lint clean      |
+| 4  | HIGH     | Add `--check` mode integration tests                             | 1h    | Correctness     |
+| 5  | HIGH     | Add `LinterMinVersions` validation test                          | 15min | Correctness     |
+| 6  | HIGH     | Validate `reference` preset against `LinterPriorities`           | 15min | Correctness     |
+| 7  | HIGH     | Fix funlen: extract `runFixerMode` helpers (46→≤30 lines)        | 30min | Code quality    |
+| 8  | HIGH     | Fix funlen: extract `newConfigureCommand` helpers (33→≤30)       | 15min | Code quality    |
+| 9  | HIGH     | Fix funlen: extract `CreateDefaultConfig` helpers (33→≤30)       | 15min | Code quality    |
+| 10 | HIGH     | Add `Config.Clone()` method, remove JSON marshal hack            | 30min | Architecture    |
+| 11 | HIGH     | Add `--diff` flag integration tests                              | 1h    | Correctness     |
+| 12 | MEDIUM   | Add tests for ginkgolinter/testifylint default settings          | 30min | Correctness     |
+| 13 | MEDIUM   | Fix funlen: `DeprecatedLintersToFindings` (32→≤30)               | 15min | Code quality    |
+| 14 | MEDIUM   | Fix funlen: `ChangesToFindings` (34→≤30)                         | 15min | Code quality    |
+| 15 | MEDIUM   | Fix funlen: `shouldSkipLinter` (32→≤30)                          | 15min | Code quality    |
+| 16 | MEDIUM   | Extract `findingBuilder` helper in converter.go                  | 1h    | Architecture    |
+| 17 | MEDIUM   | Add `pkg/client` smoke tests                                     | 1h    | Coverage        |
+| 18 | MEDIUM   | Add `--check` + `--diff` interaction handling (warn or fix)      | 1h    | UX              |
+| 19 | MEDIUM   | Document `--check`, `--diff`, `reference` preset in README       | 15min | Docs            |
+| 20 | MEDIUM   | Use `errors.Join` for multi-finding failures in converter        | 30min | Robustness      |
+| 21 | LOW      | Add `DryRun bool` to `MigrationResult`                           | 15min | Type model      |
+| 22 | LOW      | Validate `LinterMinVersions` entries exist in `LinterPriorities` | 15min | Correctness     |
+| 23 | LOW      | Trim AGENTS.md from 912 to ≤377 lines                            | 2h    | Maintainability |
+| 24 | LOW      | Typed linter settings structs (replace `map[string]any`)         | 4h    | Architecture    |
+| 25 | LOW      | Migrate justfile → flake.nix apps                                | 2h    | Build           |
 
 ---
 

@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-| Metric | Status        | Details                       |
-| ------ | ------------- | ----------------------------- |
-| Build  | ✅ PASSING    | `go build ./...` succeeds     |
-| Tests  | ✅ PASSING    | 5 suites, ~55% coverage       |
-| Git    | ✅ CLEAN      | Up to date with origin/master |
+| Metric | Status       | Details                       |
+| ------ | ------------ | ----------------------------- |
+| Build  | ✅ PASSING   | `go build ./...` succeeds     |
+| Tests  | ✅ PASSING   | 5 suites, ~55% coverage       |
+| Git    | ✅ CLEAN     | Up to date with origin/master |
 | Disk   | ⚠️ CRITICAL   | 400MB free (100% used)        |
 | Lint   | ⚠️ 2 CRITICAL | Cognitive complexity issues   |
 | Lint   | ⚠️ 5 MEDIUM   | Unused parameters             |
@@ -38,18 +38,18 @@
 
 ## C) NOT STARTED ❌
 
-| #   | Task                                  | File                          | Line |
-| --- | ------------------------------------- | ----------------------------- | ---- |
-| 1   | Fix unused `ctx` parameter            | internal/cli/cmd_configure.go | 137  |
-| 2   | Fix unused `path` parameter           | pkg/detection/detector.go     | 108  |
-| 3   | Fix unused `configPath` parameter     | pkg/linter/fixer.go           | 374  |
-| 4   | Fix unused `priority` parameter       | pkg/linter/fixer.go           | 375  |
-| 5   | Fix unused `analysis` parameter       | pkg/linter/validator.go       | 39   |
-| 6   | Refactor `FixConfigResult` (68→<25)   | pkg/linter/fixer.go           | 49   |
-| 7   | Refactor `NewMigrateCommand` (30→<25) | internal/cli/cmd/migrate.go   | 24   |
-| 8   | Review type model improvements        | pkg/types/types.go            | -    |
-| 9   | Review library usage                  | go.mod                        | -    |
-| 10  | Convert TODOs to issues               | Multiple                      | -    |
+| #  | Task                                  | File                          | Line |
+| -- | ------------------------------------- | ----------------------------- | ---- |
+| 1  | Fix unused `ctx` parameter            | internal/cli/cmd_configure.go | 137  |
+| 2  | Fix unused `path` parameter           | pkg/detection/detector.go     | 108  |
+| 3  | Fix unused `configPath` parameter     | pkg/linter/fixer.go           | 374  |
+| 4  | Fix unused `priority` parameter       | pkg/linter/fixer.go           | 375  |
+| 5  | Fix unused `analysis` parameter       | pkg/linter/validator.go       | 39   |
+| 6  | Refactor `FixConfigResult` (68→<25)   | pkg/linter/fixer.go           | 49   |
+| 7  | Refactor `NewMigrateCommand` (30→<25) | internal/cli/cmd/migrate.go   | 24   |
+| 8  | Review type model improvements        | pkg/types/types.go            | -    |
+| 9  | Review library usage                  | go.mod                        | -    |
+| 10 | Convert TODOs to issues               | Multiple                      | -    |
 
 ---
 
@@ -100,48 +100,48 @@
 
 ### IMMEDIATE - Quick Wins (5 minutes total)
 
-| #   | Task                          | File                 | Work | Impact |
-| --- | ----------------------------- | -------------------- | ---- | ------ |
-| 1   | Fix unused `ctx` → `_`        | cmd_configure.go:137 | 30s  | Medium |
-| 2   | Fix unused `path` → `_`       | detector.go:108      | 30s  | Medium |
-| 3   | Fix unused `configPath` → `_` | fixer.go:374         | 30s  | Medium |
-| 4   | Fix unused `priority` → `_`   | fixer.go:375         | 30s  | Medium |
-| 5   | Fix unused `analysis` → `_`   | validator.go:39      | 30s  | Medium |
-| 6   | Commit unused param fixes     | -                    | 1m   | High   |
+| # | Task                          | File                 | Work | Impact |
+| - | ----------------------------- | -------------------- | ---- | ------ |
+| 1 | Fix unused `ctx` → `_`        | cmd_configure.go:137 | 30s  | Medium |
+| 2 | Fix unused `path` → `_`       | detector.go:108      | 30s  | Medium |
+| 3 | Fix unused `configPath` → `_` | fixer.go:374         | 30s  | Medium |
+| 4 | Fix unused `priority` → `_`   | fixer.go:375         | 30s  | Medium |
+| 5 | Fix unused `analysis` → `_`   | validator.go:39      | 30s  | Medium |
+| 6 | Commit unused param fixes     | -                    | 1m   | High   |
 
 ### HIGH PRIORITY - Complexity Reduction (45 minutes)
 
-| #   | Task                                | File       | Work | Impact |
-| --- | ----------------------------------- | ---------- | ---- | ------ |
-| 7   | Extract `handleDeprecatedLinters()` | fixer.go   | 10m  | High   |
-| 8   | Extract `handleFormatters()`        | fixer.go   | 10m  | High   |
-| 9   | Extract `handleRedundantLinters()`  | fixer.go   | 10m  | High   |
-| 10  | Extract `applyRecommendations()`    | fixer.go   | 10m  | High   |
-| 11  | Refactor `NewMigrateCommand`        | migrate.go | 15m  | High   |
-| 12  | Commit complexity fixes             | -          | 1m   | High   |
+| #  | Task                                | File       | Work | Impact |
+| -- | ----------------------------------- | ---------- | ---- | ------ |
+| 7  | Extract `handleDeprecatedLinters()` | fixer.go   | 10m  | High   |
+| 8  | Extract `handleFormatters()`        | fixer.go   | 10m  | High   |
+| 9  | Extract `handleRedundantLinters()`  | fixer.go   | 10m  | High   |
+| 10 | Extract `applyRecommendations()`    | fixer.go   | 10m  | High   |
+| 11 | Refactor `NewMigrateCommand`        | migrate.go | 15m  | High   |
+| 12 | Commit complexity fixes             | -          | 1m   | High   |
 
 ### MEDIUM PRIORITY - Architecture (2 hours)
 
-| #   | Task                            | File          | Work | Impact |
-| --- | ------------------------------- | ------------- | ---- | ------ |
-| 13  | Add `time.Duration` for Timeout | types.go      | 20m  | Medium |
-| 14  | Create `deprecated.go` module   | pkg/linter    | 30m  | Medium |
-| 15  | Add integration tests           | fixer_test.go | 30m  | Medium |
-| 16  | Review DI with samber/do        | -             | 30m  | Medium |
-| 17  | Commit architecture changes     | -             | 1m   | Medium |
+| #  | Task                            | File          | Work | Impact |
+| -- | ------------------------------- | ------------- | ---- | ------ |
+| 13 | Add `time.Duration` for Timeout | types.go      | 20m  | Medium |
+| 14 | Create `deprecated.go` module   | pkg/linter    | 30m  | Medium |
+| 15 | Add integration tests           | fixer_test.go | 30m  | Medium |
+| 16 | Review DI with samber/do        | -             | 30m  | Medium |
+| 17 | Commit architecture changes     | -             | 1m   | Medium |
 
 ### LOW PRIORITY - Cleanup (2 hours)
 
-| #   | Task                          | File        | Work | Impact |
-| --- | ----------------------------- | ----------- | ---- | ------ |
-| 18  | Increase coverage to 70%      | Multiple    | 2h   | Low    |
-| 19  | Rename pkg/types → pkg/domain | pkg/types   | 1h   | Low    |
-| 20  | Add rollback mechanism        | fixer.go    | 1h   | Low    |
-| 21  | Add transaction pattern       | fixer.go    | 1h   | Low    |
-| 22  | Extract framework detection   | detector.go | 30m  | Low    |
-| 23  | Add caching for detection     | detector.go | 30m  | Low    |
-| 24  | Convert TODOs to issues       | Multiple    | 45m  | Low    |
-| 25  | Create documentation          | docs/       | 2h   | Low    |
+| #  | Task                          | File        | Work | Impact |
+| -- | ----------------------------- | ----------- | ---- | ------ |
+| 18 | Increase coverage to 70%      | Multiple    | 2h   | Low    |
+| 19 | Rename pkg/types → pkg/domain | pkg/types   | 1h   | Low    |
+| 20 | Add rollback mechanism        | fixer.go    | 1h   | Low    |
+| 21 | Add transaction pattern       | fixer.go    | 1h   | Low    |
+| 22 | Extract framework detection   | detector.go | 30m  | Low    |
+| 23 | Add caching for detection     | detector.go | 30m  | Low    |
+| 24 | Convert TODOs to issues       | Multiple    | 45m  | Low    |
+| 25 | Create documentation          | docs/       | 2h   | Low    |
 
 ---
 

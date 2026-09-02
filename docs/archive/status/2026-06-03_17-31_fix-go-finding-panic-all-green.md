@@ -123,48 +123,48 @@ All previously critical issues have been resolved this session:
 
 ### Tier 1: Quality & Safety (1-5)
 
-| #   | Priority | Item                                                   | Est. Effort |
-| --- | -------- | ------------------------------------------------------ | ----------- |
-| 1   | HIGH     | Add regression tests for SARIF/finding format commands | 30min       |
-| 2   | HIGH     | Increase CLI integration test coverage from 9.0%       | 4h          |
-| 3   | HIGH     | Increase gogenfilter scanner coverage from 59.8%       | 2h          |
-| 4   | HIGH     | Increase migration coverage from 66.8%                 | 3h          |
-| 5   | HIGH     | Trim AGENTS.md from 912 to ≤377 lines                  | 2h          |
+| # | Priority | Item                                                   | Est. Effort |
+| - | -------- | ------------------------------------------------------ | ----------- |
+| 1 | HIGH     | Add regression tests for SARIF/finding format commands | 30min       |
+| 2 | HIGH     | Increase CLI integration test coverage from 9.0%       | 4h          |
+| 3 | HIGH     | Increase gogenfilter scanner coverage from 59.8%       | 2h          |
+| 4 | HIGH     | Increase migration coverage from 66.8%                 | 3h          |
+| 5 | HIGH     | Trim AGENTS.md from 912 to ≤377 lines                  | 2h          |
 
 ### Tier 2: Architecture (6-10)
 
-| #   | Priority | Item                                                     | Est. Effort |
-| --- | -------- | -------------------------------------------------------- | ----------- |
-| 6   | HIGH     | Add `templ generate` to Nix build pipeline               | 1h          |
-| 7   | HIGH     | Remove `report_templ.go` from git tracking (after #6)    | 15min       |
-| 8   | MEDIUM   | Return errors instead of panicking in `buildFinding`     | 30min       |
-| 9   | MEDIUM   | Add `--check` mode for CI exit codes                     | 2h          |
-| 10  | MEDIUM   | Add `--diff` flag to show config changes before applying | 1h          |
+| #  | Priority | Item                                                     | Est. Effort |
+| -- | -------- | -------------------------------------------------------- | ----------- |
+| 6  | HIGH     | Add `templ generate` to Nix build pipeline               | 1h          |
+| 7  | HIGH     | Remove `report_templ.go` from git tracking (after #6)    | 15min       |
+| 8  | MEDIUM   | Return errors instead of panicking in `buildFinding`     | 30min       |
+| 9  | MEDIUM   | Add `--check` mode for CI exit codes                     | 2h          |
+| 10 | MEDIUM   | Add `--diff` flag to show config changes before applying | 1h          |
 
 ### Tier 3: Features (11-18)
 
-| #   | Priority | Item                                            | Est. Effort |
-| --- | -------- | ----------------------------------------------- | ----------- |
-| 11  | MEDIUM   | Add `output.formats: {}` to default config      | 30min       |
-| 12  | MEDIUM   | Add preset to apply reference config            | 1h          |
-| 13  | MEDIUM   | Version-aware feature flags                     | 2h          |
-| 14  | LOW      | `ginkgolinter` default settings                 | 30min       |
-| 15  | LOW      | `testifylint` default settings                  | 30min       |
-| 16  | LOW      | `swaggo` formatter detection improvements       | 1h          |
-| 17  | LOW      | Benchmarking for analyzer and fixer             | 2h          |
-| 18  | LOW      | Document RE2 exclusion pattern syntax in README | 30min       |
+| #  | Priority | Item                                            | Est. Effort |
+| -- | -------- | ----------------------------------------------- | ----------- |
+| 11 | MEDIUM   | Add `output.formats: {}` to default config      | 30min       |
+| 12 | MEDIUM   | Add preset to apply reference config            | 1h          |
+| 13 | MEDIUM   | Version-aware feature flags                     | 2h          |
+| 14 | LOW      | `ginkgolinter` default settings                 | 30min       |
+| 15 | LOW      | `testifylint` default settings                  | 30min       |
+| 16 | LOW      | `swaggo` formatter detection improvements       | 1h          |
+| 17 | LOW      | Benchmarking for analyzer and fixer             | 2h          |
+| 18 | LOW      | Document RE2 exclusion pattern syntax in README | 30min       |
 
 ### Tier 4: Polish (19-25)
 
-| #   | Priority | Item                                                         | Est. Effort |
-| --- | -------- | ------------------------------------------------------------ | ----------- |
-| 19  | MEDIUM   | Decide vendor/ in formatter exclusions                       | 30min       |
-| 20  | LOW      | Document go-finding replace directive for contributors       | 15min       |
-| 21  | LOW      | Consider structured error type for go-finding build failures | 30min       |
-| 22  | LOW      | Review and update FEATURES.md (last updated May 23)          | 1h          |
-| 23  | LOW      | Consider adding a CHANGELOG.md                               | 1h          |
-| 24  | LOW      | Add sarif/finding format smoke tests to CI                   | 30min       |
-| 25  | LOW      | Consider auto-detecting golangci-lint config schema version  | 1h          |
+| #  | Priority | Item                                                         | Est. Effort |
+| -- | -------- | ------------------------------------------------------------ | ----------- |
+| 19 | MEDIUM   | Decide vendor/ in formatter exclusions                       | 30min       |
+| 20 | LOW      | Document go-finding replace directive for contributors       | 15min       |
+| 21 | LOW      | Consider structured error type for go-finding build failures | 30min       |
+| 22 | LOW      | Review and update FEATURES.md (last updated May 23)          | 1h          |
+| 23 | LOW      | Consider adding a CHANGELOG.md                               | 1h          |
+| 24 | LOW      | Add sarif/finding format smoke tests to CI                   | 30min       |
+| 25 | LOW      | Consider auto-detecting golangci-lint config schema version  | 1h          |
 
 ---
 

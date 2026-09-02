@@ -139,48 +139,48 @@ Session covered a full versioning overhaul and project cleanup across 10 commits
 
 ### Priority 1: Release Blockers (must do before any public release)
 
-| #   | Task                                        | Impact                           | Effort  | Blocks                     |
-| --- | ------------------------------------------- | -------------------------------- | ------- | -------------------------- |
-| 1   | Create `v0.1.0` git tag                     | HIGH — enables semver everywhere | TRIVIAL | All release work           |
-| 2   | Add Goreleaser config                       | HIGH — automated CI releases     | MED     | Binary distribution        |
-| 3   | Inject version ldflags in GitHub Actions    | MED — CI artifacts get semver    | LOW     | Release quality            |
-| 4   | Verify go-finding is public (or remove dep) | HIGH — blocks public release     | VARIES  | PUBLIC_OR_PRIVATE decision |
-| 5   | Write public-ready README.md                | HIGH — first impression          | MED     | Users discovering project  |
+| # | Task                                        | Impact                           | Effort  | Blocks                     |
+| - | ------------------------------------------- | -------------------------------- | ------- | -------------------------- |
+| 1 | Create `v0.1.0` git tag                     | HIGH — enables semver everywhere | TRIVIAL | All release work           |
+| 2 | Add Goreleaser config                       | HIGH — automated CI releases     | MED     | Binary distribution        |
+| 3 | Inject version ldflags in GitHub Actions    | MED — CI artifacts get semver    | LOW     | Release quality            |
+| 4 | Verify go-finding is public (or remove dep) | HIGH — blocks public release     | VARIES  | PUBLIC_OR_PRIVATE decision |
+| 5 | Write public-ready README.md                | HIGH — first impression          | MED     | Users discovering project  |
 
 ### Priority 2: Quality & Confidence
 
-| #   | Task                                                       | Impact                         | Effort |
-| --- | ---------------------------------------------------------- | ------------------------------ | ------ |
-| 6   | Version integration test (build binary, check `--version`) | MED — covers fallback path     | MED    |
-| 7   | Create `FEATURES.md` from code                             | MED — honest feature inventory | MED    |
-| 8   | Create `TODO_LIST.md`                                      | MED — tracked work items       | MED    |
-| 9   | Push test coverage toward 70%+                             | MED — refactoring confidence   | HIGH   |
-| 10  | Validate `ARCHITECTURE.md` against code                    | LOW — doc accuracy             | LOW    |
-| 11  | Validate `QUALITY_CHECKLIST.md` against code               | LOW — doc accuracy             | LOW    |
-| 12  | Add version ADR to `docs/adr/`                             | LOW — decision record          | LOW    |
+| #  | Task                                                       | Impact                         | Effort |
+| -- | ---------------------------------------------------------- | ------------------------------ | ------ |
+| 6  | Version integration test (build binary, check `--version`) | MED — covers fallback path     | MED    |
+| 7  | Create `FEATURES.md` from code                             | MED — honest feature inventory | MED    |
+| 8  | Create `TODO_LIST.md`                                      | MED — tracked work items       | MED    |
+| 9  | Push test coverage toward 70%+                             | MED — refactoring confidence   | HIGH   |
+| 10 | Validate `ARCHITECTURE.md` against code                    | LOW — doc accuracy             | LOW    |
+| 11 | Validate `QUALITY_CHECKLIST.md` against code               | LOW — doc accuracy             | LOW    |
+| 12 | Add version ADR to `docs/adr/`                             | LOW — decision record          | LOW    |
 
 ### Priority 3: Developer Experience
 
-| #   | Task                                                 | Impact                    | Effort  |
-| --- | ---------------------------------------------------- | ------------------------- | ------- |
-| 13  | Add `CONTRIBUTING.md`                                | MED — enables community   | LOW     |
-| 14  | Make pre-commit hooks shareable (`language: golang`) | MED — discoverability     | MED     |
-| 15  | Cache ginkgo install in Nix shellHook                | LOW — faster shell entry  | LOW     |
-| 16  | Add `--version` to CI smoke test                     | LOW — regression guard    | TRIVIAL |
-| 17  | Add `just release` recipe (tag + push)               | LOW — release consistency | TRIVIAL |
+| #  | Task                                                 | Impact                    | Effort  |
+| -- | ---------------------------------------------------- | ------------------------- | ------- |
+| 13 | Add `CONTRIBUTING.md`                                | MED — enables community   | LOW     |
+| 14 | Make pre-commit hooks shareable (`language: golang`) | MED — discoverability     | MED     |
+| 15 | Cache ginkgo install in Nix shellHook                | LOW — faster shell entry  | LOW     |
+| 16 | Add `--version` to CI smoke test                     | LOW — regression guard    | TRIVIAL |
+| 17 | Add `just release` recipe (tag + push)               | LOW — release consistency | TRIVIAL |
 
 ### Priority 4: Polish & Marketing
 
-| #   | Task                                                       | Impact                     | Effort               |
-| --- | ---------------------------------------------------------- | -------------------------- | -------------------- |
-| 18  | Resolve `PUBLIC_OR_PRIVATE.md` — execute or close          | MED — unblocks everything  | TRIVIAL (decision)   |
-| 19  | Archive or delete `docs/archive/` from git if going public | LOW — repo size            | TRIVIAL              |
-| 20  | Set up GitHub Releases with binary assets                  | HIGH — download mechanism  | MED (via Goreleaser) |
-| 21  | Add Go Reference badge to README                           | LOW — pkg.go.dev docs      | TRIVIAL              |
-| 22  | Record demo GIF/screenshot for README                      | MED — visual understanding | MED                  |
-| 23  | Write blog post / announcement                             | MED — launch visibility    | HIGH                 |
-| 24  | Add CI badge, coverage badge to README                     | LOW — trust signals        | TRIVIAL              |
-| 25  | Add `CODE_OF_CONDUCT.md`                                   | LOW — community standard   | TRIVIAL              |
+| #  | Task                                                       | Impact                     | Effort               |
+| -- | ---------------------------------------------------------- | -------------------------- | -------------------- |
+| 18 | Resolve `PUBLIC_OR_PRIVATE.md` — execute or close          | MED — unblocks everything  | TRIVIAL (decision)   |
+| 19 | Archive or delete `docs/archive/` from git if going public | LOW — repo size            | TRIVIAL              |
+| 20 | Set up GitHub Releases with binary assets                  | HIGH — download mechanism  | MED (via Goreleaser) |
+| 21 | Add Go Reference badge to README                           | LOW — pkg.go.dev docs      | TRIVIAL              |
+| 22 | Record demo GIF/screenshot for README                      | MED — visual understanding | MED                  |
+| 23 | Write blog post / announcement                             | MED — launch visibility    | HIGH                 |
+| 24 | Add CI badge, coverage badge to README                     | LOW — trust signals        | TRIVIAL              |
+| 25 | Add `CODE_OF_CONDUCT.md`                                   | LOW — community standard   | TRIVIAL              |
 
 ---
 
@@ -219,15 +219,15 @@ Archive:    docs/archive/ (122 stale files)
 
 ## Commits This Session (10)
 
-| #   | Hash      | Message                                                                      |
-| --- | --------- | ---------------------------------------------------------------------------- |
-| 1   | `39a39b6` | feat: add structured versioning with runtime/debug fallback                  |
-| 2   | `ee1da8d` | refactor: eliminate version split brain                                      |
-| 3   | `a851e80` | fix(docker): add version ldflags to Dockerfile build                         |
-| 4   | `8baa3ac` | test: add BDD tests for version package                                      |
-| 5   | `1f55f9f` | docs: update AGENTS.md with new versioning architecture                      |
-| 6   | `2ad4c1b` | docs: add comprehensive versioning overhaul status report                    |
-| 7   | `8dd4010` | fix(nix): update vendorHash for pkg/version addition                         |
-| 8   | `ada076a` | fix: eliminate Ginkgo version mismatch between CLI and library               |
-| 9   | `9806b6b` | docs: update CHANGELOG.md with versioning overhaul and v0.1.0 baseline       |
-| 10  | `5bb2f9e` | chore: archive stale docs (99 status reports, 16 planning docs, 7 top-level) |
+| #  | Hash      | Message                                                                      |
+| -- | --------- | ---------------------------------------------------------------------------- |
+| 1  | `39a39b6` | feat: add structured versioning with runtime/debug fallback                  |
+| 2  | `ee1da8d` | refactor: eliminate version split brain                                      |
+| 3  | `a851e80` | fix(docker): add version ldflags to Dockerfile build                         |
+| 4  | `8baa3ac` | test: add BDD tests for version package                                      |
+| 5  | `1f55f9f` | docs: update AGENTS.md with new versioning architecture                      |
+| 6  | `2ad4c1b` | docs: add comprehensive versioning overhaul status report                    |
+| 7  | `8dd4010` | fix(nix): update vendorHash for pkg/version addition                         |
+| 8  | `ada076a` | fix: eliminate Ginkgo version mismatch between CLI and library               |
+| 9  | `9806b6b` | docs: update CHANGELOG.md with versioning overhaul and v0.1.0 baseline       |
+| 10 | `5bb2f9e` | chore: archive stale docs (99 status reports, 16 planning docs, 7 top-level) |

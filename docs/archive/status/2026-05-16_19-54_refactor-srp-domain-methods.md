@@ -119,7 +119,7 @@ Nothing. All code builds, tests pass, lint is clean.
 
 ### Code Quality
 
-4. **` HealthIssue` could have `WithSeverity`, `WithRule`, `WithMessage` builder methods** — matches go-finding builder pattern.
+4. **`HealthIssue` could have `WithSeverity`, `WithRule`, `WithMessage` builder methods** — matches go-finding builder pattern.
 
 5. **`ConfigHealth.addIssue` is unexported** — Should it be exported for custom health rule extensions?
 
@@ -127,23 +127,23 @@ Nothing. All code builds, tests pass, lint is clean.
 
 ## F. Top #25 Things to Get Done Next
 
-| #   | Priority | Task                                                                       | Value              |
-| --- | -------- | -------------------------------------------------------------------------- | ------------------ |
-| 1   | HIGH     | Extract `applyPreset` from `cmd_configure.go` to `cmd_configure_preset.go` | File size          |
-| 2   | HIGH     | Extract `runConfigure` from `cmd_configure.go` to `cmd_configure_core.go`  | File size          |
-| 3   | MEDIUM   | Add `//go:generate stringer` for `HealthSeverity`                          | Standard Go        |
-| 4   | MEDIUM   | Add `ConfigAnalysis.TotalLinters()`, `HasDeprecatedLinters()`              | API completeness   |
-| 5   | MEDIUM   | Create `FEATURES.md`                                                       | Project clarity    |
-| 6   | MEDIUM   | Create `TODO_LIST.md`                                                      | Execution roadmap  |
-| 7   | MEDIUM   | Improve `internal/cli` coverage (8.6%)                                     | Core path testing  |
-| 8   | MEDIUM   | Improve `pkg/report` coverage (0%)                                         | Report reliability |
-| 9   | MEDIUM   | Improve `pkg/finding` coverage (56.0%)                                     | Finding pipeline   |
-| 10  | LOW      | Add `ConfigAnalysis.String()` debug method                                 | DX                 |
-| 11  | LOW      | Document 0%-coverage packages                                              | Documentation      |
-| 12  | LOW      | Add `HealthIssue` builder pattern                                          | Consistency        |
-| 13  | LOW      | Tag `v0.1.0` release                                                       | Release mgmt       |
-| 14  | LOW      | Add goreleaser config                                                      | Distribution       |
-| 15  | LOW      | Evaluate nix flake-based releases                                          | Build system       |
+| #  | Priority | Task                                                                       | Value              |
+| -- | -------- | -------------------------------------------------------------------------- | ------------------ |
+| 1  | HIGH     | Extract `applyPreset` from `cmd_configure.go` to `cmd_configure_preset.go` | File size          |
+| 2  | HIGH     | Extract `runConfigure` from `cmd_configure.go` to `cmd_configure_core.go`  | File size          |
+| 3  | MEDIUM   | Add `//go:generate stringer` for `HealthSeverity`                          | Standard Go        |
+| 4  | MEDIUM   | Add `ConfigAnalysis.TotalLinters()`, `HasDeprecatedLinters()`              | API completeness   |
+| 5  | MEDIUM   | Create `FEATURES.md`                                                       | Project clarity    |
+| 6  | MEDIUM   | Create `TODO_LIST.md`                                                      | Execution roadmap  |
+| 7  | MEDIUM   | Improve `internal/cli` coverage (8.6%)                                     | Core path testing  |
+| 8  | MEDIUM   | Improve `pkg/report` coverage (0%)                                         | Report reliability |
+| 9  | MEDIUM   | Improve `pkg/finding` coverage (56.0%)                                     | Finding pipeline   |
+| 10 | LOW      | Add `ConfigAnalysis.String()` debug method                                 | DX                 |
+| 11 | LOW      | Document 0%-coverage packages                                              | Documentation      |
+| 12 | LOW      | Add `HealthIssue` builder pattern                                          | Consistency        |
+| 13 | LOW      | Tag `v0.1.0` release                                                       | Release mgmt       |
+| 14 | LOW      | Add goreleaser config                                                      | Distribution       |
+| 15 | LOW      | Evaluate nix flake-based releases                                          | Build system       |
 
 ---
 

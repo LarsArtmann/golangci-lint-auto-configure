@@ -10,77 +10,77 @@
 
 ### Build break fix + cleanup items (pre-MT12)
 
-| #   | Item                                                                                                       | Verification                  |
-| --- | ---------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| 1   | Fixed broken build at `fixer_config.go:218` — `newConfigUpdater(logger)` → `newConfigUpdater(logger, nil)` | `go build ./...` passes       |
-| 2   | Wired `SetGoVersionProvider(config.GetLocalGoVersion)` in `pkg/client/client.go`                           | Client test passes            |
-| 3   | Verified duplicate constants already cleaned (loader.go references `constants.DefaultMaxIssuesPerLinter`)  | grep confirms zero duplicates |
-| 4   | Verified `mapKeys` is NOT dead code — still called in `cmd_configure_preset.go:209` dry-run display path   | grep confirms caller          |
+| # | Item                                                                                                       | Verification                  |
+| - | ---------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| 1 | Fixed broken build at `fixer_config.go:218` — `newConfigUpdater(logger)` → `newConfigUpdater(logger, nil)` | `go build ./...` passes       |
+| 2 | Wired `SetGoVersionProvider(config.GetLocalGoVersion)` in `pkg/client/client.go`                           | Client test passes            |
+| 3 | Verified duplicate constants already cleaned (loader.go references `constants.DefaultMaxIssuesPerLinter`)  | grep confirms zero duplicates |
+| 4 | Verified `mapKeys` is NOT dead code — still called in `cmd_configure_preset.go:209` dry-run display path   | grep confirms caller          |
 
 ### MT11: Invert linter→config dependency
 
-| #   | Item                                                        | Verification                                                         |
-| --- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
-| 5   | `pkg/linter` production code has zero `pkg/config` imports  | `rg '"pkg/config"' --glob='*.go' pkg/linter/` returns only test file |
-| 6   | Zero `config.Config` alias hits in entire codebase          | `rg '\bconfig\.Config\b'` returns nothing                            |
-| 7   | `GoVersionProvider` interface injected into `configUpdater` | `SetGoVersionProvider` called in CLI + client                        |
+| # | Item                                                        | Verification                                                         |
+| - | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| 5 | `pkg/linter` production code has zero `pkg/config` imports  | `rg '"pkg/config"' --glob='*.go' pkg/linter/` returns only test file |
+| 6 | Zero `config.Config` alias hits in entire codebase          | `rg '\bconfig\.Config\b'` returns nothing                            |
+| 7 | `GoVersionProvider` interface injected into `configUpdater` | `SetGoVersionProvider` called in CLI + client                        |
 
 ### MT12: Dissolve pkg/client
 
-| #   | Item                                                                                                       | Verification                            |
-| --- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| 8   | Analyzed `pkg/client` — sole caller is `examples/api-usage/main.go`; kept as focused public API facade     | ADR-style decision documented in commit |
-| 9   | Modernized stale doc comment (`Version: "2"` → `types.ConfigVersionV2`, `[]string` → `[]types.LinterName`) | Build passes                            |
+| # | Item                                                                                                       | Verification                            |
+| - | ---------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| 8 | Analyzed `pkg/client` — sole caller is `examples/api-usage/main.go`; kept as focused public API facade     | ADR-style decision documented in commit |
+| 9 | Modernized stale doc comment (`Version: "2"` → `types.ConfigVersionV2`, `[]string` → `[]types.LinterName`) | Build passes                            |
 
 ### MT13: Replace 13 global flag vars with Flags struct
 
-| #   | Item                                                                                                               | Verification                             |
-| --- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
-| 10  | Created `internal/cli/flags.go` — `Flags` struct with 14 fields (13 original + `Check`)                            | Lint passes                              |
-| 11  | Updated `CommandBuilder` to hold `*Flags`, added `Flags()` accessor                                                | Lint passes                              |
-| 12  | `NewRootCommand` now takes `*Flags`, creates builder with it                                                       | Build passes                             |
-| 13  | `registerGlobalFlags` binds to `flags.*` instead of package-level vars                                             | Build passes                             |
-| 14  | All command constructors (`configure`, `analyze`, `validate`, `report`, `audit`, `presets`) thread `flags` through | All tests pass                           |
-| 15  | `HandleError` takes `*Flags` for `JSONErrors` access                                                               | Build passes                             |
-| 16  | `auditDisabled(noAudit bool)` — no longer reads global                                                             | Test updated to parameterized calls      |
-| 17  | `newRunLedger(ctx, logger, configFile, noAudit bool)` — no longer reads global                                     | Test updated                             |
-| 18  | `setLogLevel(logger, verbose bool)` — no longer reads global                                                       | Used in analyze, report, validate        |
-| 19  | Deleted dead `runPresetOrFixer` function after inlining dispatch into `runConfigure`                               | grep confirms zero callers               |
-| 20  | Deleted all 13 package-level `var` declarations                                                                    | `gochecknoglobals` passes                |
-| 21  | Full test suite passes (18 packages, race detector)                                                                | `go test -race ./pkg/... ./internal/...` |
-| 22  | Zero lint issues                                                                                                   | `golangci-lint run`                      |
+| #  | Item                                                                                                               | Verification                             |
+| -- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
+| 10 | Created `internal/cli/flags.go` — `Flags` struct with 14 fields (13 original + `Check`)                            | Lint passes                              |
+| 11 | Updated `CommandBuilder` to hold `*Flags`, added `Flags()` accessor                                                | Lint passes                              |
+| 12 | `NewRootCommand` now takes `*Flags`, creates builder with it                                                       | Build passes                             |
+| 13 | `registerGlobalFlags` binds to `flags.*` instead of package-level vars                                             | Build passes                             |
+| 14 | All command constructors (`configure`, `analyze`, `validate`, `report`, `audit`, `presets`) thread `flags` through | All tests pass                           |
+| 15 | `HandleError` takes `*Flags` for `JSONErrors` access                                                               | Build passes                             |
+| 16 | `auditDisabled(noAudit bool)` — no longer reads global                                                             | Test updated to parameterized calls      |
+| 17 | `newRunLedger(ctx, logger, configFile, noAudit bool)` — no longer reads global                                     | Test updated                             |
+| 18 | `setLogLevel(logger, verbose bool)` — no longer reads global                                                       | Used in analyze, report, validate        |
+| 19 | Deleted dead `runPresetOrFixer` function after inlining dispatch into `runConfigure`                               | grep confirms zero callers               |
+| 20 | Deleted all 13 package-level `var` declarations                                                                    | `gochecknoglobals` passes                |
+| 21 | Full test suite passes (18 packages, race detector)                                                                | `go test -race ./pkg/... ./internal/...` |
+| 22 | Zero lint issues                                                                                                   | `golangci-lint run`                      |
 
 ### MT14: Config unification design spike
 
-| #   | Item                                                                                | Verification         |
-| --- | ----------------------------------------------------------------------------------- | -------------------- |
-| 23  | Wrote `docs/adr/ADR-006-Keep-Config-Types-Separate.md` with thorough analysis       | File exists          |
-| 24  | Documented field-by-field differences between `types.Config` and `migration.Config` | ADR section complete |
-| 25  | Identified test gaps for future unification attempt                                 | ADR section complete |
-| 26  | Decision: KEEP SEPARATE — v1 is dead (0 live configs), HIGH risk, zero ROI          | ADR accepted         |
+| #  | Item                                                                                | Verification         |
+| -- | ----------------------------------------------------------------------------------- | -------------------- |
+| 23 | Wrote `docs/adr/ADR-006-Keep-Config-Types-Separate.md` with thorough analysis       | File exists          |
+| 24 | Documented field-by-field differences between `types.Config` and `migration.Config` | ADR section complete |
+| 25 | Identified test gaps for future unification attempt                                 | ADR section complete |
+| 26 | Decision: KEEP SEPARATE — v1 is dead (0 live configs), HIGH risk, zero ROI          | ADR accepted         |
 
 ### MT15: Config unification implementation
 
-| #   | Item                                                                                                | Verification            |
-| --- | --------------------------------------------------------------------------------------------------- | ----------------------- |
-| 27  | **SKIPPED per ADR-006** — the design spike determined unification is negative ROI for a dead format | ADR documents rationale |
+| #  | Item                                                                                                | Verification            |
+| -- | --------------------------------------------------------------------------------------------------- | ----------------------- |
+| 27 | **SKIPPED per ADR-006** — the design spike determined unification is negative ROI for a dead format | ADR documents rationale |
 
 ### MT16: SettingsMap wrapper
 
-| #   | Item                                                                                                                | Verification |
-| --- | ------------------------------------------------------------------------------------------------------------------- | ------------ |
-| 28  | Created `pkg/types/settings_map.go` — `SettingsMap` type with `AsSettingsMap()`, `IsEmpty()`, `GetMap()`, `Clone()` | Build passes |
-| 29  | Migrated `pkg/types/clone.go` — `cloneAnyMap` delegates to `SettingsMap.Clone()`                                    | Test passes  |
-| 30  | Migrated `pkg/config/merger_helpers.go` — `mergeSettingsMaps` uses `types.AsSettingsMap`                            | Test passes  |
-| 31  | Migrated `pkg/config/settings_validator.go` — `validateSingleLinterSettings` uses `types.AsSettingsMap`             | Test passes  |
-| 32  | Migrated `pkg/linter/fixer_config.go` — `isEmptySettingsValue` uses `types.AsSettingsMap` + `IsEmpty()`             | Test passes  |
+| #  | Item                                                                                                                | Verification |
+| -- | ------------------------------------------------------------------------------------------------------------------- | ------------ |
+| 28 | Created `pkg/types/settings_map.go` — `SettingsMap` type with `AsSettingsMap()`, `IsEmpty()`, `GetMap()`, `Clone()` | Build passes |
+| 29 | Migrated `pkg/types/clone.go` — `cloneAnyMap` delegates to `SettingsMap.Clone()`                                    | Test passes  |
+| 30 | Migrated `pkg/config/merger_helpers.go` — `mergeSettingsMaps` uses `types.AsSettingsMap`                            | Test passes  |
+| 31 | Migrated `pkg/config/settings_validator.go` — `validateSingleLinterSettings` uses `types.AsSettingsMap`             | Test passes  |
+| 32 | Migrated `pkg/linter/fixer_config.go` — `isEmptySettingsValue` uses `types.AsSettingsMap` + `IsEmpty()`             | Test passes  |
 
 ### GATE 3 + GATE 4
 
-| #   | Item                                                 | Verification |
-| --- | ---------------------------------------------------- | ------------ |
-| 33  | GATE 3: build + test + lint + alias check — ALL PASS | Verified     |
-| 34  | GATE 4: build + test + lint + alias check — ALL PASS | Verified     |
+| #  | Item                                                 | Verification |
+| -- | ---------------------------------------------------- | ------------ |
+| 33 | GATE 3: build + test + lint + alias check — ALL PASS | Verified     |
+| 34 | GATE 4: build + test + lint + alias check — ALL PASS | Verified     |
 
 ---
 

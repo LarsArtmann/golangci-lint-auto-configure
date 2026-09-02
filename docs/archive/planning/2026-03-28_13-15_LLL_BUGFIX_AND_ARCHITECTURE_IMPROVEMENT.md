@@ -107,29 +107,29 @@ These should be ONE function, not duplicated.
 
 ### High Impact, Low Work (Do First)
 
-| #   | Task                                       | Work  | Impact | Customer Value         |
-| --- | ------------------------------------------ | ----- | ------ | ---------------------- |
-| 1   | Commit current fix                         | 2min  | HIGH   | Preserve working code  |
-| 2   | Refactor RedundantLinters data structure   | 10min | HIGH   | Single source of truth |
-| 3   | Create shared redundancy check helper      | 8min  | HIGH   | DRY principle          |
-| 4   | Update categorizer and fixer to use helper | 10min | HIGH   | Consistent behavior    |
-| 5   | Add tests for categorizeLinters            | 25min | HIGH   | Regression prevention  |
+| # | Task                                       | Work  | Impact | Customer Value         |
+| - | ------------------------------------------ | ----- | ------ | ---------------------- |
+| 1 | Commit current fix                         | 2min  | HIGH   | Preserve working code  |
+| 2 | Refactor RedundantLinters data structure   | 10min | HIGH   | Single source of truth |
+| 3 | Create shared redundancy check helper      | 8min  | HIGH   | DRY principle          |
+| 4 | Update categorizer and fixer to use helper | 10min | HIGH   | Consistent behavior    |
+| 5 | Add tests for categorizeLinters            | 25min | HIGH   | Regression prevention  |
 
 ### Medium Impact, Medium Work
 
-| #   | Task                             | Work  | Impact | Customer Value         |
-| --- | -------------------------------- | ----- | ------ | ---------------------- |
-| 6   | Add fixer redundant linter tests | 15min | MEDIUM | Test coverage          |
-| 7   | Document linter/formatter model  | 15min | MEDIUM | Knowledge sharing      |
-| 8   | Update pkg/README.md             | 5min  | LOW    | Documentation accuracy |
+| # | Task                             | Work  | Impact | Customer Value         |
+| - | -------------------------------- | ----- | ------ | ---------------------- |
+| 6 | Add fixer redundant linter tests | 15min | MEDIUM | Test coverage          |
+| 7 | Document linter/formatter model  | 15min | MEDIUM | Knowledge sharing      |
+| 8 | Update pkg/README.md             | 5min  | LOW    | Documentation accuracy |
 
 ### Lower Priority
 
-| #   | Task                        | Work  | Impact | Customer Value           |
-| --- | --------------------------- | ----- | ------ | ------------------------ |
-| 9   | Explore mo Result types     | 30min | LOW    | Potential cleaner code   |
-| 10  | Add priority string methods | 20min | LOW    | Better logging           |
-| 11  | go-arch-lint integration    | 30min | MEDIUM | Architecture enforcement |
+| #  | Task                        | Work  | Impact | Customer Value           |
+| -- | --------------------------- | ----- | ------ | ------------------------ |
+| 9  | Explore mo Result types     | 30min | LOW    | Potential cleaner code   |
+| 10 | Add priority string methods | 20min | LOW    | Better logging           |
+| 11 | go-arch-lint integration    | 30min | MEDIUM | Architecture enforcement |
 
 ---
 

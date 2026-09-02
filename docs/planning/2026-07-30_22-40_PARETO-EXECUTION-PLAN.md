@@ -82,30 +82,30 @@
 
 All tasks sorted by importance/impact/effort/customer-value.
 
-| #   | Task                                                               | Impact    | Effort | Customer Value     | Priority | Dependencies  |
-| --- | ------------------------------------------------------------------ | --------- | ------ | ------------------ | -------- | ------------- |
-| 1   | **Push 6 unpushed commits to origin**                              | Critical  | 5min   | Team visibility    | P0       | None          |
-| 2   | **Fix `shortRunID` panic guard** in cmd_audit.go                   | Critical  | 15min  | Prevents CLI crash | P0       | None          |
-| 3   | **Write this planning doc**                                        | High      | 20min  | Process discipline | P0       | None          |
-| 4   | **Update TODO_LIST.md** — remove stale items, add new ones         | High      | 30min  | Accuracy           | P1       | None          |
-| 5   | **Update FEATURES.md** — never-enable, repair re-add               | High      | 30min  | Feature tracking   | P1       | None          |
-| 6   | **Update CHANGELOG.md** — erraudit conversions, policy enforcement | High      | 30min  | Release notes      | P1       | None          |
-| 7   | **YAML indentation preservation**                                  | Very High | 3-4h   | #1 user pain       | P1       | None          |
-| 8   | **`RuleKey()` merge strategy** for default-exclusion propagation   | High      | 2-3h   | 88 configs stuck   | P1       | None          |
-| 9   | **`--force-settings` flag**                                        | High      | 2h     | Self-config fix    | P1       | None          |
-| 10  | **Extract `CommandContext` struct** for CLI globals                | High      | 2-3h   | Testability        | P1       | None          |
-| 11  | **Consolidate ARCHITECTURE.md inline ADRs** into `docs/adr/`       | Medium    | 1-2h   | Split-brain fix    | P2       | None          |
-| 12  | **README.md claim-by-claim audit**                                 | Medium    | 2h     | Trust              | P2       | None          |
-| 13  | **Full `nix flake check`** (with build)                            | Medium    | 15min  | Build validation   | P2       | SSH keys      |
-| 14  | **Docs-integrity test extension** — all FEATURES.md counts         | Medium    | 1h     | Drift prevention   | P2       | None          |
-| 15  | **Multi-preset merge correctness tests**                           | Medium    | 1h     | Correctness        | P2       | None          |
-| 16  | **Status report lifecycle policy**                                 | Low       | 30min  | Doc hygiene        | P3       | None          |
-| 17  | **Swallowed-error governance audit** (periodic)                    | Low       | 1h     | Error quality      | P3       | None          |
-| 18  | **`LinterMinVersions` accuracy audit**                             | Low       | 1-2h   | Data accuracy      | P3       | Upstream docs |
-| 19  | **`DeprecatedLinters` target audit**                               | Low       | 1h     | Data accuracy      | P3       | None          |
-| 20  | **Auto-commit hook improvement**                                   | Low       | 1h     | Git hygiene        | P3       | None          |
-| 21  | **Narrow interface adoption** — ConfigReader/ConfigWriter          | Low       | 1-2h   | Testability        | P3       | #10           |
-| 22  | **Document coverage-check standalone error strategy** in AGENTS.md | Low       | 15min  | Clarity            | P3       | None          |
+| #  | Task                                                               | Impact    | Effort | Customer Value     | Priority | Dependencies  |
+| -- | ------------------------------------------------------------------ | --------- | ------ | ------------------ | -------- | ------------- |
+| 1  | **Push 6 unpushed commits to origin**                              | Critical  | 5min   | Team visibility    | P0       | None          |
+| 2  | **Fix `shortRunID` panic guard** in cmd_audit.go                   | Critical  | 15min  | Prevents CLI crash | P0       | None          |
+| 3  | **Write this planning doc**                                        | High      | 20min  | Process discipline | P0       | None          |
+| 4  | **Update TODO_LIST.md** — remove stale items, add new ones         | High      | 30min  | Accuracy           | P1       | None          |
+| 5  | **Update FEATURES.md** — never-enable, repair re-add               | High      | 30min  | Feature tracking   | P1       | None          |
+| 6  | **Update CHANGELOG.md** — erraudit conversions, policy enforcement | High      | 30min  | Release notes      | P1       | None          |
+| 7  | **YAML indentation preservation**                                  | Very High | 3-4h   | #1 user pain       | P1       | None          |
+| 8  | **`RuleKey()` merge strategy** for default-exclusion propagation   | High      | 2-3h   | 88 configs stuck   | P1       | None          |
+| 9  | **`--force-settings` flag**                                        | High      | 2h     | Self-config fix    | P1       | None          |
+| 10 | **Extract `CommandContext` struct** for CLI globals                | High      | 2-3h   | Testability        | P1       | None          |
+| 11 | **Consolidate ARCHITECTURE.md inline ADRs** into `docs/adr/`       | Medium    | 1-2h   | Split-brain fix    | P2       | None          |
+| 12 | **README.md claim-by-claim audit**                                 | Medium    | 2h     | Trust              | P2       | None          |
+| 13 | **Full `nix flake check`** (with build)                            | Medium    | 15min  | Build validation   | P2       | SSH keys      |
+| 14 | **Docs-integrity test extension** — all FEATURES.md counts         | Medium    | 1h     | Drift prevention   | P2       | None          |
+| 15 | **Multi-preset merge correctness tests**                           | Medium    | 1h     | Correctness        | P2       | None          |
+| 16 | **Status report lifecycle policy**                                 | Low       | 30min  | Doc hygiene        | P3       | None          |
+| 17 | **Swallowed-error governance audit** (periodic)                    | Low       | 1h     | Error quality      | P3       | None          |
+| 18 | **`LinterMinVersions` accuracy audit**                             | Low       | 1-2h   | Data accuracy      | P3       | Upstream docs |
+| 19 | **`DeprecatedLinters` target audit**                               | Low       | 1h     | Data accuracy      | P3       | None          |
+| 20 | **Auto-commit hook improvement**                                   | Low       | 1h     | Git hygiene        | P3       | None          |
+| 21 | **Narrow interface adoption** — ConfigReader/ConfigWriter          | Low       | 1-2h   | Testability        | P3       | #10           |
+| 22 | **Document coverage-check standalone error strategy** in AGENTS.md | Low       | 15min  | Clarity            | P3       | None          |
 
 **Total estimated effort: ~28-35 hours**
 

@@ -913,8 +913,8 @@ golangci-lint linters --json | jq -r '.Enabled[] | select(.deprecated==true) | .
 
 ### Phase 1: Critical Fixes (Priority P0) 🔥
 
-| #     | Task                                                   | Effort | Impact | Status    |
-| ----- | ------------------------------------------------------ | ------ | ------ | --------- |
+| #     | Task                                                   | Effort | Impact | Status   |
+| ----- | ------------------------------------------------------ | ------ | ------ | -------- |
 | **1** | Remove deprecated `wsl` from .golangci.yml             | 2 min  | HIGH   | ⏸️ DO NOW |
 | **2** | Create automated status report verification script     | 30 min | HIGH   | ⏸️ DO NOW |
 | **3** | Fix status report error about dupl.md (already exists) | 5 min  | MEDIUM | ⏸️ DO NOW |

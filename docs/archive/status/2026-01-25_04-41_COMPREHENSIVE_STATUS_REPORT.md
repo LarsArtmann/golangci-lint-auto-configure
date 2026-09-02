@@ -55,7 +55,7 @@
 | **1.11** | Create `pkg/report/json_generator.go` with `GenerateJSONReport` function | 15min    | ✅ COMPLETE | Full implementation with JSON marshaling    |
 | **1.12** | Add `--format json` flag to report command                               | 15min    | ✅ COMPLETE | Flag added and integrated into command flow |
 | **1.13** | Test JSON output validates against schema                                | 15min    | ✅ COMPLETE | JSON generated with proper structure        |
-| **1.14** | Add JSON schema documentation to README                                  | 15min    | ⏸️ PENDING  | Documented in plan but not yet in README    |
+| **1.14** | Add JSON schema documentation to README                                  | 15min    | ⏸️ PENDING   | Documented in plan but not yet in README    |
 
 **Result**: JSON report generation implemented but BLOCKED by file system issue (see section D). Code is correct but Go compiler sees inconsistent content, preventing successful builds and testing.
 
@@ -67,10 +67,10 @@
 | **1.16** | Add `NewConfigError(msg, path string, err error)` constructor   | 15min    | ✅ COMPLETE | Implements error interface with context           |
 | **1.17** | Add `NewAnalysisError(msg, file string, err error)` constructor | 15min    | ✅ COMPLETE | File context for analysis failures                |
 | **1.18** | Add `NewReportError(msg, path string, err error)` constructor   | 15min    | ✅ COMPLETE | Path context for report generation                |
-| **1.19** | Update `pkg/config/loader.go` to use new error types            | 15min    | ⏸️ PENDING  | Not yet integrated                                |
-| **1.20** | Update `pkg/linter/analyzer.go` to use new error types          | 15min    | ⏸️ PENDING  | Not yet integrated                                |
-| **1.21** | Update `pkg/linter/fixer.go` to use new error types             | 15min    | ⏸️ PENDING  | Not yet integrated                                |
-| **1.22** | Test all error paths                                            | 15min    | ⏸️ PENDING  | Error types created but not tested in actual code |
+| **1.19** | Update `pkg/config/loader.go` to use new error types            | 15min    | ⏸️ PENDING   | Not yet integrated                                |
+| **1.20** | Update `pkg/linter/analyzer.go` to use new error types          | 15min    | ⏸️ PENDING   | Not yet integrated                                |
+| **1.21** | Update `pkg/linter/fixer.go` to use new error types             | 15min    | ⏸️ PENDING   | Not yet integrated                                |
+| **1.22** | Test all error paths                                            | 15min    | ⏸️ PENDING   | Error types created but not tested in actual code |
 
 **Result**: Custom error types created with proper context fields (Path, File, Path), but not yet integrated into existing codebase. Error types are ready for use but implementation is incomplete.
 

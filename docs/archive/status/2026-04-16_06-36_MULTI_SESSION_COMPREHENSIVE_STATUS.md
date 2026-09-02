@@ -1,9 +1,9 @@
 # Comprehensive Multi-Session Status Report
 
-**Date:** 2026-04-16 06:36  
-**Sessions:** 1–5 (spanning 2026-04-15 → 2026-04-16)  
-**Branch:** master  
-**Commits Ahead of Origin:** 6 (unpushed)  
+**Date:** 2026-04-16 06:36\
+**Sessions:** 1–5 (spanning 2026-04-15 → 2026-04-16)\
+**Branch:** master\
+**Commits Ahead of Origin:** 6 (unpushed)\
 **Test Status:** 93/93 passing (20 types + 39 config + 35 linter — includes 1 new deep-merge test)
 
 ---
@@ -20,31 +20,31 @@ Over 5 sessions, we performed a comprehensive deep audit of the entire codebase,
 
 ### Session 1–2: Critical Data-Loss Bug Fix (4 commits)
 
-| #   | Commit    | Description                                                  |
-| --- | --------- | ------------------------------------------------------------ |
-| 1   | `ea7b7b9` | Bug report: config roundtrip silently drops linters-settings |
-| 2   | `bdb4773` | Add `LintersSettingsV1` field to `types.Config`              |
-| 3   | `8f5de0d` | Switch to `yaml.Decoder`, add v1→v2 auto-migration           |
-| 4   | `90709ec` | Add roundtrip fidelity tests                                 |
+| # | Commit    | Description                                                  |
+| - | --------- | ------------------------------------------------------------ |
+| 1 | `ea7b7b9` | Bug report: config roundtrip silently drops linters-settings |
+| 2 | `bdb4773` | Add `LintersSettingsV1` field to `types.Config`              |
+| 3 | `8f5de0d` | Switch to `yaml.Decoder`, add v1→v2 auto-migration           |
+| 4 | `90709ec` | Add roundtrip fidelity tests                                 |
 
 ### Session 3: Thread Safety & DRY (4 commits)
 
-| #   | Commit    | Description                                           |
-| --- | --------- | ----------------------------------------------------- |
-| 5   | `725b489` | Fix nil map panic in `mergeSettingsMaps`              |
-| 6   | `1a5a6a7` | DRY `defaultNames` and `unmarshalConfig` in loader    |
-| 7   | `868dd82` | Thread-safe validator init with `sync.Once`           |
-| 8   | `756d9b8` | Inject safe default settings for auto-enabled linters |
+| # | Commit    | Description                                           |
+| - | --------- | ----------------------------------------------------- |
+| 5 | `725b489` | Fix nil map panic in `mergeSettingsMaps`              |
+| 6 | `1a5a6a7` | DRY `defaultNames` and `unmarshalConfig` in loader    |
+| 7 | `868dd82` | Thread-safe validator init with `sync.Once`           |
+| 8 | `756d9b8` | Inject safe default settings for auto-enabled linters |
 
 ### Session 4–5: Deep Audit Fixes (2 commits + 2 pending)
 
-| #   | Commit    | Description                                  |
-| --- | --------- | -------------------------------------------- |
-| 9   | `d929c27` | Session 3 audit status report (docs only)    |
-| 10  | `e4044fd` | **Batch of 8 fixes** (see below)             |
-| 11  | `afeb999` | Type `FormatterInfo.Name` as `FormatterName` |
-| —   | _pending_ | Deep merge for nested settings + test        |
-| —   | _pending_ | Docs cleanup (VS Code references)            |
+| #  | Commit    | Description                                  |
+| -- | --------- | -------------------------------------------- |
+| 9  | `d929c27` | Session 3 audit status report (docs only)    |
+| 10 | `e4044fd` | **Batch of 8 fixes** (see below)             |
+| 11 | `afeb999` | Type `FormatterInfo.Name` as `FormatterName` |
+| —  | _pending_ | Deep merge for nested settings + test        |
+| —  | _pending_ | Docs cleanup (VS Code references)            |
 
 #### Details of Commit `e4044fd` (8 fixes batched):
 
@@ -87,59 +87,59 @@ From the original 31-item audit, these remain unstarted:
 
 ### P0 (Critical Bugs)
 
-| #   | Issue                                                                                                                    | Location            | Effort |
-| --- | ------------------------------------------------------------------------------------------------------------------------ | ------------------- | ------ |
-| 1   | Spinner goroutine race in `cmd_analyze.go:62-80` — no sync between spinnerDone and stdout writes                         | `internal/cli/cmd/` | Medium |
-| 2   | `--priority` flag registered twice with conflicting defaults (commands.go:200="high" vs cmd_configure.go:103="optional") | `internal/cli/`     | Low    |
-| 3   | `MigrateFlags` captures zero values at init time (commands.go:158-162)                                                   | `internal/cli/`     | Medium |
+| # | Issue                                                                                                                    | Location            | Effort |
+| - | ------------------------------------------------------------------------------------------------------------------------ | ------------------- | ------ |
+| 1 | Spinner goroutine race in `cmd_analyze.go:62-80` — no sync between spinnerDone and stdout writes                         | `internal/cli/cmd/` | Medium |
+| 2 | `--priority` flag registered twice with conflicting defaults (commands.go:200="high" vs cmd_configure.go:103="optional") | `internal/cli/`     | Low    |
+| 3 | `MigrateFlags` captures zero values at init time (commands.go:158-162)                                                   | `internal/cli/`     | Medium |
 
 ### P1 (Significant)
 
-| #   | Issue                                                                      | Location      | Effort                                    |
-| --- | -------------------------------------------------------------------------- | ------------- | ----------------------------------------- |
-| 4   | `checkDryRunEarlyReturns` returns `OkMigration(nil)` — nil pointer footgun | `pkg/linter/` | Low                                       |
-| 5   | `ConfigLoader` interface has 11 methods — violates ISP                     | `pkg/types/`  | High                                      |
-| 6   | `ConfigAnalysis.ConfigPath` is `string` not `ConfigPath`                   | `pkg/types/`  | Skipped (low ROI — only used for display) |
-| 7   | 4 nearly identical error types in `pkg/errors/errors.go` — DRY violation   | `pkg/errors/` | Medium                                    |
+| # | Issue                                                                      | Location      | Effort                                    |
+| - | -------------------------------------------------------------------------- | ------------- | ----------------------------------------- |
+| 4 | `checkDryRunEarlyReturns` returns `OkMigration(nil)` — nil pointer footgun | `pkg/linter/` | Low                                       |
+| 5 | `ConfigLoader` interface has 11 methods — violates ISP                     | `pkg/types/`  | High                                      |
+| 6 | `ConfigAnalysis.ConfigPath` is `string` not `ConfigPath`                   | `pkg/types/`  | Skipped (low ROI — only used for display) |
+| 7 | 4 nearly identical error types in `pkg/errors/errors.go` — DRY violation   | `pkg/errors/` | Medium                                    |
 
 ### P2 (Code Quality)
 
-| #   | Issue                                                                        | Location               | Effort                             |
-| --- | ---------------------------------------------------------------------------- | ---------------------- | ---------------------------------- |
-| 8   | `LinterList` duplicates `golangciLintOutput` (same JSON structure)           | `pkg/config/loader.go` | Low                                |
-| 9   | 10 type aliases re-exported from config package                              | `pkg/config/`          | Low                                |
-| 10  | `ValidPresets` is untyped comma-separated string with spaces                 | `pkg/constants/`       | Skip (fine for error display only) |
-| 11  | `result.go` is 101 lines of trivial wrappers                                 | `pkg/types/`           | Low                                |
-| 12  | 8 global mutable variables for CLI flags                                     | `internal/cli/`        | Medium                             |
-| 13  | DRY violation in type methods (`String()`, `IsValid()` repeated for 5 types) | `pkg/types/`           | Low                                |
+| #  | Issue                                                                        | Location               | Effort                             |
+| -- | ---------------------------------------------------------------------------- | ---------------------- | ---------------------------------- |
+| 8  | `LinterList` duplicates `golangciLintOutput` (same JSON structure)           | `pkg/config/loader.go` | Low                                |
+| 9  | 10 type aliases re-exported from config package                              | `pkg/config/`          | Low                                |
+| 10 | `ValidPresets` is untyped comma-separated string with spaces                 | `pkg/constants/`       | Skip (fine for error display only) |
+| 11 | `result.go` is 101 lines of trivial wrappers                                 | `pkg/types/`           | Low                                |
+| 12 | 8 global mutable variables for CLI flags                                     | `internal/cli/`        | Medium                             |
+| 13 | DRY violation in type methods (`String()`, `IsValid()` repeated for 5 types) | `pkg/types/`           | Low                                |
 
 ### P3 (Minor)
 
-| #   | Issue                                                          | Location      | Effort  |
-| --- | -------------------------------------------------------------- | ------------- | ------- |
-| 14  | `IsGitRepo` in loader.go is trivial wrapper for utils function | `pkg/config/` | Trivial |
-| 15  | `Main()` creates second logger (first discarded)               | `cmd/`        | Low     |
-| 16  | Magic number `0` for priority comparison                       | Various       | Trivial |
+| #  | Issue                                                          | Location      | Effort  |
+| -- | -------------------------------------------------------------- | ------------- | ------- |
+| 14 | `IsGitRepo` in loader.go is trivial wrapper for utils function | `pkg/config/` | Trivial |
+| 15 | `Main()` creates second logger (first discarded)               | `cmd/`        | Low     |
+| 16 | Magic number `0` for priority comparison                       | Various       | Trivial |
 
 ### Dependency/Config Issues
 
-| #   | Issue                                                                              | Effort  |
-| --- | ---------------------------------------------------------------------------------- | ------- |
-| 17  | `go.mod` says `go 1.26.0` but `.golangci.yml` says `go: 1.26.1` — version mismatch | Trivial |
-| 18  | `GOTOOLCHAIN=local` in justfile conflicts with `go.mod` directive                  | Low     |
-| 19  | `GOWORK=off` everywhere but no `go.work` file exists                               | Trivial |
-| 20  | `samber/mo` used only for `Result[T]` — 20-line replacement possible               | Medium  |
-| 21  | Pre-commit hooks pinned to outdated `v4.5.0`, hook name mismatch                   | Low     |
+| #  | Issue                                                                              | Effort  |
+| -- | ---------------------------------------------------------------------------------- | ------- |
+| 17 | `go.mod` says `go 1.26.0` but `.golangci.yml` says `go: 1.26.1` — version mismatch | Trivial |
+| 18 | `GOTOOLCHAIN=local` in justfile conflicts with `go.mod` directive                  | Low     |
+| 19 | `GOWORK=off` everywhere but no `go.work` file exists                               | Trivial |
+| 20 | `samber/mo` used only for `Result[T]` — 20-line replacement possible               | Medium  |
+| 21 | Pre-commit hooks pinned to outdated `v4.5.0`, hook name mismatch                   | Low     |
 
 ### Test Quality Issues
 
-| #   | Issue                                                                              | Effort |
-| --- | ---------------------------------------------------------------------------------- | ------ |
-| 22  | 3 packages with NO tests: `pkg/client/`, `pkg/report/`, `internal/cli/cmd/`        | High   |
-| 23  | 4 test files use standard `testing.T` instead of Ginkgo                            | Medium |
-| 24  | Hardcoded `GOOS=darwin`, `GOARCH=arm64` in commands_test.go:41 — fails on Linux CI | Low    |
-| 25  | `os.Chdir(tempDir)` in integration_test.go:183 — not goroutine-safe                | Medium |
-| 26  | Multiple test helpers duplicated across files                                      | Low    |
+| #  | Issue                                                                              | Effort |
+| -- | ---------------------------------------------------------------------------------- | ------ |
+| 22 | 3 packages with NO tests: `pkg/client/`, `pkg/report/`, `internal/cli/cmd/`        | High   |
+| 23 | 4 test files use standard `testing.T` instead of Ginkgo                            | Medium |
+| 24 | Hardcoded `GOOS=darwin`, `GOARCH=arm64` in commands_test.go:41 — fails on Linux CI | Low    |
+| 25 | `os.Chdir(tempDir)` in integration_test.go:183 — not goroutine-safe                | Medium |
+| 26 | Multiple test helpers duplicated across files                                      | Low    |
 
 ---
 

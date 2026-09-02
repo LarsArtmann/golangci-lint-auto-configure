@@ -124,33 +124,33 @@ The breakage affected: finding builder, diff converter, golangci-lint parser, va
 
 Sorted by Impact × Customer-Value ÷ Effort.
 
-| #   | Task                                                                              | Impact   | Effort | Category           |
-| --- | --------------------------------------------------------------------------------- | -------- | ------ | ------------------ |
-| 1   | Update `flake.nix` vendorHash for go-error-family                                 | Critical | 5min   | Blocks Nix build   |
-| 2   | Run `golangci-lint run` and fix any new lint issues                               | High     | 15min  | Quality gate       |
-| 3   | Run `nix build` + `nix flake check` to verify full pipeline                       | High     | 10min  | CI readiness       |
-| 4   | Add CHANGELOG.md entry for go-finding fix + error-family                          | Medium   | 10min  | Release prep       |
-| 5   | Update FEATURES.md with error classification feature                              | Medium   | 10min  | Docs               |
-| 6   | Verify CI actually blocks on `go build` failure (audit ci.yml)                    | High     | 15min  | Process            |
-| 7   | Add exit code documentation to README (BSD sysexits table)                        | Medium   | 15min  | UX                 |
-| 8   | Add `.editorconfig` or treefmt check for templ files in CI                        | Low      | 10min  | Quality            |
-| 9   | Propagate error-family classification to all command handlers                     | High     | 30min  | Feature completion |
-| 10  | Add integration test: verify exit codes for common failure modes                  | Medium   | 20min  | Test coverage      |
-| 11  | Clean up `docs/status/` archive — 100+ old status reports cluttering              | Low      | 15min  | Hygiene            |
-| 12  | Audit all remaining `just` references in archived docs (or add disclaimer)        | Low      | 5min   | Hygiene            |
-| 13  | Add `templ generate` to README quickstart or devShell hook                        | Low      | 10min  | DX                 |
-| 14  | Review `pkg/errors/classification.go` — are all sentinel errors covered?          | Medium   | 15min  | Completeness       |
-| 15  | Add `--dry-run` exit code test for `configure --check` (exit 1 on changes needed) | Medium   | 15min  | CI contract        |
-| 16  | Verify SARIF output still works after finding API changes                         | High     | 15min  | Feature            |
-| 17  | Check `examples/` configs are still valid v2 format                               | Low      | 10min  | Docs               |
-| 18  | Run `go mod tidy` to ensure no unused deps linger                                 | Low      | 5min   | Hygiene            |
-| 19  | Add pre-push git hook option (currently only pre-commit)                          | Low      | 15min  | DX                 |
-| 20  | Review `flake.lock` — is go-error-family properly pinned?                         | Medium   | 5min   | Reproducibility    |
-| 21  | Consider adding `nix develop` automatic `templ generate` on enter                 | Low      | 10min  | DX                 |
-| 22  | Audit `internal/di/` references in old docs (doesn't exist)                       | Low      | 5min   | Docs               |
-| 23  | Add version-gated deprecation tests for gomodguard_v2                             | Medium   | 20min  | Test coverage      |
-| 24  | Review duplicate ConfigError/AnalysisError field patterns                         | Low      | 15min  | Tech debt          |
-| 25  | Plan next minor version release (v0.3.0?) with error-family feature               | Medium   | 20min  | Release            |
+| #  | Task                                                                              | Impact   | Effort | Category           |
+| -- | --------------------------------------------------------------------------------- | -------- | ------ | ------------------ |
+| 1  | Update `flake.nix` vendorHash for go-error-family                                 | Critical | 5min   | Blocks Nix build   |
+| 2  | Run `golangci-lint run` and fix any new lint issues                               | High     | 15min  | Quality gate       |
+| 3  | Run `nix build` + `nix flake check` to verify full pipeline                       | High     | 10min  | CI readiness       |
+| 4  | Add CHANGELOG.md entry for go-finding fix + error-family                          | Medium   | 10min  | Release prep       |
+| 5  | Update FEATURES.md with error classification feature                              | Medium   | 10min  | Docs               |
+| 6  | Verify CI actually blocks on `go build` failure (audit ci.yml)                    | High     | 15min  | Process            |
+| 7  | Add exit code documentation to README (BSD sysexits table)                        | Medium   | 15min  | UX                 |
+| 8  | Add `.editorconfig` or treefmt check for templ files in CI                        | Low      | 10min  | Quality            |
+| 9  | Propagate error-family classification to all command handlers                     | High     | 30min  | Feature completion |
+| 10 | Add integration test: verify exit codes for common failure modes                  | Medium   | 20min  | Test coverage      |
+| 11 | Clean up `docs/status/` archive — 100+ old status reports cluttering              | Low      | 15min  | Hygiene            |
+| 12 | Audit all remaining `just` references in archived docs (or add disclaimer)        | Low      | 5min   | Hygiene            |
+| 13 | Add `templ generate` to README quickstart or devShell hook                        | Low      | 10min  | DX                 |
+| 14 | Review `pkg/errors/classification.go` — are all sentinel errors covered?          | Medium   | 15min  | Completeness       |
+| 15 | Add `--dry-run` exit code test for `configure --check` (exit 1 on changes needed) | Medium   | 15min  | CI contract        |
+| 16 | Verify SARIF output still works after finding API changes                         | High     | 15min  | Feature            |
+| 17 | Check `examples/` configs are still valid v2 format                               | Low      | 10min  | Docs               |
+| 18 | Run `go mod tidy` to ensure no unused deps linger                                 | Low      | 5min   | Hygiene            |
+| 19 | Add pre-push git hook option (currently only pre-commit)                          | Low      | 15min  | DX                 |
+| 20 | Review `flake.lock` — is go-error-family properly pinned?                         | Medium   | 5min   | Reproducibility    |
+| 21 | Consider adding `nix develop` automatic `templ generate` on enter                 | Low      | 10min  | DX                 |
+| 22 | Audit `internal/di/` references in old docs (doesn't exist)                       | Low      | 5min   | Docs               |
+| 23 | Add version-gated deprecation tests for gomodguard_v2                             | Medium   | 20min  | Test coverage      |
+| 24 | Review duplicate ConfigError/AnalysisError field patterns                         | Low      | 15min  | Tech debt          |
+| 25 | Plan next minor version release (v0.3.0?) with error-family feature               | Medium   | 20min  | Release            |
 
 ---
 

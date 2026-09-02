@@ -36,53 +36,53 @@ This document outlines a comprehensive, systematic plan to elevate **golangci-li
 
 ### High Impact / Low Effort (Quick Wins) → DO FIRST (1-2 hours each)
 
-| #   | Feature                             | Impact | Effort | Priority |
-| --- | ----------------------------------- | ------ | ------ | -------- |
-| 1   | Add restore backup command          | HIGH   | LOW    | P0       |
-| 2   | Implement Cobra shell completion    | HIGH   | LOW    | P0       |
-| 3   | Add JSON report output format       | HIGH   | LOW    | P0       |
-| 4   | Improve error messages with context | HIGH   | LOW    | P0       |
-| 5   | Add API documentation with godoc    | MEDIUM | LOW    | P1       |
-| 6   | Create examples directory           | MEDIUM | LOW    | P1       |
+| # | Feature                             | Impact | Effort | Priority |
+| - | ----------------------------------- | ------ | ------ | -------- |
+| 1 | Add restore backup command          | HIGH   | LOW    | P0       |
+| 2 | Implement Cobra shell completion    | HIGH   | LOW    | P0       |
+| 3 | Add JSON report output format       | HIGH   | LOW    | P0       |
+| 4 | Improve error messages with context | HIGH   | LOW    | P0       |
+| 5 | Add API documentation with godoc    | MEDIUM | LOW    | P1       |
+| 6 | Create examples directory           | MEDIUM | LOW    | P1       |
 
 ### High Impact / Medium Effort (3-5 hours each)
 
-| #   | Feature                                | Impact | Effort | Priority |
-| --- | -------------------------------------- | ------ | ------ | -------- |
-| 7   | Implement real config migration        | HIGH   | MEDIUM | P0       |
-| 8   | Add integration tests for CLI commands | HIGH   | MEDIUM | P0       |
-| 9   | Add E2E tests with real golangci-lint  | HIGH   | MEDIUM | P0       |
-| 10  | Implement Result<T, E> pattern         | HIGH   | MEDIUM | P1       |
-| 11  | Add structured logging with zap        | MEDIUM | MEDIUM | P1       |
-| 12  | Add dark mode to HTML reports          | LOW    | MEDIUM | P2       |
+| #  | Feature                                | Impact | Effort | Priority |
+| -- | -------------------------------------- | ------ | ------ | -------- |
+| 7  | Implement real config migration        | HIGH   | MEDIUM | P0       |
+| 8  | Add integration tests for CLI commands | HIGH   | MEDIUM | P0       |
+| 9  | Add E2E tests with real golangci-lint  | HIGH   | MEDIUM | P0       |
+| 10 | Implement Result<T, E> pattern         | HIGH   | MEDIUM | P1       |
+| 11 | Add structured logging with zap        | MEDIUM | MEDIUM | P1       |
+| 12 | Add dark mode to HTML reports          | LOW    | MEDIUM | P2       |
 
 ### Medium Impact / Low Effort (1-2 hours each)
 
-| #   | Feature                           | Impact | Effort | Priority |
-| --- | --------------------------------- | ------ | ------ | -------- |
-| 13  | Add GitHub Actions CI/CD pipeline | MEDIUM | LOW    | P1       |
-| 14  | Add pre-commit hooks              | MEDIUM | LOW    | P1       |
-| 15  | Add Docker support                | MEDIUM | LOW    | P1       |
-| 16  | Create Makefile alternative       | LOW    | LOW    | P2       |
-| 17  | Add property-based tests          | MEDIUM | LOW    | P2       |
-| 18  | Add metrics with prometheus       | MEDIUM | LOW    | P2       |
+| #  | Feature                           | Impact | Effort | Priority |
+| -- | --------------------------------- | ------ | ------ | -------- |
+| 13 | Add GitHub Actions CI/CD pipeline | MEDIUM | LOW    | P1       |
+| 14 | Add pre-commit hooks              | MEDIUM | LOW    | P1       |
+| 15 | Add Docker support                | MEDIUM | LOW    | P1       |
+| 16 | Create Makefile alternative       | LOW    | LOW    | P2       |
+| 17 | Add property-based tests          | MEDIUM | LOW    | P2       |
+| 18 | Add metrics with prometheus       | MEDIUM | LOW    | P2       |
 
 ### Medium Impact / Medium Effort (3-4 hours each)
 
-| #   | Feature                                 | Impact | Effort | Priority |
-| --- | --------------------------------------- | ------ | ------ | -------- |
-| 19  | Implement proper interfaces             | MEDIUM | MEDIUM | P2       |
-| 20  | Add dependency injection with samber/do | MEDIUM | MEDIUM | P2       |
-| 21  | Add interactive CLI with bubbletea      | HIGH   | MEDIUM | P2       |
-| 22  | Add project type detection              | MEDIUM | MEDIUM | P2       |
+| #  | Feature                                 | Impact | Effort | Priority |
+| -- | --------------------------------------- | ------ | ------ | -------- |
+| 19 | Implement proper interfaces             | MEDIUM | MEDIUM | P2       |
+| 20 | Add dependency injection with samber/do | MEDIUM | MEDIUM | P2       |
+| 21 | Add interactive CLI with bubbletea      | HIGH   | MEDIUM | P2       |
+| 22 | Add project type detection              | MEDIUM | MEDIUM | P2       |
 
 ### High Impact / High Effort (4-6 hours each)
 
-| #   | Feature                    | Impact | Effort | Priority |
-| --- | -------------------------- | ------ | ------ | -------- |
-| 23  | Add performance benchmarks | HIGH   | HIGH   | P2       |
-| 24  | Add pprof integration      | HIGH   | HIGH   | P2       |
-| 25  | Add preset recommendations | HIGH   | HIGH   | P3       |
+| #  | Feature                    | Impact | Effort | Priority |
+| -- | -------------------------- | ------ | ------ | -------- |
+| 23 | Add performance benchmarks | HIGH   | HIGH   | P2       |
+| 24 | Add pprof integration      | HIGH   | HIGH   | P2       |
+| 25 | Add preset recommendations | HIGH   | HIGH   | P3       |
 
 ---
 

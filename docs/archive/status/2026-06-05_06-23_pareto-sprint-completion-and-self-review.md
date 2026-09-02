@@ -145,33 +145,33 @@ The self-review identified 13+ architectural issues across 3 severity levels. An
 
 Sorted by impact × effort (Pareto order):
 
-| #   | Task                                                  | Impact   | Effort   | Severity       |
-| --- | ----------------------------------------------------- | -------- | -------- | -------------- |
-| 1   | Fix Config.Clone() deep clone bug                     | Critical | 30min    | Bug            |
-| 2   | Type Enable/Disable as []LinterName/[]FormatterName   | High     | 45min    | Type Safety    |
-| 3   | Enable KnownFields(true) in YAML decoder              | High     | 30min    | Correctness    |
-| 4   | Add ParsePriority() with validation                   | Medium   | 15min    | Type Safety    |
-| 5   | Add GeneratedMode enum type                           | Medium   | 20min    | Type Safety    |
-| 6   | Add ConfigVersion type                                | Medium   | 15min    | Type Safety    |
-| 7   | Extract "validation-error" constant                   | Low      | 5min     | Code Quality   |
-| 8   | Harden detectFormat for unknown extensions            | Medium   | 20min    | Correctness    |
-| 9   | Fix spinner goroutine leak                            | Medium   | 30min    | Bug            |
-| 10  | Add tests for pkg/client/client.go                    | High     | 45min    | Coverage       |
-| 11  | Split ConfigLoader god interface                      | Medium   | 60min    | Architecture   |
-| 12  | Remove CLI package-level globals                      | Medium   | 60min    | Architecture   |
-| 13  | Adopt go-error-family                                 | Medium   | 90min    | Error Handling |
-| 14  | Add map[string]any typed accessors                    | Medium   | 60min    | Type Safety    |
-| 15  | Typed structs for top 15 linters                      | High     | 4h       | Architecture   |
-| 16  | Deep clone benchmark (cloneAnyMap vs json round-trip) | Low      | 30min    | Performance    |
-| 17  | Add integration test for Clone() deep isolation       | Medium   | 15min    | Testing        |
-| 18  | Fix unparam warnings in fixer_preflight.go            | Low      | 10min    | Lint           |
-| 19  | Fix wsl_v5 warning in commands_test.go:299            | Low      | 2min     | Lint           |
-| 20  | Fix inefficient string concat in migrator_test.go     | Low      | 5min     | Performance    |
-| 21  | Update vendorHash in flake.nix                        | Low      | 10min    | Build          |
-| 22  | Remove redundant gofmt from formatters config         | Low      | 2min     | Config         |
-| 23  | Add CI pipeline test for all presets end-to-end       | High     | 2h       | Testing        |
-| 24  | Document map[string]any design decision in ADR        | Medium   | 30min    | Documentation  |
-| 25  | Explore code-gen from golangci-lint schema (Option C) | Low      | Research | Architecture   |
+| #  | Task                                                  | Impact   | Effort   | Severity       |
+| -- | ----------------------------------------------------- | -------- | -------- | -------------- |
+| 1  | Fix Config.Clone() deep clone bug                     | Critical | 30min    | Bug            |
+| 2  | Type Enable/Disable as []LinterName/[]FormatterName   | High     | 45min    | Type Safety    |
+| 3  | Enable KnownFields(true) in YAML decoder              | High     | 30min    | Correctness    |
+| 4  | Add ParsePriority() with validation                   | Medium   | 15min    | Type Safety    |
+| 5  | Add GeneratedMode enum type                           | Medium   | 20min    | Type Safety    |
+| 6  | Add ConfigVersion type                                | Medium   | 15min    | Type Safety    |
+| 7  | Extract "validation-error" constant                   | Low      | 5min     | Code Quality   |
+| 8  | Harden detectFormat for unknown extensions            | Medium   | 20min    | Correctness    |
+| 9  | Fix spinner goroutine leak                            | Medium   | 30min    | Bug            |
+| 10 | Add tests for pkg/client/client.go                    | High     | 45min    | Coverage       |
+| 11 | Split ConfigLoader god interface                      | Medium   | 60min    | Architecture   |
+| 12 | Remove CLI package-level globals                      | Medium   | 60min    | Architecture   |
+| 13 | Adopt go-error-family                                 | Medium   | 90min    | Error Handling |
+| 14 | Add map[string]any typed accessors                    | Medium   | 60min    | Type Safety    |
+| 15 | Typed structs for top 15 linters                      | High     | 4h       | Architecture   |
+| 16 | Deep clone benchmark (cloneAnyMap vs json round-trip) | Low      | 30min    | Performance    |
+| 17 | Add integration test for Clone() deep isolation       | Medium   | 15min    | Testing        |
+| 18 | Fix unparam warnings in fixer_preflight.go            | Low      | 10min    | Lint           |
+| 19 | Fix wsl_v5 warning in commands_test.go:299            | Low      | 2min     | Lint           |
+| 20 | Fix inefficient string concat in migrator_test.go     | Low      | 5min     | Performance    |
+| 21 | Update vendorHash in flake.nix                        | Low      | 10min    | Build          |
+| 22 | Remove redundant gofmt from formatters config         | Low      | 2min     | Config         |
+| 23 | Add CI pipeline test for all presets end-to-end       | High     | 2h       | Testing        |
+| 24 | Document map[string]any design decision in ADR        | Medium   | 30min    | Documentation  |
+| 25 | Explore code-gen from golangci-lint schema (Option C) | Low      | Research | Architecture   |
 
 ---
 

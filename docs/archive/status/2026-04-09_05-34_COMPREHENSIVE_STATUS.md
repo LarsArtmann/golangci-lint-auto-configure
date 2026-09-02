@@ -107,33 +107,33 @@
 
 ### High Impact / Low Effort (Quick Wins)
 
-| #   | Task                                                                                        | Impact | Effort  |
-| --- | ------------------------------------------------------------------------------------------- | ------ | ------- |
-| 1   | Commit all 9 uncommitted files as separate focused commits                                  | High   | Low     |
-| 2   | Fix `varnamelen` warnings in `cmd_analyze.go` / `cmd_configure.go` (rename `b` → `builder`) | Low    | Trivial |
-| 3   | Delete unused `WithStringFlag` from `cmd_builder.go`                                        | Low    | Trivial |
-| 4   | Clean up `migrator_test.go` variable names (`dirsYamlSb96` → `builder`)                     | Low    | Trivial |
-| 5   | Add `just clean-cache` command to justfile                                                  | Low    | Trivial |
+| # | Task                                                                                        | Impact | Effort  |
+| - | ------------------------------------------------------------------------------------------- | ------ | ------- |
+| 1 | Commit all 9 uncommitted files as separate focused commits                                  | High   | Low     |
+| 2 | Fix `varnamelen` warnings in `cmd_analyze.go` / `cmd_configure.go` (rename `b` → `builder`) | Low    | Trivial |
+| 3 | Delete unused `WithStringFlag` from `cmd_builder.go`                                        | Low    | Trivial |
+| 4 | Clean up `migrator_test.go` variable names (`dirsYamlSb96` → `builder`)                     | Low    | Trivial |
+| 5 | Add `just clean-cache` command to justfile                                                  | Low    | Trivial |
 
 ### Medium Impact / Medium Effort
 
-| #   | Task                                                                                                  | Impact | Effort  |
-| --- | ----------------------------------------------------------------------------------------------------- | ------ | ------- |
-| 6   | Verify all tests pass with golangci-lint v2.10.1 (now installed)                                      | High   | Medium  |
-| 7   | Evaluate `slices.ContainsFunc` in `ui/formatter.go:70` — could use Set predicate wrapper              | Low    | Low     |
-| 8   | Keep `slices.Contains` in `fixer_formatters.go:175` — checks position, not membership (correct as-is) | N/A    | N/A     |
-| 9   | Consider `Set[T].IsSubsetOf(other) bool` method                                                       | Low    | Trivial |
-| 10  | Document Set[T] API in godoc or README                                                                | Low    | Low     |
+| #  | Task                                                                                                  | Impact | Effort  |
+| -- | ----------------------------------------------------------------------------------------------------- | ------ | ------- |
+| 6  | Verify all tests pass with golangci-lint v2.10.1 (now installed)                                      | High   | Medium  |
+| 7  | Evaluate `slices.ContainsFunc` in `ui/formatter.go:70` — could use Set predicate wrapper              | Low    | Low     |
+| 8  | Keep `slices.Contains` in `fixer_formatters.go:175` — checks position, not membership (correct as-is) | N/A    | N/A     |
+| 9  | Consider `Set[T].IsSubsetOf(other) bool` method                                                       | Low    | Trivial |
+| 10 | Document Set[T] API in godoc or README                                                                | Low    | Low     |
 
 ### Lower Priority / Future
 
-| #   | Task                                                                           | Impact | Effort  |
-| --- | ------------------------------------------------------------------------------ | ------ | ------- |
-| 11  | Migrate `LintersConfig.Enable/Disable` from `[]string` to `[]types.LinterName` | High   | High    |
-| 12  | Consider `OrderedSet[T]` for formatter ordering                                | Low    | High    |
-| 13  | Archive old status reports (70 files in `docs/status/`)                        | Low    | Low     |
-| 14  | Update `AGENTS.md` with final Set[T] migration status                          | Low    | Trivial |
-| 15  | Remove local `replace` directive for `universal-workflow` in go.mod            | Medium | Medium  |
+| #  | Task                                                                           | Impact | Effort  |
+| -- | ------------------------------------------------------------------------------ | ------ | ------- |
+| 11 | Migrate `LintersConfig.Enable/Disable` from `[]string` to `[]types.LinterName` | High   | High    |
+| 12 | Consider `OrderedSet[T]` for formatter ordering                                | Low    | High    |
+| 13 | Archive old status reports (70 files in `docs/status/`)                        | Low    | Low     |
+| 14 | Update `AGENTS.md` with final Set[T] migration status                          | Low    | Trivial |
+| 15 | Remove local `replace` directive for `universal-workflow` in go.mod            | Medium | Medium  |
 
 ---
 
@@ -213,48 +213,48 @@
 
 ### Tier 1: Unblock & Stabilize (Do First)
 
-| #   | Task                                                                  | Impact  | Effort  |
-| --- | --------------------------------------------------------------------- | ------- | ------- |
-| 1   | Fix corrupted Go cache: `rm -rf ~/Library/Caches/go-build/`           | Blocker | Trivial |
-| 2   | Commit `categorizer_test.go` fix (syntax error blocking linter tests) | Blocker | Trivial |
-| 3   | Commit dependency updates (go.mod/go.sum) as separate commit          | High    | Trivial |
-| 4   | Commit `fixer_formatters.go` log consolidation as separate commit     | Medium  | Low     |
-| 5   | Commit wsl_v5 formatting fixes across all files as single commit      | Medium  | Low     |
-| 6   | Commit `merger.go` godot fix with the wsl_v5 fixes                    | Low     | Trivial |
-| 7   | Fix `migrator_test.go` variable names and commit                      | Low     | Trivial |
-| 8   | Run full test suite after cache fix and verify 0 regressions          | High    | Medium  |
-| 9   | Delete or commit `docs/EXECUTION_PLAN_2026-04-09.md`                  | Low     | Trivial |
+| # | Task                                                                  | Impact  | Effort  |
+| - | --------------------------------------------------------------------- | ------- | ------- |
+| 1 | Fix corrupted Go cache: `rm -rf ~/Library/Caches/go-build/`           | Blocker | Trivial |
+| 2 | Commit `categorizer_test.go` fix (syntax error blocking linter tests) | Blocker | Trivial |
+| 3 | Commit dependency updates (go.mod/go.sum) as separate commit          | High    | Trivial |
+| 4 | Commit `fixer_formatters.go` log consolidation as separate commit     | Medium  | Low     |
+| 5 | Commit wsl_v5 formatting fixes across all files as single commit      | Medium  | Low     |
+| 6 | Commit `merger.go` godot fix with the wsl_v5 fixes                    | Low     | Trivial |
+| 7 | Fix `migrator_test.go` variable names and commit                      | Low     | Trivial |
+| 8 | Run full test suite after cache fix and verify 0 regressions          | High    | Medium  |
+| 9 | Delete or commit `docs/EXECUTION_PLAN_2026-04-09.md`                  | Low     | Trivial |
 
 ### Tier 2: Quick Code Wins
 
-| #   | Task                                                                        | Impact | Effort  |
-| --- | --------------------------------------------------------------------------- | ------ | ------- |
-| 10  | Rename `b` → `builder` in `cmd_analyze.go:40` and `cmd_configure.go:80`     | Low    | Trivial |
-| 11  | Delete unused `WithStringFlag` from `cmd_builder.go`                        | Low    | Trivial |
-| 12  | Delete stale `docs/EXECUTION_PLAN_2026-04-09.md` if no longer needed        | Low    | Trivial |
-| 13  | Add `IsSubsetOf` method to Set[T]                                           | Low    | Trivial |
-| 14  | Consider making `FormatterInfo.Name` use `types.FormatterName` consistently | Medium | Low     |
+| #  | Task                                                                        | Impact | Effort  |
+| -- | --------------------------------------------------------------------------- | ------ | ------- |
+| 10 | Rename `b` → `builder` in `cmd_analyze.go:40` and `cmd_configure.go:80`     | Low    | Trivial |
+| 11 | Delete unused `WithStringFlag` from `cmd_builder.go`                        | Low    | Trivial |
+| 12 | Delete stale `docs/EXECUTION_PLAN_2026-04-09.md` if no longer needed        | Low    | Trivial |
+| 13 | Add `IsSubsetOf` method to Set[T]                                           | Low    | Trivial |
+| 14 | Consider making `FormatterInfo.Name` use `types.FormatterName` consistently | Medium | Low     |
 
 ### Tier 3: Project Health
 
-| #   | Task                                                                      | Impact | Effort  |
-| --- | ------------------------------------------------------------------------- | ------ | ------- |
-| 15  | Add `just clean-cache` command to justfile                                | Low    | Trivial |
-| 16  | Archive old status reports (70 files) into `docs/status/archive/`         | Low    | Low     |
-| 17  | Update `AGENTS.md` with final Set[T] migration status                     | Low    | Trivial |
-| 18  | Run `golangci-lint run` and fix remaining warnings                        | Medium | Medium  |
-| 19  | Document Set[T] API in README or godoc                                    | Low    | Low     |
-| 20  | Fix `migrator_test.go` builder pattern — use builder directly, not append | Low    | Trivial |
+| #  | Task                                                                      | Impact | Effort  |
+| -- | ------------------------------------------------------------------------- | ------ | ------- |
+| 15 | Add `just clean-cache` command to justfile                                | Low    | Trivial |
+| 16 | Archive old status reports (70 files) into `docs/status/archive/`         | Low    | Low     |
+| 17 | Update `AGENTS.md` with final Set[T] migration status                     | Low    | Trivial |
+| 18 | Run `golangci-lint run` and fix remaining warnings                        | Medium | Medium  |
+| 19 | Document Set[T] API in README or godoc                                    | Low    | Low     |
+| 20 | Fix `migrator_test.go` builder pattern — use builder directly, not append | Low    | Trivial |
 
 ### Tier 4: Future Architecture
 
-| #   | Task                                                                           | Impact | Effort |
-| --- | ------------------------------------------------------------------------------ | ------ | ------ |
-| 21  | Migrate `LintersConfig.Enable/Disable` from `[]string` to `[]types.LinterName` | High   | High   |
-| 22  | Consider `OrderedSet[T]` for formatter ordering                                | Low    | High   |
-| 23  | Remove local `replace` directive for `universal-workflow`                      | Medium | Medium |
-| 24  | Consider `Set[T].ContainsFunc` wrapper (but O(n) — may not be worth it)        | Low    | Low    |
-| 25  | Evaluate `samber/mo` for Option/Either types in error paths                    | Medium | High   |
+| #  | Task                                                                           | Impact | Effort |
+| -- | ------------------------------------------------------------------------------ | ------ | ------ |
+| 21 | Migrate `LintersConfig.Enable/Disable` from `[]string` to `[]types.LinterName` | High   | High   |
+| 22 | Consider `OrderedSet[T]` for formatter ordering                                | Low    | High   |
+| 23 | Remove local `replace` directive for `universal-workflow`                      | Medium | Medium |
+| 24 | Consider `Set[T].ContainsFunc` wrapper (but O(n) — may not be worth it)        | Low    | Low    |
+| 25 | Evaluate `samber/mo` for Option/Either types in error paths                    | Medium | High   |
 
 ---
 

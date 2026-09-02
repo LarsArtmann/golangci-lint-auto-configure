@@ -91,33 +91,33 @@ Nothing new. All prior critical issues either fixed or documented.
 
 ## F) TOP 25 THINGS TO DO NEXT
 
-| #   | Task                                                           | Impact   | Effort   |
-| --- | -------------------------------------------------------------- | -------- | -------- |
-| 1   | Add tests for pkg/client/client.go                             | Critical | 45min    |
-| 2   | Type Enable/Disable as []LinterName                            | High     | 45min    |
-| 3   | Enable KnownFields(true) in YAML decoder                       | High     | 30min    |
-| 4   | Add ConfigVersion type for Config.Version                      | Medium   | 30min    |
-| 5   | Add GeneratedMode enum                                         | Medium   | 20min    |
-| 6   | Add map[string]any typed accessors                             | Medium   | 60min    |
-| 7   | Remove CLI package-level globals                               | Medium   | 60min    |
-| 8   | Split ConfigLoader god interface                               | Medium   | 60min    |
-| 9   | Fix spinner goroutine leak                                     | Medium   | 30min    |
-| 10  | Adopt go-error-family                                          | Medium   | 90min    |
-| 11  | Detector file handle leak (filepath.Walk defer)                | Medium   | 30min    |
-| 12  | gogenfilter scanner: log filter errors                         | Low      | 10min    |
-| 13  | gogenfilter scanner: Windows path fix                          | Low      | 15min    |
-| 14  | detector.go: scanner.Err() silently discarded                  | Low      | 10min    |
-| 15  | analyzer.go: FindBinary ignores context                        | Low      | 15min    |
-| 16  | analyzer.go: duplicate FindBinary+CheckVersion calls           | Low      | 20min    |
-| 17  | categorizer.go: empty version allows min-version-gated linters | Medium   | 20min    |
-| 18  | Add ToSortedSlice consistency (nil vs empty)                   | Low      | 10min    |
-| 19  | Errors package: consolidate repetitive boilerplate             | Low      | 30min    |
-| 20  | Error field names inconsistent (Path/File/Config)              | Low      | 15min    |
-| 21  | Loader.getAllLinterNames only returns enabled linters          | Medium   | 20min    |
-| 22  | Fix differ test coverage for new compareDisabled               | High     | 15min    |
-| 23  | Document map[string]any design decision in ADR                 | Medium   | 30min    |
-| 24  | Explore code-gen from golangci-lint schema                     | Low      | Research |
-| 25  | Add CI pipeline test for all presets end-to-end                | High     | 2h       |
+| #  | Task                                                           | Impact   | Effort   |
+| -- | -------------------------------------------------------------- | -------- | -------- |
+| 1  | Add tests for pkg/client/client.go                             | Critical | 45min    |
+| 2  | Type Enable/Disable as []LinterName                            | High     | 45min    |
+| 3  | Enable KnownFields(true) in YAML decoder                       | High     | 30min    |
+| 4  | Add ConfigVersion type for Config.Version                      | Medium   | 30min    |
+| 5  | Add GeneratedMode enum                                         | Medium   | 20min    |
+| 6  | Add map[string]any typed accessors                             | Medium   | 60min    |
+| 7  | Remove CLI package-level globals                               | Medium   | 60min    |
+| 8  | Split ConfigLoader god interface                               | Medium   | 60min    |
+| 9  | Fix spinner goroutine leak                                     | Medium   | 30min    |
+| 10 | Adopt go-error-family                                          | Medium   | 90min    |
+| 11 | Detector file handle leak (filepath.Walk defer)                | Medium   | 30min    |
+| 12 | gogenfilter scanner: log filter errors                         | Low      | 10min    |
+| 13 | gogenfilter scanner: Windows path fix                          | Low      | 15min    |
+| 14 | detector.go: scanner.Err() silently discarded                  | Low      | 10min    |
+| 15 | analyzer.go: FindBinary ignores context                        | Low      | 15min    |
+| 16 | analyzer.go: duplicate FindBinary+CheckVersion calls           | Low      | 20min    |
+| 17 | categorizer.go: empty version allows min-version-gated linters | Medium   | 20min    |
+| 18 | Add ToSortedSlice consistency (nil vs empty)                   | Low      | 10min    |
+| 19 | Errors package: consolidate repetitive boilerplate             | Low      | 30min    |
+| 20 | Error field names inconsistent (Path/File/Config)              | Low      | 15min    |
+| 21 | Loader.getAllLinterNames only returns enabled linters          | Medium   | 20min    |
+| 22 | Fix differ test coverage for new compareDisabled               | High     | 15min    |
+| 23 | Document map[string]any design decision in ADR                 | Medium   | 30min    |
+| 24 | Explore code-gen from golangci-lint schema                     | Low      | Research |
+| 25 | Add CI pipeline test for all presets end-to-end                | High     | 2h       |
 
 ---
 

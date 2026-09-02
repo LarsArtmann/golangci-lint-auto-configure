@@ -1,9 +1,9 @@
 # Status Report: Set[T] Migration & Architecture Cleanup
 
-**Date:** 2026-04-07 12:57 CEST  
-**Branch:** master  
-**Last commit:** `08bcee2` refactor(constants): extract CoreFormatters and FormatterOrder  
-**Build status:** PASSING (`go build ./...` — 0 errors)  
+**Date:** 2026-04-07 12:57 CEST\
+**Branch:** master\
+**Last commit:** `08bcee2` refactor(constants): extract CoreFormatters and FormatterOrder\
+**Build status:** PASSING (`go build ./...` — 0 errors)\
 **Test status:** ALL PASS (5/5 suites: linter, types, diff, constants, migration)
 
 ---
@@ -166,33 +166,33 @@ Both are `int`-based enums with near-identical `String()` switch methods. Could 
 
 Sorted by impact × ease (high impact + low effort first):
 
-| #   | Task                                                        | Impact | Effort  | Package   |
-| --- | ----------------------------------------------------------- | ------ | ------- | --------- |
-| 1   | Migrate `rules.go` ValidVersions → `types.Set[string]`      | High   | Low     | migration |
-| 2   | Migrate `DisabledLinters` → `types.Set[LinterName]`         | High   | Low     | constants |
-| 3   | Add `IsEmpty()` method to Set                               | Medium | Trivial | types     |
-| 4   | Add `Union()` method to Set                                 | Medium | Trivial | types     |
-| 5   | Add `Difference()` method to Set                            | Medium | Trivial | types     |
-| 6   | Remove `setToSortedSlice` wrapper, inline calls             | Low    | Trivial | linter    |
-| 7   | Migrate `experiments_test.go` to `types.NewSet`             | Low    | Low     | constants |
-| 8   | Consolidate `extractFormatters`/`filterOutFormatters`       | Medium | Medium  | migration |
-| 9   | Extract `formatterSettingNames` to constants                | Low    | Low     | migration |
-| 10  | Fix `varnamelen` warning on Set methods (`s` → `set`)       | Low    | Trivial | types     |
-| 11  | Consolidate count/clear method pairs in `migrations.go`     | Medium | Medium  | migration |
-| 12  | Add `Clone()` method to Set                                 | Low    | Trivial | types     |
-| 13  | Add `Equals()` method to Set                                | Low    | Trivial | types     |
-| 14  | Deduplicate `String()`/`IsValid()` on 5 named types         | Medium | Medium  | types     |
-| 15  | Deduplicate `LinterPriority`/`FormatterPriority` `String()` | Low    | Medium  | types     |
-| 16  | Fix pre-commit hook issues (library-policy, etc.)           | High   | High    | root      |
-| 17  | Add `FormatterOrderSet` for O(1) membership checks          | Low    | Low     | constants |
-| 18  | Write integration test for full Set migration               | Medium | Medium  | tests     |
-| 19  | Update AGENTS.md with Set[T] documentation                  | Low    | Low     | docs      |
-| 20  | Add `Range()` iterator method for Go 1.23+ iter support     | Low    | Low     | types     |
-| 21  | Benchmark Set vs map[string]bool performance                | Low    | Low     | types     |
-| 22  | Consider `samber/mo` integration for Set functional ops     | Low    | Medium  | types     |
-| 23  | Fix `nlreturn` warnings in experiments.go                   | Low    | Trivial | constants |
-| 24  | Fix `wsl_v5` formatting in experiments_test.go              | Low    | Low     | constants |
-| 25  | Run full `ginkgo -r` suite and verify all 11 suites pass    | High   | Low     | all       |
+| #  | Task                                                        | Impact | Effort  | Package   |
+| -- | ----------------------------------------------------------- | ------ | ------- | --------- |
+| 1  | Migrate `rules.go` ValidVersions → `types.Set[string]`      | High   | Low     | migration |
+| 2  | Migrate `DisabledLinters` → `types.Set[LinterName]`         | High   | Low     | constants |
+| 3  | Add `IsEmpty()` method to Set                               | Medium | Trivial | types     |
+| 4  | Add `Union()` method to Set                                 | Medium | Trivial | types     |
+| 5  | Add `Difference()` method to Set                            | Medium | Trivial | types     |
+| 6  | Remove `setToSortedSlice` wrapper, inline calls             | Low    | Trivial | linter    |
+| 7  | Migrate `experiments_test.go` to `types.NewSet`             | Low    | Low     | constants |
+| 8  | Consolidate `extractFormatters`/`filterOutFormatters`       | Medium | Medium  | migration |
+| 9  | Extract `formatterSettingNames` to constants                | Low    | Low     | migration |
+| 10 | Fix `varnamelen` warning on Set methods (`s` → `set`)       | Low    | Trivial | types     |
+| 11 | Consolidate count/clear method pairs in `migrations.go`     | Medium | Medium  | migration |
+| 12 | Add `Clone()` method to Set                                 | Low    | Trivial | types     |
+| 13 | Add `Equals()` method to Set                                | Low    | Trivial | types     |
+| 14 | Deduplicate `String()`/`IsValid()` on 5 named types         | Medium | Medium  | types     |
+| 15 | Deduplicate `LinterPriority`/`FormatterPriority` `String()` | Low    | Medium  | types     |
+| 16 | Fix pre-commit hook issues (library-policy, etc.)           | High   | High    | root      |
+| 17 | Add `FormatterOrderSet` for O(1) membership checks          | Low    | Low     | constants |
+| 18 | Write integration test for full Set migration               | Medium | Medium  | tests     |
+| 19 | Update AGENTS.md with Set[T] documentation                  | Low    | Low     | docs      |
+| 20 | Add `Range()` iterator method for Go 1.23+ iter support     | Low    | Low     | types     |
+| 21 | Benchmark Set vs map[string]bool performance                | Low    | Low     | types     |
+| 22 | Consider `samber/mo` integration for Set functional ops     | Low    | Medium  | types     |
+| 23 | Fix `nlreturn` warnings in experiments.go                   | Low    | Trivial | constants |
+| 24 | Fix `wsl_v5` formatting in experiments_test.go              | Low    | Low     | constants |
+| 25 | Run full `ginkgo -r` suite and verify all 11 suites pass    | High   | Low     | all       |
 
 ---
 

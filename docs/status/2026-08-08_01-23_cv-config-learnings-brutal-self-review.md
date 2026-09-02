@@ -1,7 +1,7 @@
 # Status Report: CV Config Learnings — Brutal Self-Review
 
-**Date:** 2026-08-08 01:23  
-**Session:** Analyzed `~/projects/CV/.golangci.yaml`, implemented learnings, reviewed changes, self-reviewed  
+**Date:** 2026-08-08 01:23\
+**Session:** Analyzed `~/projects/CV/.golangci.yaml`, implemented learnings, reviewed changes, self-reviewed\
 **Commits:** 9 commits (45578f8..de27f52), +596/-17 lines across 11 files
 
 ---
@@ -16,25 +16,25 @@
 
 ### Code Changes (11 files)
 
-| #   | Change                                                                                       | File(s)                                                 | Verified                 |
-| --- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------ |
-| 1   | `mnd` defaults: `IgnoredFiles: ["_test\\.go"]`, `IgnoredNumbers` intentionally empty         | `linter_settings.go`                                    | Build + lint + test      |
-| 2   | `wrapcheck` defaults: `IgnoreSigRegexps` field + 16 stdlib regexps                           | `linter_settings.go`                                    | Build + lint             |
-| 3   | `errcheck` defaults: `CheckTypeAssertions: true`                                             | `linter_settings.go`                                    | Build + lint             |
-| 4   | `varnamelen` defaults: `IgnoreDecls` (18 typed decls), `MaxDistance: 15`, `MinNameLength: 2` | `linter_settings.go`                                    | Build + lint             |
-| 5   | `GocognitSettings` struct + default (25)                                                     | `linter_settings.go`                                    | Build + lint             |
-| 6   | `GocycloSettings` struct + default (20)                                                      | `linter_settings.go`                                    | Build + lint             |
-| 7   | `NestifSettings` struct + default (6)                                                        | `linter_settings.go`                                    | Build + lint             |
-| 8   | `GoconstSettings` struct + default (min-length 4, min-occurrences 5, ignore-tests)           | `linter_settings.go`                                    | Build + lint             |
-| 9   | `TagalignSettings` struct + curated ordering (7 tags)                                        | `linter_settings.go`                                    | Build + lint             |
-| 10  | Depguard: `DisabledLinters` to `NeverAutoEnableLinters` + priority + reason                  | `rules.go`, `linter_priorities.go`, `linter_reasons.go` | Build + lint + validator |
-| 11  | Depguard tests: fixer_test respects depguard, enforce_test updated to never-auto-enable      | `fixer_test.go`, `fixer_enforce_test.go`                | Test pass                |
-| 12  | `checkAbsolutePathExclusions` health check (Unix + Windows)                                  | `validation.go`                                         | Build + lint             |
-| 13  | `checkDuplicateExclusionLinters` health check                                                | `validation.go`                                         | Build + lint             |
-| 14  | `pruneUnenabledLinterSettings` function                                                      | `fixer_config.go`                                       | Build + lint             |
-| 15  | AGENTS.md gotchas #7, #10, #15 updated                                                       | `AGENTS.md`                                             | N/A                      |
-| 16  | mnd data-integrity test updated (ignored-numbers to ignored-files)                           | `data_integrity_test.go`                                | Test pass                |
-| 17  | Previous status report written                                                               | `docs/status/2026-08-08_01-07_...md`                    | N/A                      |
+| #  | Change                                                                                       | File(s)                                                 | Verified                 |
+| -- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------ |
+| 1  | `mnd` defaults: `IgnoredFiles: ["_test\\.go"]`, `IgnoredNumbers` intentionally empty         | `linter_settings.go`                                    | Build + lint + test      |
+| 2  | `wrapcheck` defaults: `IgnoreSigRegexps` field + 16 stdlib regexps                           | `linter_settings.go`                                    | Build + lint             |
+| 3  | `errcheck` defaults: `CheckTypeAssertions: true`                                             | `linter_settings.go`                                    | Build + lint             |
+| 4  | `varnamelen` defaults: `IgnoreDecls` (18 typed decls), `MaxDistance: 15`, `MinNameLength: 2` | `linter_settings.go`                                    | Build + lint             |
+| 5  | `GocognitSettings` struct + default (25)                                                     | `linter_settings.go`                                    | Build + lint             |
+| 6  | `GocycloSettings` struct + default (20)                                                      | `linter_settings.go`                                    | Build + lint             |
+| 7  | `NestifSettings` struct + default (6)                                                        | `linter_settings.go`                                    | Build + lint             |
+| 8  | `GoconstSettings` struct + default (min-length 4, min-occurrences 5, ignore-tests)           | `linter_settings.go`                                    | Build + lint             |
+| 9  | `TagalignSettings` struct + curated ordering (7 tags)                                        | `linter_settings.go`                                    | Build + lint             |
+| 10 | Depguard: `DisabledLinters` to `NeverAutoEnableLinters` + priority + reason                  | `rules.go`, `linter_priorities.go`, `linter_reasons.go` | Build + lint + validator |
+| 11 | Depguard tests: fixer_test respects depguard, enforce_test updated to never-auto-enable      | `fixer_test.go`, `fixer_enforce_test.go`                | Test pass                |
+| 12 | `checkAbsolutePathExclusions` health check (Unix + Windows)                                  | `validation.go`                                         | Build + lint             |
+| 13 | `checkDuplicateExclusionLinters` health check                                                | `validation.go`                                         | Build + lint             |
+| 14 | `pruneUnenabledLinterSettings` function                                                      | `fixer_config.go`                                       | Build + lint             |
+| 15 | AGENTS.md gotchas #7, #10, #15 updated                                                       | `AGENTS.md`                                             | N/A                      |
+| 16 | mnd data-integrity test updated (ignored-numbers to ignored-files)                           | `data_integrity_test.go`                                | Test pass                |
+| 17 | Previous status report written                                                               | `docs/status/2026-08-08_01-07_...md`                    | N/A                      |
 
 ### Verification State (at time of writing)
 

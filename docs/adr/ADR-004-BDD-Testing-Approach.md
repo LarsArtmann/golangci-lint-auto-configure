@@ -1,7 +1,7 @@
 # ADR-004: BDD Testing Approach with Ginkgo/Gomega
 
-**Status:** Accepted  
-**Date:** 2026-04-09  
+**Status:** Accepted\
+**Date:** 2026-04-09\
 **Author:** Lars Artmann (@larsartmann)
 
 ---
@@ -206,5 +206,5 @@ Use standard Go testing when:
 
 ---
 
-_Accepted by: Lars Artmann_  
+_Accepted by: Lars Artmann_\
 _Date: 2026-04-09_

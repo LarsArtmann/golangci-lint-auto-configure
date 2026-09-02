@@ -73,26 +73,26 @@ CMD ["golangci-lint-auto-configure", "--help"]
 # =============================================================================
 #
 # Build the image:
-#   docker build -t golangci-lint-auto-configure .
+# docker build -t golangci-lint-auto-configure .
 #
 # Analyze current project:
-#   docker run --rm -v $(pwd):/app golangci-lint-auto-configure analyze
+# docker run --rm -v $(pwd):/app golangci-lint-auto-configure analyze
 #
 # Configure with dry-run:
-#   docker run --rm -v $(pwd):/app golangci-lint-auto-configure configure --dry-run
+# docker run --rm -v $(pwd):/app golangci-lint-auto-configure configure --dry-run
 #
 # Configure for high priority linters:
-#   docker run --rm -v $(pwd):/app golangci-lint-auto-configure configure --priority high
+# docker run --rm -v $(pwd):/app golangci-lint-auto-configure configure --priority high
 #
 # Run with custom config:
-#   docker run --rm -v $(pwd):/app -v $(pwd)/.golangci.yml:/app/.golangci.yml \
-#       golangci-lint-auto-configure analyze
+# docker run --rm -v $(pwd):/app -v $(pwd)/.golangci.yml:/app/.golangci.yml \
+# golangci-lint-auto-configure analyze
 #
 # Use as base image in Dockerfile:
-#   FROM golangci-lint-auto-configure AS linter
+# FROM golangci-lint-auto-configure AS linter
 #
 # CI/CD with GitHub Actions:
-#   - name: Lint with golangci-lint-auto-configure
-#     uses: docker://golangci-lint-auto-configure
-#     with:
-#       args: analyze
+# - name: Lint with golangci-lint-auto-configure
+# uses: docker://golangci-lint-auto-configure
+# with:
+# args: analyze

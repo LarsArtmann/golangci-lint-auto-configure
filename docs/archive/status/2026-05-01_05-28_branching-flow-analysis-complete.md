@@ -1,7 +1,7 @@
 # Comprehensive Status Report - 2026-05-01
 
-**Generated:** 2026-05-01 05:28 AM CEST  
-**Author:** Crush AI Assistant  
+**Generated:** 2026-05-01 05:28 AM CEST\
+**Author:** Crush AI Assistant\
 **Session:** golangci-lint-auto-configure branching-flow analysis and error context improvements
 
 ---
@@ -13,7 +13,7 @@
 | **golangci-lint**        | ✅ PASS        | 0 issues                            |
 | **Tests**                | ✅ PASS        | 12 suites, all passing              |
 | **Coverage**             | ✅ 60.6%       | Composite coverage                  |
-| **branching-flow Score** | ⚠️ 82.9/100    | Fair (high severity: 5, medium: 98) |
+| **branching-flow Score** | ⚠️ 82.9/100     | Fair (high severity: 5, medium: 98) |
 | **Build**                | ✅ PASS        | Binary compiles successfully        |
 | **Git Status**           | 🔄 UNCOMMITTED | 3 files modified                    |
 
@@ -33,8 +33,8 @@
 
 ### b) PARTIALLY DONE ⚠️
 
-| Task                       | Status     | Progress | Notes                                                       |
-| -------------------------- | ---------- | -------- | ----------------------------------------------------------- |
+| Task                       | Status    | Progress | Notes                                                       |
+| -------------------------- | --------- | -------- | ----------------------------------------------------------- |
 | Error context improvements | ⚠️ PARTIAL | 7/50+    | Only fixed actionable issues; remaining are false positives |
 
 ### c) NOT STARTED ⏳
@@ -69,7 +69,7 @@
 | --------------- | ----- | ---------- | ---------- | -------- |
 | False Positives | ~50   | ~80%       | ❌ No      | 0        |
 | Actionable      | 7     | ~11%       | ✅ Yes     | 7 (100%) |
-| Borderline      | ~6    | ~9%        | ⚠️ Review  | 0        |
+| Borderline      | ~6    | ~9%        | ⚠️ Review   | 0        |
 
 ### False Positives Explained
 
@@ -104,33 +104,33 @@ The remaining 50+ issues flagged by branching-flow are **false positives** becau
 
 ### Top Priority Improvements
 
-| #   | Improvement                                 | Impact | Effort | Status                          |
-| --- | ------------------------------------------- | ------ | ------ | ------------------------------- |
-| 1   | **Increase test coverage**                  | High   | Medium | Current: 60.6%, target: 75%+    |
-| 2   | **Add integration tests for CLI commands**  | High   | Medium | Missing E2E tests               |
-| 3   | **Document branching-flow false positives** | Medium | Low    | Create ADRDECISION.md           |
-| 4   | **Add benchmark tests for hot paths**       | Medium | Medium | analyzer, merger, detector      |
-| 5   | **Review HIGH severity issues**             | Medium | Low    | False positives confirmed       |
-| 6   | **Add SARIF output validation tests**       | Medium | Low    | Missing test coverage           |
-| 7   | **Add migration test coverage**             | Medium | Low    | 37 tests exist, could expand    |
-| 8   | **Review medium severity issues**           | Low    | Medium | Most are false positives        |
-| 9   | **Add finding converter tests**             | Medium | Low    | 8 tests, could expand           |
-| 10  | **Performance optimization review**         | Medium | High   | Review benchmarks               |
-| 11  | **Error message consistency audit**         | Low    | Low    | Manual review needed            |
-| 12  | **Documentation completeness**              | Medium | Medium | Check README, examples          |
-| 13  | **Pre-commit hooks verification**           | Low    | Low    | Ensure hooks are tested         |
-| 14  | **CI/CD pipeline review**                   | Medium | Low    | Check GitHub Actions            |
-| 15  | **Dependency update schedule**              | Medium | Low    | Quarterly review                |
-| 16  | **Security audit**                          | High   | High   | Third-party review              |
-| 17  | **Cross-platform testing**                  | Medium | Medium | Linux primary, test Mac/Windows |
-| 18  | **Release process documentation**           | Medium | Low    | Add CHANGELOG entries           |
-| 19  | **CLI help text review**                    | Low    | Low    | Ensure consistency              |
-| 20  | **Example configs verification**            | Low    | Low    | Test against real projects      |
-| 21  | **Linter priority documentation**           | Low    | Low    | Add to README                   |
-| 22  | **Error handling patterns doc**             | Low    | Low    | Add to AGENTS.md                |
-| 23  | **Project architecture doc update**         | Medium | Low    | Sync with current state         |
-| 24  | **ADR review and cleanup**                  | Low    | Low    | Archive completed ADRs          |
-| 25  | **Technical debt inventory**                | Medium | Medium | Create debt.md                  |
+| #  | Improvement                                 | Impact | Effort | Status                          |
+| -- | ------------------------------------------- | ------ | ------ | ------------------------------- |
+| 1  | **Increase test coverage**                  | High   | Medium | Current: 60.6%, target: 75%+    |
+| 2  | **Add integration tests for CLI commands**  | High   | Medium | Missing E2E tests               |
+| 3  | **Document branching-flow false positives** | Medium | Low    | Create ADRDECISION.md           |
+| 4  | **Add benchmark tests for hot paths**       | Medium | Medium | analyzer, merger, detector      |
+| 5  | **Review HIGH severity issues**             | Medium | Low    | False positives confirmed       |
+| 6  | **Add SARIF output validation tests**       | Medium | Low    | Missing test coverage           |
+| 7  | **Add migration test coverage**             | Medium | Low    | 37 tests exist, could expand    |
+| 8  | **Review medium severity issues**           | Low    | Medium | Most are false positives        |
+| 9  | **Add finding converter tests**             | Medium | Low    | 8 tests, could expand           |
+| 10 | **Performance optimization review**         | Medium | High   | Review benchmarks               |
+| 11 | **Error message consistency audit**         | Low    | Low    | Manual review needed            |
+| 12 | **Documentation completeness**              | Medium | Medium | Check README, examples          |
+| 13 | **Pre-commit hooks verification**           | Low    | Low    | Ensure hooks are tested         |
+| 14 | **CI/CD pipeline review**                   | Medium | Low    | Check GitHub Actions            |
+| 15 | **Dependency update schedule**              | Medium | Low    | Quarterly review                |
+| 16 | **Security audit**                          | High   | High   | Third-party review              |
+| 17 | **Cross-platform testing**                  | Medium | Medium | Linux primary, test Mac/Windows |
+| 18 | **Release process documentation**           | Medium | Low    | Add CHANGELOG entries           |
+| 19 | **CLI help text review**                    | Low    | Low    | Ensure consistency              |
+| 20 | **Example configs verification**            | Low    | Low    | Test against real projects      |
+| 21 | **Linter priority documentation**           | Low    | Low    | Add to README                   |
+| 22 | **Error handling patterns doc**             | Low    | Low    | Add to AGENTS.md                |
+| 23 | **Project architecture doc update**         | Medium | Low    | Sync with current state         |
+| 24 | **ADR review and cleanup**                  | Low    | Low    | Archive completed ADRs          |
+| 25 | **Technical debt inventory**                | Medium | Medium | Create debt.md                  |
 
 ---
 
@@ -295,6 +295,6 @@ pkg/migration/yaml_loader.go | 8 ++++----
 
 ---
 
-**Report generated:** 2026-05-01 05:28 AM CEST  
-**Session duration:** Single conversation  
+**Report generated:** 2026-05-01 05:28 AM CEST\
+**Session duration:** Single conversation\
 **Next steps:** Awaiting user instructions

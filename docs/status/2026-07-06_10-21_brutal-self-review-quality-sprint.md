@@ -4,23 +4,23 @@
 >
 > Items from this report's "25 things to do next" have the following status:
 >
-> | #   | Item                                           | Status            | Details                                                                                |
-> | --- | ---------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------- |
-> | 1   | Fix showDiff package variable → parameter      | ✅ Done           | Threaded through 7 functions; ADR-005 written                                          |
-> | 2   | Fuzz test for pkg/config/merger.go             | ✅ Done           | FuzzMergeConfigInto + FuzzMergeIdempotent                                              |
-> | 3   | Unit tests for cmd_configure.go                | ⚠️ Partial        | `internal/cli/configure_unit_test.go` added (10 tests); CLI coverage ~13% (target 30%) |
-> | 4   | Fix nixfmt-standalone in devShell              | ✅ Done           | `.buildflow.yml` skips it                                                              |
-> | 5   | --diff integration tests                       | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal                           |
-> | 6   | --check mode tests                             | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases                                         |
-> | 7   | Branded type for configPath                    | ❌ Not done       | Still stringly-typed                                                                   |
-> | 8   | gogenfilter coverage 63.9% → 80%               | ❌ Not done       | Still ~63.9%                                                                           |
-> | 9   | Result type for CLI commands                   | ❌ Not done       | Commands return `error` only                                                           |
-> | 10  | --json-errors: snake_case                      | ✅ Done           | Switched to `errorfamily.JSON()` canonical snake_case                                  |
-> | 11  | Convert coverage-check.sh to Go test           | ❌ Not done       |
-> | 12  | HandleError at CLI boundary                    | ❌ Not done       |
-> | 13  | Rewrite Pareto plan as HTML                    | ❌ Not done       | Left as Markdown                                                                       |
-> | 14  | AGENTS.md gotcha cleanup                       | ✅ Done           | Multiple gotchas updated across sessions                                               |
-> | 15  | go-error-family Error.JSON() for --json-errors | ✅ Done           | `classified.JSON()` used in commands.go                                                |
+> | #  | Item                                           | Status            | Details                                                                                |
+> | -- | ---------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------- |
+> | 1  | Fix showDiff package variable → parameter      | ✅ Done           | Threaded through 7 functions; ADR-005 written                                          |
+> | 2  | Fuzz test for pkg/config/merger.go             | ✅ Done           | FuzzMergeConfigInto + FuzzMergeIdempotent                                              |
+> | 3  | Unit tests for cmd_configure.go                | ⚠️ Partial         | `internal/cli/configure_unit_test.go` added (10 tests); CLI coverage ~13% (target 30%) |
+> | 4  | Fix nixfmt-standalone in devShell              | ✅ Done           | `.buildflow.yml` skips it                                                              |
+> | 5  | --diff integration tests                       | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal                           |
+> | 6  | --check mode tests                             | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases                                         |
+> | 7  | Branded type for configPath                    | ❌ Not done       | Still stringly-typed                                                                   |
+> | 8  | gogenfilter coverage 63.9% → 80%               | ❌ Not done       | Still ~63.9%                                                                           |
+> | 9  | Result type for CLI commands                   | ❌ Not done       | Commands return `error` only                                                           |
+> | 10 | --json-errors: snake_case                      | ✅ Done           | Switched to `errorfamily.JSON()` canonical snake_case                                  |
+> | 11 | Convert coverage-check.sh to Go test           | ❌ Not done       |                                                                                        |
+> | 12 | HandleError at CLI boundary                    | ❌ Not done       |                                                                                        |
+> | 13 | Rewrite Pareto plan as HTML                    | ❌ Not done       | Left as Markdown                                                                       |
+> | 14 | AGENTS.md gotcha cleanup                       | ✅ Done           | Multiple gotchas updated across sessions                                               |
+> | 15 | go-error-family Error.JSON() for --json-errors | ✅ Done           | `classified.JSON()` used in commands.go                                                |
 >
 > The nixfmt-standalone issue (#g1, root cause of all --no-verify bypasses) is resolved via `.buildflow.yml` skip. Current open items: `TODO_LIST.md`.
 
@@ -37,18 +37,18 @@ The session delivered real value: the go-finding v1.1.0 upgrade unblocked the Ni
 
 ## a) FULLY DONE (verified green)
 
-| #   | Task                                  | Evidence                                                                                                                                       |
-| --- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Pipeline comparison report**        | `docs/research/2026-07-06_cross-project-pipeline-comparison.md` — 3-project deep comparison, corrected after cross-referencing sibling reports |
-| 2   | **Pareto plan written**               | `docs/planning/2026-07-06_07-10_SUPERB-quality-sprint.md` — 18 tasks + 100 micro-tasks                                                         |
-| 3   | **go-finding v1.0.0 → v1.1.0**        | Commit `7d27530`. Branded `FilePath` types, `configPosition()` helper. `nix flake check` passes                                                |
-| 4   | **--check + --diff bug fix**          | Commit `c0fef0c`. Skip `runFmtUnlessDry` when check=true. Test added                                                                           |
-| 5   | **govulncheck CI job**                | Commit `c0fef0c`. New job in `ci.yml`                                                                                                          |
-| 6   | **Coverage threshold gate**           | Commit `c0fef0c`. `scripts/coverage-check.sh` (60% min, awk not bc)                                                                            |
-| 7   | **--json-errors flag**                | Commit `7bf1e2e`. PascalCase JSON to stderr                                                                                                    |
-| 8   | **Exit-code integration tests**       | Commit `7bf1e2e`. Tests for exit 0, exit 75, JSON output                                                                                       |
-| 9   | **pkg/client smoke tests**            | Commit `7bf1e2e`. 0% → 53.2% coverage                                                                                                          |
-| 10  | **TODO_LIST.md + FEATURES.md update** | Commit `a6cdbbd`. 12 items marked complete                                                                                                     |
+| #  | Task                                  | Evidence                                                                                                                                       |
+| -- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | **Pipeline comparison report**        | `docs/research/2026-07-06_cross-project-pipeline-comparison.md` — 3-project deep comparison, corrected after cross-referencing sibling reports |
+| 2  | **Pareto plan written**               | `docs/planning/2026-07-06_07-10_SUPERB-quality-sprint.md` — 18 tasks + 100 micro-tasks                                                         |
+| 3  | **go-finding v1.0.0 → v1.1.0**        | Commit `7d27530`. Branded `FilePath` types, `configPosition()` helper. `nix flake check` passes                                                |
+| 4  | **--check + --diff bug fix**          | Commit `c0fef0c`. Skip `runFmtUnlessDry` when check=true. Test added                                                                           |
+| 5  | **govulncheck CI job**                | Commit `c0fef0c`. New job in `ci.yml`                                                                                                          |
+| 6  | **Coverage threshold gate**           | Commit `c0fef0c`. `scripts/coverage-check.sh` (60% min, awk not bc)                                                                            |
+| 7  | **--json-errors flag**                | Commit `7bf1e2e`. PascalCase JSON to stderr                                                                                                    |
+| 8  | **Exit-code integration tests**       | Commit `7bf1e2e`. Tests for exit 0, exit 75, JSON output                                                                                       |
+| 9  | **pkg/client smoke tests**            | Commit `7bf1e2e`. 0% → 53.2% coverage                                                                                                          |
+| 10 | **TODO_LIST.md + FEATURES.md update** | Commit `a6cdbbd`. 12 items marked complete                                                                                                     |
 
 ---
 
@@ -118,33 +118,33 @@ I spent significant time writing a detailed 100-task micro-breakdown. Then I exe
 
 ## f) Up to 25 things to do next (sorted by impact/effort)
 
-| #   | Task                                                                           | Impact | Effort | Notes                                                                                                              |
-| --- | ------------------------------------------------------------------------------ | ------ | ------ | ------------------------------------------------------------------------------------------------------------------ |
-| 1   | **Fix showDiff package variable → parameter**                                  | High   | 15min  | Removes hidden dependency, enables unit testing                                                                    |
-| 2   | **Write fuzz test for pkg/config/merger.go** (not types.Set)                   | High   | 30min  | Merger is 63.4% coverage, complex merge logic                                                                      |
-| 3   | **Unit tests for cmd_configure.go internal functions**                         | High   | 60min  | CLI coverage 9.1% → target 30%. Test `runFixerMode`, `finalizeFixerResult`, `effectiveDryRunForCheckDiff` directly |
-| 4   | **Fix nixfmt-standalone in devShell** so pre-commit passes                     | High   | 30min  | Root cause of all --no-verify bypasses                                                                             |
-| 5   | **Add --diff integration tests** (additions, removals, dry-run)                | Medium | 30min  | User-facing output untested                                                                                        |
-| 6   | **Add --check mode tests** (optimal config, dry-run combo)                     | Medium | 30min  | Only 1 of 4 planned tests done                                                                                     |
-| 7   | **Branded type for configPath** (prevent empty/dir paths)                      | Medium | 45min  | Type safety improvement                                                                                            |
-| 8   | **gogenfilter coverage 63.9% → 80%**                                           | Medium | 45min  | Untouched this session                                                                                             |
-| 9   | **Consider Result type for CLI commands**                                      | Medium | 60min  | Enables assertion-based testing without binary exec                                                                |
-| 10  | **--json-errors: reconsider PascalCase vs snake_case**                         | Low    | 15min  | SARIF uses snake_case; we should match the ecosystem                                                               |
-| 11  | **Convert coverage-check.sh to a Go test**                                     | Low    | 30min  | More portable, testable                                                                                            |
-| 12  | **HandleError at CLI boundary**                                                | Low    | 45min  | Current slog.Error works but isn't structured                                                                      |
-| 13  | **Rewrite Pareto plan as HTML per skill spec**                                 | Low    | 30min  | Compliance with skill format                                                                                       |
-| 14  | **AGENTS.md gotcha #4 cleanup**                                                | Low    | 10min  | Still references old "known issue" context                                                                         |
-| 15  | **Consider using go-error-family's Error.JSON()** for --json-errors            | Low    | 20min  | Instead of hand-rolled jsonError struct                                                                            |
-| 16  | **Integration test: SARIF output validates against schema**                    | Low    | 30min  | CI consumers depend on valid SARIF                                                                                 |
-| 17  | **Consolidate configPosition helper** into go-finding upstream                 | Low    | 60min  | The `Line: 1` default for config-level findings is a reusable pattern                                              |
-| 18  | **Document the showDiff → parameter migration as an ADR**                      | Low    | 15min  | Records the decision for future contributors                                                                       |
-| 19  | **Add testifylint enable-all check to CI** (banned in BuildFlow)               | Low    | 15min  | Consistency across ecosystem                                                                                       |
-| 20  | **Benchmark the config merger** (regression detection)                         | Low    | 30min  | Merger runs on every multi-config project                                                                          |
-| 21  | **Consider koanf for config loading** (BuildFlow + hierarchical-errors use it) | Low    | 120min | Replaces hand-rolled YAML/TOML/JSON dispatch                                                                       |
-| 22  | **Property test: fixer is idempotent** (fix twice = fix once)                  | Low    | 30min  | Core correctness invariant                                                                                         |
-| 23  | **Snapshot test for HTML report output**                                       | Low    | 45min  | Templ reports change silently                                                                                      |
-| 24  | **Add `--quiet` flag for CI** (errors-only output)                             | Low    | 30min  | Reduces noise in GitHub Actions                                                                                    |
-| 25  | **Investigate making Config immutable** (all mutations via methods)            | Low    | 180min | Biggest type-safety improvement but largest effort                                                                 |
+| #  | Task                                                                           | Impact | Effort | Notes                                                                                                              |
+| -- | ------------------------------------------------------------------------------ | ------ | ------ | ------------------------------------------------------------------------------------------------------------------ |
+| 1  | **Fix showDiff package variable → parameter**                                  | High   | 15min  | Removes hidden dependency, enables unit testing                                                                    |
+| 2  | **Write fuzz test for pkg/config/merger.go** (not types.Set)                   | High   | 30min  | Merger is 63.4% coverage, complex merge logic                                                                      |
+| 3  | **Unit tests for cmd_configure.go internal functions**                         | High   | 60min  | CLI coverage 9.1% → target 30%. Test `runFixerMode`, `finalizeFixerResult`, `effectiveDryRunForCheckDiff` directly |
+| 4  | **Fix nixfmt-standalone in devShell** so pre-commit passes                     | High   | 30min  | Root cause of all --no-verify bypasses                                                                             |
+| 5  | **Add --diff integration tests** (additions, removals, dry-run)                | Medium | 30min  | User-facing output untested                                                                                        |
+| 6  | **Add --check mode tests** (optimal config, dry-run combo)                     | Medium | 30min  | Only 1 of 4 planned tests done                                                                                     |
+| 7  | **Branded type for configPath** (prevent empty/dir paths)                      | Medium | 45min  | Type safety improvement                                                                                            |
+| 8  | **gogenfilter coverage 63.9% → 80%**                                           | Medium | 45min  | Untouched this session                                                                                             |
+| 9  | **Consider Result type for CLI commands**                                      | Medium | 60min  | Enables assertion-based testing without binary exec                                                                |
+| 10 | **--json-errors: reconsider PascalCase vs snake_case**                         | Low    | 15min  | SARIF uses snake_case; we should match the ecosystem                                                               |
+| 11 | **Convert coverage-check.sh to a Go test**                                     | Low    | 30min  | More portable, testable                                                                                            |
+| 12 | **HandleError at CLI boundary**                                                | Low    | 45min  | Current slog.Error works but isn't structured                                                                      |
+| 13 | **Rewrite Pareto plan as HTML per skill spec**                                 | Low    | 30min  | Compliance with skill format                                                                                       |
+| 14 | **AGENTS.md gotcha #4 cleanup**                                                | Low    | 10min  | Still references old "known issue" context                                                                         |
+| 15 | **Consider using go-error-family's Error.JSON()** for --json-errors            | Low    | 20min  | Instead of hand-rolled jsonError struct                                                                            |
+| 16 | **Integration test: SARIF output validates against schema**                    | Low    | 30min  | CI consumers depend on valid SARIF                                                                                 |
+| 17 | **Consolidate configPosition helper** into go-finding upstream                 | Low    | 60min  | The `Line: 1` default for config-level findings is a reusable pattern                                              |
+| 18 | **Document the showDiff → parameter migration as an ADR**                      | Low    | 15min  | Records the decision for future contributors                                                                       |
+| 19 | **Add testifylint enable-all check to CI** (banned in BuildFlow)               | Low    | 15min  | Consistency across ecosystem                                                                                       |
+| 20 | **Benchmark the config merger** (regression detection)                         | Low    | 30min  | Merger runs on every multi-config project                                                                          |
+| 21 | **Consider koanf for config loading** (BuildFlow + hierarchical-errors use it) | Low    | 120min | Replaces hand-rolled YAML/TOML/JSON dispatch                                                                       |
+| 22 | **Property test: fixer is idempotent** (fix twice = fix once)                  | Low    | 30min  | Core correctness invariant                                                                                         |
+| 23 | **Snapshot test for HTML report output**                                       | Low    | 45min  | Templ reports change silently                                                                                      |
+| 24 | **Add `--quiet` flag for CI** (errors-only output)                             | Low    | 30min  | Reduces noise in GitHub Actions                                                                                    |
+| 25 | **Investigate making Config immutable** (all mutations via methods)            | Low    | 180min | Biggest type-safety improvement but largest effort                                                                 |
 
 ---
 

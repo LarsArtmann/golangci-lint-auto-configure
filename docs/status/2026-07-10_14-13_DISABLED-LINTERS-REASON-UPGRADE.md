@@ -8,38 +8,38 @@
 
 ## a) FULLY DONE
 
-| #   | Task                                                                                              | Files                                                       | Verified                |
-| --- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------- |
-| 1   | `DisabledLinters` changed from `Set[LinterName]` to `map[LinterName]string` with reason strings   | `pkg/constants/rules.go`                                    | Build + tests pass      |
-| 2   | Categorizer updated: map lookup + reason in `Debugf` log                                          | `pkg/linter/categorizer.go:40`                              | Tests pass              |
-| 3   | Fixer updated: map lookup + reason in `Debugf` log + logger param added to `updateConfigFromSets` | `pkg/linter/fixer_config.go:249`, `pkg/linter/fixer.go:242` | Tests pass              |
-| 4   | Non-empty reason invariant test added                                                             | `pkg/constants/data_integrity_test.go`                      | Test passes             |
-| 5   | Validation script updated with 2 new checks (disabled↔priorities isolation + non-empty reasons)   | `scripts/validate_linter_data.go`                           | All 6 checks pass       |
-| 6   | AGENTS.md item #10 updated to document `DisabledLinters` type and invariant                       | `AGENTS.md`                                                 | Committed               |
-| 7   | Planning doc with mermaid execution graph                                                         | `docs/planning/2026-07-10_12-03_...`                        | Written                 |
-| 8   | Full test suite passes (16 packages, `-race`)                                                     | —                                                           | All `ok`                |
-| 9   | BuildFlow pre-commit hooks pass (26/26)                                                           | —                                                           | Passed                  |
-| 10  | Committed with detailed message + pushed                                                          | —                                                           | Pushed to origin/master |
+| #  | Task                                                                                              | Files                                                       | Verified                |
+| -- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------- |
+| 1  | `DisabledLinters` changed from `Set[LinterName]` to `map[LinterName]string` with reason strings   | `pkg/constants/rules.go`                                    | Build + tests pass      |
+| 2  | Categorizer updated: map lookup + reason in `Debugf` log                                          | `pkg/linter/categorizer.go:40`                              | Tests pass              |
+| 3  | Fixer updated: map lookup + reason in `Debugf` log + logger param added to `updateConfigFromSets` | `pkg/linter/fixer_config.go:249`, `pkg/linter/fixer.go:242` | Tests pass              |
+| 4  | Non-empty reason invariant test added                                                             | `pkg/constants/data_integrity_test.go`                      | Test passes             |
+| 5  | Validation script updated with 2 new checks (disabled↔priorities isolation + non-empty reasons)   | `scripts/validate_linter_data.go`                           | All 6 checks pass       |
+| 6  | AGENTS.md item #10 updated to document `DisabledLinters` type and invariant                       | `AGENTS.md`                                                 | Committed               |
+| 7  | Planning doc with mermaid execution graph                                                         | `docs/planning/2026-07-10_12-03_...`                        | Written                 |
+| 8  | Full test suite passes (16 packages, `-race`)                                                     | —                                                           | All `ok`                |
+| 9  | BuildFlow pre-commit hooks pass (26/26)                                                           | —                                                           | Passed                  |
+| 10 | Committed with detailed message + pushed                                                          | —                                                           | Pushed to origin/master |
 
 ---
 
 ## b) PARTIALLY DONE
 
-| #   | What                                       | Status                                                  | What's missing                                                                                                                                                                                                              |
-| --- | ------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Fixer logging for disabled linters         | Logs reason at `Debugf`, but **no dry-run distinction** | The `RemoveRedundantLinters` pattern uses `[DRY-RUN] Would...` prefix when `dryRun=true`. My implementation always says "Moving" even in dry-run preview mode. `updateConfigFromSets` doesn't receive a `dryRun` parameter. |
-| 2   | Test coverage for disabled linter behavior | Tests verify `noinlineerr` moves from enable to disable | **No `funcorder` test** (was pre-existing gap, not introduced this session). **No dry-run test** for disabled linters (deprecated linters have `testDeprecatedLinterDryRun`).                                               |
+| # | What                                       | Status                                                  | What's missing                                                                                                                                                                                                              |
+| - | ------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | Fixer logging for disabled linters         | Logs reason at `Debugf`, but **no dry-run distinction** | The `RemoveRedundantLinters` pattern uses `[DRY-RUN] Would...` prefix when `dryRun=true`. My implementation always says "Moving" even in dry-run preview mode. `updateConfigFromSets` doesn't receive a `dryRun` parameter. |
+| 2 | Test coverage for disabled linter behavior | Tests verify `noinlineerr` moves from enable to disable | **No `funcorder` test** (was pre-existing gap, not introduced this session). **No dry-run test** for disabled linters (deprecated linters have `testDeprecatedLinterDryRun`).                                               |
 
 ---
 
 ## c) NOT STARTED
 
-| #   | What                                                                                                                                             | Why not                                                                                                   | Impact                                                                 |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| 1   | `nix build` verification                                                                                                                         | Ran `go build` + `go test` but not `nix build`                                                            | No dependency changes, so vendorHash likely unaffected, but unverified |
-| 2   | Finding converter for disabled linters (`DisabledLintersToFindings`)                                                                             | Explicitly decided against in architecture discussion — tool-internal policy, not user-actionable problem | Low — can add later if user feedback demands it                        |
-| 3   | Answering open question #1 from previous session: should 30 stale `noinlineerr` doc references in `docs/status/` and `docs/archive/` be updated? | Out of scope for this refactoring task                                                                    | None — historical snapshots                                            |
-| 4   | Planning doc marked as completed                                                                                                                 | Wrote it as "In Progress" and forgot to update after execution                                            | Cosmetic                                                               |
+| # | What                                                                                                                                             | Why not                                                                                                   | Impact                                                                 |
+| - | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1 | `nix build` verification                                                                                                                         | Ran `go build` + `go test` but not `nix build`                                                            | No dependency changes, so vendorHash likely unaffected, but unverified |
+| 2 | Finding converter for disabled linters (`DisabledLintersToFindings`)                                                                             | Explicitly decided against in architecture discussion — tool-internal policy, not user-actionable problem | Low — can add later if user feedback demands it                        |
+| 3 | Answering open question #1 from previous session: should 30 stale `noinlineerr` doc references in `docs/status/` and `docs/archive/` be updated? | Out of scope for this refactoring task                                                                    | None — historical snapshots                                            |
+| 4 | Planning doc marked as completed                                                                                                                 | Wrote it as "In Progress" and forgot to update after execution                                            | Cosmetic                                                               |
 
 ---
 
@@ -75,23 +75,23 @@ The closest thing to a mistake: **the dry-run logging inconsistency** (see b.1 a
 
 ### High impact (architecture/reliability)
 
-| #   | Task                                                                                                                           | Impact                                                      | Effort |
-| --- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- | ------ |
-| 1   | Fix dry-run logging: pass `dryRun` to `updateConfigFromSets` or use neutral log language ("Disabled linter excluded: %s (%s)") | Medium — prevents misleading log in dry-run                 | 15min  |
-| 2   | Add `funcorder` test to fixer_test.go disabled linters context                                                                 | Medium — closes test coverage gap for both disabled linters | 10min  |
-| 3   | Add dry-run test for disabled linters (parity with `testDeprecatedLinterDryRun`)                                               | Medium — verifies dry-run doesn't move linters prematurely  | 10min  |
-| 4   | Decide: add `validate_linter_data.go` to CI or delete it (data integrity tests cover the same ground)                          | Medium — dead code / dead scripts are debt                  | 10min  |
-| 5   | Mark planning doc as completed                                                                                                 | Low — cosmetic                                              | 2min   |
+| # | Task                                                                                                                           | Impact                                                      | Effort |
+| - | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- | ------ |
+| 1 | Fix dry-run logging: pass `dryRun` to `updateConfigFromSets` or use neutral log language ("Disabled linter excluded: %s (%s)") | Medium — prevents misleading log in dry-run                 | 15min  |
+| 2 | Add `funcorder` test to fixer_test.go disabled linters context                                                                 | Medium — closes test coverage gap for both disabled linters | 10min  |
+| 3 | Add dry-run test for disabled linters (parity with `testDeprecatedLinterDryRun`)                                               | Medium — verifies dry-run doesn't move linters prematurely  | 10min  |
+| 4 | Decide: add `validate_linter_data.go` to CI or delete it (data integrity tests cover the same ground)                          | Medium — dead code / dead scripts are debt                  | 10min  |
+| 5 | Mark planning doc as completed                                                                                                 | Low — cosmetic                                              | 2min   |
 
 ### Medium impact (consistency/quality)
 
-| #   | Task                                                                                                                   | Impact                         | Effort |
-| --- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------ |
-| 6   | Improve `funcorder` reason string to be more specific                                                                  | Low — clarity                  | 5min   |
-| 7   | Add log capture test verifying reason string appears in fixer `Debugf` output                                          | Low — nice-to-have             | 15min  |
-| 8   | Consider extracting a shared `logLinterChange` helper in `fixer_config.go` (same pattern as `fixer_formatters.go:156`) | Low — DRY                      | 15min  |
-| 9   | Run `nix build` to verify vendorHash is unaffected                                                                     | Low — likely fine              | 5min   |
-| 10  | Answer open question: update 30 stale `noinlineerr` doc references? (recommend: no — historical snapshots)             | Low — precedent is `funcorder` | 5min   |
+| #  | Task                                                                                                                   | Impact                         | Effort |
+| -- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------ |
+| 6  | Improve `funcorder` reason string to be more specific                                                                  | Low — clarity                  | 5min   |
+| 7  | Add log capture test verifying reason string appears in fixer `Debugf` output                                          | Low — nice-to-have             | 15min  |
+| 8  | Consider extracting a shared `logLinterChange` helper in `fixer_config.go` (same pattern as `fixer_formatters.go:156`) | Low — DRY                      | 15min  |
+| 9  | Run `nix build` to verify vendorHash is unaffected                                                                     | Low — likely fine              | 5min   |
+| 10 | Answer open question: update 30 stale `noinlineerr` doc references? (recommend: no — historical snapshots)             | Low — precedent is `funcorder` | 5min   |
 
 ### Lower priority (polish/future)
 

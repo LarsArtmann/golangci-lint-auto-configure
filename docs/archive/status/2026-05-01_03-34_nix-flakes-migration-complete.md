@@ -195,53 +195,53 @@ Sorted by impact × effort (highest first):
 
 ### Critical / High Impact
 
-| #   | Task                                                        | Effort | Impact                               |
-| --- | ----------------------------------------------------------- | ------ | ------------------------------------ |
-| 1   | Fix 19 CLI integration test failures ("exec format error")  | 2h     | HIGH — broken tests hide regressions |
-| 2   | Update Dockerfile to pin `golangci-lint:2.10.1+`            | 15min  | HIGH — current Dockerfile is broken  |
-| 3   | Pin `golangci-lint-action` version in CI (not `latest`)     | 5min   | HIGH — CI reproducibility            |
-| 4   | Push all commits to origin                                  | 1min   | HIGH — nothing is remote yet         |
-| 5   | Delete `MIGRATION_TO_NIX_FLAKES_PROPOSAL.md` (work is done) | 1min   | MEDIUM — cleanup                     |
+| # | Task                                                        | Effort | Impact                               |
+| - | ----------------------------------------------------------- | ------ | ------------------------------------ |
+| 1 | Fix 19 CLI integration test failures ("exec format error")  | 2h     | HIGH — broken tests hide regressions |
+| 2 | Update Dockerfile to pin `golangci-lint:2.10.1+`            | 15min  | HIGH — current Dockerfile is broken  |
+| 3 | Pin `golangci-lint-action` version in CI (not `latest`)     | 5min   | HIGH — CI reproducibility            |
+| 4 | Push all commits to origin                                  | 1min   | HIGH — nothing is remote yet         |
+| 5 | Delete `MIGRATION_TO_NIX_FLAKES_PROPOSAL.md` (work is done) | 1min   | MEDIUM — cleanup                     |
 
 ### Nix Improvements
 
-| #   | Task                                                     | Effort | Impact |
-| --- | -------------------------------------------------------- | ------ | ------ |
-| 6   | Add `nix flake check` test/lint checks (run in devShell) | 1h     | MEDIUM |
-| 7   | Add Nix-built Docker image (`pkgs.dockerTools`)          | 2h     | MEDIUM |
-| 8   | Add `nix develop --command just test` to CI Nix job      | 15min  | MEDIUM |
-| 9   | Test CI Nix job actually works on GitHub Actions         | 30min  | HIGH   |
-| 10  | Add Cachix/binary cache for PR builds                    | 1h     | MEDIUM |
+| #  | Task                                                     | Effort | Impact |
+| -- | -------------------------------------------------------- | ------ | ------ |
+| 6  | Add `nix flake check` test/lint checks (run in devShell) | 1h     | MEDIUM |
+| 7  | Add Nix-built Docker image (`pkgs.dockerTools`)          | 2h     | MEDIUM |
+| 8  | Add `nix develop --command just test` to CI Nix job      | 15min  | MEDIUM |
+| 9  | Test CI Nix job actually works on GitHub Actions         | 30min  | HIGH   |
+| 10 | Add Cachix/binary cache for PR builds                    | 1h     | MEDIUM |
 
 ### Dependency / Architecture
 
-| #   | Task                                                     | Effort | Impact                                |
-| --- | -------------------------------------------------------- | ------ | ------------------------------------- |
-| 11  | Remove `go-finding` local replace (publish or vendor)    | 4h     | HIGH — eliminates vendorHash friction |
-| 12  | Update `go-finding` to latest remote master (sync local) | 15min  | LOW                                   |
-| 13  | Add `nix fmt` to pre-commit hooks                        | 30min  | LOW                                   |
-| 14  | Add `flake.lock` auto-update via Dependabot/Renovate     | 1h     | LOW                                   |
-| 15  | Remove `GOWORK=off GOTOOLCHAIN=local` from justfile      | 5min   | LOW — only safe after #11             |
+| #  | Task                                                     | Effort | Impact                                |
+| -- | -------------------------------------------------------- | ------ | ------------------------------------- |
+| 11 | Remove `go-finding` local replace (publish or vendor)    | 4h     | HIGH — eliminates vendorHash friction |
+| 12 | Update `go-finding` to latest remote master (sync local) | 15min  | LOW                                   |
+| 13 | Add `nix fmt` to pre-commit hooks                        | 30min  | LOW                                   |
+| 14 | Add `flake.lock` auto-update via Dependabot/Renovate     | 1h     | LOW                                   |
+| 15 | Remove `GOWORK=off GOTOOLCHAIN=local` from justfile      | 5min   | LOW — only safe after #11             |
 
 ### Code Quality
 
-| #   | Task                                                    | Effort | Impact |
-| --- | ------------------------------------------------------- | ------ | ------ |
-| 16  | Fix `go.work` — should we use go.work for local dev?    | 1h     | MEDIUM |
-| 17  | Add `.github/dependabot.yml` for nix flake updates      | 15min  | LOW    |
-| 18  | Add `overlays.default` to flake.nix                     | 30min  | LOW    |
-| 19  | Cross-compilation targets in flake.nix                  | 1h     | LOW    |
-| 20  | Parameterize shell scripts (remove any hardcoded paths) | 30min  | LOW    |
+| #  | Task                                                    | Effort | Impact |
+| -- | ------------------------------------------------------- | ------ | ------ |
+| 16 | Fix `go.work` — should we use go.work for local dev?    | 1h     | MEDIUM |
+| 17 | Add `.github/dependabot.yml` for nix flake updates      | 15min  | LOW    |
+| 18 | Add `overlays.default` to flake.nix                     | 30min  | LOW    |
+| 19 | Cross-compilation targets in flake.nix                  | 1h     | LOW    |
+| 20 | Parameterize shell scripts (remove any hardcoded paths) | 30min  | LOW    |
 
 ### Documentation / Cleanup
 
-| #   | Task                                                   | Effort | Impact |
-| --- | ------------------------------------------------------ | ------ | ------ |
-| 21  | Update `docs/` with Nix architecture decision record   | 30min  | MEDIUM |
-| 22  | Remove or update `MIGRATION_TO_NIX_FLAKES_PROPOSAL.md` | 5min   | LOW    |
-| 23  | Add Nix troubleshooting section to README              | 15min  | LOW    |
-| 24  | Add `nix run . -- help` one-liner to README            | 5min   | LOW    |
-| 25  | Squash/rewrite the 5 Nix migration commits into 1–2    | 15min  | LOW    |
+| #  | Task                                                   | Effort | Impact |
+| -- | ------------------------------------------------------ | ------ | ------ |
+| 21 | Update `docs/` with Nix architecture decision record   | 30min  | MEDIUM |
+| 22 | Remove or update `MIGRATION_TO_NIX_FLAKES_PROPOSAL.md` | 5min   | LOW    |
+| 23 | Add Nix troubleshooting section to README              | 15min  | LOW    |
+| 24 | Add `nix run . -- help` one-liner to README            | 5min   | LOW    |
+| 25 | Squash/rewrite the 5 Nix migration commits into 1–2    | 15min  | LOW    |
 
 ---
 

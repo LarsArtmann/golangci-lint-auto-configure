@@ -1,27 +1,27 @@
 # Detailed Execution Plan - Architecture Refactoring
 
-**Date:** 2026-03-29  
-**Status:** Ready for Execution  
+**Date:** 2026-03-29\
+**Status:** Ready for Execution\
 **Author:** AI Assistant via Crush
 
 ---
 
 ## Phase 1: High-Level Tasks (30-100 min each)
 
-| ID  | Task                                                                                                                                    | Impact | Effort | Customer Value                                                  | Priority |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | --------------------------------------------------------------- | -------- |
-| 1   | **Consolidate Retry Logic** - Extract duplicate retry patterns from version_checker.go and command_runner.go into a shared utility      | High   | 60min  | Reduces bugs from divergent implementations, easier maintenance | P0       |
-| 2   | **Integrate Project Detection** - Wire up the ghost detection system into cmd_configure.go to auto-select presets based on project type | High   | 90min  | Major UX improvement - automatic preset selection               | P0       |
-| 3   | **Fix Error Handling Inconsistency** - Audit and unify error handling (Result types vs classic errors) across codebase                  | High   | 80min  | Prevents subtle bugs, easier debugging                          | P0       |
-| 4   | **Analyze and Decide on Diff Package** - Determine if diff functionality should be integrated or deleted                                | Medium | 30min  | Remove dead code or add useful feature                          | P1       |
-| 5   | **Split Oversized Files** - Refactor loader.go (416 lines) and fixer.go (370 lines) into smaller, focused files                         | Medium | 70min  | Better maintainability, easier code reviews                     | P1       |
-| 6   | **Consolidate Priority Constants** - Remove duplication between constants/ and types/ packages                                          | Medium | 40min  | DRY principle, single source of truth                           | P2       |
-| 7   | **Leverage samber/lo Library** - Replace manual slice operations with lo helper functions                                               | Low    | 50min  | Less boilerplate, more readable code                            | P2       |
-| 8   | **Remove Global State** - Refactor global Validator in validation.go to be injectable                                                   | Medium | 45min  | Better testability                                              | P2       |
-| 9   | **Improve Report Generation** - Verify and complete integration of HTML/JSON report generation                                          | Medium | 60min  | Feature completion                                              | P2       |
-| 10  | **Interface Segregation** - Split large ConfigLoader interface into smaller, focused interfaces                                         | Low    | 40min  | Better architecture, easier mocking                             | P3       |
-| 11  | **Clean up Comment Duplications** - Remove duplicate ConfigFormat documentation                                                         | Low    | 15min  | Code cleanliness                                                | P3       |
-| 12  | **Add Integration Tests** - Create end-to-end tests for critical paths                                                                  | High   | 90min  | Prevents regressions, increases confidence                      | P1       |
+| ID | Task                                                                                                                                    | Impact | Effort | Customer Value                                                  | Priority |
+| -- | --------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | --------------------------------------------------------------- | -------- |
+| 1  | **Consolidate Retry Logic** - Extract duplicate retry patterns from version_checker.go and command_runner.go into a shared utility      | High   | 60min  | Reduces bugs from divergent implementations, easier maintenance | P0       |
+| 2  | **Integrate Project Detection** - Wire up the ghost detection system into cmd_configure.go to auto-select presets based on project type | High   | 90min  | Major UX improvement - automatic preset selection               | P0       |
+| 3  | **Fix Error Handling Inconsistency** - Audit and unify error handling (Result types vs classic errors) across codebase                  | High   | 80min  | Prevents subtle bugs, easier debugging                          | P0       |
+| 4  | **Analyze and Decide on Diff Package** - Determine if diff functionality should be integrated or deleted                                | Medium | 30min  | Remove dead code or add useful feature                          | P1       |
+| 5  | **Split Oversized Files** - Refactor loader.go (416 lines) and fixer.go (370 lines) into smaller, focused files                         | Medium | 70min  | Better maintainability, easier code reviews                     | P1       |
+| 6  | **Consolidate Priority Constants** - Remove duplication between constants/ and types/ packages                                          | Medium | 40min  | DRY principle, single source of truth                           | P2       |
+| 7  | **Leverage samber/lo Library** - Replace manual slice operations with lo helper functions                                               | Low    | 50min  | Less boilerplate, more readable code                            | P2       |
+| 8  | **Remove Global State** - Refactor global Validator in validation.go to be injectable                                                   | Medium | 45min  | Better testability                                              | P2       |
+| 9  | **Improve Report Generation** - Verify and complete integration of HTML/JSON report generation                                          | Medium | 60min  | Feature completion                                              | P2       |
+| 10 | **Interface Segregation** - Split large ConfigLoader interface into smaller, focused interfaces                                         | Low    | 40min  | Better architecture, easier mocking                             | P3       |
+| 11 | **Clean up Comment Duplications** - Remove duplicate ConfigFormat documentation                                                         | Low    | 15min  | Code cleanliness                                                | P3       |
+| 12 | **Add Integration Tests** - Create end-to-end tests for critical paths                                                                  | High   | 90min  | Prevents regressions, increases confidence                      | P1       |
 
 ---
 

@@ -1,7 +1,7 @@
 # Comprehensive Status Report — 2026-04-03 23:29
 
-**Generated:** 2026-04-03 23:29:24 CEST  
-**Branch:** master  
+**Generated:** 2026-04-03 23:29:24 CEST\
+**Branch:** master\
 **Last Commit:** e2e2b06 (before this session)
 
 ---
@@ -35,8 +35,8 @@
 
 ### B) Partially Done ⚠️
 
-| Item                                 | Status      | Notes                                                                                                                            |
-| ------------------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Item                                 | Status     | Notes                                                                                                                            |
+| ------------------------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | Wired Types into Function Signatures | ⚠️ Reverted | Attempted to wire ConfigPath into interfaces but required changes to 20+ files. Type aliases available for incremental adoption. |
 
 ### C) Not Started ⏳
@@ -83,16 +83,16 @@ Version             ✅ Strongly-typed + IsValid() + String()
 
 ### Test Coverage by Package
 
-| Package          | Coverage  | Change       |
-| ---------------- | --------- | ------------ |
-| `pkg/config/`    | 59.5%     | —            |
-| `pkg/diff/`      | 94.6%     | —            |
-| `pkg/errors/`    | 100.0%    | —            |
-| `pkg/linter/`    | ~50%      | —            |
+| Package          | Coverage  | Change      |
+| ---------------- | --------- | ----------- |
+| `pkg/config/`    | 59.5%     | —           |
+| `pkg/diff/`      | 94.6%     | —           |
+| `pkg/errors/`    | 100.0%    | —           |
+| `pkg/linter/`    | ~50%      | —           |
 | `pkg/migration/` | **64.7%** | **+9.2%** ⬆️ |
-| `pkg/report/`    | ~40%      | —            |
-| `pkg/utils/`     | 100.0%    | —            |
-| `internal/cli/`  | 12.6%     | —            |
+| `pkg/report/`    | ~40%      | —           |
+| `pkg/utils/`     | 100.0%    | —           |
+| `internal/cli/`  | 12.6%     | —           |
 | **Composite**    | **64.5%** | **+2.1%** ⬆️ |
 
 ---

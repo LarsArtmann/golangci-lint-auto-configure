@@ -2,8 +2,8 @@
 
 ## Executive Summary
 
-**Tool:** branching-flow v2.x  
-**Command:** `branching-flow compose . --order severity-asc`  
+**Tool:** branching-flow v2.x\
+**Command:** `branching-flow compose . --order severity-asc`\
 **Result:** 99/100 (EXCELLENT) - No action required
 
 The golangci-lint-auto-configure codebase demonstrates excellent architectural composition with only optional improvements identified.
@@ -18,8 +18,8 @@ The golangci-lint-auto-configure codebase demonstrates excellent architectural c
 
 ### 1. ExclusionsConfig Mixin (Low Confidence)
 
-**Structs:** `LintersExclusionsConfig` and `FormattersExclusionsConfig`  
-**Location:** `pkg/types/types.go:211`, `pkg/types/types.go:247`  
+**Structs:** `LintersExclusionsConfig` and `FormattersExclusionsConfig`\
+**Location:** `pkg/types/types.go:211`, `pkg/types/types.go:247`\
 **Shared Fields:**
 
 - `Generated string`
@@ -32,8 +32,8 @@ The golangci-lint-auto-configure codebase demonstrates excellent architectural c
 
 ### 2. Error Type Mixin (Low Confidence)
 
-**Structs:** `ConfigError`, `AnalysisError`, `ReportError`  
-**Location:** `pkg/errors/errors.go:27`, `pkg/errors/errors.go:56`, `pkg/errors/errors.go:85`  
+**Structs:** `ConfigError`, `AnalysisError`, `ReportError`\
+**Location:** `pkg/errors/errors.go:27`, `pkg/errors/errors.go:56`, `pkg/errors/errors.go:85`\
 **Shared Fields:**
 
 - `Message string`
@@ -45,9 +45,9 @@ The golangci-lint-auto-configure codebase demonstrates excellent architectural c
 
 ### 3. Client Mixin (Low Confidence)
 
-**Struct:** `client.Client`  
-**Similar To:** `linter.Fixer`, `workflow.Builder`  
-**Location:** `pkg/client/client.go:25`  
+**Struct:** `client.Client`\
+**Similar To:** `linter.Fixer`, `workflow.Builder`\
+**Location:** `pkg/client/client.go:25`\
 **Shared Fields:**
 
 - `configLoader *config.Loader`
@@ -60,8 +60,8 @@ The golangci-lint-auto-configure codebase demonstrates excellent architectural c
 
 ### 4. LintersConfig Mixin (Medium Confidence)
 
-**Structs:** `LintersConfig` and `FormattersConfig`  
-**Location:** `pkg/types/types.go:203`, `pkg/types/types.go:240`  
+**Structs:** `LintersConfig` and `FormattersConfig`\
+**Location:** `pkg/types/types.go:203`, `pkg/types/types.go:240`\
 **Shared Fields:**
 
 - `Enable []string`
@@ -129,6 +129,6 @@ The branching-flow analysis confirms the golangci-lint-auto-configure codebase f
 
 ---
 
-_Generated: 2026-03-19_  
-_Tool: branching-flow compose . --order severity-asc_  
+_Generated: 2026-03-19_\
+_Tool: branching-flow compose . --order severity-asc_\
 _Score: 99/100 (EXCELLENT)_

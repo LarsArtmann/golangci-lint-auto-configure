@@ -1,7 +1,7 @@
 # ADR-002: CommandBuilder Pattern for CLI Commands
 
-**Status:** Accepted  
-**Date:** 2026-04-09  
+**Status:** Accepted\
+**Date:** 2026-04-09\
 **Author:** Lars Artmann (@larsartmann)
 
 ---
@@ -169,5 +169,5 @@ func newConfigureCommand(b *CommandBuilder) *cobra.Command {
 
 ---
 
-_Accepted by: Lars Artmann_  
+_Accepted by: Lars Artmann_\
 _Date: 2026-04-09_

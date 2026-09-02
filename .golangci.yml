@@ -1,7 +1,7 @@
 version: "2"
 run:
   timeout: 10m
-  go: 1.26.5
+  go: 1.26.7
   build-tags:
     - goexperiment.arenas
     - goexperiment.goroutineleakprofile
@@ -224,6 +224,17 @@ linters:
         - b
         - v
       ignore-type-assert-ok: true
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
   exclusions:
     generated: lax
     presets:
@@ -468,5 +479,3 @@ formatters:
 issues:
   max-issues-per-linter: 100
   max-same-issues: 15
-  exclude-dirs:
-    - cmd/generate-settings # code generation tool — parses external JSON schema

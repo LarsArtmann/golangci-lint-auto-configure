@@ -1,7 +1,7 @@
 # ADR-003: Interface-Based Design for Testability
 
-**Status:** Accepted  
-**Date:** 2026-04-09  
+**Status:** Accepted\
+**Date:** 2026-04-09\
 **Author:** Lars Artmann (@larsartmann)
 
 ---
@@ -278,5 +278,5 @@ func TestAnalyze(t *testing.T) {
 
 ---
 
-_Accepted by: Lars Artmann_  
+_Accepted by: Lars Artmann_\
 _Date: 2026-04-09_

@@ -151,33 +151,33 @@ The project is in **excellent condition**. All tests pass (7 suites, 58.9% cover
 
 ## F) TOP #25 THINGS TO DO NEXT
 
-| #   | Priority | Task                                                 | Impact | Effort |
-| --- | -------- | ---------------------------------------------------- | ------ | ------ |
-| 1   | **P0**   | Commit current staged changes                        | High   | Low    |
-| 2   | **P0**   | Add `pkg/migration/` to git tracking                 | High   | Low    |
-| 3   | **P1**   | Write tests for `GetLocalGoVersion()`                | Medium | Low    |
-| 4   | **P1**   | Implement `pkg/formatters/` package                  | High   | Medium |
-| 5   | **P1**   | Add formatter recommendations to `configure` command | High   | Medium |
-| 6   | **P1**   | Update README with Go version auto-detection         | Medium | Low    |
-| 7   | **P2**   | Document `pkg/migration/` architecture               | Medium | Low    |
-| 8   | **P2**   | Add integration tests for migration                  | Medium | Medium |
-| 9   | **P2**   | Refactor `GetLocalGoVersion()` to accept context     | Low    | Low    |
-| 10  | **P2**   | Add `just watch` command for TDD                     | Medium | Low    |
-| 11  | **P2**   | Implement dependency injection in `internal/di/`     | Medium | Medium |
-| 12  | **P2**   | Add more linter presets (minimal, strict, paranoid)  | Medium | Low    |
-| 13  | **P2**   | Improve error messages with more context             | Medium | Low    |
-| 14  | **P3**   | Add `just docs` command                              | Low    | Low    |
-| 15  | **P3**   | Cache golangci-lint version check                    | Low    | Low    |
-| 16  | **P3**   | Parallel config analysis                             | Low    | Medium |
-| 17  | **P3**   | Add verbose logging levels                           | Low    | Low    |
-| 18  | **P3**   | Create migration guide for users                     | Medium | Medium |
-| 19  | **P3**   | Add version update check                             | Low    | Low    |
-| 20  | **P3**   | Support `.golangci.toml` and `.golangci.json`        | Low    | Medium |
-| 21  | **P4**   | Add shell completion generation                      | Low    | Medium |
-| 22  | **P4**   | Create homebrew formula                              | Low    | Low    |
-| 23  | **P4**   | Create AUR package                                   | Low    | Medium |
-| 24  | **P4**   | Add benchmark tests                                  | Low    | Medium |
-| 25  | **P4**   | Profile and optimize hot paths                       | Low    | High   |
+| #  | Priority | Task                                                 | Impact | Effort |
+| -- | -------- | ---------------------------------------------------- | ------ | ------ |
+| 1  | **P0**   | Commit current staged changes                        | High   | Low    |
+| 2  | **P0**   | Add `pkg/migration/` to git tracking                 | High   | Low    |
+| 3  | **P1**   | Write tests for `GetLocalGoVersion()`                | Medium | Low    |
+| 4  | **P1**   | Implement `pkg/formatters/` package                  | High   | Medium |
+| 5  | **P1**   | Add formatter recommendations to `configure` command | High   | Medium |
+| 6  | **P1**   | Update README with Go version auto-detection         | Medium | Low    |
+| 7  | **P2**   | Document `pkg/migration/` architecture               | Medium | Low    |
+| 8  | **P2**   | Add integration tests for migration                  | Medium | Medium |
+| 9  | **P2**   | Refactor `GetLocalGoVersion()` to accept context     | Low    | Low    |
+| 10 | **P2**   | Add `just watch` command for TDD                     | Medium | Low    |
+| 11 | **P2**   | Implement dependency injection in `internal/di/`     | Medium | Medium |
+| 12 | **P2**   | Add more linter presets (minimal, strict, paranoid)  | Medium | Low    |
+| 13 | **P2**   | Improve error messages with more context             | Medium | Low    |
+| 14 | **P3**   | Add `just docs` command                              | Low    | Low    |
+| 15 | **P3**   | Cache golangci-lint version check                    | Low    | Low    |
+| 16 | **P3**   | Parallel config analysis                             | Low    | Medium |
+| 17 | **P3**   | Add verbose logging levels                           | Low    | Low    |
+| 18 | **P3**   | Create migration guide for users                     | Medium | Medium |
+| 19 | **P3**   | Add version update check                             | Low    | Low    |
+| 20 | **P3**   | Support `.golangci.toml` and `.golangci.json`        | Low    | Medium |
+| 21 | **P4**   | Add shell completion generation                      | Low    | Medium |
+| 22 | **P4**   | Create homebrew formula                              | Low    | Low    |
+| 23 | **P4**   | Create AUR package                                   | Low    | Medium |
+| 24 | **P4**   | Add benchmark tests                                  | Low    | Medium |
+| 25 | **P4**   | Profile and optimize hot paths                       | Low    | High   |
 
 ---
 

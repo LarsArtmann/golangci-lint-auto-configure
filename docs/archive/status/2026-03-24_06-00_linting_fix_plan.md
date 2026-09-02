@@ -37,52 +37,52 @@
 
 ### Phase 1: Quick Wins (0-30 min)
 
-| #   | Task                                            | Category   | Issues | Est Time |
-| --- | ----------------------------------------------- | ---------- | ------ | -------- |
-| 1   | Fix forbidigo - replace fmt.Println with logger | forbidigo  | 1      | 2 min    |
-| 2   | Fix goconst - extract string literals           | goconst    | 3      | 5 min    |
-| 3   | Fix mnd - extract magic numbers                 | mnd        | 3      | 5 min    |
-| 4   | Fix varnamelen - rename short vars              | varnamelen | 10     | 10 min   |
-| 5   | Fix nestif - simplify nested if                 | nestif     | 1      | 3 min    |
-| 6   | Fix nilerr - fix error handling                 | nilerr     | 1      | 3 min    |
-| 7   | Fix noctx - use CommandContext                  | noctx      | 1      | 3 min    |
-| 8   | Fix prealloc - preallocate slice                | prealloc   | 1      | 2 min    |
+| # | Task                                            | Category   | Issues | Est Time |
+| - | ----------------------------------------------- | ---------- | ------ | -------- |
+| 1 | Fix forbidigo - replace fmt.Println with logger | forbidigo  | 1      | 2 min    |
+| 2 | Fix goconst - extract string literals           | goconst    | 3      | 5 min    |
+| 3 | Fix mnd - extract magic numbers                 | mnd        | 3      | 5 min    |
+| 4 | Fix varnamelen - rename short vars              | varnamelen | 10     | 10 min   |
+| 5 | Fix nestif - simplify nested if                 | nestif     | 1      | 3 min    |
+| 6 | Fix nilerr - fix error handling                 | nilerr     | 1      | 3 min    |
+| 7 | Fix noctx - use CommandContext                  | noctx      | 1      | 3 min    |
+| 8 | Fix prealloc - preallocate slice                | prealloc   | 1      | 2 min    |
 
 ### Phase 2: Low-Hanging Fruit (30-60 min)
 
-| #   | Task                                    | Category    | Issues | Est Time |
-| --- | --------------------------------------- | ----------- | ------ | -------- |
-| 9   | Fix godox - add context or remove TODOs | godox       | 15     | 20 min   |
-| 10  | Fix funcorder - reorder methods         | funcorder   | 4      | 10 min   |
-| 11  | Fix testpackage - rename test packages  | testpackage | 5      | 10 min   |
-| 12  | Fix godoclint - consolidate docs        | godoclint   | 2      | 5 min    |
-| 13  | Fix revive (easy ones)                  | revive      | ~10    | 15 min   |
+| #  | Task                                    | Category    | Issues | Est Time |
+| -- | --------------------------------------- | ----------- | ------ | -------- |
+| 9  | Fix godox - add context or remove TODOs | godox       | 15     | 20 min   |
+| 10 | Fix funcorder - reorder methods         | funcorder   | 4      | 10 min   |
+| 11 | Fix testpackage - rename test packages  | testpackage | 5      | 10 min   |
+| 12 | Fix godoclint - consolidate docs        | godoclint   | 2      | 5 min    |
+| 13 | Fix revive (easy ones)                  | revive      | ~10    | 15 min   |
 
 ### Phase 3: Refactoring (60-120 min)
 
-| #   | Task                                      | Category     | Issues | Est Time |
-| --- | ----------------------------------------- | ------------ | ------ | -------- |
-| 14  | Fix noinlineerr - refactor error handling | noinlineerr  | 15     | 25 min   |
-| 15  | Fix wrapcheck - wrap errors properly      | wrapcheck    | 13     | 20 min   |
-| 16  | Fix gosec - fix security issues           | gosec        | 7      | 15 min   |
-| 17  | Fix paralleltest - add t.Parallel()       | paralleltest | 18     | 20 min   |
-| 18  | Fix funlen - split long functions         | funlen       | 3      | 30 min   |
-| 19  | Fix gocognit - reduce complexity          | gocognit     | 2      | 25 min   |
+| #  | Task                                      | Category     | Issues | Est Time |
+| -- | ----------------------------------------- | ------------ | ------ | -------- |
+| 14 | Fix noinlineerr - refactor error handling | noinlineerr  | 15     | 25 min   |
+| 15 | Fix wrapcheck - wrap errors properly      | wrapcheck    | 13     | 20 min   |
+| 16 | Fix gosec - fix security issues           | gosec        | 7      | 15 min   |
+| 17 | Fix paralleltest - add t.Parallel()       | paralleltest | 18     | 20 min   |
+| 18 | Fix funlen - split long functions         | funlen       | 3      | 30 min   |
+| 19 | Fix gocognit - reduce complexity          | gocognit     | 2      | 25 min   |
 
 ### Phase 4: Major Refactoring (120+ min)
 
-| #   | Task                                       | Category         | Issues | Est Time |
-| --- | ------------------------------------------ | ---------------- | ------ | -------- |
-| 20  | Fix ireturn - return concrete types        | ireturn          | 2      | 30 min   |
-| 21  | Fix gochecknoglobals - refactor to options | gochecknoglobals | 25     | 60 min   |
-| 22  | Fix tagliatelle - fix JSON tags            | tagliatelle      | 14     | 40 min   |
-| 23  | Fix remaining revive issues                | revive           | ~4     | 15 min   |
+| #  | Task                                       | Category         | Issues | Est Time |
+| -- | ------------------------------------------ | ---------------- | ------ | -------- |
+| 20 | Fix ireturn - return concrete types        | ireturn          | 2      | 30 min   |
+| 21 | Fix gochecknoglobals - refactor to options | gochecknoglobals | 25     | 60 min   |
+| 22 | Fix tagliatelle - fix JSON tags            | tagliatelle      | 14     | 40 min   |
+| 23 | Fix remaining revive issues                | revive           | ~4     | 15 min   |
 
 ### Phase 5: Configuration
 
-| #   | Task                                | Category        | Issues | Est Time |
-| --- | ----------------------------------- | --------------- | ------ | -------- |
-| 24  | Configure gomoddirectives exclusion | gomoddirectives | 2      | 5 min    |
+| #  | Task                                | Category        | Issues | Est Time |
+| -- | ----------------------------------- | --------------- | ------ | -------- |
+| 24 | Configure gomoddirectives exclusion | gomoddirectives | 2      | 5 min    |
 
 ---
 

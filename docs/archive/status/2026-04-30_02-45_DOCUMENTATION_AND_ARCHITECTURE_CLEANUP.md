@@ -162,33 +162,33 @@ All changes compiled, all pkg tests passed, all commits pushed cleanly. No regre
 
 ## F) Top #25 Things to Do Next (sorted by impact × effort)
 
-| #   | Task                                                              | Impact | Effort | Category        |
-| --- | ----------------------------------------------------------------- | ------ | ------ | --------------- |
-| 1   | Fix `funlen` in `cmd_validate.go` (extract SARIF helper)          | 🟢     | 15min  | Linter cleanup  |
-| 2   | Add doc comments to 8 exported structs in types.go                | 🟢     | 10min  | Go doc quality  |
-| 3   | Fix `forbidigo` — replace `fmt.Println` with logger               | 🟢     | 5min   | Linter cleanup  |
-| 4   | Fix `wrapcheck` — wrap external error in converter.go:221         | 🟢     | 5min   | Linter cleanup  |
-| 5   | Fix `varnamelen` — rename `f` variables across finding/           | 🟢     | 15min  | Linter cleanup  |
-| 6   | Fix `tagliatelle` — JSON tags in golangci_lint.go                 | 🟢     | 15min  | Linter cleanup  |
-| 7   | Add tests for `pkg/client/` (public API)                          | 🟡     | 1h     | Test coverage   |
-| 8   | Add `just test-unit` recipe (skip integration)                    | 🟡     | 10min  | DX              |
-| 9   | Publish or properly reference `go-finding` (remove local replace) | 🔴     | 2h     | CI unblock      |
-| 10  | Change `Config.Enable/Disable` from `[]string` to `[]LinterName`  | 🟡     | 45min  | Type safety     |
-| 11  | Rename `MigrationResult` to `FixResult` or `ConfigChangeResult`   | 🟡     | 30min  | Naming clarity  |
-| 12  | Add tests for `pkg/report/`                                       | 🟡     | 45min  | Test coverage   |
-| 13  | Fix `funlen` in `ParseGolangciLintJSON`                           | 🟢     | 10min  | Linter cleanup  |
-| 14  | Fix `funlen` in `LinterToCategory` (extract to map lookup)        | 🟢     | 10min  | Linter cleanup  |
-| 15  | Archive old `docs/status/` reports (>30 days old)                 | 🟢     | 10min  | Doc cleanup     |
-| 16  | Consolidate `docs/planning/` into single plan                     | 🟢     | 20min  | Doc cleanup     |
-| 17  | Fix `exhaustruct` warnings in converter.go                        | 🟢     | 20min  | Linter cleanup  |
-| 18  | Update `AGENTS.md` with remaining gotcha cleanup                  | 🟢     | 10min  | Doc accuracy    |
-| 19  | Add `just test-integration` recipe                                | 🟢     | 10min  | DX              |
-| 20  | Add `go-finding` version to CI (publish to GitHub)                | 🔴     | 1h     | CI unblock      |
-| 21  | Add `.envrc` for direnv + Nix integration                         | 🟢     | 15min  | DX              |
-| 22  | Create `flake.nix` (Phase 1 of Nix migration)                     | 🟡     | 2h     | Reproducibility |
-| 23  | Remove redundant `funcorder` exclusion rules in .golangci.yml     | 🟢     | 5min   | Config cleanup  |
-| 24  | Add integration test examples to pkg/client/                      | 🟡     | 30min  | Doc quality     |
-| 25  | Generic strong type pattern (reduce boilerplate)                  | 🟢     | 30min  | Architecture    |
+| #  | Task                                                              | Impact | Effort | Category        |
+| -- | ----------------------------------------------------------------- | ------ | ------ | --------------- |
+| 1  | Fix `funlen` in `cmd_validate.go` (extract SARIF helper)          | 🟢     | 15min  | Linter cleanup  |
+| 2  | Add doc comments to 8 exported structs in types.go                | 🟢     | 10min  | Go doc quality  |
+| 3  | Fix `forbidigo` — replace `fmt.Println` with logger               | 🟢     | 5min   | Linter cleanup  |
+| 4  | Fix `wrapcheck` — wrap external error in converter.go:221         | 🟢     | 5min   | Linter cleanup  |
+| 5  | Fix `varnamelen` — rename `f` variables across finding/           | 🟢     | 15min  | Linter cleanup  |
+| 6  | Fix `tagliatelle` — JSON tags in golangci_lint.go                 | 🟢     | 15min  | Linter cleanup  |
+| 7  | Add tests for `pkg/client/` (public API)                          | 🟡     | 1h     | Test coverage   |
+| 8  | Add `just test-unit` recipe (skip integration)                    | 🟡     | 10min  | DX              |
+| 9  | Publish or properly reference `go-finding` (remove local replace) | 🔴     | 2h     | CI unblock      |
+| 10 | Change `Config.Enable/Disable` from `[]string` to `[]LinterName`  | 🟡     | 45min  | Type safety     |
+| 11 | Rename `MigrationResult` to `FixResult` or `ConfigChangeResult`   | 🟡     | 30min  | Naming clarity  |
+| 12 | Add tests for `pkg/report/`                                       | 🟡     | 45min  | Test coverage   |
+| 13 | Fix `funlen` in `ParseGolangciLintJSON`                           | 🟢     | 10min  | Linter cleanup  |
+| 14 | Fix `funlen` in `LinterToCategory` (extract to map lookup)        | 🟢     | 10min  | Linter cleanup  |
+| 15 | Archive old `docs/status/` reports (>30 days old)                 | 🟢     | 10min  | Doc cleanup     |
+| 16 | Consolidate `docs/planning/` into single plan                     | 🟢     | 20min  | Doc cleanup     |
+| 17 | Fix `exhaustruct` warnings in converter.go                        | 🟢     | 20min  | Linter cleanup  |
+| 18 | Update `AGENTS.md` with remaining gotcha cleanup                  | 🟢     | 10min  | Doc accuracy    |
+| 19 | Add `just test-integration` recipe                                | 🟢     | 10min  | DX              |
+| 20 | Add `go-finding` version to CI (publish to GitHub)                | 🔴     | 1h     | CI unblock      |
+| 21 | Add `.envrc` for direnv + Nix integration                         | 🟢     | 15min  | DX              |
+| 22 | Create `flake.nix` (Phase 1 of Nix migration)                     | 🟡     | 2h     | Reproducibility |
+| 23 | Remove redundant `funcorder` exclusion rules in .golangci.yml     | 🟢     | 5min   | Config cleanup  |
+| 24 | Add integration test examples to pkg/client/                      | 🟡     | 30min  | Doc quality     |
+| 25 | Generic strong type pattern (reduce boilerplate)                  | 🟢     | 30min  | Architecture    |
 
 ---
 

@@ -4,13 +4,13 @@
 >
 > The 5 actionable recommendations at the end of this report have the following status:
 >
-> | #   | Recommendation                            | Status       | Details                                                                                                                                                                  |
-> | --- | ----------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-> | 1   | Borrow go-finding's coverage-gate pattern | ✅ Done      | Coverage threshold gate added to CI. Originally `scripts/coverage-check.sh`; replaced by `cmd/coverage-check/main.go` (portable Go program with BDD tests) in July 2025. |
-> | 2   | Add fuzz target on config merger/fixer    | ✅ Done      | `FuzzMergeConfigInto` + `FuzzMergeIdempotent` in `pkg/config/merger_fuzz_test.go`                                                                                        |
-> | 3   | Add govulncheck to CI                     | ✅ Done      | CI job added in `.github/workflows/ci.yml`                                                                                                                               |
-> | 4   | Do NOT adopt go-finding/pipeline/         | ✅ Validated | Domain mismatch confirmed — config mutation ≠ source-byte editing                                                                                                        |
-> | 5   | Do NOT grow into a DAG                    | ✅ Validated | BuildFlow owns that layer; our value is focus                                                                                                                            |
+> | # | Recommendation                            | Status       | Details                                                                                                                                                                  |
+> | - | ----------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+> | 1 | Borrow go-finding's coverage-gate pattern | ✅ Done      | Coverage threshold gate added to CI. Originally `scripts/coverage-check.sh`; replaced by `cmd/coverage-check/main.go` (portable Go program with BDD tests) in July 2025. |
+> | 2 | Add fuzz target on config merger/fixer    | ✅ Done      | `FuzzMergeConfigInto` + `FuzzMergeIdempotent` in `pkg/config/merger_fuzz_test.go`                                                                                        |
+> | 3 | Add govulncheck to CI                     | ✅ Done      | CI job added in `.github/workflows/ci.yml`                                                                                                                               |
+> | 4 | Do NOT adopt go-finding/pipeline/         | ✅ Validated | Domain mismatch confirmed — config mutation ≠ source-byte editing                                                                                                        |
+> | 5 | Do NOT grow into a DAG                    | ✅ Validated | BuildFlow owns that layer; our value is focus                                                                                                                            |
 >
 > All 5 recommendations resolved. The architectural analysis remains evergreen. This was a one-time research doc; no ongoing maintenance needed.
 
@@ -24,11 +24,11 @@
 The word "pipeline" means something genuinely different in each project, and they sit in a **layered relationship**:
 
 ```
-                    go-finding (Finding/Report model + pipeline/ SDK)
-                   ╱        ╱              ╲              ╲
-   go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors
-   (model + pipeline)    auto-configure     (model only)  (model only)
-                         (model only)
+                 go-finding (Finding/Report model + pipeline/ SDK)
+                ╱        ╱              ╲              ╲
+go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors
+(model + pipeline)    auto-configure     (model only)  (model only)
+                      (model only)
 ```
 
 > **Broader ecosystem note:** This report originally compared only three projects. Two sibling reports — `go-structure-linter/docs/pipeline-comparison.md` and `hierarchical-errors/docs/pipeline-comparison.md` — revealed two additional consumers (go-structure-linter, hierarchical-errors) and one **critical correction** documented in [Appendix B](#appendix-b-corrections-from-cross-referencing-sibling-reports). The tables below focus on the original three; the broader five-project picture lives in the appendices.
@@ -210,11 +210,11 @@ The three are **complementary layers**, not competitors: go-finding defines the 
 After cross-referencing `go-structure-linter/docs/pipeline-comparison.md` and `hierarchical-errors/docs/pipeline-comparison.md`, the full ecosystem picture is:
 
 ```
-                    go-finding (Finding/Report model + pipeline/ SDK)
-                   ╱        ╱              ╲              ╲
-   go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors
-   (model + pipeline)    auto-configure     (model only)  (model only)
-                         (model only)
+                 go-finding (Finding/Report model + pipeline/ SDK)
+                ╱        ╱              ╲              ╲
+go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors
+(model + pipeline)    auto-configure     (model only)  (model only)
+                      (model only)
 ```
 
 | Project                          | Pipeline model  | Stages | Uses go-finding model? | Uses go-finding pipeline/? | Unique strength                                        |

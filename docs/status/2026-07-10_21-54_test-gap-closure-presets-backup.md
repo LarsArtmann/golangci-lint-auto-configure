@@ -8,37 +8,37 @@
 
 ## a) FULLY DONE
 
-| #   | Item                                                       | Evidence                                                                                                                                  |
-| --- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Verified prior session work was committed                  | `git log` confirmed commits `1a9b32c`, `f1e5a99`, `12a52d8` contain all 50 items                                                          |
-| 2   | Verified side-effect changes already committed             | `flake.lock` bump, `validate_linter_data.go` reformatting — all in `12a52d8`, no revert needed                                            |
-| 3   | Verified `fixer_recorder_test.go` exhaustruct is non-issue | `.golangci.yml` excludes `exhaustruct` from `_test.go` files; `golangci-lint run` on `./pkg/linter/...` returns 0 issues                  |
-| 4   | Added 4 unit tests for `runListPresets`                    | `cmd_presets_internal_test.go`: no-error, all-presets-present, alphabetical ordering, linter/formatter count display                      |
-| 5   | Added 5 unit tests for `backupConfigFile`                  | `configure_unit_test.go`: no-op on missing file, backup creation, stale backup overwrite, read error (directory), write error (directory) |
-| 6   | Fixed 2 lint regressions in test code                      | noinlineerr (inline `os.Stat`) and wsl_v5 (missing whitespace) — both fixed before commit                                                 |
-| 7   | Full verification suite passes                             | `go build ./...` clean, 16/16 packages pass `go test`, `golangci-lint run` at baseline (2 pre-existing gosec only)                        |
-| 8   | Committed with clear message                               | `8dd98da`, BuildFlow pre-commit passed 26/26                                                                                              |
+| # | Item                                                       | Evidence                                                                                                                                  |
+| - | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | Verified prior session work was committed                  | `git log` confirmed commits `1a9b32c`, `f1e5a99`, `12a52d8` contain all 50 items                                                          |
+| 2 | Verified side-effect changes already committed             | `flake.lock` bump, `validate_linter_data.go` reformatting — all in `12a52d8`, no revert needed                                            |
+| 3 | Verified `fixer_recorder_test.go` exhaustruct is non-issue | `.golangci.yml` excludes `exhaustruct` from `_test.go` files; `golangci-lint run` on `./pkg/linter/...` returns 0 issues                  |
+| 4 | Added 4 unit tests for `runListPresets`                    | `cmd_presets_internal_test.go`: no-error, all-presets-present, alphabetical ordering, linter/formatter count display                      |
+| 5 | Added 5 unit tests for `backupConfigFile`                  | `configure_unit_test.go`: no-op on missing file, backup creation, stale backup overwrite, read error (directory), write error (directory) |
+| 6 | Fixed 2 lint regressions in test code                      | noinlineerr (inline `os.Stat`) and wsl_v5 (missing whitespace) — both fixed before commit                                                 |
+| 7 | Full verification suite passes                             | `go build ./...` clean, 16/16 packages pass `go test`, `golangci-lint run` at baseline (2 pre-existing gosec only)                        |
+| 8 | Committed with clear message                               | `8dd98da`, BuildFlow pre-commit passed 26/26                                                                                              |
 
 ---
 
 ## b) PARTIALLY DONE
 
-| #   | Item                                 | What's done                                                                                    | What's missing                                                                                                  |
-| --- | ------------------------------------ | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| 1   | CLI package test coverage            | 33 test functions covering 14 of 29 functions in `cmd_configure.go` + both in `cmd_presets.go` | **15 functions still have zero unit tests** (see section e below)                                               |
-| 2   | `backupConfigFile` robustness        | 5 edge-case tests (missing file, create, overwrite, read error, write error)                   | No test for backup file permissions (`0o600`) — would need `os.Stat` on the `.bak` file to verify mode          |
-| 3   | `runListPresets` output verification | 4 tests checking content and ordering                                                          | No test for exact output format (width alignment, specific counts per preset) — only checks presence of strings |
+| # | Item                                 | What's done                                                                                    | What's missing                                                                                                  |
+| - | ------------------------------------ | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 1 | CLI package test coverage            | 33 test functions covering 14 of 29 functions in `cmd_configure.go` + both in `cmd_presets.go` | **15 functions still have zero unit tests** (see section e below)                                               |
+| 2 | `backupConfigFile` robustness        | 5 edge-case tests (missing file, create, overwrite, read error, write error)                   | No test for backup file permissions (`0o600`) — would need `os.Stat` on the `.bak` file to verify mode          |
+| 3 | `runListPresets` output verification | 4 tests checking content and ordering                                                          | No test for exact output format (width alignment, specific counts per preset) — only checks presence of strings |
 
 ---
 
 ## c) NOT STARTED
 
-| #   | Item                                                                                                  | Why                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Update prior session's status report (`docs/status/2026-07-10_19-07_50-item-todo-list-full-sweep.md`) | The handoff said "Zero tests for presets command and backupConfigFile" — this is now resolved but the report wasn't updated |
-| 2   | End-to-end CLI test for `presets` subcommand                                                          | No integration test that runs `golangci-lint-auto-configure presets` as a binary and checks stdout                          |
-| 3   | Test for `backupConfigFile` permission mode (`0o600`)                                                 | Not tested whether the `.bak` file is created with the intended restrictive permissions                                     |
-| 4   | `--backup` flag decision                                                                              | The handoff noted this as an open question — backup is always-on, no opt-in/opt-out flag                                    |
+| # | Item                                                                                                  | Why                                                                                                                         |
+| - | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1 | Update prior session's status report (`docs/status/2026-07-10_19-07_50-item-todo-list-full-sweep.md`) | The handoff said "Zero tests for presets command and backupConfigFile" — this is now resolved but the report wasn't updated |
+| 2 | End-to-end CLI test for `presets` subcommand                                                          | No integration test that runs `golangci-lint-auto-configure presets` as a binary and checks stdout                          |
+| 3 | Test for `backupConfigFile` permission mode (`0o600`)                                                 | Not tested whether the `.bak` file is created with the intended restrictive permissions                                     |
+| 4 | `--backup` flag decision                                                                              | The handoff noted this as an open question — backup is always-on, no opt-in/opt-out flag                                    |
 
 ---
 

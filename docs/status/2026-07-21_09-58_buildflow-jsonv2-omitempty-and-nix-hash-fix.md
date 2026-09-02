@@ -147,7 +147,7 @@ docs/references/json-v2.md | +20 lines (omitempty-vs-omitzero subsection)
 41. **Check `LinterRecommendation`, `FormatterRecommendation`** (no omit tags) for whether they need omit semantics.
 42. **Check `ValidationError`, `ValidationResult`, `HealthIssue`** marshaling paths for the same bug class.
 43. **Audit `pkg/types/types.go` beyond line 200** (I only read to line ~200; there may be more structs with bool/omitempty below).
-44. **Confirm `MigrationResult.Error error \`json:"-"\``** still works under json/v2 (the `-` tag).
+44. **Confirm `MigrationResult.Error error \`json:"-"\``** still works under json/v2 (the`-` tag).
 45. **Look at `LinterName`/`FormatterName` named-string types** — do they marshal correctly as plain strings under v2? (They're used as map keys nowhere, but verify.)
 46. **Consider fuzzing the JSON marshalers** for panic-safety under v2 (v2 has stricter type handling).
 47. **Document the GOEXPERIMENT=jsonv2 + Go 1.26 → 1.27 transition plan** — the gopls warnings (`requires go1.27 or later`) suggest this will become stable in 1.27; plan the flag removal.

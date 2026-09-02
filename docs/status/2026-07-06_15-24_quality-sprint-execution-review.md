@@ -4,21 +4,21 @@
 >
 > Items from this report's "25 things to do next" have the following status:
 >
-> | #   | Item                                           | Status            | Details                                                                 |
-> | --- | ---------------------------------------------- | ----------------- | ----------------------------------------------------------------------- |
-> | 1   | Commit all changes                             | ✅ Done           | All work committed across multiple commits                              |
-> | 2   | Fix ParsePriorityParam classification          | ✅ Done           | `ErrInvalidLinterPriority` registered as Rejection in classification.go |
-> | 3   | --diff integration tests                       | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal            |
-> | 4   | --check integration tests                      | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases                          |
-> | 5   | Exit-code test: Infrastructure (69)            | ❌ Not done       | golangci-lint-not-in-PATH path untested                                 |
-> | 6   | Scanner detection tests                        | ❌ Not done       | gogenfilter coverage still ~63.9%                                       |
-> | 7   | Fix nixfmt-standalone                          | ✅ Done           | `.buildflow.yml` skips it; nix-fmt (treefmt) handles Nix formatting     |
-> | 8   | Result type for CLI commands                   | ❌ Not done       | Commands still return `error` only                                      |
-> | 9   | Convert coverage-check.sh to Go test           | ❌ Not done       | Still bash + awk                                                        |
-> | 10  | SARIF schema validation test                   | ❌ Not done       |
-> | 11  | Adopt HandleError at CLI boundary              | ❌ Not done       | Still uses slog.Error                                                   |
-> | 12  | HTML snapshot test for templ                   | ❌ Not done       |
-> | 13  | Document errorfamily timestamp non-determinism | ❌ Not done       |
+> | #  | Item                                           | Status            | Details                                                                 |
+> | -- | ---------------------------------------------- | ----------------- | ----------------------------------------------------------------------- |
+> | 1  | Commit all changes                             | ✅ Done           | All work committed across multiple commits                              |
+> | 2  | Fix ParsePriorityParam classification          | ✅ Done           | `ErrInvalidLinterPriority` registered as Rejection in classification.go |
+> | 3  | --diff integration tests                       | ✅ Done (b1bde9c) | `cmd_diff_test.go` covers additions/removals/dry-run/optimal            |
+> | 4  | --check integration tests                      | ✅ Done (7bf1e2e) | `cmd_check_test.go` covers all 4 planned cases                          |
+> | 5  | Exit-code test: Infrastructure (69)            | ❌ Not done       | golangci-lint-not-in-PATH path untested                                 |
+> | 6  | Scanner detection tests                        | ❌ Not done       | gogenfilter coverage still ~63.9%                                       |
+> | 7  | Fix nixfmt-standalone                          | ✅ Done           | `.buildflow.yml` skips it; nix-fmt (treefmt) handles Nix formatting     |
+> | 8  | Result type for CLI commands                   | ❌ Not done       | Commands still return `error` only                                      |
+> | 9  | Convert coverage-check.sh to Go test           | ❌ Not done       | Still bash + awk                                                        |
+> | 10 | SARIF schema validation test                   | ❌ Not done       |                                                                         |
+> | 11 | Adopt HandleError at CLI boundary              | ❌ Not done       | Still uses slog.Error                                                   |
+> | 12 | HTML snapshot test for templ                   | ❌ Not done       |                                                                         |
+> | 13 | Document errorfamily timestamp non-determinism | ❌ Not done       |                                                                         |
 >
 > The `errorfamily.Classify()` default-to-Transient question (#g1) was partially resolved: `ErrInvalidLinterPriority` was explicitly registered as Rejection. The default classification for truly unknown errors remains Transient. Current open items: `TODO_LIST.md`.
 
@@ -35,20 +35,20 @@ The session delivered real code quality improvements: the `showDiff` package-var
 
 ## a) FULLY DONE (verified green)
 
-| #   | Task                                      | Evidence                                                                                                                                                                                                                                      |
-| --- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **showDiff refactored to parameter**      | Threaded through 7 functions: `runDetectOrConfigure` → `runConfigure` → `runPresetOrFixer` → `runFixerMode` → `finalizeFixerResult` → `effectiveDryRunForCheckDiff` + `applyCheckDiff`. Package-level var remains only as cobra flag binding. |
-| 2   | **--json-errors uses errorfamily.JSON()** | Replaced hand-rolled PascalCase struct with `errorfamily.Wrap().WithContext("exit_code", ...).JSON()`. Outputs canonical snake_case schema: `{family, code, message, context, retryable, timestamp}`.                                         |
-| 3   | **--quiet flag added**                    | `PersistentPreRun` on root command sets logger to `ErrorLevel` when `--quiet`. Verified: INFO suppressed, errors shown.                                                                                                                       |
-| 4   | **Merger fuzz tests rewritten**           | `FuzzMergeConfigInto` (65K+ execs, no panics) + `FuzzMergeIdempotent` targeting `mergeConfigInto` directly. Old tests fuzzed `types.Set` (wrong module).                                                                                      |
-| 5   | **Dead ConfigPath type removed**          | `pkg/types/types.go` — `ConfigPath string` + `String()` + `IsValid()` methods removed. Was defined but never used.                                                                                                                            |
-| 6   | **CLI unit tests added**                  | `internal/cli/configure_unit_test.go`: 10 test functions covering `effectiveDryRunForCheckDiff` (table-driven, 5 cases), `resolvePreset`, `applyCheckDiff`, `cloneConfig`, `restoreOriginalConfig`, `logNextSteps`, `runFmtUnlessDry`.        |
-| 7   | **gogenfilter utility tests**             | `pkg/gogenfilter/util_test.go`: `MergeExclusionPaths` (3 cases), `ExclusionPaths`, `GeneratedExclusion.String()`, `shouldSkipDir` (6 cases), `ScanProject` empty dir.                                                                         |
-| 8   | **Merger benchmarks**                     | `pkg/config/merger_bench_test.go`: `BenchmarkMergeConfigInto` (7µs/op) + `BenchmarkMergeConfigsFiles` (134µs/op).                                                                                                                             |
-| 9   | **ADR-005 written**                       | `docs/adr/ADR-005-showDiff-Parameter-Refactor.md` — documents the migration from package variable to parameter.                                                                                                                               |
-| 10  | **resolvePreset extracted**               | `runDetectOrConfigure` was >30 lines (funlen violation). Extracted `resolvePreset()` helper.                                                                                                                                                  |
-| 11  | **makeLogLevelConfigurer extracted**      | `NewRootCommand` was >35 lines (funlen). Extracted log-level configuration into helper.                                                                                                                                                       |
-| 12  | **Docs updated**                          | FEATURES.md (--quiet, errorfamily JSON), TODO_LIST.md (8 items marked complete), AGENTS.md (gotcha #5 updated).                                                                                                                               |
+| #  | Task                                      | Evidence                                                                                                                                                                                                                                      |
+| -- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | **showDiff refactored to parameter**      | Threaded through 7 functions: `runDetectOrConfigure` → `runConfigure` → `runPresetOrFixer` → `runFixerMode` → `finalizeFixerResult` → `effectiveDryRunForCheckDiff` + `applyCheckDiff`. Package-level var remains only as cobra flag binding. |
+| 2  | **--json-errors uses errorfamily.JSON()** | Replaced hand-rolled PascalCase struct with `errorfamily.Wrap().WithContext("exit_code", ...).JSON()`. Outputs canonical snake_case schema: `{family, code, message, context, retryable, timestamp}`.                                         |
+| 3  | **--quiet flag added**                    | `PersistentPreRun` on root command sets logger to `ErrorLevel` when `--quiet`. Verified: INFO suppressed, errors shown.                                                                                                                       |
+| 4  | **Merger fuzz tests rewritten**           | `FuzzMergeConfigInto` (65K+ execs, no panics) + `FuzzMergeIdempotent` targeting `mergeConfigInto` directly. Old tests fuzzed `types.Set` (wrong module).                                                                                      |
+| 5  | **Dead ConfigPath type removed**          | `pkg/types/types.go` — `ConfigPath string` + `String()` + `IsValid()` methods removed. Was defined but never used.                                                                                                                            |
+| 6  | **CLI unit tests added**                  | `internal/cli/configure_unit_test.go`: 10 test functions covering `effectiveDryRunForCheckDiff` (table-driven, 5 cases), `resolvePreset`, `applyCheckDiff`, `cloneConfig`, `restoreOriginalConfig`, `logNextSteps`, `runFmtUnlessDry`.        |
+| 7  | **gogenfilter utility tests**             | `pkg/gogenfilter/util_test.go`: `MergeExclusionPaths` (3 cases), `ExclusionPaths`, `GeneratedExclusion.String()`, `shouldSkipDir` (6 cases), `ScanProject` empty dir.                                                                         |
+| 8  | **Merger benchmarks**                     | `pkg/config/merger_bench_test.go`: `BenchmarkMergeConfigInto` (7µs/op) + `BenchmarkMergeConfigsFiles` (134µs/op).                                                                                                                             |
+| 9  | **ADR-005 written**                       | `docs/adr/ADR-005-showDiff-Parameter-Refactor.md` — documents the migration from package variable to parameter.                                                                                                                               |
+| 10 | **resolvePreset extracted**               | `runDetectOrConfigure` was >30 lines (funlen violation). Extracted `resolvePreset()` helper.                                                                                                                                                  |
+| 11 | **makeLogLevelConfigurer extracted**      | `NewRootCommand` was >35 lines (funlen). Extracted log-level configuration into helper.                                                                                                                                                       |
+| 12 | **Docs updated**                          | FEATURES.md (--quiet, errorfamily JSON), TODO_LIST.md (8 items marked complete), AGENTS.md (gotcha #5 updated).                                                                                                                               |
 
 **Verification:**
 
@@ -145,33 +145,33 @@ Added 6 test functions to `pkg/gogenfilter/util_test.go`. Coverage stayed at 63.
 
 ## f) Up to 25 things to do next (sorted by impact/effort)
 
-| #   | Task                                                                                 | Impact      | Effort | Notes                                                   |
-| --- | ------------------------------------------------------------------------------------ | ----------- | ------ | ------------------------------------------------------- |
-| 1   | **Commit all current changes**                                                       | 🔴 Critical | 5min   | 16 files uncommitted. Do this FIRST.                    |
-| 2   | **Fix ParsePriorityParam classification** (register ErrInvalidPriority as Rejection) | 🔴 High     | 15min  | Invalid args show as Transient/retryable — wrong        |
-| 3   | **Add --diff integration tests** (additions shown, removals shown, dry-run)          | 🔴 High     | 30min  | User-facing output, zero tests                          |
-| 4   | **Add --check integration tests** (optimal→0, dry-run combo, writes-nothing)         | 🔴 High     | 30min  | Only 1 of 4 planned tests exists                        |
-| 5   | **Add exit-code test: Infrastructure (69)** — golangci-lint not in PATH              | 🟡 Medium   | 15min  | 4 of 5 families tested, this one missing                |
-| 6   | **Write scanner detection tests** (templ content, protobuf content, sqlc config)     | 🟡 Medium   | 45min  | This is what actually improves gogenfilter coverage     |
-| 7   | **Fix nixfmt-standalone in devShell**                                                | 🟡 Medium   | 30min  | Root cause of all --no-verify bypasses                  |
-| 8   | **Consider Result type for CLI commands**                                            | 🟡 Medium   | 60min  | Enables assertion-based testing without binary exec     |
-| 9   | **Convert coverage-check.sh to Go test**                                             | 🟢 Low      | 30min  | More portable, testable                                 |
-| 10  | **Add SARIF schema validation test**                                                 | 🟢 Low      | 30min  | CI consumers depend on valid SARIF                      |
-| 11  | **Adopt HandleError at CLI boundary**                                                | 🟢 Low      | 45min  | Current slog.Error works but isn't structured           |
-| 12  | **HTML snapshot test for templ reports**                                             | 🟢 Low      | 45min  | Reports can change silently                             |
-| 13  | **Document errorfamily timestamp non-determinism**                                   | 🟢 Low      | 10min  | CI consumers may diff JSON output                       |
-| 14  | **Register domain message templates** for sentinels                                  | 🟢 Low      | 30min  | Human-readable messages for all sentinels               |
-| 15  | **Add testifylint enable-all verification**                                          | 🟢 Low      | 5min   | Check .golangci.yml config                              |
-| 16  | **Property test: fixer idempotency** (fix twice = fix once) using real FixConfig     | 🟢 Low      | 45min  | Core correctness invariant, needs golangci-lint binary  |
-| 17  | **Research koanf for config loading**                                                | 🟢 Low      | 60min  | Replaces hand-rolled YAML/TOML/JSON dispatch            |
-| 18  | **Investigate Config immutability**                                                  | 🟢 Low      | 120min | Biggest type-safety improvement, largest effort         |
-| 19  | **Add --diff shows color codes test**                                                | 🟢 Low      | 15min  | Verify green/red formatting                             |
-| 20  | **Add go-error-family Handle() integration**                                         | 🟢 Low      | 30min  | If go-error-family supports Handle pattern              |
-| 21  | **Benchmark full configure command**                                                 | 🟢 Low      | 30min  | End-to-end performance regression detection             |
-| 22  | **Add corrupted-version-string exit code test (65)**                                 | 🟢 Low      | 15min  | Corruption path untested                                |
-| 23  | **Consider --output=stderr for errors**                                              | 🟢 Low      | 15min  | Currently errors go to stdout via fang, stderr via slog |
-| 24  | **Document --quiet and --json-errors in README.md**                                  | 🟢 Low      | 10min  | User-facing flags not in README                         |
-| 25  | **Audit all fmt.Errorf in CLI for missing sentinels**                                | 🟡 Medium   | 45min  | Several bare errors may classify incorrectly            |
+| #  | Task                                                                                 | Impact      | Effort | Notes                                                   |
+| -- | ------------------------------------------------------------------------------------ | ----------- | ------ | ------------------------------------------------------- |
+| 1  | **Commit all current changes**                                                       | 🔴 Critical | 5min   | 16 files uncommitted. Do this FIRST.                    |
+| 2  | **Fix ParsePriorityParam classification** (register ErrInvalidPriority as Rejection) | 🔴 High     | 15min  | Invalid args show as Transient/retryable — wrong        |
+| 3  | **Add --diff integration tests** (additions shown, removals shown, dry-run)          | 🔴 High     | 30min  | User-facing output, zero tests                          |
+| 4  | **Add --check integration tests** (optimal→0, dry-run combo, writes-nothing)         | 🔴 High     | 30min  | Only 1 of 4 planned tests exists                        |
+| 5  | **Add exit-code test: Infrastructure (69)** — golangci-lint not in PATH              | 🟡 Medium   | 15min  | 4 of 5 families tested, this one missing                |
+| 6  | **Write scanner detection tests** (templ content, protobuf content, sqlc config)     | 🟡 Medium   | 45min  | This is what actually improves gogenfilter coverage     |
+| 7  | **Fix nixfmt-standalone in devShell**                                                | 🟡 Medium   | 30min  | Root cause of all --no-verify bypasses                  |
+| 8  | **Consider Result type for CLI commands**                                            | 🟡 Medium   | 60min  | Enables assertion-based testing without binary exec     |
+| 9  | **Convert coverage-check.sh to Go test**                                             | 🟢 Low      | 30min  | More portable, testable                                 |
+| 10 | **Add SARIF schema validation test**                                                 | 🟢 Low      | 30min  | CI consumers depend on valid SARIF                      |
+| 11 | **Adopt HandleError at CLI boundary**                                                | 🟢 Low      | 45min  | Current slog.Error works but isn't structured           |
+| 12 | **HTML snapshot test for templ reports**                                             | 🟢 Low      | 45min  | Reports can change silently                             |
+| 13 | **Document errorfamily timestamp non-determinism**                                   | 🟢 Low      | 10min  | CI consumers may diff JSON output                       |
+| 14 | **Register domain message templates** for sentinels                                  | 🟢 Low      | 30min  | Human-readable messages for all sentinels               |
+| 15 | **Add testifylint enable-all verification**                                          | 🟢 Low      | 5min   | Check .golangci.yml config                              |
+| 16 | **Property test: fixer idempotency** (fix twice = fix once) using real FixConfig     | 🟢 Low      | 45min  | Core correctness invariant, needs golangci-lint binary  |
+| 17 | **Research koanf for config loading**                                                | 🟢 Low      | 60min  | Replaces hand-rolled YAML/TOML/JSON dispatch            |
+| 18 | **Investigate Config immutability**                                                  | 🟢 Low      | 120min | Biggest type-safety improvement, largest effort         |
+| 19 | **Add --diff shows color codes test**                                                | 🟢 Low      | 15min  | Verify green/red formatting                             |
+| 20 | **Add go-error-family Handle() integration**                                         | 🟢 Low      | 30min  | If go-error-family supports Handle pattern              |
+| 21 | **Benchmark full configure command**                                                 | 🟢 Low      | 30min  | End-to-end performance regression detection             |
+| 22 | **Add corrupted-version-string exit code test (65)**                                 | 🟢 Low      | 15min  | Corruption path untested                                |
+| 23 | **Consider --output=stderr for errors**                                              | 🟢 Low      | 15min  | Currently errors go to stdout via fang, stderr via slog |
+| 24 | **Document --quiet and --json-errors in README.md**                                  | 🟢 Low      | 10min  | User-facing flags not in README                         |
+| 25 | **Audit all fmt.Errorf in CLI for missing sentinels**                                | 🟡 Medium   | 45min  | Several bare errors may classify incorrectly            |
 
 ---
 

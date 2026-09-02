@@ -1,19 +1,19 @@
 # Status Report: golangci-lint-auto-configure
 
-**Generated:** 2026-03-28 02:37:27 CET  
-**Branch:** master  
+**Generated:** 2026-03-28 02:37:27 CET\
+**Branch:** master\
 **Last Commit:** cba430b (2026-03-28 02:28:44)
 
 ---
 
 ## Executive Summary
 
-| Category                          | Status            | Notes                                |
-| --------------------------------- | ----------------- | ------------------------------------ |
-| **Core Functionality**            | ✅ FULLY DONE     | All major features implemented       |
-| **golangci-lint fmt Integration** | ✅ FULLY DONE     | Added in commit 8556143              |
-| **Test Coverage**                 | ✅ FULLY DONE     | 60.8% composite coverage             |
-| **Build Status**                  | ✅ PASSING        | CLI builds successfully              |
+| Category                          | Status           | Notes                                |
+| --------------------------------- | ---------------- | ------------------------------------ |
+| **Core Functionality**            | ✅ FULLY DONE    | All major features implemented       |
+| **golangci-lint fmt Integration** | ✅ FULLY DONE    | Added in commit 8556143              |
+| **Test Coverage**                 | ✅ FULLY DONE    | 60.8% composite coverage             |
+| **Build Status**                  | ✅ PASSING       | CLI builds successfully              |
 | **Linter Status**                 | ⚠️ PARTIALLY DONE | Some pre-existing lint issues remain |
 
 ---
@@ -126,33 +126,33 @@
 
 ## Top 25 Things We Should Get Done Next
 
-| #   | Task                                         | Priority | Effort | Status |
-| --- | -------------------------------------------- | -------- | ------ | ------ |
-| 1   | Fix test file lint issues (wsl_v5, nlreturn) | High     | 30m    | ⬜     |
-| 2   | Add unit tests for RunFmtCommand             | High     | 1h     | ⬜     |
-| 3   | Remove unused nolint directives              | Medium   | 5m     | ⬜     |
-| 4   | Increase test coverage to 70%                | Medium   | 2h     | ⬜     |
-| 5   | Add `--diff` flag to configure               | Medium   | 1h     | ⬜     |
-| 6   | Add config backup before changes             | Medium   | 1h     | ⬜     |
-| 7   | Improve error messages with context          | Medium   | 1h     | ⬜     |
-| 8   | Add CI/CD integration guide                  | Medium   | 1h     | ⬜     |
-| 9   | Create pre-commit hook examples              | Medium   | 30m    | ⬜     |
-| 10  | Add config validation API                    | Low      | 2h     | ⬜     |
-| 11  | Implement config diff viewer                 | Low      | 2h     | ⬜     |
-| 12  | Add JSON output mode                         | Low      | 1h     | ⬜     |
-| 13  | Improve terminal output                      | Low      | 1h     | ⬜     |
-| 14  | Add verbose to all commands                  | Low      | 30m    | ⬜     |
-| 15  | Implement config templates                   | Low      | 2h     | ⬜     |
-| 16  | Add performance caching                      | Low      | 3h     | ⬜     |
-| 17  | Enhance project type detection               | Low      | 2h     | ⬜     |
-| 18  | Add monorepo improvements                    | Low      | 2h     | ⬜     |
-| 19  | Create config comparison tool                | Low      | 2h     | ⬜     |
-| 20  | Add language-specific linters                | Low      | 1h     | ⬜     |
-| 21  | Implement interactive mode (TUI)             | Low      | 4h     | ⬜     |
-| 22  | Add plugin support                           | Low      | 4h     | ⬜     |
-| 23  | Performance benchmarking                     | Low      | 1h     | ⬜     |
-| 24  | VS Code extension                            | Low      | 8h     | ⬜     |
-| 25  | IntelliJ plugin                              | Low      | 8h     | ⬜     |
+| #  | Task                                         | Priority | Effort | Status |
+| -- | -------------------------------------------- | -------- | ------ | ------ |
+| 1  | Fix test file lint issues (wsl_v5, nlreturn) | High     | 30m    | ⬜     |
+| 2  | Add unit tests for RunFmtCommand             | High     | 1h     | ⬜     |
+| 3  | Remove unused nolint directives              | Medium   | 5m     | ⬜     |
+| 4  | Increase test coverage to 70%                | Medium   | 2h     | ⬜     |
+| 5  | Add `--diff` flag to configure               | Medium   | 1h     | ⬜     |
+| 6  | Add config backup before changes             | Medium   | 1h     | ⬜     |
+| 7  | Improve error messages with context          | Medium   | 1h     | ⬜     |
+| 8  | Add CI/CD integration guide                  | Medium   | 1h     | ⬜     |
+| 9  | Create pre-commit hook examples              | Medium   | 30m    | ⬜     |
+| 10 | Add config validation API                    | Low      | 2h     | ⬜     |
+| 11 | Implement config diff viewer                 | Low      | 2h     | ⬜     |
+| 12 | Add JSON output mode                         | Low      | 1h     | ⬜     |
+| 13 | Improve terminal output                      | Low      | 1h     | ⬜     |
+| 14 | Add verbose to all commands                  | Low      | 30m    | ⬜     |
+| 15 | Implement config templates                   | Low      | 2h     | ⬜     |
+| 16 | Add performance caching                      | Low      | 3h     | ⬜     |
+| 17 | Enhance project type detection               | Low      | 2h     | ⬜     |
+| 18 | Add monorepo improvements                    | Low      | 2h     | ⬜     |
+| 19 | Create config comparison tool                | Low      | 2h     | ⬜     |
+| 20 | Add language-specific linters                | Low      | 1h     | ⬜     |
+| 21 | Implement interactive mode (TUI)             | Low      | 4h     | ⬜     |
+| 22 | Add plugin support                           | Low      | 4h     | ⬜     |
+| 23 | Performance benchmarking                     | Low      | 1h     | ⬜     |
+| 24 | VS Code extension                            | Low      | 8h     | ⬜     |
+| 25 | IntelliJ plugin                              | Low      | 8h     | ⬜     |
 
 ---
 
@@ -162,7 +162,7 @@
 ## master...origin/master
 ```
 
-**Working Tree:** Clean  
+**Working Tree:** Clean\
 **Last Commit:** cba430b (2026-03-28 02:28:44)
 
 ---
@@ -263,5 +263,5 @@ The project is in a **healthy state** with:
 
 ---
 
-_Generated with Crush_  
+_Generated with Crush_\
 _Assisted-by: MiniMax-M2.7-highspeed via Crush <crush@charm.land>_

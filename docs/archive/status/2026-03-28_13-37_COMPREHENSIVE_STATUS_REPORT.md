@@ -12,14 +12,14 @@
 
 ### Work Status
 
-| Category             | Status            | Details                                                     |
-| -------------------- | ----------------- | ----------------------------------------------------------- |
-| **Core Features**    | ✅ FULLY DONE     | Configure, analyze, validate, migrate, report               |
-| **LLL Bug Fix**      | ✅ FULLY DONE     | commit a006833, e106cda, 95454eb                            |
-| **Type Refactoring** | ✅ FULLY DONE     | LinterToFormatter struct added                              |
+| Category             | Status           | Details                                                     |
+| -------------------- | ---------------- | ----------------------------------------------------------- |
+| **Core Features**    | ✅ FULLY DONE    | Configure, analyze, validate, migrate, report               |
+| **LLL Bug Fix**      | ✅ FULLY DONE    | commit a006833, e106cda, 95454eb                            |
+| **Type Refactoring** | ✅ FULLY DONE    | LinterToFormatter struct added                              |
 | **Tests**            | ⚠️ PARTIALLY DONE | CategorizeLinters tests added, full suite pending Go 1.26.1 |
 | **Documentation**    | ⚠️ PARTIALLY DONE | Updated planning doc, pkg/README.md cleanup deferred        |
-| **CI/CD**            | ✅ FULLY DONE     | GitHub Actions passing                                      |
+| **CI/CD**            | ✅ FULLY DONE    | GitHub Actions passing                                      |
 
 ### What's Working
 
@@ -105,8 +105,8 @@ var RedundantLinters = map[LinterName]LinterToFormatter{
 
 ### B) PARTIALLY DONE ⚠️
 
-| Item                      | Status         | Blocker                   |
-| ------------------------- | -------------- | ------------------------- |
+| Item                      | Status        | Blocker                   |
+| ------------------------- | ------------- | ------------------------- |
 | Full test suite           | ⚠️ 90%         | Needs Go 1.26.1           |
 | golangci-lint on codebase | ⚠️ BLOCKED     | Needs Go 1.26.1           |
 | Planning documentation    | ⚠️ IN PROGRESS | Updated today             |
@@ -183,33 +183,33 @@ _Note: Disk space issue from earlier today (100% full) was resolved by clearing 
 
 ## 7. TOP #25 THINGS TO DO NEXT
 
-| #   | Task                                     | Priority | Effort | Customer Value           |
-| --- | ---------------------------------------- | -------- | ------ | ------------------------ |
-| 1   | Verify lll bug fix in CI                 | CRITICAL | 5min   | Regression prevention    |
-| 2   | Run full test suite                      | CRITICAL | 10min  | Quality assurance        |
-| 3   | Clean up pkg/README.md internal/di       | HIGH     | 5min   | Documentation accuracy   |
-| 4   | Add fixer redundant linter tests         | HIGH     | 15min  | Coverage improvement     |
-| 5   | Split pkg/config/loader.go               | MEDIUM   | 60min  | Maintainability          |
-| 6   | Document linter/formatter model          | MEDIUM   | 15min  | Knowledge sharing        |
-| 7   | Update AGENTS.md linter data             | MEDIUM   | 10min  | Agent guidance           |
-| 8   | Add string() to priority types           | LOW      | 20min  | Better logging           |
-| 9   | Explore samber/lo for transformations    | LOW      | 30min  | Code cleanliness         |
-| 10  | Add more report tests                    | MEDIUM   | 30min  | Coverage                 |
-| 11  | Review pkg/ui/formatter.go duplication   | MEDIUM   | 20min  | DRY principle            |
-| 12  | Consider go-arch-lint                    | LOW      | 30min  | Architecture enforcement |
-| 13  | Optimize pre-commit hook                 | LOW      | 15min  | Developer experience     |
-| 14  | Add more migration tests                 | MEDIUM   | 30min  | Coverage                 |
-| 15  | Review Error types for improvements      | LOW      | 20min  | Error handling           |
-| 16  | Document version migration logic         | LOW      | 15min  | Knowledge sharing        |
-| 17  | Add benchmarks for analyzer              | LOW      | 30min  | Performance              |
-| 18  | Consider caching for golangci-lint calls | MEDIUM   | 45min  | Performance              |
-| 19  | Review and update .golangci.yml          | LOW      | 10min  | Self-hosting             |
-| 20  | Add more examples/                       | LOW      | 30min  | Documentation            |
-| 21  | Review exclusions in .golangci.yml       | LOW      | 15min  | Reduce noise             |
-| 22  | Add CLI completion                       | LOW      | 30min  | UX improvement           |
-| 23  | Consider interactive mode                | LOW      | 60min  | UX improvement           |
-| 24  | Add --json output to configure           | LOW      | 30min  | Integration              |
-| 25  | Document all CLI flags                   | LOW      | 20min  | Documentation            |
+| #  | Task                                     | Priority | Effort | Customer Value           |
+| -- | ---------------------------------------- | -------- | ------ | ------------------------ |
+| 1  | Verify lll bug fix in CI                 | CRITICAL | 5min   | Regression prevention    |
+| 2  | Run full test suite                      | CRITICAL | 10min  | Quality assurance        |
+| 3  | Clean up pkg/README.md internal/di       | HIGH     | 5min   | Documentation accuracy   |
+| 4  | Add fixer redundant linter tests         | HIGH     | 15min  | Coverage improvement     |
+| 5  | Split pkg/config/loader.go               | MEDIUM   | 60min  | Maintainability          |
+| 6  | Document linter/formatter model          | MEDIUM   | 15min  | Knowledge sharing        |
+| 7  | Update AGENTS.md linter data             | MEDIUM   | 10min  | Agent guidance           |
+| 8  | Add string() to priority types           | LOW      | 20min  | Better logging           |
+| 9  | Explore samber/lo for transformations    | LOW      | 30min  | Code cleanliness         |
+| 10 | Add more report tests                    | MEDIUM   | 30min  | Coverage                 |
+| 11 | Review pkg/ui/formatter.go duplication   | MEDIUM   | 20min  | DRY principle            |
+| 12 | Consider go-arch-lint                    | LOW      | 30min  | Architecture enforcement |
+| 13 | Optimize pre-commit hook                 | LOW      | 15min  | Developer experience     |
+| 14 | Add more migration tests                 | MEDIUM   | 30min  | Coverage                 |
+| 15 | Review Error types for improvements      | LOW      | 20min  | Error handling           |
+| 16 | Document version migration logic         | LOW      | 15min  | Knowledge sharing        |
+| 17 | Add benchmarks for analyzer              | LOW      | 30min  | Performance              |
+| 18 | Consider caching for golangci-lint calls | MEDIUM   | 45min  | Performance              |
+| 19 | Review and update .golangci.yml          | LOW      | 10min  | Self-hosting             |
+| 20 | Add more examples/                       | LOW      | 30min  | Documentation            |
+| 21 | Review exclusions in .golangci.yml       | LOW      | 15min  | Reduce noise             |
+| 22 | Add CLI completion                       | LOW      | 30min  | UX improvement           |
+| 23 | Consider interactive mode                | LOW      | 60min  | UX improvement           |
+| 24 | Add --json output to configure           | LOW      | 30min  | Integration              |
+| 25 | Document all CLI flags                   | LOW      | 20min  | Documentation            |
 
 ---
 

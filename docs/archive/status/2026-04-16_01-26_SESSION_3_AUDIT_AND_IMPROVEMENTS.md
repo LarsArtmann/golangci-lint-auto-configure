@@ -1,10 +1,10 @@
 # Session 3 Comprehensive Status Report
 
-**Date:** 2026-04-16 01:26  
-**Session:** 3 of 3 (multi-session improvement sprint)  
-**Previous sessions:** Session 1 (bug discovery), Session 2 (bug fix), Session 3 (fresh audit + improvements)  
-**Branch:** master  
-**HEAD:** `868dd82` (2 commits ahead of origin)  
+**Date:** 2026-04-16 01:26\
+**Session:** 3 of 3 (multi-session improvement sprint)\
+**Previous sessions:** Session 1 (bug discovery), Session 2 (bug fix), Session 3 (fresh audit + improvements)\
+**Branch:** master\
+**HEAD:** `868dd82` (2 commits ahead of origin)\
 **Uncommitted changes:** 2 files (depguard default settings — NOT YET TESTED)
 
 ---
@@ -66,12 +66,12 @@ linters:
 
 ## C) NOT STARTED 📋
 
-| #   | Item                                                                                                                                                                                                    | Priority  | Effort  | File(s)                              |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------- | ------------------------------------ |
-| 1   | **Deep merge for nested settings** — `mergeMap` only adds top-level keys; nested settings (e.g., `depguard.rules.main.allow`) from secondary config are silently dropped if primary already has the key | P3/Medium | Medium  | `pkg/config/merger_helpers.go:23-34` |
-| 2   | **Remove duplicate `LinterList` type** — `LinterList` in `loader.go:245-252` duplicates `golangciLintOutput` structure; `GetAllLinterNames` only needs `Enabled[].Name`                                 | P3/Low    | Low     | `pkg/config/loader.go:245-275`       |
-| 3   | **Run ALL test suites** — Full suite `ginkgo -r --cover ./pkg/... ./internal/...` hasn't been run in this session                                                                                       | P1        | Low     | N/A                                  |
-| 4   | **Git push** — 2 committed + 2 uncommitted changes ahead of origin                                                                                                                                      | P1        | Trivial | N/A                                  |
+| # | Item                                                                                                                                                                                                    | Priority  | Effort  | File(s)                              |
+| - | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------- | ------------------------------------ |
+| 1 | **Deep merge for nested settings** — `mergeMap` only adds top-level keys; nested settings (e.g., `depguard.rules.main.allow`) from secondary config are silently dropped if primary already has the key | P3/Medium | Medium  | `pkg/config/merger_helpers.go:23-34` |
+| 2 | **Remove duplicate `LinterList` type** — `LinterList` in `loader.go:245-252` duplicates `golangciLintOutput` structure; `GetAllLinterNames` only needs `Enabled[].Name`                                 | P3/Low    | Low     | `pkg/config/loader.go:245-275`       |
+| 3 | **Run ALL test suites** — Full suite `ginkgo -r --cover ./pkg/... ./internal/...` hasn't been run in this session                                                                                       | P1        | Low     | N/A                                  |
+| 4 | **Git push** — 2 committed + 2 uncommitted changes ahead of origin                                                                                                                                      | P1        | Trivial | N/A                                  |
 
 ---
 
@@ -125,53 +125,53 @@ package iter is not in std
 
 ### Critical / High Impact
 
-| #   | Task                                                                      | Impact | Effort  | Status         |
-| --- | ------------------------------------------------------------------------- | ------ | ------- | -------------- |
-| 1   | **Test and commit depguard default settings** (uncommitted)               | High   | Low     | ⚠️ In progress |
-| 2   | **Run full test suite** (`ginkgo -r --cover ./pkg/... ./internal/...`)    | High   | Low     | 📋 Not started |
-| 3   | **Git push** all committed changes                                        | High   | Trivial | 📋 Not started |
-| 4   | **Deep merge for nested settings** in `mergeMap`                          | Medium | Medium  | 📋 Not started |
-| 5   | **Add integration test** for full configure flow (load→fix→save→validate) | High   | Medium  | 📋 Not started |
+| # | Task                                                                      | Impact | Effort  | Status         |
+| - | ------------------------------------------------------------------------- | ------ | ------- | -------------- |
+| 1 | **Test and commit depguard default settings** (uncommitted)               | High   | Low     | ⚠️ In progress  |
+| 2 | **Run full test suite** (`ginkgo -r --cover ./pkg/... ./internal/...`)    | High   | Low     | 📋 Not started |
+| 3 | **Git push** all committed changes                                        | High   | Trivial | 📋 Not started |
+| 4 | **Deep merge for nested settings** in `mergeMap`                          | Medium | Medium  | 📋 Not started |
+| 5 | **Add integration test** for full configure flow (load→fix→save→validate) | High   | Medium  | 📋 Not started |
 
 ### Architecture Improvements
 
-| #   | Task                                                                                                         | Impact | Effort | Status         |
-| --- | ------------------------------------------------------------------------------------------------------------ | ------ | ------ | -------------- |
-| 6   | **Remove duplicate `LinterList` type** from `loader.go`                                                      | Low    | Low    | 📋 Not started |
-| 7   | **Add `DefaultLinterSettings` unit tests** for `injectDefaultSettings`                                       | Medium | Low    | 📋 Not started |
-| 8   | **Pre-flight settings validation** — check that enabled linters have required settings before save           | Medium | Medium | 📋 Not started |
-| 9   | **Make `DefaultLinterSettings` extensible** — support adding custom linter settings via config or CLI flag   | Low    | Medium | 📋 Not started |
-| 10  | **Fix pre-commit hooks** — resolve `go-structure-linter`, `ast-state-analyzer`, `gitleaks`, `library-policy` | Medium | High   | 📋 Not started |
+| #  | Task                                                                                                         | Impact | Effort | Status         |
+| -- | ------------------------------------------------------------------------------------------------------------ | ------ | ------ | -------------- |
+| 6  | **Remove duplicate `LinterList` type** from `loader.go`                                                      | Low    | Low    | 📋 Not started |
+| 7  | **Add `DefaultLinterSettings` unit tests** for `injectDefaultSettings`                                       | Medium | Low    | 📋 Not started |
+| 8  | **Pre-flight settings validation** — check that enabled linters have required settings before save           | Medium | Medium | 📋 Not started |
+| 9  | **Make `DefaultLinterSettings` extensible** — support adding custom linter settings via config or CLI flag   | Low    | Medium | 📋 Not started |
+| 10 | **Fix pre-commit hooks** — resolve `go-structure-linter`, `ast-state-analyzer`, `gitleaks`, `library-policy` | Medium | High   | 📋 Not started |
 
 ### Test Coverage
 
-| #   | Task                                                                       | Impact | Effort | Status         |
-| --- | -------------------------------------------------------------------------- | ------ | ------ | -------------- |
-| 11  | **Add deep merge tests** — test recursive merge of nested `map[string]any` | Medium | Low    | 📋 Not started |
-| 12  | **Improve CLI test coverage** (currently 11%)                              | Medium | High   | 📋 Not started |
-| 13  | **Add roundtrip tests for TOML/JSON** formats                              | Low    | Low    | 📋 Not started |
-| 14  | **Add race detector tests** (`go test -race`) for validator, merger        | Medium | Low    | 📋 Not started |
-| 15  | **Add benchmark tests** for config loading, analysis                       | Low    | Low    | 📋 Not started |
+| #  | Task                                                                       | Impact | Effort | Status         |
+| -- | -------------------------------------------------------------------------- | ------ | ------ | -------------- |
+| 11 | **Add deep merge tests** — test recursive merge of nested `map[string]any` | Medium | Low    | 📋 Not started |
+| 12 | **Improve CLI test coverage** (currently 11%)                              | Medium | High   | 📋 Not started |
+| 13 | **Add roundtrip tests for TOML/JSON** formats                              | Low    | Low    | 📋 Not started |
+| 14 | **Add race detector tests** (`go test -race`) for validator, merger        | Medium | Low    | 📋 Not started |
+| 15 | **Add benchmark tests** for config loading, analysis                       | Low    | Low    | 📋 Not started |
 
 ### Code Quality
 
-| #   | Task                                                                                                     | Impact | Effort  | Status         |
-| --- | -------------------------------------------------------------------------------------------------------- | ------ | ------- | -------------- |
-| 16  | **Extract `unmarshalConfig` YAML logic into a named helper** (e.g., `unmarshalYAML`) for clarity         | Low    | Low     | 📋 Not started |
-| 17  | **Add `ConfigFormatYAML` to `unmarshalConfig` switch** for explicitness (even though default handles it) | Low    | Trivial | 📋 Not started |
-| 18  | **Remove `ConfigFormatYAML` constant** if it's only used as a return value (replace with method)         | Low    | Low     | 📋 Not started |
-| 19  | **Add structured logging** to merger operations (currently silent)                                       | Low    | Low     | 📋 Not started |
-| 20  | **Document `DefaultLinterSettings`** in README/AGENTS.md                                                 | Low    | Trivial | 📋 Not started |
+| #  | Task                                                                                                     | Impact | Effort  | Status         |
+| -- | -------------------------------------------------------------------------------------------------------- | ------ | ------- | -------------- |
+| 16 | **Extract `unmarshalConfig` YAML logic into a named helper** (e.g., `unmarshalYAML`) for clarity         | Low    | Low     | 📋 Not started |
+| 17 | **Add `ConfigFormatYAML` to `unmarshalConfig` switch** for explicitness (even though default handles it) | Low    | Trivial | 📋 Not started |
+| 18 | **Remove `ConfigFormatYAML` constant** if it's only used as a return value (replace with method)         | Low    | Low     | 📋 Not started |
+| 19 | **Add structured logging** to merger operations (currently silent)                                       | Low    | Low     | 📋 Not started |
+| 20 | **Document `DefaultLinterSettings`** in README/AGENTS.md                                                 | Low    | Trivial | 📋 Not started |
 
 ### Future Features
 
-| #   | Task                                                                                                                 | Impact | Effort | Status         |
-| --- | -------------------------------------------------------------------------------------------------------------------- | ------ | ------ | -------------- |
-| 21  | **Auto-detect and suggest linter settings** based on project imports (e.g., detect `gin` → suggest `noctx` settings) | High   | High   | 📋 Not started |
-| 22  | **Config diff viewer** — show before/after diff when running `configure`                                             | Medium | Medium | 📋 Not started |
-| 23  | **Interactive mode** — let user approve/deny each linter recommendation                                              | Medium | Medium | 📋 Not started |
-| 24  | **Config migration tests** — test v1→v2 migration with real-world configs                                            | Medium | Medium | 📋 Not started |
-| 25  | **CI pipeline hardening** — fix Nix cache issues in CI, add build caching                                            | Medium | Medium | 📋 Not started |
+| #  | Task                                                                                                                 | Impact | Effort | Status         |
+| -- | -------------------------------------------------------------------------------------------------------------------- | ------ | ------ | -------------- |
+| 21 | **Auto-detect and suggest linter settings** based on project imports (e.g., detect `gin` → suggest `noctx` settings) | High   | High   | 📋 Not started |
+| 22 | **Config diff viewer** — show before/after diff when running `configure`                                             | Medium | Medium | 📋 Not started |
+| 23 | **Interactive mode** — let user approve/deny each linter recommendation                                              | Medium | Medium | 📋 Not started |
+| 24 | **Config migration tests** — test v1→v2 migration with real-world configs                                            | Medium | Medium | 📋 Not started |
+| 25 | **CI pipeline hardening** — fix Nix cache issues in CI, add build caching                                            | Medium | Medium | 📋 Not started |
 
 ---
 

@@ -19,25 +19,25 @@
 
 ## Completed Items Table
 
-| #   | Item                                            | Category       | Impact   | How Resolved                                                          |
-| --- | ----------------------------------------------- | -------------- | -------- | --------------------------------------------------------------------- |
-| 1   | Register domain message templates (#39)         | Error handling | Medium   | 27 Wix-style templates (What/Why/Fix/WayOut) + HandleError rendering  |
-| 2   | Consolidate status reports (#44)                | Docs           | Low      | Created `docs/status/README.md` index for 29 reports                  |
-| 3   | Coverage-check integration test (#13)           | Testing        | Low      | Integration tests for `run()` with real coverage profiles             |
-| 4   | HTML report CSS regression test (#12)           | Testing        | Low      | Golden-value tests for 9 colors + cross-format consistency            |
-| 5   | CI retry logic (#10)                            | CI/CD          | Low      | 3-attempt retry for nix build + continue-on-error for magic-nix-cache |
-| 6   | Format --detect mode (#35)                      | Feature        | Low      | `--preset format --detect` auto-enables swaggo                        |
-| 7   | Consolidate ValidationError + HealthIssue (#29) | Type safety    | Medium   | ToHealthIssue() conversion + Line field on HealthIssue                |
-| 8   | Extract typed linter constants (#25)            | Code quality   | Medium   | coreLinters + withCore() eliminates 6x duplication in patterns.go     |
-| 9   | Split ConfigLoader interface (#28)              | Architecture   | Medium   | 6 focused sub-interfaces + Fixer narrowed to load/save/inspect        |
-| 10  | Multi-preset support (#34)                      | Feature        | Low      | `--preset a --preset b` merges linters/formatters with dedup          |
-| 11  | Preset recommendation (#37)                     | Feature        | Low      | `--recommend` flag analyzes project and applies multiple presets      |
-| 12  | Split cmd_configure.go (#24)                    | Refactor       | **High** | 680 lines → 4 focused files (193/208/182/133 lines)                   |
-| 13  | Run deduplicate-code skill (#41)                | Code quality   | Low      | **0 clone groups** — codebase is clean                                |
-| 14  | Run architecture-review skill (#42)             | Architecture   | Low      | Full review written to `docs/architecture-understanding/`             |
-| 15  | Settings key validation (#31)                   | Type safety    | Medium   | Soft warnings for unknown linter settings keys                        |
-| 16  | Generate settings from JSON Schema (#30)        | Codegen        | Medium   | `cmd/generate-settings` generates 88 structs from schema              |
-| 17  | CommandResult type for CLI (#27)                | Architecture   | Medium   | Optional Result type with backward-compatible error handling          |
+| #  | Item                                            | Category       | Impact   | How Resolved                                                          |
+| -- | ----------------------------------------------- | -------------- | -------- | --------------------------------------------------------------------- |
+| 1  | Register domain message templates (#39)         | Error handling | Medium   | 27 Wix-style templates (What/Why/Fix/WayOut) + HandleError rendering  |
+| 2  | Consolidate status reports (#44)                | Docs           | Low      | Created `docs/status/README.md` index for 29 reports                  |
+| 3  | Coverage-check integration test (#13)           | Testing        | Low      | Integration tests for `run()` with real coverage profiles             |
+| 4  | HTML report CSS regression test (#12)           | Testing        | Low      | Golden-value tests for 9 colors + cross-format consistency            |
+| 5  | CI retry logic (#10)                            | CI/CD          | Low      | 3-attempt retry for nix build + continue-on-error for magic-nix-cache |
+| 6  | Format --detect mode (#35)                      | Feature        | Low      | `--preset format --detect` auto-enables swaggo                        |
+| 7  | Consolidate ValidationError + HealthIssue (#29) | Type safety    | Medium   | ToHealthIssue() conversion + Line field on HealthIssue                |
+| 8  | Extract typed linter constants (#25)            | Code quality   | Medium   | coreLinters + withCore() eliminates 6x duplication in patterns.go     |
+| 9  | Split ConfigLoader interface (#28)              | Architecture   | Medium   | 6 focused sub-interfaces + Fixer narrowed to load/save/inspect        |
+| 10 | Multi-preset support (#34)                      | Feature        | Low      | `--preset a --preset b` merges linters/formatters with dedup          |
+| 11 | Preset recommendation (#37)                     | Feature        | Low      | `--recommend` flag analyzes project and applies multiple presets      |
+| 12 | Split cmd_configure.go (#24)                    | Refactor       | **High** | 680 lines → 4 focused files (193/208/182/133 lines)                   |
+| 13 | Run deduplicate-code skill (#41)                | Code quality   | Low      | **0 clone groups** — codebase is clean                                |
+| 14 | Run architecture-review skill (#42)             | Architecture   | Low      | Full review written to `docs/architecture-understanding/`             |
+| 15 | Settings key validation (#31)                   | Type safety    | Medium   | Soft warnings for unknown linter settings keys                        |
+| 16 | Generate settings from JSON Schema (#30)        | Codegen        | Medium   | `cmd/generate-settings` generates 88 structs from schema              |
+| 17 | CommandResult type for CLI (#27)                | Architecture   | Medium   | Optional Result type with backward-compatible error handling          |
 
 ---
 

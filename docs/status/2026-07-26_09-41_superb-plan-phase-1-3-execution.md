@@ -42,12 +42,12 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 
 ### Phase 3 — Architectural Decoupling (20% → 80%) 🔧
 
-| Task | Description                                                                                                                                                                                                         | Status                            |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| MT9  | Decouple `pkg/finding` from `pkg/linter` — `ConfigAnalysisDetector` now takes `ConfigAnalyzer` interface (defined in `pkg/finding`) instead of `*linter.Analyzer`                                                   | ✅ Done                           |
-| MT10 | Remove type-alias re-exports — `type Config = types.Config` block deleted from `pkg/config/loader.go`; all ~10 external callers updated to `types.Config`                                                           | ✅ Done                           |
+| Task | Description                                                                                                                                                                                                         | Status                           |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| MT9  | Decouple `pkg/finding` from `pkg/linter` — `ConfigAnalysisDetector` now takes `ConfigAnalyzer` interface (defined in `pkg/finding`) instead of `*linter.Analyzer`                                                   | ✅ Done                          |
+| MT10 | Remove type-alias re-exports — `type Config = types.Config` block deleted from `pkg/config/loader.go`; all ~10 external callers updated to `types.Config`                                                           | ✅ Done                          |
 | MT11 | Invert `pkg/linter` → `pkg/config` dependency — `GoVersionProvider` func type injected, constants moved to `pkg/constants`, `config.DefaultMaxIssuesPerLinter`/`DefaultMaxSameIssues` duplicated to `pkg/constants` | ⚠️ **IN PROGRESS — BUILD BROKEN** |
-| MT12 | Dissolve `pkg/client` god-package                                                                                                                                                                                   | ❌ Not started                    |
+| MT12 | Dissolve `pkg/client` god-package                                                                                                                                                                                   | ❌ Not started                   |
 
 **The break:** `pkg/linter/fixer_config.go:218` has a second call to `newConfigUpdater(f.logger)` that was not updated to `newConfigUpdater(f.logger, f.goVersionProvider)`. The auto-commit daemon committed this broken state.
 
@@ -150,7 +150,7 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 38. Write tests for `TriState.UnmarshalYAML` (nil/true/false)
 39. Write tests for `NewConfig()` options (all `With*` functions)
 40. Run `golangci-lint run` on the repo's own config — verify zero issues
-41. Run ` UPDATE_GOLDEN=1 go test ./pkg/report/...` — review HTML golden diff
+41. Run `UPDATE_GOLDEN=1 go test ./pkg/report/...` — review HTML golden diff
 42. Update `AGENTS.md` with the new type system (LinterName/FormatterName/Version/TriState)
 43. Update `docs/references/json-v2.md` with the `omitzero` vs `omitempty` status after branded types
 44. Update `TODO_LIST.md` — remove completed items (format preset, dead code, G104)

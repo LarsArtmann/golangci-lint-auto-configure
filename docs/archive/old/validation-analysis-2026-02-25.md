@@ -1,8 +1,8 @@
 # Validation Analysis: 147 Projects Scan Results
 
-**Date:** 2026-02-25  
-**Command:** `golangci-lint-auto-configure validate`  
-**Projects Scanned:** 147  
+**Date:** 2026-02-25\
+**Command:** `golangci-lint-auto-configure validate`\
+**Projects Scanned:** 147\
 **Failures:** 10 projects (6.8% failure rate)
 
 ---

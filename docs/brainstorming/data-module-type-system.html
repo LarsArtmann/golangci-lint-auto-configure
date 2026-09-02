@@ -216,7 +216,8 @@
       pre {
         padding: 1rem;
         overflow-x: auto;
-        font-family: "SF Mono", "Fira Code", "JetBrains Mono", Menlo, Consolas, monospace;
+        font-family:
+          "SF Mono", "Fira Code", "JetBrains Mono", Menlo, Consolas, monospace;
         font-size: 0.82rem;
         line-height: 1.6;
         color: var(--text);
@@ -382,8 +383,8 @@
     <header>
       <h1>Data Module Brainstorm</h1>
       <p>
-        Current state vs. a type-system-driven ideal — using the full power of Go generics and
-        sealed interfaces
+        Current state vs. a type-system-driven ideal — using the full power of
+        Go generics and sealed interfaces
       </p>
       <nav>
         <a href="#scorecard">Scorecard</a>
@@ -406,7 +407,8 @@
             <div class="label">Nominal Types</div>
             <div class="value">4 / 10</div>
             <div class="sub">
-              <code>LinterName</code>, <code>FormatterName</code>, <code>ConfigPath</code>,
+              <code>LinterName</code>, <code>FormatterName</code>,
+              <code>ConfigPath</code>,
               <code>LinterPriority</code>
             </div>
           </div>
@@ -414,7 +416,8 @@
             <div class="label">Generics Used</div>
             <div class="value">1 / 10</div>
             <div class="sub">
-              <code>Set[T]</code> only — <code>Result[T]</code> was deleted in favor of idiomatic
+              <code>Set[T]</code> only — <code>Result[T]</code> was deleted in
+              favor of idiomatic
               <code>(T, error)</code>
             </div>
           </div>
@@ -422,29 +425,36 @@
             <div class="label">Compile-Time Safety</div>
             <div class="value">4 / 10</div>
             <div class="sub">
-              Map lookups keyed by strings; <code>map[string]any</code> settings; no sealed
-              interfaces
+              Map lookups keyed by strings;
+              <code>map[string]any</code> settings; no sealed interfaces
             </div>
           </div>
           <div class="score">
             <div class="label">Impossible States</div>
             <div class="value">2 / 10</div>
-            <div class="sub">Many illegal states are perfectly representable in memory</div>
+            <div class="sub">
+              Many illegal states are perfectly representable in memory
+            </div>
           </div>
         </div>
       </section>
 
       <section id="current-good">
-        <h2>What Is Already Excellent <span class="badge badge-good">Strengths</span></h2>
+        <h2>
+          What Is Already Excellent
+          <span class="badge badge-good">Strengths</span>
+        </h2>
 
         <h3>1. Nominal Typing for Domain Names</h3>
         <p>
-          The project already uses distinct types for domain names, preventing accidental
-          interchange:
+          The project already uses distinct types for domain names, preventing
+          accidental interchange:
         </p>
 
         <div class="single-code">
-          <div class="col-header"><span class="status status-ok"></span> pkg/types/types.go</div>
+          <div class="col-header">
+            <span class="status status-ok"></span> pkg/types/types.go
+          </div>
           <pre><code><span class="comment">// LinterName is a strongly-typed linter name to prevent typos.</span>
 <span class="keyword">type</span> <span class="type">LinterName</span> <span class="type">string</span>
 
@@ -458,9 +468,9 @@
 
         <p>
           <strong>Why this matters:</strong> You cannot accidentally pass a
-          <code>FormatterName</code> where a <code>LinterName</code> is expected. The compiler
-          rejects it. This is the right instinct — but the project stops short of taking this to its
-          logical conclusion.
+          <code>FormatterName</code> where a <code>LinterName</code> is
+          expected. The compiler rejects it. This is the right instinct — but
+          the project stops short of taking this to its logical conclusion.
         </p>
 
         <h3>
@@ -469,7 +479,9 @@
         </h3>
 
         <div class="single-code">
-          <div class="col-header"><span class="status status-ok"></span> pkg/types/result.go</div>
+          <div class="col-header">
+            <span class="status status-ok"></span> pkg/types/result.go
+          </div>
           <pre><code><span class="comment">// Result represents a value or an error, inspired by Rust's Result type.</span>
 <span class="keyword">type</span> <span class="type">Result</span>[<span class="param">T</span> <span class="keyword">any</span>] <span class="keyword">struct</span> {
     <span class="param">value</span> T
@@ -481,16 +493,19 @@
         </div>
 
         <p>
-          <strong>Status:</strong> <code>pkg/types/result.go</code> was deleted. All functions now
-          return idiomatic <code>(T, error)</code>. The wrapper added indirection with zero benefit
-          — every call site immediately unwrapped with <code>.Get()</code>. The file was 54 lines of
-          boilerplate wrapping values that were immediately unwrapped.
+          <strong>Status:</strong> <code>pkg/types/result.go</code> was deleted.
+          All functions now return idiomatic <code>(T, error)</code>. The
+          wrapper added indirection with zero benefit — every call site
+          immediately unwrapped with <code>.Get()</code>. The file was 54 lines
+          of boilerplate wrapping values that were immediately unwrapped.
         </p>
 
         <h3>3. Generic <code>Set[T comparable]</code> — No Ad-Hoc Map Logic</h3>
 
         <div class="single-code">
-          <div class="col-header"><span class="status status-ok"></span> pkg/types/set.go</div>
+          <div class="col-header">
+            <span class="status status-ok"></span> pkg/types/set.go
+          </div>
           <pre><code><span class="comment">// Set is a generic set of comparable values with O(1) lookups.</span>
 <span class="keyword">type</span> <span class="type">Set</span>[<span class="param">T</span> <span class="keyword">comparable</span>] <span class="keyword">map</span>[T]<span class="keyword">struct</span>{}
 
@@ -499,15 +514,18 @@
         </div>
 
         <p>
-          <strong>Why this matters:</strong> Replaces every <code>map[string]struct{}</code> with a
-          typed abstraction. The codebase already does this — it just hasn't extended the pattern to
+          <strong>Why this matters:</strong> Replaces every
+          <code>map[string]struct{}</code> with a typed abstraction. The
+          codebase already does this — it just hasn't extended the pattern to
           other collections.
         </p>
 
         <h3>4. Deep Clone with Generic Helpers</h3>
 
         <div class="single-code">
-          <div class="col-header"><span class="status status-ok"></span> pkg/types/clone.go</div>
+          <div class="col-header">
+            <span class="status status-ok"></span> pkg/types/clone.go
+          </div>
           <pre><code><span class="keyword">func</span> <span class="func">cloneSlice</span>[<span class="param">T</span> <span class="keyword">any</span>](<span class="param">src</span> []T) []T {
     <span class="keyword">if</span> src == <span class="keyword">nil</span> { <span class="keyword">return</span> <span class="keyword">nil</span> }
     cp := <span class="func">make</span>([]T, <span class="func">len</span>(src))
@@ -517,15 +535,17 @@
         </div>
 
         <p>
-          <strong>Why this matters:</strong> Using a generic <code>cloneSlice[T any]</code> is
-          exactly right. The pattern is solid — it just needs to be extended to map cloning and
-          beyond.
+          <strong>Why this matters:</strong> Using a generic
+          <code>cloneSlice[T any]</code> is exactly right. The pattern is solid
+          — it just needs to be extended to map cloning and beyond.
         </p>
 
         <h3>5. Custom Error Types with <code>Unwrap()</code></h3>
 
         <div class="single-code">
-          <div class="col-header"><span class="status status-ok"></span> pkg/errors/errors.go</div>
+          <div class="col-header">
+            <span class="status status-ok"></span> pkg/errors/errors.go
+          </div>
           <pre><code><span class="keyword">type</span> <span class="type">ConfigError</span> <span class="keyword">struct</span> {
     <span class="param">Message</span> <span class="type">string</span>
     <span class="param">Path</span>    <span class="type">string</span>
@@ -541,26 +561,30 @@
         </div>
 
         <p>
-          <strong>Why this matters:</strong> Proper use of <code>errors.As</code>, wrapped chains,
-          and sentinel errors. This is production-grade Go error handling. The only gap is that
-          these types don't use generics for the domain-error base pattern.
+          <strong>Why this matters:</strong> Proper use of
+          <code>errors.As</code>, wrapped chains, and sentinel errors. This is
+          production-grade Go error handling. The only gap is that these types
+          don't use generics for the domain-error base pattern.
         </p>
       </section>
 
       <section id="gaps">
         <h2>
-          The Gaps — Where Illegal States Live <span class="badge badge-bad">Weaknesses</span>
+          The Gaps — Where Illegal States Live
+          <span class="badge badge-bad">Weaknesses</span>
         </h2>
 
         <h3>1. Stringly-Typed Constants — Six Maps, Zero Coherence</h3>
         <p>
-          The linter metadata is scattered across six separate maps in <code>pkg/constants/</code>:
+          The linter metadata is scattered across six separate maps in
+          <code>pkg/constants/</code>:
         </p>
 
         <div class="single-code">
           <div class="col-header">
-            <span class="status status-bad"></span> pkg/constants/linter_priorities.go,
-            linter_reasons.go, rules.go, presets.go, formatter_data.go, version.go
+            <span class="status status-bad"></span>
+            pkg/constants/linter_priorities.go, linter_reasons.go, rules.go,
+            presets.go, formatter_data.go, version.go
           </div>
           <pre><code><span class="comment">// linter_priorities.go</span>
 <span class="keyword">var</span> <span class="type">LinterPriorities</span> = <span class="keyword">map</span>[<span class="type">LinterName</span>]<span class="type">LinterPriority</span>{...}
@@ -577,15 +601,21 @@
 
         <p>
           <strong>The problem:</strong> If you add <code>gosec</code> to
-          <code>LinterPriorities</code> but forget to add it to <code>LinterReasons</code>, the code
-          still compiles. The failure is deferred to runtime — when a user sees an empty reason
-          string in output. The Go type system has <em>zero</em> visibility into this.
+          <code>LinterPriorities</code> but forget to add it to
+          <code>LinterReasons</code>, the code still compiles. The failure is
+          deferred to runtime — when a user sees an empty reason string in
+          output. The Go type system has <em>zero</em> visibility into this.
         </p>
 
-        <h3>2. <code>map[string]any</code> — The Billion-Dollar Mistake in Linter Settings</h3>
+        <h3>
+          2. <code>map[string]any</code> — The Billion-Dollar Mistake in Linter
+          Settings
+        </h3>
 
         <div class="single-code">
-          <div class="col-header"><span class="status status-bad"></span> pkg/types/types.go</div>
+          <div class="col-header">
+            <span class="status status-bad"></span> pkg/types/types.go
+          </div>
           <pre><code><span class="keyword">type</span> <span class="type">LintersConfig</span> <span class="keyword">struct</span> {
     <span class="param">Enable</span>   []<span class="type">string</span>
     <span class="param">Disable</span>  []<span class="type">string</span>
@@ -596,17 +626,20 @@
         </div>
 
         <p>
-          <strong>The problem:</strong> Every linter's settings are <code>map[string]any</code>.
-          When the fixer reads <code>cfg.Linters.Settings["funlen"]</code>, it returns
-          <code>any</code>. Casting to the wrong struct panics at runtime. There's no autocomplete.
-          No compiler help. This is the exact pattern that makes Go feel "less typed" than it needs
-          to be.
+          <strong>The problem:</strong> Every linter's settings are
+          <code>map[string]any</code>. When the fixer reads
+          <code>cfg.Linters.Settings["funlen"]</code>, it returns
+          <code>any</code>. Casting to the wrong struct panics at runtime.
+          There's no autocomplete. No compiler help. This is the exact pattern
+          that makes Go feel "less typed" than it needs to be.
         </p>
 
         <h3>3. Count Fields That Must Stay in Sync</h3>
 
         <div class="single-code">
-          <div class="col-header"><span class="status status-bad"></span> pkg/types/types.go</div>
+          <div class="col-header">
+            <span class="status status-bad"></span> pkg/types/types.go
+          </div>
           <pre><code><span class="keyword">type</span> <span class="type">ConfigAnalysis</span> <span class="keyword">struct</span> {
     <span class="param">CriticalCount</span>    <span class="type">int</span>   <span class="comment">// Must == len(linters with Critical priority)</span>
     <span class="param">HighValueCount</span>   <span class="type">int</span>   <span class="comment">// Must == len(linters with High priority)</span>
@@ -618,10 +651,12 @@
         </div>
 
         <p>
-          <strong>The problem:</strong> Five fields that are pure derivatives of the
-          <code>Recommendations</code> and <code>DeprecatedLinters</code> slices. They can drift out
-          of sync if a caller mutates the slice but forgets to update the count. The type system
-          sees five independent <code>int</code>s — it has no idea they're supposed to be coherent.
+          <strong>The problem:</strong> Five fields that are pure derivatives of
+          the <code>Recommendations</code> and
+          <code>DeprecatedLinters</code> slices. They can drift out of sync if a
+          caller mutates the slice but forgets to update the count. The type
+          system sees five independent <code>int</code>s — it has no idea
+          they're supposed to be coherent.
         </p>
 
         <h3>
@@ -630,7 +665,9 @@
         </h3>
 
         <div class="single-code">
-          <div class="col-header"><span class="status status-warn"></span> pkg/types/result.go</div>
+          <div class="col-header">
+            <span class="status status-warn"></span> pkg/types/result.go
+          </div>
           <pre><code><span class="keyword">func</span> (r <span class="type">Result</span>[T]) <span class="func">Get</span>() (T, <span class="type">error</span>) { ... }
 <span class="keyword">func</span> (r <span class="type">Result</span>[T]) <span class="func">IsOk</span>() <span class="type">bool</span>   { ... }
 <span class="keyword">func</span> (r <span class="type">Result</span>[T]) <span class="func">IsError</span>() <span class="type">bool</span> { ... }
@@ -667,9 +704,10 @@ analysis, err := result.<span class="func">Get</span>()
 
         <p>
           <strong>The problem:</strong> The result of a fix operation is a
-          <code>string Message</code> plus some <code>int</code> counts. There's no way for the CLI
-          layer to know <em>which specific linters</em> were enabled without reparsing the config or
-          the message. This is anti-information-hiding.
+          <code>string Message</code> plus some <code>int</code> counts. There's
+          no way for the CLI layer to know <em>which specific linters</em> were
+          enabled without reparsing the config or the message. This is
+          anti-information-hiding.
         </p>
       </section>
 
@@ -681,18 +719,23 @@ analysis, err := result.<span class="func">Get</span>()
 
         <div class="principle">
           <p>
-            <em>Core Principle:</em> <strong>Make illegal states unrepresentable.</strong> Every gap
-            above should become a compile-time error, not a runtime bug. Generics are the tool that
-            gets us there.
+            <em>Core Principle:</em>
+            <strong>Make illegal states unrepresentable.</strong> Every gap
+            above should become a compile-time error, not a runtime bug.
+            Generics are the tool that gets us there.
           </p>
         </div>
 
-        <h3>1. Sealed <code>Name</code> Interface + Generic <code>Priority[N]</code></h3>
+        <h3>
+          1. Sealed <code>Name</code> Interface + Generic
+          <code>Priority[N]</code>
+        </h3>
 
         <div class="comparison">
           <div class="col">
             <div class="col-header">
-              <span class="status status-bad"></span> Current: Parallel types, no relationship
+              <span class="status status-bad"></span> Current: Parallel types,
+              no relationship
             </div>
             <pre><code><span class="keyword">type</span> <span class="type">LinterPriority</span> <span class="type">int</span>
 <span class="keyword">type</span> <span class="type">FormatterPriority</span> <span class="type">int</span>
@@ -705,7 +748,8 @@ rec := <span class="type">LinterRecommendation</span>{
           </div>
           <div class="col">
             <div class="col-header">
-              <span class="status status-good"></span> Proposed: Generic Priority tied to Name
+              <span class="status status-good"></span> Proposed: Generic
+              Priority tied to Name
             </div>
             <pre><code><span class="comment">// Sealed interface — only types in this package can implement it.</span>
 <span class="keyword">type</span> <span class="type">Name</span> <span class="keyword">interface</span> {
@@ -741,16 +785,20 @@ rec := <span class="type">LinterRecommendation</span>{
 
         <p>
           <strong>Impact:</strong> The compiler now enforces that a
-          <code>LinterRecommendation</code> can never hold a <code>FormatterPriority</code>. This is
-          the difference between "don't do that" (docs) and "literally impossible" (types).
+          <code>LinterRecommendation</code> can never hold a
+          <code>FormatterPriority</code>. This is the difference between "don't
+          do that" (docs) and "literally impossible" (types).
         </p>
 
-        <h3>2. Generic <code>Catalog[E, N]</code> — Replace Six Maps with One Type</h3>
+        <h3>
+          2. Generic <code>Catalog[E, N]</code> — Replace Six Maps with One Type
+        </h3>
 
         <div class="comparison">
           <div class="col">
             <div class="col-header">
-              <span class="status status-bad"></span> Current: Six disconnected maps
+              <span class="status status-bad"></span> Current: Six disconnected
+              maps
             </div>
             <pre><code><span class="comment">// Scattered across 6 files. No compile-time guarantee of completeness.</span>
 <span class="keyword">var</span> <span class="type">LinterPriorities</span>   <span class="keyword">map</span>[<span class="type">LinterName</span>]<span class="type">LinterPriority</span>
@@ -765,7 +813,8 @@ reason, ok2 := <span class="type">LinterReasons</span>[name]
           </div>
           <div class="col">
             <div class="col-header">
-              <span class="status status-good"></span> Proposed: Single <code>Entry</code> +
+              <span class="status status-good"></span> Proposed: Single
+              <code>Entry</code> +
               <code>Catalog</code>
             </div>
             <pre><code><span class="comment">// Entry is the COMPLETE metadata record for a tool.</span>
@@ -808,18 +857,23 @@ entry, ok := catalog.<span class="func">Get</span>(<span class="string">"gosec"<
         </div>
 
         <p>
-          <strong>Impact:</strong> Adding a new linter now means adding one struct literal to one
-          slice. The compiler enforces that every field is populated. No more silent omissions
-          across six maps. Plus, you get rich query methods (<code>FilterByPriority</code>,
-          <code>Names</code>, etc.) for free.
+          <strong>Impact:</strong> Adding a new linter now means adding one
+          struct literal to one slice. The compiler enforces that every field is
+          populated. No more silent omissions across six maps. Plus, you get
+          rich query methods (<code>FilterByPriority</code>, <code>Names</code>,
+          etc.) for free.
         </p>
 
-        <h3>3. Sealed <code>LinterSetting</code> Interface — Type-Safe Config Settings</h3>
+        <h3>
+          3. Sealed <code>LinterSetting</code> Interface — Type-Safe Config
+          Settings
+        </h3>
 
         <div class="comparison">
           <div class="col">
             <div class="col-header">
-              <span class="status status-bad"></span> Current: <code>map[string]any</code>
+              <span class="status status-bad"></span> Current:
+              <code>map[string]any</code>
             </div>
             <pre><code><span class="keyword">type</span> <span class="type">LintersConfig</span> <span class="keyword">struct</span> {
     <span class="param">Settings</span> <span class="keyword">map</span>[<span class="type">string</span>]<span class="keyword">any</span>
@@ -831,7 +885,8 @@ settings := raw.(<span class="type">FunlenSettings</span>)  <span class="comment
           </div>
           <div class="col">
             <div class="col-header">
-              <span class="status status-good"></span> Proposed: Sealed Interface + Registry
+              <span class="status status-good"></span> Proposed: Sealed
+              Interface + Registry
             </div>
             <pre><code><span class="comment">// Sealed — only types in this package can implement it.</span>
 <span class="keyword">type</span> <span class="type">LinterSetting</span> <span class="keyword">interface</span> {
@@ -870,10 +925,10 @@ settings := raw.(<span class="type">FunlenSettings</span>)  <span class="comment
         </div>
 
         <p>
-          <strong>Impact:</strong> Every linter setting is either a known typed struct (with IDE
-          autocomplete and compile-time safety) or an explicit <code>RawSettings</code> fallback.
-          The <code>Validate()</code> method means invalid values are caught at parse time, not
-          runtime.
+          <strong>Impact:</strong> Every linter setting is either a known typed
+          struct (with IDE autocomplete and compile-time safety) or an explicit
+          <code>RawSettings</code> fallback. The <code>Validate()</code> method
+          means invalid values are caught at parse time, not runtime.
         </p>
 
         <h3>4. <code>Validated[T]</code> — Parse, Don't Validate</h3>
@@ -881,7 +936,8 @@ settings := raw.(<span class="type">FunlenSettings</span>)  <span class="comment
         <div class="comparison">
           <div class="col">
             <div class="col-header">
-              <span class="status status-bad"></span> Current: Validate after construction
+              <span class="status status-bad"></span> Current: Validate after
+              construction
             </div>
             <pre><code><span class="comment">// Config can exist in an invalid state at any time.</span>
 <span class="keyword">func</span> <span class="func">AnalyzeConfig</span>(ctx, path) (*<span class="type">ConfigAnalysis</span>, <span class="type">error</span>) {
@@ -898,8 +954,8 @@ settings := raw.(<span class="type">FunlenSettings</span>)  <span class="comment
           </div>
           <div class="col">
             <div class="col-header">
-              <span class="status status-good"></span> Proposed: <code>Validated[T]</code> proof
-              type
+              <span class="status status-good"></span> Proposed:
+              <code>Validated[T]</code> proof type
             </div>
             <pre><code><span class="comment">// Validated wraps a value that has passed validation.</span>
 <span class="comment">// The zero value is INVALID — you MUST use Validate().</span>
@@ -929,17 +985,21 @@ settings := raw.(<span class="type">FunlenSettings</span>)  <span class="comment
 
         <p>
           <strong>Impact:</strong> Functions that need a valid config now demand
-          <code>Validated[Config]</code> in their signature. You <em>cannot</em> pass a raw
-          <code>Config</code> — the compiler rejects it. This is "parse, don't validate" at the type
-          level.
+          <code>Validated[Config]</code> in their signature. You
+          <em>cannot</em> pass a raw <code>Config</code> — the compiler rejects
+          it. This is "parse, don't validate" at the type level.
         </p>
 
-        <h3>5. Generic <code>PriorityCounts[N]</code> — Derived Data, Guaranteed Coherent</h3>
+        <h3>
+          5. Generic <code>PriorityCounts[N]</code> — Derived Data, Guaranteed
+          Coherent
+        </h3>
 
         <div class="comparison">
           <div class="col">
             <div class="col-header">
-              <span class="status status-bad"></span> Current: Five independent int fields
+              <span class="status status-bad"></span> Current: Five independent
+              int fields
             </div>
             <pre><code><span class="keyword">type</span> <span class="type">ConfigAnalysis</span> <span class="keyword">struct</span> {
     <span class="param">CriticalCount</span>    <span class="type">int</span>
@@ -955,7 +1015,8 @@ analysis.LinterRecommendations = <span class="func">append</span>(analysis.Linte
           </div>
           <div class="col">
             <div class="col-header">
-              <span class="status status-good"></span> Proposed: Derived <code>PriorityCounts</code>
+              <span class="status status-good"></span> Proposed: Derived
+              <code>PriorityCounts</code>
             </div>
             <pre><code><span class="comment">// PriorityCounts is a map from priority to count.</span>
 <span class="comment">// It is always coherent because it is derived, not stored.</span>
@@ -987,21 +1048,24 @@ analysis.LinterRecommendations = <span class="func">append</span>(analysis.Linte
         </div>
 
         <p>
-          <strong>Impact:</strong> No more stale counts. The count is always a pure function of the
-          source data. Mutating <code>Recommendations</code> automatically updates
-          <code>Counts()</code> on the next call. The type system prevents assigning a formatter
-          priority count to a linter analysis.
+          <strong>Impact:</strong> No more stale counts. The count is always a
+          pure function of the source data. Mutating
+          <code>Recommendations</code> automatically updates
+          <code>Counts()</code> on the next call. The type system prevents
+          assigning a formatter priority count to a linter analysis.
         </p>
 
         <h3>
-          6. Railway-Oriented <code>Result[T]</code> with <code>AndThen</code> / <code>Map</code>
+          6. Railway-Oriented <code>Result[T]</code> with <code>AndThen</code> /
+          <code>Map</code>
           <span class="badge badge-bad">NOT APPLIED — DELETED</span>
         </h3>
 
         <div class="comparison">
           <div class="col">
             <div class="col-header">
-              <span class="status status-warn"></span> Current: Manual error branching
+              <span class="status status-warn"></span> Current: Manual error
+              branching
             </div>
             <pre><code><span class="keyword">func</span> <span class="func">AnalyzeConfig</span>(ctx, path) (*<span class="type">ConfigAnalysis</span>, <span class="type">error</span>) {
     result := analyzer.<span class="func">FindBinary</span>(ctx)
@@ -1021,7 +1085,8 @@ analysis.LinterRecommendations = <span class="func">append</span>(analysis.Linte
           </div>
           <div class="col">
             <div class="col-header">
-              <span class="status status-good"></span> Proposed: Fluent railway chain
+              <span class="status status-good"></span> Proposed: Fluent railway
+              chain
             </div>
             <pre><code><span class="keyword">func</span> (r <span class="type">Result</span>[T]) <span class="func">AndThen</span>[<span class="param">U</span> <span class="keyword">any</span>](<span class="param">fn</span> <span class="keyword">func</span>(T) <span class="type">Result</span>[U]) <span class="type">Result</span>[U] {
     <span class="keyword">if</span> r.err != <span class="keyword">nil</span> { <span class="keyword">return</span> <span class="type">Err</span>[U](r.err) }
@@ -1053,9 +1118,10 @@ analysis, err := result.<span class="func">Get</span>()
 
         <p>
           <strong>Status:</strong> This proposal was not implemented. Instead,
-          <code>Result[T]</code> was deleted entirely. The analyzer pipeline now uses plain
-          <code>(T, error)</code> returns — no wrapping, no unwrapping, no indirection. Go's native
-          error handling is exactly what we need.
+          <code>Result[T]</code> was deleted entirely. The analyzer pipeline now
+          uses plain <code>(T, error)</code> returns — no wrapping, no
+          unwrapping, no indirection. Go's native error handling is exactly what
+          we need.
         </p>
 
         <h3>7. Sealed Sum Type for Fix Outcomes</h3>
@@ -1063,7 +1129,8 @@ analysis, err := result.<span class="func">Get</span>()
         <div class="comparison">
           <div class="col">
             <div class="col-header">
-              <span class="status status-bad"></span> Current: String + int counts
+              <span class="status status-bad"></span> Current: String + int
+              counts
             </div>
             <pre><code><span class="keyword">type</span> <span class="type">MigrationResult</span> <span class="keyword">struct</span> {
     <span class="param">FixesApplied</span> <span class="type">int</span>
@@ -1124,10 +1191,11 @@ analysis, err := result.<span class="func">Get</span>()
         </div>
 
         <p>
-          <strong>Impact:</strong> The CLI layer now has structured access to every piece of fix
-          metadata. No string parsing. No guesswork. The compiler verifies that every outcome
-          variant is handled (if you use a type switch without a default, the compiler nags you
-          about exhaustiveness in practice).
+          <strong>Impact:</strong> The CLI layer now has structured access to
+          every piece of fix metadata. No string parsing. No guesswork. The
+          compiler verifies that every outcome variant is handled (if you use a
+          type switch without a default, the compiler nags you about
+          exhaustiveness in practice).
         </p>
 
         <h3>8. Summary: The Full Type Hierarchy</h3>
@@ -1172,11 +1240,15 @@ analysis, err := result.<span class="func">Get</span>()
       </section>
 
       <section id="migration">
-        <h2>Migration Path — From Here to There <span class="badge badge-ok">Plan</span></h2>
+        <h2>
+          Migration Path — From Here to There
+          <span class="badge badge-ok">Plan</span>
+        </h2>
 
         <p>
-          Rewriting the entire data layer in one PR is reckless. Here's a phased approach that
-          maintains backward compatibility while progressively tightening the type system:
+          Rewriting the entire data layer in one PR is reckless. Here's a phased
+          approach that maintains backward compatibility while progressively
+          tightening the type system:
         </p>
 
         <table class="migration-table">
@@ -1192,10 +1264,13 @@ analysis, err := result.<span class="func">Get</span>()
             <tr>
               <td><strong>1</strong></td>
               <td>
-                <span style="text-decoration: line-through; color: var(--text-dim)"
-                  >Add <code>Result[T].AndThen</code> / <code>Map</code> / <code>UnwrapOr</code
-                  ><br />Refactor <code>analyzer.go</code> pipeline to use them</span
-                ><br /><strong>DELETED</strong> — <code>Result[T]</code> removed entirely
+                <span
+                  style="text-decoration: line-through; color: var(--text-dim)"
+                  >Add <code>Result[T].AndThen</code> / <code>Map</code> /
+                  <code>UnwrapOr</code><br />Refactor
+                  <code>analyzer.go</code> pipeline to use them</span
+                ><br /><strong>DELETED</strong> — <code>Result[T]</code> removed
+                entirely
               </td>
               <td class="impact impact-low">—</td>
               <td>Deleted on 2026-06-05</td>
@@ -1203,8 +1278,9 @@ analysis, err := result.<span class="func">Get</span>()
             <tr>
               <td><strong>2</strong></td>
               <td>
-                Add sealed <code>Name</code> interface<br />Add generic <code>Priority[N]</code>,
-                <code>Recommendation[N]</code><br />Keep old types as type aliases
+                Add sealed <code>Name</code> interface<br />Add generic
+                <code>Priority[N]</code>, <code>Recommendation[N]</code
+                ><br />Keep old types as type aliases
               </td>
               <td class="impact impact-medium">Medium</td>
               <td>Medium — type aliases preserve compat</td>
@@ -1212,9 +1288,10 @@ analysis, err := result.<span class="func">Get</span>()
             <tr>
               <td><strong>3</strong></td>
               <td>
-                Build <code>Entry[N]</code> and <code>Catalog[E, N]</code><br />Port linter data
-                into a single <code>AllLinterEntries</code> slice<br />Keep old maps as views into
-                the catalog
+                Build <code>Entry[N]</code> and <code>Catalog[E, N]</code
+                ><br />Port linter data into a single
+                <code>AllLinterEntries</code> slice<br />Keep old maps as views
+                into the catalog
               </td>
               <td class="impact impact-medium">Medium</td>
               <td>Medium — old maps become read-only views</td>
@@ -1222,9 +1299,9 @@ analysis, err := result.<span class="func">Get</span>()
             <tr>
               <td><strong>4</strong></td>
               <td>
-                Add sealed <code>LinterSetting</code> interface<br />Port known linter settings to
-                typed structs<br />Keep <code>map[string]any</code> as
-                <code>RawSettings</code> fallback
+                Add sealed <code>LinterSetting</code> interface<br />Port known
+                linter settings to typed structs<br />Keep
+                <code>map[string]any</code> as <code>RawSettings</code> fallback
               </td>
               <td class="impact impact-medium">Medium</td>
               <td>Medium — YAML unmarshaling needs custom logic</td>
@@ -1232,8 +1309,9 @@ analysis, err := result.<span class="func">Get</span>()
             <tr>
               <td><strong>5</strong></td>
               <td>
-                Add <code>Validated[T]</code><br />Update <code>ConfigLoader</code> interface to
-                return <code>Validated[Config]</code><br />Update analyzers to accept
+                Add <code>Validated[T]</code><br />Update
+                <code>ConfigLoader</code> interface to return
+                <code>Validated[Config]</code><br />Update analyzers to accept
                 <code>Validated[Config]</code>
               </td>
               <td class="impact impact-high">High</td>
@@ -1242,9 +1320,10 @@ analysis, err := result.<span class="func">Get</span>()
             <tr>
               <td><strong>6</strong></td>
               <td>
-                Replace <code>ConfigAnalysis</code> with <code>Analysis[N]</code><br />Replace
-                <code>MigrationResult</code> with <code>FixResult</code> sum type<br />Deprecate old
-                types, remove in v2
+                Replace <code>ConfigAnalysis</code> with <code>Analysis[N]</code
+                ><br />Replace <code>MigrationResult</code> with
+                <code>FixResult</code> sum type<br />Deprecate old types, remove
+                in v2
               </td>
               <td class="impact impact-high">High</td>
               <td>High — breaks JSON serialization shapes</td>
@@ -1254,8 +1333,8 @@ analysis, err := result.<span class="func">Get</span>()
 
         <h4>Key Strategy: Type Aliases + Gradual Deprecation</h4>
         <p>
-          At each phase, introduce the new generic type alongside the old one. Use type aliases to
-          maintain compatibility:
+          At each phase, introduce the new generic type alongside the old one.
+          Use type aliases to maintain compatibility:
         </p>
 
         <div class="single-code">
@@ -1273,65 +1352,77 @@ analysis, err := result.<span class="func">Get</span>()
         </div>
 
         <p>
-          This means callers who use <code>LinterRecommendation</code> see no change. But new code
-          can use <code>recommendation[LinterName]</code> directly, and generic functions can
-          operate over <code>recommendation[N]</code> for any name type.
+          This means callers who use <code>LinterRecommendation</code> see no
+          change. But new code can use
+          <code>recommendation[LinterName]</code> directly, and generic
+          functions can operate over <code>recommendation[N]</code> for any name
+          type.
         </p>
       </section>
 
       <section id="philosophy">
-        <h2>Design Philosophy <span class="badge badge-good">Principles</span></h2>
+        <h2>
+          Design Philosophy <span class="badge badge-good">Principles</span>
+        </h2>
 
         <div class="principle">
           <p>
             <em>1. Nominal over Structural:</em> <code>LinterName</code> and
-            <code>FormatterName</code> are both <code>~string</code>, but they are
-            <strong>not interchangeable</strong>. The type system should enforce this. A function
-            that takes <code>LinterName</code> should never accept <code>FormatterName</code> — even
-            if the runtime value happens to be the same string.
+            <code>FormatterName</code> are both <code>~string</code>, but they
+            are <strong>not interchangeable</strong>. The type system should
+            enforce this. A function that takes <code>LinterName</code> should
+            never accept <code>FormatterName</code> — even if the runtime value
+            happens to be the same string.
           </p>
         </div>
 
         <div class="principle">
           <p>
             <em>2. Generic over Duplicated:</em> <code>LinterPriority</code> and
-            <code>FormatterPriority</code> share the exact same semantics (ordered levels). They
-            should be one generic type <code>Priority[N]</code>, not two parallel types. The same
-            applies to <code>LinterRecommendation</code> / <code>FormatterRecommendation</code>,
-            <code>ConfigAnalysis</code>'s linter/formatter fields, and so on.
+            <code>FormatterPriority</code> share the exact same semantics
+            (ordered levels). They should be one generic type
+            <code>Priority[N]</code>, not two parallel types. The same applies
+            to <code>LinterRecommendation</code> /
+            <code>FormatterRecommendation</code>, <code>ConfigAnalysis</code>'s
+            linter/formatter fields, and so on.
           </p>
         </div>
 
         <div class="principle">
           <p>
-            <em>3. Derived over Stored:</em> If a field can be computed from other fields,
-            <strong>don't store it</strong>. <code>CriticalCount</code> should not exist as a field
-            — it should be a method. This eliminates an entire class of consistency bugs.
+            <em>3. Derived over Stored:</em> If a field can be computed from
+            other fields, <strong>don't store it</strong>.
+            <code>CriticalCount</code> should not exist as a field — it should
+            be a method. This eliminates an entire class of consistency bugs.
           </p>
         </div>
 
         <div class="principle">
           <p>
-            <em>4. Sealed over Open:</em> If only specific types in your package should implement an
-            interface, make it <strong>sealed</strong> (unexported method). This prevents external
-            packages from inventing new <code>LinterSetting</code> implementations that your YAML
-            loader doesn't know about.
+            <em>4. Sealed over Open:</em> If only specific types in your package
+            should implement an interface, make it
+            <strong>sealed</strong> (unexported method). This prevents external
+            packages from inventing new
+            <code>LinterSetting</code> implementations that your YAML loader
+            doesn't know about.
           </p>
         </div>
 
         <div class="principle">
           <p>
-            <em>5. Explicit over Implicit:</em> <code>Validated[T]</code> is better than "validate
-            before use" conventions. Types should carry intent — but wrappers that are immediately
-            unwrapped (like the deleted <code>Result[T]</code>) add indirection without value.
+            <em>5. Explicit over Implicit:</em> <code>Validated[T]</code> is
+            better than "validate before use" conventions. Types should carry
+            intent — but wrappers that are immediately unwrapped (like the
+            deleted <code>Result[T]</code>) add indirection without value.
             Prefer idiomatic Go when it is already explicit enough.
           </p>
         </div>
 
         <div class="principle">
           <p>
-            <em>6. Parse, Don't Validate:</em> A function should receive data that is
-            <strong>already proven valid</strong> in its type, not validate it after receiving it.
+            <em>6. Parse, Don't Validate:</em> A function should receive data
+            that is <strong>already proven valid</strong> in its type, not
+            validate it after receiving it.
             <code>AnalyzeConfig(cfg Validated[Config])</code> is better than
             <code>AnalyzeConfig(cfg *Config)</code> with an internal
             <code>ValidateConfig</code> call.
@@ -1341,7 +1432,8 @@ analysis, err := result.<span class="func">Get</span>()
 
       <section id="more-gaps">
         <h2>
-          More Gaps — Low-Hanging Type-Safety Fruit <span class="badge badge-warn">Easy Wins</span>
+          More Gaps — Low-Hanging Type-Safety Fruit
+          <span class="badge badge-warn">Easy Wins</span>
         </h2>
 
         <h3>
@@ -1352,7 +1444,8 @@ analysis, err := result.<span class="func">Get</span>()
         <div class="comparison">
           <div class="col">
             <div class="col-header">
-              <span class="status status-bad"></span> Current: stringly-typed lists
+              <span class="status status-bad"></span> Current: stringly-typed
+              lists
             </div>
             <pre><code><span class="keyword">type</span> <span class="type">LintersConfig</span> <span class="keyword">struct</span> {
     <span class="param">Enable</span>  []<span class="type">string</span>
@@ -1386,17 +1479,20 @@ cfg.Linters.Enable = <span class="func">append</span>(cfg.Linters.Enable, <span 
         </div>
 
         <p>
-          <strong>Why this matters:</strong> YAML unmarshaling still works because
-          <code>LinterName</code> is <code>~string</code>. The struct tag decoder handles it
-          transparently. The change is purely compile-time safety with zero runtime cost.
+          <strong>Why this matters:</strong> YAML unmarshaling still works
+          because <code>LinterName</code> is <code>~string</code>. The struct
+          tag decoder handles it transparently. The change is purely
+          compile-time safety with zero runtime cost.
         </p>
 
-        <h3>7. <code>OutputConfig.Formats</code> is <code>map[string]any</code></h3>
+        <h3>
+          7. <code>OutputConfig.Formats</code> is <code>map[string]any</code>
+        </h3>
 
         <div class="single-code">
           <div class="col-header">
-            <span class="status status-bad"></span> pkg/types/types.go — the single most dangerous
-            <code>any</code> in the codebase
+            <span class="status status-bad"></span> pkg/types/types.go — the
+            single most dangerous <code>any</code> in the codebase
           </div>
           <pre><code><span class="keyword">type</span> <span class="type">OutputConfig</span> <span class="keyword">struct</span> {
     <span class="param">Formats</span> <span class="keyword">map</span>[<span class="type">string</span>]<span class="keyword">any</span>  <span class="comment">// What keys? What values? Runtime panic city.</span>
@@ -1404,10 +1500,11 @@ cfg.Linters.Enable = <span class="func">append</span>(cfg.Linters.Enable, <span 
         </div>
 
         <p>
-          <strong>The problem:</strong> Every config I/O operation touches this. It's a
-          <code>map[string]any</code> where the keys are output format names ("text", "json",
-          "html") and the values are format-specific configuration. There's no IDE autocomplete, no
-          compile-time safety, and runtime panics on wrong type casts.
+          <strong>The problem:</strong> Every config I/O operation touches this.
+          It's a <code>map[string]any</code> where the keys are output format
+          names ("text", "json", "html") and the values are format-specific
+          configuration. There's no IDE autocomplete, no compile-time safety,
+          and runtime panics on wrong type casts.
         </p>
 
         <div class="single-code">
@@ -1424,7 +1521,10 @@ cfg.Linters.Enable = <span class="func">append</span>(cfg.Linters.Enable, <span 
 }</code></pre>
         </div>
 
-        <h3>8. <code>LintersExclusionsConfig.Generated</code> is <code>string</code></h3>
+        <h3>
+          8. <code>LintersExclusionsConfig.Generated</code> is
+          <code>string</code>
+        </h3>
 
         <div class="comparison">
           <div class="col">
@@ -1459,52 +1559,56 @@ cfg.Linters.Exclusions.Generated = <span class="string">"laxs"</span></code></pr
         </div>
 
         <p>
-          <strong>Impact:</strong> Three tiny changes, all with zero runtime cost, all preventing
-          real bugs at compile time. These are the kinds of type-safety wins that Go's nominal type
-          system is built for.
+          <strong>Impact:</strong> Three tiny changes, all with zero runtime
+          cost, all preventing real bugs at compile time. These are the kinds of
+          type-safety wins that Go's nominal type system is built for.
         </p>
       </section>
 
       <section id="error-family">
-        <h2>go-error-family Review <span class="badge badge-good">Adopt</span></h2>
+        <h2>
+          go-error-family Review <span class="badge badge-good">Adopt</span>
+        </h2>
 
         <p>
-          Structured error protocol library by the same author. Zero dependencies, small interfaces,
-          behavioral classification via <code>Family</code> enum. This is how you design a Go
-          library.
+          Structured error protocol library by the same author. Zero
+          dependencies, small interfaces, behavioral classification via
+          <code>Family</code> enum. This is how you design a Go library.
         </p>
 
         <h3>What It Gives You</h3>
         <ul>
           <li>
-            <strong><code>Family</code></strong> — 5 behavioral classes (Rejection, Conflict,
-            Transient, Corruption, Infrastructure) that drive retry decisions, exit codes, and
-            user-facing tone
+            <strong><code>Family</code></strong> — 5 behavioral classes
+            (Rejection, Conflict, Transient, Corruption, Infrastructure) that
+            drive retry decisions, exit codes, and user-facing tone
           </li>
           <li>
-            <strong>Small interfaces</strong> — <code>Coded</code>, <code>Classified</code>,
-            <code>Contextual</code>, <code>Retryable</code> — each error type implements what it
-            needs
+            <strong>Small interfaces</strong> — <code>Coded</code>,
+            <code>Classified</code>, <code>Contextual</code>,
+            <code>Retryable</code> — each error type implements what it needs
           </li>
           <li>
-            <strong><code>Classify(err)</code></strong> — universal classification for any error
-            (multi-error → interface → registered sentinels → default)
+            <strong><code>Classify(err)</code></strong> — universal
+            classification for any error (multi-error → interface → registered
+            sentinels → default)
           </li>
           <li>
-            <strong><code>ExitCode(err)</code></strong> — BSD sysexits.h exit codes derived from
-            Family
+            <strong><code>ExitCode(err)</code></strong> — BSD sysexits.h exit
+            codes derived from Family
           </li>
           <li>
-            <strong><code>HandleError(err)</code></strong> — CLI boundary handler with structured
-            messages (What / Why / Fix / WayOut)
+            <strong><code>HandleError(err)</code></strong> — CLI boundary
+            handler with structured messages (What / Why / Fix / WayOut)
           </li>
           <li>
             <strong><code>Compose(errs...)</code></strong> — combine errors via
             <code>errors.Join</code> for partial-success patterns
           </li>
           <li>
-            <strong>Diagnostic rules</strong> — deterministic checks (PostgreSQL, filesystem,
-            network, git) that auto-discover why an error occurred
+            <strong>Diagnostic rules</strong> — deterministic checks
+            (PostgreSQL, filesystem, network, git) that auto-discover why an
+            error occurred
           </li>
         </ul>
 
@@ -1520,7 +1624,9 @@ cfg.Linters.Exclusions.Generated = <span class="string">"laxs"</span></code></pr
           <tbody>
             <tr>
               <td>Zero dependencies</td>
-              <td><code>go.mod</code> is <code>go 1.26.3</code> and nothing else</td>
+              <td>
+                <code>go.mod</code> is <code>go 1.26.3</code> and nothing else
+              </td>
             </tr>
             <tr>
               <td>Small interfaces</td>
@@ -1564,37 +1670,42 @@ cfg.Linters.Exclusions.Generated = <span class="string">"laxs"</span></code></pr
               <td><code>Error</code> is mutable</td>
               <td class="impact impact-medium">Medium</td>
               <td>
-                <code>WithContext</code> and <code>WithCause</code> mutate the struct in place. Two
-                callers add context to the "same" error and clobber each other.
+                <code>WithContext</code> and <code>WithCause</code> mutate the
+                struct in place. Two callers add context to the "same" error and
+                clobber each other.
               </td>
             </tr>
             <tr>
               <td><code>HandleConfig</code> mutated by callee</td>
               <td class="impact impact-medium">Medium</td>
               <td>
-                <code>HandleErrorWithContext</code> replaces <code>cfg.Output = os.Stderr</code> if
-                nil. The caller's struct is modified.
+                <code>HandleErrorWithContext</code> replaces
+                <code>cfg.Output = os.Stderr</code> if nil. The caller's struct
+                is modified.
               </td>
             </tr>
             <tr>
               <td><code>Classify(nil) == Rejection</code></td>
               <td class="impact impact-low">Low</td>
-              <td>Documented as intentional, but violates principle of least astonishment.</td>
+              <td>
+                Documented as intentional, but violates principle of least
+                astonishment.
+              </td>
             </tr>
             <tr>
               <td><code>lookupRegistered</code> full snapshot</td>
               <td class="impact impact-low">Low</td>
               <td>
-                Copies entire map under RLock to iterate. For &lt;100 entries, just iterate under
-                the read lock.
+                Copies entire map under RLock to iterate. For &lt;100 entries,
+                just iterate under the read lock.
               </td>
             </tr>
             <tr>
               <td>Go 1.26 minimum</td>
               <td class="impact impact-low">Low</td>
               <td>
-                <code>errors.AsType[T]()</code> is cutting-edge. Fine for us, limits broader
-                adoption.
+                <code>errors.AsType[T]()</code> is cutting-edge. Fine for us,
+                limits broader adoption.
               </td>
             </tr>
           </tbody>
@@ -1603,11 +1714,15 @@ cfg.Linters.Exclusions.Generated = <span class="string">"laxs"</span></code></pr
         <h3>Why We Should Adopt It</h3>
 
         <p>
-          Our current error types in <code>pkg/errors/errors.go</code> (<code>ConfigError</code>,
-          <code>AnalysisError</code>, <code>ReportError</code>, <code>MigrationError</code>) are
-          hand-rolled <code>domainError</code> wrappers with <code>Message/Source/Cause</code>. They
-          don't implement <code>Classified</code>, so <code>Classify</code> would default them to
-          <code>Transient</code> (retryable). That's wrong for config validation errors.
+          Our current error types in
+          <code>pkg/errors/errors.go</code> (<code>ConfigError</code>,
+          <code>AnalysisError</code>, <code>ReportError</code>,
+          <code>MigrationError</code>) are hand-rolled
+          <code>domainError</code> wrappers with
+          <code>Message/Source/Cause</code>. They don't implement
+          <code>Classified</code>, so <code>Classify</code> would default them
+          to <code>Transient</code> (retryable). That's wrong for config
+          validation errors.
         </p>
 
         <div class="single-code">
@@ -1629,32 +1744,55 @@ cfg.Linters.Exclusions.Generated = <span class="string">"laxs"</span></code></pr
 
         <p>If integrated:</p>
         <ul>
-          <li><code>ConfigError</code> → <code>Rejection</code> (user's fault, bad config)</li>
-          <li><code>AnalysisError</code> → <code>Infrastructure</code> (system can't analyze)</li>
-          <li><code>ReportError</code> → <code>Transient</code> (maybe retry writing)</li>
-          <li><code>MigrationError</code> → <code>Corruption</code> (data in bad state)</li>
+          <li>
+            <code>ConfigError</code> → <code>Rejection</code> (user's fault, bad
+            config)
+          </li>
+          <li>
+            <code>AnalysisError</code> → <code>Infrastructure</code> (system
+            can't analyze)
+          </li>
+          <li>
+            <code>ReportError</code> → <code>Transient</code> (maybe retry
+            writing)
+          </li>
+          <li>
+            <code>MigrationError</code> → <code>Corruption</code> (data in bad
+            state)
+          </li>
         </ul>
 
-        <p>BSD exit codes, retry decisions, and structured CLI messages — free.</p>
+        <p>
+          BSD exit codes, retry decisions, and structured CLI messages — free.
+        </p>
 
         <h3>Recommended Integration</h3>
 
         <ol>
           <li>Add as dependency (zero-dep, won't bloat our tree)</li>
-          <li>Replace <code>pkg/errors/errors.go</code> with family-aware error types</li>
-          <li>Wire <code>HandleError</code> into <code>cmd/main.go</code> for CLI exit codes</li>
           <li>
-            Register stdlib sentinels (<code>os.ErrNotExist</code> → <code>Rejection</code>, etc.)
-            in <code>init()</code>
+            Replace <code>pkg/errors/errors.go</code> with family-aware error
+            types
           </li>
-          <li>Keep custom error types but have them implement <code>Classified</code></li>
+          <li>
+            Wire <code>HandleError</code> into <code>cmd/main.go</code> for CLI
+            exit codes
+          </li>
+          <li>
+            Register stdlib sentinels (<code>os.ErrNotExist</code> →
+            <code>Rejection</code>, etc.) in <code>init()</code>
+          </li>
+          <li>
+            Keep custom error types but have them implement
+            <code>Classified</code>
+          </li>
         </ol>
       </section>
     </main>
 
     <footer>
-      Generated for <strong>golangci-lint-auto-configure</strong> &mdash; a brainstorm on maximizing
-      the Go type system.
+      Generated for <strong>golangci-lint-auto-configure</strong> &mdash; a
+      brainstorm on maximizing the Go type system.
     </footer>
   </body>
 </html>

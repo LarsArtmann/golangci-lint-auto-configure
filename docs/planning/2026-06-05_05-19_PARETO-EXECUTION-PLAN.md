@@ -1,6 +1,6 @@
 # Pareto Execution Plan — golangci-lint-auto-configure
 
-**Date:** 2026-06-05  
+**Date:** 2026-06-05\
 **Pareto Principle:** 1% → 51%, 4% → 64%, 20% → 80%
 
 ---
@@ -15,19 +15,19 @@
 
 ### 4% → 64% Result (1% + 3 more)
 
-| #   | Task                                       | Impact | Rationale                                                                                                          |
-| --- | ------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------ |
-| 1   | CLI integration test coverage (8.2% → 80%) | 51%    | The 1% — see above                                                                                                 |
-| 2   | Trim AGENTS.md: 912 → ≤377 lines           | 5%     | 912 lines of mixed-depth docs is navigation hell. Extracting sections into referenced files makes the guide usable |
-| 3   | gogenfilter scanner coverage: 59.8% → 90%  | 4%     | Core feature — auto-detects generated code. Untested paths = silent wrong exclusions                               |
-| 4   | Migration coverage: 66.8% → 90%            | 4%     | v1→v2 migration is a critical user workflow. Low coverage = migration bugs that corrupt configs                    |
+| # | Task                                       | Impact | Rationale                                                                                                          |
+| - | ------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------ |
+| 1 | CLI integration test coverage (8.2% → 80%) | 51%    | The 1% — see above                                                                                                 |
+| 2 | Trim AGENTS.md: 912 → ≤377 lines           | 5%     | 912 lines of mixed-depth docs is navigation hell. Extracting sections into referenced files makes the guide usable |
+| 3 | gogenfilter scanner coverage: 59.8% → 90%  | 4%     | Core feature — auto-detects generated code. Untested paths = silent wrong exclusions                               |
+| 4 | Migration coverage: 66.8% → 90%            | 4%     | v1→v2 migration is a critical user workflow. Low coverage = migration bugs that corrupt configs                    |
 
 ### 20% → 80% Result (4% + 2 more)
 
-| #   | Task                                      | Impact | Rationale                                                                       |
-| --- | ----------------------------------------- | ------ | ------------------------------------------------------------------------------- |
-| 5   | `--check` mode integration tests          | 4%     | CI-critical: exit 0/1 decisions. Wrong exit code = broken CI pipelines          |
-| 6   | `--diff` flag tests + interaction bug fix | 4%     | User-facing diff preview. Bug: diff shows nothing in check mode. Silent failure |
+| # | Task                                      | Impact | Rationale                                                                       |
+| - | ----------------------------------------- | ------ | ------------------------------------------------------------------------------- |
+| 5 | `--check` mode integration tests          | 4%     | CI-critical: exit 0/1 decisions. Wrong exit code = broken CI pipelines          |
+| 6 | `--diff` flag tests + interaction bug fix | 4%     | User-facing diff preview. Bug: diff shows nothing in check mode. Silent failure |
 
 ### Remaining 80% of Tasks (20% of result)
 
@@ -44,33 +44,33 @@
 
 Sorted by **Impact × Effort** (highest leverage first):
 
-| #   | Task                                                                           | Priority | Est. Time | Impact | Effort | Category    |
-| --- | ------------------------------------------------------------------------------ | -------- | --------- | ------ | ------ | ----------- |
-| 1   | CLI integration tests: configure command (all flag combinations)               | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
-| 2   | CLI integration tests: analyze command (formats, SARIF, finding)               | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
-| 3   | CLI integration tests: validate command (valid/invalid configs)                | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
-| 4   | CLI integration tests: report command (HTML, JSON, SARIF)                      | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
-| 5   | CLI integration tests: migrate command (v1 fixtures, skip-validation)          | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
-| 6   | CLI integration tests: install-hook + completion                               | Critical | 30m       | ★★★★★  | ★★     | Testing     |
-| 7   | Trim AGENTS.md: extract error handling patterns → references/error-handling.md | High     | 45m       | ★★★★   | ★★★    | Docs        |
-| 8   | Trim AGENTS.md: extract build/test commands → references/build-commands.md     | High     | 45m       | ★★★★   | ★★★    | Docs        |
-| 9   | Trim AGENTS.md: extract architecture patterns → references/architecture.md     | High     | 45m       | ★★★★   | ★★★    | Docs        |
-| 10  | gogenfilter scanner coverage: test sqlc, oapi-codegen, wire detection paths    | High     | 60m       | ★★★★   | ★★★    | Testing     |
-| 11  | gogenfilter scanner coverage: test fallback/generic detection                  | High     | 45m       | ★★★★   | ★★     | Testing     |
-| 12  | Migration coverage: test linter-specific settings migration                    | High     | 60m       | ★★★★   | ★★★    | Testing     |
-| 13  | Migration coverage: test exclusion rules/path migration                        | High     | 45m       | ★★★★   | ★★     | Testing     |
-| 14  | `--check` mode: test exit 0 (optimal), exit 1 (changes needed)                 | Medium   | 30m       | ★★★    | ★★     | Testing     |
-| 15  | `--check` mode: test with --dry-run, --priority, --preset combinations         | Medium   | 30m       | ★★★    | ★★     | Testing     |
-| 16  | `--diff` flag: test diff output contains expected changes                      | Medium   | 30m       | ★★★    | ★★     | Testing     |
-| 17  | Fix `--diff` + `--check` interaction (diff shows nothing in check mode)        | Medium   | 45m       | ★★★    | ★★★    | Bugfix      |
-| 18  | LinterMinVersions validation test + reference preset validation                | Medium   | 30m       | ★★★    | ★      | Testing     |
-| 19  | Add ginkgolinter + testifylint default settings                                | Medium   | 45m       | ★★★    | ★★     | Feature     |
-| 20  | Use `errors.Join` for multi-finding build failures                             | Low      | 30m       | ★★     | ★★     | Correctness |
-| 21  | Add `DryRun bool` field to `MigrationResult`                                   | Low      | 30m       | ★★     | ★★     | API         |
-| 22  | Type system: `LintersConfig.Enable/Disable` → `[]LinterName`                   | Low      | 30m       | ★★     | ★      | Refactor    |
-| 23  | Type system: `OutputConfig.Formats` → `[]OutputFormat`                         | Low      | 45m       | ★★     | ★★★    | Refactor    |
-| 24  | Type system: `GeneratedMode` enum for `LintersExclusionsConfig.Generated`      | Low      | 30m       | ★★     | ★      | Refactor    |
-| 25  | Decide vendor/ in formatter exclusions + pkg/client smoke tests                | Low      | 45m       | ★      | ★★     | Decision    |
+| #  | Task                                                                           | Priority | Est. Time | Impact | Effort | Category    |
+| -- | ------------------------------------------------------------------------------ | -------- | --------- | ------ | ------ | ----------- |
+| 1  | CLI integration tests: configure command (all flag combinations)               | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
+| 2  | CLI integration tests: analyze command (formats, SARIF, finding)               | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
+| 3  | CLI integration tests: validate command (valid/invalid configs)                | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
+| 4  | CLI integration tests: report command (HTML, JSON, SARIF)                      | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
+| 5  | CLI integration tests: migrate command (v1 fixtures, skip-validation)          | Critical | 45m       | ★★★★★  | ★★★    | Testing     |
+| 6  | CLI integration tests: install-hook + completion                               | Critical | 30m       | ★★★★★  | ★★     | Testing     |
+| 7  | Trim AGENTS.md: extract error handling patterns → references/error-handling.md | High     | 45m       | ★★★★   | ★★★    | Docs        |
+| 8  | Trim AGENTS.md: extract build/test commands → references/build-commands.md     | High     | 45m       | ★★★★   | ★★★    | Docs        |
+| 9  | Trim AGENTS.md: extract architecture patterns → references/architecture.md     | High     | 45m       | ★★★★   | ★★★    | Docs        |
+| 10 | gogenfilter scanner coverage: test sqlc, oapi-codegen, wire detection paths    | High     | 60m       | ★★★★   | ★★★    | Testing     |
+| 11 | gogenfilter scanner coverage: test fallback/generic detection                  | High     | 45m       | ★★★★   | ★★     | Testing     |
+| 12 | Migration coverage: test linter-specific settings migration                    | High     | 60m       | ★★★★   | ★★★    | Testing     |
+| 13 | Migration coverage: test exclusion rules/path migration                        | High     | 45m       | ★★★★   | ★★     | Testing     |
+| 14 | `--check` mode: test exit 0 (optimal), exit 1 (changes needed)                 | Medium   | 30m       | ★★★    | ★★     | Testing     |
+| 15 | `--check` mode: test with --dry-run, --priority, --preset combinations         | Medium   | 30m       | ★★★    | ★★     | Testing     |
+| 16 | `--diff` flag: test diff output contains expected changes                      | Medium   | 30m       | ★★★    | ★★     | Testing     |
+| 17 | Fix `--diff` + `--check` interaction (diff shows nothing in check mode)        | Medium   | 45m       | ★★★    | ★★★    | Bugfix      |
+| 18 | LinterMinVersions validation test + reference preset validation                | Medium   | 30m       | ★★★    | ★      | Testing     |
+| 19 | Add ginkgolinter + testifylint default settings                                | Medium   | 45m       | ★★★    | ★★     | Feature     |
+| 20 | Use `errors.Join` for multi-finding build failures                             | Low      | 30m       | ★★     | ★★     | Correctness |
+| 21 | Add `DryRun bool` field to `MigrationResult`                                   | Low      | 30m       | ★★     | ★★     | API         |
+| 22 | Type system: `LintersConfig.Enable/Disable` → `[]LinterName`                   | Low      | 30m       | ★★     | ★      | Refactor    |
+| 23 | Type system: `OutputConfig.Formats` → `[]OutputFormat`                         | Low      | 45m       | ★★     | ★★★    | Refactor    |
+| 24 | Type system: `GeneratedMode` enum for `LintersExclusionsConfig.Generated`      | Low      | 30m       | ★★     | ★      | Refactor    |
+| 25 | Decide vendor/ in formatter exclusions + pkg/client smoke tests                | Low      | 45m       | ★      | ★★     | Decision    |
 
 ---
 

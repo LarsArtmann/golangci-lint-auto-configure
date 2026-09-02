@@ -8,32 +8,32 @@ Enforce `funlen` linter with `lines: 30` and `statements: 20` across the entire 
 
 ## A) FULLY DONE
 
-| #   | Item                              | Details                                                                                                                                                         |
-| --- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `.golangci.yml` threshold updated | `funlen.lines: 80→30`, `funlen.statements: 50→20` — **staged but NOT committed** (pre-commit hook failed due to golangci-lint cache corruption, not our change) |
+| # | Item                              | Details                                                                                                                                                         |
+| - | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | `.golangci.yml` threshold updated | `funlen.lines: 80→30`, `funlen.statements: 50→20` — **staged but NOT committed** (pre-commit hook failed due to golangci-lint cache corruption, not our change) |
 
 ---
 
 ## B) PARTIALLY DONE
 
-| #   | Item                   | Status                                                       | Blocker                                                                                                                                                                           |
-| --- | ---------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `.golangci.yml` commit | Staged, not committed                                        | Pre-commit hook's golangci-lint step hit a Go build cache error (`no such file or directory`). The **change itself is correct**. Needs `go clean -cache` or `--no-verify` commit. |
-| 2   | Violation audit        | **32 violations identified across 18 files** (see section D) | None — audit is complete, fixes not started                                                                                                                                       |
+| # | Item                   | Status                                                       | Blocker                                                                                                                                                                           |
+| - | ---------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | `.golangci.yml` commit | Staged, not committed                                        | Pre-commit hook's golangci-lint step hit a Go build cache error (`no such file or directory`). The **change itself is correct**. Needs `go clean -cache` or `--no-verify` commit. |
+| 2 | Violation audit        | **32 violations identified across 18 files** (see section D) | None — audit is complete, fixes not started                                                                                                                                       |
 
 ---
 
 ## C) NOT STARTED
 
-| #   | Item                                                         | Details                                                                                                                                                                     |
-| --- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Add `RecommendedLinterSettings` to `pkg/constants/config.go` | Single source of truth for linter settings like funlen thresholds. Currently, settings are only in YAML files — no Go code knows the recommended values.                    |
-| 2   | Update 4 example config files                                | `examples/standard.golangci.yml` (80→30), `examples/web-project.golangci.yml` (80→30), `examples/library.golangci.yml` (50→30), `examples/cli-project.golangci.yml` (60→30) |
-| 3   | Update funlen reason in `pkg/constants/linter_reasons.go`    | Change `"Detect long functions"` → something mentioning 30-line threshold                                                                                                   |
-| 4   | Remove funlen from `.golangci.yml` exclusion rules           | Lines 261, 264, 267, 270, 274, 331 exclude funlen for specific files — these should be removed so funlen is enforced everywhere                                             |
-| 5   | Refactor 32 violating functions across 18 files              | The bulk of the work — see violation list below                                                                                                                             |
-| 6   | Update `AGENTS.md` documentation                             | Lines referencing `funlen: lines: 80, statements: 50`                                                                                                                       |
-| 7   | Full test + lint verification                                | Run `just test` and `just lint` to confirm everything passes                                                                                                                |
+| # | Item                                                         | Details                                                                                                                                                                     |
+| - | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | Add `RecommendedLinterSettings` to `pkg/constants/config.go` | Single source of truth for linter settings like funlen thresholds. Currently, settings are only in YAML files — no Go code knows the recommended values.                    |
+| 2 | Update 4 example config files                                | `examples/standard.golangci.yml` (80→30), `examples/web-project.golangci.yml` (80→30), `examples/library.golangci.yml` (50→30), `examples/cli-project.golangci.yml` (60→30) |
+| 3 | Update funlen reason in `pkg/constants/linter_reasons.go`    | Change `"Detect long functions"` → something mentioning 30-line threshold                                                                                                   |
+| 4 | Remove funlen from `.golangci.yml` exclusion rules           | Lines 261, 264, 267, 270, 274, 331 exclude funlen for specific files — these should be removed so funlen is enforced everywhere                                             |
+| 5 | Refactor 32 violating functions across 18 files              | The bulk of the work — see violation list below                                                                                                                             |
+| 6 | Update `AGENTS.md` documentation                             | Lines referencing `funlen: lines: 80, statements: 50`                                                                                                                       |
+| 7 | Full test + lint verification                                | Run `just test` and `just lint` to confirm everything passes                                                                                                                |
 
 ---
 
@@ -51,41 +51,41 @@ could not load export data: open /Users/larsartmann/Library/Caches/go-build/.../
 
 ### The 32 funlen violations (full list)
 
-| #   | File                                             | Function                              | Lines  | Stmt   | Severity  |
-| --- | ------------------------------------------------ | ------------------------------------- | ------ | ------ | --------- |
-| 1   | `pkg/migration/rules.go:21`                      | `DefaultRules`                        | **79** | —      | 🔴 SEVERE |
-| 2   | `internal/cli/cmd_analyze.go:39`                 | `newAnalyzeCommand`                   | **65** | —      | 🔴 SEVERE |
-| 3   | `internal/cli/cmd_report.go:14`                  | `newReportCommand`                    | **62** | —      | 🔴 SEVERE |
-| 4   | `internal/cli/cmd_configure.go:60`               | `newConfigureCommand`                 | **61** | —      | 🔴 SEVERE |
-| 5   | `pkg/ui/formatter.go:21`                         | `FormatRecommendations`               | **39** | —      | 🟡        |
-| 6   | `pkg/linter/categorizer.go:10`                   | `CategorizeLinters`                   | **46** | —      | 🔴        |
-| 7   | `internal/cli/cmd/completion.go:8`               | `NewCompletionCommand`                | **47** | —      | 🔴        |
-| 8   | `internal/cli/commands.go:48`                    | `NewRootCommand`                      | **50** | —      | 🔴        |
-| 9   | `pkg/utils/retry.go:34`                          | `WithRetry`                           | **42** | —      | 🟡        |
-| 10  | `internal/cli/cmd_configure_internal_test.go:52` | `TestParsePriorityParam`              | **53** | —      | 🔴        |
-| 11  | `pkg/linter/command_runner.go:19`                | `runCommandWithRetry`                 | **35** | —      | 🟡        |
-| 12  | `pkg/report/json_report_generator.go:42`         | `GenerateJSONReport`                  | **37** | —      | 🟡        |
-| 13  | `pkg/diff/differ.go:114`                         | `compareEnabled`                      | **37** | —      | 🟡        |
-| 14  | `pkg/config/loader.go:282`                       | `CreateDefaultConfig`                 | **34** | —      | 🟡        |
-| 15  | `pkg/diff/differ.go:78`                          | `compareRunSettings`                  | **33** | —      | 🟡        |
-| 16  | `internal/cli/cmd_configure.go:209`              | `ensureConfigFile`                    | **32** | —      | 🟡        |
-| 17  | `pkg/detection/detector_bench_test.go:11`        | `setupBenchmarkProject`               | **35** | —      | 🟡        |
-| 18  | `pkg/linter/fixer_preflight.go:253`              | `calculateDryRunResultWithDeprecated` | **40** | —      | 🟡        |
-| 19  | `pkg/migration/migrations.go:130`                | `migrateIssuesFlags`                  | **35** | —      | 🟡        |
-| 20  | `pkg/migration/migrations.go:169`                | `migrateFormatters`                   | **31** | —      | 🟡        |
-| —   | _Statements-only violations:_                    |                                       |        |        |           |
-| 21  | `pkg/linter/fixer_preflight.go:122`              | `preFixDeprecatedLinters`             | —      | **33** | 🟡        |
-| 22  | `pkg/linter/fixer_preflight.go:192`              | `preFixTypecheck`                     | —      | **26** | 🟡        |
-| 23  | `pkg/linter/analyzer.go:145`                     | `FormatRecommendations`               | —      | **31** | 🟡        |
-| 24  | `pkg/migration/migrations.go:225`                | `migrateOutputProperties`             | —      | **25** | 🟡        |
-| 25  | `pkg/migration/config_types.go:29`               | `UnmarshalYAML`                       | —      | **32** | 🟡        |
-| 26  | `internal/cli/cmd_configure.go:127`              | `runConfigure`                        | —      | **34** | 🟡        |
-| 27  | `internal/cli/cmd_configure.go:261`              | `applyPreset`                         | —      | **21** | 🟢        |
-| 28  | `pkg/detection/detector.go:91`                   | `detect`                              | —      | **21** | 🟢        |
-| 29  | `pkg/detection/detector.go:148`                  | `analyzeGoMod`                        | —      | **29** | 🟡        |
-| 30  | `pkg/diff/differ.go:165`                         | `FormatChanges`                       | —      | **25** | 🟡        |
-| 31  | `pkg/diff/differ.go:210`                         | `GetSummary`                          | —      | **21** | 🟢        |
-| 32  | `pkg/linter/analyzer.go:69`                      | `AnalyzeConfigResult`                 | —      | **22** | 🟡        |
+| #  | File                                             | Function                              | Lines  | Stmt   | Severity  |
+| -- | ------------------------------------------------ | ------------------------------------- | ------ | ------ | --------- |
+| 1  | `pkg/migration/rules.go:21`                      | `DefaultRules`                        | **79** | —      | 🔴 SEVERE |
+| 2  | `internal/cli/cmd_analyze.go:39`                 | `newAnalyzeCommand`                   | **65** | —      | 🔴 SEVERE |
+| 3  | `internal/cli/cmd_report.go:14`                  | `newReportCommand`                    | **62** | —      | 🔴 SEVERE |
+| 4  | `internal/cli/cmd_configure.go:60`               | `newConfigureCommand`                 | **61** | —      | 🔴 SEVERE |
+| 5  | `pkg/ui/formatter.go:21`                         | `FormatRecommendations`               | **39** | —      | 🟡        |
+| 6  | `pkg/linter/categorizer.go:10`                   | `CategorizeLinters`                   | **46** | —      | 🔴        |
+| 7  | `internal/cli/cmd/completion.go:8`               | `NewCompletionCommand`                | **47** | —      | 🔴        |
+| 8  | `internal/cli/commands.go:48`                    | `NewRootCommand`                      | **50** | —      | 🔴        |
+| 9  | `pkg/utils/retry.go:34`                          | `WithRetry`                           | **42** | —      | 🟡        |
+| 10 | `internal/cli/cmd_configure_internal_test.go:52` | `TestParsePriorityParam`              | **53** | —      | 🔴        |
+| 11 | `pkg/linter/command_runner.go:19`                | `runCommandWithRetry`                 | **35** | —      | 🟡        |
+| 12 | `pkg/report/json_report_generator.go:42`         | `GenerateJSONReport`                  | **37** | —      | 🟡        |
+| 13 | `pkg/diff/differ.go:114`                         | `compareEnabled`                      | **37** | —      | 🟡        |
+| 14 | `pkg/config/loader.go:282`                       | `CreateDefaultConfig`                 | **34** | —      | 🟡        |
+| 15 | `pkg/diff/differ.go:78`                          | `compareRunSettings`                  | **33** | —      | 🟡        |
+| 16 | `internal/cli/cmd_configure.go:209`              | `ensureConfigFile`                    | **32** | —      | 🟡        |
+| 17 | `pkg/detection/detector_bench_test.go:11`        | `setupBenchmarkProject`               | **35** | —      | 🟡        |
+| 18 | `pkg/linter/fixer_preflight.go:253`              | `calculateDryRunResultWithDeprecated` | **40** | —      | 🟡        |
+| 19 | `pkg/migration/migrations.go:130`                | `migrateIssuesFlags`                  | **35** | —      | 🟡        |
+| 20 | `pkg/migration/migrations.go:169`                | `migrateFormatters`                   | **31** | —      | 🟡        |
+| —  | _Statements-only violations:_                    |                                       |        |        |           |
+| 21 | `pkg/linter/fixer_preflight.go:122`              | `preFixDeprecatedLinters`             | —      | **33** | 🟡        |
+| 22 | `pkg/linter/fixer_preflight.go:192`              | `preFixTypecheck`                     | —      | **26** | 🟡        |
+| 23 | `pkg/linter/analyzer.go:145`                     | `FormatRecommendations`               | —      | **31** | 🟡        |
+| 24 | `pkg/migration/migrations.go:225`                | `migrateOutputProperties`             | —      | **25** | 🟡        |
+| 25 | `pkg/migration/config_types.go:29`               | `UnmarshalYAML`                       | —      | **32** | 🟡        |
+| 26 | `internal/cli/cmd_configure.go:127`              | `runConfigure`                        | —      | **34** | 🟡        |
+| 27 | `internal/cli/cmd_configure.go:261`              | `applyPreset`                         | —      | **21** | 🟢        |
+| 28 | `pkg/detection/detector.go:91`                   | `detect`                              | —      | **21** | 🟢        |
+| 29 | `pkg/detection/detector.go:148`                  | `analyzeGoMod`                        | —      | **29** | 🟡        |
+| 30 | `pkg/diff/differ.go:165`                         | `FormatChanges`                       | —      | **25** | 🟡        |
+| 31 | `pkg/diff/differ.go:210`                         | `GetSummary`                          | —      | **21** | 🟢        |
+| 32 | `pkg/linter/analyzer.go:69`                      | `AnalyzeConfigResult`                 | —      | **22** | 🟡        |
 
 **Breakdown by area:**
 

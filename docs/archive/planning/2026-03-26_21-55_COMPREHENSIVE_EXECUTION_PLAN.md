@@ -90,38 +90,38 @@
 
 ### High Impact, Low Work (Do First)
 
-| #   | Task                              | Work  | Impact |
-| --- | --------------------------------- | ----- | ------ |
-| 1   | Run go mod tidy                   | 1min  | HIGH   |
-| 2   | Verify all tests pass             | 2min  | HIGH   |
-| 3   | Remove unused dependencies        | 5min  | MEDIUM |
-| 4   | Consolidate git errors            | 10min | MEDIUM |
-| 5   | Document Config struct separation | 10min | MEDIUM |
+| # | Task                              | Work  | Impact |
+| - | --------------------------------- | ----- | ------ |
+| 1 | Run go mod tidy                   | 1min  | HIGH   |
+| 2 | Verify all tests pass             | 2min  | HIGH   |
+| 3 | Remove unused dependencies        | 5min  | MEDIUM |
+| 4 | Consolidate git errors            | 10min | MEDIUM |
+| 5 | Document Config struct separation | 10min | MEDIUM |
 
 ### High Impact, Medium Work (Do Second)
 
-| #   | Task                              | Work  | Impact |
-| --- | --------------------------------- | ----- | ------ |
-| 6   | Add tests for pkg/client          | 30min | HIGH   |
-| 7   | Add tests for pkg/types           | 20min | HIGH   |
-| 8   | Add integration test build tags   | 30min | HIGH   |
-| 9   | Consolidate FormatRecommendations | 15min | MEDIUM |
+| # | Task                              | Work  | Impact |
+| - | --------------------------------- | ----- | ------ |
+| 6 | Add tests for pkg/client          | 30min | HIGH   |
+| 7 | Add tests for pkg/types           | 20min | HIGH   |
+| 8 | Add integration test build tags   | 30min | HIGH   |
+| 9 | Consolidate FormatRecommendations | 15min | MEDIUM |
 
 ### Medium Impact, Medium Work (Do Third)
 
-| #   | Task                     | Work  | Impact |
-| --- | ------------------------ | ----- | ------ |
-| 10  | Fix CLI test timeout     | 1hr   | HIGH   |
-| 11  | Consider go-cmd/cmd      | 1hr   | MEDIUM |
-| 12  | Optimize pre-commit hook | 15min | MEDIUM |
+| #  | Task                     | Work  | Impact |
+| -- | ------------------------ | ----- | ------ |
+| 10 | Fix CLI test timeout     | 1hr   | HIGH   |
+| 11 | Consider go-cmd/cmd      | 1hr   | MEDIUM |
+| 12 | Optimize pre-commit hook | 15min | MEDIUM |
 
 ### Low Impact, Any Work (Do Last)
 
-| #   | Task                             | Work  | Impact |
-| --- | -------------------------------- | ----- | ------ |
-| 13  | Add stringer for enums           | 30min | LOW    |
-| 14  | Standardize on afero             | 2hr   | MEDIUM |
-| 15  | Consider unifying Config structs | 2hr   | HIGH   |
+| #  | Task                             | Work  | Impact |
+| -- | -------------------------------- | ----- | ------ |
+| 13 | Add stringer for enums           | 30min | LOW    |
+| 14 | Standardize on afero             | 2hr   | MEDIUM |
+| 15 | Consider unifying Config structs | 2hr   | HIGH   |
 
 ---
 

@@ -155,58 +155,58 @@ The closest thing to "fucked up" is:
 
 ### Priority 1: Commit & Clean Up (Immediate)
 
-| #   | Task                                             | Effort | Impact                               |
-| --- | ------------------------------------------------ | ------ | ------------------------------------ |
-| 1   | Commit uncommitted refactoring changes (8 files) | 5 min  | High — clean working tree            |
-| 2   | Commit Nix Flakes proposal or discard it         | 2 min  | Medium — don't leave untracked files |
-| 3   | Run `go mod tidy` to verify go.mod correctness   | 1 min  | High — dependency hygiene            |
+| # | Task                                             | Effort | Impact                               |
+| - | ------------------------------------------------ | ------ | ------------------------------------ |
+| 1 | Commit uncommitted refactoring changes (8 files) | 5 min  | High — clean working tree            |
+| 2 | Commit Nix Flakes proposal or discard it         | 2 min  | Medium — don't leave untracked files |
+| 3 | Run `go mod tidy` to verify go.mod correctness   | 1 min  | High — dependency hygiene            |
 
 ### Priority 2: File Size Reduction (This Session)
 
-| #   | Task                                                     | Effort | Impact                  |
-| --- | -------------------------------------------------------- | ------ | ----------------------- |
-| 4   | Split `pkg/config/loader.go` (422 → <350 lines)          | 30 min | Medium — pre-compliance |
-| 5   | Split `pkg/types/types.go` (384 → <350 lines)            | 20 min | Medium — pre-compliance |
-| 6   | Split `internal/cli/cmd_configure.go` (392 → <350 lines) | 30 min | Medium — pre-compliance |
-| 7   | Split `pkg/detection/detector.go` (377 → <350 lines)     | 20 min | Medium — pre-compliance |
+| # | Task                                                     | Effort | Impact                  |
+| - | -------------------------------------------------------- | ------ | ----------------------- |
+| 4 | Split `pkg/config/loader.go` (422 → <350 lines)          | 30 min | Medium — pre-compliance |
+| 5 | Split `pkg/types/types.go` (384 → <350 lines)            | 20 min | Medium — pre-compliance |
+| 6 | Split `internal/cli/cmd_configure.go` (392 → <350 lines) | 30 min | Medium — pre-compliance |
+| 7 | Split `pkg/detection/detector.go` (377 → <350 lines)     | 20 min | Medium — pre-compliance |
 
 ### Priority 3: Test & Quality (This Week)
 
-| #   | Task                                              | Effort | Impact                      |
-| --- | ------------------------------------------------- | ------ | --------------------------- |
-| 8   | Fix CLI integration test environment (disk space) | 1 hr   | High — full test coverage   |
-| 9   | Increase test coverage to 80%+                    | 2-3 hr | High — production readiness |
-| 10  | Add property-based tests for `Set[T]` and merger  | 1 hr   | Medium — robustness         |
-| 11  | Update Go toolchain to fix vulncheck findings     | 30 min | High — security             |
+| #  | Task                                              | Effort | Impact                      |
+| -- | ------------------------------------------------- | ------ | --------------------------- |
+| 8  | Fix CLI integration test environment (disk space) | 1 hr   | High — full test coverage   |
+| 9  | Increase test coverage to 80%+                    | 2-3 hr | High — production readiness |
+| 10 | Add property-based tests for `Set[T]` and merger  | 1 hr   | Medium — robustness         |
+| 11 | Update Go toolchain to fix vulncheck findings     | 30 min | High — security             |
 
 ### Priority 4: Infrastructure (This Sprint)
 
-| #   | Task                                                | Effort | Impact                  |
-| --- | --------------------------------------------------- | ------ | ----------------------- |
-| 12  | Fix or remove failing pre-commit hooks              | 1 hr   | Medium — commit hygiene |
-| 13  | Add `govulncheck` to CI pipeline                    | 30 min | High — security         |
-| 14  | Add file size check to CI pipeline                  | 15 min | Medium — enforcement    |
-| 15  | Remove or vendor `universal-workflow` local replace | 2 hr   | High — CI/portability   |
+| #  | Task                                                | Effort | Impact                  |
+| -- | --------------------------------------------------- | ------ | ----------------------- |
+| 12 | Fix or remove failing pre-commit hooks              | 1 hr   | Medium — commit hygiene |
+| 13 | Add `govulncheck` to CI pipeline                    | 30 min | High — security         |
+| 14 | Add file size check to CI pipeline                  | 15 min | Medium — enforcement    |
+| 15 | Remove or vendor `universal-workflow` local replace | 2 hr   | High — CI/portability   |
 
 ### Priority 5: Architecture (Next Sprint)
 
-| #   | Task                                                    | Effort | Impact                   |
-| --- | ------------------------------------------------------- | ------ | ------------------------ |
-| 16  | Refactor `report_templ.go` (494 lines) — split template | 2 hr   | Medium — maintainability |
-| 17  | Evaluate DI framework (wire or samber/do)               | 3 hr   | Medium — testability     |
-| 18  | Standardize error handling patterns                     | 2 hr   | Medium — consistency     |
-| 19  | Evaluate Nix Flakes migration proposal                  | 1 hr   | Low — dev experience     |
+| #  | Task                                                    | Effort | Impact                   |
+| -- | ------------------------------------------------------- | ------ | ------------------------ |
+| 16 | Refactor `report_templ.go` (494 lines) — split template | 2 hr   | Medium — maintainability |
+| 17 | Evaluate DI framework (wire or samber/do)               | 3 hr   | Medium — testability     |
+| 18 | Standardize error handling patterns                     | 2 hr   | Medium — consistency     |
+| 19 | Evaluate Nix Flakes migration proposal                  | 1 hr   | Low — dev experience     |
 
 ### Priority 6: Long-term
 
-| #   | Task                                                      | Effort | Impact                   |
-| --- | --------------------------------------------------------- | ------ | ------------------------ |
-| 20  | Add benchmark regression detection to CI                  | 2 hr   | Low — performance        |
-| 21  | Generate CLI documentation from Cobra commands            | 1 hr   | Low — docs               |
-| 22  | Add snapshot testing for HTML report generation           | 1 hr   | Medium — reliability     |
-| 23  | Create contribution guidelines (CONTRIBUTING.md)          | 1 hr   | Low — community          |
-| 24  | Add changelog generation (git-cliff or similar)           | 1 hr   | Low — release management |
-| 25  | Evaluate moving to Go 1.27+ features (iter package, etc.) | 2 hr   | Low — modernization      |
+| #  | Task                                                      | Effort | Impact                   |
+| -- | --------------------------------------------------------- | ------ | ------------------------ |
+| 20 | Add benchmark regression detection to CI                  | 2 hr   | Low — performance        |
+| 21 | Generate CLI documentation from Cobra commands            | 1 hr   | Low — docs               |
+| 22 | Add snapshot testing for HTML report generation           | 1 hr   | Medium — reliability     |
+| 23 | Create contribution guidelines (CONTRIBUTING.md)          | 1 hr   | Low — community          |
+| 24 | Add changelog generation (git-cliff or similar)           | 1 hr   | Low — release management |
+| 25 | Evaluate moving to Go 1.27+ features (iter package, etc.) | 2 hr   | Low — modernization      |
 
 ---
 

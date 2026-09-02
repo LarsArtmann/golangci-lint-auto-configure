@@ -1,7 +1,7 @@
 # Full Comprehensive Status Report — golangci-lint-auto-configure
 
-**Date:** 2026-06-05 08:35  
-**Agent:** Crush (GLM-5.1)  
+**Date:** 2026-06-05 08:35\
+**Agent:** Crush (GLM-5.1)\
 **Context:** User requested full status update with all categories (done, partial, not started, fucked up, improvements, top 25 next, and #1 question)
 
 ---
@@ -239,53 +239,53 @@ No tests broken, no features lost, no data corruption. All previous functionalit
 
 ### Tier 1: Quick Wins (5-15 min each, high impact)
 
-| #   | Task                                                   | Impact                   | Effort | Why                                                      |
-| --- | ------------------------------------------------------ | ------------------------ | ------ | -------------------------------------------------------- |
-| 1   | Upgrade templ CLI to v0.3.1020                         | Eliminates build warning | 2 min  | Nix or manual install                                    |
-| 2   | Prune stale TODO_LIST.md items                         | Accuracy                 | 5 min  | AGENTS.md trim already done, migration coverage improved |
-| 3   | Move `FailingValidator` to test file                   | Dead production code     | 5 min  | Test-only type in production package                     |
-| 4   | Add CGO to `flake.nix` buildInputs                     | Fixes test-race          | 15 min | Unblock buildflow race check                             |
-| 5   | Commit gofumpt formatting fix in `integration_test.go` | Clean diff               | 1 min  | Already applied, just needs commit                       |
+| # | Task                                                   | Impact                   | Effort | Why                                                      |
+| - | ------------------------------------------------------ | ------------------------ | ------ | -------------------------------------------------------- |
+| 1 | Upgrade templ CLI to v0.3.1020                         | Eliminates build warning | 2 min  | Nix or manual install                                    |
+| 2 | Prune stale TODO_LIST.md items                         | Accuracy                 | 5 min  | AGENTS.md trim already done, migration coverage improved |
+| 3 | Move `FailingValidator` to test file                   | Dead production code     | 5 min  | Test-only type in production package                     |
+| 4 | Add CGO to `flake.nix` buildInputs                     | Fixes test-race          | 15 min | Unblock buildflow race check                             |
+| 5 | Commit gofumpt formatting fix in `integration_test.go` | Clean diff               | 1 min  | Already applied, just needs commit                       |
 
 ### Tier 2: High Impact (15-30 min each)
 
-| #   | Task                                                             | Impact                 | Effort | Why                                        |
-| --- | ---------------------------------------------------------------- | ---------------------- | ------ | ------------------------------------------ |
-| 6   | Split `commands_test.go` (935→~150 each) into per-command files  | File size, readability | 25 min | Largest test file in project               |
-| 7   | Split `fixer_test.go` (707→~200 each) into focused test files    | File size, readability | 20 min | Second largest                             |
-| 8   | Split `migrator_test.go` (713→~200 each) into focused test files | File size, readability | 20 min | Third largest                              |
-| 9   | Extract shared test helpers to `pkg/testutil/config.go`          | Dedup, reusability     | 15 min | Both cli test files have duplicate helpers |
-| 10  | Remove dead `pkg/testutil/` functions or wire them in            | Dead code cleanup      | 10 min | Package never imported                     |
-| 11  | Add tests for `pkg/finding/detector.go` and `diff_converter.go`  | Coverage               | 25 min | Zero-test files in active package          |
+| #  | Task                                                             | Impact                 | Effort | Why                                        |
+| -- | ---------------------------------------------------------------- | ---------------------- | ------ | ------------------------------------------ |
+| 6  | Split `commands_test.go` (935→~150 each) into per-command files  | File size, readability | 25 min | Largest test file in project               |
+| 7  | Split `fixer_test.go` (707→~200 each) into focused test files    | File size, readability | 20 min | Second largest                             |
+| 8  | Split `migrator_test.go` (713→~200 each) into focused test files | File size, readability | 20 min | Third largest                              |
+| 9  | Extract shared test helpers to `pkg/testutil/config.go`          | Dedup, reusability     | 15 min | Both cli test files have duplicate helpers |
+| 10 | Remove dead `pkg/testutil/` functions or wire them in            | Dead code cleanup      | 10 min | Package never imported                     |
+| 11 | Add tests for `pkg/finding/detector.go` and `diff_converter.go`  | Coverage               | 25 min | Zero-test files in active package          |
 
 ### Tier 3: Architecture (30-45 min each)
 
-| #   | Task                                                            | Impact            | Effort | Why                                                |
-| --- | --------------------------------------------------------------- | ----------------- | ------ | -------------------------------------------------- |
-| 12  | Add `EnableDisableConfig` shared type                           | Architecture, DRY | 45 min | Affects ~76 references                             |
-| 13  | Split `cmd_configure.go` (512 lines) — extract sub-handlers     | File size         | 25 min | Largest production file                            |
-| 14  | Split `loader.go` (462 lines) — extract reader/writer/discovery | File size         | 30 min | Second largest                                     |
-| 15  | Remove ~15 dead exported functions                              | Dead code         | 20 min | `pkg/finding/helpers.go`, `pkg/ui/`, `pkg/client/` |
-| 16  | Evaluate `go-error-family` adoption                             | Buildflow pass    | 30 min | Decision needed, then implement                    |
+| #  | Task                                                            | Impact            | Effort | Why                                                |
+| -- | --------------------------------------------------------------- | ----------------- | ------ | -------------------------------------------------- |
+| 12 | Add `EnableDisableConfig` shared type                           | Architecture, DRY | 45 min | Affects ~76 references                             |
+| 13 | Split `cmd_configure.go` (512 lines) — extract sub-handlers     | File size         | 25 min | Largest production file                            |
+| 14 | Split `loader.go` (462 lines) — extract reader/writer/discovery | File size         | 30 min | Second largest                                     |
+| 15 | Remove ~15 dead exported functions                              | Dead code         | 20 min | `pkg/finding/helpers.go`, `pkg/ui/`, `pkg/client/` |
+| 16 | Evaluate `go-error-family` adoption                             | Buildflow pass    | 30 min | Decision needed, then implement                    |
 
 ### Tier 4: Testing (20-30 min each)
 
-| #   | Task                                                              | Impact                 | Effort | Why                             |
-| --- | ----------------------------------------------------------------- | ---------------------- | ------ | ------------------------------- |
-| 17  | Add `internal/cli/cmd/migrate.go` tests                           | Coverage               | 25 min | 200+ lines untested             |
-| 18  | Add `pkg/client/client.go` tests                                  | Coverage               | 20 min | Public API with zero tests      |
-| 19  | Add fuzz tests for `ParseLinterPriority`, `Clone`, `detectFormat` | Robustness             | 30 min | Input parsing edge cases        |
-| 20  | Add `pkg/linter/fixer_preflight.go` tests                         | Coverage               | 20 min | Core pre-fix logic untested     |
-| 21  | Add benchmarks for merger, detection, conversion                  | Performance visibility | 25 min | Only 2 packages have benchmarks |
+| #  | Task                                                              | Impact                 | Effort | Why                             |
+| -- | ----------------------------------------------------------------- | ---------------------- | ------ | ------------------------------- |
+| 17 | Add `internal/cli/cmd/migrate.go` tests                           | Coverage               | 25 min | 200+ lines untested             |
+| 18 | Add `pkg/client/client.go` tests                                  | Coverage               | 20 min | Public API with zero tests      |
+| 19 | Add fuzz tests for `ParseLinterPriority`, `Clone`, `detectFormat` | Robustness             | 30 min | Input parsing edge cases        |
+| 20 | Add `pkg/linter/fixer_preflight.go` tests                         | Coverage               | 20 min | Core pre-fix logic untested     |
+| 21 | Add benchmarks for merger, detection, conversion                  | Performance visibility | 25 min | Only 2 packages have benchmarks |
 
 ### Tier 5: Polish (15-30 min each)
 
-| #   | Task                                                             | Impact                   | Effort | Why                                       |
-| --- | ---------------------------------------------------------------- | ------------------------ | ------ | ----------------------------------------- |
-| 22  | Add `stringer` for `LinterPriority` and `FormatterPriority`      | DRY, compile-time safety | 15 min | Enum completeness guaranteed              |
-| 23  | Create ROADMAP.md (or rename Pareto plan)                        | Documentation clarity    | 10 min | Conventional project file missing         |
-| 24  | Raise jscpd Go minTokens to 80                                   | Reduce noise             | 5 min  | 24 remaining duplicates are test patterns |
-| 25  | Add `go-enum` or `stringer` generation to `justfile`/`flake.nix` | Build automation         | 20 min | Ensure enums stay in sync                 |
+| #  | Task                                                             | Impact                   | Effort | Why                                       |
+| -- | ---------------------------------------------------------------- | ------------------------ | ------ | ----------------------------------------- |
+| 22 | Add `stringer` for `LinterPriority` and `FormatterPriority`      | DRY, compile-time safety | 15 min | Enum completeness guaranteed              |
+| 23 | Create ROADMAP.md (or rename Pareto plan)                        | Documentation clarity    | 10 min | Conventional project file missing         |
+| 24 | Raise jscpd Go minTokens to 80                                   | Reduce noise             | 5 min  | 24 remaining duplicates are test patterns |
+| 25 | Add `go-enum` or `stringer` generation to `justfile`/`flake.nix` | Build automation         | 20 min | Ensure enums stay in sync                 |
 
 ---
 

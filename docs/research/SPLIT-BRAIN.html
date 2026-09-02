@@ -42,14 +42,14 @@
         --radius-sm: 0px;
 
         --font-heading:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-body:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-mono:
-          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
-          monospace;
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
       }
 
       * {
@@ -257,15 +257,27 @@
       }
       .card-problem {
         border-left-color: var(--problem);
-        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
       }
       .card-solution {
         border-left-color: var(--solution);
-        background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
       }
       .card-warning {
         border-left-color: var(--warning);
-        background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
       }
 
       .issue {
@@ -277,15 +289,27 @@
       }
       .issue-critical {
         border-left-color: var(--problem);
-        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
       }
       .issue-important {
         border-left-color: var(--warning);
-        background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
       }
       .issue-nice {
         border-left-color: var(--solution);
-        background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
       }
       .issue h3 {
         margin-bottom: 0.3rem;
@@ -762,38 +786,44 @@
           <div class="hero-badge">Architecture Deep-Dive</div>
           <h1>Split-Brain: Two Models, One Codebase</h1>
           <p class="hero-subtitle">
-            The data model has fractured along historical fault lines — parallel config hierarchies,
-            three severity enums bridged by hand-written converters, a branded type system applied
-            in some places and ignored in others. Every split is a place where a future change can
-            land on the wrong copy and silently pass type-checking.
+            The data model has fractured along historical fault lines — parallel
+            config hierarchies, three severity enums bridged by hand-written
+            converters, a branded type system applied in some places and ignored
+            in others. Every split is a place where a future change can land on
+            the wrong copy and silently pass type-checking.
           </p>
         </header>
 
         <section id="summary">
           <h2><span class="num">00</span>Summary</h2>
           <p>
-            A <em>split-brain</em> is when the same domain concept is represented by two or more
-            divergent types, with no compile-time guarantee they stay in sync. This audit found
-            seven split-brain clusters across the codebase. The worst is a complete mirrored
-            configuration hierarchy in <code>pkg/migration</code> that duplicates
-            <code>pkg/types</code> field-for-field under different names. The most dangerous is a
-            triple severity/priority enum system where a <code>Warning</code> on one side becomes an
-            <code>Error</code> on the other &mdash; a mapping that looks correct until a user asks
-            why their warnings are failing CI.
+            A <em>split-brain</em> is when the same domain concept is
+            represented by two or more divergent types, with no compile-time
+            guarantee they stay in sync. This audit found seven split-brain
+            clusters across the codebase. The worst is a complete mirrored
+            configuration hierarchy in <code>pkg/migration</code> that
+            duplicates <code>pkg/types</code> field-for-field under different
+            names. The most dangerous is a triple severity/priority enum system
+            where a <code>Warning</code> on one side becomes an
+            <code>Error</code> on the other &mdash; a mapping that looks correct
+            until a user asks why their warnings are failing CI.
           </p>
           <p>
-            None of these block compilation today. All of them tax every future change to the domain
-            model: each new field, each new enum value, each new recommendation must be added in
-            multiple places, and forgetting one produces a silent semantic gap rather than a build
+            None of these block compilation today. All of them tax every future
+            change to the domain model: each new field, each new enum value,
+            each new recommendation must be added in multiple places, and
+            forgetting one produces a silent semantic gap rather than a build
             error.
           </p>
           <div class="callout callout-problem">
             <strong>Root cause</strong>
-            Three independent origins: (1) the <code>golangci-config-migrator</code> merge brought
-            its own type hierarchy and it was never unified; (2) the branded types
-            (<code>LinterName</code>, <code>ConfigPath</code>) were introduced as a half-measure and
-            never propagated to struct fields; (3) the go-finding integration introduced a third
-            severity enum and the bridge was written ad hoc.
+            Three independent origins: (1) the
+            <code>golangci-config-migrator</code> merge brought its own type
+            hierarchy and it was never unified; (2) the branded types
+            (<code>LinterName</code>, <code>ConfigPath</code>) were introduced
+            as a half-measure and never propagated to struct fields; (3) the
+            go-finding integration introduced a third severity enum and the
+            bridge was written ad hoc.
           </div>
         </section>
 
@@ -849,37 +879,52 @@
                 <td>Parallel config hierarchy</td>
                 <td><span class="badge badge-critical">Critical</span></td>
                 <td>11 types</td>
-                <td>Field drift between <code>types</code> &amp; <code>migration</code></td>
+                <td>
+                  Field drift between <code>types</code> &amp;
+                  <code>migration</code>
+                </td>
               </tr>
               <tr>
                 <td>Triple severity enum</td>
                 <td><span class="badge badge-critical">Critical</span></td>
                 <td>4 packages</td>
-                <td>Manual converters; suspicious <code>Warning&rarr;Error</code> mapping</td>
+                <td>
+                  Manual converters; suspicious
+                  <code>Warning&rarr;Error</code> mapping
+                </td>
               </tr>
               <tr>
                 <td>LinterName brand gap</td>
                 <td><span class="badge badge-high">High</span></td>
                 <td>8+ sites</td>
-                <td>Brand exists but config fields use <code>[]string</code></td>
+                <td>
+                  Brand exists but config fields use <code>[]string</code>
+                </td>
               </tr>
               <tr>
                 <td>ConfigPath brand ignored</td>
                 <td><span class="badge badge-high">High</span></td>
                 <td>1 type</td>
-                <td><code>ConfigAnalysis.ConfigPath</code> is <code>string</code></td>
+                <td>
+                  <code>ConfigAnalysis.ConfigPath</code> is <code>string</code>
+                </td>
               </tr>
               <tr>
                 <td>Mixed formatter-name typing</td>
                 <td><span class="badge badge-high">High</span></td>
                 <td>1 file</td>
-                <td><code>[]FormatterName</code> next to <code>[]string</code> for same concept</td>
+                <td>
+                  <code>[]FormatterName</code> next to <code>[]string</code> for
+                  same concept
+                </td>
               </tr>
               <tr>
                 <td>golangciLintOutput name collision</td>
                 <td><span class="badge badge-low">Low</span></td>
                 <td>2 packages</td>
-                <td>Same name, different shape &mdash; readable but misleading</td>
+                <td>
+                  Same name, different shape &mdash; readable but misleading
+                </td>
               </tr>
               <tr>
                 <td>Three unrelated Config types</td>
@@ -898,32 +943,48 @@
           <h2><span class="num">02</span>Parallel Config Hierarchy</h2>
 
           <div class="issue issue-critical">
-            <span class="severity severity-critical">Critical &middot; 11 mirrored types</span>
-            <h3>Two complete config schemas, field-for-field duplicates under different names</h3>
-            <div class="where">pkg/types/types.go &harr; pkg/migration/config_types.go</div>
+            <span class="severity severity-critical"
+              >Critical &middot; 11 mirrored types</span
+            >
+            <h3>
+              Two complete config schemas, field-for-field duplicates under
+              different names
+            </h3>
+            <div class="where">
+              pkg/types/types.go &harr; pkg/migration/config_types.go
+            </div>
             <p>
-              The <code>pkg/types</code> package defines the canonical v2 config:
-              <code>Config</code>, <code>RunConfig</code>, <code>OutputConfig</code>,
-              <code>LintersConfig</code>, <code>LintersExclusionsConfig</code>,
+              The <code>pkg/types</code> package defines the canonical v2
+              config: <code>Config</code>, <code>RunConfig</code>,
+              <code>OutputConfig</code>, <code>LintersConfig</code>,
+              <code>LintersExclusionsConfig</code>,
               <code>ExclusionRuleConfig</code>, <code>IssuesConfig</code>,
-              <code>FormattersConfig</code>, <code>FormattersExclusionsConfig</code>. The
-              <code>pkg/migration</code> package defines a near-identical set under different names:
-              <code>Config</code>, <code>Run</code>, <code>Output</code>, <code>Linters</code>,
-              <code>LintersExclusions</code>, <code>ExclusionRule</code>, <code>Issues</code>,
-              <code>Formatters</code>, <code>FormattersExclusions</code>, plus a legacy
+              <code>FormattersConfig</code>,
+              <code>FormattersExclusionsConfig</code>. The
+              <code>pkg/migration</code> package defines a near-identical set
+              under different names: <code>Config</code>, <code>Run</code>,
+              <code>Output</code>, <code>Linters</code>,
+              <code>LintersExclusions</code>, <code>ExclusionRule</code>,
+              <code>Issues</code>, <code>Formatters</code>,
+              <code>FormattersExclusions</code>, plus a legacy
               <code>ExcludeRule</code> and <code>RunIssues</code>.
             </p>
             <p>
-              The fields match. The yaml tags match. The intent matches. But because the type names
-              differ, Go's type system cannot catch drift. If a field is added to
-              <code>types.LintersConfig</code> and forgotten in <code>migration.Linters</code>, the
-              migrator silently drops it &mdash; no compile error, no test failure, just data loss
-              on the next migration.
+              The fields match. The yaml tags match. The intent matches. But
+              because the type names differ, Go's type system cannot catch
+              drift. If a field is added to
+              <code>types.LintersConfig</code> and forgotten in
+              <code>migration.Linters</code>, the migrator silently drops it
+              &mdash; no compile error, no test failure, just data loss on the
+              next migration.
             </p>
             <div class="dep-tree">
-              <span class="root">types.Config</span> ├── <span class="ok">RunConfig</span>
-              <span class="warn">↔ migration.Run</span> ├── <span class="ok">OutputConfig</span>
-              <span class="warn">↔ migration.Output</span> ├── <span class="ok">LintersConfig</span>
+              <span class="root">types.Config</span> ├──
+              <span class="ok">RunConfig</span>
+              <span class="warn">↔ migration.Run</span> ├──
+              <span class="ok">OutputConfig</span>
+              <span class="warn">↔ migration.Output</span> ├──
+              <span class="ok">LintersConfig</span>
               <span class="warn">↔ migration.Linters</span> │ └──
               <span class="ok">LintersExclusionsConfig</span>
               <span class="warn">↔ migration.LintersExclusions</span> │ └──
@@ -933,18 +994,24 @@
               <span class="warn">↔ migration.Formatters</span> │ └──
               <span class="ok">FormattersExclusionsConfig</span>
               <span class="warn">↔ migration.FormattersExclusions</span> └──
-              <span class="ok">IssuesConfig</span> <span class="warn">↔ migration.Issues</span>
+              <span class="ok">IssuesConfig</span>
+              <span class="warn">↔ migration.Issues</span>
 
-              <span class="unwanted">11 types mirrored · 0 compile-time drift checks</span>
+              <span class="unwanted"
+                >11 types mirrored · 0 compile-time drift checks</span
+              >
             </div>
             <div class="callout callout-solution">
               <strong>Fix</strong>
-              Two viable paths. <strong>(A)</strong> Migration embeds the canonical types and adds
-              only the v1-only fields as a separate struct, so shared fields are literally the same
-              type. <strong>(B)</strong> Migration defines a thin v1-read schema whose only job is
-              <code>yaml.Unmarshal</code>, then converts to <code>types.Config</code>
-              immediately &mdash; the v1 schema never escapes the migration package boundary. Path B
-              is safer because v1 legitimately has fields v2 does not.
+              Two viable paths. <strong>(A)</strong> Migration embeds the
+              canonical types and adds only the v1-only fields as a separate
+              struct, so shared fields are literally the same type.
+              <strong>(B)</strong> Migration defines a thin v1-read schema whose
+              only job is <code>yaml.Unmarshal</code>, then converts to
+              <code>types.Config</code>
+              immediately &mdash; the v1 schema never escapes the migration
+              package boundary. Path B is safer because v1 legitimately has
+              fields v2 does not.
             </div>
           </div>
 
@@ -986,9 +1053,10 @@
           </div>
           <p>
             The migration <code>Linters</code> now <em>is-a</em>
-            <code>types.LintersConfig</code> for all shared fields. Drift becomes impossible for
-            those fields; v1-only fields remain explicit. The same pattern applies to
-            <code>Run</code>, <code>Output</code>, and the exclusion types.
+            <code>types.LintersConfig</code> for all shared fields. Drift
+            becomes impossible for those fields; v1-only fields remain explicit.
+            The same pattern applies to <code>Run</code>, <code>Output</code>,
+            and the exclusion types.
           </p>
         </section>
 
@@ -996,58 +1064,76 @@
           <h2><span class="num">03</span>Severity Babel</h2>
 
           <div class="issue issue-critical">
-            <span class="severity severity-critical">Critical &middot; silent semantic drift</span>
-            <h3>Three priority/severity enums bridged by hand-written converters</h3>
+            <span class="severity severity-critical"
+              >Critical &middot; silent semantic drift</span
+            >
+            <h3>
+              Three priority/severity enums bridged by hand-written converters
+            </h3>
             <div class="where">
-              types.LinterPriority &middot; types.HealthSeverity &middot; finding.Severity
+              types.LinterPriority &middot; types.HealthSeverity &middot;
+              finding.Severity
             </div>
-            <p>The codebase has three parallel enums that all encode "how bad is this":</p>
+            <p>
+              The codebase has three parallel enums that all encode "how bad is
+              this":
+            </p>
             <ul>
               <li>
-                <code>types.LinterPriority</code> &mdash; Critical, High, Medium, Optional (for
-                linter recommendations)
+                <code>types.LinterPriority</code> &mdash; Critical, High,
+                Medium, Optional (for linter recommendations)
               </li>
               <li>
-                <code>types.HealthSeverity</code> &mdash; Critical, Warning, Info (for config
-                structural health)
+                <code>types.HealthSeverity</code> &mdash; Critical, Warning,
+                Info (for config structural health)
               </li>
               <li>
-                <code>finding.Severity</code> &mdash; Critical, Error, Warning, Info (external
-                go-finding package)
+                <code>finding.Severity</code> &mdash; Critical, Error, Warning,
+                Info (external go-finding package)
               </li>
             </ul>
             <p>
               Two converter functions glue them together:
-              <code>PriorityToSeverity</code> in <code>pkg/finding/converter.go</code> and
-              <code>SeverityFromHealthSeverity</code> in <code>pkg/finding/helpers.go</code>. The
-              second one contains a mapping that should make any reviewer pause:
+              <code>PriorityToSeverity</code> in
+              <code>pkg/finding/converter.go</code> and
+              <code>SeverityFromHealthSeverity</code> in
+              <code>pkg/finding/helpers.go</code>. The second one contains a
+              mapping that should make any reviewer pause:
             </p>
             <div class="callout callout-problem">
               <strong>Suspicious mapping</strong>
-              <code>HealthSeverityWarning &rarr; finding.SeverityError</code>. A warning becomes an
-              error. There is no comment explaining why. If this is intentional (treat warnings as
-              errors in CI), it deserves a comment; if it is a bug, every health warning is
-              escalating to a CI-failing error downstream.
+              <code>HealthSeverityWarning &rarr; finding.SeverityError</code>. A
+              warning becomes an error. There is no comment explaining why. If
+              this is intentional (treat warnings as errors in CI), it deserves
+              a comment; if it is a bug, every health warning is escalating to a
+              CI-failing error downstream.
             </div>
             <div class="diagram">
               <span class="node node-problem">LinterPriority</span>
               <span class="arrow">&rarr; PriorityToSeverity &rarr;</span>
               <span class="node node-core">finding.Severity</span>
-              <span class="arrow">&larr; SeverityFromHealthSeverity &larr;</span>
+              <span class="arrow"
+                >&larr; SeverityFromHealthSeverity &larr;</span
+              >
               <span class="node node-warn">HealthSeverity</span>
             </div>
             <p>
-              Every new severity level on any side requires a case in two converters. Forget one and
-              you get a silent <code>default: return SeverityInfo</code> &mdash; the lowest priority
-              &mdash; which downgrades critical findings to informational.
+              Every new severity level on any side requires a case in two
+              converters. Forget one and you get a silent
+              <code>default: return SeverityInfo</code> &mdash; the lowest
+              priority &mdash; which downgrades critical findings to
+              informational.
             </p>
             <div class="callout callout-solution">
               <strong>Fix</strong>
-              Adopt <code>finding.Severity</code> as the single severity vocabulary across the
-              codebase. Delete <code>HealthSeverity</code> (its three values map cleanly). Rename
-              <code>LinterPriority</code> to <code>LinterRecommendationLevel</code> so it stops
-              colliding semantically with "severity" &mdash; it is a recommendation strength, not an
-              issue severity, and conflating them is what created the conversion mess.
+              Adopt <code>finding.Severity</code> as the single severity
+              vocabulary across the codebase. Delete
+              <code>HealthSeverity</code> (its three values map cleanly). Rename
+              <code>LinterPriority</code> to
+              <code>LinterRecommendationLevel</code> so it stops colliding
+              semantically with "severity" &mdash; it is a recommendation
+              strength, not an issue severity, and conflating them is what
+              created the conversion mess.
             </div>
           </div>
         </section>
@@ -1056,14 +1142,18 @@
           <h2><span class="num">04</span>LinterName Brand Gap</h2>
 
           <div class="issue issue-important">
-            <span class="severity severity-important">High &middot; brand applied halfway</span>
+            <span class="severity severity-important"
+              >High &middot; brand applied halfway</span
+            >
             <h3>LinterName exists but config fields use []string</h3>
             <div class="where">
-              types.LinterName &middot; LintersConfig.Enable []string &middot; 8+ cast sites
+              types.LinterName &middot; LintersConfig.Enable []string &middot;
+              8+ cast sites
             </div>
             <p>
-              The branded type <code>type LinterName string</code> exists specifically to "prevent
-              typos in linter names" &mdash; yet the very struct that holds linter names uses raw
+              The branded type <code>type LinterName string</code> exists
+              specifically to "prevent typos in linter names" &mdash; yet the
+              very struct that holds linter names uses raw
               <code>[]string</code>:
             </p>
             <div class="compare-row">
@@ -1083,27 +1173,30 @@ constants.DefaultLinterSettings[
               </div>
             </div>
             <p>
-              The cast <code>types.LinterName(linter)</code> appears at least 8 times across
-              <code>pkg/linter/fixer_config.go</code>, <code>fixer_preflight.go</code>,
-              <code>fixer_deprecated.go</code>. Every cast is a place where a typo like
-              <code>"govit"</code> would pass the brand check &mdash; because the brand is only
-              applied <em>after</em> the value has already flowed through the system as an unbranded
-              string.
+              The cast <code>types.LinterName(linter)</code> appears at least 8
+              times across <code>pkg/linter/fixer_config.go</code>,
+              <code>fixer_preflight.go</code>, <code>fixer_deprecated.go</code>.
+              Every cast is a place where a typo like <code>"govit"</code> would
+              pass the brand check &mdash; because the brand is only applied
+              <em>after</em> the value has already flowed through the system as
+              an unbranded string.
             </p>
             <p>
-              The constants maps (<code>LinterPriorities</code>, <code>LinterReasons</code>,
-              <code>DeprecatedLinters</code>) all correctly key on <code>LinterName</code>. But
-              their map literals use string keys like <code>"depguard"</code>, so the brand on the
-              key side is purely decorative &mdash; Go converts the untyped string literal to
-              <code>LinterName</code> automatically.
+              The constants maps (<code>LinterPriorities</code>,
+              <code>LinterReasons</code>, <code>DeprecatedLinters</code>) all
+              correctly key on <code>LinterName</code>. But their map literals
+              use string keys like <code>"depguard"</code>, so the brand on the
+              key side is purely decorative &mdash; Go converts the untyped
+              string literal to <code>LinterName</code> automatically.
             </p>
             <div class="callout callout-solution">
               <strong>Fix</strong>
-              Change <code>LintersConfig.Enable</code> and <code>Disable</code> to
-              <code>[]LinterName</code>. YAML/JSON unmarshaling works because
-              <code>LinterName</code> has an underlying string type. The 8 cast sites collapse to
-              zero. A typo in a linter name is now caught wherever it first enters the typed world,
-              not wherever it happens to be looked up.
+              Change <code>LintersConfig.Enable</code> and
+              <code>Disable</code> to <code>[]LinterName</code>. YAML/JSON
+              unmarshaling works because <code>LinterName</code> has an
+              underlying string type. The 8 cast sites collapse to zero. A typo
+              in a linter name is now caught wherever it first enters the typed
+              world, not wherever it happens to be looked up.
             </div>
           </div>
         </section>
@@ -1112,13 +1205,18 @@ constants.DefaultLinterSettings[
           <h2><span class="num">05</span>ConfigPath Brand Ignored</h2>
 
           <div class="issue issue-important">
-            <span class="severity severity-important">High &middot; brand defined, never used</span>
+            <span class="severity severity-important"
+              >High &middot; brand defined, never used</span
+            >
             <h3>ConfigAnalysis.ConfigPath is string, not ConfigPath</h3>
-            <div class="where">pkg/types/types.go:112-122 (definition) &amp; :160 (usage)</div>
+            <div class="where">
+              pkg/types/types.go:112-122 (definition) &amp; :160 (usage)
+            </div>
             <p>
-              The type <code>ConfigPath</code> is defined with <code>IsValid()</code> and
-              <code>String()</code> methods &mdash; clearly intended for use. But the one struct
-              that most obviously should use it doesn't:
+              The type <code>ConfigPath</code> is defined with
+              <code>IsValid()</code> and <code>String()</code> methods &mdash;
+              clearly intended for use. But the one struct that most obviously
+              should use it doesn't:
             </p>
             <div class="compare-row">
               <div>
@@ -1141,15 +1239,18 @@ constants.DefaultLinterSettings[
               Every downstream consumer (<code>pkg/finding/converter.go</code>,
               <code>pkg/finding/detector.go</code>,
               <code>pkg/report/json_report_generator.go</code>) takes
-              <code>configPath string</code> as a parameter. The <code>IsValid()</code> method is
-              never called. The brand provides zero protection today because nothing uses it. This
-              is a brand that exists only to be ignored &mdash; worse than no brand at all, because
-              it creates the <em>illusion</em> of type safety where none exists.
+              <code>configPath string</code> as a parameter. The
+              <code>IsValid()</code> method is never called. The brand provides
+              zero protection today because nothing uses it. This is a brand
+              that exists only to be ignored &mdash; worse than no brand at all,
+              because it creates the <em>illusion</em> of type safety where none
+              exists.
             </p>
             <div class="callout callout-warning">
               <strong>Either use it or delete it</strong>
-              A branded type that nothing uses is dead code that misleads readers into thinking the
-              path is validated. If <code>IsValid()</code> is never called, the validation does not
+              A branded type that nothing uses is dead code that misleads
+              readers into thinking the path is validated. If
+              <code>IsValid()</code> is never called, the validation does not
               happen.
             </div>
           </div>
@@ -1159,10 +1260,17 @@ constants.DefaultLinterSettings[
           <h2><span class="num">06</span>Name Collision: golangciLintOutput</h2>
 
           <div class="issue issue-nice">
-            <span class="severity severity-nice">Low &middot; readability, not correctness</span>
+            <span class="severity severity-nice"
+              >Low &middot; readability, not correctness</span
+            >
             <h3>Same unexported name, two packages, two different shapes</h3>
-            <div class="where">pkg/linter/analyzer.go:46 &amp; pkg/finding/golangci_lint.go:24</div>
-            <p>Two unrelated structs share the name <code>golangciLintOutput</code>:</p>
+            <div class="where">
+              pkg/linter/analyzer.go:46 &amp; pkg/finding/golangci_lint.go:24
+            </div>
+            <p>
+              Two unrelated structs share the name
+              <code>golangciLintOutput</code>:
+            </p>
             <table>
               <thead>
                 <tr>
@@ -1174,27 +1282,34 @@ constants.DefaultLinterSettings[
               <tbody>
                 <tr>
                   <td><code>pkg/linter</code></td>
-                  <td>Linter listings from <code>golangci-lint linters</code></td>
-                  <td><code>Enabled</code>, <code>Disabled</code> []LinterInfo</td>
+                  <td>
+                    Linter listings from <code>golangci-lint linters</code>
+                  </td>
+                  <td>
+                    <code>Enabled</code>, <code>Disabled</code> []LinterInfo
+                  </td>
                 </tr>
                 <tr>
                   <td><code>pkg/finding</code></td>
-                  <td>Issue output from <code>golangci-lint run --out json</code></td>
+                  <td>
+                    Issue output from <code>golangci-lint run --out json</code>
+                  </td>
                   <td><code>Issues</code> []GolangciLintIssue</td>
                 </tr>
               </tbody>
             </table>
             <p>
-              This is legal Go (unexported, different packages) but it is a trap for anyone grepping
-              the codebase or reading import lists. The name suggests they are two versions of the
-              same thing; they are not even the same kind of thing.
+              This is legal Go (unexported, different packages) but it is a trap
+              for anyone grepping the codebase or reading import lists. The name
+              suggests they are two versions of the same thing; they are not
+              even the same kind of thing.
             </p>
             <div class="callout callout-solution">
               <strong>Fix</strong>
               Rename to reflect what each actually wraps:
-              <code>lintersListOutput</code> and <code>issuesRunOutput</code>. The name
-              <code>golangciLintOutput</code> is true but useless &mdash; both are output from
-              golangci-lint.
+              <code>lintersListOutput</code> and <code>issuesRunOutput</code>.
+              The name <code>golangciLintOutput</code> is true but useless
+              &mdash; both are output from golangci-lint.
             </div>
           </div>
         </section>
@@ -1206,9 +1321,14 @@ constants.DefaultLinterSettings[
             <span class="severity severity-important"
               >High &middot; same concept, two types, one file</span
             >
-            <h3>FormatterName and string live side by side for formatter names</h3>
+            <h3>
+              FormatterName and string live side by side for formatter names
+            </h3>
             <div class="where">pkg/constants/config.go:20,26,29</div>
-            <p>In a single 80-line file, formatter names are typed three different ways:</p>
+            <p>
+              In a single 80-line file, formatter names are typed three
+              different ways:
+            </p>
             <pre><code><span class="tok-comment">// pkg/constants/config.go</span>
 
 <span class="tok-keyword">var</span> <span class="tok-func">FormattersManagedByBuildFlow</span> = []types.<span class="tok-type">FormatterName</span>{
@@ -1223,15 +1343,17 @@ constants.DefaultLinterSettings[
     <span class="tok-string">"gci"</span>, <span class="tok-string">"goimports"</span>, <span class="tok-string">"gofumpt"</span>, ...
 }                       <span class="tok-comment">// untyped, same concept</span></code></pre>
             <p>
-              <code>CoreFormatters</code> and <code>FormattersManagedByBuildFlow</code> contain the
-              same formatter names. The first is <code>[]string</code>, the second is
-              <code>[]FormatterName</code>. Any operation that combines them (set union, ordering)
-              requires a cast that should not be necessary.
+              <code>CoreFormatters</code> and
+              <code>FormattersManagedByBuildFlow</code> contain the same
+              formatter names. The first is <code>[]string</code>, the second is
+              <code>[]FormatterName</code>. Any operation that combines them
+              (set union, ordering) requires a cast that should not be
+              necessary.
             </p>
             <div class="callout callout-solution">
               <strong>Fix</strong>
-              All three should be <code>[]types.FormatterName</code>. The values are identical, the
-              concept is identical, the types should be too.
+              All three should be <code>[]types.FormatterName</code>. The values
+              are identical, the concept is identical, the types should be too.
             </div>
           </div>
         </section>
@@ -1240,27 +1362,38 @@ constants.DefaultLinterSettings[
           <h2><span class="num">08</span>Three Unrelated Config Types</h2>
 
           <div class="issue issue-nice">
-            <span class="severity severity-nice">Low &middot; cosmetic, not semantic</span>
+            <span class="severity severity-nice"
+              >Low &middot; cosmetic, not semantic</span
+            >
             <h3>Config means three different things in three packages</h3>
-            <div class="where">types.Config &middot; migration.Config &middot; utils.Config</div>
+            <div class="where">
+              types.Config &middot; migration.Config &middot; utils.Config
+            </div>
             <p>The name <code>Config</code> is overloaded:</p>
             <ul>
-              <li><code>types.Config</code> &mdash; the golangci-lint config file</li>
-              <li><code>migration.Config</code> &mdash; the v1+v2 migration schema</li>
+              <li>
+                <code>types.Config</code> &mdash; the golangci-lint config file
+              </li>
+              <li>
+                <code>migration.Config</code> &mdash; the v1+v2 migration schema
+              </li>
               <li><code>utils.Config</code> &mdash; retry policy parameters</li>
             </ul>
             <p>
-              Go's package qualification makes this legal and unambiguous to the compiler. But it
-              taxes readers who must constantly context-switch on which <code>Config</code>
-              a given reference means. This is the lowest-severity finding because it is purely a
-              naming smell, not a drift risk &mdash; but it contributes to the general sense that
-              the data model has no single owner.
+              Go's package qualification makes this legal and unambiguous to the
+              compiler. But it taxes readers who must constantly context-switch
+              on which <code>Config</code>
+              a given reference means. This is the lowest-severity finding
+              because it is purely a naming smell, not a drift risk &mdash; but
+              it contributes to the general sense that the data model has no
+              single owner.
             </p>
             <div class="callout callout-solution">
               <strong>Fix</strong>
-              Rename <code>utils.Config</code> to <code>RetryPolicy</code> (what it actually is).
-              The other two are genuine config types and remain as-is once the migration hierarchy
-              is unified per <a href="#parallel-config">section 02</a>.
+              Rename <code>utils.Config</code> to <code>RetryPolicy</code> (what
+              it actually is). The other two are genuine config types and remain
+              as-is once the migration hierarchy is unified per
+              <a href="#parallel-config">section 02</a>.
             </div>
           </div>
         </section>
@@ -1272,47 +1405,51 @@ constants.DefaultLinterSettings[
             <div class="card card-solution">
               <h3>One config hierarchy</h3>
               <p>
-                <code>types.Config</code> is the single source of truth. The migration package
-                embeds it and adds v1-only fields &mdash; never redefines shared fields.
+                <code>types.Config</code> is the single source of truth. The
+                migration package embeds it and adds v1-only fields &mdash;
+                never redefines shared fields.
               </p>
             </div>
             <div class="card card-solution">
               <h3>One severity vocabulary</h3>
               <p>
-                <code>finding.Severity</code> everywhere. <code>HealthSeverity</code> deleted.
-                <code>LinterPriority</code> renamed to reflect it is a recommendation level, not a
-                severity.
+                <code>finding.Severity</code> everywhere.
+                <code>HealthSeverity</code> deleted.
+                <code>LinterPriority</code> renamed to reflect it is a
+                recommendation level, not a severity.
               </p>
             </div>
             <div class="card card-solution">
               <h3>Brands enforced at the boundary</h3>
               <p>
-                <code>LinterName</code> on every config field. <code>ConfigPath</code> on
-                <code>ConfigAnalysis</code>. Zero cast sites. The brand is the boundary.
+                <code>LinterName</code> on every config field.
+                <code>ConfigPath</code> on <code>ConfigAnalysis</code>. Zero
+                cast sites. The brand is the boundary.
               </p>
             </div>
             <div class="card card-solution">
               <h3>Drift impossible by construction</h3>
               <p>
-                Shared fields are literally the same type (embedding), not a copy. Adding a field
-                once updates every consumer.
+                Shared fields are literally the same type (embedding), not a
+                copy. Adding a field once updates every consumer.
               </p>
             </div>
             <div class="card card-solution">
               <h3>Names that reveal intent</h3>
               <p>
                 <code>RetryPolicy</code> not <code>utils.Config</code>.
-                <code>lintersListOutput</code> not a second <code>golangciLintOutput</code>. Every
-                name says what it is.
+                <code>lintersListOutput</code> not a second
+                <code>golangciLintOutput</code>. Every name says what it is.
               </p>
             </div>
             <div class="card card-solution">
               <h3>Converters deleted, not maintained</h3>
               <p>
-                <code>PriorityToSeverity</code> and <code>SeverityFromHealthSeverity</code>
+                <code>PriorityToSeverity</code> and
+                <code>SeverityFromHealthSeverity</code>
                 disappear when there is one enum. The suspicious
-                <code>Warning&rarr;Error</code> mapping is gone or made explicit at the single point
-                of use.
+                <code>Warning&rarr;Error</code> mapping is gone or made explicit
+                at the single point of use.
               </p>
             </div>
           </div>
@@ -1321,8 +1458,8 @@ constants.DefaultLinterSettings[
         <section id="unified-model">
           <h2><span class="num">09</span>Unified Data Model</h2>
           <p>
-            The target types, showing how embedding eliminates the parallel hierarchy and how the
-            severity collapse works:
+            The target types, showing how embedding eliminates the parallel
+            hierarchy and how the severity collapse works:
           </p>
 
           <h3>Config: one hierarchy, migration embeds</h3>
@@ -1399,28 +1536,34 @@ constants.DefaultLinterSettings[
 
         <section id="validation">
           <h2><span class="num">10</span>Validation Layer</h2>
-          <p>With the unified model, invalid states become unrepresentable at three levels:</p>
+          <p>
+            With the unified model, invalid states become unrepresentable at
+            three levels:
+          </p>
 
           <div class="grid-3">
             <div class="card card-solution">
               <h4>Type level</h4>
               <p>
-                <code>[]LinterName</code> on config fields means a typo'd linter name cannot exist
-                as a <code>string</code> in the typed world &mdash; it is branded at unmarshal time.
+                <code>[]LinterName</code> on config fields means a typo'd linter
+                name cannot exist as a <code>string</code> in the typed world
+                &mdash; it is branded at unmarshal time.
               </p>
             </div>
             <div class="card card-solution">
               <h4>Constructor level</h4>
               <p>
-                <code>ConfigPath</code> with <code>IsValid()</code> enforced in a constructor means
-                a <code>ConfigAnalysis</code> with an empty path cannot be built.
+                <code>ConfigPath</code> with <code>IsValid()</code> enforced in
+                a constructor means a <code>ConfigAnalysis</code> with an empty
+                path cannot be built.
               </p>
             </div>
             <div class="card card-solution">
               <h4>Enum level</h4>
               <p>
-                One severity enum means the compiler catches every switch that forgets a case.
-                Today's three-enum system makes exhaustive switches impossible to verify.
+                One severity enum means the compiler catches every switch that
+                forgets a case. Today's three-enum system makes exhaustive
+                switches impossible to verify.
               </p>
             </div>
           </div>
@@ -1475,71 +1618,83 @@ constants.DefaultLinterSettings[
           <div class="card">
             <h4>Embed canonical types in migration (vs alias)</h4>
             <p>
-              <strong>Chose embedding</strong> because v1 legitimately has fields v2 does not
-              (<code>EnableAll</code>, <code>Fast</code>, <code>ExcludeRules</code> at
-              <code>issues.</code> level). A type alias would force v2 to carry v1 baggage.
-              Embedding lets shared fields be identical while v1-only fields stay explicit.
+              <strong>Chose embedding</strong> because v1 legitimately has
+              fields v2 does not (<code>EnableAll</code>, <code>Fast</code>,
+              <code>ExcludeRules</code> at <code>issues.</code> level). A type
+              alias would force v2 to carry v1 baggage. Embedding lets shared
+              fields be identical while v1-only fields stay explicit.
             </p>
             <p>
-              <strong>Rejected: type alias</strong> (<code>type Linters = types.LintersConfig</code
-              >) &mdash; works for shared fields but cannot add v1-only fields without a wrapper,
-              which is just embedding with extra steps.
+              <strong>Rejected: type alias</strong> (<code
+                >type Linters = types.LintersConfig</code
+              >) &mdash; works for shared fields but cannot add v1-only fields
+              without a wrapper, which is just embedding with extra steps.
             </p>
           </div>
 
           <div class="card">
             <h4>Delete HealthSeverity (vs keep and align)</h4>
             <p>
-              <strong>Chose deletion</strong> because its three values (<code>Critical</code>,
-              <code>Warning</code>, <code>Info</code>) are a strict subset of
-              <code>finding.Severity</code>. Keeping it requires a permanent converter that can
-              drift. The only cost is that <code>finding.Severity</code> has an
-              <code>Error</code> level with no health equivalent &mdash; acceptable, since health
-              checks producing errors rather than warnings is the correct escalation.
+              <strong>Chose deletion</strong> because its three values
+              (<code>Critical</code>, <code>Warning</code>, <code>Info</code>)
+              are a strict subset of <code>finding.Severity</code>. Keeping it
+              requires a permanent converter that can drift. The only cost is
+              that <code>finding.Severity</code> has an <code>Error</code> level
+              with no health equivalent &mdash; acceptable, since health checks
+              producing errors rather than warnings is the correct escalation.
             </p>
           </div>
 
           <div class="card">
             <h4>Fix the Warning&rarr;Error mapping (vs preserve it)</h4>
             <p>
-              <strong>Chose to fix</strong> (<code>Warning &rarr; SeverityWarning</code>) because
-              there is no comment explaining the escalation and no test asserting it is intentional.
-              If it <em>is</em> intentional (treat all config health warnings as CI errors), that
-              decision belongs in the caller, not buried in a converter named
-              <code>SeverityFromHealthSeverity</code> that implies a faithful mapping.
+              <strong>Chose to fix</strong> (<code
+                >Warning &rarr; SeverityWarning</code
+              >) because there is no comment explaining the escalation and no
+              test asserting it is intentional. If it <em>is</em> intentional
+              (treat all config health warnings as CI errors), that decision
+              belongs in the caller, not buried in a converter named
+              <code>SeverityFromHealthSeverity</code> that implies a faithful
+              mapping.
             </p>
           </div>
 
           <div class="card">
             <h4>Brand config fields with LinterName (vs leave as string)</h4>
             <p>
-              <strong>Chose branding</strong> because YAML/JSON unmarshaling into a branded string
-              type is zero-cost (Go handles the underlying type automatically), and it eliminates 8+
-              cast sites. The brand was always intended to be used here &mdash; the doc comment
+              <strong>Chose branding</strong> because YAML/JSON unmarshaling
+              into a branded string type is zero-cost (Go handles the underlying
+              type automatically), and it eliminates 8+ cast sites. The brand
+              was always intended to be used here &mdash; the doc comment
               literally says "prevent typos in linter names."
             </p>
             <p>
-              <strong>Rejected: runtime validation in the brand</strong> (e.g., a
-              <code>ValidLinterName</code> constructor that checks against a registry) &mdash; would
-              require the registry to be available at unmarshal time and creates a cycle. The brand
-              gives compile-time distinction; runtime validity stays in the analyzer.
+              <strong>Rejected: runtime validation in the brand</strong> (e.g.,
+              a <code>ValidLinterName</code> constructor that checks against a
+              registry) &mdash; would require the registry to be available at
+              unmarshal time and creates a cycle. The brand gives compile-time
+              distinction; runtime validity stays in the analyzer.
             </p>
           </div>
 
           <div class="card">
             <h4>Use ConfigPath on ConfigAnalysis (vs delete ConfigPath)</h4>
             <p>
-              <strong>Chose to use it</strong> rather than delete it because the type carries
-              <code>IsValid()</code>, which is meaningful validation for a path. Deleting the brand
-              loses that; using it enforces it. The fix is strictly better than the status quo
-              (brand defined but ignored).
+              <strong>Chose to use it</strong> rather than delete it because the
+              type carries <code>IsValid()</code>, which is meaningful
+              validation for a path. Deleting the brand loses that; using it
+              enforces it. The fix is strictly better than the status quo (brand
+              defined but ignored).
             </p>
           </div>
         </section>
 
         <section id="roadmap">
           <h2><span class="num">12</span>Migration Roadmap</h2>
-          <p>Ordered by impact and reversibility. Each step is independently shippable.</p>
+          <p>
+            Ordered by impact and reversibility. Each step is independently
+            shippable.
+          </p>
 
           <div class="migration-step">
             <div class="migration-num">1</div>
@@ -1548,9 +1703,10 @@ constants.DefaultLinterSettings[
               <p>
                 In <code>pkg/finding/helpers.go:62</code>, change
                 <code>HealthSeverityWarning &rarr; SeverityError</code> to
-                <code>SeverityWarning</code>. One line. Verify with the converter test. If CI
-                breaks, the escalation was intentional and should be documented at the call site
-                instead. Lowest risk, highest signal.
+                <code>SeverityWarning</code>. One line. Verify with the
+                converter test. If CI breaks, the escalation was intentional and
+                should be documented at the call site instead. Lowest risk,
+                highest signal.
               </p>
             </div>
           </div>
@@ -1560,10 +1716,11 @@ constants.DefaultLinterSettings[
             <div class="migration-content">
               <h4>Brand LinterName on config fields</h4>
               <p>
-                Change <code>LintersConfig.Enable/Disable</code> to <code>[]LinterName</code>.
-                Delete the 8 <code>types.LinterName(x)</code> casts. Run
-                <code>just test</code> &mdash; YAML round-trip is unaffected. This is the
-                highest-value-per-line change in the whole audit.
+                Change <code>LintersConfig.Enable/Disable</code> to
+                <code>[]LinterName</code>. Delete the 8
+                <code>types.LinterName(x)</code> casts. Run
+                <code>just test</code> &mdash; YAML round-trip is unaffected.
+                This is the highest-value-per-line change in the whole audit.
               </p>
             </div>
           </div>
@@ -1573,9 +1730,11 @@ constants.DefaultLinterSettings[
             <div class="migration-content">
               <h4>Unify formatter-name typing in constants</h4>
               <p>
-                Change <code>CoreFormatters</code> and <code>FormatterOrder</code> to
-                <code>[]types.FormatterName</code> in <code>pkg/constants/config.go</code>.
-                Same-file, low blast radius.
+                Change <code>CoreFormatters</code> and
+                <code>FormatterOrder</code> to
+                <code>[]types.FormatterName</code> in
+                <code>pkg/constants/config.go</code>. Same-file, low blast
+                radius.
               </p>
             </div>
           </div>
@@ -1585,9 +1744,11 @@ constants.DefaultLinterSettings[
             <div class="migration-content">
               <h4>Use ConfigPath on ConfigAnalysis</h4>
               <p>
-                Change the field type, update consumers in <code>pkg/finding</code> and
-                <code>pkg/report</code> to take <code>types.ConfigPath</code>. Add an
-                <code>IsValid()</code> guard where <code>ConfigAnalysis</code> is constructed.
+                Change the field type, update consumers in
+                <code>pkg/finding</code> and <code>pkg/report</code> to take
+                <code>types.ConfigPath</code>. Add an
+                <code>IsValid()</code> guard where
+                <code>ConfigAnalysis</code> is constructed.
               </p>
             </div>
           </div>
@@ -1598,9 +1759,11 @@ constants.DefaultLinterSettings[
               <h4>Delete HealthSeverity, adopt finding.Severity</h4>
               <p>
                 Replace <code>HealthSeverity</code> usages in
-                <code>pkg/types/validation.go</code> with <code>finding.Severity</code>. Delete
-                <code>SeverityFromHealthSeverity</code>. Update <code>ConfigHealth</code> and its
-                consumers. Medium blast radius &mdash; touches the health-check subsystem.
+                <code>pkg/types/validation.go</code> with
+                <code>finding.Severity</code>. Delete
+                <code>SeverityFromHealthSeverity</code>. Update
+                <code>ConfigHealth</code> and its consumers. Medium blast radius
+                &mdash; touches the health-check subsystem.
               </p>
             </div>
           </div>
@@ -1610,10 +1773,11 @@ constants.DefaultLinterSettings[
             <div class="migration-content">
               <h4>Embed types in migration package</h4>
               <p>
-                The largest change. Convert <code>migration.Config</code> to embed
-                <code>types.Config</code>, keeping only v1-only fields explicit. Update the migrator
-                and its tests. This is the highest-risk step but also eliminates the largest drift
-                surface (11 types).
+                The largest change. Convert <code>migration.Config</code> to
+                embed <code>types.Config</code>, keeping only v1-only fields
+                explicit. Update the migrator and its tests. This is the
+                highest-risk step but also eliminates the largest drift surface
+                (11 types).
               </p>
             </div>
           </div>
@@ -1623,10 +1787,11 @@ constants.DefaultLinterSettings[
             <div class="migration-content">
               <h4>Rename for clarity</h4>
               <p>
-                <code>utils.Config</code> &rarr; <code>RetryPolicy</code>. Rename the two
-                <code>golangciLintOutput</code> structs. Optionally rename
-                <code>LinterPriority</code> &rarr; <code>RecommendationLevel</code>. Pure renames,
-                no behavior change.
+                <code>utils.Config</code> &rarr; <code>RetryPolicy</code>.
+                Rename the two <code>golangciLintOutput</code> structs.
+                Optionally rename <code>LinterPriority</code> &rarr;
+                <code>RecommendationLevel</code>. Pure renames, no behavior
+                change.
               </p>
             </div>
           </div>
@@ -1636,26 +1801,30 @@ constants.DefaultLinterSettings[
           <h2><span class="num">13</span>Conclusion</h2>
           <div class="card card-problem">
             <p>
-              "Every split-brain is a place where a future change can land on the wrong copy and
-              silently pass type-checking. The compiler cannot protect a model that has been forked
-              &mdash; only the removal of the fork restores the guarantee."
+              "Every split-brain is a place where a future change can land on
+              the wrong copy and silently pass type-checking. The compiler
+              cannot protect a model that has been forked &mdash; only the
+              removal of the fork restores the guarantee."
             </p>
           </div>
           <p>
-            This codebase has a strong typed core (<code>LinterName</code>, <code>Set[T]</code>,
-            <code>ConfigFormat</code>) that demonstrates the team values type safety. The
-            split-brains are not a failure of discipline but a consequence of three independent
-            merges &mdash; the migrator, the branding effort, and the go-finding integration &mdash;
-            each of which introduced a parallel structure that was never reconciled. Reconciling
-            them is a sequence of small, shippable steps, not a rewrite. The roadmap above is
-            ordered so the highest-value changes come first and the riskiest come last, after the
-            cheaper drift surfaces are already closed.
+            This codebase has a strong typed core (<code>LinterName</code>,
+            <code>Set[T]</code>, <code>ConfigFormat</code>) that demonstrates
+            the team values type safety. The split-brains are not a failure of
+            discipline but a consequence of three independent merges &mdash; the
+            migrator, the branding effort, and the go-finding integration
+            &mdash; each of which introduced a parallel structure that was never
+            reconciled. Reconciling them is a sequence of small, shippable
+            steps, not a rewrite. The roadmap above is ordered so the
+            highest-value changes come first and the riskiest come last, after
+            the cheaper drift surfaces are already closed.
           </p>
         </section>
 
         <footer class="footer">
-          Generated 2026-06-19 &middot; Reviewed against master @ 20adfa7 &middot; Scope: pkg/types,
-          pkg/migration, pkg/linter, pkg/finding, pkg/constants
+          Generated 2026-06-19 &middot; Reviewed against master @ 20adfa7
+          &middot; Scope: pkg/types, pkg/migration, pkg/linter, pkg/finding,
+          pkg/constants
         </footer>
       </main>
     </div>

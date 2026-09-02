@@ -1,11 +1,11 @@
 # Comprehensive Status Report
 
-**Date:** 2026-04-09 14:54  
-**Branch:** master @ `54886b7`  
-**State:** Clean working tree, 0 commits ahead of origin  
-**Build:** ✅ `go build ./...` passes  
-**Tests (non-CLI):** ✅ 10/10 suites pass (70.1% coverage)  
-**Tests (CLI):** ❌ 15/19 fail — binary build fails in test (`go build` inside test harness)  
+**Date:** 2026-04-09 14:54\
+**Branch:** master @ `54886b7`\
+**State:** Clean working tree, 0 commits ahead of origin\
+**Build:** ✅ `go build ./...` passes\
+**Tests (non-CLI):** ✅ 10/10 suites pass (70.1% coverage)\
+**Tests (CLI):** ❌ 15/19 fail — binary build fails in test (`go build` inside test harness)\
 **Lint:** ❌ 33 issues (see §b below)
 
 ---
@@ -95,28 +95,28 @@ Every single usage follows the pattern: `mo.Ok(value)` → immediately `.Get()` 
 
 ### Type System Improvements
 
-| #   | Item                                                                 | Impact | Effort               |
-| --- | -------------------------------------------------------------------- | ------ | -------------------- |
-| 1   | `FormatterInfo.Name` is `string` → should be `FormatterName`         | High   | Medium               |
-| 2   | `LintersConfig.Enable/Disable` are `[]string` → `[]LinterName`       | High   | Large (YAML marshal) |
-| 3   | `FormattersConfig.Enable/Disable` are `[]string` → `[]FormatterName` | High   | Large (YAML marshal) |
-| 4   | `ConfigAnalysis.ConfigPath` is `string` → `ConfigPath`               | Medium | Medium               |
-| 5   | Interface methods return `[]string` → `[]LinterName`                 | High   | Large                |
-| 6   | `ExclusionRuleConfig.Linters` is `[]string` → `[]LinterName`         | Medium | Medium               |
-| 7   | Create `Preset` named type                                           | Medium | Small                |
+| # | Item                                                                 | Impact | Effort               |
+| - | -------------------------------------------------------------------- | ------ | -------------------- |
+| 1 | `FormatterInfo.Name` is `string` → should be `FormatterName`         | High   | Medium               |
+| 2 | `LintersConfig.Enable/Disable` are `[]string` → `[]LinterName`       | High   | Large (YAML marshal) |
+| 3 | `FormattersConfig.Enable/Disable` are `[]string` → `[]FormatterName` | High   | Large (YAML marshal) |
+| 4 | `ConfigAnalysis.ConfigPath` is `string` → `ConfigPath`               | Medium | Medium               |
+| 5 | Interface methods return `[]string` → `[]LinterName`                 | High   | Large                |
+| 6 | `ExclusionRuleConfig.Linters` is `[]string` → `[]LinterName`         | Medium | Medium               |
+| 7 | Create `Preset` named type                                           | Medium | Small                |
 
 ### Structural Improvements
 
-| #   | Item                                                      | Impact | Effort                                              |
-| --- | --------------------------------------------------------- | ------ | --------------------------------------------------- |
-| 8   | Remove `samber/mo` entirely                               | High   | Large (result.go, loader.go, fixer.go, analyzer.go) |
-| 9   | Delete 3 dead Result types + 6 dead helper functions      | Medium | Small                                               |
-| 10  | Fix `depguard` — add `errgroup` to allowed list or config | Medium | Small                                               |
-| 11  | Fix `exhaustruct` in test_helpers.go                      | Low    | Small                                               |
-| 12  | Refactor merger functions to reduce complexity/funlen     | Medium | Medium                                              |
-| 13  | Replace `go-playground/validator` with manual checks      | Low    | Medium                                              |
-| 14  | Add `SymmetricDifference`, `String()` to `Set[T]`         | Low    | Small                                               |
-| 15  | Fix `wrapcheck` in detector.go, command_runner.go         | Low    | Small                                               |
+| #  | Item                                                      | Impact | Effort                                              |
+| -- | --------------------------------------------------------- | ------ | --------------------------------------------------- |
+| 8  | Remove `samber/mo` entirely                               | High   | Large (result.go, loader.go, fixer.go, analyzer.go) |
+| 9  | Delete 3 dead Result types + 6 dead helper functions      | Medium | Small                                               |
+| 10 | Fix `depguard` — add `errgroup` to allowed list or config | Medium | Small                                               |
+| 11 | Fix `exhaustruct` in test_helpers.go                      | Low    | Small                                               |
+| 12 | Refactor merger functions to reduce complexity/funlen     | Medium | Medium                                              |
+| 13 | Replace `go-playground/validator` with manual checks      | Low    | Medium                                              |
+| 14 | Add `SymmetricDifference`, `String()` to `Set[T]`         | Low    | Small                                               |
+| 15 | Fix `wrapcheck` in detector.go, command_runner.go         | Low    | Small                                               |
 
 ---
 

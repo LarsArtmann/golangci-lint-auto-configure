@@ -13,7 +13,7 @@
 
 | Task                                        | Status  | Notes                                                                                                                                                                                                  |
 | ------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Codebase research — all critical files read | ✅ DONE | fixer.go, loader.go, merger.go, cmd*configure.go, cmd_builder.go, commands.go, fixer_preflight.go, fixer_config.go, fixer_formatters.go, all merger*\*.go, linter_priorities.go, types.go, analyzer.go |
+| Codebase research — all critical files read | ✅ DONE | fixer.go, loader.go, merger.go, cmd_configure.go, cmd_builder.go, commands.go, fixer_preflight.go, fixer_config.go, fixer_formatters.go, all merger_\*.go, linter_priorities.go, types.go, analyzer.go |
 | YAML parsing investigation                  | ✅ DONE | go.yaml.in/yaml/v3 correctly handles go-localfirst config — no bug in yaml library                                                                                                                     |
 | Config struct analysis                      | ✅ DONE | types.Config and all sub-structs have correct yaml tags                                                                                                                                                |
 | Priority default bug — ROOT CAUSE FOUND     | ✅ DONE | Global `--priority` default is `"high"` in `commands.go:200`, subcommand says `"optional"` — global wins                                                                                               |
@@ -27,21 +27,21 @@
 | ---------------------------------------- | ---------- | --------------------------------------------------------------------------------------- |
 | Priority default bug — FIX               | 🔄 PARTIAL | Root cause found, fix is 1-line change in commands.go:200                               |
 | YAML duplicate key bug — ROOT CAUSE      | 🔄 PARTIAL | Hypothesis: pre-flight multi-save chain + golangci-lint fmt integration corrupts config |
-| Fix implementation — YAML duplicate key  | ⏸️ WAITING | Need to verify hypothesis with live test                                                |
-| Fix implementation — single-save pattern | ⏸️ WAITING | Need to refactor fixer_preflight.go                                                     |
-| Fix implementation — priority default    | ⏸️ WAITING | 1-line change ready                                                                     |
+| Fix implementation — YAML duplicate key  | ⏸️ WAITING  | Need to verify hypothesis with live test                                                |
+| Fix implementation — single-save pattern | ⏸️ WAITING  | Need to refactor fixer_preflight.go                                                     |
+| Fix implementation — priority default    | ⏸️ WAITING  | 1-line change ready                                                                     |
 
 ### c) NOT STARTED
 
 | Task                                                                                     | Status |
 | ---------------------------------------------------------------------------------------- | ------ |
-| Fix: Change global `--priority` default from `"high"` to `"optional"` in commands.go:200 |
-| Fix: Prevent YAML duplicate key — restructure pre-flight saves to single-save            |
-| Fix: Broken Go build environment (Nix Go conflict)                                       |
-| Test all fixes on go-localfirst project                                                  |
-| Test all fixes on golangci-lint-auto-configure's own project                             |
-| Commit all changes                                                                       |
-| Push to remote                                                                           |
+| Fix: Change global `--priority` default from `"high"` to `"optional"` in commands.go:200 |        |
+| Fix: Prevent YAML duplicate key — restructure pre-flight saves to single-save            |        |
+| Fix: Broken Go build environment (Nix Go conflict)                                       |        |
+| Test all fixes on go-localfirst project                                                  |        |
+| Test all fixes on golangci-lint-auto-configure's own project                             |        |
+| Commit all changes                                                                       |        |
+| Push to remote                                                                           |        |
 
 ### d) TOTALLY FUCKED UP
 

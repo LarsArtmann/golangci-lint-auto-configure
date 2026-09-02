@@ -1,11 +1,11 @@
 # Comprehensive Status Report: Set[T] Migration & Architecture Cleanup
 
-**Date:** 2026-04-08 21:03  
-**Branch:** master  
-**HEAD:** `cd75d94`  
-**Baseline:** `df7cea2`  
-**Commits in stream:** 9 committed + 4 uncommitted files  
-**Build status:** `go build ./...` passes (0 errors)  
+**Date:** 2026-04-08 21:03\
+**Branch:** master\
+**HEAD:** `cd75d94`\
+**Baseline:** `df7cea2`\
+**Commits in stream:** 9 committed + 4 uncommitted files\
+**Build status:** `go build ./...` passes (0 errors)\
 **Test status:** 4/5 test suites pass; `pkg/linter` fails 13/35 tests (environment issue, not code)
 
 ---
@@ -14,17 +14,17 @@
 
 ### 9 commits on master (`ff65c06..cd75d94`):
 
-| #   | Commit    | Description                                                              | Files   | Lines    |
-| --- | --------- | ------------------------------------------------------------------------ | ------- | -------- |
-| 1   | `ff65c06` | feat(experiments): add GoExperiment type, data, arenas, runtimesecret    | 4 files | +151/-4  |
-| 2   | `2d2b639` | refactor(diff): remove duplicate countChangeTypes function               | 1 file  | +0/-12   |
-| 3   | `c11182a` | feat(types): add generic Set[T] type with O(1) lookups                   | 2 files | +132/-0  |
-| 4   | `54b6a5b` | refactor(linter): replace map[string]bool with types.Set[string]         | 5 files | +132/-66 |
-| 5   | `a0460e3` | refactor(diff): replace makeStringSet with types.NewSet                  | 1 file  | +15/-28  |
-| 6   | `05e1fb4` | refactor(migration): replace duplicate map[string]bool with types.NewSet | 1 file  | +8/-10   |
-| 7   | `40a8cc9` | refactor(constants): extract shared DefaultTimeout constant              | 2 files | +9/-9    |
-| 8   | `08bcee2` | refactor(constants): extract CoreFormatters and FormatterOrder           | 2 files | +10/-5   |
-| 9   | `cd75d94` | docs(status): comprehensive Set[T] migration status report               | 1 file  | +210/-0  |
+| # | Commit    | Description                                                              | Files   | Lines    |
+| - | --------- | ------------------------------------------------------------------------ | ------- | -------- |
+| 1 | `ff65c06` | feat(experiments): add GoExperiment type, data, arenas, runtimesecret    | 4 files | +151/-4  |
+| 2 | `2d2b639` | refactor(diff): remove duplicate countChangeTypes function               | 1 file  | +0/-12   |
+| 3 | `c11182a` | feat(types): add generic Set[T] type with O(1) lookups                   | 2 files | +132/-0  |
+| 4 | `54b6a5b` | refactor(linter): replace map[string]bool with types.Set[string]         | 5 files | +132/-66 |
+| 5 | `a0460e3` | refactor(diff): replace makeStringSet with types.NewSet                  | 1 file  | +15/-28  |
+| 6 | `05e1fb4` | refactor(migration): replace duplicate map[string]bool with types.NewSet | 1 file  | +8/-10   |
+| 7 | `40a8cc9` | refactor(constants): extract shared DefaultTimeout constant              | 2 files | +9/-9    |
+| 8 | `08bcee2` | refactor(constants): extract CoreFormatters and FormatterOrder           | 2 files | +10/-5   |
+| 9 | `cd75d94` | docs(status): comprehensive Set[T] migration status report               | 1 file  | +210/-0  |
 
 **Total committed: 15 files, +677/-161 lines**
 
@@ -123,16 +123,16 @@
 
 ## C) NOT STARTED (Remaining Set[T] Migration Tasks)
 
-| #   | Task                                                                                                | File(s)                                            | Scope                      | Est. Time |
-| --- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------- | -------------------------- | --------- |
-| T1  | Add `IsEmpty()` + `Union()` methods to Set[T] + tests                                               | `set.go`, `set_test.go`                            | Foundation for later tasks | 6 min     |
-| T2  | Remove `buildLinterSet` wrapper, inline `types.NewSet` at 2 call sites                              | `fixer.go:179-180,458-460`                         | Dead code removal          | 4 min     |
-| T3  | Remove `setToSortedSlice` wrapper, inline `types.ToSortedSlice` at 2 call sites                     | `fixer.go:462-464`, `fixer_preflight.go:143-144`   | Dead code removal          | 4 min     |
-| T4  | Migrate `DisabledLinters` from `map[LinterName]struct{}` to `types.Set[LinterName]` + fix 2 callers | `rules.go:47`, `fixer.go:441`, `categorizer.go:39` | Public API consistency     | 8 min     |
-| T5  | Migrate `ValidVersions` from `map[string]bool` to `types.Set[string]` + fix `IsValidVersion`        | `rules.go:12,32-43,129`                            | Public API consistency     | 6 min     |
-| T6  | Migrate 3x `map[string]bool` in `experiments_test.go`                                               | `experiments_test.go:29,38,70`                     | Test consistency           | 4 min     |
-| T7  | Migrate 2x raw `map[string]struct{}` in `config/merger.go`                                          | `merger.go:223,244`                                | New file, same pattern     | 6 min     |
-| T8  | Consolidate `extractFormatters` + `filterOutFormatters` → `partitionFormatters`                     | `migrations.go:196-222`                            | Deduplication              | 8 min     |
+| #  | Task                                                                                                | File(s)                                            | Scope                      | Est. Time |
+| -- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------- | -------------------------- | --------- |
+| T1 | Add `IsEmpty()` + `Union()` methods to Set[T] + tests                                               | `set.go`, `set_test.go`                            | Foundation for later tasks | 6 min     |
+| T2 | Remove `buildLinterSet` wrapper, inline `types.NewSet` at 2 call sites                              | `fixer.go:179-180,458-460`                         | Dead code removal          | 4 min     |
+| T3 | Remove `setToSortedSlice` wrapper, inline `types.ToSortedSlice` at 2 call sites                     | `fixer.go:462-464`, `fixer_preflight.go:143-144`   | Dead code removal          | 4 min     |
+| T4 | Migrate `DisabledLinters` from `map[LinterName]struct{}` to `types.Set[LinterName]` + fix 2 callers | `rules.go:47`, `fixer.go:441`, `categorizer.go:39` | Public API consistency     | 8 min     |
+| T5 | Migrate `ValidVersions` from `map[string]bool` to `types.Set[string]` + fix `IsValidVersion`        | `rules.go:12,32-43,129`                            | Public API consistency     | 6 min     |
+| T6 | Migrate 3x `map[string]bool` in `experiments_test.go`                                               | `experiments_test.go:29,38,70`                     | Test consistency           | 4 min     |
+| T7 | Migrate 2x raw `map[string]struct{}` in `config/merger.go`                                          | `merger.go:223,244`                                | New file, same pattern     | 6 min     |
+| T8 | Consolidate `extractFormatters` + `filterOutFormatters` → `partitionFormatters`                     | `migrations.go:196-222`                            | Deduplication              | 8 min     |
 
 **Estimated total remaining: ~46 minutes of focused work.**
 
@@ -142,14 +142,14 @@
 
 ### D1. CRITICAL: `pkg/linter` tests fail (13/35)
 
-**Root cause:** `golangci-lint v1.64.8` is installed locally. The tool requires `v2.10.1+`.  
+**Root cause:** `golangci-lint v1.64.8` is installed locally. The tool requires `v2.10.1+`.\
 **Impact:** All integration tests that call `analyzer.CheckVersion()` fail with:
 
 ```
 golangci-lint version v1.64.8 is too old: minimum required version is v2.10.1
 ```
 
-**Fix:** Install golangci-lint v2: `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`  
+**Fix:** Install golangci-lint v2: `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`\
 **Note:** This is an **environment issue**, NOT caused by our code changes. The 22 tests that pass are pure unit tests that don't invoke the golangci-lint binary.
 
 ### D2. WARNING: Pre-commit hook has pre-existing failures
@@ -161,7 +161,7 @@ The pre-commit hook (BuildFlow) has failures unrelated to our changes:
 - `go-structure-linter` has opinions
 - `golangci-lint` itself finds pre-existing warnings (`varnamelen`, `nlreturn`, `testpackage`, `wsl_v5`, `funlen`)
 
-**Impact:** All commits in this stream used `git commit --no-verify`.  
+**Impact:** All commits in this stream used `git commit --no-verify`.\
 **Risk:** Cannot push cleanly until hook is fixed or updated.
 
 ### D3. Uncommitted auto-merge feature mixed into working tree
@@ -219,48 +219,48 @@ These are pure indirection with zero value. They should be removed and their cal
 
 ### Priority 1: Complete Set[T] Migration (7 tasks)
 
-| #   | Task                                                | Impact | Effort | File(s)                                  |
-| --- | --------------------------------------------------- | ------ | ------ | ---------------------------------------- |
-| 1   | Migrate `DisabledLinters` → `types.Set[LinterName]` | High   | Medium | `rules.go`, `fixer.go`, `categorizer.go` |
-| 2   | Migrate `ValidVersions` → `types.Set[string]`       | High   | Low    | `rules.go`                               |
-| 3   | Remove `setToSortedSlice` wrapper + inline callers  | Medium | Low    | `fixer.go`, `fixer_preflight.go`         |
-| 4   | Remove `buildLinterSet` wrapper + inline callers    | Medium | Low    | `fixer.go`                               |
-| 5   | Migrate `experiments_test.go` maps → `types.NewSet` | Low    | Low    | `experiments_test.go`                    |
-| 6   | Migrate `merger.go` maps → `types.Set[string]`      | Medium | Low    | `merger.go`                              |
-| 7   | Add `IsEmpty()` + `Union()` to Set + tests          | Medium | Low    | `set.go`, `set_test.go`                  |
+| # | Task                                                | Impact | Effort | File(s)                                  |
+| - | --------------------------------------------------- | ------ | ------ | ---------------------------------------- |
+| 1 | Migrate `DisabledLinters` → `types.Set[LinterName]` | High   | Medium | `rules.go`, `fixer.go`, `categorizer.go` |
+| 2 | Migrate `ValidVersions` → `types.Set[string]`       | High   | Low    | `rules.go`                               |
+| 3 | Remove `setToSortedSlice` wrapper + inline callers  | Medium | Low    | `fixer.go`, `fixer_preflight.go`         |
+| 4 | Remove `buildLinterSet` wrapper + inline callers    | Medium | Low    | `fixer.go`                               |
+| 5 | Migrate `experiments_test.go` maps → `types.NewSet` | Low    | Low    | `experiments_test.go`                    |
+| 6 | Migrate `merger.go` maps → `types.Set[string]`      | Medium | Low    | `merger.go`                              |
+| 7 | Add `IsEmpty()` + `Union()` to Set + tests          | Medium | Low    | `set.go`, `set_test.go`                  |
 
 ### Priority 2: Architecture & Clean Code (6 tasks)
 
-| #   | Task                                                                               | Impact | Effort |
-| --- | ---------------------------------------------------------------------------------- | ------ | ------ |
-| 8   | Consolidate `extractFormatters` + `filterOutFormatters` → `partitionFormatters`    | Medium | Low    |
-| 9   | Extract formatter migration names to named constant (distinct from CoreFormatters) | Low    | Low    |
-| 10  | Separate auto-merge feature into its own branch                                    | High   | Medium |
-| 11  | Add `ContainsAll(other Set[T]) bool` method to Set                                 | Low    | Low    |
-| 12  | Add `Intersect(other Set[T]) Set[T]` method to Set                                 | Low    | Low    |
-| 13  | Add `Difference(other Set[T]) Set[T]` method to Set                                | Low    | Low    |
+| #  | Task                                                                               | Impact | Effort |
+| -- | ---------------------------------------------------------------------------------- | ------ | ------ |
+| 8  | Consolidate `extractFormatters` + `filterOutFormatters` → `partitionFormatters`    | Medium | Low    |
+| 9  | Extract formatter migration names to named constant (distinct from CoreFormatters) | Low    | Low    |
+| 10 | Separate auto-merge feature into its own branch                                    | High   | Medium |
+| 11 | Add `ContainsAll(other Set[T]) bool` method to Set                                 | Low    | Low    |
+| 12 | Add `Intersect(other Set[T]) Set[T]` method to Set                                 | Low    | Low    |
+| 13 | Add `Difference(other Set[T]) Set[T]` method to Set                                | Low    | Low    |
 
 ### Priority 3: Environment & CI (5 tasks)
 
-| #   | Task                                                                           | Impact   | Effort |
-| --- | ------------------------------------------------------------------------------ | -------- | ------ |
-| 14  | Install golangci-lint v2 locally (`go install .../v2/...@latest`)              | Critical | Low    |
-| 15  | Add environment check to skip integration tests when golangci-lint unavailable | High     | Medium |
-| 16  | Fix pre-commit hook failures (library-policy, gitleaks, etc.)                  | High     | High   |
-| 17  | Update CI to use golangci-lint v2 action                                       | Medium   | Low    |
-| 18  | Add `just test-unit` and `just test-integration` targets                       | Medium   | Low    |
+| #  | Task                                                                           | Impact   | Effort |
+| -- | ------------------------------------------------------------------------------ | -------- | ------ |
+| 14 | Install golangci-lint v2 locally (`go install .../v2/...@latest`)              | Critical | Low    |
+| 15 | Add environment check to skip integration tests when golangci-lint unavailable | High     | Medium |
+| 16 | Fix pre-commit hook failures (library-policy, gitleaks, etc.)                  | High     | High   |
+| 17 | Update CI to use golangci-lint v2 action                                       | Medium   | Low    |
+| 18 | Add `just test-unit` and `just test-integration` targets                       | Medium   | Low    |
 
 ### Priority 4: Documentation & Polish (7 tasks)
 
-| #   | Task                                                                     | Impact | Effort |
-| --- | ------------------------------------------------------------------------ | ------ | ------ |
-| 19  | Update AGENTS.md with Set[T] patterns and conventions                    | Medium | Low    |
-| 20  | Update README.md to mention golangci-lint v2 requirement                 | Medium | Low    |
-| 21  | Add Go doc examples to `set.go` (`ExampleIsEmpty`, etc.)                 | Low    | Low    |
-| 22  | Fix pre-existing linter warnings (varnamelen `s` in set.go)              | Low    | Low    |
-| 23  | Fix pre-existing linter warnings in experiments_test.go (wsl_v5, funlen) | Low    | Low    |
-| 24  | Add `just check` command that runs build + vet + test in sequence        | Low    | Low    |
-| 25  | Remove or archive old status reports in `docs/status/` (70+ files)       | Low    | Medium |
+| #  | Task                                                                     | Impact | Effort |
+| -- | ------------------------------------------------------------------------ | ------ | ------ |
+| 19 | Update AGENTS.md with Set[T] patterns and conventions                    | Medium | Low    |
+| 20 | Update README.md to mention golangci-lint v2 requirement                 | Medium | Low    |
+| 21 | Add Go doc examples to `set.go` (`ExampleIsEmpty`, etc.)                 | Low    | Low    |
+| 22 | Fix pre-existing linter warnings (varnamelen `s` in set.go)              | Low    | Low    |
+| 23 | Fix pre-existing linter warnings in experiments_test.go (wsl_v5, funlen) | Low    | Low    |
+| 24 | Add `just check` command that runs build + vet + test in sequence        | Low    | Low    |
+| 25 | Remove or archive old status reports in `docs/status/` (70+ files)       | Low    | Medium |
 
 ---
 
@@ -291,7 +291,7 @@ The 4 modified CLI files and 2 new merger files are uncommitted and mixed into t
 | `pkg/config`    | PASS     | ?    | 0      | 0.6s |
 | `pkg/linter`    | **FAIL** | 22   | **13** | 9.2s |
 
-**All 13 linter failures** are caused by: `golangci-lint version v1.64.8 is too old (need v2.10.1+)`.  
+**All 13 linter failures** are caused by: `golangci-lint version v1.64.8 is too old (need v2.10.1+)`.\
 **Zero failures** are caused by our code changes.
 
 ---

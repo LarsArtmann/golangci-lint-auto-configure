@@ -120,48 +120,48 @@ All tests pass (13/13 suites), lint is clean (0 issues), build succeeds, version
 
 ### Priority 1: Ship-Blockers (must do before any public release)
 
-| #   | Task                                                | Impact                                        | Effort  |
-| --- | --------------------------------------------------- | --------------------------------------------- | ------- |
-| 1   | Create `v0.1.0` git tag                             | HIGH — enables meaningful versions everywhere | TRIVIAL |
-| 2   | Update Nix `vendorHash` after adding `pkg/version/` | HIGH — Nix build broken until fixed           | LOW     |
-| 3   | Verify `nix build` produces correct version output  | HIGH — confirms Nix path works                | LOW     |
-| 4   | Add Goreleaser config for automated releases        | HIGH — enables CI releases                    | MED     |
-| 5   | Inject version ldflags in GitHub Actions CI         | MED — CI artifacts get real versions          | LOW     |
+| # | Task                                                | Impact                                        | Effort  |
+| - | --------------------------------------------------- | --------------------------------------------- | ------- |
+| 1 | Create `v0.1.0` git tag                             | HIGH — enables meaningful versions everywhere | TRIVIAL |
+| 2 | Update Nix `vendorHash` after adding `pkg/version/` | HIGH — Nix build broken until fixed           | LOW     |
+| 3 | Verify `nix build` produces correct version output  | HIGH — confirms Nix path works                | LOW     |
+| 4 | Add Goreleaser config for automated releases        | HIGH — enables CI releases                    | MED     |
+| 5 | Inject version ldflags in GitHub Actions CI         | MED — CI artifacts get real versions          | LOW     |
 
 ### Priority 2: Quality & Confidence
 
-| #   | Task                                            | Impact                             | Effort  |
-| --- | ----------------------------------------------- | ---------------------------------- | ------- |
-| 6   | Fix Ginkgo version mismatch (CLI vs library)    | MED — eliminates test warning      | TRIVIAL |
-| 7   | Create `FEATURES.md` from actual code           | MED — honest feature inventory     | MED     |
-| 8   | Create `TODO_LIST.md` from docs + code          | MED — tracked work items           | MED     |
-| 9   | Clean stale docs in `docs/` (archive old plans) | LOW — reduces confusion            | LOW     |
-| 10  | Add `CHANGELOG.md`                              | MED — user-facing release tracking | LOW     |
-| 11  | Version package: test fallback path properly    | MED — covers untested branches     | MED     |
-| 12  | Push overall test coverage toward 70%+          | MED — confidence in refactoring    | HIGH    |
-| 13  | Add integration test: `--version` output format | LOW — prevents regression          | LOW     |
+| #  | Task                                            | Impact                             | Effort  |
+| -- | ----------------------------------------------- | ---------------------------------- | ------- |
+| 6  | Fix Ginkgo version mismatch (CLI vs library)    | MED — eliminates test warning      | TRIVIAL |
+| 7  | Create `FEATURES.md` from actual code           | MED — honest feature inventory     | MED     |
+| 8  | Create `TODO_LIST.md` from docs + code          | MED — tracked work items           | MED     |
+| 9  | Clean stale docs in `docs/` (archive old plans) | LOW — reduces confusion            | LOW     |
+| 10 | Add `CHANGELOG.md`                              | MED — user-facing release tracking | LOW     |
+| 11 | Version package: test fallback path properly    | MED — covers untested branches     | MED     |
+| 12 | Push overall test coverage toward 70%+          | MED — confidence in refactoring    | HIGH    |
+| 13 | Add integration test: `--version` output format | LOW — prevents regression          | LOW     |
 
 ### Priority 3: Architecture Improvements
 
-| #   | Task                                                                                | Impact                             | Effort  |
-| --- | ----------------------------------------------------------------------------------- | ---------------------------------- | ------- |
-| 14  | Make `cli.Version` immutable (function, not var)                                    | LOW — prevents accidental mutation | LOW     |
-| 15  | Extract version types shared between `pkg/version` and `pkg/linter/version_checker` | LOW — reduce duplication           | MED     |
-| 16  | Review `pkg/client/client.go` — is it actually used?                                | LOW — dead code cleanup            | LOW     |
-| 17  | Deduplicate config validation logic (spread across 3+ files)                        | MED — maintenance burden           | MED     |
-| 18  | Consider `depguard` rules for `pkg/version` (currently only `Main` rules)           | LOW — consistency                  | TRIVIAL |
+| #  | Task                                                                                | Impact                             | Effort  |
+| -- | ----------------------------------------------------------------------------------- | ---------------------------------- | ------- |
+| 14 | Make `cli.Version` immutable (function, not var)                                    | LOW — prevents accidental mutation | LOW     |
+| 15 | Extract version types shared between `pkg/version` and `pkg/linter/version_checker` | LOW — reduce duplication           | MED     |
+| 16 | Review `pkg/client/client.go` — is it actually used?                                | LOW — dead code cleanup            | LOW     |
+| 17 | Deduplicate config validation logic (spread across 3+ files)                        | MED — maintenance burden           | MED     |
+| 18 | Consider `depguard` rules for `pkg/version` (currently only `Main` rules)           | LOW — consistency                  | TRIVIAL |
 
 ### Priority 4: Public Release Preparation
 
-| #   | Task                                                       | Impact                         | Effort               |
-| --- | ---------------------------------------------------------- | ------------------------------ | -------------------- |
-| 19  | Resolve `PUBLIC_OR_PRIVATE.md` — make decision and archive | MED — unblocks marketing       | TRIVIAL              |
-| 20  | Write proper `README.md` with install instructions         | HIGH — first impression        | MED                  |
-| 21  | Add `CONTRIBUTING.md`                                      | MED — enables community        | LOW                  |
-| 22  | Set up GitHub Releases with binary assets                  | HIGH — download mechanism      | MED (via Goreleaser) |
-| 23  | Add Go module versioning (git tag → `v0.1.0`)              | HIGH — `go install` versioning | TRIVIAL (if #1 done) |
-| 24  | Pre-commit hook marketplace listing                        | LOW — discoverability          | LOW                  |
-| 25  | Record architecture decision: versioning approach (ADR)    | LOW — documentation            | LOW                  |
+| #  | Task                                                       | Impact                         | Effort               |
+| -- | ---------------------------------------------------------- | ------------------------------ | -------------------- |
+| 19 | Resolve `PUBLIC_OR_PRIVATE.md` — make decision and archive | MED — unblocks marketing       | TRIVIAL              |
+| 20 | Write proper `README.md` with install instructions         | HIGH — first impression        | MED                  |
+| 21 | Add `CONTRIBUTING.md`                                      | MED — enables community        | LOW                  |
+| 22 | Set up GitHub Releases with binary assets                  | HIGH — download mechanism      | MED (via Goreleaser) |
+| 23 | Add Go module versioning (git tag → `v0.1.0`)              | HIGH — `go install` versioning | TRIVIAL (if #1 done) |
+| 24 | Pre-commit hook marketplace listing                        | LOW — discoverability          | LOW                  |
+| 25 | Record architecture decision: versioning approach (ADR)    | LOW — documentation            | LOW                  |
 
 ---
 

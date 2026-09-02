@@ -170,48 +170,48 @@ Should be split into focused sub-interfaces.
 
 ### P0 — Ship Blockers (do first)
 
-| #   | Task                                             | Impact | Effort             |
-| --- | ------------------------------------------------ | ------ | ------------------ |
-| 1   | Commit pending afero removal + dead code cleanup | HIGH   | DONE (just commit) |
-| 2   | Push all unpushed commits to origin              | HIGH   | 1 min              |
-| 3   | Update flake.nix vendorHash after go.mod changes | HIGH   | 5 min              |
-| 4   | Update SystemNix vendorHash after go.mod changes | HIGH   | 5 min              |
-| 5   | Create FEATURES.md (features audit)              | HIGH   | 30 min             |
+| # | Task                                             | Impact | Effort             |
+| - | ------------------------------------------------ | ------ | ------------------ |
+| 1 | Commit pending afero removal + dead code cleanup | HIGH   | DONE (just commit) |
+| 2 | Push all unpushed commits to origin              | HIGH   | 1 min              |
+| 3 | Update flake.nix vendorHash after go.mod changes | HIGH   | 5 min              |
+| 4 | Update SystemNix vendorHash after go.mod changes | HIGH   | 5 min              |
+| 5 | Create FEATURES.md (features audit)              | HIGH   | 30 min             |
 
 ### P1 — Quality (do soon)
 
-| #   | Task                                                  | Impact | Effort |
-| --- | ----------------------------------------------------- | ------ | ------ |
-| 6   | Fix 4 funlen violations in CLI commands               | MEDIUM | 30 min |
-| 7   | Add tests for `pkg/finding/` (5 files, zero coverage) | MEDIUM | 2h     |
-| 8   | Add tests for `pkg/client/` (entire package untested) | MEDIUM | 1h     |
-| 9   | Create TODO_LIST.md                                   | MEDIUM | 30 min |
-| 10  | Git tag v0.1.0                                        | MEDIUM | 1 min  |
+| #  | Task                                                  | Impact | Effort |
+| -- | ----------------------------------------------------- | ------ | ------ |
+| 6  | Fix 4 funlen violations in CLI commands               | MEDIUM | 30 min |
+| 7  | Add tests for `pkg/finding/` (5 files, zero coverage) | MEDIUM | 2h     |
+| 8  | Add tests for `pkg/client/` (entire package untested) | MEDIUM | 1h     |
+| 9  | Create TODO_LIST.md                                   | MEDIUM | 30 min |
+| 10 | Git tag v0.1.0                                        | MEDIUM | 1 min  |
 
 ### P2 — Architecture (do next sprint)
 
-| #   | Task                                                                | Impact | Effort |
-| --- | ------------------------------------------------------------------- | ------ | ------ |
-| 11  | Split ConfigLoader into focused interfaces used by actual callers   | HIGH   | 2h     |
-| 12  | Remove config package type aliases (9 aliases in loader.go:49-60)   | MEDIUM | 1h     |
-| 13  | Split LinterAnalyzer interface (infra vs business vs presentation)  | MEDIUM | 1h     |
-| 14  | Investigate `pkg/client/client.go` — purpose, usage, keep or remove | LOW    | 30 min |
-| 15  | Add tests for merger helper files (merger_formatters.go, etc.)      | MEDIUM | 1h     |
-| 16  | Add tests for migration internals (validator.go, yaml_loader.go)    | MEDIUM | 1h     |
+| #  | Task                                                                | Impact | Effort |
+| -- | ------------------------------------------------------------------- | ------ | ------ |
+| 11 | Split ConfigLoader into focused interfaces used by actual callers   | HIGH   | 2h     |
+| 12 | Remove config package type aliases (9 aliases in loader.go:49-60)   | MEDIUM | 1h     |
+| 13 | Split LinterAnalyzer interface (infra vs business vs presentation)  | MEDIUM | 1h     |
+| 14 | Investigate `pkg/client/client.go` — purpose, usage, keep or remove | LOW    | 30 min |
+| 15 | Add tests for merger helper files (merger_formatters.go, etc.)      | MEDIUM | 1h     |
+| 16 | Add tests for migration internals (validator.go, yaml_loader.go)    | MEDIUM | 1h     |
 
 ### P3 — Polish (do eventually)
 
-| #   | Task                                                                      | Impact | Effort |
-| --- | ------------------------------------------------------------------------- | ------ | ------ |
-| 17  | Add tests for `pkg/linter/` internals (command_runner, categorizer, etc.) | LOW    | 1h     |
-| 18  | Add tests for CLI cmd files (migrate.go, installhook.go)                  | LOW    | 1h     |
-| 19  | Consolidate merger files (7 files → fewer)                                | LOW    | 1h     |
-| 20  | Review `pkg/report/` for test coverage gaps                               | LOW    | 30 min |
-| 21  | Add integration test for full configure workflow end-to-end               | HIGH   | 2h     |
-| 22  | Set up Codecov quality gates in CI                                        | LOW    | 30 min |
-| 23  | Add `--version` flag output test                                          | LOW    | 15 min |
-| 24  | Review and clean up `pkg/constants/` data consistency                     | LOW    | 30 min |
-| 25  | Pre-commit hook: run `just lint` as part of CI                            | LOW    | 15 min |
+| #  | Task                                                                      | Impact | Effort |
+| -- | ------------------------------------------------------------------------- | ------ | ------ |
+| 17 | Add tests for `pkg/linter/` internals (command_runner, categorizer, etc.) | LOW    | 1h     |
+| 18 | Add tests for CLI cmd files (migrate.go, installhook.go)                  | LOW    | 1h     |
+| 19 | Consolidate merger files (7 files → fewer)                                | LOW    | 1h     |
+| 20 | Review `pkg/report/` for test coverage gaps                               | LOW    | 30 min |
+| 21 | Add integration test for full configure workflow end-to-end               | HIGH   | 2h     |
+| 22 | Set up Codecov quality gates in CI                                        | LOW    | 30 min |
+| 23 | Add `--version` flag output test                                          | LOW    | 15 min |
+| 24 | Review and clean up `pkg/constants/` data consistency                     | LOW    | 30 min |
+| 25 | Pre-commit hook: run `just lint` as part of CI                            | LOW    | 15 min |
 
 ---
 

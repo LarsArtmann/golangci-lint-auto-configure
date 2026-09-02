@@ -167,48 +167,48 @@ Replaced 3x `make(map[string]bool)` + `map[key] = true` in `experiments_test.go`
 
 ### Tier 1: Complete the Set[T] Migration (6 items)
 
-| #   | Task                                                                            | Impact | Effort  |
-| --- | ------------------------------------------------------------------------------- | ------ | ------- |
-| 1   | Migrate 9x `map[string]struct{}` in `merger.go` to `types.NewSet`               | High   | Low     |
-| 2   | Delete `GetUniqueStrings`, replace tests with `types.ToSortedSlice`             | Medium | Low     |
-| 3   | Consolidate `extractFormatters` + `filterOutFormatters` → `partitionFormatters` | Medium | Low     |
-| 4   | Fix `experiments_test.go` linter warnings (funlen, wsl_v5)                      | Low    | Low     |
-| 5   | Verify `varnamelen` warning on `set.go` is truly stale, nolint if needed        | Low    | Trivial |
-| 6   | Run full test suite (`ginkgo -r`) and verify 0 regressions                      | High   | Trivial |
+| # | Task                                                                            | Impact | Effort  |
+| - | ------------------------------------------------------------------------------- | ------ | ------- |
+| 1 | Migrate 9x `map[string]struct{}` in `merger.go` to `types.NewSet`               | High   | Low     |
+| 2 | Delete `GetUniqueStrings`, replace tests with `types.ToSortedSlice`             | Medium | Low     |
+| 3 | Consolidate `extractFormatters` + `filterOutFormatters` → `partitionFormatters` | Medium | Low     |
+| 4 | Fix `experiments_test.go` linter warnings (funlen, wsl_v5)                      | Low    | Low     |
+| 5 | Verify `varnamelen` warning on `set.go` is truly stale, nolint if needed        | Low    | Trivial |
+| 6 | Run full test suite (`ginkgo -r`) and verify 0 regressions                      | High   | Trivial |
 
 ### Tier 2: Clean Up Partially Done Work (5 items)
 
-| #   | Task                                                                 | Impact | Effort  |
-| --- | -------------------------------------------------------------------- | ------ | ------- |
-| 7   | Decide on CommandBuilder: complete for all 7 commands or revert      | Medium | Medium  |
-| 8   | Revert `test_helpers.go` expansion back to one-liner                 | Low    | Trivial |
-| 9   | Separate uncommitted changes into individual focused commits         | Medium | Low     |
-| 10  | Commit `merger.go` `maps.Copy` improvement as standalone commit      | Low    | Trivial |
-| 11  | Clean whitespace-only changes from merger.go or commit as style-only | Low    | Trivial |
+| #  | Task                                                                 | Impact | Effort  |
+| -- | -------------------------------------------------------------------- | ------ | ------- |
+| 7  | Decide on CommandBuilder: complete for all 7 commands or revert      | Medium | Medium  |
+| 8  | Revert `test_helpers.go` expansion back to one-liner                 | Low    | Trivial |
+| 9  | Separate uncommitted changes into individual focused commits         | Medium | Low     |
+| 10 | Commit `merger.go` `maps.Copy` improvement as standalone commit      | Low    | Trivial |
+| 11 | Clean whitespace-only changes from merger.go or commit as style-only | Low    | Trivial |
 
 ### Tier 3: Architecture Improvements (7 items)
 
-| #   | Task                                                                            | Impact | Effort  |
-| --- | ------------------------------------------------------------------------------- | ------ | ------- |
-| 12  | Add `Set[T].Difference(other) Set[T]` method (useful for "items in A not in B") | Medium | Low     |
-| 13  | Add `Set[T].Intersect(other) Set[T]` method                                     | Medium | Low     |
-| 14  | Consider `Set[T].IsSubsetOf(other) bool` method                                 | Low    | Low     |
-| 15  | Evaluate replacing `slices.Contains` in `formatter.go:70` with Set-based lookup | Low    | Low     |
-| 16  | Add `Set[T].Equal(other) bool` for test assertions                              | Low    | Trivial |
-| 17  | Document Set[T] API in README or godoc                                          | Low    | Low     |
-| 18  | Consider `OrderedSet[T]` if insertion order matters for formatters              | Low    | High    |
+| #  | Task                                                                            | Impact | Effort  |
+| -- | ------------------------------------------------------------------------------- | ------ | ------- |
+| 12 | Add `Set[T].Difference(other) Set[T]` method (useful for "items in A not in B") | Medium | Low     |
+| 13 | Add `Set[T].Intersect(other) Set[T]` method                                     | Medium | Low     |
+| 14 | Consider `Set[T].IsSubsetOf(other) bool` method                                 | Low    | Low     |
+| 15 | Evaluate replacing `slices.Contains` in `formatter.go:70` with Set-based lookup | Low    | Low     |
+| 16 | Add `Set[T].Equal(other) bool` for test assertions                              | Low    | Trivial |
+| 17 | Document Set[T] API in README or godoc                                          | Low    | Low     |
+| 18 | Consider `OrderedSet[T]` if insertion order matters for formatters              | Low    | High    |
 
 ### Tier 4: Project Health (7 items)
 
-| #   | Task                                                                           | Impact | Effort  |
-| --- | ------------------------------------------------------------------------------ | ------ | ------- |
-| 19  | Fix local golangci-lint version (install v2.10.1+) to resolve 13 test failures | High   | Trivial |
-| 20  | Archive old status reports (70+ files) into a single summary or subfolder      | Low    | Low     |
-| 21  | Add `just clean-cache` command to justfile for disk space management           | Low    | Trivial |
-| 22  | Run `golangci-lint run` with v2 to check for remaining warnings                | Medium | Medium  |
-| 23  | Address `nlreturn` warning in `experiments.go:48`                              | Low    | Trivial |
-| 24  | Remove `slices` import from `migration/rules.go` if no longer used             | Low    | Trivial |
-| 25  | Update AGENTS.md with final Set[T] migration status                            | Low    | Trivial |
+| #  | Task                                                                           | Impact | Effort  |
+| -- | ------------------------------------------------------------------------------ | ------ | ------- |
+| 19 | Fix local golangci-lint version (install v2.10.1+) to resolve 13 test failures | High   | Trivial |
+| 20 | Archive old status reports (70+ files) into a single summary or subfolder      | Low    | Low     |
+| 21 | Add `just clean-cache` command to justfile for disk space management           | Low    | Trivial |
+| 22 | Run `golangci-lint run` with v2 to check for remaining warnings                | Medium | Medium  |
+| 23 | Address `nlreturn` warning in `experiments.go:48`                              | Low    | Trivial |
+| 24 | Remove `slices` import from `migration/rules.go` if no longer used             | Low    | Trivial |
+| 25 | Update AGENTS.md with final Set[T] migration status                            | Low    | Trivial |
 
 ---
 

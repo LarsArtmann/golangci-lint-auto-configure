@@ -173,53 +173,53 @@ sqlc.go:11:2: import 'github.com/go-faster/yaml' is not allowed (depguard)
 
 ### Priority 1: Stop The Bleeding (P0 — Data Loss)
 
-| #   | Task                                                          | Effort | Impact               |
-| --- | ------------------------------------------------------------- | ------ | -------------------- |
-| 1   | Add `LintersSettingsV1` field to `types.Config`               | S      | Prevents data loss   |
-| 2   | Auto-migrate V1→V2 settings in `config/loader.go`             | S      | Fixes the root cause |
-| 3   | Add roundtrip fidelity tests (load→save preserves all fields) | M      | Prevents regression  |
-| 4   | Restore project-dependency-graph depguard allow-lists         | S      | Fixes broken project |
-| 5   | Add depguard settings (allow $gostd, $module) to gogenfilter  | S      | Fixes broken project |
+| # | Task                                                          | Effort | Impact               |
+| - | ------------------------------------------------------------- | ------ | -------------------- |
+| 1 | Add `LintersSettingsV1` field to `types.Config`               | S      | Prevents data loss   |
+| 2 | Auto-migrate V1→V2 settings in `config/loader.go`             | S      | Fixes the root cause |
+| 3 | Add roundtrip fidelity tests (load→save preserves all fields) | M      | Prevents regression  |
+| 4 | Restore project-dependency-graph depguard allow-lists         | S      | Fixes broken project |
+| 5 | Add depguard settings (allow $gostd, $module) to gogenfilter  | S      | Fixes broken project |
 
 ### Priority 2: Prevent Future Occurrences (P1)
 
-| #   | Task                                                                      | Effort | Impact              |
-| --- | ------------------------------------------------------------------------- | ------ | ------------------- |
-| 6   | Warn when YAML has unknown top-level keys                                 | M      | Early detection     |
-| 7   | Add depguard to "needs settings" list — don't auto-enable bare            | S      | Prevents footgun    |
-| 8   | Add linter-data validation: flag linters that require settings            | M      | Systematic fix      |
-| 9   | Add integration test: `configure` on real project with `linters-settings` | M      | End-to-end coverage |
-| 10  | Consider using `yaml.Node` for roundtrip to preserve comments/formatting  | L      | Better UX           |
+| #  | Task                                                                      | Effort | Impact              |
+| -- | ------------------------------------------------------------------------- | ------ | ------------------- |
+| 6  | Warn when YAML has unknown top-level keys                                 | M      | Early detection     |
+| 7  | Add depguard to "needs settings" list — don't auto-enable bare            | S      | Prevents footgun    |
+| 8  | Add linter-data validation: flag linters that require settings            | M      | Systematic fix      |
+| 9  | Add integration test: `configure` on real project with `linters-settings` | M      | End-to-end coverage |
+| 10 | Consider using `yaml.Node` for roundtrip to preserve comments/formatting  | L      | Better UX           |
 
 ### Priority 3: Architecture Cleanup (P2)
 
-| #   | Task                                                         | Effort | Impact                       |
-| --- | ------------------------------------------------------------ | ------ | ---------------------------- |
-| 11  | Unify `types.Config` and `migration.Config`                  | M      | Single source of truth       |
-| 12  | Extract `LintersSettingsV1` migration to shared helper       | S      | Code reuse                   |
-| 13  | Add merger roundtrip fidelity tests                          | S      | Confidence in merges         |
-| 14  | Add `RecommendedLinterSettings` constant to `pkg/constants/` | M      | Single source of truth       |
-| 15  | Type-safe settings structs (at least for critical linters)   | L      | IDE support, typo prevention |
+| #  | Task                                                         | Effort | Impact                       |
+| -- | ------------------------------------------------------------ | ------ | ---------------------------- |
+| 11 | Unify `types.Config` and `migration.Config`                  | M      | Single source of truth       |
+| 12 | Extract `LintersSettingsV1` migration to shared helper       | S      | Code reuse                   |
+| 13 | Add merger roundtrip fidelity tests                          | S      | Confidence in merges         |
+| 14 | Add `RecommendedLinterSettings` constant to `pkg/constants/` | M      | Single source of truth       |
+| 15 | Type-safe settings structs (at least for critical linters)   | L      | IDE support, typo prevention |
 
 ### Priority 4: Test Coverage (P2)
 
-| #   | Task                                                          | Effort | Impact                 |
-| --- | ------------------------------------------------------------- | ------ | ---------------------- |
-| 16  | Increase `internal/cli` coverage from 11% to 50%+             | M      | Critical path coverage |
-| 17  | Add `pkg/client` tests (0% coverage)                          | S      | Client is untested     |
-| 18  | Add `pkg/report` tests (0% coverage)                          | S      | Report gen is untested |
-| 19  | Add config roundtrip tests for all formats (YAML, TOML, JSON) | M      | Format safety          |
-| 20  | Add fuzz tests for config loading                             | M      | Edge case discovery    |
+| #  | Task                                                          | Effort | Impact                 |
+| -- | ------------------------------------------------------------- | ------ | ---------------------- |
+| 16 | Increase `internal/cli` coverage from 11% to 50%+             | M      | Critical path coverage |
+| 17 | Add `pkg/client` tests (0% coverage)                          | S      | Client is untested     |
+| 18 | Add `pkg/report` tests (0% coverage)                          | S      | Report gen is untested |
+| 19 | Add config roundtrip tests for all formats (YAML, TOML, JSON) | M      | Format safety          |
+| 20 | Add fuzz tests for config loading                             | M      | Edge case discovery    |
 
 ### Priority 5: Polish & DX (P3)
 
-| #   | Task                                                                 | Effort | Impact                 |
-| --- | -------------------------------------------------------------------- | ------ | ---------------------- |
-| 21  | Fix LSP warnings in `internal/cli/cmd_configure.go` (14 warnings)    | S      | Clean IDE experience   |
-| 22  | Fix deprecated `cobra.ExactValidArgs()` usage                        | S      | API hygiene            |
-| 23  | Add `just watch` for auto-test on file change                        | S      | Developer productivity |
-| 24  | Consider `github.com/goccy/go-yaml` for comment-preserving roundtrip | M      | Better UX              |
-| 25  | Add schema validation against golangci-lint JSON schema              | L      | Full correctness       |
+| #  | Task                                                                 | Effort | Impact                 |
+| -- | -------------------------------------------------------------------- | ------ | ---------------------- |
+| 21 | Fix LSP warnings in `internal/cli/cmd_configure.go` (14 warnings)    | S      | Clean IDE experience   |
+| 22 | Fix deprecated `cobra.ExactValidArgs()` usage                        | S      | API hygiene            |
+| 23 | Add `just watch` for auto-test on file change                        | S      | Developer productivity |
+| 24 | Consider `github.com/goccy/go-yaml` for comment-preserving roundtrip | M      | Better UX              |
+| 25 | Add schema validation against golangci-lint JSON schema              | L      | Full correctness       |
 
 ---
 

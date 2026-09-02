@@ -101,48 +101,48 @@ pkg/linter/
 
 ### High Impact, Low Effort (Do Now)
 
-| #   | Task                               | Effort | Impact | Why                        |
-| --- | ---------------------------------- | ------ | ------ | -------------------------- |
-| 1   | Remove dead `FixerPreflight` code  | 5min   | High   | Clean code, less confusion |
-| 2   | Test E2E with broken config        | 5min   | High   | Verify feature works       |
-| 3   | Commit current changes             | 5min   | High   | Don't lose work            |
-| 4   | Review untracked `pkg/migration/`  | 10min  | Medium | May be needed feature      |
-| 5   | Review untracked `pkg/formatters/` | 10min  | Medium | May be needed feature      |
+| # | Task                               | Effort | Impact | Why                        |
+| - | ---------------------------------- | ------ | ------ | -------------------------- |
+| 1 | Remove dead `FixerPreflight` code  | 5min   | High   | Clean code, less confusion |
+| 2 | Test E2E with broken config        | 5min   | High   | Verify feature works       |
+| 3 | Commit current changes             | 5min   | High   | Don't lose work            |
+| 4 | Review untracked `pkg/migration/`  | 10min  | Medium | May be needed feature      |
+| 5 | Review untracked `pkg/formatters/` | 10min  | Medium | May be needed feature      |
 
 ### High Impact, Medium Effort (Do Soon)
 
-| #   | Task                                               | Effort | Impact | Why                       |
-| --- | -------------------------------------------------- | ------ | ------ | ------------------------- |
-| 6   | Add duration validation tag to `RunConfig.Timeout` | 15min  | High   | Catch errors at load time |
-| 7   | Create `IsValidDuration()` utility in `pkg/types`  | 15min  | Medium | Reusable validation       |
-| 8   | Make `preFixVersion` return `(bool, error)`        | 20min  | Medium | Consistent pattern        |
-| 9   | Add duration validation to `ValidateConfig()`      | 20min  | High   | Comprehensive validation  |
-| 10  | Document preflight check pattern in AGENTS.md      | 15min  | Medium | Knowledge transfer        |
+| #  | Task                                               | Effort | Impact | Why                       |
+| -- | -------------------------------------------------- | ------ | ------ | ------------------------- |
+| 6  | Add duration validation tag to `RunConfig.Timeout` | 15min  | High   | Catch errors at load time |
+| 7  | Create `IsValidDuration()` utility in `pkg/types`  | 15min  | Medium | Reusable validation       |
+| 8  | Make `preFixVersion` return `(bool, error)`        | 20min  | Medium | Consistent pattern        |
+| 9  | Add duration validation to `ValidateConfig()`      | 20min  | High   | Comprehensive validation  |
+| 10 | Document preflight check pattern in AGENTS.md      | 15min  | Medium | Knowledge transfer        |
 
 ### Medium Impact, Medium Effort (Nice to Have)
 
-| #   | Task                                      | Effort | Impact | Why                     |
-| --- | ----------------------------------------- | ------ | ------ | ----------------------- |
-| 11  | Create `PreflightCheck` interface         | 30min  | Medium | Extensible architecture |
-| 12  | Add preflight check registry              | 30min  | Medium | Plugin pattern          |
-| 13  | Add more duration fields (if any)         | 15min  | Low    | Complete coverage       |
-| 14  | Add integration test for invalid duration | 20min  | Medium | E2E coverage            |
-| 15  | Update CLI help text for configure        | 10min  | Low    | Better UX               |
+| #  | Task                                      | Effort | Impact | Why                     |
+| -- | ----------------------------------------- | ------ | ------ | ----------------------- |
+| 11 | Create `PreflightCheck` interface         | 30min  | Medium | Extensible architecture |
+| 12 | Add preflight check registry              | 30min  | Medium | Plugin pattern          |
+| 13 | Add more duration fields (if any)         | 15min  | Low    | Complete coverage       |
+| 14 | Add integration test for invalid duration | 20min  | Medium | E2E coverage            |
+| 15 | Update CLI help text for configure        | 10min  | Low    | Better UX               |
 
 ### Lower Priority (Future)
 
-| #   | Task                                       | Effort | Impact | Why               |
-| --- | ------------------------------------------ | ------ | ------ | ----------------- |
-| 16  | Use `time.Duration` type instead of string | 1hr    | Medium | Type safety       |
-| 17  | Custom YAML unmarshaler for durations      | 45min  | Medium | Parse on load     |
-| 18  | Add `--skip-preflight` flag                | 30min  | Low    | Advanced control  |
-| 19  | Add preflight summary to output            | 20min  | Low    | Better reporting  |
-| 20  | Add preflight metrics                      | 30min  | Low    | Observability     |
-| 21  | Refactor to functional options             | 1hr    | Low    | Modern pattern    |
-| 22  | Add preflight check tests                  | 30min  | Medium | Coverage          |
-| 23  | Document in README                         | 15min  | Low    | User docs         |
-| 24  | Add to examples/                           | 10min  | Low    | Examples          |
-| 25  | Create ADR for preflight pattern           | 30min  | Low    | Architecture docs |
+| #  | Task                                       | Effort | Impact | Why               |
+| -- | ------------------------------------------ | ------ | ------ | ----------------- |
+| 16 | Use `time.Duration` type instead of string | 1hr    | Medium | Type safety       |
+| 17 | Custom YAML unmarshaler for durations      | 45min  | Medium | Parse on load     |
+| 18 | Add `--skip-preflight` flag                | 30min  | Low    | Advanced control  |
+| 19 | Add preflight summary to output            | 20min  | Low    | Better reporting  |
+| 20 | Add preflight metrics                      | 30min  | Low    | Observability     |
+| 21 | Refactor to functional options             | 1hr    | Low    | Modern pattern    |
+| 22 | Add preflight check tests                  | 30min  | Medium | Coverage          |
+| 23 | Document in README                         | 15min  | Low    | User docs         |
+| 24 | Add to examples/                           | 10min  | Low    | Examples          |
+| 25 | Create ADR for preflight pattern           | 30min  | Low    | Architecture docs |
 
 ---
 

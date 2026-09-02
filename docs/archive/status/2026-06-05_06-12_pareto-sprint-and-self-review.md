@@ -1,7 +1,7 @@
 # Status Report — 2026-06-05 Sprint Execution
 
-**Date:** 2026-06-05 06:12  
-**Branch:** master  
+**Date:** 2026-06-05 06:12\
+**Branch:** master\
 **Trigger:** Pareto execution plan execution + self-review
 
 ---
@@ -140,33 +140,33 @@ Executed the Pareto execution plan from `docs/planning/2026-06-05_05-19_PARETO-E
 
 Sorted by Impact × Effort (highest leverage first):
 
-| #   | Task                                                        | Impact   | Effort | Category     |
-| --- | ----------------------------------------------------------- | -------- | ------ | ------------ |
-| 1   | Fix `Config.Clone()` deep clone bug                         | Critical | 30m    | Bugfix       |
-| 2   | Remove stale `internal/cli/.golangci.yml`                   | Cleanup  | 2m     | Cleanup      |
-| 3   | Add `ParsePriority(string)` with validation                 | High     | 15m    | Type Safety  |
-| 4   | Enable `KnownFields(true)` in YAML decoder                  | High     | 30m    | Correctness  |
-| 5   | Unify `ValidationResult` with `ConfigValidator` return      | Medium   | 30m    | Architecture |
-| 6   | Add `pkg/client/client_test.go` smoke tests                 | Medium   | 30m    | Testing      |
-| 7   | Type `LintersConfig.Enable/Disable` as `[]LinterName`       | High     | 45m    | Type Safety  |
-| 8   | Type `FormattersConfig.Enable/Disable` as `[]FormatterName` | High     | 30m    | Type Safety  |
-| 9   | Add `GeneratedMode` enum for exclusions                     | Medium   | 30m    | Type Safety  |
-| 10  | Extract `"validation-error"` string constant                | Low      | 5m     | Code Quality |
-| 11  | Fix spinner goroutine leak (add context)                    | Medium   | 15m    | Bugfix       |
-| 12  | Split `ConfigLoader` god interface                          | High     | 60m    | Architecture |
-| 13  | Return error from `detectFormat` for unknown extensions     | Low      | 10m    | Correctness  |
-| 14  | Add `IsValid()` to `LinterName`/`FormatterName`             | Low      | 15m    | Type Safety  |
-| 15  | Use `ConfigPath` type in `ConfigAnalysis.ConfigPath`        | Low      | 10m    | Consistency  |
-| 16  | Eliminate CLI global mutable state                          | High     | 90m    | Architecture |
-| 17  | Type `Config.Version` as `ConfigVersion`                    | Medium   | 30m    | Type Safety  |
-| 18  | Type `RunConfig.Timeout` as duration string                 | Medium   | 30m    | Type Safety  |
-| 19  | Add finding/detector unit tests                             | Medium   | 45m    | Testing      |
-| 20  | Add ui/finding_formatter tests                              | Low      | 30m    | Testing      |
-| 21  | Decide vendor/ in formatter exclusions                      | Low      | 15m    | Decision     |
-| 22  | Migrate justfile → flake.nix apps                           | Low      | 60m    | Build        |
-| 23  | Cache CLI test binary across tests                          | High     | 30m    | Testing      |
-| 24  | Remove `pkg/config` type aliases                            | Medium   | 30m    | Architecture |
-| 25  | Use `CommandBuilder` with interfaces not concretes          | Medium   | 45m    | Architecture |
+| #  | Task                                                        | Impact   | Effort | Category     |
+| -- | ----------------------------------------------------------- | -------- | ------ | ------------ |
+| 1  | Fix `Config.Clone()` deep clone bug                         | Critical | 30m    | Bugfix       |
+| 2  | Remove stale `internal/cli/.golangci.yml`                   | Cleanup  | 2m     | Cleanup      |
+| 3  | Add `ParsePriority(string)` with validation                 | High     | 15m    | Type Safety  |
+| 4  | Enable `KnownFields(true)` in YAML decoder                  | High     | 30m    | Correctness  |
+| 5  | Unify `ValidationResult` with `ConfigValidator` return      | Medium   | 30m    | Architecture |
+| 6  | Add `pkg/client/client_test.go` smoke tests                 | Medium   | 30m    | Testing      |
+| 7  | Type `LintersConfig.Enable/Disable` as `[]LinterName`       | High     | 45m    | Type Safety  |
+| 8  | Type `FormattersConfig.Enable/Disable` as `[]FormatterName` | High     | 30m    | Type Safety  |
+| 9  | Add `GeneratedMode` enum for exclusions                     | Medium   | 30m    | Type Safety  |
+| 10 | Extract `"validation-error"` string constant                | Low      | 5m     | Code Quality |
+| 11 | Fix spinner goroutine leak (add context)                    | Medium   | 15m    | Bugfix       |
+| 12 | Split `ConfigLoader` god interface                          | High     | 60m    | Architecture |
+| 13 | Return error from `detectFormat` for unknown extensions     | Low      | 10m    | Correctness  |
+| 14 | Add `IsValid()` to `LinterName`/`FormatterName`             | Low      | 15m    | Type Safety  |
+| 15 | Use `ConfigPath` type in `ConfigAnalysis.ConfigPath`        | Low      | 10m    | Consistency  |
+| 16 | Eliminate CLI global mutable state                          | High     | 90m    | Architecture |
+| 17 | Type `Config.Version` as `ConfigVersion`                    | Medium   | 30m    | Type Safety  |
+| 18 | Type `RunConfig.Timeout` as duration string                 | Medium   | 30m    | Type Safety  |
+| 19 | Add finding/detector unit tests                             | Medium   | 45m    | Testing      |
+| 20 | Add ui/finding_formatter tests                              | Low      | 30m    | Testing      |
+| 21 | Decide vendor/ in formatter exclusions                      | Low      | 15m    | Decision     |
+| 22 | Migrate justfile → flake.nix apps                           | Low      | 60m    | Build        |
+| 23 | Cache CLI test binary across tests                          | High     | 30m    | Testing      |
+| 24 | Remove `pkg/config` type aliases                            | Medium   | 30m    | Architecture |
+| 25 | Use `CommandBuilder` with interfaces not concretes          | Medium   | 45m    | Architecture |
 
 ---
 

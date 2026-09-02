@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>go-filewatcher Integration Review — golangci-lint-auto-configure</title>
+    <title>
+      go-filewatcher Integration Review — golangci-lint-auto-configure
+    </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -87,7 +89,12 @@
       }
 
       .phase-line {
-        background: linear-gradient(180deg, #6366f1 0%, #10b981 50%, #f59e0b 100%);
+        background: linear-gradient(
+          180deg,
+          #6366f1 0%,
+          #10b981 50%,
+          #f59e0b 100%
+        );
       }
 
       @keyframes fadeInUp {
@@ -144,7 +151,8 @@
       ></div>
       <div class="max-w-6xl mx-auto px-6 pt-20 pb-16 relative z-10">
         <div class="flex items-center gap-3 mb-6 animate-in">
-          <span class="text-xs font-mono tracking-widest text-slate-500 uppercase"
+          <span
+            class="text-xs font-mono tracking-widest text-slate-500 uppercase"
             >Research Report</span
           >
           <span class="w-1 h-1 rounded-full bg-slate-600"></span>
@@ -154,17 +162,22 @@
           class="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight leading-[1.1] animate-in delay-1"
         >
           go-filewatcher<br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400"
+          <span
+            class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400"
             >Integration Review</span
           >
         </h1>
-        <p class="mt-6 text-lg text-slate-400 max-w-2xl leading-relaxed animate-in delay-2">
+        <p
+          class="mt-6 text-lg text-slate-400 max-w-2xl leading-relaxed animate-in delay-2"
+        >
           Evaluating the costs and benefits of integrating
-          <code class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
+          <code
+            class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
             >github.com/larsartmann/go-filewatcher/v2</code
           >
           into golangci-lint-auto-configure for a potential
-          <code class="font-mono text-sm text-amber-400 bg-amber-950/50 px-1.5 py-0.5 rounded"
+          <code
+            class="font-mono text-sm text-amber-400 bg-amber-950/50 px-1.5 py-0.5 rounded"
             >--watch</code
           >
           mode.
@@ -180,13 +193,15 @@
             href="#pro"
             class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium px-5 py-2.5 rounded-lg transition-all border border-slate-700"
           >
-            <i data-lucide="thumbs-up" class="w-4 h-4 text-emerald-400"></i> 10 PRO
+            <i data-lucide="thumbs-up" class="w-4 h-4 text-emerald-400"></i> 10
+            PRO
           </a>
           <a
             href="#contra"
             class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium px-5 py-2.5 rounded-lg transition-all border border-slate-700"
           >
-            <i data-lucide="thumbs-down" class="w-4 h-4 text-red-400"></i> 10 CONTRA
+            <i data-lucide="thumbs-down" class="w-4 h-4 text-red-400"></i> 10
+            CONTRA
           </a>
         </div>
       </div>
@@ -198,28 +213,44 @@
         <div
           class="bg-slate-900/50 border border-slate-800 rounded-xl p-5 metric-glow transition-all"
         >
-          <div class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">Version</div>
+          <div
+            class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2"
+          >
+            Version
+          </div>
           <div class="text-2xl font-semibold text-white font-mono">v2.2.0</div>
         </div>
         <div
           class="bg-slate-900/50 border border-slate-800 rounded-xl p-5 metric-glow transition-all"
         >
-          <div class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">LOC</div>
+          <div
+            class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2"
+          >
+            LOC
+          </div>
           <div class="text-2xl font-semibold text-white font-mono">12,786</div>
         </div>
         <div
           class="bg-slate-900/50 border border-slate-800 rounded-xl p-5 metric-glow transition-all"
         >
-          <div class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">License</div>
+          <div
+            class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2"
+          >
+            License
+          </div>
           <div class="text-2xl font-semibold text-white font-mono">MIT</div>
         </div>
         <div
           class="bg-slate-900/50 border border-slate-800 rounded-xl p-5 metric-glow transition-all"
         >
-          <div class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2">
+          <div
+            class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2"
+          >
             Stable API
           </div>
-          <div class="text-2xl font-semibold text-emerald-400 font-mono">YES</div>
+          <div class="text-2xl font-semibold text-emerald-400 font-mono">
+            YES
+          </div>
         </div>
       </div>
     </section>
@@ -228,87 +259,130 @@
     <section class="max-w-6xl mx-auto px-6 pb-16">
       <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-8">
         <div class="flex items-center gap-3 mb-4">
-          <div class="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center">
+          <div
+            class="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center"
+          >
             <i data-lucide="zap" class="w-4 h-4 text-indigo-400"></i>
           </div>
-          <h2 class="text-xl font-semibold text-white">What the Integration Would Enable</h2>
+          <h2 class="text-xl font-semibold text-white">
+            What the Integration Would Enable
+          </h2>
         </div>
         <p class="text-slate-400 leading-relaxed max-w-3xl">
           A
-          <code class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
+          <code
+            class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
             >watch</code
           >
           subcommand (or
-          <code class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
+          <code
+            class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
             >--watch</code
           >
           flag on
-          <code class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
+          <code
+            class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
             >configure</code
           >
           /
-          <code class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
+          <code
+            class="font-mono text-sm text-indigo-400 bg-indigo-950/50 px-1.5 py-0.5 rounded"
             >analyze</code
           >) that monitors
-          <code class="font-mono text-sm text-amber-400 bg-amber-950/50 px-1.5 py-0.5 rounded"
+          <code
+            class="font-mono text-sm text-amber-400 bg-amber-950/50 px-1.5 py-0.5 rounded"
             >.golangci.yml</code
           >
-          and/or Go source files, automatically re-running analysis or re-configuring when changes
-          are detected. This has been listed as a
-          <span class="text-amber-400">low-priority backlog item</span> in archived status docs
-          since April 2026.
+          and/or Go source files, automatically re-running analysis or
+          re-configuring when changes are detected. This has been listed as a
+          <span class="text-amber-400">low-priority backlog item</span> in
+          archived status docs since April 2026.
         </p>
       </div>
     </section>
 
     <!-- Score Summary -->
     <section class="max-w-6xl mx-auto px-6 pb-16">
-      <h2 class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6">Score Summary</h2>
+      <h2
+        class="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6"
+      >
+        Score Summary
+      </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
           <div class="flex items-center justify-between mb-3">
-            <span class="text-emerald-400 font-semibold text-sm">PRO — Library Quality</span>
+            <span class="text-emerald-400 font-semibold text-sm"
+              >PRO — Library Quality</span
+            >
             <span class="font-mono text-emerald-400 text-sm">9/10</span>
           </div>
           <div class="w-full bg-slate-800 rounded-full h-2">
-            <div class="score-bar-pro h-2 rounded-full transition-all" style="width: 90%"></div>
+            <div
+              class="score-bar-pro h-2 rounded-full transition-all"
+              style="width: 90%"
+            ></div>
           </div>
           <div class="flex items-center justify-between mt-4 mb-3">
-            <span class="text-emerald-400 font-semibold text-sm">PRO — Shared Ecosystem</span>
+            <span class="text-emerald-400 font-semibold text-sm"
+              >PRO — Shared Ecosystem</span
+            >
             <span class="font-mono text-emerald-400 text-sm">10/10</span>
           </div>
           <div class="w-full bg-slate-800 rounded-full h-2">
-            <div class="score-bar-pro h-2 rounded-full transition-all" style="width: 100%"></div>
+            <div
+              class="score-bar-pro h-2 rounded-full transition-all"
+              style="width: 100%"
+            ></div>
           </div>
           <div class="flex items-center justify-between mt-4 mb-3">
-            <span class="text-emerald-400 font-semibold text-sm">PRO — Feature Richness</span>
+            <span class="text-emerald-400 font-semibold text-sm"
+              >PRO — Feature Richness</span
+            >
             <span class="font-mono text-emerald-400 text-sm">8/10</span>
           </div>
           <div class="w-full bg-slate-800 rounded-full h-2">
-            <div class="score-bar-pro h-2 rounded-full transition-all" style="width: 80%"></div>
+            <div
+              class="score-bar-pro h-2 rounded-full transition-all"
+              style="width: 80%"
+            ></div>
           </div>
         </div>
         <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
           <div class="flex items-center justify-between mb-3">
-            <span class="text-red-400 font-semibold text-sm">CONTRA — Use Case Fit</span>
+            <span class="text-red-400 font-semibold text-sm"
+              >CONTRA — Use Case Fit</span
+            >
             <span class="font-mono text-red-400 text-sm">3/10</span>
           </div>
           <div class="w-full bg-slate-800 rounded-full h-2">
-            <div class="score-bar-contra h-2 rounded-full transition-all" style="width: 30%"></div>
+            <div
+              class="score-bar-contra h-2 rounded-full transition-all"
+              style="width: 30%"
+            ></div>
           </div>
           <div class="flex items-center justify-between mt-4 mb-3">
-            <span class="text-red-400 font-semibold text-sm">CONTRA — Demand Signal</span>
+            <span class="text-red-400 font-semibold text-sm"
+              >CONTRA — Demand Signal</span
+            >
             <span class="font-mono text-red-400 text-sm">1/10</span>
           </div>
           <div class="w-full bg-slate-800 rounded-full h-2">
-            <div class="score-bar-contra h-2 rounded-full transition-all" style="width: 10%"></div>
+            <div
+              class="score-bar-contra h-2 rounded-full transition-all"
+              style="width: 10%"
+            ></div>
           </div>
           <div class="flex items-center justify-between mt-4 mb-3">
-            <span class="text-red-400 font-semibold text-sm">CONTRA — Dependency Cost</span>
+            <span class="text-red-400 font-semibold text-sm"
+              >CONTRA — Dependency Cost</span
+            >
             <span class="font-mono text-red-400 text-sm">5/10</span>
           </div>
           <div class="w-full bg-slate-800 rounded-full h-2">
-            <div class="score-bar-contra h-2 rounded-full transition-all" style="width: 50%"></div>
+            <div
+              class="score-bar-contra h-2 rounded-full transition-all"
+              style="width: 50%"
+            ></div>
           </div>
         </div>
       </div>
@@ -317,66 +391,82 @@
     <!-- PRO Section -->
     <section id="pro" class="max-w-6xl mx-auto px-6 pb-20">
       <div class="flex items-center gap-3 mb-8">
-        <div class="w-10 h-10 rounded-xl badge-pro flex items-center justify-center">
+        <div
+          class="w-10 h-10 rounded-xl badge-pro flex items-center justify-center"
+        >
           <i data-lucide="thumbs-up" class="w-5 h-5 text-white"></i>
         </div>
         <div>
           <h2 class="text-2xl font-semibold text-white tracking-tight">PRO</h2>
-          <p class="text-sm text-slate-500">Arguments in favor of integration</p>
+          <p class="text-sm text-slate-500">
+            Arguments in favor of integration
+          </p>
         </div>
       </div>
 
       <div class="space-y-4">
         <!-- PRO 1 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >01</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Same Author, Same Ecosystem</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Same Author, Same Ecosystem
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
-                Both are LarsArtmann projects with identical toolchains (Go 1.26, Nix flakes,
-                golangci-lint, gogenfilter). Zero friction on contribution workflow and release
-                cadence.
+                Both are LarsArtmann projects with identical toolchains (Go
+                1.26, Nix flakes, golangci-lint, gogenfilter). Zero friction on
+                contribution workflow and release cadence.
               </p>
             </div>
           </div>
         </div>
 
         <!-- PRO 2 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >02</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Shared Dependency: gogenfilter</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Shared Dependency: gogenfilter
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 Both projects already depend on
                 <code
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                   >gogenfilter/v3</code
                 >
-                for auto-generated code detection. Integration would reuse the same scanning logic
-                for both file-watching filtering and config exclusion generation — no duplicated
-                detection.
+                for auto-generated code detection. Integration would reuse the
+                same scanning logic for both file-watching filtering and config
+                exclusion generation — no duplicated detection.
               </p>
             </div>
           </div>
         </div>
 
         <!-- PRO 3 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >03</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Rich Filtering Out of the Box</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Rich Filtering Out of the Box
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 <code
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
@@ -390,14 +480,17 @@
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                   >FilterGeneratedCode()</code
                 >
-                — exactly what a linting watcher needs. No custom filter code required.
+                — exactly what a linting watcher needs. No custom filter code
+                required.
               </p>
             </div>
           </div>
         </div>
 
         <!-- PRO 4 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
@@ -410,22 +503,26 @@
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                   >WithPerPathDebounce(300ms)</code
                 >
-                prevents re-triggering analysis on rapid saves — a fully solved problem with global
-                and per-path modes.
+                prevents re-triggering analysis on rapid saves — a fully solved
+                problem with global and per-path modes.
               </p>
             </div>
           </div>
         </div>
 
         <!-- PRO 5 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >05</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Composable Middleware Chain</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Composable Middleware Chain
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 <code
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
@@ -448,21 +545,26 @@
         </div>
 
         <!-- PRO 6 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >06</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">API Stability Guarantees</h3>
+              <h3 class="text-white font-semibold mb-1">
+                API Stability Guarantees
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 Explicit
                 <code
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                   >API_STABILITY.md</code
                 >
-                commits to semver with clear stable / evolving / deprecated tiers. Core types (<code
+                commits to semver with clear stable / evolving / deprecated
+                tiers. Core types (<code
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                   >New()</code
                 >,
@@ -484,14 +586,18 @@
         </div>
 
         <!-- PRO 7 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >07</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Minimal Real Dependency Footprint</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Minimal Real Dependency Footprint
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 Only
                 <code
@@ -517,17 +623,21 @@
         </div>
 
         <!-- PRO 8 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >08</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Self-Healing + ENOSPC Handling</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Self-Healing + ENOSPC Handling
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
-                Production-grade: handles inotify budget exhaustion gracefully, retries failed
-                paths. Important for large monorepos where
+                Production-grade: handles inotify budget exhaustion gracefully,
+                retries failed paths. Important for large monorepos where
                 <code
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                   >max_user_watches</code
@@ -539,14 +649,18 @@
         </div>
 
         <!-- PRO 9 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >09</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Phantom Types for Path Safety</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Phantom Types for Path Safety
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 <code
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
@@ -557,30 +671,35 @@
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                   >RootPath</code
                 >
-                prevents mixing up watched roots with event paths at compile time — eliminates an
-                entire class of bugs.
+                prevents mixing up watched roots with event paths at compile
+                time — eliminates an entire class of bugs.
               </p>
             </div>
           </div>
         </div>
 
         <!-- PRO 10 -->
-        <div class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="pro-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-mono text-sm font-semibold"
               >10</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Well-Documented, Well-Tested Codebase</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Well-Documented, Well-Tested Codebase
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
-                12,786 LOC total, 1,465-line test file, benchmark tests, fuzz tests, architecture
-                docs, AGENTS.md. Passes
+                12,786 LOC total, 1,465-line test file, benchmark tests, fuzz
+                tests, architecture docs, AGENTS.md. Passes
                 <code
                   class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                   >go vet</code
                 >
-                cleanly. 109 commits in the last month. Active, mature development.
+                cleanly. 109 commits in the last month. Active, mature
+                development.
               </p>
             </div>
           </div>
@@ -591,137 +710,178 @@
     <!-- CONTRA Section -->
     <section id="contra" class="max-w-6xl mx-auto px-6 pb-20">
       <div class="flex items-center gap-3 mb-8">
-        <div class="w-10 h-10 rounded-xl badge-contra flex items-center justify-center">
+        <div
+          class="w-10 h-10 rounded-xl badge-contra flex items-center justify-center"
+        >
           <i data-lucide="thumbs-down" class="w-5 h-5 text-white"></i>
         </div>
         <div>
-          <h2 class="text-2xl font-semibold text-white tracking-tight">CONTRA</h2>
+          <h2 class="text-2xl font-semibold text-white tracking-tight">
+            CONTRA
+          </h2>
           <p class="text-sm text-slate-500">Arguments against integration</p>
         </div>
       </div>
 
       <div class="space-y-4">
         <!-- CONTRA 1 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >01</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Test Failure on This Machine</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Test Failure on This Machine
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >go test ./...</code
                 >
-                FAILS with ENOSPC ("no space left on device"). Inotify limits are hit on the dev
-                machine — a real operational concern for watching large projects. Integration would
-                inherit this fragility.
+                FAILS with ENOSPC ("no space left on device"). Inotify limits
+                are hit on the dev machine — a real operational concern for
+                watching large projects. Integration would inherit this
+                fragility.
               </p>
             </div>
           </div>
         </div>
 
         <!-- CONTRA 2 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >02</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Dependency Chain Expansion</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Dependency Chain Expansion
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 Adds
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >fsnotify</code
                 >,
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >go-gitignore</code
                 >,
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >golang.org/x/time</code
                 >
-                to golangci-lint-auto-configure's dependency graph. Currently the project has zero
-                filesystem-watching deps. Every dependency is maintenance burden (CVE surface,
-                version skew, breakage).
+                to golangci-lint-auto-configure's dependency graph. Currently
+                the project has zero filesystem-watching deps. Every dependency
+                is maintenance burden (CVE surface, version skew, breakage).
               </p>
             </div>
           </div>
         </div>
 
         <!-- CONTRA 3 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >03</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Feature Scope Mismatch</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Feature Scope Mismatch
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
-                go-filewatcher is a <strong class="text-red-400">general-purpose</strong> library
-                with circuit breakers, OTel tracing, Prometheus collectors, polling mode, content
-                hashing — 90% of this is irrelevant for a simple "watch
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                go-filewatcher is a
+                <strong class="text-red-400">general-purpose</strong> library
+                with circuit breakers, OTel tracing, Prometheus collectors,
+                polling mode, content hashing — 90% of this is irrelevant for a
+                simple "watch
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >.golangci.yml</code
                 >
-                and re-analyze" use case. You'd pay for complexity you don't use.
+                and re-analyze" use case. You'd pay for complexity you don't
+                use.
               </p>
             </div>
           </div>
         </div>
 
         <!-- CONTRA 4 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >04</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Alternative: Raw fsnotify (~20 LOC)</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Alternative: Raw fsnotify (~20 LOC)
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 For watching a single config file (<code
                   class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >.golangci.yml</code
                 >),
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >fsnotify</code
                 >
-                directly is ~20 lines of code. The full go-filewatcher abstraction (filters,
-                middleware, debouncers, phantom types) is over-engineered for this use case.
+                directly is ~20 lines of code. The full go-filewatcher
+                abstraction (filters, middleware, debouncers, phantom types) is
+                over-engineered for this use case.
               </p>
             </div>
           </div>
         </div>
 
         <!-- CONTRA 5 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >05</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Alternative: External Tools (Zero-Dep)</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Alternative: External Tools (Zero-Dep)
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 Tools like
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >air</code
                 >,
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >watchexec</code
                 >, and
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >entr</code
                 >
-                already solve "run command on file change" as external processes. A
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                already solve "run command on file change" as external
+                processes. A
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >just watch</code
                 >
                 recipe calling
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >watchexec</code
                 >
                 is zero-dependency and more flexible.
@@ -731,59 +891,78 @@
         </div>
 
         <!-- CONTRA 6 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >06</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">No Existing Demand Signal</h3>
+              <h3 class="text-white font-semibold mb-1">
+                No Existing Demand Signal
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 The
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >--watch</code
                 >
                 feature is consistently listed as
-                <strong class="text-amber-400">Low priority / NOT STARTED</strong> across multiple
-                status reports. No user requests, no GitHub issues, no roadmap commitment.
+                <strong class="text-amber-400"
+                  >Low priority / NOT STARTED</strong
+                >
+                across multiple status reports. No user requests, no GitHub
+                issues, no roadmap commitment.
               </p>
             </div>
           </div>
         </div>
 
         <!-- CONTRA 7 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >07</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Runtime Model Change</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Runtime Model Change
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 A watch mode makes golangci-lint-auto-configure a
                 <strong class="text-red-400">long-running process</strong>
-                instead of a one-shot CLI. This changes the operational model fundamentally: signal
-                handling, graceful shutdown, resource cleanup, log rotation — all required.
+                instead of a one-shot CLI. This changes the operational model
+                fundamentally: signal handling, graceful shutdown, resource
+                cleanup, log rotation — all required.
               </p>
             </div>
           </div>
         </div>
 
         <!-- CONTRA 8 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >08</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Overhead from Unused Features</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Overhead from Unused Features
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
-                Circuit breaker, OTel, Prometheus, content hashing — these "evolving" APIs add
-                import-time cost even if unused. The middleware system pulls in
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                Circuit breaker, OTel, Prometheus, content hashing — these
+                "evolving" APIs add import-time cost even if unused. The
+                middleware system pulls in
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >golang.org/x/time/rate</code
                 >
                 unconditionally.
@@ -793,45 +972,57 @@
         </div>
 
         <!-- CONTRA 9 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >09</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Version Coupling Risk</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Version Coupling Risk
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
-                Since both are your projects, a breaking change in go-filewatcher v3 would force a
-                coordinated release of golangci-lint-auto-configure. Manageable but real
-                coordination overhead.
+                Since both are your projects, a breaking change in
+                go-filewatcher v3 would force a coordinated release of
+                golangci-lint-auto-configure. Manageable but real coordination
+                overhead.
               </p>
             </div>
           </div>
         </div>
 
         <!-- CONTRA 10 -->
-        <div class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200">
+        <div
+          class="contra-card bg-slate-900/40 rounded-xl p-6 transition-all duration-200"
+        >
           <div class="flex items-start gap-4">
             <span
               class="shrink-0 w-8 h-8 rounded-lg bg-red-950 text-red-400 flex items-center justify-center font-mono text-sm font-semibold"
               >10</span
             >
             <div>
-              <h3 class="text-white font-semibold mb-1">Evolving API Surface</h3>
+              <h3 class="text-white font-semibold mb-1">
+                Evolving API Surface
+              </h3>
               <p class="text-slate-400 text-sm leading-relaxed">
                 Key features like
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >WithSelfHeal</code
                 >,
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >WithContentHashing</code
                 >,
-                <code class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
+                <code
+                  class="font-mono text-xs text-red-400 bg-red-950/50 px-1 py-0.5 rounded"
                   >WithPolling</code
                 >, and all error middleware are in the
-                <strong class="text-amber-400">Evolving</strong> stability tier — they can change
-                behavior between minor versions.
+                <strong class="text-amber-400">Evolving</strong> stability tier
+                — they can change behavior between minor versions.
               </p>
             </div>
           </div>
@@ -849,12 +1040,18 @@
         ></div>
         <div class="p-8 sm:p-10">
           <div class="flex items-center gap-3 mb-6">
-            <div class="w-10 h-10 rounded-xl badge-verdict flex items-center justify-center">
+            <div
+              class="w-10 h-10 rounded-xl badge-verdict flex items-center justify-center"
+            >
               <i data-lucide="gavel" class="w-5 h-5 text-white"></i>
             </div>
             <div>
-              <h2 class="text-2xl font-semibold text-white tracking-tight">Verdict</h2>
-              <p class="text-sm text-amber-400/80">Do NOT integrate at this time</p>
+              <h2 class="text-2xl font-semibold text-white tracking-tight">
+                Verdict
+              </h2>
+              <p class="text-sm text-amber-400/80">
+                Do NOT integrate at this time
+              </p>
             </div>
           </div>
 
@@ -862,37 +1059,46 @@
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-slate-800">
-                  <th class="text-left py-3 pr-4 text-slate-400 font-medium">Factor</th>
-                  <th class="text-left py-3 text-slate-400 font-medium">Assessment</th>
+                  <th class="text-left py-3 pr-4 text-slate-400 font-medium">
+                    Factor
+                  </th>
+                  <th class="text-left py-3 text-slate-400 font-medium">
+                    Assessment
+                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-800/50">
                 <tr>
                   <td class="py-3 pr-4 text-slate-300">Library quality</td>
                   <td class="py-3">
-                    <span class="text-emerald-400 font-semibold">Excellent</span> — well-designed,
-                    well-tested, documented, semver-committed
+                    <span class="text-emerald-400 font-semibold"
+                      >Excellent</span
+                    >
+                    — well-designed, well-tested, documented, semver-committed
                   </td>
                 </tr>
                 <tr>
-                  <td class="py-3 pr-4 text-slate-300">Fit for this use case</td>
+                  <td class="py-3 pr-4 text-slate-300">
+                    Fit for this use case
+                  </td>
                   <td class="py-3">
-                    <span class="text-red-400 font-semibold">Poor</span> — watching 1–3 config files
-                    doesn't need 780 LOC of watcher abstraction
+                    <span class="text-red-400 font-semibold">Poor</span> —
+                    watching 1–3 config files doesn't need 780 LOC of watcher
+                    abstraction
                   </td>
                 </tr>
                 <tr>
                   <td class="py-3 pr-4 text-slate-300">Demand signal</td>
                   <td class="py-3">
-                    <span class="text-red-400 font-semibold">None</span> — consistently lowest
-                    priority across all planning docs
+                    <span class="text-red-400 font-semibold">None</span> —
+                    consistently lowest priority across all planning docs
                   </td>
                 </tr>
                 <tr>
                   <td class="py-3 pr-4 text-slate-300">Risk / Reward</td>
                   <td class="py-3">
-                    <span class="text-amber-400 font-semibold">Low</span> — high dependency cost for
-                    a feature nobody's asking for
+                    <span class="text-amber-400 font-semibold">Low</span> — high
+                    dependency cost for a feature nobody's asking for
                   </td>
                 </tr>
               </tbody>
@@ -905,20 +1111,27 @@
     <!-- Recommended Phases -->
     <section class="max-w-6xl mx-auto px-6 pb-20">
       <div class="flex items-center gap-3 mb-8">
-        <div class="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center">
+        <div
+          class="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center"
+        >
           <i data-lucide="route" class="w-5 h-5 text-indigo-400"></i>
         </div>
         <div>
-          <h2 class="text-2xl font-semibold text-white tracking-tight">Recommended Path Forward</h2>
+          <h2 class="text-2xl font-semibold text-white tracking-tight">
+            Recommended Path Forward
+          </h2>
           <p class="text-sm text-slate-500">
-            If <code class="font-mono text-xs">--watch</code> ever becomes a priority
+            If <code class="font-mono text-xs">--watch</code> ever becomes a
+            priority
           </p>
         </div>
       </div>
 
       <div class="relative">
         <!-- Timeline line -->
-        <div class="absolute left-6 top-0 bottom-0 w-0.5 phase-line rounded-full"></div>
+        <div
+          class="absolute left-6 top-0 bottom-0 w-0.5 phase-line rounded-full"
+        ></div>
 
         <!-- Phase 1 -->
         <div class="relative pl-16 pb-12">
@@ -927,32 +1140,40 @@
           ></div>
           <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
             <div class="flex items-center gap-2 mb-2">
-              <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider font-semibold"
+              <span
+                class="text-xs font-mono text-indigo-400 uppercase tracking-wider font-semibold"
                 >Phase 1 — Lightweight</span
               >
-              <span class="text-xs bg-indigo-950 text-indigo-400 px-2 py-0.5 rounded font-mono"
+              <span
+                class="text-xs bg-indigo-950 text-indigo-400 px-2 py-0.5 rounded font-mono"
                 >Zero deps</span
               >
             </div>
             <p class="text-slate-300 text-sm mb-4">
               Add a
-              <code class="font-mono text-xs text-indigo-400 bg-indigo-950/50 px-1 py-0.5 rounded"
+              <code
+                class="font-mono text-xs text-indigo-400 bg-indigo-950/50 px-1 py-0.5 rounded"
                 >just watch</code
               >
               recipe using
-              <code class="font-mono text-xs text-indigo-400 bg-indigo-950/50 px-1 py-0.5 rounded"
+              <code
+                class="font-mono text-xs text-indigo-400 bg-indigo-950/50 px-1 py-0.5 rounded"
                 >watchexec</code
               >
               or
-              <code class="font-mono text-xs text-indigo-400 bg-indigo-950/50 px-1 py-0.5 rounded"
+              <code
+                class="font-mono text-xs text-indigo-400 bg-indigo-950/50 px-1 py-0.5 rounded"
                 >entr</code
               >
               — zero Go dependencies, immediate value.
             </p>
-            <div class="code-block rounded-lg p-4 font-mono text-sm text-slate-300 overflow-x-auto">
+            <div
+              class="code-block rounded-lg p-4 font-mono text-sm text-slate-300 overflow-x-auto"
+            >
               <div><span class="text-slate-500"># justfile</span></div>
               <div>
-                <span class="text-amber-400">watch</span><span class="text-slate-500">:</span>
+                <span class="text-amber-400">watch</span
+                ><span class="text-slate-500">:</span>
               </div>
               <div>
                 watchexec <span class="text-emerald-400">-w</span> .golangci.yml
@@ -974,20 +1195,24 @@
                 class="text-xs font-mono text-emerald-400 uppercase tracking-wider font-semibold"
                 >Phase 2 — If Needed</span
               >
-              <span class="text-xs bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-mono"
+              <span
+                class="text-xs bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-mono"
                 >1 dep</span
               >
             </div>
             <p class="text-slate-300 text-sm">
               Use raw
-              <code class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
+              <code
+                class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                 >fsnotify</code
               >
               directly (~30 lines) for the single-file
-              <code class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
+              <code
+                class="font-mono text-xs text-emerald-400 bg-emerald-950/50 px-1 py-0.5 rounded"
                 >.golangci.yml</code
               >
-              watch case. No library needed. One dependency, full control, minimal abstraction.
+              watch case. No library needed. One dependency, full control,
+              minimal abstraction.
             </p>
           </div>
         </div>
@@ -999,19 +1224,23 @@
           ></div>
           <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
             <div class="flex items-center gap-2 mb-2">
-              <span class="text-xs font-mono text-amber-400 uppercase tracking-wider font-semibold"
+              <span
+                class="text-xs font-mono text-amber-400 uppercase tracking-wider font-semibold"
                 >Phase 3 — Whole Source Tree Watching</span
               >
-              <span class="text-xs bg-amber-950 text-amber-400 px-2 py-0.5 rounded font-mono"
+              <span
+                class="text-xs bg-amber-950 text-amber-400 px-2 py-0.5 rounded font-mono"
                 >go-filewatcher</span
               >
             </div>
             <p class="text-slate-300 text-sm">
-              THEN consider go-filewatcher. Its filtering, debouncing, and self-healing genuinely
-              justify the dependency when you're watching
+              THEN consider go-filewatcher. Its filtering, debouncing, and
+              self-healing genuinely justify the dependency when you're watching
               <strong class="text-white"
-                >thousands of <code class="font-mono text-xs">.go</code> files</strong
-              >, not one YAML file. The library shines at scale — and the use case isn't there yet.
+                >thousands of
+                <code class="font-mono text-xs">.go</code> files</strong
+              >, not one YAML file. The library shines at scale — and the use
+              case isn't there yet.
             </p>
           </div>
         </div>
@@ -1022,8 +1251,9 @@
     <section class="max-w-6xl mx-auto px-6 pb-24">
       <div class="text-center py-12 border-t border-slate-800">
         <p class="text-lg text-slate-400 max-w-xl mx-auto">
-          The library is <span class="text-emerald-400 font-semibold">excellent</span>. The use case
-          <span class="text-red-400 font-semibold">isn't there yet</span>.
+          The library is
+          <span class="text-emerald-400 font-semibold">excellent</span>. The use
+          case <span class="text-red-400 font-semibold">isn't there yet</span>.
         </p>
         <p class="text-sm text-slate-600 mt-3 font-mono">
           Revisit when <code>--watch</code> receives real demand.

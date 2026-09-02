@@ -1,7 +1,7 @@
 # Comprehensive Execution Plan: golangci-lint-auto-configure
 
-**Generated:** 2026-03-26  
-**Author:** AI Assistant  
+**Generated:** 2026-03-26\
+**Author:** AI Assistant\
 **Purpose:** Improve code quality, architecture, and test coverage
 
 ---
@@ -10,18 +10,18 @@
 
 ### Current State Analysis
 
-| Metric                 | Value                           | Status               |
-| ---------------------- | ------------------------------- | -------------------- |
-| Build                  | Passes                          | ✅                   |
+| Metric                 | Value                           | Status              |
+| ---------------------- | ------------------------------- | ------------------- |
+| Build                  | Passes                          | ✅                  |
 | Tests                  | Pass (52.6% composite)          | ⚠️ Needs improvement |
-| Lint                   | Stale diagnostics (ghost files) | ❌                   |
-| Internal/cli coverage  | 0%                              | 🔴 Critical          |
-| pkg/linter coverage    | 60.1%                           | 🟡 Could improve     |
-| pkg/diff coverage      | 96%                             | ✅ Good              |
-| pkg/config coverage    | 71.6%                           | 🟡 OK                |
-| pkg/detection coverage | 72%                             | 🟡 OK                |
-| Files >350 lines       | 3                               | 🔴 Need refactor     |
-| TODO comments          | 16                              | 🟡 Track/address     |
+| Lint                   | Stale diagnostics (ghost files) | ❌                  |
+| Internal/cli coverage  | 0%                              | 🔴 Critical         |
+| pkg/linter coverage    | 60.1%                           | 🟡 Could improve    |
+| pkg/diff coverage      | 96%                             | ✅ Good             |
+| pkg/config coverage    | 71.6%                           | 🟡 OK               |
+| pkg/detection coverage | 72%                             | 🟡 OK               |
+| Files >350 lines       | 3                               | 🔴 Need refactor    |
+| TODO comments          | 16                              | 🟡 Track/address    |
 
 ### Key Issues Identified
 
@@ -314,5 +314,5 @@ graph TD
 
 ---
 
-**Last Updated:** 2026-03-26  
+**Last Updated:** 2026-03-26\
 **Next Review:** After Phase 1 completion

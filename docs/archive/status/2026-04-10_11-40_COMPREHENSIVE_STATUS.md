@@ -13,7 +13,7 @@
 
 | Task                                             | Status  | Notes                                                                                                                                                                                                          |
 | ------------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Codebase research — golangci-lint-auto-configure | ✅ DONE | Read all critical files: fixer.go, loader.go, merger.go, cmd*configure.go, cmd_builder.go, commands.go, fixer_preflight.go, fixer_config.go, fixer_formatters.go, merger*\*.go, linter_priorities.go, types.go |
+| Codebase research — golangci-lint-auto-configure | ✅ DONE | Read all critical files: fixer.go, loader.go, merger.go, cmd_configure.go, cmd_builder.go, commands.go, fixer_preflight.go, fixer_config.go, fixer_formatters.go, merger_\*.go, linter_priorities.go, types.go |
 | YAML parsing investigation                       | ✅ DONE | Tested yaml library (go.yaml.in/yaml/v3 v3.0.4) — correctly handles go-localfirst config, no duplicate key on marshal/unmarshal cycle                                                                          |
 | Config struct analysis                           | ✅ DONE | types.Config, LintersConfig, FormattersConfig, OutputConfig — all struct tags verified correct                                                                                                                 |
 | Priority default investigation                   | ✅ DONE | Found the conflicting defaults                                                                                                                                                                                 |
@@ -25,19 +25,19 @@
 | Task                                    | Status     | Blocker                                                                                |
 | --------------------------------------- | ---------- | -------------------------------------------------------------------------------------- |
 | YAML duplicate key bug — ROOT CAUSE     | 🔄 PARTIAL | Likely in multiple SaveConfig calls within pre-flight fix chain, but NOT yet confirmed |
-| Fix implementation — priority default   | ⏸️ WAITING | Root cause found, fix ready to implement                                               |
-| Fix implementation — YAML duplicate key | ⏸️ WAITING | Root cause hypothesis: pre-flight multi-save pattern corrupts struct before final save |
+| Fix implementation — priority default   | ⏸️ WAITING  | Root cause found, fix ready to implement                                               |
+| Fix implementation — YAML duplicate key | ⏸️ WAITING  | Root cause hypothesis: pre-flight multi-save pattern corrupts struct before final save |
 
 ### c) NOT STARTED
 
 | Task                                                                                                                                                                         | Status |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| Fix: Change global `--priority` default from `"high"` to `"optional"`                                                                                                        |
-| Fix: Change configure command default `--priority` from `"high"` to `"optional"` (already correct in flag, but default in `ParsePriorityParam` still maps unknown to `High`) |
-| Fix: Prevent YAML duplicate key corruption — restructure pre-flight saves                                                                                                    |
-| Fix: Broken Nix Go build environment                                                                                                                                         |
-| Test all fixes                                                                                                                                                               |
-| Commit fixes                                                                                                                                                                 |
+| Fix: Change global `--priority` default from `"high"` to `"optional"`                                                                                                        |        |
+| Fix: Change configure command default `--priority` from `"high"` to `"optional"` (already correct in flag, but default in `ParsePriorityParam` still maps unknown to `High`) |        |
+| Fix: Prevent YAML duplicate key corruption — restructure pre-flight saves                                                                                                    |        |
+| Fix: Broken Nix Go build environment                                                                                                                                         |        |
+| Test all fixes                                                                                                                                                               |        |
+| Commit fixes                                                                                                                                                                 |        |
 
 ### d) TOTALLY FUCKED UP
 

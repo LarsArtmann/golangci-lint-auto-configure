@@ -1,8 +1,8 @@
 # Status Report: Full Session Cleanup & Architecture Hardening
 
-**Date:** 2026-05-01 02:41  
-**Author:** Crush (AI Assistant)  
-**Commits this session:** 8 (2596df3 → 86c0a1c)  
+**Date:** 2026-05-01 02:41\
+**Author:** Crush (AI Assistant)\
+**Commits this session:** 8 (2596df3 → 86c0a1c)\
 **Previous status:** [2026-05-01_01-19_GO-FINDING-API-MIGRATION](2026-05-01_01-19_GO-FINDING-API-MIGRATION-AND-ARCHITECTURE-CLEANUP.md)
 
 ---
@@ -189,53 +189,53 @@ Added `gocritic` and `exhaustruct` to `DefaultLinterSettings` with sensible defa
 
 ### Tier 1: Ship-Blockers (Must Fix Before Release)
 
-| #   | Task                                                 | Impact       | Effort |
-| --- | ---------------------------------------------------- | ------------ | ------ |
-| 1   | Fix CLI integration tests on NixOS                   | Tests pass   | Medium |
-| 2   | Remove `go-finding` local replace for CI             | CI passes    | Medium |
-| 3   | Add minimum coverage threshold (75%) to CI           | Quality gate | Small  |
-| 4   | Fix `internal/di/` docs reference (create or remove) | Accuracy     | Small  |
-| 5   | Add `CONTRIBUTING.md`                                | Onboarding   | Small  |
+| # | Task                                                 | Impact       | Effort |
+| - | ---------------------------------------------------- | ------------ | ------ |
+| 1 | Fix CLI integration tests on NixOS                   | Tests pass   | Medium |
+| 2 | Remove `go-finding` local replace for CI             | CI passes    | Medium |
+| 3 | Add minimum coverage threshold (75%) to CI           | Quality gate | Small  |
+| 4 | Fix `internal/di/` docs reference (create or remove) | Accuracy     | Small  |
+| 5 | Add `CONTRIBUTING.md`                                | Onboarding   | Small  |
 
 ### Tier 2: Quality & Safety
 
-| #   | Task                                                              | Impact      | Effort |
-| --- | ----------------------------------------------------------------- | ----------- | ------ |
-| 6   | Type-safe `DefaultLinterSettings` values (struct per linter)      | Type safety | Medium |
-| 7   | Type-safe `LintConfig.Settings` map                               | Type safety | Large  |
-| 8   | Mock binary execution for CLI tests                               | Reliability | Medium |
-| 9   | Add `ParseGolangciLintJSON` benchmarks                            | Performance | Small  |
-| 10  | Add `ErrorsToFindings` edge case tests (nil error, empty message) | Robustness  | Small  |
+| #  | Task                                                              | Impact      | Effort |
+| -- | ----------------------------------------------------------------- | ----------- | ------ |
+| 6  | Type-safe `DefaultLinterSettings` values (struct per linter)      | Type safety | Medium |
+| 7  | Type-safe `LintConfig.Settings` map                               | Type safety | Large  |
+| 8  | Mock binary execution for CLI tests                               | Reliability | Medium |
+| 9  | Add `ParseGolangciLintJSON` benchmarks                            | Performance | Small  |
+| 10 | Add `ErrorsToFindings` edge case tests (nil error, empty message) | Robustness  | Small  |
 
 ### Tier 3: Features & Polish
 
-| #   | Task                                           | Impact      | Effort |
-| --- | ---------------------------------------------- | ----------- | ------ |
-| 11  | Kubernetes/monorepo example configs            | UX          | Small  |
-| 12  | Auto-refresh linter documentation (`reports/`) | Freshness   | Medium |
-| 13  | SARIF output integration test                  | Correctness | Small  |
-| 14  | Release automation (GoReleaser or Nix)         | DX          | Medium |
-| 15  | Migrate justfile → flake.nix                   | Consistency | Large  |
+| #  | Task                                           | Impact      | Effort |
+| -- | ---------------------------------------------- | ----------- | ------ |
+| 11 | Kubernetes/monorepo example configs            | UX          | Small  |
+| 12 | Auto-refresh linter documentation (`reports/`) | Freshness   | Medium |
+| 13 | SARIF output integration test                  | Correctness | Small  |
+| 14 | Release automation (GoReleaser or Nix)         | DX          | Medium |
+| 15 | Migrate justfile → flake.nix                   | Consistency | Large  |
 
 ### Tier 4: Architecture Improvements
 
-| #   | Task                                                      | Impact          | Effort |
-| --- | --------------------------------------------------------- | --------------- | ------ |
-| 16  | Split `ConfigLoader` into `ConfigReader` + `ConfigWriter` | Cohesion        | Medium |
-| 17  | Functional options for `fixCounts`                        | Correctness     | Small  |
-| 18  | Code-generate config types from golangci-lint schema      | Maintainability | Large  |
-| 19  | Add depguard rules for internal packages                  | Safety          | Small  |
-| 20  | Consolidate `apperrors` vs raw `fmt.Errorf`               | Consistency     | Medium |
+| #  | Task                                                      | Impact          | Effort |
+| -- | --------------------------------------------------------- | --------------- | ------ |
+| 16 | Split `ConfigLoader` into `ConfigReader` + `ConfigWriter` | Cohesion        | Medium |
+| 17 | Functional options for `fixCounts`                        | Correctness     | Small  |
+| 18 | Code-generate config types from golangci-lint schema      | Maintainability | Large  |
+| 19 | Add depguard rules for internal packages                  | Safety          | Small  |
+| 20 | Consolidate `apperrors` vs raw `fmt.Errorf`               | Consistency     | Medium |
 
 ### Tier 5: Nice-to-Have
 
-| #   | Task                                                  | Impact        | Effort |
-| --- | ----------------------------------------------------- | ------------- | ------ |
-| 21  | Structured logging audit                              | Observability | Medium |
-| 22  | Config validation edge cases (empty, malformed, huge) | Robustness    | Medium |
-| 23  | Split AGENTS.md into focused guides                   | Navigation    | Small  |
-| 24  | Version injection in test builds                      | Accuracy      | Small  |
-| 25  | `install-hook` command tests                          | Coverage      | Small  |
+| #  | Task                                                  | Impact        | Effort |
+| -- | ----------------------------------------------------- | ------------- | ------ |
+| 21 | Structured logging audit                              | Observability | Medium |
+| 22 | Config validation edge cases (empty, malformed, huge) | Robustness    | Medium |
+| 23 | Split AGENTS.md into focused guides                   | Navigation    | Small  |
+| 24 | Version injection in test builds                      | Accuracy      | Small  |
+| 25 | `install-hook` command tests                          | Coverage      | Small  |
 
 ---
 

@@ -26,14 +26,14 @@ for semantic BSD-sysexits exit codes. The **boundary-only** integration is commi
 
 ### What is broken or unfinished
 
-| #   | Problem                                                                                    | Severity    |
-| --- | ------------------------------------------------------------------------------------------ | ----------- |
-| B1  | `nix build` fails — `go mod tidy` in `postPatch` needs network in sandbox (DNS refused)    | **Blocker** |
-| B2  | `FEATURES.md:163` claims "justfile recipes \| Stable" — **no justfile exists**             | Lie         |
-| B3  | `ReportError` / `MigrationError` do not implement `Classified`                             | Gap         |
-| B4  | 29 `fmt.Errorf` calls omit `%w` → breaks `errors.Is/As` + classification on wrapped errors | Correctness |
-| B5  | `internal/cli` coverage = 8.8% (user-facing entry point)                                   | Risk        |
-| B6  | No exit-code integration test (full `Main()` → `os.Exit()` path)                           | Risk        |
+| #  | Problem                                                                                    | Severity    |
+| -- | ------------------------------------------------------------------------------------------ | ----------- |
+| B1 | `nix build` fails — `go mod tidy` in `postPatch` needs network in sandbox (DNS refused)    | **Blocker** |
+| B2 | `FEATURES.md:163` claims "justfile recipes \| Stable" — **no justfile exists**             | Lie         |
+| B3 | `ReportError` / `MigrationError` do not implement `Classified`                             | Gap         |
+| B4 | 29 `fmt.Errorf` calls omit `%w` → breaks `errors.Is/As` + classification on wrapped errors | Correctness |
+| B5 | `internal/cli` coverage = 8.8% (user-facing entry point)                                   | Risk        |
+| B6 | No exit-code integration test (full `Main()` → `os.Exit()` path)                           | Risk        |
 
 ### Key architectural decision (resolves status-report Section G)
 

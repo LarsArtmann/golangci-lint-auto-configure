@@ -1,8 +1,8 @@
 # Linter Data Accuracy & Integrity Fixes
 
-**Date:** 2026-07-10  
-**Source:** Deep Architecture & Data Model Review (`docs/reviews/2026-07-10_deep-architecture-data-model-review.md`)  
-**Benchmark:** golangci-lint v2.12.2  
+**Date:** 2026-07-10\
+**Source:** Deep Architecture & Data Model Review (`docs/reviews/2026-07-10_deep-architecture-data-model-review.md`)\
+**Benchmark:** golangci-lint v2.12.2\
 **Goal:** Fix all P0-P2 data accuracy gaps identified in the review, verified by cross-map integrity tests
 
 ---
@@ -13,31 +13,31 @@
 
 These three fixes resolve the most impactful correctness issues — missing linters, removed linters treated as active, and broken version migration:
 
-| #   | Fix                                                               | Impact                                                     |
-| --- | ----------------------------------------------------------------- | ---------------------------------------------------------- |
-| 1   | Add `clickhouselint` (v2.12.0) — completely missing from all maps | Users on v2.12.0+ never get recommended this linter        |
-| 2   | Move `exportloopref` to `DeprecatedLinters` → `copyloopvar`       | Removed in v2; users with it get golangci-lint errors      |
-| 3   | Fix `validVersions()` — hardcoded list stops at v2.10.1           | v2.11/v2.12 configs get version reset to "2" unnecessarily |
+| # | Fix                                                               | Impact                                                     |
+| - | ----------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1 | Add `clickhouselint` (v2.12.0) — completely missing from all maps | Users on v2.12.0+ never get recommended this linter        |
+| 2 | Move `exportloopref` to `DeprecatedLinters` → `copyloopvar`       | Removed in v2; users with it get golangci-lint errors      |
+| 3 | Fix `validVersions()` — hardcoded list stops at v2.10.1           | v2.11/v2.12 configs get version reset to "2" unnecessarily |
 
 ### 4% that delivers 64% of the result
 
 Adding to the 1%: fixes that eliminate misclassification and prevent future regressions:
 
-| #   | Fix                                                              | Impact                                                                    |
-| --- | ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| 4   | Remove `gofmt`/`gci` from linter maps (they're formatters in v2) | Dead data, single-source-of-truth violation                               |
-| 5   | Add 5 missing v1 removed linters to `DeprecatedLinters`          | golint, scopelint, tenv, ifshort, execinquery — no migration guidance     |
-| 6   | Add cross-map integrity tests                                    | Catches formatter-in-linter-map, missing-reason regressions automatically |
+| # | Fix                                                              | Impact                                                                    |
+| - | ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 4 | Remove `gofmt`/`gci` from linter maps (they're formatters in v2) | Dead data, single-source-of-truth violation                               |
+| 5 | Add 5 missing v1 removed linters to `DeprecatedLinters`          | golint, scopelint, tenv, ifshort, execinquery — no migration guidance     |
+| 6 | Add cross-map integrity tests                                    | Catches formatter-in-linter-map, missing-reason regressions automatically |
 
 ### 20% that delivers 80% of the result
 
 Adding to the 4%: complete deprecation coverage and full test guards:
 
-| #   | Fix                                                      | Impact                                                              |
-| --- | -------------------------------------------------------- | ------------------------------------------------------------------- |
-| 7   | Add 7 v1 alternative name entries to `DeprecatedLinters` | gas→gosec, goerr113→err113, gomnd→mnd, etc.                         |
-| 8   | Handle empty `Replacement` in `fixer_deprecated.go`      | For ifshort/execinquery — just delete, don't add empty string       |
-| 9   | Add remaining integrity tests                            | DeprecatedLinters replacement targets valid, formatter cross-checks |
+| # | Fix                                                      | Impact                                                              |
+| - | -------------------------------------------------------- | ------------------------------------------------------------------- |
+| 7 | Add 7 v1 alternative name entries to `DeprecatedLinters` | gas→gosec, goerr113→err113, gomnd→mnd, etc.                         |
+| 8 | Handle empty `Replacement` in `fixer_deprecated.go`      | For ifshort/execinquery — just delete, don't add empty string       |
+| 9 | Add remaining integrity tests                            | DeprecatedLinters replacement targets valid, formatter cross-checks |
 
 ### Remaining 20% (P3 — not in scope for this session)
 
@@ -49,17 +49,17 @@ Adding to the 4%: complete deprecation coverage and full test guards:
 
 ## Execution Plan — Level 1 (30-100 min tasks)
 
-| ID  | Task                                             | Files                                                     | Impact   | Effort | Priority |
-| --- | ------------------------------------------------ | --------------------------------------------------------- | -------- | ------ | -------- |
-| T1  | Add `clickhouselint` to all data maps            | `linter_priorities.go`, `linter_reasons.go`, `version.go` | Critical | 15min  | P0       |
-| T2  | Move `exportloopref` to `DeprecatedLinters`      | `linter_priorities.go`, `linter_reasons.go`, `rules.go`   | Critical | 15min  | P0       |
-| T3  | Fix `validVersions()` with prefix matching       | `migration/rules.go`                                      | Critical | 20min  | P0       |
-| T4  | Remove `gofmt`/`gci` from linter maps            | `linter_priorities.go`, `linter_reasons.go`               | High     | 10min  | P0       |
-| T5  | Add 5 v1 removed linters to `DeprecatedLinters`  | `rules.go`                                                | High     | 15min  | P1       |
-| T6  | Add 7 v1 alt-name entries to `DeprecatedLinters` | `rules.go`                                                | Medium   | 15min  | P1       |
-| T7  | Handle empty replacement in fixer                | `fixer_deprecated.go`                                     | High     | 20min  | P1       |
-| T8  | Add cross-map integrity tests                    | `data_integrity_test.go`                                  | High     | 30min  | P2       |
-| T9  | Run full test suite + build verification         | —                                                         | Critical | 15min  | P0       |
+| ID | Task                                             | Files                                                     | Impact   | Effort | Priority |
+| -- | ------------------------------------------------ | --------------------------------------------------------- | -------- | ------ | -------- |
+| T1 | Add `clickhouselint` to all data maps            | `linter_priorities.go`, `linter_reasons.go`, `version.go` | Critical | 15min  | P0       |
+| T2 | Move `exportloopref` to `DeprecatedLinters`      | `linter_priorities.go`, `linter_reasons.go`, `rules.go`   | Critical | 15min  | P0       |
+| T3 | Fix `validVersions()` with prefix matching       | `migration/rules.go`                                      | Critical | 20min  | P0       |
+| T4 | Remove `gofmt`/`gci` from linter maps            | `linter_priorities.go`, `linter_reasons.go`               | High     | 10min  | P0       |
+| T5 | Add 5 v1 removed linters to `DeprecatedLinters`  | `rules.go`                                                | High     | 15min  | P1       |
+| T6 | Add 7 v1 alt-name entries to `DeprecatedLinters` | `rules.go`                                                | Medium   | 15min  | P1       |
+| T7 | Handle empty replacement in fixer                | `fixer_deprecated.go`                                     | High     | 20min  | P1       |
+| T8 | Add cross-map integrity tests                    | `data_integrity_test.go`                                  | High     | 30min  | P2       |
+| T9 | Run full test suite + build verification         | —                                                         | Critical | 15min  | P0       |
 
 ---
 

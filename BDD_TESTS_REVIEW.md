@@ -18,10 +18,10 @@ The project has **test coverage of 29.5%** and demonstrates **inconsistent use o
 | Metric                | Value            | Target | Status          |
 | --------------------- | ---------------- | ------ | --------------- |
 | Test Coverage         | 29.5%            | >80%   | ❌ Critical Gap |
-| Ginkgo Usage          | 8/12 files (67%) | 100%   | ⚠️ Inconsistent |
+| Ginkgo Usage          | 8/12 files (67%) | 100%   | ⚠️ Inconsistent  |
 | E2E Tests             | 0                | >5     | ❌ Missing      |
 | User Scenario Tests   | 0                | >10    | ❌ Missing      |
-| Behavior-Driven Tests | ~30%             | 100%   | ⚠️ Needs Work   |
+| Behavior-Driven Tests | ~30%             | 100%   | ⚠️ Needs Work    |
 
 ---
 
@@ -122,17 +122,17 @@ This is **unacceptably low** for a production tool. Target should be **>80%**.
 
 ### Coverage by Package:
 
-| Package         | Coverage         | Status               |
-| --------------- | ---------------- | -------------------- |
+| Package         | Coverage         | Status              |
+| --------------- | ---------------- | ------------------- |
 | `pkg/config`    | 61.6%            | ⚠️ Needs improvement |
-| `pkg/linter`    | ~35% (estimated) | ❌ Critical gap      |
+| `pkg/linter`    | ~35% (estimated) | ❌ Critical gap     |
 | `pkg/detection` | ~40% (estimated) | ⚠️ Needs improvement |
 | `pkg/migration` | ~50% (estimated) | ⚠️ Needs improvement |
 | `pkg/diff`      | ~60% (estimated) | ⚠️ Needs improvement |
-| `pkg/ui`        | ~30% (estimated) | ❌ Critical gap      |
+| `pkg/ui`        | ~30% (estimated) | ❌ Critical gap     |
 | `pkg/errors`    | ~70% (estimated) | ⚠️ Acceptable        |
 | `pkg/utils`     | ~50% (estimated) | ⚠️ Needs improvement |
-| `internal/cli`  | 12.7%            | ❌ Critical gap      |
+| `internal/cli`  | 12.7%            | ❌ Critical gap     |
 
 ### Uncovered Functions (0% coverage):
 
@@ -477,11 +477,11 @@ A test suite is "superb" when:
 | File                           | Lines | Ginkgo | Coverage | User-Focused | Quality   |
 | ------------------------------ | ----- | ------ | -------- | ------------ | --------- |
 | analyzer_test.go               | 176   | ✅     | ~35%     | ❌           | Good      |
-| fixer_test.go                  | 236   | ✅     | ~40%     | ⚠️           | Excellent |
+| fixer_test.go                  | 236   | ✅     | ~40%     | ⚠️            | Excellent |
 | loader_test.go                 | 327   | ✅     | 61.6%    | ❌           | Good      |
-| commands_test.go               | 391   | ✅     | 12.7%    | ⚠️           | Excellent |
+| commands_test.go               | 391   | ✅     | 12.7%    | ⚠️            | Excellent |
 | detector_test.go               | 213   | ❌     | ~40%     | ❌           | Medium    |
-| migrator_test.go               | 327   | ✅     | ~50%     | ⚠️           | Excellent |
+| migrator_test.go               | 327   | ✅     | ~50%     | ⚠️            | Excellent |
 | differ_test.go                 | 208   | ❌     | ~60%     | ❌           | Medium    |
 | errors_test.go                 | 182   | ✅     | ~70%     | ❌           | Good      |
 | formatter_test.go              | 226   | ❌     | ~30%     | ❌           | Medium    |

@@ -6,12 +6,12 @@
 
 ## a) FULLY DONE ✅
 
-| #   | Task                                                                                     | Commit    | Impact                                      |
-| --- | ---------------------------------------------------------------------------------------- | --------- | ------------------------------------------- |
-| 1   | Reverted `pkg/utils/retry.go` to original form with `//nolint:funlen,varnamelen`         | `8cab1b0` | Fixed broken tests + removed 5 violations   |
-| 2   | Wrote comprehensive status report                                                        | `ecd1af9` | Documentation                               |
-| 3   | Formatting cleanup from pre-commit hooks                                                 | `2d131a8` | Code quality                                |
-| 4   | WIP funlen extraction across 16 files (committed in failing state, then fixed by revert) | `6fa3f80` | Large refactor (reverted problematic parts) |
+| # | Task                                                                                     | Commit    | Impact                                      |
+| - | ---------------------------------------------------------------------------------------- | --------- | ------------------------------------------- |
+| 1 | Reverted `pkg/utils/retry.go` to original form with `//nolint:funlen,varnamelen`         | `8cab1b0` | Fixed broken tests + removed 5 violations   |
+| 2 | Wrote comprehensive status report                                                        | `ecd1af9` | Documentation                               |
+| 3 | Formatting cleanup from pre-commit hooks                                                 | `2d131a8` | Code quality                                |
+| 4 | WIP funlen extraction across 16 files (committed in failing state, then fixed by revert) | `6fa3f80` | Large refactor (reverted problematic parts) |
 
 **Tests**: 8/9 suites pass consistently. The CLI integration test (`internal/cli`) has a flaky failure on the `--help` test — it builds a binary and sometimes fails on environment/timing. This is a **pre-existing issue**, not caused by our changes.
 

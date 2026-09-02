@@ -10,12 +10,12 @@
 
 ### 4 genuine error-handling bugs fixed
 
-| #   | File:line                           | Bug                                                                                                          | Fix                                                                                                   |
-| --- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| 1   | `pkg/audit/ledger.go:356`           | `rewriteLedger` marshal error → bare `continue` silently dropped audit entries during compaction (data loss) | Added `slog.Warn` before the `continue` (file already truncated, so skip+log is the resilient choice) |
-| 2   | `pkg/detection/detector.go:448`     | `scanFileForSwaggo` discarded `scanner.Err()` in an error-returning function                                 | Now returns `errorfamily.WrapTransient(err, "detector.scan_swaggo", ...)`                             |
-| 3   | `pkg/detection/detector.go:354,400` | `hasMainPackage` / `hasAPICodePatterns` closures discarded `scanner.Err()`                                   | Now `return scanner.Err()` inside the closures (propagated up the walk chain)                         |
-| 4   | `pkg/report/generator.go:25`        | Deferred `outputFile.Close()` on the write path silently dropped flush errors                                | Named return `(err error)` + deferred close-capture that only overwrites a nil error                  |
+| # | File:line                           | Bug                                                                                                          | Fix                                                                                                   |
+| - | ----------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| 1 | `pkg/audit/ledger.go:356`           | `rewriteLedger` marshal error → bare `continue` silently dropped audit entries during compaction (data loss) | Added `slog.Warn` before the `continue` (file already truncated, so skip+log is the resilient choice) |
+| 2 | `pkg/detection/detector.go:448`     | `scanFileForSwaggo` discarded `scanner.Err()` in an error-returning function                                 | Now returns `errorfamily.WrapTransient(err, "detector.scan_swaggo", ...)`                             |
+| 3 | `pkg/detection/detector.go:354,400` | `hasMainPackage` / `hasAPICodePatterns` closures discarded `scanner.Err()`                                   | Now `return scanner.Err()` inside the closures (propagated up the walk chain)                         |
+| 4 | `pkg/report/generator.go:25`        | Deferred `outputFile.Close()` on the write path silently dropped flush errors                                | Named return `(err error)` + deferred close-capture that only overwrites a nil error                  |
 
 ### Verification gates passed
 
@@ -130,8 +130,8 @@ The `hierarchical-errors` skill is specifically about `errors.As` → `errors.As
 ### Broader error-handling improvements
 
 28. Audit all `defer file.Close()` patterns in the codebase for the named-return capture pattern
-29. Audit all `_ = ` assignments in the codebase (erraudit found 23, there may be more in tests)
-30. Check if any `_ = ` patterns in test files hide real test failures
+29. Audit all `_ =` assignments in the codebase (erraudit found 23, there may be more in tests)
+30. Check if any `_ =` patterns in test files hide real test failures
 31. Review `pkg/client/client.go` error handling (not flagged but worth a check)
 32. Review `pkg/utils/retry.go` error handling (uses errorfamily — verify correctness)
 33. Check `internal/cli/commands.go:340` — `slog.Error` on marshal failure, does it exit correctly?

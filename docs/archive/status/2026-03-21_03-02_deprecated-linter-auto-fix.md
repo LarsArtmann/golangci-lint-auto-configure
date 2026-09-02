@@ -1,7 +1,7 @@
 # Status Report: 2026-03-21 03:02
 
-**Date:** 2026-03-21 03:02 CET  
-**Project:** golangci-lint-auto-configure  
+**Date:** 2026-03-21 03:02 CET\
+**Project:** golangci-lint-auto-configure\
 **Branch:** master
 
 ---

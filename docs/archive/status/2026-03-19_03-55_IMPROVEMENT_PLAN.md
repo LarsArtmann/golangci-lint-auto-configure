@@ -1,7 +1,7 @@
 # Improvement Plan - Post Phase 2 Refactoring
 
-**Date:** 2026-03-19 03:55  
-**Commit:** f06afab  
+**Date:** 2026-03-19 03:55\
+**Commit:** f06afab\
 **Status:** Build passing, tests passing, Phase 2 complete
 
 ---
@@ -59,8 +59,8 @@ defaultConfig := configLoader.CreateDefaultConfig(context.Background())
 
 #### Step 1: Context Propagation from Cobra
 
-**Impact:** HIGH - Enables cancellation, proper timeouts  
-**Work:** MEDIUM  
+**Impact:** HIGH - Enables cancellation, proper timeouts\
+**Work:** MEDIUM\
 **Files:** `internal/cli/cmd_*.go`
 
 ```go
@@ -92,8 +92,8 @@ func runConfigure(ctx context.Context, ...) error {
 
 #### Step 2: User-Friendly Validation Errors
 
-**Impact:** HIGH - Better UX  
-**Work:** LOW  
+**Impact:** HIGH - Better UX\
+**Work:** LOW\
 **Files:** `pkg/types/validation.go`, CLI commands
 
 ```go
@@ -115,8 +115,8 @@ func FormatValidationErrors(err error) string {
 
 #### Step 3: Remove Unused Builder.config Field
 
-**Impact:** LOW - Cleaner code  
-**Work:** LOW  
+**Impact:** LOW - Cleaner code\
+**Work:** LOW\
 **Files:** `pkg/workflow/workflow.go`
 
 **Verification:**
@@ -128,8 +128,8 @@ func FormatValidationErrors(err error) string {
 
 #### Step 4: Fix Remaining wrapcheck Errors
 
-**Impact:** MEDIUM - Better error context  
-**Work:** MEDIUM  
+**Impact:** MEDIUM - Better error context\
+**Work:** MEDIUM\
 **Files:** `internal/cli/cmd_*.go`
 
 **Verification:**
@@ -142,8 +142,8 @@ func FormatValidationErrors(err error) string {
 
 #### Step 5: Document Result Type Patterns
 
-**Impact:** MEDIUM - Better onboarding  
-**Work:** MEDIUM  
+**Impact:** MEDIUM - Better onboarding\
+**Work:** MEDIUM\
 **Files:** `AGENTS.md`
 
 **Verification:**
@@ -236,22 +236,22 @@ golangci-lint-auto-configure configure --fetch-timeout=30s --git-timeout=5s
 
 ### 1. Error Message Quality
 
-**Current:** Technical validator messages  
+**Current:** Technical validator messages\
 **Target:** Clear, actionable user guidance
 
 ### 2. Context Awareness
 
-**Current:** Operations can't be cancelled  
+**Current:** Operations can't be cancelled\
 **Target:** Full cancellation support via Ctrl+C
 
 ### 3. Documentation
 
-**Current:** Result types not documented  
+**Current:** Result types not documented\
 **Target:** Clear patterns in AGENTS.md
 
 ### 4. Dead Code
 
-**Current:** Unused fields and parameters  
+**Current:** Unused fields and parameters\
 **Target:** Clean, minimal code
 
 ---
@@ -295,10 +295,10 @@ result := loader.LoadConfigResult(path).
 
 ## Current Status
 
-| Metric | Status                             |
-| ------ | ---------------------------------- |
-| Build  | ✅ PASSING                         |
-| Tests  | ✅ ALL PASSING (5 packages)        |
+| Metric | Status                            |
+| ------ | --------------------------------- |
+| Build  | ✅ PASSING                        |
+| Tests  | ✅ ALL PASSING (5 packages)       |
 | Lint   | ⚠️ 211 warnings (non-critical)     |
 | LSP    | ⚠️ Stale diagnostics (cache issue) |
 
@@ -313,5 +313,5 @@ result := loader.LoadConfigResult(path).
 
 ---
 
-_Assisted-by: Crush <crush@charm.land>_  
+_Assisted-by: Crush <crush@charm.land>_\
 _Date: 2026-03-19 03:55_

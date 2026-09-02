@@ -134,48 +134,48 @@ panic: finding builder error: [validation] finding.FixStrategyDirect requires Be
 
 ### Tier 1: Fix Broken Things (1-3)
 
-| #   | Priority | Item                                                              | Est. Effort |
-| --- | -------- | ----------------------------------------------------------------- | ----------- |
-| 1   | CRITICAL | Fix go-finding FixStrategyDirect panic in converter.go            | 1h          |
-| 2   | HIGH     | Add regression test for SARIF/finding format commands             | 30min       |
-| 3   | HIGH     | Fix nolintlint unused directive in migrations_linters_settings.go | 5min        |
+| # | Priority | Item                                                              | Est. Effort |
+| - | -------- | ----------------------------------------------------------------- | ----------- |
+| 1 | CRITICAL | Fix go-finding FixStrategyDirect panic in converter.go            | 1h          |
+| 2 | HIGH     | Add regression test for SARIF/finding format commands             | 30min       |
+| 3 | HIGH     | Fix nolintlint unused directive in migrations_linters_settings.go | 5min        |
 
 ### Tier 2: Quality & Coverage (4-10)
 
-| #   | Priority | Item                                                | Est. Effort |
-| --- | -------- | --------------------------------------------------- | ----------- |
-| 4   | HIGH     | Increase CLI integration test coverage from 9.0%    | 4h          |
-| 5   | HIGH     | Increase gogenfilter scanner coverage from 59.8%    | 2h          |
-| 6   | HIGH     | Increase migration coverage from 66.8%              | 3h          |
-| 7   | HIGH     | Remove `report_templ.go` from git tracking          | 15min       |
-| 8   | HIGH     | Trim AGENTS.md from 912 to ≤377 lines               | 2h          |
-| 9   | MEDIUM   | Add error return instead of panic in `buildFinding` | 30min       |
-| 10  | MEDIUM   | Add `--check` mode for CI exit codes                | 2h          |
+| #  | Priority | Item                                                | Est. Effort |
+| -- | -------- | --------------------------------------------------- | ----------- |
+| 4  | HIGH     | Increase CLI integration test coverage from 9.0%    | 4h          |
+| 5  | HIGH     | Increase gogenfilter scanner coverage from 59.8%    | 2h          |
+| 6  | HIGH     | Increase migration coverage from 66.8%              | 3h          |
+| 7  | HIGH     | Remove `report_templ.go` from git tracking          | 15min       |
+| 8  | HIGH     | Trim AGENTS.md from 912 to ≤377 lines               | 2h          |
+| 9  | MEDIUM   | Add error return instead of panic in `buildFinding` | 30min       |
+| 10 | MEDIUM   | Add `--check` mode for CI exit codes                | 2h          |
 
 ### Tier 3: Features (11-18)
 
-| #   | Priority | Item                                            | Est. Effort |
-| --- | -------- | ----------------------------------------------- | ----------- |
-| 11  | MEDIUM   | Add `output.formats: {}` to default config      | 30min       |
-| 12  | MEDIUM   | Add preset to apply reference config            | 1h          |
-| 13  | MEDIUM   | Add `--diff` flag to show config changes        | 1h          |
-| 14  | LOW      | `ginkgolinter` default settings                 | 30min       |
-| 15  | LOW      | `testifylint` default settings                  | 30min       |
-| 16  | LOW      | `swaggo` formatter detection improvements       | 1h          |
-| 17  | LOW      | Benchmarking for analyzer and fixer             | 2h          |
-| 18  | LOW      | Document RE2 exclusion pattern syntax in README | 30min       |
+| #  | Priority | Item                                            | Est. Effort |
+| -- | -------- | ----------------------------------------------- | ----------- |
+| 11 | MEDIUM   | Add `output.formats: {}` to default config      | 30min       |
+| 12 | MEDIUM   | Add preset to apply reference config            | 1h          |
+| 13 | MEDIUM   | Add `--diff` flag to show config changes        | 1h          |
+| 14 | LOW      | `ginkgolinter` default settings                 | 30min       |
+| 15 | LOW      | `testifylint` default settings                  | 30min       |
+| 16 | LOW      | `swaggo` formatter detection improvements       | 1h          |
+| 17 | LOW      | Benchmarking for analyzer and fixer             | 2h          |
+| 18 | LOW      | Document RE2 exclusion pattern syntax in README | 30min       |
 
 ### Tier 4: Architecture & Polish (19-25)
 
-| #   | Priority | Item                                                         | Est. Effort |
-| --- | -------- | ------------------------------------------------------------ | ----------- |
-| 19  | MEDIUM   | Decide vendor/ in formatter exclusions                       | 30min       |
-| 20  | MEDIUM   | Version-aware feature flags (warn on unsupported features)   | 2h          |
-| 21  | LOW      | Document go-finding replace directive for contributors       | 15min       |
-| 22  | LOW      | Consider structured error type for go-finding build failures | 30min       |
-| 23  | LOW      | Add sarif/finding format tests to CI as smoke tests          | 30min       |
-| 24  | LOW      | Review and update FEATURES.md (last updated May 23)          | 1h          |
-| 25  | LOW      | Consider adding a CHANGELOG.md                               | 1h          |
+| #  | Priority | Item                                                         | Est. Effort |
+| -- | -------- | ------------------------------------------------------------ | ----------- |
+| 19 | MEDIUM   | Decide vendor/ in formatter exclusions                       | 30min       |
+| 20 | MEDIUM   | Version-aware feature flags (warn on unsupported features)   | 2h          |
+| 21 | LOW      | Document go-finding replace directive for contributors       | 15min       |
+| 22 | LOW      | Consider structured error type for go-finding build failures | 30min       |
+| 23 | LOW      | Add sarif/finding format tests to CI as smoke tests          | 30min       |
+| 24 | LOW      | Review and update FEATURES.md (last updated May 23)          | 1h          |
+| 25 | LOW      | Consider adding a CHANGELOG.md                               | 1h          |
 
 ---
 

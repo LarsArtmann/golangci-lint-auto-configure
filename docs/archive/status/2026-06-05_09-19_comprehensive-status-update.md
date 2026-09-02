@@ -189,33 +189,33 @@ func (s *LinterSettings) Validate() error {
 
 ## f) Top #25 Things to Get Done Next (Pareto-Sorted: Impact vs Work)
 
-| #   | Task                                                        | Impact                    | Work   | Category     | Notes                                                   |
-| --- | ----------------------------------------------------------- | ------------------------- | ------ | ------------ | ------------------------------------------------------- |
-| 1   | **Fix Nix build for gogenfilter**                           | 🔴 Critical (blocks CI)   | Medium | Build        | Replace pseudo-version with flake input or vendor       |
-| 2   | **Add missing depguard optional-mode test**                 | 🟡 High (regression risk) | 5 min  | Test         | The test was written but lost; re-add it                |
-| 3   | **Exclude `noctx` from test_helpers_test.go**               | 🟡 Medium (lint noise)    | 2 min  | Lint         | Add `//nolint:noctx` or config exclusion                |
-| 4   | **Strongly type `LintersConfig.Settings`**                  | 🔴 High (type safety)     | Large  | Architecture | Phase 1: typed wrapper with `Raw` passthrough           |
-| 5   | **Add `validator/v10` to `Config.Validate()`**              | 🟡 High (correctness)     | Medium | Validation   | Validate `linters.settings` structure                   |
-| 6   | **Measure CLI integration test coverage properly**          | 🟡 High (visibility)      | Medium | Test         | Use `go test -cover` with build tags or coverage binary |
-| 7   | **Add config schema validation (JSON Schema)**              | 🟡 Medium (robustness)    | Medium | Validation   | Generate schema from structs, validate output YAML      |
-| 8   | **Plugin registry for linters/formatters**                  | 🟢 High (extensibility)   | Large  | Architecture | Replace `PresetLinters` map with registry pattern       |
-| 9   | **Parallelize analyzer + fixer pipeline**                   | 🟡 Medium (perf)          | Medium | Performance  | `AnalyzeConfig` and `FixConfig` can run concurrently    |
-| 10  | **Add `fsnotify` watch mode**                               | 🟢 Medium (UX)            | Medium | Feature      | Auto-reconfigure on file changes                        |
-| 11  | **SARIF schema validation**                                 | 🟡 Low (compliance)       | Small  | Test         | Validate generated SARIF against 2.1.0 schema           |
-| 12  | **Publish `go-finding` as public module**                   | 🟡 Medium (contrib)       | Medium | Release      | Remove local replace, publish to GitHub                 |
-| 13  | **Add `ginkgolinter` default settings test**                | 🟡 Low (completeness)     | 10 min | Test         | TODO_LIST item                                          |
-| 14  | **Add `testifylint` default settings test**                 | 🟡 Low (completeness)     | 10 min | Test         | TODO_LIST item                                          |
-| 15  | **Validate `reference` preset against `LinterPriorities`**  | 🟡 Medium (correctness)   | 30 min | Test         | Ensure all reference linters have priorities            |
-| 16  | **Add `LinterMinVersions` validation test**                 | 🟡 Medium (correctness)   | 30 min | Test         | Ensure all entries exist in `LinterPriorities`          |
-| 17  | **Resolve `--diff` + `--check` interaction**                | 🟡 Medium (UX)            | Small  | Bug          | Diff shows nothing in check mode                        |
-| 18  | **Add `--check` mode integration tests**                    | 🟡 Medium (coverage)      | Medium | Test         | Exit codes, flag combinations                           |
-| 19  | **Add `--diff` flag integration tests**                     | 🟡 Medium (coverage)      | Medium | Test         | Verify diff output format                               |
-| 20  | **Use `errors.Join` for multi-finding failures**            | 🟡 Low (cleanup)          | Small  | Refactor     | Currently returns first error only                      |
-| 21  | **Add `DryRun` field to `MigrationResult`**                 | 🟡 Low (clarity)          | Small  | Refactor     | Clarify "would fix" vs "did fix"                        |
-| 22  | **Migrate justfile → flake.nix apps**                       | 🟢 Medium (consistency)   | Medium | Build        | Per global AGENTS.md preference                         |
-| 23  | **Add `vendor/` to formatter exclusions decision**          | 🟡 Low (policy)           | 5 min  | Config       | TODO_LIST item — currently only in linter exclusions    |
-| 24  | **Replace JSON marshal/unmarshal hack in `Config.Clone()`** | 🟡 Low (correctness)      | Medium | Refactor     | Use proper deep copy instead of serialization           |
-| 25  | **Add `pkg/client` smoke tests**                            | 🟡 Medium (public API)    | Medium | Test         | Or resolve intent: public API vs internal               |
+| #  | Task                                                        | Impact                    | Work   | Category     | Notes                                                   |
+| -- | ----------------------------------------------------------- | ------------------------- | ------ | ------------ | ------------------------------------------------------- |
+| 1  | **Fix Nix build for gogenfilter**                           | 🔴 Critical (blocks CI)   | Medium | Build        | Replace pseudo-version with flake input or vendor       |
+| 2  | **Add missing depguard optional-mode test**                 | 🟡 High (regression risk) | 5 min  | Test         | The test was written but lost; re-add it                |
+| 3  | **Exclude `noctx` from test_helpers_test.go**               | 🟡 Medium (lint noise)    | 2 min  | Lint         | Add `//nolint:noctx` or config exclusion                |
+| 4  | **Strongly type `LintersConfig.Settings`**                  | 🔴 High (type safety)     | Large  | Architecture | Phase 1: typed wrapper with `Raw` passthrough           |
+| 5  | **Add `validator/v10` to `Config.Validate()`**              | 🟡 High (correctness)     | Medium | Validation   | Validate `linters.settings` structure                   |
+| 6  | **Measure CLI integration test coverage properly**          | 🟡 High (visibility)      | Medium | Test         | Use `go test -cover` with build tags or coverage binary |
+| 7  | **Add config schema validation (JSON Schema)**              | 🟡 Medium (robustness)    | Medium | Validation   | Generate schema from structs, validate output YAML      |
+| 8  | **Plugin registry for linters/formatters**                  | 🟢 High (extensibility)   | Large  | Architecture | Replace `PresetLinters` map with registry pattern       |
+| 9  | **Parallelize analyzer + fixer pipeline**                   | 🟡 Medium (perf)          | Medium | Performance  | `AnalyzeConfig` and `FixConfig` can run concurrently    |
+| 10 | **Add `fsnotify` watch mode**                               | 🟢 Medium (UX)            | Medium | Feature      | Auto-reconfigure on file changes                        |
+| 11 | **SARIF schema validation**                                 | 🟡 Low (compliance)       | Small  | Test         | Validate generated SARIF against 2.1.0 schema           |
+| 12 | **Publish `go-finding` as public module**                   | 🟡 Medium (contrib)       | Medium | Release      | Remove local replace, publish to GitHub                 |
+| 13 | **Add `ginkgolinter` default settings test**                | 🟡 Low (completeness)     | 10 min | Test         | TODO_LIST item                                          |
+| 14 | **Add `testifylint` default settings test**                 | 🟡 Low (completeness)     | 10 min | Test         | TODO_LIST item                                          |
+| 15 | **Validate `reference` preset against `LinterPriorities`**  | 🟡 Medium (correctness)   | 30 min | Test         | Ensure all reference linters have priorities            |
+| 16 | **Add `LinterMinVersions` validation test**                 | 🟡 Medium (correctness)   | 30 min | Test         | Ensure all entries exist in `LinterPriorities`          |
+| 17 | **Resolve `--diff` + `--check` interaction**                | 🟡 Medium (UX)            | Small  | Bug          | Diff shows nothing in check mode                        |
+| 18 | **Add `--check` mode integration tests**                    | 🟡 Medium (coverage)      | Medium | Test         | Exit codes, flag combinations                           |
+| 19 | **Add `--diff` flag integration tests**                     | 🟡 Medium (coverage)      | Medium | Test         | Verify diff output format                               |
+| 20 | **Use `errors.Join` for multi-finding failures**            | 🟡 Low (cleanup)          | Small  | Refactor     | Currently returns first error only                      |
+| 21 | **Add `DryRun` field to `MigrationResult`**                 | 🟡 Low (clarity)          | Small  | Refactor     | Clarify "would fix" vs "did fix"                        |
+| 22 | **Migrate justfile → flake.nix apps**                       | 🟢 Medium (consistency)   | Medium | Build        | Per global AGENTS.md preference                         |
+| 23 | **Add `vendor/` to formatter exclusions decision**          | 🟡 Low (policy)           | 5 min  | Config       | TODO_LIST item — currently only in linter exclusions    |
+| 24 | **Replace JSON marshal/unmarshal hack in `Config.Clone()`** | 🟡 Low (correctness)      | Medium | Refactor     | Use proper deep copy instead of serialization           |
+| 25 | **Add `pkg/client` smoke tests**                            | 🟡 Medium (public API)    | Medium | Test         | Or resolve intent: public API vs internal               |
 
 ---
 

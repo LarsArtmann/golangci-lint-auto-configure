@@ -805,7 +805,6 @@ Built with:
 - [charmbracelet/log](https://github.com/charmbracelet/log) - Structured logging
 
 ````
-
 ---
 
 ## 📈 PROGRESS TRACKING

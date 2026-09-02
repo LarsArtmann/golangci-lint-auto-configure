@@ -1,6 +1,6 @@
 # Comprehensive Improvement Plan - golangci-lint-auto-configure
 
-**Date:** 2026-03-19 08:37  
+**Date:** 2026-03-19 08:37\
 **Status:** Production Ready, Incremental Improvements Planned
 
 ---
@@ -54,8 +54,8 @@ Settings LinterSettings `yaml:"settings,omitempty"`
 
 #### Step 1.1: Fix contextcheck false positives [5min]
 
-**Files:** `internal/cli/commands.go`, `pkg/report/generator.go`  
-**Impact:** Clean lint output  
+**Files:** `internal/cli/commands.go`, `pkg/report/generator.go`\
+**Impact:** Clean lint output\
 **Work:** Add `//nolint:contextcheck` with explanation
 
 ```go
@@ -65,8 +65,8 @@ rootCmd := NewRootCommand()
 
 #### Step 1.2: Add filesystem abstraction for testing [15min]
 
-**File:** `pkg/config/loader.go`  
-**Impact:** Better testability  
+**File:** `pkg/config/loader.go`\
+**Impact:** Better testability\
 **Work:** Use `afero.Fs` interface
 
 ```go
@@ -90,8 +90,8 @@ func NewLoaderWithFS(logger *log.Logger, fs afero.Fs) *Loader {
 
 #### Step 1.3: Add TOML config support [20min]
 
-**File:** `pkg/config/loader.go`  
-**Impact:** User flexibility  
+**File:** `pkg/config/loader.go`\
+**Impact:** User flexibility\
 **Work:** Detect format and use appropriate decoder
 
 ```go
@@ -111,8 +111,8 @@ func (l *Loader) detectFormat(path string) ConfigFormat {
 
 #### Step 2.1: Split ConfigLoader interface [30min]
 
-**File:** `pkg/types/types.go`  
-**Impact:** Better interface design  
+**File:** `pkg/types/types.go`\
+**Impact:** Better interface design\
 **Work:** Split into focused interfaces
 
 ```go
@@ -135,7 +135,7 @@ type ConfigValidator interface {
 
 #### Step 2.2: Add structured validation errors [25min]
 
-**File:** `pkg/types/validation.go`  
+**File:** `pkg/types/validation.go`\
 **Impact:** Better UX for validation failures
 
 ```go
@@ -159,7 +159,7 @@ func (r ValidationResult) Error() string {
 
 #### Step 2.3: Implement config builder pattern [30min]
 
-**New File:** `pkg/config/builder.go`  
+**New File:** `pkg/config/builder.go`\
 **Impact:** Easier config construction
 
 ```go
@@ -190,13 +190,13 @@ func (b *Builder) Build() *Config {
 
 #### Step 3.1: Add environment variable support [45min]
 
-**Impact:** 12-factor app compliance  
+**Impact:** 12-factor app compliance\
 **Work:** Integrate `caarlos0/env` for env-based config
 
 #### Step 3.2: Refactor Fixer to reduce complexity [60min]
 
-**File:** `pkg/linter/fixer.go`  
-**Impact:** Maintainability  
+**File:** `pkg/linter/fixer.go`\
+**Impact:** Maintainability\
 **Work:** Extract strategies for different fix types
 
 ```go
@@ -211,7 +211,7 @@ type RecommendedLinterStrategy struct{}
 
 #### Step 3.3: Add configuration schema generation [40min]
 
-**Impact:** Better IDE support  
+**Impact:** Better IDE support\
 **Work:** Generate JSON Schema from types
 
 ---
@@ -326,5 +326,5 @@ After each change:
 
 ---
 
-_Plan generated: 2026-03-19 08:37_  
+_Plan generated: 2026-03-19 08:37_\
 _Current Status: 99/100 branching-flow score, all tests passing_

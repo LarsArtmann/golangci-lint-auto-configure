@@ -1,39 +1,39 @@
 # Detailed Task Breakdown (Sorted by Priority)
 
-**Generated:** 2026-03-26  
-**Total Tasks:** 24  
+**Generated:** 2026-03-26\
+**Total Tasks:** 24\
 **Max Duration:** 24 hours
 
 ---
 
 ## Table View: All Tasks Sorted by Priority/Impact
 
-| #   | Task                                    | Package       | Effort | Impact | Value              | Priority | Dependencies |
-| --- | --------------------------------------- | ------------- | ------ | ------ | ------------------ | -------- | ------------ |
-| 1   | Kill stale golangci-lint processes      | Dev           | 5 min  | Low    | Clean DX           | 🔴 P0    | None         |
-| 2   | Clear gopls cache                       | Dev           | 5 min  | Low    | Clean DX           | 🔴 P0    | None         |
-| 3   | Test runConfigure function              | internal/cli  | 15 min | High   | No regressions     | 🔴 P0    | 1, 2         |
-| 4   | Test applyPreset function               | internal/cli  | 10 min | High   | No regressions     | 🔴 P0    | 1, 2         |
-| 5   | Test command flags                      | internal/cli  | 15 min | High   | No regressions     | 🔴 P0    | 1, 2         |
-| 6   | Add MigrationError type                 | pkg/errors    | 15 min | Medium | Better errors      | 🟡 P1    | None         |
-| 7   | Update MigrationResult to use error     | pkg/types     | 10 min | Medium | Better errors      | 🟡 P1    | 6            |
-| 8   | Extract fixer_deprecated.go             | pkg/linter    | 20 min | Medium | Smaller files      | 🟡 P1    | 6, 7         |
-| 9   | Extract fixer_version.go                | pkg/linter    | 10 min | Medium | Smaller files      | 🟡 P1    | 6, 7         |
-| 10  | Extract fixer_dryrun.go                 | pkg/linter    | 15 min | Medium | Smaller files      | 🟡 P1    | 6, 7         |
-| 11  | Extract fixer_apply.go                  | pkg/linter    | 20 min | Medium | Smaller files      | 🟡 P1    | 6, 7         |
-| 12  | Test preFixVersion                      | pkg/linter    | 15 min | Medium | Coverage           | 🟡 P1    | 9            |
-| 13  | Test preFixDeprecatedLinters            | pkg/linter    | 20 min | Medium | Coverage           | 🟡 P1    | 8            |
-| 14  | Test calculateDryRunResult              | pkg/linter    | 15 min | Medium | Coverage           | 🟡 P1    | 10           |
-| 15  | Update cmd_configure for MigrationError | internal/cli  | 10 min | Medium | Better errors      | 🟡 P1    | 6, 7         |
-| 16  | Verify all tests pass after refactor    | All           | 10 min | High   | Quality gate       | 🟡 P1    | 8-15         |
-| 17  | Remove obsolete TODOs                   | pkg/\*        | 15 min | Low    | Clean code         | 🟢 P2    | None         |
-| 18  | Add context.Context to loader           | pkg/config    | 15 min | Low    | Consistency        | 🟢 P2    | None         |
-| 19  | Extract io.Reader/Writer interfaces     | pkg/config    | 20 min | Low    | Testability        | 🟢 P2    | 18           |
-| 20  | Add detector caching                    | pkg/detection | 30 min | Low    | Performance        | 🟢 P2    | None         |
-| 21  | Consider AST parsing for detector       | pkg/detection | 60 min | Low    | Accuracy           | 🟢 P2    | None         |
-| 22  | Evaluate generics for ConfigResult      | pkg/types     | 30 min | Low    | Code reuse         | 🟢 P2    | None         |
-| 23  | Update go.mod toolchain settings        | Root          | 15 min | Low    | Build reliability  | 🟢 P2    | None         |
-| 24  | Document architecture decisions         | docs          | 30 min | Low    | Knowledge transfer | 🟢 P2    | None         |
+| #  | Task                                    | Package       | Effort | Impact | Value              | Priority | Dependencies |
+| -- | --------------------------------------- | ------------- | ------ | ------ | ------------------ | -------- | ------------ |
+| 1  | Kill stale golangci-lint processes      | Dev           | 5 min  | Low    | Clean DX           | 🔴 P0    | None         |
+| 2  | Clear gopls cache                       | Dev           | 5 min  | Low    | Clean DX           | 🔴 P0    | None         |
+| 3  | Test runConfigure function              | internal/cli  | 15 min | High   | No regressions     | 🔴 P0    | 1, 2         |
+| 4  | Test applyPreset function               | internal/cli  | 10 min | High   | No regressions     | 🔴 P0    | 1, 2         |
+| 5  | Test command flags                      | internal/cli  | 15 min | High   | No regressions     | 🔴 P0    | 1, 2         |
+| 6  | Add MigrationError type                 | pkg/errors    | 15 min | Medium | Better errors      | 🟡 P1    | None         |
+| 7  | Update MigrationResult to use error     | pkg/types     | 10 min | Medium | Better errors      | 🟡 P1    | 6            |
+| 8  | Extract fixer_deprecated.go             | pkg/linter    | 20 min | Medium | Smaller files      | 🟡 P1    | 6, 7         |
+| 9  | Extract fixer_version.go                | pkg/linter    | 10 min | Medium | Smaller files      | 🟡 P1    | 6, 7         |
+| 10 | Extract fixer_dryrun.go                 | pkg/linter    | 15 min | Medium | Smaller files      | 🟡 P1    | 6, 7         |
+| 11 | Extract fixer_apply.go                  | pkg/linter    | 20 min | Medium | Smaller files      | 🟡 P1    | 6, 7         |
+| 12 | Test preFixVersion                      | pkg/linter    | 15 min | Medium | Coverage           | 🟡 P1    | 9            |
+| 13 | Test preFixDeprecatedLinters            | pkg/linter    | 20 min | Medium | Coverage           | 🟡 P1    | 8            |
+| 14 | Test calculateDryRunResult              | pkg/linter    | 15 min | Medium | Coverage           | 🟡 P1    | 10           |
+| 15 | Update cmd_configure for MigrationError | internal/cli  | 10 min | Medium | Better errors      | 🟡 P1    | 6, 7         |
+| 16 | Verify all tests pass after refactor    | All           | 10 min | High   | Quality gate       | 🟡 P1    | 8-15         |
+| 17 | Remove obsolete TODOs                   | pkg/\*        | 15 min | Low    | Clean code         | 🟢 P2    | None         |
+| 18 | Add context.Context to loader           | pkg/config    | 15 min | Low    | Consistency        | 🟢 P2    | None         |
+| 19 | Extract io.Reader/Writer interfaces     | pkg/config    | 20 min | Low    | Testability        | 🟢 P2    | 18           |
+| 20 | Add detector caching                    | pkg/detection | 30 min | Low    | Performance        | 🟢 P2    | None         |
+| 21 | Consider AST parsing for detector       | pkg/detection | 60 min | Low    | Accuracy           | 🟢 P2    | None         |
+| 22 | Evaluate generics for ConfigResult      | pkg/types     | 30 min | Low    | Code reuse         | 🟢 P2    | None         |
+| 23 | Update go.mod toolchain settings        | Root          | 15 min | Low    | Build reliability  | 🟢 P2    | None         |
+| 24 | Document architecture decisions         | docs          | 30 min | Low    | Knowledge transfer | 🟢 P2    | None         |
 
 ---
 
@@ -194,9 +194,9 @@ graph TD
 
 ### Phase 0.1: Kill Stale golangci-lint Processes
 
-**File:** N/A (dev operation)  
-**Effort:** 5 min  
-**Priority:** P0  
+**File:** N/A (dev operation)\
+**Effort:** 5 min\
+**Priority:** P0\
 **Command:**
 
 ```bash
@@ -206,9 +206,9 @@ ps aux | grep golangci
 
 ### Phase 0.2: Clear gopls Cache
 
-**File:** N/A (dev operation)  
-**Effort:** 5 min  
-**Priority:** P0  
+**File:** N/A (dev operation)\
+**Effort:** 5 min\
+**Priority:** P0\
 **Command:**
 
 ```bash
@@ -218,16 +218,16 @@ rm -rf ~/Library/Caches/go-build/*
 
 ### Phase 1.1: Review Test Patterns
 
-**File:** internal/cli/commands_test.go  
-**Effort:** 5 min  
-**Priority:** P0  
+**File:** internal/cli/commands_test.go\
+**Effort:** 5 min\
+**Priority:** P0\
 **Purpose:** Understand existing test structure before adding new tests
 
 ### Phase 1.2: Test runConfigure Success Path
 
-**File:** internal/cli/commands_test.go  
-**Effort:** 10 min  
-**Priority:** P0  
+**File:** internal/cli/commands_test.go\
+**Effort:** 10 min\
+**Priority:** P0\
 **Test Cases:**
 
 - [ ] Configure with existing valid config
@@ -236,9 +236,9 @@ rm -rf ~/Library/Caches/go-build/*
 
 ### Phase 1.3: Test applyPreset
 
-**File:** internal/cli/commands_test.go  
-**Effort:** 10 min  
-**Priority:** P0  
+**File:** internal/cli/commands_test.go\
+**Effort:** 10 min\
+**Priority:** P0\
 **Test Cases:**
 
 - [ ] applyPreset with valid preset (minimal, standard, strict)

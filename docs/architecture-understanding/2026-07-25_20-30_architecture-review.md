@@ -160,12 +160,12 @@ The architecture is solid and production-ready. The domain layer is clean, the C
 
 ## Action Roadmap status (2026-07-25, later session)
 
-| #   | Action                                               | Status  | Outcome                                                 |
-| --- | ---------------------------------------------------- | ------- | ------------------------------------------------------- |
-| 1   | Extract `CommandContext` struct for CLI globals      | ❌ Open | Tracked in `TODO_LIST.md` (Medium Priority)             |
-| 2   | Use ConfigReader/Writer sub-interfaces in fixer mode | ✅ Done | `ConfigLoader` split into 6 sub-interfaces (`39cca87`)  |
-| 3   | Settings key validation against golangci-lint schema | ✅ Done | Soft warnings at config load (`e8f30f0`)                |
-| 4   | Generate linter settings from JSON Schema            | ✅ Done | `cmd/generate-settings` produces 88 structs (`3665d79`) |
+| # | Action                                               | Status  | Outcome                                                 |
+| - | ---------------------------------------------------- | ------- | ------------------------------------------------------- |
+| 1 | Extract `CommandContext` struct for CLI globals      | ❌ Open | Tracked in `TODO_LIST.md` (Medium Priority)             |
+| 2 | Use ConfigReader/Writer sub-interfaces in fixer mode | ✅ Done | `ConfigLoader` split into 6 sub-interfaces (`39cca87`)  |
+| 3 | Settings key validation against golangci-lint schema | ✅ Done | Soft warnings at config load (`e8f30f0`)                |
+| 4 | Generate linter settings from JSON Schema            | ✅ Done | `cmd/generate-settings` produces 88 structs (`3665d79`) |
 
 The "Architecture Score: 8/10" assessment stands. The concerns (CLI globals,
 concrete-type coupling in a few signatures) remain the highest-leverage

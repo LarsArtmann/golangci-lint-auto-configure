@@ -71,15 +71,15 @@ Nothing partially done this session.
 
 ### From previous status reports — still outstanding:
 
-| #   | Item                                                                         | Priority | Origin            |
-| --- | ---------------------------------------------------------------------------- | -------- | ----------------- |
-| 1   | Increase test coverage from 60.2% to 70%+                                    | High     | 2026-05-19 report |
-| 2   | Fix 2 pre-existing `funlen` lint violations (`GetSummary`, `FormatFindings`) | Medium   | 2026-05-19 report |
-| 3   | Create `TODO_LIST.md` — no formal TODO tracking exists                       | Medium   | 2026-05-19 report |
-| 4   | Create `FEATURES.md` — no feature inventory exists                           | Medium   | 2026-05-19 report |
-| 5   | CLI integration/E2E tests (binary execution against real projects)           | High     | Architecture gap  |
-| 6   | Fuzzer tests for YAML config parsing (malformed input)                       | Medium   | Quality gap       |
-| 7   | Performance benchmarks for `ScanProject` on large repos                      | Low      | Nice-to-have      |
+| # | Item                                                                         | Priority | Origin            |
+| - | ---------------------------------------------------------------------------- | -------- | ----------------- |
+| 1 | Increase test coverage from 60.2% to 70%+                                    | High     | 2026-05-19 report |
+| 2 | Fix 2 pre-existing `funlen` lint violations (`GetSummary`, `FormatFindings`) | Medium   | 2026-05-19 report |
+| 3 | Create `TODO_LIST.md` — no formal TODO tracking exists                       | Medium   | 2026-05-19 report |
+| 4 | Create `FEATURES.md` — no feature inventory exists                           | Medium   | 2026-05-19 report |
+| 5 | CLI integration/E2E tests (binary execution against real projects)           | High     | Architecture gap  |
+| 6 | Fuzzer tests for YAML config parsing (malformed input)                       | Medium   | Quality gap       |
+| 7 | Performance benchmarks for `ScanProject` on large repos                      | Low      | Nice-to-have      |
 
 ---
 
@@ -128,43 +128,43 @@ The `go.mod` has `replace github.com/larsartmann/go-finding => ../go-finding`, m
 
 ### Critical / High Impact (Do First)
 
-| #   | Task                                                                    | Est. Effort | Impact                 |
-| --- | ----------------------------------------------------------------------- | ----------- | ---------------------- |
-| 1   | Fix 2 `funlen` violations (`GetSummary`, `FormatFindings`)              | 10 min      | Zero lint issues       |
-| 2   | Create `FEATURES.md` with feature audit                                 | 1 hr        | Project documentation  |
-| 3   | Create `TODO_LIST.md` with comprehensive tracking                       | 1 hr        | Project management     |
-| 4   | Increase CLI test coverage from 8.7% → 40%+                             | 3 hr        | Regression safety      |
-| 5   | Add integration tests: binary execution against real `.golangci.yml`    | 3 hr        | E2E confidence         |
-| 6   | Clean up `AGENTS.md` — remove stale references (mo, afero, internal/di) | 15 min      | Documentation accuracy |
-| 7   | Add coverage gate in CI (minimum 50%)                                   | 30 min      | Quality enforcement    |
-| 8   | Update `AGENTS.md` with deduplication session results                   | 10 min      | Session continuity     |
+| # | Task                                                                    | Est. Effort | Impact                 |
+| - | ----------------------------------------------------------------------- | ----------- | ---------------------- |
+| 1 | Fix 2 `funlen` violations (`GetSummary`, `FormatFindings`)              | 10 min      | Zero lint issues       |
+| 2 | Create `FEATURES.md` with feature audit                                 | 1 hr        | Project documentation  |
+| 3 | Create `TODO_LIST.md` with comprehensive tracking                       | 1 hr        | Project management     |
+| 4 | Increase CLI test coverage from 8.7% → 40%+                             | 3 hr        | Regression safety      |
+| 5 | Add integration tests: binary execution against real `.golangci.yml`    | 3 hr        | E2E confidence         |
+| 6 | Clean up `AGENTS.md` — remove stale references (mo, afero, internal/di) | 15 min      | Documentation accuracy |
+| 7 | Add coverage gate in CI (minimum 50%)                                   | 30 min      | Quality enforcement    |
+| 8 | Update `AGENTS.md` with deduplication session results                   | 10 min      | Session continuity     |
 
 ### Medium Impact (Do Next)
 
-| #   | Task                                                             | Est. Effort | Impact                    |
-| --- | ---------------------------------------------------------------- | ----------- | ------------------------- |
-| 9   | Add fuzzer tests for YAML config parsing                         | 2 hr        | Robustness                |
-| 10  | Extract common test helpers across packages (writeFile patterns) | 1 hr        | Test deduplication        |
-| 11  | Add performance benchmarks for `ScanProject`                     | 1 hr        | Performance baseline      |
-| 12  | Review and update `docs/ARCHITECTURE.md` for accuracy            | 1 hr        | Documentation             |
-| 13  | Add `CONTRIBUTING.md` for open-source readiness                  | 2 hr        | Contributor experience    |
-| 14  | Wire GoReleaser CI trigger (tag push → auto release)             | 2 hr        | Release automation        |
-| 15  | Add SARIF output integration test                                | 1 hr        | CI/CD pipeline confidence |
-| 16  | Review `gocritic` disabled checks warnings in lint output        | 30 min      | Config cleanliness        |
-| 17  | Add version flag integration test (binary --version)             | 30 min      | Smoke test                |
+| #  | Task                                                             | Est. Effort | Impact                    |
+| -- | ---------------------------------------------------------------- | ----------- | ------------------------- |
+| 9  | Add fuzzer tests for YAML config parsing                         | 2 hr        | Robustness                |
+| 10 | Extract common test helpers across packages (writeFile patterns) | 1 hr        | Test deduplication        |
+| 11 | Add performance benchmarks for `ScanProject`                     | 1 hr        | Performance baseline      |
+| 12 | Review and update `docs/ARCHITECTURE.md` for accuracy            | 1 hr        | Documentation             |
+| 13 | Add `CONTRIBUTING.md` for open-source readiness                  | 2 hr        | Contributor experience    |
+| 14 | Wire GoReleaser CI trigger (tag push → auto release)             | 2 hr        | Release automation        |
+| 15 | Add SARIF output integration test                                | 1 hr        | CI/CD pipeline confidence |
+| 16 | Review `gocritic` disabled checks warnings in lint output        | 30 min      | Config cleanliness        |
+| 17 | Add version flag integration test (binary --version)             | 30 min      | Smoke test                |
 
 ### Lower Impact / Nice-to-Have
 
-| #   | Task                                                                 | Est. Effort | Impact                |
-| --- | -------------------------------------------------------------------- | ----------- | --------------------- |
-| 18  | Migrate justfile → pure Nix flake (per AGENTS.md global guidance)    | 4 hr        | Build consistency     |
-| 19  | Evaluate removing `go-finding` local replace for publishing          | 2 hr        | Portability           |
-| 20  | Add godoc to all exported types and functions                        | 4 hr        | API documentation     |
-| 21  | Create example workflows for CI integration (GitHub Actions, GitLab) | 2 hr        | User documentation    |
-| 22  | Add shell completion tests                                           | 1 hr        | Feature completeness  |
-| 23  | Explore adding a `diff` subcommand (config diff visualization)       | 4 hr        | New feature           |
-| 24  | Add structured logging output option (JSON)                          | 2 hr        | Machine readability   |
-| 25  | Investigate golangci-lint v3 preparation (future-proofing)           | 2 hr        | Forward compatibility |
+| #  | Task                                                                 | Est. Effort | Impact                |
+| -- | -------------------------------------------------------------------- | ----------- | --------------------- |
+| 18 | Migrate justfile → pure Nix flake (per AGENTS.md global guidance)    | 4 hr        | Build consistency     |
+| 19 | Evaluate removing `go-finding` local replace for publishing          | 2 hr        | Portability           |
+| 20 | Add godoc to all exported types and functions                        | 4 hr        | API documentation     |
+| 21 | Create example workflows for CI integration (GitHub Actions, GitLab) | 2 hr        | User documentation    |
+| 22 | Add shell completion tests                                           | 1 hr        | Feature completeness  |
+| 23 | Explore adding a `diff` subcommand (config diff visualization)       | 4 hr        | New feature           |
+| 24 | Add structured logging output option (JSON)                          | 2 hr        | Machine readability   |
+| 25 | Investigate golangci-lint v3 preparation (future-proofing)           | 2 hr        | Forward compatibility |
 
 ---
 

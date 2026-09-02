@@ -141,48 +141,48 @@ These were not part of the completed implementation and have no code changes yet
 
 ## f) Up to 50 things we should get done next
 
-|   # | Task                                                                                                                              | Impact   | Effort | Category      |
-| --: | --------------------------------------------------------------------------------------------------------------------------------- | -------- | :----: | ------------- |
-|   1 | Inspect `/tmp/go-humanize-linter` files and binary metadata to identify the exact `humanize.Plural` package/API expected by H004. | Critical |   S    | Bug           |
-|   2 | Run the linter's help/version output and capture its documented remediation contract.                                             | Critical |   S    | Bug           |
-|   3 | Search the linter binary and local filesystem for `humanize.Plural`, `PluralWord`, and import-path strings.                       | Critical |   S    | Bug           |
-|   4 | Check the linter's source or build directory if available, rather than inferring its dependency from the diagnostic wording.      | Critical |   S    | Quality       |
-|   5 | Verify whether the expected humanize package already exists in the local module cache.                                            | High     |   S    | Cleanup       |
-|   6 | Identify the smallest source change that satisfies H004 without introducing an unnecessary dependency.                            | Critical |   S    | Bug           |
-|   7 | Implement the verified pluralization API in `scripts/validate_linter_data.go`.                                                    | Critical |   S    | Bug           |
-|   8 | Add focused tests for `noun(1, ...)`, `noun(0, ...)`, and `noun(2, ...)`.                                                         | High     |   S    | Quality       |
-|   9 | Run `/tmp/go-humanize-linter .` and require zero findings.                                                                        | Critical |   S    | Quality       |
-|  10 | Run `gofmt` or the repository's prescribed formatter on changed Go files.                                                         | High     |   S    | Quality       |
-|  11 | Run `GOEXPERIMENT=jsonv2 go test` for the relevant packages/scripts strategy.                                                     | High     |   S    | Quality       |
-|  12 | Run the validator executable again after the final edit.                                                                          | High     |   S    | Quality       |
-|  13 | Run `git diff --check` to catch whitespace errors.                                                                                | Medium   |   S    | Quality       |
-|  14 | Confirm `go.mod` and `go.sum` contain only intentional dependency changes.                                                        | High     |   S    | Cleanup       |
-|  15 | Review whether the custom linter has a repository-specific configuration file that should be documented.                          | Medium   |   S    | Documentation |
-|  16 | Add a developer note describing the correct humanize API if it is non-obvious.                                                    | Medium   |   S    | Documentation |
-|  17 | Ensure the helper's comment matches the final implementation and package semantics.                                               | Low      |   S    | Documentation |
-|  18 | Recheck the Go diagnostics for the changed script.                                                                                | Medium   |   S    | Quality       |
-|  19 | Verify the `+build` compatibility line warning is intentional or remove it only if repository policy permits.                     | Low      |   S    | Cleanup       |
-|  20 | Avoid adding a third-party dependency if a project-approved existing utility can satisfy the rule.                                | High     |   S    | Quality       |
-|  21 | If the linter is private, document the required module source and access prerequisite.                                            | Medium   |   S    | Documentation |
-|  22 | If the linter is buggy, create a minimal reproducible report with its binary/version and source line.                             | Medium   |   M    | Bug           |
-|  23 | Add a CI check invoking the custom linter if it is intended as a repository gate.                                                 | Medium   |   M    | Quality       |
-|  24 | Add a CI failure message explaining how to resolve H004 once the API is known.                                                    | Medium   |   S    | Quality       |
-|  25 | Verify the script remains runnable under Go 1.26.5 with `GOEXPERIMENT=jsonv2`.                                                    | High     |   S    | Quality       |
-|  26 | Verify no generated files are affected by the script-only change.                                                                 | Low      |   S    | Cleanup       |
-|  27 | Record the final command sequence in project memory if it becomes a stable workflow.                                              | Low      |   S    | Documentation |
-|  28 | Review the linter's naming and rule IDs for other likely false positives in this repository.                                      | Medium   |   M    | Quality       |
-|  29 | Run the exact linter against the repository root after every candidate implementation.                                            | Critical |   S    | Quality       |
-|  30 | Do not report completion until the custom linter exits successfully.                                                              | Critical |   S    | Process       |
-|  31 | Preserve a clean working tree after verification unless an intentional fix remains.                                               | High     |   S    | Process       |
-|  32 | Add a regression test that verifies the exact strings consumed by the validator output.                                           | Medium   |   S    | Quality       |
-|  33 | Check whether plural forms can be derived automatically and safely for all current call sites.                                    | Medium   |   S    | Quality       |
-|  34 | Keep irregular pluralization out of scope unless the linter requires it.                                                          | Low      |   S    | Scope         |
-|  35 | Review the diagnostic's `namedParams` and `equalsOne` semantics against the helper signature.                                     | High     |   S    | Quality       |
-|  36 | Inspect how `/tmp/go-humanize-linter` was built to avoid relying on a mismatched package ecosystem.                               | High     |   M    | Quality       |
-|  37 | If a dependency is required, pin a verified version and validate its license/transitive impact.                                   | Medium   |   S    | Security      |
-|  38 | Run `go mod tidy` only after the correct dependency is confirmed.                                                                 | Medium   |   S    | Cleanup       |
-|  39 | Compare the final diff against the initial clean state.                                                                           | Medium   |   S    | Quality       |
-|  40 | Update this report with the final resolution if work continues in the same session.                                               | Low      |   S    | Documentation |
+|  # | Task                                                                                                                              | Impact   | Effort | Category      |
+| -: | --------------------------------------------------------------------------------------------------------------------------------- | -------- | :----: | ------------- |
+|  1 | Inspect `/tmp/go-humanize-linter` files and binary metadata to identify the exact `humanize.Plural` package/API expected by H004. | Critical |   S    | Bug           |
+|  2 | Run the linter's help/version output and capture its documented remediation contract.                                             | Critical |   S    | Bug           |
+|  3 | Search the linter binary and local filesystem for `humanize.Plural`, `PluralWord`, and import-path strings.                       | Critical |   S    | Bug           |
+|  4 | Check the linter's source or build directory if available, rather than inferring its dependency from the diagnostic wording.      | Critical |   S    | Quality       |
+|  5 | Verify whether the expected humanize package already exists in the local module cache.                                            | High     |   S    | Cleanup       |
+|  6 | Identify the smallest source change that satisfies H004 without introducing an unnecessary dependency.                            | Critical |   S    | Bug           |
+|  7 | Implement the verified pluralization API in `scripts/validate_linter_data.go`.                                                    | Critical |   S    | Bug           |
+|  8 | Add focused tests for `noun(1, ...)`, `noun(0, ...)`, and `noun(2, ...)`.                                                         | High     |   S    | Quality       |
+|  9 | Run `/tmp/go-humanize-linter .` and require zero findings.                                                                        | Critical |   S    | Quality       |
+| 10 | Run `gofmt` or the repository's prescribed formatter on changed Go files.                                                         | High     |   S    | Quality       |
+| 11 | Run `GOEXPERIMENT=jsonv2 go test` for the relevant packages/scripts strategy.                                                     | High     |   S    | Quality       |
+| 12 | Run the validator executable again after the final edit.                                                                          | High     |   S    | Quality       |
+| 13 | Run `git diff --check` to catch whitespace errors.                                                                                | Medium   |   S    | Quality       |
+| 14 | Confirm `go.mod` and `go.sum` contain only intentional dependency changes.                                                        | High     |   S    | Cleanup       |
+| 15 | Review whether the custom linter has a repository-specific configuration file that should be documented.                          | Medium   |   S    | Documentation |
+| 16 | Add a developer note describing the correct humanize API if it is non-obvious.                                                    | Medium   |   S    | Documentation |
+| 17 | Ensure the helper's comment matches the final implementation and package semantics.                                               | Low      |   S    | Documentation |
+| 18 | Recheck the Go diagnostics for the changed script.                                                                                | Medium   |   S    | Quality       |
+| 19 | Verify the `+build` compatibility line warning is intentional or remove it only if repository policy permits.                     | Low      |   S    | Cleanup       |
+| 20 | Avoid adding a third-party dependency if a project-approved existing utility can satisfy the rule.                                | High     |   S    | Quality       |
+| 21 | If the linter is private, document the required module source and access prerequisite.                                            | Medium   |   S    | Documentation |
+| 22 | If the linter is buggy, create a minimal reproducible report with its binary/version and source line.                             | Medium   |   M    | Bug           |
+| 23 | Add a CI check invoking the custom linter if it is intended as a repository gate.                                                 | Medium   |   M    | Quality       |
+| 24 | Add a CI failure message explaining how to resolve H004 once the API is known.                                                    | Medium   |   S    | Quality       |
+| 25 | Verify the script remains runnable under Go 1.26.5 with `GOEXPERIMENT=jsonv2`.                                                    | High     |   S    | Quality       |
+| 26 | Verify no generated files are affected by the script-only change.                                                                 | Low      |   S    | Cleanup       |
+| 27 | Record the final command sequence in project memory if it becomes a stable workflow.                                              | Low      |   S    | Documentation |
+| 28 | Review the linter's naming and rule IDs for other likely false positives in this repository.                                      | Medium   |   M    | Quality       |
+| 29 | Run the exact linter against the repository root after every candidate implementation.                                            | Critical |   S    | Quality       |
+| 30 | Do not report completion until the custom linter exits successfully.                                                              | Critical |   S    | Process       |
+| 31 | Preserve a clean working tree after verification unless an intentional fix remains.                                               | High     |   S    | Process       |
+| 32 | Add a regression test that verifies the exact strings consumed by the validator output.                                           | Medium   |   S    | Quality       |
+| 33 | Check whether plural forms can be derived automatically and safely for all current call sites.                                    | Medium   |   S    | Quality       |
+| 34 | Keep irregular pluralization out of scope unless the linter requires it.                                                          | Low      |   S    | Scope         |
+| 35 | Review the diagnostic's `namedParams` and `equalsOne` semantics against the helper signature.                                     | High     |   S    | Quality       |
+| 36 | Inspect how `/tmp/go-humanize-linter` was built to avoid relying on a mismatched package ecosystem.                               | High     |   M    | Quality       |
+| 37 | If a dependency is required, pin a verified version and validate its license/transitive impact.                                   | Medium   |   S    | Security      |
+| 38 | Run `go mod tidy` only after the correct dependency is confirmed.                                                                 | Medium   |   S    | Cleanup       |
+| 39 | Compare the final diff against the initial clean state.                                                                           | Medium   |   S    | Quality       |
+| 40 | Update this report with the final resolution if work continues in the same session.                                               | Low      |   S    | Documentation |
 
 ## g) Questions that cannot be figured out from the current repository alone
 

@@ -185,33 +185,33 @@ The worst issue was the `accept` vs `allow` key name mistake in the initial iret
 
 Sorted by impact × effort (highest first):
 
-| #   | Task                                                                | Impact            | Effort |
-| --- | ------------------------------------------------------------------- | ----------------- | ------ |
-| 1   | Add `finding.Position` to exhaustruct exclusions in `.golangci.yml` | Clean diagnostics | 2 min  |
-| 2   | Fix `forbidigo` in `cmd_validate.go` (fmt.Println → writer)         | Correctness       | 5 min  |
-| 3   | Fix `err113` in `loader.go` (dynamic error → sentinel)              | Lint clean        | 5 min  |
-| 4   | Add `ErrorsToFindings` to `converter.go` as exported                | Already done      | —      |
-| 5   | Fix import ordering in `cmd_validate.go` (gci)                      | Clean lint        | 1 min  |
-| 6   | Add default settings for `gocritic`, `exhaustruct`, `revive`        | User experience   | 30 min |
-| 7   | Type-safe `DefaultLinterSettings` (replace `map[string]any`)        | Architecture      | 1 hr   |
-| 8   | Remove `samber/mo` dependency                                       | Simplification    | 1 hr   |
-| 9   | Document `accept` vs `allow` gotcha in AGENTS.md                    | Knowledge         | 5 min  |
-| 10  | Fix `funlen` warnings (8 functions)                                 | Lint clean        | 30 min |
-| 11  | Fix `tagliatelle` warnings (8 tags)                                 | Lint clean        | 20 min |
-| 12  | Fix `varnamelen` warnings (12 variables)                            | Lint clean        | 30 min |
-| 13  | Fix `wsl_v5` warnings (4 locations)                                 | Lint clean        | 15 min |
-| 14  | Fix `gosec` warnings (3 locations)                                  | Security          | 20 min |
-| 15  | Fix `noinlineerr` warnings (3 locations)                            | Lint clean        | 15 min |
-| 16  | Fix `gochecknoglobals` warnings (2 locations)                       | Lint clean        | 10 min |
-| 17  | Fix `testpackage` warnings (2 locations)                            | Lint clean        | 10 min |
-| 18  | Fix `wrapcheck` warnings (2 locations)                              | Lint clean        | 10 min |
-| 19  | Fix `nlreturn` warning (1 location)                                 | Lint clean        | 2 min  |
-| 20  | Fix `revive` warning (1 location)                                   | Lint clean        | 5 min  |
-| 21  | Fix `prealloc` warning (1 location)                                 | Lint clean        | 2 min  |
-| 22  | Fix `fixCounts` exhaustruct in `fixer.go`                           | Lint clean        | 5 min  |
-| 23  | Fix CLI integration tests on NixOS                                  | Test reliability  | 1 hr   |
-| 24  | Publish `go-finding` module / fix CI                                | CI/CD             | 2 hr   |
-| 25  | Update AGENTS.md with session learnings                             | Knowledge         | 15 min |
+| #  | Task                                                                | Impact            | Effort |
+| -- | ------------------------------------------------------------------- | ----------------- | ------ |
+| 1  | Add `finding.Position` to exhaustruct exclusions in `.golangci.yml` | Clean diagnostics | 2 min  |
+| 2  | Fix `forbidigo` in `cmd_validate.go` (fmt.Println → writer)         | Correctness       | 5 min  |
+| 3  | Fix `err113` in `loader.go` (dynamic error → sentinel)              | Lint clean        | 5 min  |
+| 4  | Add `ErrorsToFindings` to `converter.go` as exported                | Already done      | —      |
+| 5  | Fix import ordering in `cmd_validate.go` (gci)                      | Clean lint        | 1 min  |
+| 6  | Add default settings for `gocritic`, `exhaustruct`, `revive`        | User experience   | 30 min |
+| 7  | Type-safe `DefaultLinterSettings` (replace `map[string]any`)        | Architecture      | 1 hr   |
+| 8  | Remove `samber/mo` dependency                                       | Simplification    | 1 hr   |
+| 9  | Document `accept` vs `allow` gotcha in AGENTS.md                    | Knowledge         | 5 min  |
+| 10 | Fix `funlen` warnings (8 functions)                                 | Lint clean        | 30 min |
+| 11 | Fix `tagliatelle` warnings (8 tags)                                 | Lint clean        | 20 min |
+| 12 | Fix `varnamelen` warnings (12 variables)                            | Lint clean        | 30 min |
+| 13 | Fix `wsl_v5` warnings (4 locations)                                 | Lint clean        | 15 min |
+| 14 | Fix `gosec` warnings (3 locations)                                  | Security          | 20 min |
+| 15 | Fix `noinlineerr` warnings (3 locations)                            | Lint clean        | 15 min |
+| 16 | Fix `gochecknoglobals` warnings (2 locations)                       | Lint clean        | 10 min |
+| 17 | Fix `testpackage` warnings (2 locations)                            | Lint clean        | 10 min |
+| 18 | Fix `wrapcheck` warnings (2 locations)                              | Lint clean        | 10 min |
+| 19 | Fix `nlreturn` warning (1 location)                                 | Lint clean        | 2 min  |
+| 20 | Fix `revive` warning (1 location)                                   | Lint clean        | 5 min  |
+| 21 | Fix `prealloc` warning (1 location)                                 | Lint clean        | 2 min  |
+| 22 | Fix `fixCounts` exhaustruct in `fixer.go`                           | Lint clean        | 5 min  |
+| 23 | Fix CLI integration tests on NixOS                                  | Test reliability  | 1 hr   |
+| 24 | Publish `go-finding` module / fix CI                                | CI/CD             | 2 hr   |
+| 25 | Update AGENTS.md with session learnings                             | Knowledge         | 15 min |
 
 ---
 

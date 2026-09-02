@@ -31,19 +31,19 @@
 
 ### Test Coverage Status
 
-| Package          | Coverage | Status        |
-| ---------------- | -------- | ------------- |
-| `pkg/errors/`    | 100%     | ✅ EXCELLENT  |
-| `pkg/utils/`     | 94.1%    | ✅ EXCELLENT  |
-| `pkg/types/`     | 88.9%    | ✅ GOOD       |
-| `pkg/diff/`      | 86.1%    | ✅ GOOD       |
-| `pkg/detection/` | 84.8%    | ✅ GOOD       |
-| `pkg/linter/`    | 75.7%    | ✅ GOOD       |
-| `pkg/config/`    | 72.2%    | ✅ GOOD       |
+| Package          | Coverage | Status       |
+| ---------------- | -------- | ------------ |
+| `pkg/errors/`    | 100%     | ✅ EXCELLENT |
+| `pkg/utils/`     | 94.1%    | ✅ EXCELLENT |
+| `pkg/types/`     | 88.9%    | ✅ GOOD      |
+| `pkg/diff/`      | 86.1%    | ✅ GOOD      |
+| `pkg/detection/` | 84.8%    | ✅ GOOD      |
+| `pkg/linter/`    | 75.7%    | ✅ GOOD      |
+| `pkg/config/`    | 72.2%    | ✅ GOOD      |
 | `pkg/migration/` | ~60%     | ⚠️ NEEDS WORK |
-| `pkg/client/`    | 0%       | ❌ NO TESTS   |
-| `pkg/workflow/`  | 0%       | ❌ NO TESTS   |
-| `pkg/report/`    | 0%       | ❌ NO TESTS   |
+| `pkg/client/`    | 0%       | ❌ NO TESTS  |
+| `pkg/workflow/`  | 0%       | ❌ NO TESTS  |
+| `pkg/report/`    | 0%       | ❌ NO TESTS  |
 
 ### Code Metrics
 
@@ -95,12 +95,12 @@
 
 **Status:** Partially complete
 
-| Doc                 | Status          | Notes                          |
-| ------------------- | --------------- | ------------------------------ |
-| AGENTS.md           | ✅ Updated      | Added migration package        |
-| improvement-plan.md | ✅ Created      | Full prioritized roadmap       |
+| Doc                 | Status         | Notes                          |
+| ------------------- | -------------- | ------------------------------ |
+| AGENTS.md           | ✅ Updated     | Added migration package        |
+| improvement-plan.md | ✅ Created     | Full prioritized roadmap       |
 | README.md           | ⚠️ Needs review | May need updates for migration |
-| CLI help text       | ❓ Unknown      | Need to verify                 |
+| CLI help text       | ❓ Unknown     | Need to verify                 |
 
 ---
 
@@ -108,32 +108,32 @@
 
 ### High Priority
 
-| #   | Task                                                   | Impact | Effort | Blocker |
-| --- | ------------------------------------------------------ | ------ | ------ | ------- |
-| 1   | Add tests for `pkg/client/`                            | HIGH   | Medium | None    |
-| 2   | Consolidate Config types (migration uses types.Config) | HIGH   | Medium | None    |
-| 3   | Extract god method `FixConfigResult` (313 lines)       | HIGH   | Large  | None    |
-| 4   | Add tests for `pkg/constants/`                         | MEDIUM | Small  | None    |
-| 5   | Create `LinterMetadata` struct                         | MEDIUM | Medium | None    |
+| # | Task                                                   | Impact | Effort | Blocker |
+| - | ------------------------------------------------------ | ------ | ------ | ------- |
+| 1 | Add tests for `pkg/client/`                            | HIGH   | Medium | None    |
+| 2 | Consolidate Config types (migration uses types.Config) | HIGH   | Medium | None    |
+| 3 | Extract god method `FixConfigResult` (313 lines)       | HIGH   | Large  | None    |
+| 4 | Add tests for `pkg/constants/`                         | MEDIUM | Small  | None    |
+| 5 | Create `LinterMetadata` struct                         | MEDIUM | Medium | None    |
 
 ### Medium Priority
 
-| #   | Task                                    | Impact | Effort | Blocker |
-| --- | --------------------------------------- | ------ | ------ | ------- |
-| 6   | Standardize all error wrapping          | MEDIUM | Small  | None    |
-| 7   | Add tests for `pkg/report/`             | MEDIUM | Small  | None    |
-| 8   | Add tests for `pkg/workflow/`           | MEDIUM | Medium | None    |
-| 9   | Fix deprecated `cobra.ExactValidArgs()` | LOW    | Tiny   | None    |
-| 10  | Fix test error in `detector_test.go:98` | LOW    | Tiny   | None    |
+| #  | Task                                    | Impact | Effort | Blocker |
+| -- | --------------------------------------- | ------ | ------ | ------- |
+| 6  | Standardize all error wrapping          | MEDIUM | Small  | None    |
+| 7  | Add tests for `pkg/report/`             | MEDIUM | Small  | None    |
+| 8  | Add tests for `pkg/workflow/`           | MEDIUM | Medium | None    |
+| 9  | Fix deprecated `cobra.ExactValidArgs()` | LOW    | Tiny   | None    |
+| 10 | Fix test error in `detector_test.go:98` | LOW    | Tiny   | None    |
 
 ### Low Priority / Future
 
-| #   | Task                                        | Impact | Effort | Notes                             |
-| --- | ------------------------------------------- | ------ | ------ | --------------------------------- |
-| 11  | Use go-git library                          | LOW    | Large  | Replace exec.Command for git      |
-| 12  | Create Recommendation interface             | LOW    | Small  | Linter/Formatter common interface |
-| 13  | Remove local replace for universal-workflow | LOW    | Medium | Publish or remove dependency      |
-| 14  | Add VersionError custom type                | LOW    | Small  | For version-related errors        |
+| #  | Task                                        | Impact | Effort | Notes                             |
+| -- | ------------------------------------------- | ------ | ------ | --------------------------------- |
+| 11 | Use go-git library                          | LOW    | Large  | Replace exec.Command for git      |
+| 12 | Create Recommendation interface             | LOW    | Small  | Linter/Formatter common interface |
+| 13 | Remove local replace for universal-workflow | LOW    | Medium | Publish or remove dependency      |
+| 14 | Add VersionError custom type                | LOW    | Small  | For version-related errors        |
 
 ---
 
@@ -251,48 +251,48 @@ func (f *Fixer) FixConfigResult(...) mo.Result[*types.MigrationResult] {
 
 ### Priority 1: Critical (Do Now)
 
-| #   | Task                         | Impact | Effort | Why                  |
-| --- | ---------------------------- | ------ | ------ | -------------------- |
-| 1   | Fix local replace dependency | HIGH   | Medium | CI broken for others |
-| 2   | Add tests for `pkg/client/`  | HIGH   | Medium | Public API untested  |
-| 3   | Consolidate Config types     | HIGH   | Medium | Reduce duplication   |
+| # | Task                         | Impact | Effort | Why                  |
+| - | ---------------------------- | ------ | ------ | -------------------- |
+| 1 | Fix local replace dependency | HIGH   | Medium | CI broken for others |
+| 2 | Add tests for `pkg/client/`  | HIGH   | Medium | Public API untested  |
+| 3 | Consolidate Config types     | HIGH   | Medium | Reduce duplication   |
 
 ### Priority 2: High Impact (This Week)
 
-| #   | Task                                 | Impact | Effort | Why             |
-| --- | ------------------------------------ | ------ | ------ | --------------- |
-| 4   | Extract `FixConfigResult` god method | HIGH   | Large  | Maintainability |
-| 5   | Add tests for `pkg/constants/`       | MEDIUM | Small  | Easy win        |
-| 6   | Standardize error wrapping           | MEDIUM | Small  | Consistency     |
-| 7   | Add tests for `pkg/report/`          | MEDIUM | Small  | Coverage        |
+| # | Task                                 | Impact | Effort | Why             |
+| - | ------------------------------------ | ------ | ------ | --------------- |
+| 4 | Extract `FixConfigResult` god method | HIGH   | Large  | Maintainability |
+| 5 | Add tests for `pkg/constants/`       | MEDIUM | Small  | Easy win        |
+| 6 | Standardize error wrapping           | MEDIUM | Small  | Consistency     |
+| 7 | Add tests for `pkg/report/`          | MEDIUM | Small  | Coverage        |
 
 ### Priority 3: Medium Impact (Next Week)
 
-| #   | Task                                    | Impact | Effort | Why                |
-| --- | --------------------------------------- | ------ | ------ | ------------------ |
-| 8   | Create `LinterMetadata` struct          | MEDIUM | Medium | Cleaner data model |
-| 9   | Fix deprecated `cobra.ExactValidArgs()` | LOW    | Tiny   | API hygiene        |
-| 10  | Fix `detector_test.go:98` error         | LOW    | Tiny   | Clean codebase     |
-| 11  | Add `VersionError` custom type          | LOW    | Small  | Error consistency  |
-| 12  | Update README.md                        | MEDIUM | Small  | Documentation      |
+| #  | Task                                    | Impact | Effort | Why                |
+| -- | --------------------------------------- | ------ | ------ | ------------------ |
+| 8  | Create `LinterMetadata` struct          | MEDIUM | Medium | Cleaner data model |
+| 9  | Fix deprecated `cobra.ExactValidArgs()` | LOW    | Tiny   | API hygiene        |
+| 10 | Fix `detector_test.go:98` error         | LOW    | Tiny   | Clean codebase     |
+| 11 | Add `VersionError` custom type          | LOW    | Small  | Error consistency  |
+| 12 | Update README.md                        | MEDIUM | Small  | Documentation      |
 
 ### Priority 4: Low Impact / Future
 
-| #   | Task                                  | Impact | Effort | Why                   |
-| --- | ------------------------------------- | ------ | ------ | --------------------- |
-| 13  | Add tests for `pkg/workflow/`         | MEDIUM | Medium | Coverage              |
-| 14  | Consider `go-git` library             | LOW    | Large  | Better git handling   |
-| 15  | Create Recommendation interface       | LOW    | Small  | Abstraction           |
-| 16  | Add architecture diagram              | LOW    | Medium | Documentation         |
-| 17  | Split `ConfigLoader` interface        | LOW    | Small  | Interface segregation |
-| 18  | Archive golangci-config-migrator repo | LOW    | Tiny   | Cleanup               |
-| 19  | Add migration examples to docs        | LOW    | Small  | User education        |
-| 20  | Review CLI help text                  | LOW    | Tiny   | UX                    |
-| 21  | Add performance benchmarks            | LOW    | Medium | Optimization          |
-| 22  | Set up code coverage tracking         | LOW    | Tiny   | Metrics               |
-| 23  | Add pre-commit hook tests             | LOW    | Small  | Reliability           |
-| 24  | Document error handling patterns      | LOW    | Small  | Team alignment        |
-| 25  | Create contributing guide             | LOW    | Medium | Collaboration         |
+| #  | Task                                  | Impact | Effort | Why                   |
+| -- | ------------------------------------- | ------ | ------ | --------------------- |
+| 13 | Add tests for `pkg/workflow/`         | MEDIUM | Medium | Coverage              |
+| 14 | Consider `go-git` library             | LOW    | Large  | Better git handling   |
+| 15 | Create Recommendation interface       | LOW    | Small  | Abstraction           |
+| 16 | Add architecture diagram              | LOW    | Medium | Documentation         |
+| 17 | Split `ConfigLoader` interface        | LOW    | Small  | Interface segregation |
+| 18 | Archive golangci-config-migrator repo | LOW    | Tiny   | Cleanup               |
+| 19 | Add migration examples to docs        | LOW    | Small  | User education        |
+| 20 | Review CLI help text                  | LOW    | Tiny   | UX                    |
+| 21 | Add performance benchmarks            | LOW    | Medium | Optimization          |
+| 22 | Set up code coverage tracking         | LOW    | Tiny   | Metrics               |
+| 23 | Add pre-commit hook tests             | LOW    | Small  | Reliability           |
+| 24 | Document error handling patterns      | LOW    | Small  | Team alignment        |
+| 25 | Create contributing guide             | LOW    | Medium | Collaboration         |
 
 ---
 

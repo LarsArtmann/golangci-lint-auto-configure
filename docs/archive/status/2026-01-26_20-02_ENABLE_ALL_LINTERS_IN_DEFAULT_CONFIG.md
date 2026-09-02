@@ -753,7 +753,6 @@ If you prefer to start with fewer linters:
    ```
 
 ```
-
 ### Update Examples
 
 All example configs should mention:

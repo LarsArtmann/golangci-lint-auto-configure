@@ -228,33 +228,33 @@
 
 ## f) Top #25 Things We Should Get Done Next
 
-| #   | Task                                                                   | Priority | Effort | Impact                        |
-| --- | ---------------------------------------------------------------------- | -------- | ------ | ----------------------------- |
-| 1   | Fix Go build cache and workspace configuration                         | CRITICAL | 15min  | Unblocks everything           |
-| 2   | Run `just test` and verify all tests pass                              | CRITICAL | 10min  | Validates all code            |
-| 3   | Run `just lint` and fix any issues                                     | CRITICAL | 15min  | Code quality                  |
-| 4   | Align `--priority` defaults (remove global flag or sync to "optional") | HIGH     | 10min  | Prevents confusion            |
-| 5   | Split `fixer.go` (497→<350 lines) by extracting more helpers           | HIGH     | 30min  | File size compliance          |
-| 6   | Refactor `detector.go`: merge duplicate `analyzeGoMod` methods         | HIGH     | 20min  | Removes ~50 lines duplication |
-| 7   | Fix `retry.go`: remove unreachable code, type the constant             | HIGH     | 5min   | Code correctness              |
-| 8   | Add core formatters to `CreateDefaultConfig`                           | HIGH     | 30min  | Fresh configs get formatters  |
-| 9   | Add end-to-end test for full configure flow                            | HIGH     | 2hr    | Confidence in releases        |
-| 10  | Detect and warn about conflicting/overlapping linters                  | HIGH     | 2hr    | Better user experience        |
-| 11  | Auto-configure linter settings (funlen, gocyclo, etc.)                 | HIGH     | 3hr    | Sensible defaults             |
-| 12  | Add `--interactive` flag for reviewing linter selections               | HIGH     | 4hr    | User control                  |
-| 13  | Show config diff after configure (what changed)                        | MEDIUM   | 2hr    | Transparency                  |
-| 14  | Overhaul presets (or deprecate in favor of priority system)            | MEDIUM   | 1hr    | Clarity                       |
-| 15  | Add `--exclude` flag to skip specific linters                          | MEDIUM   | 1hr    | User control                  |
-| 16  | Add config backup before modification                                  | MEDIUM   | 30min  | Safety net                    |
-| 17  | Validate enabled linters exist in golangci-lint version                | MEDIUM   | 1hr    | Prevents config errors        |
-| 18  | Add `golangci-lint-auto-configure diff` command                        | MEDIUM   | 2hr    | Useful feature                |
-| 19  | Write comprehensive benchmarks for hot paths                           | LOW      | 1hr    | Performance tracking          |
-| 20  | Add structured JSON logging option                                     | LOW      | 1hr    | CI/CD integration             |
-| 21  | Add shell completions for zsh/bash/fish                                | LOW      | 2hr    | UX improvement                |
-| 22  | Create `--check` mode for CI (exit code 1 if changes needed)           | LOW      | 1hr    | CI/CD integration             |
-| 23  | Add timeout for golangci-lint binary calls                             | LOW      | 30min  | Robustness                    |
-| 24  | Implement `--config-out` flag for non-destructive output               | LOW      | 30min  | Safety + flexibility          |
-| 25  | Add JSON schema validation for config files                            | LOW      | 2hr    | Advanced validation           |
+| #  | Task                                                                   | Priority | Effort | Impact                        |
+| -- | ---------------------------------------------------------------------- | -------- | ------ | ----------------------------- |
+| 1  | Fix Go build cache and workspace configuration                         | CRITICAL | 15min  | Unblocks everything           |
+| 2  | Run `just test` and verify all tests pass                              | CRITICAL | 10min  | Validates all code            |
+| 3  | Run `just lint` and fix any issues                                     | CRITICAL | 15min  | Code quality                  |
+| 4  | Align `--priority` defaults (remove global flag or sync to "optional") | HIGH     | 10min  | Prevents confusion            |
+| 5  | Split `fixer.go` (497→<350 lines) by extracting more helpers           | HIGH     | 30min  | File size compliance          |
+| 6  | Refactor `detector.go`: merge duplicate `analyzeGoMod` methods         | HIGH     | 20min  | Removes ~50 lines duplication |
+| 7  | Fix `retry.go`: remove unreachable code, type the constant             | HIGH     | 5min   | Code correctness              |
+| 8  | Add core formatters to `CreateDefaultConfig`                           | HIGH     | 30min  | Fresh configs get formatters  |
+| 9  | Add end-to-end test for full configure flow                            | HIGH     | 2hr    | Confidence in releases        |
+| 10 | Detect and warn about conflicting/overlapping linters                  | HIGH     | 2hr    | Better user experience        |
+| 11 | Auto-configure linter settings (funlen, gocyclo, etc.)                 | HIGH     | 3hr    | Sensible defaults             |
+| 12 | Add `--interactive` flag for reviewing linter selections               | HIGH     | 4hr    | User control                  |
+| 13 | Show config diff after configure (what changed)                        | MEDIUM   | 2hr    | Transparency                  |
+| 14 | Overhaul presets (or deprecate in favor of priority system)            | MEDIUM   | 1hr    | Clarity                       |
+| 15 | Add `--exclude` flag to skip specific linters                          | MEDIUM   | 1hr    | User control                  |
+| 16 | Add config backup before modification                                  | MEDIUM   | 30min  | Safety net                    |
+| 17 | Validate enabled linters exist in golangci-lint version                | MEDIUM   | 1hr    | Prevents config errors        |
+| 18 | Add `golangci-lint-auto-configure diff` command                        | MEDIUM   | 2hr    | Useful feature                |
+| 19 | Write comprehensive benchmarks for hot paths                           | LOW      | 1hr    | Performance tracking          |
+| 20 | Add structured JSON logging option                                     | LOW      | 1hr    | CI/CD integration             |
+| 21 | Add shell completions for zsh/bash/fish                                | LOW      | 2hr    | UX improvement                |
+| 22 | Create `--check` mode for CI (exit code 1 if changes needed)           | LOW      | 1hr    | CI/CD integration             |
+| 23 | Add timeout for golangci-lint binary calls                             | LOW      | 30min  | Robustness                    |
+| 24 | Implement `--config-out` flag for non-destructive output               | LOW      | 30min  | Safety + flexibility          |
+| 25 | Add JSON schema validation for config files                            | LOW      | 2hr    | Advanced validation           |
 
 ---
 

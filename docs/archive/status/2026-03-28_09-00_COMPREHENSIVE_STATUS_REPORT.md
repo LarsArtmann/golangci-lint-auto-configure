@@ -1,8 +1,8 @@
 # Comprehensive Status Report
 
-**Date:** 2026-03-28 09:00 CET  
-**Branch:** master  
-**Working Tree:** Clean (nothing to commit, working tree clean)  
+**Date:** 2026-03-28 09:00 CET\
+**Branch:** master\
+**Working Tree:** Clean (nothing to commit, working tree clean)\
 **Last Commit:** 5cdd05b (test: add comprehensive version checking to analyzer test suite)
 
 ---
@@ -39,8 +39,8 @@ The project is in excellent shape. All core functionality is implemented, tests 
 
 ### B) Partially Done ⚠️
 
-| Task                         | Status         | Notes                                                   |
-| ---------------------------- | -------------- | ------------------------------------------------------- |
+| Task                         | Status        | Notes                                                   |
+| ---------------------------- | ------------- | ------------------------------------------------------- |
 | Linter documentation reports | ⚠️ PARTIAL     | ~50 reports in docs/, could auto-generate from upstream |
 | golangci-lint auto-update    | ⚠️ PLANNED     | Detect outdated golangci-lint versions                  |
 | IDE integration              | ⚠️ NOT STARTED | LSP/plugin integration not implemented                  |
@@ -255,5 +255,5 @@ just coverage-html # Generate HTML coverage report
 
 ---
 
-**Report Generated:** 2026-03-28 09:00 CET  
+**Report Generated:** 2026-03-28 09:00 CET\
 **Next Review:** When new features are added or issues discovered

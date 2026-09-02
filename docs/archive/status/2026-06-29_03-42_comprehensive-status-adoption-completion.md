@@ -182,48 +182,48 @@ The working tree is clean. No broken builds, no failing tests, no stale branches
 
 ### Critical (blocks trust/CI)
 
-| #   | Task                                                                     | Impact | Effort | Package        |
-| --- | ------------------------------------------------------------------------ | ------ | ------ | -------------- |
-| 1   | Add exit-code integration tests (full `Main()` → `os.Exit()` per Family) | 5      | 3h     | `internal/cli` |
-| 2   | Increase `internal/cli` coverage from 9.3% to ≥40%                       | 5      | 8h     | `internal/cli` |
-| 3   | Investigate & fix `--diff` + `--check` empty-diff behavior               | 4      | 2h     | `internal/cli` |
-| 4   | Add `--check` mode integration tests (exit codes, flag combos)           | 4      | 3h     | `internal/cli` |
+| # | Task                                                                     | Impact | Effort | Package        |
+| - | ------------------------------------------------------------------------ | ------ | ------ | -------------- |
+| 1 | Add exit-code integration tests (full `Main()` → `os.Exit()` per Family) | 5      | 3h     | `internal/cli` |
+| 2 | Increase `internal/cli` coverage from 9.3% to ≥40%                       | 5      | 8h     | `internal/cli` |
+| 3 | Investigate & fix `--diff` + `--check` empty-diff behavior               | 4      | 2h     | `internal/cli` |
+| 4 | Add `--check` mode integration tests (exit codes, flag combos)           | 4      | 3h     | `internal/cli` |
 
 ### High (error system maturity)
 
-| #   | Task                                                                      | Impact | Effort | Package        |
-| --- | ------------------------------------------------------------------------- | ------ | ------ | -------------- |
-| 5   | Add `--json` error output flag (`errorfamily.Error.JSON()`)               | 4      | 3h     | `internal/cli` |
-| 6   | Evaluate `HandleError` at CLI boundary (decision doc)                     | 3      | 2h     | docs/          |
-| 7   | Register domain message templates (requires `errorfamily.New()` adoption) | 3      | 4h     | `pkg/errors`   |
-| 8   | Add `pkg/version` `ReadBuildInfo()` fallback test                         | 3      | 1h     | `pkg/version`  |
+| # | Task                                                                      | Impact | Effort | Package        |
+| - | ------------------------------------------------------------------------- | ------ | ------ | -------------- |
+| 5 | Add `--json` error output flag (`errorfamily.Error.JSON()`)               | 4      | 3h     | `internal/cli` |
+| 6 | Evaluate `HandleError` at CLI boundary (decision doc)                     | 3      | 2h     | docs/          |
+| 7 | Register domain message templates (requires `errorfamily.New()` adoption) | 3      | 4h     | `pkg/errors`   |
+| 8 | Add `pkg/version` `ReadBuildInfo()` fallback test                         | 3      | 1h     | `pkg/version`  |
 
 ### Medium (coverage & polish)
 
-| #   | Task                                                                 | Impact | Effort | Package           |
-| --- | -------------------------------------------------------------------- | ------ | ------ | ----------------- |
-| 9   | Add `analyze` command integration test                               | 3      | 2h     | `internal/cli`    |
-| 10  | Add `validate` command integration test                              | 3      | 2h     | `internal/cli`    |
-| 11  | Add `report` command integration test                                | 3      | 2h     | `internal/cli`    |
-| 12  | Add `migrate` command integration test                               | 3      | 2h     | `internal/cli`    |
-| 13  | Add `install-hook` command integration test                          | 2      | 1h     | `internal/cli`    |
-| 14  | Resolve `pkg/client` intent: public API vs internal (delete or test) | 3      | 1h     | `pkg/client`      |
-| 15  | Increase `pkg/config` coverage from 63.4%                            | 2      | 2h     | `pkg/config`      |
-| 16  | Increase `pkg/types` coverage from 63.2%                             | 2      | 2h     | `pkg/types`       |
-| 17  | Increase `pkg/gogenfilter` coverage from 63.9%                       | 2      | 2h     | `pkg/gogenfilter` |
-| 18  | Add `--diff` flag integration tests                                  | 2      | 1h     | `internal/cli`    |
+| #  | Task                                                                 | Impact | Effort | Package           |
+| -- | -------------------------------------------------------------------- | ------ | ------ | ----------------- |
+| 9  | Add `analyze` command integration test                               | 3      | 2h     | `internal/cli`    |
+| 10 | Add `validate` command integration test                              | 3      | 2h     | `internal/cli`    |
+| 11 | Add `report` command integration test                                | 3      | 2h     | `internal/cli`    |
+| 12 | Add `migrate` command integration test                               | 3      | 2h     | `internal/cli`    |
+| 13 | Add `install-hook` command integration test                          | 2      | 1h     | `internal/cli`    |
+| 14 | Resolve `pkg/client` intent: public API vs internal (delete or test) | 3      | 1h     | `pkg/client`      |
+| 15 | Increase `pkg/config` coverage from 63.4%                            | 2      | 2h     | `pkg/config`      |
+| 16 | Increase `pkg/types` coverage from 63.2%                             | 2      | 2h     | `pkg/types`       |
+| 17 | Increase `pkg/gogenfilter` coverage from 63.9%                       | 2      | 2h     | `pkg/gogenfilter` |
+| 18 | Add `--diff` flag integration tests                                  | 2      | 1h     | `internal/cli`    |
 
 ### Low (polish & docs)
 
-| #   | Task                                                          | Impact | Effort | Package         |
-| --- | ------------------------------------------------------------- | ------ | ------ | --------------- |
-| 19  | Add CI status badge to README.md                              | 2      | 15m    | `README.md`     |
-| 20  | Seed go-finding/gogenfilter on Go module proxy                | 2      | 30m    | infra           |
-| 21  | Reset LSP cache (gopls stale diagnostics)                     | 1      | 5m     | env             |
-| 22  | Add `ginkgolinter` default settings if any exist              | 1      | 30m    | `pkg/constants` |
-| 23  | Decide `vendor/` in formatter exclusions                      | 1      | 15m    | `pkg/constants` |
-| 24  | Audit all FEATURES.md "Stable" entries for accuracy (ongoing) | 1      | 1h     | `FEATURES.md`   |
-| 25  | Add benchmark targets to CI (prevent perf regressions)        | 1      | 1h     | `.github/`      |
+| #  | Task                                                          | Impact | Effort | Package         |
+| -- | ------------------------------------------------------------- | ------ | ------ | --------------- |
+| 19 | Add CI status badge to README.md                              | 2      | 15m    | `README.md`     |
+| 20 | Seed go-finding/gogenfilter on Go module proxy                | 2      | 30m    | infra           |
+| 21 | Reset LSP cache (gopls stale diagnostics)                     | 1      | 5m     | env             |
+| 22 | Add `ginkgolinter` default settings if any exist              | 1      | 30m    | `pkg/constants` |
+| 23 | Decide `vendor/` in formatter exclusions                      | 1      | 15m    | `pkg/constants` |
+| 24 | Audit all FEATURES.md "Stable" entries for accuracy (ongoing) | 1      | 1h     | `FEATURES.md`   |
+| 25 | Add benchmark targets to CI (prevent perf regressions)        | 1      | 1h     | `.github/`      |
 
 ---
 

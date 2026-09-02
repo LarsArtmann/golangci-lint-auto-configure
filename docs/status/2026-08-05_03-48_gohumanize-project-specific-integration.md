@@ -102,7 +102,7 @@ Nothing fundamentally broken. Two cosmetic concerns:
 56. [LOW] **Add a BDD spec for the fixer end-to-end path**: project with go-humanize dep → fixer runs → `linters.enable` contains `gohumanize`. Currently only the categorizer path is tested.
 57. [LOW] **Run `nix flake check`** to verify the flake build + check + lint all still pass. I bypassed it.
 58. [LOW] **Run `markdownlint-cli2`** on the AGENTS.md change.
-59. [LOW] _*Consider extracting `ProjectSpecificLinters` + `hasTechnology` + detector Has* methods into a plugin pattern_* so adding a new project-specific linter is a one-line config change. Currently it's 4 file edits (config.go, patterns.go, detector.go, categorizer.go) — should be 1 or 2.
+59. [LOW] __Consider extracting `ProjectSpecificLinters` + `hasTechnology` + detector Has_ methods into a plugin pattern_* so adding a new project-specific linter is a one-line config change. Currently it's 4 file edits (config.go, patterns.go, detector.go, categorizer.go) — should be 1 or 2.
 60. [LOW] **Document the 3-tier linter management system** (DisabledLinters / NeverAutoEnableLinters / ProjectSpecificLinters) in `docs/references/` if not already. Currently scattered across comments.
 61. [LOW] **Add a `pkg/constants/linter_reasons.go` test** that verifies every `LinterReasons` entry is non-empty (similar to data_integrity_test.go for the priority/reason consistency).
 62. [LOW] **Add an integration test that exercises the full fixer pipeline** with gohumanize: stub the linter analyzer to report gohumanize as disabled in a project with go-humanize dep, then assert it ends up in `linters.enable`.

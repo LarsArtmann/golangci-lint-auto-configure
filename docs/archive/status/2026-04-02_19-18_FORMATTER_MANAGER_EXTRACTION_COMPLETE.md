@@ -280,20 +280,20 @@ This decision affects CI, contributor onboarding, and project portability. I can
 
 ## File Line Count Summary
 
-| File                                          | Lines | Over 350?    |
-| --------------------------------------------- | ----- | ------------ |
+| File                                          | Lines | Over 350?   |
+| --------------------------------------------- | ----- | ----------- |
 | `pkg/linter/fixer.go`                         | 497   | ⚠️ Yes       |
 | `pkg/report/report_templ.go`                  | 494   | ⚠️ Generated |
 | `pkg/detection/detector.go`                   | 416   | ⚠️ Yes       |
 | `pkg/config/loader.go`                        | 413   | ⚠️ Yes       |
 | `internal/cli/commands_test.go`               | 391   | ⚠️ Yes       |
-| `pkg/config/loader_test.go`                   | 327   | ✅ No        |
-| `internal/cli/cmd_configure.go`               | 324   | ✅ No        |
-| `pkg/types/types.go`                          | 317   | ✅ No        |
-| `pkg/linter/fixer_test.go`                    | 295   | ✅ No        |
-| `pkg/linter/fixer_preflight.go`               | 271   | ✅ No        |
-| `pkg/linter/analyzer.go`                      | 254   | ✅ No        |
-| `internal/cli/cmd_configure_internal_test.go` | 236   | ✅ No        |
+| `pkg/config/loader_test.go`                   | 327   | ✅ No       |
+| `internal/cli/cmd_configure.go`               | 324   | ✅ No       |
+| `pkg/types/types.go`                          | 317   | ✅ No       |
+| `pkg/linter/fixer_test.go`                    | 295   | ✅ No       |
+| `pkg/linter/fixer_preflight.go`               | 271   | ✅ No       |
+| `pkg/linter/analyzer.go`                      | 254   | ✅ No       |
+| `internal/cli/cmd_configure_internal_test.go` | 236   | ✅ No       |
 
 ## Git Log (Last 10 Commits)
 

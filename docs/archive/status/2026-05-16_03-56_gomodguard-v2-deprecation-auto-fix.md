@@ -129,33 +129,33 @@ Nothing catastrophic. Clean sailing this session. However:
 
 ## F. Top #25 Things to Get Done Next
 
-| #   | Priority | Task                                                                                | Impact                       |
-| --- | -------- | ----------------------------------------------------------------------------------- | ---------------------------- |
-| 1   | ✅ DONE  | Dogfood: Fix `gomodguard` → `gomodguard_v2` in own `.golangci.yml`                  | Commit `4a5e1a3`             |
-| 2   | ✅ DONE  | Fix `gochecknoglobals` in `finding_formatter.go:69`                                 | Commit `4a5e1a3`, 0 issues   |
-| 3   | HIGH     | Create `FEATURES.md` with honest feature inventory                                  | Project clarity              |
-| 4   | HIGH     | Create `TODO_LIST.md` comprehensive backlog                                         | Execution roadmap            |
-| 5   | HIGH     | Add integration/E2E tests for CLI binary                                            | Confidence in releases       |
-| 6   | HIGH     | Improve `internal/cli` test coverage (currently 8.5%)                               | Core path coverage           |
-| 7   | ✅ DONE  | Remove stale `samber/mo` from depguard allow list                                   | Commit `4a5e1a3`             |
-| 8   | ✅ DONE  | Remove stale `spf13/afero` from depguard allow list                                 | Commit `4a5e1a3`             |
-| 9   | HIGH     | Audit `.golangci.yml` exclusion rules for obsolescence                              | Config hygiene               |
-| 10  | MEDIUM   | Improve `pkg/finding` coverage (58.1%)                                              | Finding pipeline reliability |
-| 11  | MEDIUM   | Improve `pkg/types` coverage (57.7%)                                                | Core types reliability       |
-| 12  | MEDIUM   | Create `docs/adr/` with architecture decision records                               | Knowledge preservation       |
-| 13  | MEDIUM   | Add performance benchmarks for analysis/fixing                                      | Performance awareness        |
-| 14  | MEDIUM   | Refresh `README.md` to reflect current features                                     | User documentation           |
-| 15  | MEDIUM   | Add `CONTEXT.md` for domain language                                                | Onboarding                   |
-| 16  | MEDIUM   | Verify CI/CD works with golangci-lint v2.12.x                                       | Pipeline health              |
-| 17  | MEDIUM   | Add `gomodguard_v2` settings schema to migration rules                              | Complete migration path      |
-| 18  | LOW      | Tag first semver release (v0.1.0)                                                   | Release management           |
-| 19  | LOW      | Add changelog generation                                                            | Release documentation        |
-| 20  | LOW      | Explore `golangci-lint` plugin system for tighter integration                       | Future architecture          |
-| 21  | LOW      | Add `--verbose` flag output improvements                                            | Debugging experience         |
-| 22  | LOW      | Review `pkg/report/` for 0% coverage                                                | Report reliability           |
-| 23  | LOW      | Add example configs for `gomodguard_v2` in `examples/`                              | User guidance                |
-| 24  | LOW      | Consider adding `deprecated-linters` command to list all known deprecations         | Discoverability              |
-| 25  | LOW      | Evaluate moving from justfile to flake.nix for build tasks (per AGENTS.md guidance) | Build system alignment       |
+| #  | Priority | Task                                                                                | Impact                       |
+| -- | -------- | ----------------------------------------------------------------------------------- | ---------------------------- |
+| 1  | ✅ DONE  | Dogfood: Fix `gomodguard` → `gomodguard_v2` in own `.golangci.yml`                  | Commit `4a5e1a3`             |
+| 2  | ✅ DONE  | Fix `gochecknoglobals` in `finding_formatter.go:69`                                 | Commit `4a5e1a3`, 0 issues   |
+| 3  | HIGH     | Create `FEATURES.md` with honest feature inventory                                  | Project clarity              |
+| 4  | HIGH     | Create `TODO_LIST.md` comprehensive backlog                                         | Execution roadmap            |
+| 5  | HIGH     | Add integration/E2E tests for CLI binary                                            | Confidence in releases       |
+| 6  | HIGH     | Improve `internal/cli` test coverage (currently 8.5%)                               | Core path coverage           |
+| 7  | ✅ DONE  | Remove stale `samber/mo` from depguard allow list                                   | Commit `4a5e1a3`             |
+| 8  | ✅ DONE  | Remove stale `spf13/afero` from depguard allow list                                 | Commit `4a5e1a3`             |
+| 9  | HIGH     | Audit `.golangci.yml` exclusion rules for obsolescence                              | Config hygiene               |
+| 10 | MEDIUM   | Improve `pkg/finding` coverage (58.1%)                                              | Finding pipeline reliability |
+| 11 | MEDIUM   | Improve `pkg/types` coverage (57.7%)                                                | Core types reliability       |
+| 12 | MEDIUM   | Create `docs/adr/` with architecture decision records                               | Knowledge preservation       |
+| 13 | MEDIUM   | Add performance benchmarks for analysis/fixing                                      | Performance awareness        |
+| 14 | MEDIUM   | Refresh `README.md` to reflect current features                                     | User documentation           |
+| 15 | MEDIUM   | Add `CONTEXT.md` for domain language                                                | Onboarding                   |
+| 16 | MEDIUM   | Verify CI/CD works with golangci-lint v2.12.x                                       | Pipeline health              |
+| 17 | MEDIUM   | Add `gomodguard_v2` settings schema to migration rules                              | Complete migration path      |
+| 18 | LOW      | Tag first semver release (v0.1.0)                                                   | Release management           |
+| 19 | LOW      | Add changelog generation                                                            | Release documentation        |
+| 20 | LOW      | Explore `golangci-lint` plugin system for tighter integration                       | Future architecture          |
+| 21 | LOW      | Add `--verbose` flag output improvements                                            | Debugging experience         |
+| 22 | LOW      | Review `pkg/report/` for 0% coverage                                                | Report reliability           |
+| 23 | LOW      | Add example configs for `gomodguard_v2` in `examples/`                              | User guidance                |
+| 24 | LOW      | Consider adding `deprecated-linters` command to list all known deprecations         | Discoverability              |
+| 25 | LOW      | Evaluate moving from justfile to flake.nix for build tasks (per AGENTS.md guidance) | Build system alignment       |
 
 ---
 
@@ -167,20 +167,20 @@ Nothing catastrophic. Clean sailing this session. However:
 
 ## Project Health Summary
 
-| Metric                           | Value                      | Status               |
-| -------------------------------- | -------------------------- | -------------------- |
-| Go Version                       | 1.26+                      | ✅ Current           |
-| golangci-lint Version            | v2.12.2                    | ✅ Current           |
-| Tests                            | 14 suites, ALL PASS        | ✅ Green             |
+| Metric                           | Value                      | Status              |
+| -------------------------------- | -------------------------- | ------------------- |
+| Go Version                       | 1.26+                      | ✅ Current          |
+| golangci-lint Version            | v2.12.2                    | ✅ Current          |
+| Tests                            | 14 suites, ALL PASS        | ✅ Green            |
 | Composite Coverage               | 59.8%                      | ⚠️ Needs improvement |
-| Lint Issues                      | 0 (all fixed)              | ✅ Clean             |
-| Build                            | Clean                      | ✅                   |
-| Packages                         | 20                         | ✅                   |
-| Go Source Files                  | 96                         | ✅                   |
-| Total Lines of Code              | ~16,100                    | ✅                   |
-| Deprecated Linters in Own Config | 0 (`gomodguard_v2` in use) | ✅ Fixed             |
-| Modified Files This Session      | 7                          | ✅ Focused changes   |
-| New Tests This Session           | 3                          | ✅                   |
+| Lint Issues                      | 0 (all fixed)              | ✅ Clean            |
+| Build                            | Clean                      | ✅                  |
+| Packages                         | 20                         | ✅                  |
+| Go Source Files                  | 96                         | ✅                  |
+| Total Lines of Code              | ~16,100                    | ✅                  |
+| Deprecated Linters in Own Config | 0 (`gomodguard_v2` in use) | ✅ Fixed            |
+| Modified Files This Session      | 7                          | ✅ Focused changes  |
+| New Tests This Session           | 3                          | ✅                  |
 
 ---
 

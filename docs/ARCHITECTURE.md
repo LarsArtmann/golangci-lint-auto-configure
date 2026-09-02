@@ -33,7 +33,7 @@ We used the `samber/mo` library which provided `Result[T]` types that wrap succe
 
 ## ADR-002: MigrationResult Uses Error Field Instead of Success Bool
 
-**Status:** Accepted  
+**Status:** Accepted\
 **Date:** 2026-03-26
 
 ### Context
@@ -73,7 +73,7 @@ func (m *MigrationResult) IsFailure() bool { return m.Error != nil }
 
 ## ADR-003: Detector Caching for Project Type Analysis
 
-**Status:** Accepted  
+**Status:** Accepted\
 **Date:** 2026-03-26
 
 ### Context
@@ -128,7 +128,7 @@ func (d *Detector) Detect() ProjectType {
 
 ## ADR-004: Separate Error Types for Different Domains
 
-**Status:** Accepted  
+**Status:** Accepted\
 **Date:** 2026-03-26
 
 ### Context
@@ -246,7 +246,7 @@ func NewLoaderWithFS(logger *log.Logger, fs FS) *Loader {
 
 ## ADR-006: Context Propagation for Cancellation
 
-**Status:** Accepted  
+**Status:** Accepted\
 **Date:** 2026-03-26
 
 ### Context
@@ -280,7 +280,7 @@ func (l *Loader) IsGitRepo(ctx context.Context, startDir string) bool
 
 ## ADR-007: Strong Type Aliases for Linter and Formatter Names
 
-**Status:** Accepted  
+**Status:** Accepted\
 **Date:** 2026-03-26
 
 ### Context
@@ -322,7 +322,7 @@ func (fn FormatterName) String() string {
 
 ## ADR-008: Command-Line Interface with Cobra
 
-**Status:** Accepted  
+**Status:** Accepted\
 **Date:** 2026-03-26
 
 ### Context

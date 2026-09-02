@@ -277,10 +277,10 @@ GOTOOLCHAIN=go1.26.1 go version
 ## Uncommitted Changes
 
 ```
- pkg/constants/rules.go       | 32 ++++++++++++++++++++++++++
- pkg/linter/command_runner.go | 18 +++++++++++++--
- pkg/linter/fixer.go          | 53 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 101 insertions(+), 2 deletions(-)
+pkg/constants/rules.go       | 32 ++++++++++++++++++++++++++
+pkg/linter/command_runner.go | 18 +++++++++++++--
+pkg/linter/fixer.go          | 53 ++++++++++++++++++++++++++++++++++++++++++++
+3 files changed, 101 insertions(+), 2 deletions(-)
 ```
 
 ### Changes Summary:

@@ -6,7 +6,7 @@
 >
 > | Item                                                   | Status            | Details                                                                       |
 > | ------------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------- |
-> | Consolidate ErrNoConfigFiles (remove deprecated alias) | ⚠️ Partial        | Moved to `pkg/errors/errors.go`; deprecated alias in merger.go still exists   |
+> | Consolidate ErrNoConfigFiles (remove deprecated alias) | ⚠️ Partial         | Moved to `pkg/errors/errors.go`; deprecated alias in merger.go still exists   |
 > | Extract errUnsupportedConfigFormat to pkg/errors/      | ❌ Not done       | Still in config/loader.go                                                     |
 > | Split cmd_configure.go (541 lines, 8 concerns)         | ❌ Not done       | File still large                                                              |
 > | Split ConfigLoader God Object (8-method interface)     | ❌ Not done       | Interface unchanged                                                           |

@@ -23,25 +23,25 @@
 
 ## a) FULLY DONE
 
-| #   | Task                                                                                                              | Files                                                       |
-| --- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| 1   | Stripped snake_case `json:` tags from all 11 report types in `pkg/types/types.go` → PascalCase via Go field names | `pkg/types/types.go`                                        |
-| 2   | Stripped snake_case `json:` tags from `HealthIssue` and `ConfigHealth`                                            | `pkg/types/validation.go`                                   |
-| 3   | Stripped camelCase `json:` tags from `JSONReport` (5 fields) and `JSONSummary` (4 fields)                         | `pkg/report/json_report_generator.go`                       |
-| 4   | Stripped snake_case `json:` tags from `MergeResult` (9 fields) → PascalCase                                       | `pkg/config/merger.go`                                      |
-| 5   | Updated tagliatelle config: `json: pascal`, `yaml: kebab`, `toml: kebab`                                          | `.golangci.yml`                                             |
-| 6   | Added tagliatelle exclusions for external-format files (`pkg/config/loader.go`, `pkg/linter/analyzer.go`)         | `.golangci.yml`                                             |
-| 7   | Removed tagliatelle exclusion for `pkg/report/json_report_generator.go` (now PascalCase-enforced)                 | `.golangci.yml`                                             |
-| 8   | Added `musttag` exclusion for `_test.go` files (tests legitimately marshal tag-free structs)                      | `.golangci.yml`                                             |
-| 9   | Added `//nolint:musttag` directives on 4 production Marshal/Unmarshal call sites                                  | `cmd_analyze.go`, `analyzer.go`, `json_report_generator.go` |
-| 10  | Removed redundant `//nolint:musttag` from test file (covered by `_test.go` exclusion)                             | `pkg/report/generator_test.go`                              |
-| 11  | Fixed camelCase outliers: `autoFix`→`AutoFix`, `originalURL`→`OriginalURL`, `minVersion`→`MinVersion`             | `pkg/types/types.go`                                        |
-| 12  | Wrote comprehensive serialization tests (8 specs, PascalCase + kebab round-trip)                                  | `pkg/types/json_tags_test.go` (new)                         |
-| 13  | Updated AGENTS.md with tag case policy (gotcha #12, with table)                                                   | `AGENTS.md`                                                 |
-| 14  | Updated `examples/api-usage/main.go` slog keys to PascalCase                                                      | `examples/api-usage/main.go`                                |
-| 15  | Build passes                                                                                                      | `go build ./...`                                            |
-| 16  | Lint passes (0 issues)                                                                                            | `golangci-lint run`                                         |
-| 17  | All tests pass (race detector)                                                                                    | `go test -race ./pkg/... ./internal/...`                    |
+| #  | Task                                                                                                              | Files                                                       |
+| -- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 1  | Stripped snake_case `json:` tags from all 11 report types in `pkg/types/types.go` → PascalCase via Go field names | `pkg/types/types.go`                                        |
+| 2  | Stripped snake_case `json:` tags from `HealthIssue` and `ConfigHealth`                                            | `pkg/types/validation.go`                                   |
+| 3  | Stripped camelCase `json:` tags from `JSONReport` (5 fields) and `JSONSummary` (4 fields)                         | `pkg/report/json_report_generator.go`                       |
+| 4  | Stripped snake_case `json:` tags from `MergeResult` (9 fields) → PascalCase                                       | `pkg/config/merger.go`                                      |
+| 5  | Updated tagliatelle config: `json: pascal`, `yaml: kebab`, `toml: kebab`                                          | `.golangci.yml`                                             |
+| 6  | Added tagliatelle exclusions for external-format files (`pkg/config/loader.go`, `pkg/linter/analyzer.go`)         | `.golangci.yml`                                             |
+| 7  | Removed tagliatelle exclusion for `pkg/report/json_report_generator.go` (now PascalCase-enforced)                 | `.golangci.yml`                                             |
+| 8  | Added `musttag` exclusion for `_test.go` files (tests legitimately marshal tag-free structs)                      | `.golangci.yml`                                             |
+| 9  | Added `//nolint:musttag` directives on 4 production Marshal/Unmarshal call sites                                  | `cmd_analyze.go`, `analyzer.go`, `json_report_generator.go` |
+| 10 | Removed redundant `//nolint:musttag` from test file (covered by `_test.go` exclusion)                             | `pkg/report/generator_test.go`                              |
+| 11 | Fixed camelCase outliers: `autoFix`→`AutoFix`, `originalURL`→`OriginalURL`, `minVersion`→`MinVersion`             | `pkg/types/types.go`                                        |
+| 12 | Wrote comprehensive serialization tests (8 specs, PascalCase + kebab round-trip)                                  | `pkg/types/json_tags_test.go` (new)                         |
+| 13 | Updated AGENTS.md with tag case policy (gotcha #12, with table)                                                   | `AGENTS.md`                                                 |
+| 14 | Updated `examples/api-usage/main.go` slog keys to PascalCase                                                      | `examples/api-usage/main.go`                                |
+| 15 | Build passes                                                                                                      | `go build ./...`                                            |
+| 16 | Lint passes (0 issues)                                                                                            | `golangci-lint run`                                         |
+| 17 | All tests pass (race detector)                                                                                    | `go test -race ./pkg/... ./internal/...`                    |
 
 ---
 
@@ -53,23 +53,23 @@ Nothing partial — all started tasks are complete.
 
 ## c) NOT STARTED (from original plan)
 
-| #   | Task                                                                                                                            | Why deferred                                                                    |
-| --- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| 1   | Split `pkg/types/types.go` into report + config files (so tagliatelle can enforce PascalCase on report types without exclusion) | Future refactor; not blocking — current exclusion works                         |
-| 2   | Add CBOR support with PascalCase tags                                                                                           | No CBOR library in project yet; policy decided but no code to tag               |
-| 3   | Add breaking-change note to CHANGELOG                                                                                           | No CHANGELOG.md exists yet; needs separate decision on versioning               |
-| 4   | Update `docs/references/testing-style-and-patterns.md` if it references json tag case                                           | Doc mentions "Constants: PascalCase for exported" but nothing about struct tags |
+| # | Task                                                                                                                            | Why deferred                                                                    |
+| - | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 1 | Split `pkg/types/types.go` into report + config files (so tagliatelle can enforce PascalCase on report types without exclusion) | Future refactor; not blocking — current exclusion works                         |
+| 2 | Add CBOR support with PascalCase tags                                                                                           | No CBOR library in project yet; policy decided but no code to tag               |
+| 3 | Add breaking-change note to CHANGELOG                                                                                           | No CHANGELOG.md exists yet; needs separate decision on versioning               |
+| 4 | Update `docs/references/testing-style-and-patterns.md` if it references json tag case                                           | Doc mentions "Constants: PascalCase for exported" but nothing about struct tags |
 
 ---
 
 ## d) TOTALLY FUCKED UP
 
-| #   | What happened                                                                                                                    | Impact                                                                              | Root cause                                                                                                        | Status                                        |
-| --- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| 1   | Left a stale `//nolint:musttag` in `generator_test.go` after adding `_test.go` exclusion for musttag                             | nolintlint flagged it as unused directive                                           | Added the config exclusion AFTER adding the inline directive — didn't think to remove the now-redundant directive | **Fixed** — removed the directive, lint clean |
-| 2   | Initially tried to add all musttag nolints as trailing comments on the same line                                                 | golines formatter rejected them (line too long)                                     | Didn't account for 120-char max-len when adding long nolint comments                                              | **Fixed** — moved to preceding line           |
-| 3   | Didn't catch `MergeResult` in `pkg/config/merger.go` during initial analysis                                                     | Tagliatelle flagged it on first lint run                                            | Initial struct scan focused on `pkg/types/` and missed this report-type struct in `pkg/config/`                   | **Fixed** — stripped tags, lint clean         |
-| 4   | Didn't catch `LinterList` in `pkg/config/loader.go` and `golangciLintOutput` in `pkg/linter/analyzer.go` during initial analysis | Tagliatelle flagged them — they use snake_case matching golangci-lint's wire format | These are external-format types I should have found in the first scan                                             | **Fixed** — added tagliatelle exclusions      |
+| # | What happened                                                                                                                    | Impact                                                                              | Root cause                                                                                                        | Status                                        |
+| - | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| 1 | Left a stale `//nolint:musttag` in `generator_test.go` after adding `_test.go` exclusion for musttag                             | nolintlint flagged it as unused directive                                           | Added the config exclusion AFTER adding the inline directive — didn't think to remove the now-redundant directive | **Fixed** — removed the directive, lint clean |
+| 2 | Initially tried to add all musttag nolints as trailing comments on the same line                                                 | golines formatter rejected them (line too long)                                     | Didn't account for 120-char max-len when adding long nolint comments                                              | **Fixed** — moved to preceding line           |
+| 3 | Didn't catch `MergeResult` in `pkg/config/merger.go` during initial analysis                                                     | Tagliatelle flagged it on first lint run                                            | Initial struct scan focused on `pkg/types/` and missed this report-type struct in `pkg/config/`                   | **Fixed** — stripped tags, lint clean         |
+| 4 | Didn't catch `LinterList` in `pkg/config/loader.go` and `golangciLintOutput` in `pkg/linter/analyzer.go` during initial analysis | Tagliatelle flagged them — they use snake_case matching golangci-lint's wire format | These are external-format types I should have found in the first scan                                             | **Fixed** — added tagliatelle exclusions      |
 
 ---
 
@@ -89,33 +89,33 @@ Nothing partial — all started tasks are complete.
 
 ## f) Next 25 things to get done
 
-| #   | Task                                                                                                                                                     | Impact | Effort |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ |
-| 1   | Split `pkg/types/types.go` into `report_types.go` + `config_types.go` so tagliatelle can enforce PascalCase on report types without file-level exclusion | Medium | 12 min |
-| 2   | Remove tagliatelle exclusion for `pkg/types/types.go` after the split                                                                                    | Medium | 2 min  |
-| 3   | Add `fxamacker/cbor` dependency and PascalCase `cbor:` tags on report types                                                                              | Low    | 12 min |
-| 4   | Add tagliatelle `cbor: pascal` rule in `.golangci.yml`                                                                                                   | Low    | 2 min  |
-| 5   | Add integration test: run `analyze --format json`, assert PascalCase keys in output                                                                      | High   | 15 min |
-| 6   | Add integration test: run `report --format json`, assert PascalCase keys in output                                                                       | High   | 15 min |
-| 7   | Audit all example `.golangci.yml` files — update tagliatelle config to match (`json: pascal`)                                                            | Low    | 10 min |
-| 8   | Add CHANGELOG.md entry for breaking JSON key change (snake→Pascal, camel→Pascal)                                                                         | High   | 5 min  |
-| 9   | Update `docs/references/testing-style-and-patterns.md` with struct tag case conventions                                                                  | Low    | 5 min  |
-| 10  | Run `nix flake check` to verify Nix build still works (vendorHash may need update)                                                                       | High   | 10 min |
-| 11  | Audit `internal/cli/integration_test.go` — does it parse JSON output by key name?                                                                        | Medium | 10 min |
-| 12  | Check if any CI pipeline scripts parse `--format json` output (would break on key rename)                                                                | High   | 10 min |
-| 13  | Consider adding a `--legacy-json-keys` flag for backward compatibility                                                                                   | Low    | 30 min |
-| 14  | Document the tag case policy in README.md (user-facing, since JSON output changed)                                                                       | Medium | 10 min |
-| 15  | Review whether `LinterList` in `pkg/config/loader.go` could use generated code instead of manual struct                                                  | Low    | 20 min |
-| 16  | Add `go:generate` directive to auto-discover all tagged structs and verify policy compliance                                                             | Low    | 30 min |
-| 17  | Consider splitting `JSONReport`/`JSONSummary` into a separate `report_types.go` file in `pkg/report/`                                                    | Low    | 5 min  |
-| 18  | Audit `pkg/client/client.go` — does the Client API expose any structs that need tag alignment?                                                           | Medium | 10 min |
-| 19  | Add a lint rule or test that prevents new snake_case json tags from being added to report types                                                          | Medium | 15 min |
-| 20  | Review whether the `omitempty` pattern (`json:",omitempty"`) could be simplified with a code generator                                                   | Low    | 30 min |
-| 21  | Consider migrating `LintersSettingsV1 map[string]any` to a typed struct                                                                                  | Low    | 45 min |
-| 22  | Add property-based testing for JSON round-trip (marshal → unmarshal → equality)                                                                          | Medium | 20 min |
-| 23  | Review all `nolint` directives project-wide for staleness (similar to the generator_test.go issue)                                                       | Low    | 15 min |
-| 24  | Update FEATURES.md to mention PascalCase JSON output as a deliberate design choice                                                                       | Low    | 5 min  |
-| 25  | Consider a JSON Schema export from report types for API consumers                                                                                        | Low    | 45 min |
+| #  | Task                                                                                                                                                     | Impact | Effort |
+| -- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ |
+| 1  | Split `pkg/types/types.go` into `report_types.go` + `config_types.go` so tagliatelle can enforce PascalCase on report types without file-level exclusion | Medium | 12 min |
+| 2  | Remove tagliatelle exclusion for `pkg/types/types.go` after the split                                                                                    | Medium | 2 min  |
+| 3  | Add `fxamacker/cbor` dependency and PascalCase `cbor:` tags on report types                                                                              | Low    | 12 min |
+| 4  | Add tagliatelle `cbor: pascal` rule in `.golangci.yml`                                                                                                   | Low    | 2 min  |
+| 5  | Add integration test: run `analyze --format json`, assert PascalCase keys in output                                                                      | High   | 15 min |
+| 6  | Add integration test: run `report --format json`, assert PascalCase keys in output                                                                       | High   | 15 min |
+| 7  | Audit all example `.golangci.yml` files — update tagliatelle config to match (`json: pascal`)                                                            | Low    | 10 min |
+| 8  | Add CHANGELOG.md entry for breaking JSON key change (snake→Pascal, camel→Pascal)                                                                         | High   | 5 min  |
+| 9  | Update `docs/references/testing-style-and-patterns.md` with struct tag case conventions                                                                  | Low    | 5 min  |
+| 10 | Run `nix flake check` to verify Nix build still works (vendorHash may need update)                                                                       | High   | 10 min |
+| 11 | Audit `internal/cli/integration_test.go` — does it parse JSON output by key name?                                                                        | Medium | 10 min |
+| 12 | Check if any CI pipeline scripts parse `--format json` output (would break on key rename)                                                                | High   | 10 min |
+| 13 | Consider adding a `--legacy-json-keys` flag for backward compatibility                                                                                   | Low    | 30 min |
+| 14 | Document the tag case policy in README.md (user-facing, since JSON output changed)                                                                       | Medium | 10 min |
+| 15 | Review whether `LinterList` in `pkg/config/loader.go` could use generated code instead of manual struct                                                  | Low    | 20 min |
+| 16 | Add `go:generate` directive to auto-discover all tagged structs and verify policy compliance                                                             | Low    | 30 min |
+| 17 | Consider splitting `JSONReport`/`JSONSummary` into a separate `report_types.go` file in `pkg/report/`                                                    | Low    | 5 min  |
+| 18 | Audit `pkg/client/client.go` — does the Client API expose any structs that need tag alignment?                                                           | Medium | 10 min |
+| 19 | Add a lint rule or test that prevents new snake_case json tags from being added to report types                                                          | Medium | 15 min |
+| 20 | Review whether the `omitempty` pattern (`json:",omitempty"`) could be simplified with a code generator                                                   | Low    | 30 min |
+| 21 | Consider migrating `LintersSettingsV1 map[string]any` to a typed struct                                                                                  | Low    | 45 min |
+| 22 | Add property-based testing for JSON round-trip (marshal → unmarshal → equality)                                                                          | Medium | 20 min |
+| 23 | Review all `nolint` directives project-wide for staleness (similar to the generator_test.go issue)                                                       | Low    | 15 min |
+| 24 | Update FEATURES.md to mention PascalCase JSON output as a deliberate design choice                                                                       | Low    | 5 min  |
+| 25 | Consider a JSON Schema export from report types for API consumers                                                                                        | Low    | 45 min |
 
 ---
 

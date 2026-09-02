@@ -113,33 +113,33 @@ The only "close call" was the `proxyVendor` change initially causing build failu
 
 ## f) Top 25 Things We Should Get Done Next
 
-| #   | Item                                                                  | Impact | Effort | Category      |
-| --- | --------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 1   | Commit SystemNix changes (flake.lock + .nix)                          | HIGH   | 2min   | Housekeeping  |
-| 2   | Create `TODO_LIST.md` from all status reports                         | HIGH   | 1hr    | Documentation |
-| 3   | Create `FEATURES.md` feature inventory                                | HIGH   | 1hr    | Documentation |
-| 4   | Tag v0.1.0 release                                                    | HIGH   | 5min   | Release       |
-| 5   | Dynamic version in SystemNix (inject from flake input)                | HIGH   | 30min  | Cross-repo    |
-| 6   | Improve CLI Commands test coverage (9.4% -> 50%+)                     | HIGH   | 2hr    | Testing       |
-| 7   | Improve Set package test coverage (39.7% -> 70%+)                     | MEDIUM | 1hr    | Testing       |
-| 8   | Improve Finding package coverage (58.1% -> 70%+)                      | MEDIUM | 1hr    | Testing       |
-| 9   | Add Nix lint/format checks to `flake.nix` checks                      | MEDIUM | 30min  | Nix           |
-| 10  | Update AGENTS.md with flake.nix changes from this session             | MEDIUM | 15min  | Documentation |
-| 11  | Clarify Go version support matrix (1.25+1.26 vs 1.26-only)            | MEDIUM | 5min   | CI            |
-| 12  | Add `doCheck = false` to flake.nix (tests via just, not nix)          | LOW    | 2min   | Nix           |
-| 13  | Archive old status reports (>30 days old)                             | LOW    | 15min  | Housekeeping  |
-| 14  | Add `templ generate` to justfile                                      | LOW    | 5min   | Tooling       |
-| 15  | Reconcile justfile vs flake.nix for build tasks                       | LOW    | 1hr    | Architecture  |
-| 16  | Document CI SSH key requirement prominently                           | LOW    | 5min   | CI            |
-| 17  | Add integration test for `nix build` output                           | LOW    | 30min  | Testing       |
-| 18  | Verify alejandra formatting on flake.nix                              | LOW    | 2min   | Nix           |
-| 19  | Add `--version` flag integration test                                 | LOW    | 15min  | Testing       |
-| 20  | Consider removing `flake-utils` dependency (use nixpkgs lib)          | LOW    | 30min  | Nix           |
-| 21  | Add pre-commit hook that checks `nix flake check`                     | LOW    | 15min  | Tooling       |
-| 22  | Create CONTRIBUTING.md                                                | LOW    | 1hr    | Documentation |
-| 23  | Add CHANGELOG.md                                                      | LOW    | 1hr    | Documentation |
-| 24  | Investigate if `go-finding` replace directive can be removed entirely | LOW    | 30min  | Dependencies  |
-| 25  | Clean up unused `client/` package (only README.md inside)             | LOW    | 5min   | Housekeeping  |
+| #  | Item                                                                  | Impact | Effort | Category      |
+| -- | --------------------------------------------------------------------- | ------ | ------ | ------------- |
+| 1  | Commit SystemNix changes (flake.lock + .nix)                          | HIGH   | 2min   | Housekeeping  |
+| 2  | Create `TODO_LIST.md` from all status reports                         | HIGH   | 1hr    | Documentation |
+| 3  | Create `FEATURES.md` feature inventory                                | HIGH   | 1hr    | Documentation |
+| 4  | Tag v0.1.0 release                                                    | HIGH   | 5min   | Release       |
+| 5  | Dynamic version in SystemNix (inject from flake input)                | HIGH   | 30min  | Cross-repo    |
+| 6  | Improve CLI Commands test coverage (9.4% -> 50%+)                     | HIGH   | 2hr    | Testing       |
+| 7  | Improve Set package test coverage (39.7% -> 70%+)                     | MEDIUM | 1hr    | Testing       |
+| 8  | Improve Finding package coverage (58.1% -> 70%+)                      | MEDIUM | 1hr    | Testing       |
+| 9  | Add Nix lint/format checks to `flake.nix` checks                      | MEDIUM | 30min  | Nix           |
+| 10 | Update AGENTS.md with flake.nix changes from this session             | MEDIUM | 15min  | Documentation |
+| 11 | Clarify Go version support matrix (1.25+1.26 vs 1.26-only)            | MEDIUM | 5min   | CI            |
+| 12 | Add `doCheck = false` to flake.nix (tests via just, not nix)          | LOW    | 2min   | Nix           |
+| 13 | Archive old status reports (>30 days old)                             | LOW    | 15min  | Housekeeping  |
+| 14 | Add `templ generate` to justfile                                      | LOW    | 5min   | Tooling       |
+| 15 | Reconcile justfile vs flake.nix for build tasks                       | LOW    | 1hr    | Architecture  |
+| 16 | Document CI SSH key requirement prominently                           | LOW    | 5min   | CI            |
+| 17 | Add integration test for `nix build` output                           | LOW    | 30min  | Testing       |
+| 18 | Verify alejandra formatting on flake.nix                              | LOW    | 2min   | Nix           |
+| 19 | Add `--version` flag integration test                                 | LOW    | 15min  | Testing       |
+| 20 | Consider removing `flake-utils` dependency (use nixpkgs lib)          | LOW    | 30min  | Nix           |
+| 21 | Add pre-commit hook that checks `nix flake check`                     | LOW    | 15min  | Tooling       |
+| 22 | Create CONTRIBUTING.md                                                | LOW    | 1hr    | Documentation |
+| 23 | Add CHANGELOG.md                                                      | LOW    | 1hr    | Documentation |
+| 24 | Investigate if `go-finding` replace directive can be removed entirely | LOW    | 30min  | Dependencies  |
+| 25 | Clean up unused `client/` package (only README.md inside)             | LOW    | 5min   | Housekeeping  |
 
 ---
 

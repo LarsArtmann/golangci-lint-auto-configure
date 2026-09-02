@@ -121,12 +121,12 @@ func NewConfigError(msg, path string, err error) *ConfigError {
 
 ### Task Group 4: JSON Report Output Format (3/4 tasks - 75%) ⚠️
 
-| #        | Task                                                                            | Duration | Status                             | Details                               |
-| -------- | ------------------------------------------------------------------------------- | -------- | ---------------------------------- | ------------------------------------- |
+| #        | Task                                                                            | Duration | Status                            | Details                               |
+| -------- | ------------------------------------------------------------------------------- | -------- | --------------------------------- | ------------------------------------- |
 | **1.11** | Create `pkg/report/json_report_generator.go` with `GenerateJSONReport` function | 15min    | ⚠️ CODE COMPLETE, FILE NOT ON DISK | Full implementation written in memory |
 | **1.12** | Add `--format json` flag to report command                                      | 15min    | ⚠️ CODE COMPLETE, FILE NOT ON DISK | Flag added to commands.go (in memory) |
-| **1.13** | Test JSON output validates against schema                                       | 15min    | ❌ NOT DONE                        | Blocked by disk full - cannot test    |
-| **1.14** | Add JSON schema documentation to README                                         | 15min    | ❌ NOT DONE                        | Blocked by disk full - cannot write   |
+| **1.13** | Test JSON output validates against schema                                       | 15min    | ❌ NOT DONE                       | Blocked by disk full - cannot test    |
+| **1.14** | Add JSON schema documentation to README                                         | 15min    | ❌ NOT DONE                       | Blocked by disk full - cannot write   |
 
 **Result**: ⚠️ PARTIALLY COMPLETE - BLOCKED BY DISK SPACE
 
@@ -1949,56 +1949,56 @@ func newProfilingCommand(logger *log.Logger) *cobra.Command {
 
 | #     | Task                                          | Impact          | Effort               | Priority      | Est. Time                              | Status |
 | ----- | --------------------------------------------- | --------------- | -------------------- | ------------- | -------------------------------------- | ------ |
-| **1** | 🔥🔥🔥 FREE UP DISK SPACE (MANUAL)            | 🔥🔥🔥 CRITICAL | LOW (manual cleanup) | **30-90 min** | 🔴 CANNOT DO - NEEDS USER INTERVENTION |
-| **2** | ✅ INTEGRATE CUSTOM ERROR TYPES INTO CODEBASE | HIGH            | MEDIUM               | **1-2 hours** | ⏸️ BLOCKED BY DISK                     |
-| **3** | ✅ RECREATE JSON REPORT GENERATOR FROM MEMORY | HIGH            | LOW                  | **5 min**     | ⏸️ BLOCKED BY DISK                     |
-| **4** | ✅ COMMIT ALL EXISTING WORK                   | HIGH            | LOW                  | **15 min**    | ⏸️ BLOCKED BY DISK                     |
+| **1** | 🔥🔥🔥 FREE UP DISK SPACE (MANUAL)            | 🔥🔥🔥 CRITICAL | LOW (manual cleanup) | **30-90 min** | 🔴 CANNOT DO - NEEDS USER INTERVENTION |        |
+| **2** | ✅ INTEGRATE CUSTOM ERROR TYPES INTO CODEBASE | HIGH            | MEDIUM               | **1-2 hours** | ⏸️ BLOCKED BY DISK                      |        |
+| **3** | ✅ RECREATE JSON REPORT GENERATOR FROM MEMORY | HIGH            | LOW                  | **5 min**     | ⏸️ BLOCKED BY DISK                      |        |
+| **4** | ✅ COMMIT ALL EXISTING WORK                   | HIGH            | LOW                  | **15 min**    | ⏸️ BLOCKED BY DISK                      |        |
 
 ### Priority P1: High Impact / Low Effort (Quick Wins - After Disk Freed)
 
-| #     | Task                                        | Impact | Effort | Priority   | Est. Time          | Status |
-| ----- | ------------------------------------------- | ------ | ------ | ---------- | ------------------ | ------ |
-| **5** | 🟡 ADD JSON SCHEMA DOCUMENTATION TO README  | MEDIUM | LOW    | **30 min** | ⏸️ BLOCKED BY DISK |
-| **6** | 🟡 ADD API DOCUMENTATION WITH GODOC         | MEDIUM | LOW    | **30 min** | ⏸️ BLOCKED BY DISK |
-| **7** | 🟡 CREATE EXAMPLES DIRECTORY WITH 8 CONFIGS | MEDIUM | LOW    | **1 hour** | ⏸️ BLOCKED BY DISK |
+| #     | Task                                        | Impact | Effort | Priority   | Est. Time         | Status |
+| ----- | ------------------------------------------- | ------ | ------ | ---------- | ----------------- | ------ |
+| **5** | 🟡 ADD JSON SCHEMA DOCUMENTATION TO README  | MEDIUM | LOW    | **30 min** | ⏸️ BLOCKED BY DISK |        |
+| **6** | 🟡 ADD API DOCUMENTATION WITH GODOC         | MEDIUM | LOW    | **30 min** | ⏸️ BLOCKED BY DISK |        |
+| **7** | 🟡 CREATE EXAMPLES DIRECTORY WITH 8 CONFIGS | MEDIUM | LOW    | **1 hour** | ⏸️ BLOCKED BY DISK |        |
 
 ### Priority P2: High Impact / Medium Effort (Core Features - After Disk Freed)
 
-| #      | Task                                           | Impact | Effort | Priority      | Est. Time          | Status |
-| ------ | ---------------------------------------------- | ------ | ------ | ------------- | ------------------ | ------ |
-| **8**  | 🟢 IMPLEMENT REAL CONFIG MIGRATION (V2.7→V2.8) | HIGH   | MEDIUM | **4-6 hours** | ⏸️ BLOCKED BY DISK |
-| **9**  | 🟢 ADD INTEGRATION TESTS FOR ALL CLI COMMANDS  | HIGH   | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |
-| **10** | 🟢 ADD E2E TESTS WITH REAL GOLANGCI-LINT       | HIGH   | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |
-| **11** | 🟢 IMPLEMENT RESULT<T, E> PATTERN              | HIGH   | MEDIUM | **4-5 hours** | ⏸️ BLOCKED BY DISK |
+| #      | Task                                           | Impact | Effort | Priority      | Est. Time         | Status |
+| ------ | ---------------------------------------------- | ------ | ------ | ------------- | ----------------- | ------ |
+| **8**  | 🟢 IMPLEMENT REAL CONFIG MIGRATION (V2.7→V2.8) | HIGH   | MEDIUM | **4-6 hours** | ⏸️ BLOCKED BY DISK |        |
+| **9**  | 🟢 ADD INTEGRATION TESTS FOR ALL CLI COMMANDS  | HIGH   | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |        |
+| **10** | 🟢 ADD E2E TESTS WITH REAL GOLANGCI-LINT       | HIGH   | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |        |
+| **11** | 🟢 IMPLEMENT RESULT<T, E> PATTERN              | HIGH   | MEDIUM | **4-5 hours** | ⏸️ BLOCKED BY DISK |        |
 
 ### Priority P2: Medium Impact / Low-Medium Effort (Quality & DX - After Disk Freed)
 
-| #      | Task                                 | Impact | Effort | Priority      | Est. Time          | Status |
-| ------ | ------------------------------------ | ------ | ------ | ------------- | ------------------ | ------ |
-| **12** | 🟢 ADD STRUCTURED LOGGING WITH ZAP   | MEDIUM | MEDIUM | **2-3 hours** | ⏸️ BLOCKED BY DISK |
-| **13** | 🟢 ADD DARK MODE TO HTML REPORTS     | LOW    | MEDIUM | **2-3 hours** | ⏸️ BLOCKED BY DISK |
-| **14** | 🟢 ADD GITHUB ACTIONS CI/CD PIPELINE | MEDIUM | LOW    | **2-3 hours** | ⏸️ BLOCKED BY DISK |
-| **15** | 🟢 ADD PRE-COMMIT HOOKS              | MEDIUM | LOW    | **1-2 hours** | ⏸️ BLOCKED BY DISK |
-| **16** | 🟢 ADD DOCKER SUPPORT                | MEDIUM | LOW    | **1-2 hours** | ⏸️ BLOCKED BY DISK |
-| **17** | 🟢 CREATE MAKEFILE ALTERNATIVE       | LOW    | LOW    | **1 hour**    | ⏸️ BLOCKED BY DISK |
-| **18** | 🟢 ADD METRICS WITH PROMETHEUS       | LOW    | LOW    | **2-3 hours** | ⏸️ BLOCKED BY DISK |
+| #      | Task                                 | Impact | Effort | Priority      | Est. Time         | Status |
+| ------ | ------------------------------------ | ------ | ------ | ------------- | ----------------- | ------ |
+| **12** | 🟢 ADD STRUCTURED LOGGING WITH ZAP   | MEDIUM | MEDIUM | **2-3 hours** | ⏸️ BLOCKED BY DISK |        |
+| **13** | 🟢 ADD DARK MODE TO HTML REPORTS     | LOW    | MEDIUM | **2-3 hours** | ⏸️ BLOCKED BY DISK |        |
+| **14** | 🟢 ADD GITHUB ACTIONS CI/CD PIPELINE | MEDIUM | LOW    | **2-3 hours** | ⏸️ BLOCKED BY DISK |        |
+| **15** | 🟢 ADD PRE-COMMIT HOOKS              | MEDIUM | LOW    | **1-2 hours** | ⏸️ BLOCKED BY DISK |        |
+| **16** | 🟢 ADD DOCKER SUPPORT                | MEDIUM | LOW    | **1-2 hours** | ⏸️ BLOCKED BY DISK |        |
+| **17** | 🟢 CREATE MAKEFILE ALTERNATIVE       | LOW    | LOW    | **1 hour**    | ⏸️ BLOCKED BY DISK |        |
+| **18** | 🟢 ADD METRICS WITH PROMETHEUS       | LOW    | LOW    | **2-3 hours** | ⏸️ BLOCKED BY DISK |        |
 
 ### Priority P3: Medium Impact / Medium Effort (Architecture & Testing - After Disk Freed)
 
-| #      | Task                                       | Impact | Effort | Priority      | Est. Time          | Status |
-| ------ | ------------------------------------------ | ------ | ------ | ------------- | ------------------ | ------ |
-| **19** | 🟢 ADD PROPERTY-BASED TESTS WITH GOPTER    | MEDIUM | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |
-| **20** | 🟢 IMPLEMENT PROPER INTERFACES             | MEDIUM | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |
-| **21** | 🟢 ADD DEPENDENCY INJECTION WITH SAMBER/DO | MEDIUM | MEDIUM | **6-8 hours** | ⏸️ BLOCKED BY DISK |
+| #      | Task                                       | Impact | Effort | Priority      | Est. Time         | Status |
+| ------ | ------------------------------------------ | ------ | ------ | ------------- | ----------------- | ------ |
+| **19** | 🟢 ADD PROPERTY-BASED TESTS WITH GOPTER    | MEDIUM | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |        |
+| **20** | 🟢 IMPLEMENT PROPER INTERFACES             | MEDIUM | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |        |
+| **21** | 🟢 ADD DEPENDENCY INJECTION WITH SAMBER/DO | MEDIUM | MEDIUM | **6-8 hours** | ⏸️ BLOCKED BY DISK |        |
 
 ### Priority P3: Medium-High Impact / High Effort (Premium Features - After Disk Freed)
 
-| #      | Task                                  | Impact | Effort | Priority      | Est. Time          | Status |
-| ------ | ------------------------------------- | ------ | ------ | ------------- | ------------------ | ------ |
-| **22** | 🟢 ADD INTERACTIVE CLI WITH BUBBLETEA | HIGH   | MEDIUM | **6-8 hours** | ⏸️ BLOCKED BY DISK |
-| **23** | 🟢 ADD PROJECT TYPE DETECTION         | MEDIUM | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |
-| **24** | 🟢 ADD PERFORMANCE BENCHMARKS         | HIGH   | MEDIUM | **4-6 hours** | ⏸️ BLOCKED BY DISK |
-| **25** | 🟢 ADD PPROF INTEGRATION              | HIGH   | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |
+| #      | Task                                  | Impact | Effort | Priority      | Est. Time         | Status |
+| ------ | ------------------------------------- | ------ | ------ | ------------- | ----------------- | ------ |
+| **22** | 🟢 ADD INTERACTIVE CLI WITH BUBBLETEA | HIGH   | MEDIUM | **6-8 hours** | ⏸️ BLOCKED BY DISK |        |
+| **23** | 🟢 ADD PROJECT TYPE DETECTION         | MEDIUM | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |        |
+| **24** | 🟢 ADD PERFORMANCE BENCHMARKS         | HIGH   | MEDIUM | **4-6 hours** | ⏸️ BLOCKED BY DISK |        |
+| **25** | 🟢 ADD PPROF INTEGRATION              | HIGH   | MEDIUM | **3-4 hours** | ⏸️ BLOCKED BY DISK |        |
 
 **Total Estimated Time for All 25 Tasks**: ~25-35 hours (after disk is freed)
 

@@ -1,8 +1,8 @@
 # Comprehensive Status Report
 
-**Date:** 2026-04-02 18:43  
-**Branch:** master  
-**Total Go LOC:** 10,681  
+**Date:** 2026-04-02 18:43\
+**Branch:** master\
+**Total Go LOC:** 10,681\
 **Last 20 commits:** 7cd4d3b..689b2a0
 
 ---
@@ -171,33 +171,33 @@
 
 ## f) Top #25 Things We Should Get Done Next
 
-| #   | Task                                                                                                    | Priority | Effort | Impact                       |
-| --- | ------------------------------------------------------------------------------------------------------- | -------- | ------ | ---------------------------- |
-| 1   | Fix Go version mismatch (go.work → 1.26.0 or upgrade Go)                                                | CRITICAL | 5min   | Unblocks everything          |
-| 2   | Run `just test` and verify all tests pass with new default priority                                     | CRITICAL | 10min  | Validates change             |
-| 3   | Run `just lint` and fix any issues                                                                      | CRITICAL | 15min  | Code quality                 |
-| 4   | Add core formatters (gci, gofumpt, goimports) to CreateDefaultConfig                                    | HIGH     | 30min  | Fresh configs get formatters |
-| 5   | Add end-to-end test for full configure flow                                                             | HIGH     | 2hr    | Confidence in releases       |
-| 6   | Detect and warn about conflicting/overlapping linters                                                   | HIGH     | 2hr    | Better user experience       |
-| 7   | Auto-configure linter settings (funlen lines=80, gocyclo min-complexity=15, etc.)                       | HIGH     | 3hr    | Sensible defaults            |
-| 8   | Add `--interactive` flag for reviewing individual linter selections                                     | HIGH     | 4hr    | User control                 |
-| 9   | Show config diff after configure (what changed)                                                         | MEDIUM   | 2hr    | Transparency                 |
-| 10  | Overhaul presets to be more comprehensive                                                               | MEDIUM   | 1hr    | Better defaults              |
-| 11  | Add `--exclude` flag to skip specific linters during configure                                          | MEDIUM   | 1hr    | User control                 |
-| 12  | Add config backup before modification (.golangci.yml.bak)                                               | MEDIUM   | 30min  | Safety net                   |
-| 13  | Validate that enabled linters actually exist in golangci-lint                                           | MEDIUM   | 1hr    | Prevents config errors       |
-| 14  | Add `golangci-lint-auto-configure diff` command for comparing configs                                   | MEDIUM   | 2hr    | Useful feature               |
-| 15  | Write benchmarks for hot paths (CategorizeLinters, enableRecommendedLinters)                            | LOW      | 1hr    | Performance tracking         |
-| 16  | Add structured JSON logging option                                                                      | LOW      | 1hr    | CI/CD integration            |
-| 17  | Parallelize golangci-lint binary calls where possible                                                   | LOW      | 2hr    | Speed improvement            |
-| 18  | Add shell completions for zsh/bash/fish                                                                 | LOW      | 2hr    | UX improvement               |
-| 19  | Create a `--check` mode that exits with code 1 if config needs changes (for CI)                         | LOW      | 1hr    | CI/CD integration            |
-| 20  | Add timeout for golangci-lint binary calls (prevent hanging)                                            | LOW      | 30min  | Robustness                   |
-| 21  | Support for `.golangci.yml` schema validation against golangci-lint JSON schema                         | LOW      | 2hr    | Advanced validation          |
-| 22  | Add `golangci-lint-auto-configure update` command to update linter priorities from latest golangci-lint | LOW      | 3hr    | Keep linter data fresh       |
-| 23  | Remove `internal/di/` if unused or implement basic DI                                                   | LOW      | 30min  | Code cleanliness             |
-| 24  | Add migration path documentation (v1→v2 config format guide)                                            | LOW      | 1hr    | User documentation           |
-| 25  | Implement `--config-out` flag to write to a different file (non-destructive mode)                       | LOW      | 30min  | Safety + flexibility         |
+| #  | Task                                                                                                    | Priority | Effort | Impact                       |
+| -- | ------------------------------------------------------------------------------------------------------- | -------- | ------ | ---------------------------- |
+| 1  | Fix Go version mismatch (go.work → 1.26.0 or upgrade Go)                                                | CRITICAL | 5min   | Unblocks everything          |
+| 2  | Run `just test` and verify all tests pass with new default priority                                     | CRITICAL | 10min  | Validates change             |
+| 3  | Run `just lint` and fix any issues                                                                      | CRITICAL | 15min  | Code quality                 |
+| 4  | Add core formatters (gci, gofumpt, goimports) to CreateDefaultConfig                                    | HIGH     | 30min  | Fresh configs get formatters |
+| 5  | Add end-to-end test for full configure flow                                                             | HIGH     | 2hr    | Confidence in releases       |
+| 6  | Detect and warn about conflicting/overlapping linters                                                   | HIGH     | 2hr    | Better user experience       |
+| 7  | Auto-configure linter settings (funlen lines=80, gocyclo min-complexity=15, etc.)                       | HIGH     | 3hr    | Sensible defaults            |
+| 8  | Add `--interactive` flag for reviewing individual linter selections                                     | HIGH     | 4hr    | User control                 |
+| 9  | Show config diff after configure (what changed)                                                         | MEDIUM   | 2hr    | Transparency                 |
+| 10 | Overhaul presets to be more comprehensive                                                               | MEDIUM   | 1hr    | Better defaults              |
+| 11 | Add `--exclude` flag to skip specific linters during configure                                          | MEDIUM   | 1hr    | User control                 |
+| 12 | Add config backup before modification (.golangci.yml.bak)                                               | MEDIUM   | 30min  | Safety net                   |
+| 13 | Validate that enabled linters actually exist in golangci-lint                                           | MEDIUM   | 1hr    | Prevents config errors       |
+| 14 | Add `golangci-lint-auto-configure diff` command for comparing configs                                   | MEDIUM   | 2hr    | Useful feature               |
+| 15 | Write benchmarks for hot paths (CategorizeLinters, enableRecommendedLinters)                            | LOW      | 1hr    | Performance tracking         |
+| 16 | Add structured JSON logging option                                                                      | LOW      | 1hr    | CI/CD integration            |
+| 17 | Parallelize golangci-lint binary calls where possible                                                   | LOW      | 2hr    | Speed improvement            |
+| 18 | Add shell completions for zsh/bash/fish                                                                 | LOW      | 2hr    | UX improvement               |
+| 19 | Create a `--check` mode that exits with code 1 if config needs changes (for CI)                         | LOW      | 1hr    | CI/CD integration            |
+| 20 | Add timeout for golangci-lint binary calls (prevent hanging)                                            | LOW      | 30min  | Robustness                   |
+| 21 | Support for `.golangci.yml` schema validation against golangci-lint JSON schema                         | LOW      | 2hr    | Advanced validation          |
+| 22 | Add `golangci-lint-auto-configure update` command to update linter priorities from latest golangci-lint | LOW      | 3hr    | Keep linter data fresh       |
+| 23 | Remove `internal/di/` if unused or implement basic DI                                                   | LOW      | 30min  | Code cleanliness             |
+| 24 | Add migration path documentation (v1→v2 config format guide)                                            | LOW      | 1hr    | User documentation           |
+| 25 | Implement `--config-out` flag to write to a different file (non-destructive mode)                       | LOW      | 30min  | Safety + flexibility         |
 
 ---
 

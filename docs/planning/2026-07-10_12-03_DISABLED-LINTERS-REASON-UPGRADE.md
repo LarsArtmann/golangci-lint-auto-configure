@@ -47,32 +47,32 @@ graph TD
 
 ### Phase 1: Core Data Model (1% → 51%)
 
-| #   | Task                                                                                           | File                           | Est. |
-| --- | ---------------------------------------------------------------------------------------------- | ------------------------------ | ---- |
-| T1  | Change `DisabledLinters` from `Set[LinterName]` to `map[LinterName]string` with reason strings | `pkg/constants/rules.go:50-55` | 5min |
+| #  | Task                                                                                           | File                           | Est. |
+| -- | ---------------------------------------------------------------------------------------------- | ------------------------------ | ---- |
+| T1 | Change `DisabledLinters` from `Set[LinterName]` to `map[LinterName]string` with reason strings | `pkg/constants/rules.go:50-55` | 5min |
 
 ### Phase 2: Consumer Updates (4% → 64%)
 
-| #   | Task                                                           | File                                 | Est.  |
-| --- | -------------------------------------------------------------- | ------------------------------------ | ----- |
-| T2  | Update categorizer: map lookup + reason in Debugf              | `pkg/linter/categorizer.go:40-44`    | 5min  |
-| T3  | Update fixer: map lookup + reason in Debugf + add logger param | `pkg/linter/fixer_config.go:239-256` | 10min |
-| T4  | Update fixer caller: pass `f.logger` to `updateConfigFromSets` | `pkg/linter/fixer.go:242`            | 2min  |
+| #  | Task                                                           | File                                 | Est.  |
+| -- | -------------------------------------------------------------- | ------------------------------------ | ----- |
+| T2 | Update categorizer: map lookup + reason in Debugf              | `pkg/linter/categorizer.go:40-44`    | 5min  |
+| T3 | Update fixer: map lookup + reason in Debugf + add logger param | `pkg/linter/fixer_config.go:239-256` | 10min |
+| T4 | Update fixer caller: pass `f.logger` to `updateConfigFromSets` | `pkg/linter/fixer.go:242`            | 2min  |
 
 ### Phase 3: Build + Test Verification
 
-| #   | Task                                                           | Est. |
-| --- | -------------------------------------------------------------- | ---- |
-| T5  | Build check (`go build ./...`)                                 | 2min |
-| T6  | Add non-empty reason test to `data_integrity_test.go`          | 5min |
-| T7  | Run full test suite (`go test -race ./pkg/... ./internal/...`) | 5min |
+| #  | Task                                                           | Est. |
+| -- | -------------------------------------------------------------- | ---- |
+| T5 | Build check (`go build ./...`)                                 | 2min |
+| T6 | Add non-empty reason test to `data_integrity_test.go`          | 5min |
+| T7 | Run full test suite (`go test -race ./pkg/... ./internal/...`) | 5min |
 
 ### Phase 4: Long-term Reliability (20% → 80%)
 
-| #   | Task                                                                       | File                              | Est.  |
-| --- | -------------------------------------------------------------------------- | --------------------------------- | ----- |
-| T8  | Add DisabledLinters invariant checks to validation script                  | `scripts/validate_linter_data.go` | 10min |
-| T9  | Update AGENTS.md item #10 to document `DisabledLinters` type and invariant | `AGENTS.md`                       | 5min  |
+| #  | Task                                                                       | File                              | Est.  |
+| -- | -------------------------------------------------------------------------- | --------------------------------- | ----- |
+| T8 | Add DisabledLinters invariant checks to validation script                  | `scripts/validate_linter_data.go` | 10min |
+| T9 | Update AGENTS.md item #10 to document `DisabledLinters` type and invariant | `AGENTS.md`                       | 5min  |
 
 ### Phase 5: Final Verification + Ship
 

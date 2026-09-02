@@ -1,8 +1,8 @@
 # Deep Architecture, Configuration & Data Model Review
 
-**Date:** 2026-07-10  
-**Reviewer:** Crush (AI Senior Staff Engineering Partner)  
-**Scope:** Architecture, data models, linter/formatter coverage, configuration handling  
+**Date:** 2026-07-10\
+**Reviewer:** Crush (AI Senior Staff Engineering Partner)\
+**Scope:** Architecture, data models, linter/formatter coverage, configuration handling\
 **Benchmark:** [golangci-lint v2.12.2](https://github.com/golangci/golangci-lint) upstream — [linters config](https://golangci-lint.run/docs/linters/configuration/), [formatters config](https://golangci-lint.run/docs/formatters/configuration/)
 
 ---
@@ -123,14 +123,14 @@ This project's `FormatterInfo` map tracks all 6. ✅ **Complete coverage.**
 
 ### 2.2 Formatter Priorities
 
-| Formatter   | Project Priority | Assessment                                                                  |
-| ----------- | ---------------- | --------------------------------------------------------------------------- |
-| `gofumpt`   | High             | ✅ Correct — strictest formatter, superset of gofmt                         |
-| `golines`   | High             | ✅ Correct — fixes long lines, high value                                   |
+| Formatter   | Project Priority | Assessment                                                                 |
+| ----------- | ---------------- | -------------------------------------------------------------------------- |
+| `gofumpt`   | High             | ✅ Correct — strictest formatter, superset of gofmt                        |
+| `golines`   | High             | ✅ Correct — fixes long lines, high value                                  |
 | `gofmt`     | Medium           | ⚠️ Should be Low — superseded by gofumpt (already in `RedundantFormatters`) |
-| `goimports` | Medium           | ✅ Correct                                                                  |
-| `gci`       | Medium           | ✅ Correct — import organization                                            |
-| `swaggo`    | Low              | ✅ Correct — specialized for Swagger projects                               |
+| `goimports` | Medium           | ✅ Correct                                                                 |
+| `gci`       | Medium           | ✅ Correct — import organization                                           |
+| `swaggo`    | Low              | ✅ Correct — specialized for Swagger projects                              |
 
 ### 2.3 Formatter Settings Coverage
 
@@ -399,11 +399,11 @@ The version checker:
 | `exhaustruct`     | exclude `os/exec.Cmd`                  | no exclusions                      | ✅ Good — `exec.Cmd` has many optional fields     |
 | `revive`          | disable `exported`, `package-comments` | no rules                           | ✅ Good — these are extremely noisy               |
 | `varnamelen`      | ignore common short names              | no ignores                         | ✅ Excellent — prevents noise                     |
-| `gomoddirectives` | `replace-local: true`                  | `replace-local: false`             | ⚠️ More permissive than upstream                  |
-| `cyclop`          | `max-complexity: 12`                   | `max-complexity: 10`               | ⚠️ Slightly more lenient                          |
+| `gomoddirectives` | `replace-local: true`                  | `replace-local: false`             | ⚠️ More permissive than upstream                   |
+| `cyclop`          | `max-complexity: 12`                   | `max-complexity: 10`               | ⚠️ Slightly more lenient                           |
 | `ginkgolinter`    | forbid focus + spec pollution          | all `false`                        | ✅ Good — catches test pollution                  |
 | `testifylint`     | enable-all except `go-require`         | no defaults                        | ✅ Good — `go-require` is noisy for HTTP handlers |
-| `makezero`        | `always: true`                         | `always: false`                    | ⚠️ Strict — may surprise users                    |
+| `makezero`        | `always: true`                         | `always: false`                    | ⚠️ Strict — may surprise users                     |
 
 ### 5.2 Missing Defaults Worth Considering
 
@@ -426,7 +426,7 @@ The version checker:
 | `minimal`     | 5            | ✅ Correct — core safety linters                                  |
 | `standard`    | 8            | ✅ Good balance for most projects                                 |
 | `strict`      | 17           | ✅ Good for CI/CD quality enforcement                             |
-| `security`    | 1            | ⚠️ Only `gosec` — could add `gocritic` with security tags         |
+| `security`    | 1            | ⚠️ Only `gosec` — could add `gocritic` with security tags          |
 | `performance` | 4            | ✅ Good — `ineffassign`, `prealloc`, `unconvert`, `perfsprint`    |
 | `reference`   | 62           | ✅ All critical + high priority (verified by data integrity test) |
 
