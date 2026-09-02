@@ -83,9 +83,6 @@
             CGO_ENABLED = "0";
             GOEXPERIMENT = "jsonv2";
           };
-          preBuild = ''
-            export GOFLAGS+=" -mod=mod"
-          '';
         };
 
         shellExtraEnv = {
