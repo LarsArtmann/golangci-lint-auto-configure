@@ -57,8 +57,8 @@ defaults reach **existing** configs, not new ones.
   `docs/archive/status/` accumulate. A `docs/status/README.md` index now exists;
   establish an archive cadence (e.g. quarterly, or keep only the latest N/month).
 - **Full `nix flake check` in CI** — currently only `--no-build` runs in CI
-  (the full check needs SSH for private flake inputs). A local full-check gate
-  would validate the hermetic build path.
+  (time constraints; a local full `nix build` was last validated 2026-09-08).
+  Running the full check in CI would validate the hermetic build path on every push.
 
 ### 5. Error handling governance (largely complete)
 

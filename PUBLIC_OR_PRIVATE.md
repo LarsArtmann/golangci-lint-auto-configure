@@ -5,6 +5,13 @@
 **Current State:** Private (0 stars, 0 forks, 0 issues)
 **Recommendation:** Make public, with conditions
 
+> **Status update (2026-09-08):** All "Must" conditions are now met — `go-finding`,
+> `gogenfilter`, `go-nix-helpers`, and `go-error-family` are public and
+> proxy-cached (`go install` works); flake inputs use https (no SSH required);
+> tagged releases through v0.6.0 ship binaries; private-project data was removed
+> from the tree. Open decision: git history predates this cleanup and still
+> contains references to sibling projects.
+
 ---
 
 ## Project Summary

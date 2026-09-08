@@ -18,7 +18,6 @@ _All high-priority items resolved in v0.6.0 — see CHANGELOG.md._
 | ---------------------------------------------------------- | ------------------------------------------------------- | ------ | -------------------------------------------------------------------------- |
 | Consolidate `ARCHITECTURE.md` inline ADRs into `docs/adr/` | Medium — ADRs live in two places (split-brain)          | 1–2h   | `docs/ARCHITECTURE.md` has 8 inline ADRs; `docs/adr/` has 6 separate files |
 | Full `README.md` claim-by-claim audit (~500 lines)         | Medium — repeated spot-checks, never line-by-line       | 2h     | Only Requirements / example output / CI / Related Projects verified        |
-| Run the full `nix flake check` (with build) at least once  | Medium — hermetic build path unvalidated for 4 sessions | 15min  | Only `--no-build` run recently; needs SSH for private flake inputs         |
 
 ## Low Priority
 
