@@ -50,12 +50,12 @@
         "rev": "c18e4c9cf0aeaf8c7dd2070496f4d44c34cc2f06",
         "revCount": 1140,
         "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/go-finding"
+        "url": "https://github.com/LarsArtmann/go-finding"
       },
       "original": {
         "ref": "master",
         "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/go-finding"
+        "url": "https://github.com/LarsArtmann/go-finding"
       }
     },
     "go-nix-helpers": {
@@ -74,12 +74,12 @@
         "rev": "58f72570f8962004dbb2e910493d9b6a595e2fc1",
         "revCount": 141,
         "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
+        "url": "https://github.com/LarsArtmann/go-nix-helpers"
       },
       "original": {
         "ref": "master",
         "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
+        "url": "https://github.com/LarsArtmann/go-nix-helpers"
       }
     },
     "gogenfilter": {
@@ -91,12 +91,12 @@
         "rev": "e3a20e848d2c766b398dbb22a7c359b7a185b023",
         "revCount": 857,
         "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/gogenfilter"
+        "url": "https://github.com/LarsArtmann/gogenfilter"
       },
       "original": {
         "ref": "master",
         "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/gogenfilter"
+        "url": "https://github.com/LarsArtmann/gogenfilter"
       }
     },
     "nixpkgs": {

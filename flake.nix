@@ -10,17 +10,17 @@
     };
 
     go-nix-helpers = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-nix-helpers?ref=master";
+      url = "git+https://github.com/LarsArtmann/go-nix-helpers?ref=master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     go-finding = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=master";
+      url = "git+https://github.com/LarsArtmann/go-finding?ref=master";
       flake = false;
     };
 
     gogenfilter = {
-      url = "git+ssh://git@github.com/LarsArtmann/gogenfilter?ref=master";
+      url = "git+https://github.com/LarsArtmann/gogenfilter?ref=master";
       flake = false;
     };
   };

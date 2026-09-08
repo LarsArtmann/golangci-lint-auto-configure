@@ -126,7 +126,7 @@ After save → gone. Config now has `depguard` enabled but **no rules** → bloc
 # project-dependency-graph (after the bad commit)
 $ golangci-lint run --enable-only depguard ./...
 discover.go:11:2: import 'golang.org/x/mod/modfile' is not allowed (depguard)
-main.go:9:2: import 'github.com/larsartmann/cmdguard/pkg/cmdguard/v2' is not allowed (depguard)
+main.go:9:2: import 'example.com/cmdguard/pkg/cmdguard/v2' is not allowed (depguard)
 main.go:10:2: import 'github.com/spf13/cobra' is not allowed (depguard)
 
 # gogenfilter (depguard added without settings)

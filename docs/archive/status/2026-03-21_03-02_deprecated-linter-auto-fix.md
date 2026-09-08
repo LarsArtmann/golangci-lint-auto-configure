@@ -92,7 +92,7 @@ Successfully implemented automatic handling of deprecated/removed golangci-lint 
 18. Add deprecation metadata to reports
 19. Improve JSON report with deprecation info
 20. Add `--auto-fix-deprecated` vs `--auto-fix-all` distinction
-21. Test with KeyCountdown project end-to-end
+21. Test with a sibling project end-to-end
 22. Add performance benchmarks for large configs
 23. Create CONTRIBUTING.md
 24. Add changelog entry
@@ -143,10 +143,10 @@ Last commit: fd11a1f (feat(linter): add comprehensive deprecated linter auto-fix
 
 ## Verification Results
 
-### KeyCountdown Project Test
+### Sibling Project Test
 
 ```
-$ cd /Users/larsartmann/projects/KeyCountdown
+$ cd ~/projects/example-project
 $ golangci-lint-auto-configure configure
 
 INFO Pre-fixing 6 deprecated linters: [deadcode varcheck structcheck gosimple exhaustivestruct (disabled) wsl (disabled)]
@@ -193,7 +193,7 @@ Test Suite Passed
 ## Dependencies & Environment
 
 - **Go Version:** go1.26.1 darwin/arm64
-- **golangci-lint:** v2.x (tested with KeyCountdown)
+- **golangci-lint:** v2.x (tested against a sibling project)
 - **Toolchain:** auto (GOTOOLCHAIN=auto)
 - **Build:** Success
 - **Tests:** All passing

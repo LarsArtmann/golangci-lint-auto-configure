@@ -12,7 +12,7 @@
 
 This session fixed a **production-breaking bug**: the tool blindly replaced `gomodguard → gomodguard_v2` even when the installed golangci-lint didn't support `gomodguard_v2` (only available in v2.12.0+). The tool's minimum version is v2.10.1, creating a gap where v2.10.1–v2.11.x users got `unknown linters: 'gomodguard_v2'` errors.
 
-**Root cause discovered from user's SSH session log:** The `storbi` project on server `192.168.1.150` had `gomodguard_v2` in its `.golangci.yml` (put there by this tool), but the server's golangci-lint was too old to know that linter. Running `golangci-lint run --fix ./...` failed immediately.
+**Root cause discovered from a user bug report:** A project on a server with an older golangci-lint had `gomodguard_v2` in its `.golangci.yml` (put there by this tool), but the server's golangci-lint was too old to know that linter. Running `golangci-lint run --fix ./...` failed immediately.
 
 **Fix:** Added `MinVersion` field to `LinterReplacement` and version-gated all deprecation replacements. Now `gomodguard → gomodguard_v2` only fires when installed golangci-lint >= v2.12.0.
 
@@ -259,7 +259,7 @@ The minimum supported version is `v2.10.1` (in `pkg/constants/version.go`), but:
 
 - nixpkgs ships v2.11.4 (doesn't have `gomodguard_v2`)
 - Local dev uses v2.12.2 (has `gomodguard_v2`)
-- The server (192.168.1.150) where the bug was found runs an unknown version < v2.12.0
+- The server where the bug was found runs an unknown version < v2.12.0
 - Some `DeprecatedLinters` entries reference features from v2.2.0 (`wsl_v5`)
 - The tool's own `.golangci.yml` uses `gomodguard_v2` (requires v2.12.0+)
 
