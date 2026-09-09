@@ -14,10 +14,10 @@ _All high-priority items resolved in v0.6.0 — see CHANGELOG.md._
 
 ## Medium Priority
 
-| Task                                                       | Impact                                                  | Effort | Evidence                                                                   |
-| ---------------------------------------------------------- | ------------------------------------------------------- | ------ | -------------------------------------------------------------------------- |
-| Consolidate `ARCHITECTURE.md` inline ADRs into `docs/adr/` | Medium — ADRs live in two places (split-brain)          | 1–2h   | `docs/ARCHITECTURE.md` has 8 inline ADRs; `docs/adr/` has 6 separate files |
-| Full `README.md` claim-by-claim audit (~500 lines)         | Medium — repeated spot-checks, never line-by-line       | 2h     | Only Requirements / example output / CI / Related Projects verified        |
+| Task                                                       | Impact                                            | Effort | Evidence                                                                   |
+| ---------------------------------------------------------- | ------------------------------------------------- | ------ | -------------------------------------------------------------------------- |
+| Consolidate `ARCHITECTURE.md` inline ADRs into `docs/adr/` | Medium — ADRs live in two places (split-brain)    | 1–2h   | `docs/ARCHITECTURE.md` has 8 inline ADRs; `docs/adr/` has 6 separate files |
+| Full `README.md` claim-by-claim audit (~500 lines)         | Medium — repeated spot-checks, never line-by-line | 2h     | Only Requirements / example output / CI / Related Projects verified        |
 
 ## Low Priority
 

@@ -2,10 +2,10 @@
 
 ## Supported Versions
 
-| Version  | Supported          |
-| -------- | ------------------ |
-| latest   | :white_check_mark: |
-| older    | :x:                |
+| Version | Supported          |
+| ------- | ------------------ |
+| latest  | :white_check_mark: |
+| older   | :x:                |
 
 Only the latest tagged release receives security fixes. Please update before reporting.
 
