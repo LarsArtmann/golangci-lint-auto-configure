@@ -145,7 +145,7 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 	)
 	totalAdded += linterDefaults + formatterDefaults
 
-	result, err := gogenfilter.ScanProject(os.DirFS(projectDir), projectDir)
+	result, err := gogenfilter.ScanProject(os.DirFS(projectDir))
 	if err != nil {
 		cu.logger.Debugf("Generated file scan skipped: %v", err)
 

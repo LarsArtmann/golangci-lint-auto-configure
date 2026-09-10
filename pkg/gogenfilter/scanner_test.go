@@ -38,7 +38,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("returns empty exclusions", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Exclusions).To(BeEmpty())
 				Expect(result.ScannedFiles).To(Equal(2))
@@ -58,7 +58,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects templ and returns exclusion pattern", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Exclusions).To(HaveLen(1))
 				Expect(result.Exclusions[0].Path).To(Equal(`_templ\.go$`))
@@ -75,7 +75,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects protobuf and returns exclusion pattern", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Exclusions).To(HaveLen(1))
 				Expect(result.Exclusions[0].Path).To(Equal(`\.pb\.go$`))
@@ -96,7 +96,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects all generators and returns patterns for each", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Generators).To(ContainElements("templ", "protobuf", "wire"))
 				Expect(result.Exclusions).To(HaveLen(3))
@@ -113,7 +113,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("returns a single pattern since wire has a fixed filename", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Exclusions).To(HaveLen(1))
 				Expect(result.Exclusions[0].Path).To(Equal(`wire_gen\.go$`))
@@ -142,7 +142,7 @@ var _ = Describe("Scanner", func() {
 					})
 
 					It("does not scan "+tc.desc, func() {
-						result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+						result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 						Expect(err).NotTo(HaveOccurred())
 						Expect(result.Exclusions).To(BeEmpty())
 					})
@@ -157,7 +157,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects generic generated files but does not add path exclusion", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Generators).To(ContainElement("generic"))
 				Expect(result.GeneratedFiles).To(BeNumerically(">=", 1))
@@ -171,7 +171,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects moq and returns exclusion pattern", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				if result.GeneratedFiles > 0 {
 					Expect(result.Generators).To(ContainElement("moq"))
@@ -189,7 +189,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects mockgen and returns exclusion pattern", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				if result.GeneratedFiles > 0 {
 					Expect(result.Generators).To(ContainElement("mockgen"))
@@ -207,7 +207,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects mockery and returns a file pattern, not a directory exclusion", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				if result.GeneratedFiles > 0 {
 					Expect(result.Generators).To(ContainElement("mockery"))
@@ -225,7 +225,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects counterfeiter and returns a file pattern, not a directory exclusion", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				if result.GeneratedFiles > 0 {
 					Expect(result.Generators).To(ContainElement("counterfeiter"))
@@ -244,7 +244,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("never derives directory-level exclusions from filename-detected generators", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Exclusions).NotTo(ContainElement(
 					HaveField("Path", "runner/"),
@@ -262,7 +262,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects stringer and returns exclusion pattern", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				if result.GeneratedFiles > 0 {
 					Expect(result.Generators).To(ContainElement("stringer"))
@@ -280,7 +280,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects go-enum and returns exclusion pattern", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				if result.GeneratedFiles > 0 {
 					Expect(result.Generators).To(ContainElement("go-enum"))
@@ -298,7 +298,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects oapi-codegen and returns exclusion pattern", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				if result.GeneratedFiles > 0 {
 					Expect(result.Generators).To(ContainElement("oapi-codegen"))
@@ -317,7 +317,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("detects deepcopy-gen and returns exclusion pattern", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				if result.GeneratedFiles > 0 {
 					Expect(result.Generators).To(ContainElement("deepcopy-gen"))
@@ -339,7 +339,7 @@ var _ = Describe("Scanner", func() {
 			})
 
 			It("does not scan node_modules", func() {
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Exclusions).To(BeEmpty())
 			})
@@ -354,7 +354,7 @@ var _ = Describe("Scanner", func() {
 					"// Code generated by templ - DO NOT EDIT.\npackage main\nimport \"github.com/a-h/templ\"\nvar _ templ.Component",
 				)
 
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 
 				for _, excl := range result.Exclusions {
@@ -371,7 +371,7 @@ var _ = Describe("Scanner", func() {
 					"// Code generated by templ - DO NOT EDIT.\npackage main\nimport \"github.com/a-h/templ\"\nvar _ templ.Component",
 				)
 
-				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 
 				for _, excl := range result.Exclusions {
