@@ -28,3 +28,5 @@ _All high-priority items resolved in v0.6.0 — see CHANGELOG.md._
 | Status report lifecycle policy (archive cadence)                | Low    | 30min  | `docs/status/README.md` index exists; no archive cadence policy                  |
 | Multi-preset merge correctness tests (dedup, formatter union)   | Low    | 1h     | `--preset a --preset b` shipped without dedicated merge tests                    |
 | Swallowed-error governance audit (erraudit + periodic re-check) | Low    | 1h     | 194 findings reviewed 2026-07-30; 141 `context_loss` are noise; re-run quarterly |
+| GoReleaser docker publish fails on every release: `--attest=type=sbom` unsupported by the CI docker driver ("Attestation is not supported for the docker driver... turn on the containerd image store") — GH Releases get no binaries; v0.7.0/v0.7.1/v0.8.0 all failed identically | Medium | 1h | `gh run view 34463730693` (v0.8.0), 34446767394 (v0.7.1) |
+| Markdown Lint red on master: AGENTS.md MD029 ordered-list prefix style (30., 31., ... expected 1., 2., ...) | Low | 30min | `gh run view 34463729656` (v0.8.0 push); failing since 2026-09-09 |
