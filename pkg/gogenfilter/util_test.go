@@ -67,32 +67,9 @@ func TestGeneratedExclusionString(t *testing.T) {
 	}
 }
 
-func TestShouldSkipDir(t *testing.T) {
-	tests := []struct {
-		name string
-		dir  string
-		want bool
-	}{
-		{"vendor", "vendor", true},
-		{"node_modules", "node_modules", true},
-		{"hidden dir", ".cache", true},
-		{"git dir", ".git", true},
-		{"normal dir", "src", false},
-		{"pkg dir", "pkg", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := shouldSkipDir(tt.dir); got != tt.want {
-				t.Errorf("shouldSkipDir(%q) = %v, want %v", tt.dir, got, tt.want)
-			}
-		})
-	}
-}
-
 func TestScanProjectEmptyDir(t *testing.T) {
 	fsys := fstest.MapFS{}
-	result, err := ScanProject(fsys, "/nonexistent")
+	result, err := ScanProject(fsys)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
