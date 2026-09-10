@@ -20,7 +20,7 @@
     };
 
     gogenfilter = {
-      url = "git+https://github.com/LarsArtmann/gogenfilter?ref=master";
+      url = "github:LarsArtmann/gogenfilter?ref=refs/tags/v3.6.0";
       flake = false;
     };
   };

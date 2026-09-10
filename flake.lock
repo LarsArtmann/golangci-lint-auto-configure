@@ -85,18 +85,18 @@
     "gogenfilter": {
       "flake": false,
       "locked": {
-        "lastModified": 1788535552,
-        "narHash": "sha256-n1HwIE0CCa3QOZlC/hlqZgU265NjL45mI9P0ROV8DVo=",
-        "ref": "master",
-        "rev": "1a1de66a6659573d36433d92882073f37baba82d",
-        "revCount": 862,
-        "type": "git",
-        "url": "https://github.com/LarsArtmann/gogenfilter"
+        "lastModified": 1789033542,
+        "narHash": "sha256-9co8LygZMvP38/3XKAeGvp2J+EOJXvlYZXhSJDUrHiE=",
+        "owner": "LarsArtmann",
+        "repo": "gogenfilter",
+        "rev": "b79a9d25db68b174eeb672d72d716f4a49528387",
+        "type": "github"
       },
       "original": {
-        "ref": "master",
-        "type": "git",
-        "url": "https://github.com/LarsArtmann/gogenfilter"
+        "owner": "LarsArtmann",
+        "ref": "refs/tags/v3.6.0",
+        "repo": "gogenfilter",
+        "type": "github"
       }
     },
     "nixpkgs": {
