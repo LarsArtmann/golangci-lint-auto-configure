@@ -200,6 +200,61 @@ var _ = Describe("Scanner", func() {
 			})
 		})
 
+		When("project has mockery generated files", func() {
+			BeforeEach(func() {
+				writeMainGo(tmpDir)
+				writeFile(tmpDir, "mock_command.go", "package main\n\n// hand-written test double, no generated marker\n")
+			})
+
+			It("detects mockery and returns a file pattern, not a directory exclusion", func() {
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				Expect(err).NotTo(HaveOccurred())
+				if result.GeneratedFiles > 0 {
+					Expect(result.Generators).To(ContainElement("mockery"))
+					Expect(result.Exclusions).To(ContainElement(
+						HaveField("Path", `mock_.*\.go$`),
+					))
+				}
+			})
+		})
+
+		When("project has counterfeiter generated files", func() {
+			BeforeEach(func() {
+				writeMainGo(tmpDir)
+				writeFile(tmpDir, "fake_service.go", "package main\n\n// hand-written test double, no generated marker\n")
+			})
+
+			It("detects counterfeiter and returns a file pattern, not a directory exclusion", func() {
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				Expect(err).NotTo(HaveOccurred())
+				if result.GeneratedFiles > 0 {
+					Expect(result.Generators).To(ContainElement("counterfeiter"))
+					Expect(result.Exclusions).To(ContainElement(
+						HaveField("Path", `fake_.*\.go$`),
+					))
+				}
+			})
+		})
+
+		When("project has mock and fake files in nested packages", func() {
+			BeforeEach(func() {
+				writeMainGo(tmpDir)
+				writeFile(tmpDir, "runner/mock_command.go", "package runner\n")
+				writeFile(tmpDir, "providers/fake_service_test.go", "package providers\n")
+			})
+
+			It("never derives directory-level exclusions from filename-detected generators", func() {
+				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir), tmpDir)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result.Exclusions).NotTo(ContainElement(
+					HaveField("Path", "runner/"),
+				))
+				Expect(result.Exclusions).NotTo(ContainElement(
+					HaveField("Path", "providers/"),
+				))
+			})
+		})
+
 		When("project has stringer generated files", func() {
 			BeforeEach(func() {
 				writeMainGo(tmpDir)

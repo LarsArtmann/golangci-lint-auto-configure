@@ -163,9 +163,11 @@ func deriveExclusionPatterns(
 		"go-enum":      {pattern: `_enum\.go$`, reason: "go-enum generated enumerations"},
 		"deepcopy-gen": {pattern: `zz_generated\..*\.go$`, reason: "deepcopy-gen generated code"},
 		"wire":         {pattern: `wire_gen\.go$`, reason: "wire generated dependency injection"},
-		"moq":          {pattern: `_moq\.go$`, reason: "moq generated mocks"},
-		"mockgen":      {pattern: `_mock\.go$`, reason: "mockgen generated mocks"},
-		"stringer":     {pattern: `_string\.go$`, reason: "stringer generated string methods"},
+		"moq":           {pattern: `_moq\.go$`, reason: "moq generated mocks"},
+		"mockgen":       {pattern: `_mock\.go$`, reason: "mockgen generated mocks"},
+		"stringer":      {pattern: `_string\.go$`, reason: "stringer generated string methods"},
+		"mockery":       {pattern: `mock_.*\.go$`, reason: "mockery generated mocks"},
+		"counterfeiter": {pattern: `fake_.*\.go$`, reason: "counterfeiter generated fakes"},
 	}
 
 	exclusions := make([]GeneratedExclusion, 0, len(detectedByGenerator))
