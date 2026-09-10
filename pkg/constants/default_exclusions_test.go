@@ -1,10 +1,9 @@
 package constants_test
 
 import (
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 )
 
 // These specs pin the default exclusion paths that provide baseline coverage
