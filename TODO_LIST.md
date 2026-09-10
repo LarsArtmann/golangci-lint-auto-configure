@@ -16,6 +16,7 @@ _All high-priority items resolved in v0.6.0 — see CHANGELOG.md._
 
 | Task                                                       | Impact                                            | Effort | Evidence                                                                   |
 | ---------------------------------------------------------- | ------------------------------------------------- | ------ | -------------------------------------------------------------------------- |
+| exhaustruct → exhaustruct_v5 migration                     | Medium — golangci-lint v2.13 deprecates `exhaustruct` ("Replaced by exhaustruct_v5"); glac's priority table, exclusion rules, and curated settings reference the old name and will warn on v2.13+ | 2–3h   | golangci-lint v2.13 startup warning observed 2026-09-10 in `golangci-lint run` across LarsArtmann repos; constants touched: `linter_priorities.go`, `linter_reasons.go`, `linter_settings.go`, `config.go` (DefaultExclusionRules), `rules.go` |
 | Consolidate `ARCHITECTURE.md` inline ADRs into `docs/adr/` | Medium — ADRs live in two places (split-brain)    | 1–2h   | `docs/ARCHITECTURE.md` has 8 inline ADRs; `docs/adr/` has 6 separate files |
 | Full `README.md` claim-by-claim audit (~500 lines)         | Medium — repeated spot-checks, never line-by-line | 2h     | Only Requirements / example output / CI / Related Projects verified        |
 
