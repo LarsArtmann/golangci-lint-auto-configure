@@ -11,7 +11,7 @@ require (
 	github.com/larsartmann/go-error-family v0.10.0
 	github.com/larsartmann/go-finding v1.9.2
 	github.com/onsi/ginkgo/v2 v2.32.0
-	github.com/onsi/gomega v1.42.1
+	github.com/onsi/gomega v1.43.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/spf13/cobra v1.10.2
 	go.yaml.in/yaml/v3 v3.0.5
@@ -59,3 +59,5 @@ require (
 	golang.org/x/text v0.42.0 // indirect
 	golang.org/x/tools v0.50.0 // indirect
 )
+
+replace github.com/LarsArtmann/gogenfilter/v3 => ../gogenfilter

@@ -178,7 +178,7 @@ var _ = Describe("Scanner", func() {
 				result, err := gogenfilterinternal.ScanProject(os.DirFS(tmpDir))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Exclusions).NotTo(ContainElement(
-					HaveField("Path", ContainSubstring("internal/gen/")),
+					HaveField("Path", MatchRegexp("/$")),
 				))
 				Expect(result.Exclusions).To(ContainElement(
 					HaveField("Path", `^internal/gen/zz_generated\.go$`),
