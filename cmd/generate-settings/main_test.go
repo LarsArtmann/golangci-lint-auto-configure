@@ -41,3 +41,29 @@ var _ = Describe("generateStruct", func() {
 		Expect(output).NotTo(ContainSubstring("struct {\n}"))
 	})
 })
+
+var _ = Describe("isNewerVersion", func() {
+	It("flags a newer schema snapshot", func() {
+		newer, comparable := isNewerVersion("v2.13.2", "v2.10.1")
+		Expect(comparable).To(BeTrue())
+		Expect(newer).To(BeTrue())
+	})
+
+	It("does not flag an older or equal snapshot", func() {
+		newer, comparable := isNewerVersion("v2.10.1", "v2.10.1")
+		Expect(comparable).To(BeTrue())
+		Expect(newer).To(BeFalse())
+
+		newer, comparable = isNewerVersion("v2.9.4", "v2.10.1")
+		Expect(comparable).To(BeTrue())
+		Expect(newer).To(BeFalse())
+	})
+
+	It("is not comparable for empty or malformed versions", func() {
+		_, comparable := isNewerVersion("", "v2.10.1")
+		Expect(comparable).To(BeFalse())
+
+		_, comparable = isNewerVersion("garbage", "v2.10.1")
+		Expect(comparable).To(BeFalse())
+	})
+})
