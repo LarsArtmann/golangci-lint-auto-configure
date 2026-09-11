@@ -170,6 +170,19 @@ jobs:
             exit 1
           fi
 
+      - name: Generated reference drift guard (linter_settings_generated.go)
+        run: |
+          # The reference file must stay in lockstep with the committed schema
+          # snapshot: a silent rot here means the hand-maintained curated
+          # structs in linter_settings.go drift from the schema unnoticed.
+          go run ./cmd/generate-settings -schema=pkg/constants/schema/golangci-lint.jsonschema.json -output=pkg/constants/linter_settings_generated.go
+          if git diff --exit-code pkg/constants/linter_settings_generated.go; then
+            echo "✓ linter_settings_generated.go in sync with the schema"
+          else
+            echo "✗ linter_settings_generated.go is stale — run 'go run ./cmd/generate-settings -schema=pkg/constants/schema/golangci-lint.jsonschema.json -output=pkg/constants/linter_settings_generated.go' and commit"
+            exit 1
+          fi
+
       - name: Verify fixture against golangci-lint schema
         run: |
           cd pkg/constants/testdata/schema-fixture
