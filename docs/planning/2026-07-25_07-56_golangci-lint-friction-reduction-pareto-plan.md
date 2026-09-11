@@ -72,16 +72,16 @@ The 1% change **plus four more** targeting the next friction leaders (v1 only di
 
 ### 20% that delivers 80% of the result
 
-5. **`--pragmatic` flag** (`pkg/linter/categorizer.go` `shouldSkipLinter`) that drops the 5 noise leaders `{exhaustruct, gochecknoglobals, ireturn, wrapcheck, funlen}` from the _dynamic_ enable set on demand. This is the **correct** mechanism v1's static-preset approach couldn't be. It gives projects an escape hatch that isn't "disable everything."
-6. **Resolve the sidecar deadlock.** `.golangci-lint-auto-configure.yml` has **0 adoption** across 160 projects. Promote or de-emphasize — decision + docs only.
-7. **`golangci-lint run` (no `--fix`) CI gate** (already `TODO_LIST.md` Medium-High). BuildFlow's `--fix` silently swallows unfixable issues.
-8. **Publish findings** in `FEATURES.md`, `AGENTS.md`, `CHANGELOG.md`.
+1. **`--pragmatic` flag** (`pkg/linter/categorizer.go` `shouldSkipLinter`) that drops the 5 noise leaders `{exhaustruct, gochecknoglobals, ireturn, wrapcheck, funlen}` from the _dynamic_ enable set on demand. This is the **correct** mechanism v1's static-preset approach couldn't be. It gives projects an escape hatch that isn't "disable everything."
+2. **Resolve the sidecar deadlock.** `.golangci-lint-auto-configure.yml` has **0 adoption** across 160 projects. Promote or de-emphasize — decision + docs only.
+3. **`golangci-lint run` (no `--fix`) CI gate** (already `TODO_LIST.md` Medium-High). BuildFlow's `--fix` silently swallows unfixable issues.
+4. **Publish findings** in `FEATURES.md`, `AGENTS.md`, `CHANGELOG.md`.
 
 ### The other 20% (to reach 100%)
 
-9. **Lock the formatter quadruple as a documented `house` formatter preset** + test.
-10. **Declare v1 config support maintenance-only** (0 live v1 configs).
-11. **Test-debt payoff** (from `TODO_LIST.md`). _Note:_ the HIGH-priority "split `cmd_configure.go` (581 lines)" is tracked there but is an SRP refactor, not friction reduction — explicitly out of scope here.
+1. **Lock the formatter quadruple as a documented `house` formatter preset** + test.
+2. **Declare v1 config support maintenance-only** (0 live v1 configs).
+3. **Test-debt payoff** (from `TODO_LIST.md`). _Note:_ the HIGH-priority "split `cmd_configure.go` (581 lines)" is tracked there but is an SRP refactor, not friction reduction — explicitly out of scope here.
 
 ### The closing loop v1 forgot (Phase 0 + Phase 5)
 

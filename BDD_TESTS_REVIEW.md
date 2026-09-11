@@ -59,9 +59,9 @@ The project has **test coverage of 29.5%** and demonstrates **inconsistent use o
 
 The current tests answer "Does this function work?" instead of "Can the user accomplish their goal?"
 
-### Examples of Implementation-Focused Tests:
+### Examples of Implementation-Focused Tests
 
-#### ❌ Bad Example (from `pkg/linter/analyzer_test.go`):
+#### ❌ Bad Example (from `pkg/linter/analyzer_test.go`)
 
 ```go
 It("should filter linters by priority", func() {
@@ -78,7 +78,7 @@ It("should filter linters by priority", func() {
 
 **Problem:** This tests the internal `GetLintersByPriority` method, not user behavior.
 
-#### ✅ What It Should Look Like (End-User Perspective):
+#### ✅ What It Should Look Like (End-User Perspective)
 
 ```go
 Context("When a developer wants to enable only critical security linters", func() {
@@ -97,7 +97,7 @@ Context("When a developer wants to enable only critical security linters", func(
 })
 ```
 
-### Missing User Scenarios:
+### Missing User Scenarios
 
 The following user stories are **NOT tested**:
 
@@ -120,7 +120,7 @@ The following user stories are **NOT tested**:
 
 This is **unacceptably low** for a production tool. Target should be **>80%**.
 
-### Coverage by Package:
+### Coverage by Package
 
 | Package         | Coverage         | Status              |
 | --------------- | ---------------- | ------------------- |
@@ -134,7 +134,7 @@ This is **unacceptably low** for a production tool. Target should be **>80%**.
 | `pkg/utils`     | ~50% (estimated) | ⚠️ Needs improvement |
 | `internal/cli`  | 12.7%            | ❌ Critical gap     |
 
-### Uncovered Functions (0% coverage):
+### Uncovered Functions (0% coverage)
 
 From `pkg/config/loader.go`:
 
@@ -301,32 +301,32 @@ From `pkg/config/loader.go`:
 
 ### Priority 2: High
 
-4. **Increase test coverage to >80%**
+1. **Increase test coverage to >80%**
    - Focus on uncovered functions in `pkg/config/loader.go`
    - Add tests for `pkg/linter` package (currently ~35%)
    - Add tests for `internal/cli` package (currently 12.7%)
 
-5. **Add error scenario tests**
+2. **Add error scenario tests**
    - Test all error paths in `pkg/errors/errors.go`
    - Test graceful degradation
    - Test helpful error messages
 
-6. **Add regression tests**
+3. **Add regression tests**
    - Create `tests/regression/` directory
    - Add tests for each fixed bug with issue reference
 
 ### Priority 3: Medium
 
-7. **Improve test quality**
+1. **Improve test quality**
    - Refactor tests to use Given/When/Then structure
    - Add acceptance criteria to test descriptions
    - Use more descriptive test names
 
-8. **Add concurrency tests**
+2. **Add concurrency tests**
    - Test parallel config access
    - Test race conditions
 
-9. **Add performance tests**
+3. **Add performance tests**
    - Expand benchmark coverage
    - Add memory allocation tests
    - Add tests for large configs

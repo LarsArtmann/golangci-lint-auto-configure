@@ -63,18 +63,18 @@
 
 ### The remaining 20% (to get to 100%)
 
-9. **Consolidate ARCHITECTURE.md ADRs** (1-2h) — 8 inline ADRs + 6 separate files = split-brain
-10. **README claim-by-claim audit** (2h) — ~500 lines, never verified line-by-line
-11. **Full `nix flake check`** (15min) — hermetic build path unvalidated for 4+ sessions
-12. **Docs-integrity test extension** (1h) — only covers preset counts, not all FEATURES.md claims
-13. **Status report lifecycle policy** (30min) — no archive cadence established
-14. **Multi-preset merge correctness tests** (1h) — `--preset a --preset b` shipped without dedicated merge tests
-15. **Swallowed-error governance audit** (1h) — prior pass found 2 benign sites; needs periodic re-check
-16. **`LinterMinVersions` accuracy audit** (1-2h) — hand-curated version gates need verification against upstream
-17. **`DeprecatedLinters` target audit** (1h) — verify replacements point to existing linters
-18. **Auto-commit hook improvement** (1h) — daemon mixes file types into generic commits
-19. **Narrow interface adoption** (1-2h) — standardize on ConfigReader/ConfigWriter sub-interfaces
-20. **Coverage-check main.go errors** — 10 `fmt.Errorf`/`errors.New` in standalone tool; intentionally excluded from errorfamily but should be documented
+1. **Consolidate ARCHITECTURE.md ADRs** (1-2h) — 8 inline ADRs + 6 separate files = split-brain
+2. **README claim-by-claim audit** (2h) — ~500 lines, never verified line-by-line
+3. **Full `nix flake check`** (15min) — hermetic build path unvalidated for 4+ sessions
+4. **Docs-integrity test extension** (1h) — only covers preset counts, not all FEATURES.md claims
+5. **Status report lifecycle policy** (30min) — no archive cadence established
+6. **Multi-preset merge correctness tests** (1h) — `--preset a --preset b` shipped without dedicated merge tests
+7. **Swallowed-error governance audit** (1h) — prior pass found 2 benign sites; needs periodic re-check
+8. **`LinterMinVersions` accuracy audit** (1-2h) — hand-curated version gates need verification against upstream
+9. **`DeprecatedLinters` target audit** (1h) — verify replacements point to existing linters
+10. **Auto-commit hook improvement** (1h) — daemon mixes file types into generic commits
+11. **Narrow interface adoption** (1-2h) — standardize on ConfigReader/ConfigWriter sub-interfaces
+12. **Coverage-check main.go errors** — 10 `fmt.Errorf`/`errors.New` in standalone tool; intentionally excluded from errorfamily but should be documented
 
 ---
 

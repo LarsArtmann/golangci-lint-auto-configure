@@ -68,23 +68,23 @@ misleading until these land.
 
 Complete the error-classification story so the adoption actually pays off.
 
-5. **`Classified` on `ReportError` + `MigrationError`** → Rejection (with tests).
-6. **Fix the 29 non-wrapping `fmt.Errorf`** → add `%w` (enables classification propagation).
-7. **Exit-code integration test** — `Main()` → `os.Exit()` per Family.
-8. **Document exit codes in `README.md`** — table for CI/CD consumers.
-9. **Update `TODO_LIST.md`** — reflect reality (vendorHash done, new tasks).
+1. **`Classified` on `ReportError` + `MigrationError`** → Rejection (with tests).
+2. **Fix the 29 non-wrapping `fmt.Errorf`** → add `%w` (enables classification propagation).
+3. **Exit-code integration test** — `Main()` → `os.Exit()` per Family.
+4. **Document exit codes in `README.md`** — table for CI/CD consumers.
+5. **Update `TODO_LIST.md`** — reflect reality (vendorHash done, new tasks).
 
 ### 20% that delivers 80% of the result
 
 Coverage, message templates, and polish.
 
-10. Register domain message templates (`config.not_found`, `version.too_old`, …).
-11. `errors.Join` for multi-finding failures (`pkg/finding/converter.go`).
-12. `internal/cli` coverage 8.8% → ≥40% (analyze, validate, report, migrate).
-13. `pkg/version` coverage — `ReadBuildInfo()` fallback.
-14. `--check` / `--diff` interaction tests (+ investigate the diff-empty-in-check bug).
-15. Polish: `Config.Clone()`, `DryRun` field, `pkg/client` intent, `testifylint` defaults.
-16. FEATURES.md full audit + `LinterMinVersions` / `reference` preset validation tests.
+1. Register domain message templates (`config.not_found`, `version.too_old`, …).
+2. `errors.Join` for multi-finding failures (`pkg/finding/converter.go`).
+3. `internal/cli` coverage 8.8% → ≥40% (analyze, validate, report, migrate).
+4. `pkg/version` coverage — `ReadBuildInfo()` fallback.
+5. `--check` / `--diff` interaction tests (+ investigate the diff-empty-in-check bug).
+6. Polish: `Config.Clone()`, `DryRun` field, `pkg/client` intent, `testifylint` defaults.
+7. FEATURES.md full audit + `LinterMinVersions` / `reference` preset validation tests.
 
 ### Remaining 20% (deferred / low-ROI)
 

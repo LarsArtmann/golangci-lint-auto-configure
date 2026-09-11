@@ -64,6 +64,7 @@ It is **NOT** in `DeprecatedLinters`, so no replacement is offered. Users who ha
 
 - Remove from `LinterPriorities` and `LinterReasons`
 - Add to `DeprecatedLinters`:
+
   ```go
   "exportloopref": {
       Replacement: "copyloopvar",
@@ -492,20 +493,20 @@ The fixer auto-injects Go experiment build tags (`goexperiment.arenas`, `goexper
 
 ### P1 — Deprecation Coverage (Fix Soon)
 
-5. **Add missing v1 removed linters** to `DeprecatedLinters`: `golint`, `scopelint`, `tenv`, `ifshort`, `execinquery`
-6. **Add v1 alternative names** to `DeprecatedLinters`: `gas`, `goerr113`, `gomnd`, `logrlint`, `megacheck`, `vet`, `vetshadow`
+1. **Add missing v1 removed linters** to `DeprecatedLinters`: `golint`, `scopelint`, `tenv`, `ifshort`, `execinquery`
+2. **Add v1 alternative names** to `DeprecatedLinters`: `gas`, `goerr113`, `gomnd`, `logrlint`, `megacheck`, `vet`, `vetshadow`
 
 ### P2 — Data Integrity (Improve Safeguards)
 
-7. **Add cross-map integrity tests** (Section 7.2) to prevent formatter-in-linter-map regressions
-8. **Add test: `LinterPriorities` keys ⊆ `LinterReasons` keys** and vice versa
-9. **Add test: `DeprecatedLinters` keys ∉ `LinterPriorities`**
+1. **Add cross-map integrity tests** (Section 7.2) to prevent formatter-in-linter-map regressions
+2. **Add test: `LinterPriorities` keys ⊆ `LinterReasons` keys** and vice versa
+3. **Add test: `DeprecatedLinters` keys ∉ `LinterPriorities`**
 
 ### P3 — Architecture Improvements (Nice to Have)
 
-10. **Consider a `format` preset** that enables core formatters
-11. **Long-term: typed linter settings** via code generation from JSON Schema
-12. **Consider wrapping config mutations** in a counter-incrementing pattern to prevent the `normalization==0` footgun
+1. **Consider a `format` preset** that enables core formatters
+2. **Long-term: typed linter settings** via code generation from JSON Schema
+3. **Consider wrapping config mutations** in a counter-incrementing pattern to prevent the `normalization==0` footgun
 
 ---
 

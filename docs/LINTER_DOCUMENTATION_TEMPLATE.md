@@ -33,7 +33,7 @@
 
 ## When It Should Be Enabled
 
-### ✅ Enable For:
+### ✅ Enable For
 
 **Project Types:**
 
@@ -53,7 +53,7 @@
 - [When to enable]
 - [Examples]
 
-### ❌ Disable For:
+### ❌ Disable For
 
 **Specific Scenarios:**
 
