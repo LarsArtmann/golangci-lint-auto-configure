@@ -14,6 +14,7 @@ import (
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	appfinding "github.com/larsartmann/golangci-lint-auto-configure/pkg/finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	autoconfigure "github.com/larsartmann/linter-autoconfigure-sdk"
 	"github.com/spf13/cobra"
 )
 
@@ -233,21 +234,17 @@ func healthIssuesToFindings(
 	result := make([]finding.Finding, 0, len(health.Issues))
 
 	for _, issue := range health.Issues {
-		pos := finding.Position{File: finding.FilePath(configFile), Line: 1}
-
-		severity := appfinding.SeverityFromHealthSeverity(issue.Severity)
-
-		findingObj, err := finding.NewBuilder(
-			finding.RuleName(issue.Rule),
+		findingObj, err := autoconfigure.FindingFromIssue(
 			finding.ToolName(constants.ToolName),
-			issue.Message,
-			severity,
-			pos,
-		).
-			WithCategory(finding.CategoryConfiguration).
-			WithFixStrategy(finding.FixStrategySuggest).
-			WithSuggestion(issue.Suggestion).
-			Build()
+			autoconfigure.ConfigIssue{
+				Rule:       finding.RuleName(issue.Rule),
+				Message:    issue.Message,
+				Severity:   appfinding.SeverityFromHealthSeverity(issue.Severity),
+				File:       finding.FilePath(configFile),
+				Line:       0,
+				Suggestion: issue.Suggestion,
+			},
+		)
 		if err != nil {
 			logger.Warnf("⚠️  Failed to build finding for rule %q: %v", issue.Rule, err)
 
