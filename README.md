@@ -50,6 +50,37 @@ cd golangci-lint-auto-configure
 GOEXPERIMENT=jsonv2 go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 ```
 
+### Container Image
+
+Every release publishes a multi-arch (amd64 + arm64) image to GHCR:
+
+```bash
+docker pull ghcr.io/larsartmann/golangci-lint-auto-configure:v0.8.1
+```
+
+### Verifying Release Artifacts
+
+All release artifacts are signed with [cosign](https://github.com/sigstore/cosign) keyless signing (Sigstore, identity = this repo's `release.yml` workflow). SBOMs (CycloneDX) are published per archive as `*.sbom.json`.
+
+To verify a downloaded artifact:
+
+```bash
+gh release download v0.8.1 -p "checksums.txt*" -p "*Linux_x86_64.tar.gz*" --dir /tmp/verify
+cd /tmp/verify
+
+# 1. Checksums
+sha256sum --ignore-missing -c checksums.txt
+
+# 2. Keyless signature (no keys to configure; verifies the GitHub Actions identity)
+cosign verify-blob \
+  --signature checksums.txt.sig \
+  --certificate checksums.txt.pem \
+  --certificate-identity-regexp "https://github.com/LarsArtmann/golangci-lint-auto-configure/[.]github/workflows/release[.]yml@refs/tags/v.*" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  checksums.txt
+# → Verified OK
+```
+
 ## Requirements
 
 ### With Nix (Recommended)
