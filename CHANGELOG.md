@@ -6,23 +6,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-09-11
+
+Ships the goconst schema-fix delivery vehicle: downstream configs now
+self-heal, and "the tool emits valid config" is a verified CI invariant
+instead of an assumption.
+
 ### Fixed
 
 - `goconst` settings schema bug: `GoconstSettings` emitted `min-length`, which
   golangci-lint <2.13 rejects outright ("configuration contains invalid
   elements"); corrected to `min-len` (valid on 2.10–2.13.x) in
   `pkg/constants/linter_settings.go` and in this repo's own `.golangci.yml`.
-  New configure runs emit valid keys; existing downstream configs still carry
-  the bad key until the key-normalization pass ships (see TODO_LIST).
+- Every config the tool previously broke now self-heals: the new
+  key-normalization pass renames keys listed in `KnownBadSettingsKeys`
+  (currently `goconst.min-length` → `min-len`) on every configure run — the
+  only pass allowed to modify existing user settings, bypassing the
+  idempotency guard for the exact mapped bad key only. Verified end-to-end
+  with `golangci-lint config verify`.
 - CI rehabilitation after the main workflow was found manually disabled since
   2026-07-16: test job now installs golangci-lint v2.13.2 (63 `internal/cli`
   specs failed in CI without the binary while passing locally), lint job
   aligned from v2.12.2 to the devShell's v2.13.2, `workflow_dispatch` trigger
-  added, and Markdown Lint went from 122 errors across 21 files to 0 across 51
+  added, and Markdown Lint went from 122 errors across 21 files to 0 across 51.
 - Release pipeline: `docker/setup-buildx-action` + `docker/login-action`
   (GHCR) added before GoReleaser — root-cause fix for "Attestation is not
   supported for the docker driver", which failed the Docker publish step on
-  v0.7.0, v0.7.1, and v0.8.0 alike; proof pending the next `v*` tag
+  v0.7.0, v0.7.1, and v0.8.0 alike; proof pending this `v*` tag.
+
+### Added
+
+- CI schema-compat gate (`schema-verify` job): a fixture containing EVERY
+  injected default (linter + formatter settings, run/issues/exclusion
+  normalizations) is regenerated through the tool's own `SaveConfig` path, a
+  drift guard fails when the committed fixture is stale, and
+  `golangci-lint config verify` fails on any schema-invalid injected key —
+  the one gate that would have caught the entire `min-length` incident class.
 
 ### Changed
 
