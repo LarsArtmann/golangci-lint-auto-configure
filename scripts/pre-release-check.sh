@@ -85,15 +85,14 @@ check "Tests pass (-race)" go test -race ./pkg/... ./internal/...
 # 5. Lint
 check "golangci-lint passes" golangci-lint run --config=.golangci.yml --timeout=5m
 
-# 6. Coverage
-COVERAGE_OUTPUT=$(go test -coverprofile=/tmp/coverage-check.out ./pkg/... ./internal/... 2>&1)
-COVERAGE_PCT=$(echo "$COVERAGE_OUTPUT" | grep -oP 'coverage: \K[0-9.]+' || echo "0")
-COVERAGE_THRESHOLD=60
-if (($(echo "$COVERAGE_PCT >= $COVERAGE_THRESHOLD" | bc -l))); then
-	echo -e "${GREEN}✓${NC} Coverage ${COVERAGE_PCT}% >= ${COVERAGE_THRESHOLD}% threshold"
+# 6. Coverage (same gate as CI: cmd/coverage-check parses the profile total;
+#    grepping per-package "coverage:" lines matches every line and mis-parses)
+go test -coverprofile=/tmp/coverage-check.out -covermode=atomic ./pkg/... ./internal/... > /dev/null
+if go run ./cmd/coverage-check -min=60 -profile=/tmp/coverage-check.out; then
+	echo -e "${GREEN}✓${NC} Coverage >= 60% threshold"
 	pass=$((pass + 1))
 else
-	echo -e "${RED}✗${NC} Coverage ${COVERAGE_PCT}% < ${COVERAGE_THRESHOLD}% threshold"
+	echo -e "${RED}✗${NC} Coverage below 60% threshold"
 	fail=$((fail + 1))
 fi
 
