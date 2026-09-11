@@ -54,7 +54,7 @@ var _ = Describe("isNewerVersion", func() {
 		Expect(canCompare).To(BeTrue())
 		Expect(newer).To(BeFalse())
 
-		newer, comparable = isNewerVersion("v2.9.4", "v2.10.1")
+		newer, canCompare = isNewerVersion("v2.9.4", "v2.10.1")
 		Expect(canCompare).To(BeTrue())
 		Expect(newer).To(BeFalse())
 	})
@@ -63,7 +63,7 @@ var _ = Describe("isNewerVersion", func() {
 		_, canCompare := isNewerVersion("", "v2.10.1")
 		Expect(canCompare).To(BeFalse())
 
-		_, comparable = isNewerVersion("garbage", "v2.10.1")
+		_, canCompare = isNewerVersion("garbage", "v2.10.1")
 		Expect(canCompare).To(BeFalse())
 	})
 })
