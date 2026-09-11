@@ -19,6 +19,7 @@ on:
       - .gitignore
       - "**/*.svg"
       - "**/*.png"
+  workflow_dispatch:
 
 permissions:
   contents: read
