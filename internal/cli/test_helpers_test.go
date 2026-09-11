@@ -39,7 +39,7 @@ func writeConfig(configContent string) string {
 var (
 	binaryOnce sync.Once
 	binaryPath string
-	binaryErr  error
+	errBuild   error
 )
 
 // buildBinary compiles the CLI binary once per test process and returns the
@@ -48,7 +48,7 @@ func buildBinary() string {
 	binaryOnce.Do(func() {
 		sharedDir, mkErr := os.MkdirTemp("", "golangci-lint-auto-configure-cli-test-")
 		if mkErr != nil {
-			binaryErr = mkErr
+			errBuild = mkErr
 
 			return
 		}
@@ -57,7 +57,7 @@ func buildBinary() string {
 
 		projectRoot, absErr := filepath.Abs(filepath.Join("..", ".."))
 		if absErr != nil {
-			binaryErr = absErr
+			errBuild = absErr
 
 			return
 		}
@@ -78,13 +78,13 @@ func buildBinary() string {
 			"GONOSUMCHECK=github.com/larsartmann/go-finding",
 		)
 
-		output, buildErr := cmd.CombinedOutput()
-		if buildErr != nil {
-			binaryErr = fmt.Errorf("failed to build the CLI binary: %s", output)
+		output, outputErr := cmd.CombinedOutput()
+		if outputErr != nil {
+			errBuild = fmt.Errorf("failed to build the CLI binary: %s", output)
 		}
 	})
 
-	Expect(binaryErr).NotTo(HaveOccurred())
+	Expect(errBuild).NotTo(HaveOccurred())
 
 	return binaryPath
 }
