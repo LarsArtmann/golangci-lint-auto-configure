@@ -526,40 +526,52 @@ output:
 })
 
 var _ = Describe("JSON-format config marshal (json/v2 omitzero)", func() {
+	var loader *config.Loader
+
+	BeforeEach(func() {
+		loader = config.NewLoader(log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel}))
+	})
+
+	saveAndRead := func(cfg *types.Config) string {
+		path := filepath.Join(GinkgoT().TempDir(), ".golangci.json")
+		Expect(loader.SaveConfig(cfg, path)).To(Succeed())
+
+		data, readErr := os.ReadFile(path)
+		Expect(readErr).NotTo(HaveOccurred())
+
+		return string(data)
+	}
+
 	It("omits zero bools/ints from JSON output but keeps non-zero values", func() {
-		zeroCfg := &types.Config{
+		zeroJSON := saveAndRead(&types.Config{
 			Run: types.RunConfig{
-				Tests:   false,
+				Tests:       false,
 				Concurrency: 0,
 			},
 			Output: types.OutputConfig{ShowStats: false},
 			Issues: types.IssuesConfig{MaxIssuesPerLinter: 0, MaxSameIssues: 0},
-		}
+		})
 
-		zeroJSON, err := loader.MarshalConfigForTest(zeroCfg, config.ConfigFormatJSON)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"tests"`))
-		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"concurrency"`))
-		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"show-stats"`))
-		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"max-issues-per-linter"`))
-		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"max-same-issues"`))
-		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"issues-exit-code"`))
+		Expect(zeroJSON).NotTo(ContainSubstring(`"tests"`))
+		Expect(zeroJSON).NotTo(ContainSubstring(`"concurrency"`))
+		Expect(zeroJSON).NotTo(ContainSubstring(`"show-stats"`))
+		Expect(zeroJSON).NotTo(ContainSubstring(`"max-issues-per-linter"`))
+		Expect(zeroJSON).NotTo(ContainSubstring(`"max-same-issues"`))
+		Expect(zeroJSON).NotTo(ContainSubstring(`"issues-exit-code"`))
 
-		setCfg := &types.Config{
+		setJSON := saveAndRead(&types.Config{
 			Run: types.RunConfig{
-				Tests:   true,
+				Tests:       true,
 				Concurrency: 4,
 			},
 			Output: types.OutputConfig{ShowStats: true},
 			Issues: types.IssuesConfig{MaxIssuesPerLinter: 50, MaxSameIssues: 10},
-		}
+		})
 
-		setJSON, err := loader.MarshalConfigForTest(setCfg, config.ConfigFormatJSON)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(string(setJSON)).To(ContainSubstring(`"tests": true`))
-		Expect(string(setJSON)).To(ContainSubstring(`"concurrency": 4`))
-		Expect(string(setJSON)).To(ContainSubstring(`"show-stats": true`))
-		Expect(string(setJSON)).To(ContainSubstring(`"max-issues-per-linter": 50`))
-		Expect(string(setJSON)).To(ContainSubstring(`"max-same-issues": 10`))
+		Expect(setJSON).To(ContainSubstring(`"tests": true`))
+		Expect(setJSON).To(ContainSubstring(`"concurrency": 4`))
+		Expect(setJSON).To(ContainSubstring(`"show-stats": true`))
+		Expect(setJSON).To(ContainSubstring(`"max-issues-per-linter": 50`))
+		Expect(setJSON).To(ContainSubstring(`"max-same-issues": 10`))
 	})
 })
