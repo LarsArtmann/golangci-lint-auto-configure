@@ -272,6 +272,54 @@ func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logg
 	return added
 }
 
+// normalizeKnownBadSettingsKeys renames settings keys that older versions of this
+// tool emitted under a schema-invalid name (see constants.KnownBadSettingsKeys).
+// This is the ONLY pass allowed to modify existing user settings: it bypasses the
+// idempotency guard for the exact mapped bad key, so a config this tool previously
+// broke becomes self-healing on the next configure run. When both the bad and the
+// good key exist, the good key wins and the bad key is dropped (golangci-lint
+// hard-fails on unknown keys). Returns the number of keys renamed or dropped.
+func normalizeKnownBadSettingsKeys(cfg *types.Config, logger *log.Logger) int {
+	if len(cfg.Linters.Settings) == 0 || len(constants.KnownBadSettingsKeys) == 0 {
+		return 0
+	}
+
+	changed := 0
+
+	for linterName, keyMap := range constants.KnownBadSettingsKeys {
+		raw, exists := cfg.Linters.Settings[linterName]
+		if !exists {
+			continue
+		}
+
+		settings, ok := types.AsSettingsMap(raw)
+		if !ok {
+			continue
+		}
+
+		for badKey, goodKey := range keyMap {
+			badValue, hasBad := settings[badKey]
+			if !hasBad {
+				continue
+			}
+
+			delete(settings, badKey)
+			changed++
+
+			if _, hasGood := settings[goodKey]; hasGood {
+				logger.Infof("Dropped invalid settings key for %s: %q (valid key %q already set)", linterName, badKey, goodKey)
+
+				continue
+			}
+
+			settings[goodKey] = badValue
+			logger.Infof("Normalized invalid settings key for %s: %q -> %q (schema-invalid key emitted by older tool versions)", linterName, badKey, goodKey)
+		}
+	}
+
+	return changed
+}
+
 // updateConfigFromSets applies the linter and formatter sets back to the config struct.
 // Returns the count of default settings injected.
 func updateConfigFromSets(
@@ -283,6 +331,9 @@ func updateConfigFromSets(
 	forceSettings bool,
 ) int {
 	enabledLinters := types.ToSortedSlice(linterSet)
+
+	settingsChanges := 0
+	settingsChanges += normalizeKnownBadSettingsKeys(cfg, logger)
 
 	// Preserve the user's disable list. Previously this was rebuilt from scratch,
 	// silently dropping every linter the user had committed to linters.disable and
@@ -309,8 +360,6 @@ func updateConfigFromSets(
 
 	cfg.Linters.Enable = enabledLinters
 	cfg.Linters.Disable = disabledLintersList
-
-	settingsChanges := 0
 
 	if formatterSet.Len() > 0 {
 		cfg.Formatters.Enable = formatterManager.ToOrderedSlice(formatterSet)

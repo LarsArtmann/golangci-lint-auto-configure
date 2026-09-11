@@ -69,6 +69,19 @@ var ProjectSpecificLinters = map[types.LinterName]string{
 	"gohumanize": "go-humanize",
 }
 
+// KnownBadSettingsKeys maps linter names to settings keys that older versions of
+// this tool emitted under a schema-invalid name. Each bad key maps to the valid
+// key it must be renamed to. goconst.min-length was emitted before 2026-09-11 and
+// is rejected by golangci-lint <2.13 ("configuration contains invalid elements");
+// the fixer renames it on the next configure run so previously broken configs
+// self-heal. Never add an entry for a key that is merely deprecated upstream —
+// this map is strictly for keys THIS tool emitted wrongly.
+var KnownBadSettingsKeys = map[string]map[string]string{
+	"goconst": {
+		"min-length": "min-len",
+	},
+}
+
 // DefaultLinterExclusionPaths are exclusion paths always injected into linters.exclusions.paths
 // regardless of dynamic gogenfilter scan results. These match common patterns that should never
 // be linted: templ generated files, generic generated files, and vendored dependencies.
