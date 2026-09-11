@@ -2,9 +2,11 @@ package cli_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sync"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -31,28 +33,58 @@ func writeConfig(configContent string) string {
 	return configPath
 }
 
-// Helper function to build the binary.
+// Shared once-per-process build state for buildBinary. The binary is a
+// read-only artifact for the whole test run, so a single build serves every
+// spec (previously ~50 rebuilds dominated the suite's wall time).
+var (
+	binaryOnce sync.Once
+	binaryPath string
+	binaryErr  error
+)
+
+// buildBinary compiles the CLI binary once per test process and returns the
+// shared path.
 func buildBinary() string {
-	binaryPath := filepath.Join(testDir, "golangci-lint-auto-configure")
-	projectRoot, _ := filepath.Abs(filepath.Join("..", ".."))
-	cmd := exec.CommandContext(
-		context.Background(),
-		"go",
-		"build",
-		"-o",
-		binaryPath,
-		"./cmd/golangci-lint-auto-configure",
-	)
-	cmd.Dir = projectRoot
+	binaryOnce.Do(func() {
+		sharedDir, mkErr := os.MkdirTemp("", "golangci-lint-auto-configure-cli-test-")
+		if mkErr != nil {
+			binaryErr = mkErr
 
-	cmd.Env = append(
-		os.Environ(),
-		"GOPRIVATE=github.com/larsartmann/go-finding",
-		"GONOSUMCHECK=github.com/larsartmann/go-finding",
-	)
+			return
+		}
 
-	output, err := cmd.CombinedOutput()
-	Expect(err).NotTo(HaveOccurred(), "Failed to build the CLI binary: "+string(output))
+		binaryPath = filepath.Join(sharedDir, "golangci-lint-auto-configure")
+
+		projectRoot, absErr := filepath.Abs(filepath.Join("..", ".."))
+		if absErr != nil {
+			binaryErr = absErr
+
+			return
+		}
+
+		cmd := exec.CommandContext(
+			context.Background(),
+			"go",
+			"build",
+			"-o",
+			binaryPath,
+			"./cmd/golangci-lint-auto-configure",
+		)
+		cmd.Dir = projectRoot
+
+		cmd.Env = append(
+			os.Environ(),
+			"GOPRIVATE=github.com/larsartmann/go-finding",
+			"GONOSUMCHECK=github.com/larsartmann/go-finding",
+		)
+
+		output, buildErr := cmd.CombinedOutput()
+		if buildErr != nil {
+			binaryErr = fmt.Errorf("failed to build the CLI binary: %s", output)
+		}
+	})
+
+	Expect(binaryErr).NotTo(HaveOccurred())
 
 	return binaryPath
 }
