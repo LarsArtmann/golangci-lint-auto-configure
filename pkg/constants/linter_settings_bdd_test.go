@@ -111,13 +111,19 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 			Expect(m).To(HaveKeyWithValue("ignore-type-assert-ok", true))
 		})
 
-		It("produces ignore-decls with the curated typed declarations", func() {
+		It("produces ignore-decls with stdlib-only typed declarations", func() {
 			m := constants.DefaultLinterSettings["varnamelen"].ToMap()
 			decls, ok := m["ignore-decls"].([]any)
 			Expect(ok).To(BeTrue(), "ignore-decls must be a list")
-
 			for _, required := range []string{"err error", "wg sync.WaitGroup", "mu sync.Mutex", "c context.Context", "db *sql.DB", "tx *sql.Tx", "t *testing.T"} {
 				Expect(decls).To(ContainElement(required))
+			}
+			// Framework types are deliberately excluded: a shared default
+			// referencing gin/httpx/koanf injects dead decls into every project
+			// that does not use them and wrong expectations into those that do.
+			for _, framework := range []string{"*gin.Context", "*httpx.Context", "*koanf.Koanf"} {
+				Expect(decls).NotTo(ContainElement(framework),
+					"shared varnamelen defaults must stay stdlib-only, found %q", framework)
 			}
 		})
 

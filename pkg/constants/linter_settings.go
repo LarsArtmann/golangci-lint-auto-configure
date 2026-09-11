@@ -269,7 +269,6 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 			"err error",
 			"wg sync.WaitGroup",
 			"mu sync.Mutex",
-			"c *gin.Context",
 			"c context.Context",
 			"r *http.Request",
 			"w http.ResponseWriter",
