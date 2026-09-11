@@ -213,6 +213,7 @@ The tool automatically detects and replaces deprecated linters with their recomm
 
 - `wsl` → `wsl_v5` (original wsl is deprecated since golangci-lint v2.2.0)
 - `gomodguard` → `gomodguard_v2` (requires golangci-lint v2.12.0+)
+- `exhaustruct` → `exhaustruct_v5` (requires golangci-lint v2.13.0+)
 
 **Safety Features:**
 
@@ -247,7 +248,7 @@ Entries older than 90 days are automatically purged. Disable the ledger with
 
 > **Note:** This feature has **0 adoption** across 160 audited sibling projects and is
 > no longer actively promoted. It remains fully functional (backward compatible).
-> For friction reduction, the preferred mechanism is `--pragmatic` (drops the 5
+> For friction reduction, the preferred mechanism is `--pragmatic` (drops the 4
 > highest-noise linters from the enable set). See `ROADMAP.md` for details.
 
 To prevent AI agents from silently disabling linters to claim "0 findings,"
@@ -378,7 +379,7 @@ The CLI uses BSD `sysexits.h` exit codes for CI/CD integration, powered by [go-e
 | Code | Constant                  | Meaning        | When                                                                          |
 | ---- | ------------------------- | -------------- | ----------------------------------------------------------------------------- |
 | 0    | `EX_OK`                   | Success        | Command completed successfully                                                |
-| 1    | `EX_USAGE` / `EX_DATAERR` | User error     | Bad input, missing config, invalid version, `--check` detected needed changes |
+| 1    | —                         | User error     | Bad input, missing config, invalid version, `--check` detected needed changes |
 | 65   | `EX_DATAERR`              | Corruption     | Unparseable golangci-lint output (broken installation)                        |
 | 69   | `EX_UNAVAILABLE`          | Infrastructure | golangci-lint binary not found in PATH                                        |
 | 75   | `EX_TEMPFAIL`             | Transient      | Temporary failure (retry in CI)                                               |
@@ -420,7 +421,7 @@ esac
 | `--check`          | CI mode: exit 1 if changes needed, 0 if optimal                                    |
 | `--diff`           | Show diff of config changes before applying                                        |
 | `--priority`       | Minimum priority level (critical, high, medium, optional)                          |
-| `--preset`         | Use a preset (minimal, standard, strict, security, performance, reference, format) |
+| `--preset`         | Use a preset (minimal, standard, strict, security, performance, reference, format, house); can be repeated |
 | `--detect`         | Auto-detect project type and select appropriate preset                             |
 | `-v, --verbose`    | Enable verbose output                                                              |
 | `--format`         | Output format (html, json, sarif, finding)                                         |
@@ -428,6 +429,10 @@ esac
 | `--no-auto-merge`  | Disable automatic merging of multiple config files                                 |
 | `--no-audit`       | Skip writing to the audit ledger                                                   |
 | `--force-settings` | Overwrite existing linter/formatter settings with curated defaults                 |
+| `--pragmatic`      | Drop the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen)    |
+| `--recommend`      | Analyze project and recommend multiple presets (implies `--detect`)                |
+| `--quiet`          | Suppress all output except errors (useful for CI)                                  |
+| `--json-errors`    | Output errors as JSON to stderr for programmatic consumption                       |
 | `--no-color`       | Disable colored output (also honored via NO_COLOR env var)                         |
 
 ## Project-Specific Examples
@@ -493,9 +498,9 @@ Style and consistency linters:
 - `usestdlibvars` - Detects stdlib variable usage
 - `nonamedreturns` - Enforces named returns policy
 
-<details><summary>All 48 Medium value linters</summary>
+<details><summary>All 51 Medium value linters</summary>
 
-`dupword`, `godot`, `godox`, `goheader`, `varnamelen`, `whitespace`, `wsl_v5`, `grouper`, `dogsled`, `makezero`, `asciicheck`, `bidichk`, `containedctx`, `decorder`, `forbidigo`, `godoclint`, `gomoddirectives`, `gomodguard`, `gomodguard_v2`, `ireturn`, `lll`, `mnd`, `nlreturn`, `nonamedreturns`, `promlinter`, `tagliatelle`, `testpackage`, `tparallel`, `unqueryvet`, `usestdlibvars`, `asasalint`, `canonicalheader`, `err113`, `exptostd`, `fatcontext`, `gocheckcompilerdirectives`, `goprintffuncname`, `iface`, `inamedparam`, `iotamixing`, `modernize`, `nosprintfhostport`, `tagalign`, `testableexamples`, `importas`, `arangolint`, `embeddedstructfieldcheck`, `clickhouselint`
+`dupword`, `godot`, `godox`, `goheader`, `varnamelen`, `whitespace`, `wsl_v5`, `grouper`, `dogsled`, `makezero`, `asciicheck`, `bidichk`, `containedctx`, `decorder`, `forbidigo`, `godoclint`, `gomoddirectives`, `gomodguard`, `gomodguard_v2`, `ireturn`, `lll`, `mnd`, `nlreturn`, `nonamedreturns`, `promlinter`, `tagliatelle`, `testpackage`, `tparallel`, `unqueryvet`, `usestdlibvars`, `asasalint`, `canonicalheader`, `err113`, `exptostd`, `fatcontext`, `gocheckcompilerdirectives`, `goprintffuncname`, `iface`, `inamedparam`, `iotamixing`, `modernize`, `nosprintfhostport`, `tagalign`, `testableexamples`, `importas`, `arangolint`, `embeddedstructfieldcheck`, `clickhouselint`, `depguard`, `exhaustruct_v5`, `gohumanize`
 
 </details>
 
@@ -540,8 +545,10 @@ Note: Unlike standard regex, RE2 anchors like `$` are literal — the pattern is
 ## Testing
 
 ```bash
-# Run all tests with race detection
+# Run all tests with race detection (parallel, ~50s)
+ginkgo -r -p -race --skip-package=cmd/ ./pkg/... ./internal/... ./cmd/...
 
+# Serial equivalent (~2.5 min)
 go test -race ./pkg/... ./internal/...
 
 # Run with verbose output
@@ -570,6 +577,20 @@ nix run .#coverage-check -- -min=60 -profile=coverage.out
 
 This replaces the previous bash script with a portable Go program that has
 BDD-tested parsing logic.
+
+## CI/CD
+
+The repository runs these GitHub Actions workflows:
+
+| Workflow                | Trigger                       | What it gates                                                                                     |
+| ----------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------- |
+| `ci.yml`                | push/PR (non-markdown)        | Nix flake check, govulncheck, **schema-compat gate** (every injected default verified against live golangci-lint), golangci-lint, test + build with `-race`, coverage ≥60% |
+| `release.yml`           | `v*` tags                     | GoReleaser: binaries, archives, deb/rpm/apk, cosign keyless signing, SBOMs, GHCR multi-arch image  |
+| `markdown-lint.yml`     | markdown changes              | markdownlint-cli2 over docs (excludes status reports, archive, CHANGELOG)                         |
+| `ci-watchdog.yml`       | weekly cron                   | Asserts `ci.yml` is active and the last master run is green; opens an issue on drift               |
+| `backfill-image.yml`    | manual dispatch               | Rebuilds + pushes the GHCR image for any already-released tag whose docker stage failed            |
+
+Branch protection: the `master` ruleset blocks history rewrites and deletions; a `v*` tag ruleset makes release tags immutable once pushed.
 
 ## Building from Source
 
