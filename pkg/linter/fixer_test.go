@@ -900,9 +900,9 @@ linters:
 		})
 	})
 
-	Context("NeverAutoEnable Linters (exhaustruct round-trip)", func() {
+	Context("NeverAutoEnable Linters (exhaustruct_v5 round-trip)", func() {
 		It(
-			"should preserve a manually-enabled exhaustruct in the enable list, inject safe defaults, and add test exclusions",
+			"should preserve a manually-enabled exhaustruct as exhaustruct_v5 in the enable list, inject safe defaults, and add test exclusions",
 			func() {
 				configContent := `version: "2"
 linters:
@@ -913,23 +913,23 @@ linters:
 				content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityHigh, false)
 				Expect(err).NotTo(HaveOccurred())
 
-				By("keeping exhaustruct in the enable list")
+				By("keeping the (migrated) linter in the enable list")
 
 				loaded, loadErr := configTypes.LoadConfig(testConfig)
 				Expect(loadErr).NotTo(HaveOccurred())
-				Expect(configTypes.GetLintersEnabled(loaded)).To(ContainElement(types.LinterName("exhaustruct")))
-				Expect(configTypes.GetLintersDisabled(loaded)).NotTo(ContainElement(types.LinterName("exhaustruct")))
+				Expect(configTypes.GetLintersEnabled(loaded)).To(ContainElement(types.LinterName("exhaustruct_v5")))
+				Expect(configTypes.GetLintersDisabled(loaded)).NotTo(ContainElement(types.LinterName("exhaustruct_v5")))
 
-				By("injecting exhaustruct safe defaults")
-				Expect(content).To(ContainSubstring("exhaustruct:"))
+				By("injecting exhaustruct_v5 safe defaults")
+				Expect(content).To(ContainSubstring("exhaustruct_v5:"))
 				Expect(content).To(ContainSubstring("net/http.Client"))
 
-				By("adding the _test.go exclusion rule referencing exhaustruct")
+				By("adding the _test.go exclusion rule referencing exhaustruct_v5")
 				Expect(content).To(ContainSubstring("_test\\.go"))
 			},
 		)
 
-		It("should not strip exhaustruct even when the disable list already contains other linters", func() {
+		It("should not strip exhaustruct_v5 even when the disable list already contains other linters", func() {
 			configContent := `version: "2"
 linters:
   enable:
@@ -943,8 +943,8 @@ linters:
 
 			loaded, loadErr := configTypes.LoadConfig(testConfig)
 			Expect(loadErr).NotTo(HaveOccurred())
-			Expect(configTypes.GetLintersEnabled(loaded)).To(ContainElement(types.LinterName("exhaustruct")))
-			Expect(configTypes.GetLintersDisabled(loaded)).NotTo(ContainElement(types.LinterName("exhaustruct")))
+			Expect(configTypes.GetLintersEnabled(loaded)).To(ContainElement(types.LinterName("exhaustruct_v5")))
+			Expect(configTypes.GetLintersDisabled(loaded)).NotTo(ContainElement(types.LinterName("exhaustruct_v5")))
 		})
 	})
 

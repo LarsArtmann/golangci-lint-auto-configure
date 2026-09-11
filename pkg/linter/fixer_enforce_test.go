@@ -89,7 +89,7 @@ func TestIsToolLevelManaged(t *testing.T) {
 		{"funcorder is tool-level managed (forcibly disabled)", "funcorder", true},
 		{"noinlineerr is tool-level managed (forcibly disabled)", "noinlineerr", true},
 		{"depguard is tool-level managed (never-auto-enable)", "depguard", true},
-		{"exhaustruct is tool-level managed (never-auto-enable)", "exhaustruct", true},
+		{"exhaustruct_v5 is tool-level managed (never-auto-enable)", "exhaustruct_v5", true},
 		{"errcheck is not tool-level managed", "errcheck", false},
 		{"gofmt is not tool-level managed", "gofmt", false},
 		{"unknown linter is not tool-level managed", "does-not-exist", false},
@@ -248,26 +248,26 @@ func TestEnforceDisableReasons_NeverAutoEnableExempt(t *testing.T) {
 	f.pol = &policy.Policy{}
 
 	cfg := &types.Config{Linters: types.LintersConfig{
-		Disable: []types.LinterName{"exhaustruct", "errcheck"},
+		Disable: []types.LinterName{"exhaustruct_v5", "errcheck"},
 	}}
 
 	count := f.enforceDisableReasons(cfg)
 
-	// exhaustruct is tool-level managed (never-auto-enable) → exempt. Only errcheck re-enabled.
+	// exhaustruct_v5 is tool-level managed (never-auto-enable) → exempt. Only errcheck re-enabled.
 	if count != 1 {
 		t.Fatalf("expected 1 re-enable (errcheck only), got %d", count)
 	}
 
-	if !sliceHas(cfg.Linters.Disable, "exhaustruct") {
-		t.Errorf("exhaustruct must stay disabled (tool-level managed); disable=%v", cfg.Linters.Disable)
+	if !sliceHas(cfg.Linters.Disable, "exhaustruct_v5") {
+		t.Errorf("exhaustruct_v5 must stay disabled (tool-level managed); disable=%v", cfg.Linters.Disable)
 	}
 
-	if sliceHas(cfg.Linters.Enable, "exhaustruct") {
-		t.Errorf("exhaustruct must never be force-enabled by sidecar enforcement; enable=%v", cfg.Linters.Enable)
+	if sliceHas(cfg.Linters.Enable, "exhaustruct_v5") {
+		t.Errorf("exhaustruct_v5 must never be force-enabled by sidecar enforcement; enable=%v", cfg.Linters.Enable)
 	}
 
-	if f.recorder().hasReEnable("exhaustruct") {
-		t.Error("exhaustruct must never be recorded as re-enabled")
+	if f.recorder().hasReEnable("exhaustruct_v5") {
+		t.Error("exhaustruct_v5 must never be recorded as re-enabled")
 	}
 }
 
