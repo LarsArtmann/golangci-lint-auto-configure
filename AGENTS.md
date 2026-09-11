@@ -48,14 +48,7 @@ nix develop
 
 2. **templ output is committed.** `_templ.go` files are generated from `.templ` files and committed to git (un-ignored in `.gitignore`). After editing `pkg/report/report.templ`, run `templ generate` manually before `go build`. The Nix build no longer generates templ output (it uses the committed file directly).
 
-3. **vendorHash update after go.mod changes.** `nix build` will fail with a hash mismatch. Procedure (run inside `nix develop` or export `GOEXPERIMENT=jsonv2` first — the code imports `encoding/json/v2` which won't compile without it):
-
-   ```bash
-   go mod tidy
-   nix build 2>&1 | rg "got:"   # copy the got: sha256
-   # paste into flake.nix vendorHash
-   nix build                     # rebuild
-   ```
+3. **vendorHash update after go.mod changes is automated.** A stale `vendorHash.nix` used to break `nix build` for every clone with an opaque hash mismatch. Now `scripts/vendorhash-guard.sh` parses the `got:` SRI hash from the failure: check mode prints exact paste-in instructions, `--fix` writes the hash and re-builds. CI's nix job runs the guard with `--fix` plus a `git diff --exit-code vendorHash.nix` drift check, so a stale hash fails the job with the fix command instead of a build error. Proven end-to-end on a real mismatch in a throwaway flake (2026-09-11). The buildflow nix-checker also updates the file locally ("Managed by buildflow nix-checker" header). After changing go.mod/go.sum, run `scripts/vendorhash-guard.sh --fix` and commit `vendorHash.nix` together with the dependency change. (Reminder: run inside `nix develop` or export `GOEXPERIMENT=jsonv2` first — the code imports `encoding/json/v2` which won't compile without it.)
 
 4. **go-finding & gogenfilter replace in Nix.** `go.mod` uses published versions. Nix's `mkPreparedSource` (from go-nix-helpers) injects `replace` directives pointing to https-fetched public local copies (the Go proxy doesn't cache these repos). `go mod tidy` runs ONLY in the go-modules FOD (has network via `__noChroot`); the main derivation sets `GOFLAGS=-mod=mod` to auto-reconcile from the FOD's proxy cache. Config-level findings use `Line: 1` (go-finding requires `Position.Line > 0`).
 

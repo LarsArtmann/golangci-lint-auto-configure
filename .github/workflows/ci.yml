@@ -205,20 +205,19 @@ jobs:
       - name: Check flake
         run: nix flake check --no-build
 
-      - name: Build with Nix
+      - name: Build with Nix (vendorHash guard)
         run: |
-          # Retry nix build up to 3 times to handle transient network failures
-          # when fetching flake inputs from the binary cache.
-          for i in 1 2 3; do
-            if nix build; then
-              echo "nix build succeeded on attempt $i"
-              exit 0
-            fi
-            echo "nix build attempt $i failed, retrying in $((i * 10))s..."
-            sleep $((i * 10))
-          done
-          echo "nix build failed after 3 attempts"
-          exit 1
+          # The guard repairs a stale vendorHash.nix (go.mod/go.sum changed
+          # without it) and the git diff check turns the repair into a loud
+          # failure with exact contributor instructions, instead of an opaque
+          # hash-mismatch build error.
+          scripts/vendorhash-guard.sh --fix
+          if git diff --exit-code vendorHash.nix; then
+            echo "✓ vendorHash.nix in sync with go.mod/go.sum"
+          else
+            echo "✗ vendorHash.nix was stale — run 'scripts/vendorhash-guard.sh --fix' locally and commit"
+            exit 1
+          fi
 
       - name: Verify binary
         run: ./result/bin/golangci-lint-auto-configure --version
