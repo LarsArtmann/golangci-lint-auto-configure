@@ -301,3 +301,55 @@ func TestUpdateGeneratedExclusions_Idempotent(t *testing.T) {
 		}
 	}
 }
+
+func TestPruneUnenabledLinterSettings(t *testing.T) {
+	t.Run("removes settings for linters neither enabled nor disabled", func(t *testing.T) {
+		cfg := &types.Config{
+			Linters: types.LintersConfig{
+				Enable: []types.LinterName{"goconst"},
+				Settings: map[string]any{
+					"goconst": map[string]any{"min-len": 4},
+					"lll":     map[string]any{"line-length": 120},
+				},
+			},
+		}
+
+		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+		pruned := pruneUnenabledLinterSettings(cfg, cfg.Linters.Enable, logger)
+
+		if pruned != 1 {
+			t.Fatalf("expected 1 pruned block, got %d", pruned)
+		}
+		if _, exists := cfg.Linters.Settings["lll"]; exists {
+			t.Fatal("unenabled linter settings block must be pruned")
+		}
+		if _, exists := cfg.Linters.Settings["goconst"]; !exists {
+			t.Fatal("enabled linter settings must be kept")
+		}
+	})
+
+	t.Run("keeps settings for tool-level disabled linters", func(t *testing.T) {
+		cfg := &types.Config{
+			Linters: types.LintersConfig{
+				Enable:   []types.LinterName{"goconst"},
+				Settings: map[string]any{"funcorder": map[string]any{"sort-methods": true}},
+			},
+		}
+
+		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+		pruned := pruneUnenabledLinterSettings(cfg, cfg.Linters.Enable, logger)
+
+		if pruned != 0 {
+			t.Fatalf("tool-level disabled linter settings must be kept, pruned %d", pruned)
+		}
+	})
+
+	t.Run("no-op on empty settings", func(t *testing.T) {
+		cfg := &types.Config{Linters: types.LintersConfig{Enable: []types.LinterName{"goconst"}}}
+
+		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+		if pruned := pruneUnenabledLinterSettings(cfg, cfg.Linters.Enable, logger); pruned != 0 {
+			t.Fatalf("expected 0 pruned, got %d", pruned)
+		}
+	})
+}

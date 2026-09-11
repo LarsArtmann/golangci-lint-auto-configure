@@ -115,6 +115,7 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 			m := constants.DefaultLinterSettings["varnamelen"].ToMap()
 			decls, ok := m["ignore-decls"].([]any)
 			Expect(ok).To(BeTrue(), "ignore-decls must be a list")
+
 			for _, required := range []string{"err error", "wg sync.WaitGroup", "mu sync.Mutex", "c context.Context", "db *sql.DB", "tx *sql.Tx", "t *testing.T"} {
 				Expect(decls).To(ContainElement(required))
 			}

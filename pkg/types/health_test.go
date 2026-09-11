@@ -281,6 +281,92 @@ var _ = Describe("ConfigHealth", func() {
 			Expect(health.CountBySeverity(types.HealthSeverityInfo)).To(Equal(1))
 		})
 	})
+
+	Describe("absolute path exclusions", func() {
+		When("linters exclusion path is a Unix absolute path", func() {
+			It("reports warning", func() {
+				cfg := validConfig()
+				cfg.Linters.Exclusions.Paths = []string{"/home/dev/project/generated"}
+
+				health := types.CheckConfigHealth(cfg)
+
+				Expect(health.Issues).To(HaveLen(1))
+				Expect(health.Issues[0].Severity).To(Equal(types.HealthSeverityWarning))
+				Expect(health.Issues[0].Rule).To(Equal(types.RuleAbsolutePathExclusion))
+				Expect(health.Issues[0].Field).To(Equal("linters.exclusions.paths"))
+			})
+		})
+
+		When("formatter exclusion path is a Windows absolute path", func() {
+			It("reports warning for backslash drive paths", func() {
+				cfg := validConfig()
+				cfg.Formatters.Exclusions.Paths = []string{`C:\Users\dev\gen`}
+
+				health := types.CheckConfigHealth(cfg)
+
+				Expect(health.Issues).To(HaveLen(1))
+				Expect(health.Issues[0].Rule).To(Equal(types.RuleAbsolutePathExclusion))
+				Expect(health.Issues[0].Field).To(Equal("formatters.exclusions.paths"))
+			})
+
+			It("reports warning for forward-slash drive paths", func() {
+				cfg := validConfig()
+				cfg.Formatters.Exclusions.Paths = []string{"C:/Users/dev/gen"}
+
+				health := types.CheckConfigHealth(cfg)
+
+				Expect(health.Issues).To(HaveLen(1))
+				Expect(health.Issues[0].Rule).To(Equal(types.RuleAbsolutePathExclusion))
+			})
+		})
+
+		When("paths are portable globs", func() {
+			It("reports no issues", func() {
+				cfg := validConfig()
+				cfg.Linters.Exclusions.Paths = []string{"vendor/", `_templ\.go$`}
+				cfg.Formatters.Exclusions.Paths = []string{"_templ.go$"}
+
+				health := types.CheckConfigHealth(cfg)
+
+				Expect(health.Issues).To(BeEmpty())
+			})
+		})
+	})
+
+	Describe("duplicate exclusion linters", func() {
+		When("an exclusion rule repeats a linter", func() {
+			It("reports warning", func() {
+				cfg := validConfig()
+				cfg.Linters.Exclusions.Rules = []types.ExclusionRuleConfig{
+					{
+						Path:    `_test\.go`,
+						Linters: []string{"gosec", "gosec", "errcheck"},
+					},
+				}
+
+				health := types.CheckConfigHealth(cfg)
+
+				Expect(health.Issues).To(HaveLen(1))
+				Expect(health.Issues[0].Severity).To(Equal(types.HealthSeverityWarning))
+				Expect(health.Issues[0].Rule).To(Equal(types.RuleDuplicateExclusionLinter))
+				Expect(health.Issues[0].Message).To(ContainSubstring("gosec"))
+				Expect(health.Issues[0].Message).To(ContainSubstring("2 times"))
+			})
+		})
+
+		When("exclusion rules have unique linters", func() {
+			It("reports no issues", func() {
+				cfg := validConfig()
+				cfg.Linters.Exclusions.Rules = []types.ExclusionRuleConfig{
+					{Path: `_test\.go`, Linters: []string{"gosec", "errcheck"}},
+				}
+
+				health := types.CheckConfigHealth(cfg)
+
+				Expect(health.Issues).To(BeEmpty())
+			})
+		})
+	})
 })
 
 func validConfig() *types.Config {
