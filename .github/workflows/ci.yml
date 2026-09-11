@@ -137,6 +137,46 @@ jobs:
           echo "✓ Build verification successful"
 
     timeout-minutes: 15
+  schema-verify:
+    name: Schema compat gate (injected defaults verify)
+    runs-on: ubuntu-latest
+    env:
+      GOEXPERIMENT: jsonv2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@db9de0fc1a667e1a49d2291a1a042dff081d78f6 # v9
+        with:
+          version: v2.13.2
+          install-only: true
+
+      - name: Fixture drift guard (regenerate + diff)
+        run: |
+          go run ./cmd/generate-schema-fixture
+          if git diff --exit-code pkg/constants/testdata/schema-fixture/; then
+            echo "✓ schema fixture in sync with injected defaults"
+          else
+            echo "✗ schema fixture is stale — run 'go run ./cmd/generate-schema-fixture' and commit"
+            exit 1
+          fi
+
+      - name: Verify fixture against golangci-lint schema
+        run: |
+          cd pkg/constants/testdata/schema-fixture
+          golangci-lint config verify
+          echo "✓ every injected default is schema-valid"
+
+    timeout-minutes: 10
   nix:
     name: Nix Flake Check
     runs-on: ubuntu-latest

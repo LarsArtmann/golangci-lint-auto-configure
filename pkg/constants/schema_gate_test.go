@@ -11,11 +11,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// The schema fixture (testdata/schema-fixture/.golangci.yml) is the CI
-// schema-compat gate's input: it contains every default the fixer injects and
-// must stay in lockstep with the constants. Committed to git so the gate is a
-// visible diff, not a hidden regeneration.
-const schemaFixturePath = "testdata/schema-fixture/.golangci.yml"
+// The schema fixture is the CI schema-compat gate's input: it contains every
+// default the fixer injects and must stay in lockstep with the constants.
+// Committed to git so the gate is a visible diff, not a hidden regeneration.
+const schemaFixtureRelToRepo = "pkg/constants/testdata/schema-fixture/.golangci.yml"
 
 var _ = Describe("Schema fixture gate", func() {
 	Describe("drift guard", func() {
@@ -30,7 +29,7 @@ var _ = Describe("Schema fixture gate", func() {
 			Expect(err).NotTo(HaveOccurred(),
 				"fixture generator failed: %s", strings.TrimSpace(string(output)))
 
-			committed, err := os.ReadFile(filepath.Join(repoRoot, schemaFixturePath))
+			committed, err := os.ReadFile(filepath.Join(repoRoot, schemaFixtureRelToRepo))
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(string(committed)).To(Equal(readFileString(generated)),
@@ -39,7 +38,7 @@ var _ = Describe("Schema fixture gate", func() {
 		})
 
 		It("fixture contains an entry for every curated default setting", func() {
-			content := readFileString(findRepoRoot() + "/" + schemaFixturePath)
+			content := readFileString(filepath.Join(findRepoRoot(), schemaFixtureRelToRepo))
 
 			for linter := range constants.DefaultLinterSettings {
 				Expect(content).To(ContainSubstring("    "+string(linter)+":\n"),
@@ -61,7 +60,7 @@ var _ = Describe("Schema fixture gate", func() {
 			}
 
 			cmd := exec.Command(binary, "config", "verify")
-			cmd.Dir = filepath.Join(findRepoRoot(), filepath.Dir(schemaFixturePath))
+			cmd.Dir = filepath.Join(findRepoRoot(), filepath.Dir(schemaFixtureRelToRepo))
 
 			output, err := cmd.CombinedOutput()
 			Expect(err).NotTo(HaveOccurred(),
