@@ -61,9 +61,6 @@ var _ = Describe("Schema fixture gate", func() {
 			}
 
 			cmd := exec.Command(binary, "config", "verify")
-			cmd.Dir = findRepoRoot()
-			cmd.Env = append(os.Environ(), "WORKING_DIR="+filepath.Dir(schemaFixturePath))
-
 			cmd.Dir = filepath.Join(findRepoRoot(), filepath.Dir(schemaFixturePath))
 
 			output, err := cmd.CombinedOutput()
