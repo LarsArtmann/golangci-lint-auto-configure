@@ -76,6 +76,11 @@ func (f *Fixer) tryReEnableLinter(linter types.LinterName, enableSet, disableSet
 	if f.pol.IsNeverEnable(linter) {
 		f.logger.Debugf("Skipping never-enable linter during enforcement: %s", linter)
 
+		// Enforcement is only reached outside dry-run (see the call-site
+		// guard), so recording here is always a real run decision.
+		f.ledger.Record(audit.ActionSuppressedReEnable, string(linter),
+			"never-enable sidecar entry blocks enforcement re-enable")
+
 		return false
 	}
 

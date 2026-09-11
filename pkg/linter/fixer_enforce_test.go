@@ -451,8 +451,15 @@ func TestTryReEnableLinter_NeverEnable(t *testing.T) {
 		t.Error("never-enable linter must remain in disable")
 	}
 
-	if len(f.recorder().actions) != 0 {
-		t.Errorf("no audit record expected; got %v", f.recorder().actions)
+	// The suppression decision must land in the audit ledger (2026-09-11:
+	// previously silent, which made the never-enable block invisible).
+	actions := f.recorder().actions
+	if len(actions) != 1 {
+		t.Fatalf("expected exactly 1 audit record; got %v", actions)
+	}
+
+	if actions[0].action != audit.ActionSuppressedReEnable || actions[0].linter != "godoclint" {
+		t.Errorf("expected suppressed-re-enable for godoclint; got %v", actions[0])
 	}
 }
 
