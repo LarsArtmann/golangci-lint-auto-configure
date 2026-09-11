@@ -30,7 +30,7 @@ const (
 )
 
 // spinner prints a simple animated spinner.
-func spinner(message string, done chan bool) {
+func spinner(message string, done chan struct{}) {
 	for {
 		select {
 		case <-done:
@@ -72,12 +72,23 @@ func runAnalysisWithSpinner(
 	analyzer *linter.Analyzer,
 	configFile string,
 ) (*types.ConfigAnalysis, error) {
-	spinnerDone := make(chan bool, 1)
-	go spinner("Analyzing configuration...", spinnerDone)
+	spinnerDone := make(chan struct{})
+	spinnerFinished := make(chan struct{})
+
+	go func() {
+		defer close(spinnerFinished)
+
+		spinner("Analyzing configuration...", spinnerDone)
+	}()
 
 	analysis, err := analyzer.AnalyzeConfig(ctx, configFile)
 
-	spinnerDone <- true
+	close(spinnerDone)
+
+	// The spinner goroutine writes to stdout, so it must have exited before
+	// this goroutine clears the spinner line (otherwise the final clear write
+	// races the spinner's last frame write).
+	<-spinnerFinished
 
 	fmt.Fprintf(os.Stdout, "\r\033[K")
 
