@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- varnamelen shared `ignore-decls` defaults are now stdlib-only: the
+  framework-typed entries (`c *gin.Context`, `*httpx.Context`,
+  `*koanf.Koanf` historically) injected dead declarations into projects not
+  using those frameworks. Framework-specific decls belong in per-project
+  config.
+
 ## [0.8.1] - 2026-09-11
 
 Ships the goconst schema-fix delivery vehicle: downstream configs now
