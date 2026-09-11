@@ -47,7 +47,7 @@ else
 fi
 
 last_run=$(
-	gh api "repos/${REPO}/actions/workflows/${WORKFLOW}/runs?branch=master&per_page=1" \
+	gh api "repos/${REPO}/actions/workflows/${WORKFLOW}/runs?branch=master&status=completed&per_page=1" \
 		--jq '.workflow_runs[0] | "\(.conclusion) \(.html_url)"' 2>/dev/null || echo "api_error -"
 )
 conclusion="${last_run%% *}"

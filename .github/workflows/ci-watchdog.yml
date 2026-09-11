@@ -1,0 +1,41 @@
+name: CI Health Watchdog
+
+# Detects the silent-failure modes that left this repo with a disabled CI for
+# two months (July 2026): a manually disabled workflow, and a red master
+# nobody looked at. Runs weekly and on demand.
+
+on:
+  schedule:
+    # Mondays 06:23 UTC — weekly
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      force_drift:
+        description: "Dry mode: force a fake drift report to validate wiring"
+        type: boolean
+        default: false
+
+permissions:
+  issues: write
+
+jobs:
+  watchdog:
+    name: Check ci.yml health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Run watchdog
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          if [ "${{ inputs.force_drift || 'false' }}" = "true" ]; then
+            scripts/ci-watchdog.sh --force-drift || true
+            echo "Dry run complete — workflow wiring, gh api auth, and script logic verified"
+          else
+            scripts/ci-watchdog.sh
+          fi
+
+    timeout-minutes: 5
