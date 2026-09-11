@@ -320,9 +320,11 @@ func TestPruneUnenabledLinterSettings(t *testing.T) {
 		if pruned != 1 {
 			t.Fatalf("expected 1 pruned block, got %d", pruned)
 		}
+
 		if _, exists := cfg.Linters.Settings["lll"]; exists {
 			t.Fatal("unenabled linter settings block must be pruned")
 		}
+
 		if _, exists := cfg.Linters.Settings["goconst"]; !exists {
 			t.Fatal("enabled linter settings must be kept")
 		}
