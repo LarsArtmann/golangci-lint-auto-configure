@@ -69,16 +69,21 @@ var ProjectSpecificLinters = map[types.LinterName]string{
 	"gohumanize": "go-humanize",
 }
 
-// KnownBadSettingsKeys maps linter names to settings keys that older versions of
-// this tool emitted under a schema-invalid name. Each bad key maps to the valid
-// key it must be renamed to. goconst.min-length was emitted before 2026-09-11 and
-// is rejected by golangci-lint <2.13 ("configuration contains invalid elements");
-// the fixer renames it on the next configure run so previously broken configs
-// self-heal. Never add an entry for a key that is merely deprecated upstream —
-// this map is strictly for keys THIS tool emitted wrongly.
+// KnownBadSettingsKeys maps linter names to settings keys that are schema-invalid
+// for that linter and must be renamed to the valid key. Sources of bad keys:
+// (a) keys this tool emitted under a wrong name (goconst.min-length, emitted
+// before 2026-09-11, rejected by golangci-lint <2.13); (b) keys carried over
+// verbatim when the fixer migrates a deprecated linter's settings block to its
+// successor (exhaustruct_v5 dropped v4's exclude for ignore-patterns). The fixer
+// renames such keys on every configure run so previously broken configs self-heal.
+// Never add an entry for a key that is merely deprecated upstream — this map is
+// strictly for keys that hard-fail golangci-lint config load.
 var KnownBadSettingsKeys = map[string]map[string]string{
 	"goconst": {
 		"min-length": "min-len",
+	},
+	"exhaustruct_v5": {
+		"exclude": "ignore-patterns",
 	},
 }
 
@@ -103,7 +108,7 @@ var DefaultExclusionRules = []types.ExclusionRuleConfig{
 	{
 		Path: `_test\.go`,
 		Linters: []string{
-			"exhaustruct",
+			"exhaustruct_v5",
 			"testpackage",
 			"gochecknoglobals",
 			"funlen",

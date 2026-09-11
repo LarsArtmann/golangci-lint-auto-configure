@@ -29,7 +29,7 @@ var LinterReasons = map[types.LinterName]string{
 	"gocognit":         "Compute cognitive complexities",
 	"maintidx":         "Calculate maintenance index",
 	"exhaustive":       "Check exhaustiveness of enum switch statements",
-	"exhaustruct":      "Check if all struct fields are initialized",
+	"exhaustruct_v5":   "Check if all struct fields are initialized",
 	"goconst":          "Find repeated strings that could be replaced by a constant",
 	"misspell":         "Find commonly misspelled English words in comments",
 	"revive":           "Fast, configurable, extensible, flexible, and beautiful linter",

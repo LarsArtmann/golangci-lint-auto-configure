@@ -48,7 +48,7 @@ func mustSettingsAction(action string, v any, err error) {
 var (
 	_ SettingsConverter = IreturnSettings{}
 	_ SettingsConverter = GocriticSettings{}
-	_ SettingsConverter = ExhaustructSettings{}
+	_ SettingsConverter = ExhaustructV5Settings{}
 	_ SettingsConverter = ReviveSettings{}
 	_ SettingsConverter = VarnamelenSettings{}
 	_ SettingsConverter = GomoddirectivesSettings{}
@@ -85,11 +85,14 @@ type GocriticSettings struct {
 
 func (s GocriticSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
-type ExhaustructSettings struct {
-	Exclude []string `yaml:"exclude"`
+type ExhaustructV5Settings struct {
+	// IgnorePatterns are regexes for types (Type#Field paths) the analyzer skips.
+	// Ported verbatim from the v4 exhaustruct `exclude` list so manually-enabled
+	// configs keep the same curated stdlib coverage after migration.
+	IgnorePatterns []string `yaml:"ignore-patterns"`
 }
 
-func (s ExhaustructSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
+func (s ExhaustructV5Settings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type ReviveSettings struct {
 	Rules []ReviveRule `yaml:"rules"`
@@ -233,12 +236,12 @@ var DefaultLinterSettings = map[types.LinterName]SettingsConverter{
 			"ifElseChain",
 		},
 	},
-	"exhaustruct": ExhaustructSettings{
+	"exhaustruct_v5": ExhaustructV5Settings{
 		// Stdlib structs that are routinely and safely partially-initialized.
 		// Curated from a cross-project audit (954 exhaustruct nolints across 146
 		// configs); these types dominate the noise. Project-specific types are
 		// added per-project, not here.
-		Exclude: []string{
+		IgnorePatterns: []string{
 			"net/http.Client",
 			"net/http.Server",
 			"net/http.Request",

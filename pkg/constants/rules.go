@@ -8,6 +8,11 @@ var DeprecatedLinters = map[types.LinterName]types.LinterReplacement{
 		Replacement: "wsl_v5",
 		Reason:      "wsl is deprecated since golangci-lint v2.2.0, use wsl_v5 instead",
 	},
+	"exhaustruct": {
+		Replacement: "exhaustruct_v5",
+		Reason:      "exhaustruct is deprecated since golangci-lint v2.13.0, use exhaustruct_v5 instead",
+		MinVersion:  "v2.13.0",
+	},
 	"deadcode": {
 		Replacement: "staticcheck",
 		Reason:      "deadcode was removed in golangci-lint v2, use staticcheck instead",
@@ -150,8 +155,8 @@ var RedundantLinters = map[types.LinterName]types.LinterToFormatter{
 // recommends them. They still receive safe default settings and test-file
 // exclusions (via DefaultExclusionRules) when manually enabled.
 var NeverAutoEnableLinters = map[types.LinterName]string{
-	"depguard":    "never auto-enabled; use library-policy for banned-library governance, but respect manual configuration for architectural enforcement (layer dependency rules, feature isolation) via file-pattern rules that library-policy cannot replicate",
-	"exhaustruct": "highest-friction linter across 160 sibling projects (6.5 nolint ratio); never auto-enabled, but respected with curated stdlib excludes when added manually",
+	"depguard":       "never auto-enabled; use library-policy for banned-library governance, but respect manual configuration for architectural enforcement (layer dependency rules, feature isolation) via file-pattern rules that library-policy cannot replicate",
+	"exhaustruct_v5": "highest-friction linter across 160 sibling projects (6.5 nolint ratio as exhaustruct); never auto-enabled, but respected with curated stdlib ignore-patterns when added manually",
 }
 
 // PragmaticNoiseLinters is the set of high-friction linters dropped from the
