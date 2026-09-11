@@ -8,7 +8,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -43,13 +42,14 @@ var _ = Describe("multi-preset merge", func() {
 		for _, l := range minimal {
 			expected.Add(l)
 		}
+
 		for _, l := range performance {
 			expected.Add(l)
 		}
 
 		Expect(linters).To(Equal(types.ToSortedSlice(expected)))
 		// Sorted, deduped: length matches the set union, not the concatenation.
-		Expect(len(linters)).To(Equal(expected.Len()))
+		Expect(linters).To(HaveLen(expected.Len()))
 		Expect(len(linters)).To(BeNumerically("<", len(minimal)+len(performance)))
 	})
 
@@ -79,7 +79,8 @@ var _ = Describe("multi-preset merge", func() {
 		// A preset formatter repeated as an extra must NOT appear twice.
 		applyPresetFormatters(logger, cfg, []string{"format"},
 			[]types.FormatterName{"gci", "swaggo"})
-		Expect(cfg.Formatters.Enable).To(ContainElements("gci", "swaggo"))
+		Expect(cfg.Formatters.Enable).To(ContainElements(
+			types.FormatterName("gci"), types.FormatterName("swaggo")))
 		Expect(cfg.Formatters.Enable).To(HaveLen(5))
 	})
 })
