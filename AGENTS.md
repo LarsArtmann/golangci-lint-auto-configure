@@ -141,6 +141,8 @@ nix develop
 
 34. **Exclusion-rule merge uses RuleKey dedup in both paths.** The fixer path (`updateExclusionRules` in `pkg/linter/fixer_config.go`) and the config-merger path (`mergeLintersExclusionRules` in `pkg/config/merger_linters.go`) both now merge linter lists by `RuleKey()` (`Path|Text|Source`) instead of blindly appending duplicate rules. When a default/secondary rule matches an existing rule by key, their linter lists are unioned (`mergeExclusionLinters` in the fixer, `mergeUniqueItems` in the merger). This ensures stale configs receive newly-added default linters without duplicating rules. Previously the merger path had no dedup at all (split-brain).
 
+35. **`linter_settings_generated.go` is generator output, formatted at generation time.** `cmd/generate-settings` regenerates it from `pkg/constants/schema/golangci-lint.jsonschema.json` (`go run ./cmd/generate-settings -schema=... -output=...`). The generator runs output through `go/format` before writing and emits `struct{}` for empty settings structs — both required to keep treefmt (gofumpt) green, since treefmt checks all `.go` files even under the file's `//go:build generate` tag. Regression-guarded by `cmd/generate-settings/main_test.go`. The file is a reference for hand-maintaining the curated structs in `pkg/constants/linter_settings.go`; it does not compile into the normal build, and its gopls "No packages found" warning is expected.
+
 | Topic                                                  | Location                                        |
 | ------------------------------------------------------ | ----------------------------------------------- |
 | Directory structure & patterns                         | `docs/references/code-organization.md`          |
