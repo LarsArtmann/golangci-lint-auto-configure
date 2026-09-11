@@ -16,6 +16,7 @@ import (
 	"encoding/json/v2"
 	"flag"
 	"fmt"
+	"go/format"
 	"os"
 	"sort"
 	"strings"
@@ -98,7 +99,15 @@ func main() {
 		generateStruct(&b, linterName, def)
 	}
 
-	if err := os.WriteFile(*outputPath, []byte(b.String()), 0o644); err != nil {
+	src := []byte(b.String())
+
+	formatted, err := format.Source(src)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "format generated output: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := os.WriteFile(*outputPath, formatted, 0o644); err != nil {
 		fmt.Fprintf(os.Stderr, "write output: %v\n", err)
 		os.Exit(1)
 	}
@@ -110,7 +119,6 @@ func generateStruct(b *strings.Builder, linterName string, def schemaDef) {
 	structName := toPascalCase(linterName) + "Settings"
 
 	fmt.Fprintf(b, "// %s is generated from golangci-lint's JSON Schema.\n", structName)
-	fmt.Fprintf(b, "type %s struct {\n", structName)
 
 	propNames := make([]string, 0, len(def.Properties))
 	for propName := range def.Properties {
@@ -118,6 +126,16 @@ func generateStruct(b *strings.Builder, linterName string, def schemaDef) {
 	}
 
 	sort.Strings(propNames)
+
+	if len(propNames) == 0 {
+		fmt.Fprintf(b, "type %s struct{}\n\n", structName)
+		generateToMap(b, structName, propNames)
+		fmt.Fprintf(b, "var _ types.SettingsConverter = %s{}\n\n", structName)
+
+		return
+	}
+
+	fmt.Fprintf(b, "type %s struct {\n", structName)
 
 	for _, propName := range propNames {
 		propDef := def.Properties[propName]
