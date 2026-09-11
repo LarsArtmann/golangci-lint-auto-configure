@@ -6,13 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
-
-- Nothing yet.
-
 ### Fixed
 
-- Nothing yet.
+- `goconst` settings schema bug: `GoconstSettings` emitted `min-length`, which
+  golangci-lint <2.13 rejects outright ("configuration contains invalid
+  elements"); corrected to `min-len` (valid on 2.10–2.13.x) in
+  `pkg/constants/linter_settings.go` and in this repo's own `.golangci.yml`.
+  New configure runs emit valid keys; existing downstream configs still carry
+  the bad key until the key-normalization pass ships (see TODO_LIST).
+- CI rehabilitation after the main workflow was found manually disabled since
+  2026-07-16: test job now installs golangci-lint v2.13.2 (63 `internal/cli`
+  specs failed in CI without the binary while passing locally), lint job
+  aligned from v2.12.2 to the devShell's v2.13.2, `workflow_dispatch` trigger
+  added, and Markdown Lint went from 122 errors across 21 files to 0 across 51
+- Release pipeline: `docker/setup-buildx-action` + `docker/login-action`
+  (GHCR) added before GoReleaser — root-cause fix for "Attestation is not
+  supported for the docker driver", which failed the Docker publish step on
+  v0.7.0, v0.7.1, and v0.8.0 alike; proof pending the next `v*` tag
+
+### Changed
+
+- README: CI / Go 1.26+ / MIT badges added
 
 ## [0.8.0] - 2026-09-10
 
@@ -94,6 +108,41 @@ as of 0.8.0); entries below describe the 0.7.0 tree.
 ### Fixed
 
 - `shortRunID` panic guard: `parts[2][:4]` crashed on malformed audit entry IDs with fewer than 4 hex characters in the third segment
+
+### Added — Project-specific linter: gohumanize
+
+- `gohumanize` recommended only when the project's `go.mod` imports
+  `github.com/dustin/go-humanize` (`ProjectSpecificLinters` gate +
+  `Detector.HasGoHumanize()`), mirroring the clickhouselint/arangolint
+  pattern; only the bare `linters.enable` entry is added (no
+  `linters.settings.custom` block — emitting it without a custom binary built
+  via `golangci-lint custom` would break stock golangci-lint)
+- gohumanize H004 self-detection suppressed with a documented
+  `//nolint:gohumanize` in `scripts/validate_linter_data.go`
+
+### Added — CV-config-learned default settings
+
+- New typed settings structs with curated defaults: `GocognitSettings` (25),
+  `GocycloSettings` (20), `NestifSettings` (6), `GoconstSettings`
+  (`min-occurrences: 5`, `ignore-tests: true`), `TagalignSettings` (curated
+  tag ordering: binding, json, yaml, xml, toml, validate, mapstructure)
+- `mnd` defaults: `ignored-files: ["_test\\.go"]`; `ignored-numbers`
+  intentionally emptied (magic-number suppression is per-project, not
+  universal)
+- `wrapcheck` defaults: 16 stdlib ignore-sig regexps (fmt, errors, slices,
+  maps, sort, time, os, io, strings, strconv, path, filepath)
+- `errcheck` defaults: `check-type-assertions: true`
+- `varnamelen` defaults: 18 typed `ignore-decls` (db, tx, w, r, …),
+  `max-distance: 15`, `min-name-length: 2`
+- `depguard` moved from `DisabledLinters` to `NeverAutoEnableLinters`:
+  banned-library governance belongs to library-policy, but manual depguard
+  config (architectural layer rules) is respected and never stripped
+- Orphaned settings pruning: `pruneUnenabledLinterSettings` removes settings
+  blocks for linters neither enabled nor disabled (dead weight under
+  `default: none`)
+- New config health checks in `pkg/types/validation.go`:
+  `checkAbsolutePathExclusions` (Unix + Windows) and
+  `checkDuplicateExclusionLinters`
 
 ## [0.6.0] - 2026-07-27
 
