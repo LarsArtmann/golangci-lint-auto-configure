@@ -40,13 +40,14 @@ nix run github:LarsArtmann/golangci-lint-auto-configure -- analyze
 ### Install without Nix
 
 ```bash
-# Install the latest version
-go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
+# Install the latest version (GOEXPERIMENT=jsonv2 is required: the codebase
+# uses encoding/json/v2, which stock Go 1.26 gates behind the experiment)
+GOEXPERIMENT=jsonv2 go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
 
 # Or build from source
 git clone https://github.com/larsartmann/golangci-lint-auto-configure
 cd golangci-lint-auto-configure
-go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
+GOEXPERIMENT=jsonv2 go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 ```
 
 ## Requirements
