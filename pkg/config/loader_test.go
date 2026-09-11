@@ -524,3 +524,42 @@ output:
 		})
 	})
 })
+
+var _ = Describe("JSON-format config marshal (json/v2 omitzero)", func() {
+	It("omits zero bools/ints from JSON output but keeps non-zero values", func() {
+		zeroCfg := &types.Config{
+			Run: types.RunConfig{
+				Tests:   false,
+				Concurrency: 0,
+			},
+			Output: types.OutputConfig{ShowStats: false},
+			Issues: types.IssuesConfig{MaxIssuesPerLinter: 0, MaxSameIssues: 0},
+		}
+
+		zeroJSON, err := loader.MarshalConfigForTest(zeroCfg, config.ConfigFormatJSON)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"tests"`))
+		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"concurrency"`))
+		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"show-stats"`))
+		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"max-issues-per-linter"`))
+		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"max-same-issues"`))
+		Expect(string(zeroJSON)).NotTo(ContainSubstring(`"issues-exit-code"`))
+
+		setCfg := &types.Config{
+			Run: types.RunConfig{
+				Tests:   true,
+				Concurrency: 4,
+			},
+			Output: types.OutputConfig{ShowStats: true},
+			Issues: types.IssuesConfig{MaxIssuesPerLinter: 50, MaxSameIssues: 10},
+		}
+
+		setJSON, err := loader.MarshalConfigForTest(setCfg, config.ConfigFormatJSON)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(string(setJSON)).To(ContainSubstring(`"tests": true`))
+		Expect(string(setJSON)).To(ContainSubstring(`"concurrency": 4`))
+		Expect(string(setJSON)).To(ContainSubstring(`"show-stats": true`))
+		Expect(string(setJSON)).To(ContainSubstring(`"max-issues-per-linter": 50`))
+		Expect(string(setJSON)).To(ContainSubstring(`"max-same-issues": 10`))
+	})
+})

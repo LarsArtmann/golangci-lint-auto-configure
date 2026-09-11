@@ -23,9 +23,9 @@ type RunConfig struct {
 	ModulesDownloadMode  string   `json:"modules-download-mode,omitempty" toml:"modules-download-mode,omitempty" yaml:"modules-download-mode,omitempty"`
 	AllowParallelRunners bool     `json:"allow-parallel-runners"          toml:"allow-parallel-runners"          yaml:"allow-parallel-runners"`
 	AllowSerialRunners   bool     `json:"allow-serial-runners"            toml:"allow-serial-runners"            yaml:"allow-serial-runners"`
-	IssuesExitCode       int      `json:"issues-exit-code,omitempty"      toml:"issues-exit-code,omitempty"      yaml:"issues-exit-code,omitempty"`
-	Tests                bool     `json:"tests,omitempty"                 toml:"tests,omitempty"                 yaml:"tests,omitempty"`
-	Concurrency          int      `json:"concurrency,omitempty"           toml:"concurrency,omitempty"           yaml:"concurrency,omitempty"`
+	IssuesExitCode       int      `json:"issues-exit-code,omitzero"      toml:"issues-exit-code,omitempty"      yaml:"issues-exit-code,omitempty"`
+	Tests                bool     `json:"tests,omitzero"                 toml:"tests,omitempty"                 yaml:"tests,omitempty"`
+	Concurrency          int      `json:"concurrency,omitzero"           toml:"concurrency,omitempty"           yaml:"concurrency,omitempty"`
 	RelativePathMode     string   `json:"relative-path-mode,omitempty"    toml:"relative-path-mode,omitempty"    yaml:"relative-path-mode,omitempty"`
 }
 
@@ -37,7 +37,7 @@ type OutputConfig struct {
 	PathPrefix string         `json:"path-prefix,omitempty" toml:"path-prefix,omitempty" yaml:"path-prefix,omitempty"`
 	PathMode   string         `json:"path-mode,omitempty"   toml:"path-mode,omitempty"   yaml:"path-mode,omitempty"`
 	SortOrder  []string       `json:"sort-order,omitempty"  toml:"sort-order,omitempty"  yaml:"sort-order,omitempty"`
-	ShowStats  bool           `json:"show-stats,omitempty"  toml:"show-stats,omitempty"  yaml:"show-stats,omitempty"`
+	ShowStats  bool           `json:"show-stats,omitzero"  toml:"show-stats,omitempty"  yaml:"show-stats,omitempty"`
 }
 
 type LintersConfig struct {
@@ -50,7 +50,7 @@ type LintersConfig struct {
 
 type LintersExclusionsConfig struct {
 	Generated   string                `json:"generated,omitempty"    toml:"generated,omitempty"    yaml:"generated,omitempty"`
-	WarnUnused  bool                  `json:"warn-unused,omitempty"  toml:"warn-unused,omitempty"  yaml:"warn-unused,omitempty"`
+	WarnUnused  bool                  `json:"warn-unused,omitzero"  toml:"warn-unused,omitempty"  yaml:"warn-unused,omitempty"`
 	Presets     []string              `json:"presets,omitempty"      toml:"presets,omitempty"      yaml:"presets,omitempty"`
 	Rules       []ExclusionRuleConfig `json:"rules,omitempty"        toml:"rules,omitempty"        yaml:"rules,omitempty"`
 	Paths       []string              `json:"paths,omitempty"        toml:"paths,omitempty"        yaml:"paths,omitempty"`
@@ -70,8 +70,8 @@ func (r ExclusionRuleConfig) RuleKey() string {
 }
 
 type IssuesConfig struct {
-	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitempty" toml:"max-issues-per-linter,omitempty" yaml:"max-issues-per-linter,omitempty"`
-	MaxSameIssues      int    `json:"max-same-issues,omitempty"       toml:"max-same-issues,omitempty"       yaml:"max-same-issues,omitempty"`
+	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitzero" toml:"max-issues-per-linter,omitempty" yaml:"max-issues-per-linter,omitempty"`
+	MaxSameIssues      int    `json:"max-same-issues,omitzero"       toml:"max-same-issues,omitempty"       yaml:"max-same-issues,omitempty"`
 	NewFromRev         string `json:"new-from-rev,omitempty"          toml:"new-from-rev,omitempty"          yaml:"new-from-rev,omitempty"`
 	NewFromPatch       string `json:"new-from-patch,omitempty"        toml:"new-from-patch,omitempty"        yaml:"new-from-patch,omitempty"`
 	New                bool   `json:"new,omitempty"                   toml:"new,omitempty"                   yaml:"new,omitempty"`
