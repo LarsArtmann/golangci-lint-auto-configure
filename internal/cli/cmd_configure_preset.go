@@ -162,8 +162,11 @@ func applyPresetFormatters(
 		return
 	}
 
+	for _, f := range extraFormatters {
+		formatterSet.Add(f)
+	}
+
 	formatterNames := types.ToSortedSlice(formatterSet)
-	formatterNames = append(formatterNames, extraFormatters...)
 	cfg.Formatters.Enable = formatterNames
 
 	logger.Infof("Enabling %d formatters from presets: %v", len(formatterNames), formatterNames)
