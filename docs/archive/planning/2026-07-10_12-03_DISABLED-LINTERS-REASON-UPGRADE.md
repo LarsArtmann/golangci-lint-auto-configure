@@ -1,4 +1,6 @@
 # DisabledLinters Reason Upgrade
+> **Archived 2026-09-11 (docs-health pass).** DONE 2026-07-10, commit `31df177`.
+
 
 **Date:** 2026-07-10
 **Status:** ~~In Progress~~ **DONE (2026-07-10, commit `31df177`)** — `DisabledLinters` is now `map[types.LinterName]string`; the non-empty-reason invariant test + `scripts/validate_linter_data.go` checks were added. See the follow-up status report `2026-07-10_14-13_DISABLED-LINTERS-REASON-UPGRADE.md`.

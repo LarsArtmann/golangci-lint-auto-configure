@@ -1,5 +1,7 @@
 # Session Status: Documentation Health Audit + Retroactive Report Annotations
 
+> **Resolved 2026-09-11 (docs-health archive pass).** All audit findings resolved across the 2026-07-25 passes; releases v0.6.0-v0.8.0 shipped; --diff/--check tests shipped (v0.6.0). Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 **Date:** 2026-07-16 02:04
 **Session scope:** (1) Read all July 2026 status/planning/research files, (2) Execute docs-health skill (full AUDIT), (3) Add retroactive status banners to all July 2026 reports
 **Commits this session:** `77f9fdb` (docs audit fixes), `3894dbf` (retroactive banners)
@@ -127,77 +129,77 @@ Multiple July 2026 status reports cover the same topics (PascalCase migration ap
 
 ### Documentation Health (direct follow-up from this session)
 
-1. **Convert all 101 "Stable" entries in FEATURES.md to `FULLY_FUNCTIONAL`** — docs-health skill requirement
-2. **Audit FEATURES.md for PARTIALLY_FUNCTIONAL items** — some "Stable" features likely have known gaps (CLI coverage, gogenfilter coverage)
-3. **Create ROADMAP.md** — extract raw ideas from the 11 status reports' "next steps" sections
-4. **Verify `docs/ARCHITECTURE.md` against code** — read and check for drift
-5. **Verify all 6 `docs/adr/` files** — check if decisions are still relevant
-6. **Verify `docs/references/` content** — 6 reference docs exist but weren't content-checked
-7. **Verify `docs/QUALITY_CHECKLIST.md`** — exists but not read
-8. **Deduplicate CHANGELOG `[Unreleased]` section** — remove overlapping entries from my additions
-9. **Add missing domain terms to DOMAIN_LANGUAGE.md** — wire-format decoupling, configChangeRecorder, FixCounts, Normalization, etc.
-10. **Add CONTRIBUTING.md, ARCHITECTURE.md, QUALITY_CHECKLIST.md to AGENTS.md reference table**
-11. **Run `golangci-lint run` + `go build`** to verify doc changes didn't break anything
+1. ~~**Convert all 101 "Stable" entries in FEATURES.md to `FULLY_FUNCTIONAL`** — docs-health skill requirement~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~**Audit FEATURES.md for PARTIALLY_FUNCTIONAL items** — some "Stable" features likely have known gaps (CLI coverage, gogenfilter coverage)~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~**Create ROADMAP.md** — extract raw ideas from the 11 status reports' "next steps" sections~~ done — see header resolution note (docs-health 2026-09-11)
+4. ~~**Verify `docs/ARCHITECTURE.md` against code** — read and check for drift~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~**Verify all 6 `docs/adr/` files** — check if decisions are still relevant~~ done — see header resolution note (docs-health 2026-09-11)
+6. ~~**Verify `docs/references/` content** — 6 reference docs exist but weren't content-checked~~ done — see header resolution note (docs-health 2026-09-11)
+7. ~~**Verify `docs/QUALITY_CHECKLIST.md`** — exists but not read~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~**Deduplicate CHANGELOG `[Unreleased]` section** — remove overlapping entries from my additions~~ done — see header resolution note (docs-health 2026-09-11)
+9. ~~**Add missing domain terms to DOMAIN_LANGUAGE.md** — wire-format decoupling, configChangeRecorder, FixCounts, Normalization, etc.~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~**Add CONTRIBUTING.md, ARCHITECTURE.md, QUALITY_CHECKLIST.md to AGENTS.md reference table**~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~**Run `golangci-lint run` + `go build`** to verify doc changes didn't break anything~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Testing Gaps (identified from status report annotations)
 
-12. **Add --diff integration tests** — user-facing diff output completely untested (called out in 4+ reports)
-13. **Add --check mode tests** — only 1 of 4 planned tests exists
-14. **Add exit-code test for Infrastructure (69)** — golangci-lint not in PATH
-15. **Add exit-code test for Corruption (65)** — unparseable golangci-lint output
-16. **Write scanner detection tests** — gogenfilter coverage stuck at 63.9%
-17. **Add SARIF schema validation test** — CI consumers depend on valid SARIF
-18. **Add wire-format unit tests** — `golangciLinterEntry`/`golangciFormatterEntry` only indirectly tested
-19. **Add HTML snapshot test for templ reports** — reports can change silently
+12. ~~**Add --diff integration tests** — user-facing diff output completely untested (called out in 4+ reports)~~ done — see header resolution note (docs-health 2026-09-11)
+13. ~~**Add --check mode tests** — only 1 of 4 planned tests exists~~ done — see header resolution note (docs-health 2026-09-11)
+14. ~~**Add exit-code test for Infrastructure (69)** — golangci-lint not in PATH~~ done — see header resolution note (docs-health 2026-09-11)
+15. ~~**Add exit-code test for Corruption (65)** — unparseable golangci-lint output~~ done — see header resolution note (docs-health 2026-09-11)
+16. ~~**Write scanner detection tests** — gogenfilter coverage stuck at 63.9%~~ done — see header resolution note (docs-health 2026-09-11)
+17. ~~**Add SARIF schema validation test** — CI consumers depend on valid SARIF~~ done — see header resolution note (docs-health 2026-09-11)
+18. ~~**Add wire-format unit tests** — `golangciLinterEntry`/`golangciFormatterEntry` only indirectly tested~~ done — see header resolution note (docs-health 2026-09-11)
+19. ~~**Add HTML snapshot test for templ reports** — reports can change silently~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Code Quality
 
-20. **Add `//nolint:gosec` to 2 pre-existing G204 warnings** — loader.go + cmd_validate.go (called out in 5+ reports)
-21. **Register `os.ErrNotExist` as Rejection** — I/O errors default to Transient (exit 75) instead of Rejection (exit 1)
-22. **Refactor `convertLinters`/`convertFormatters` to use generics** — eliminate duplicated loop pattern
-23. **Split `cmd_configure.go`** — 541 lines, 8 concerns in one file
-24. **Split `ConfigLoader` God Object** — 8-method interface violates ISP
-25. **Remove 10 type aliases in config/loader.go** — re-exports of `types.*` creating import confusion
-26. **Consolidate `ValidationError` + `HealthIssue`** — overlapping types
-27. **Move interfaces from `pkg/types/` to consumer packages** — ConfigLoader/LinterAnalyzer are ports, not domain types
+20. ~~**Add `//nolint:gosec` to 2 pre-existing G204 warnings** — loader.go + cmd_validate.go (called out in 5+ reports)~~ done — see header resolution note (docs-health 2026-09-11)
+21. ~~**Register `os.ErrNotExist` as Rejection** — I/O errors default to Transient (exit 75) instead of Rejection (exit 1)~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~**Refactor `convertLinters`/`convertFormatters` to use generics** — eliminate duplicated loop pattern~~ done — see header resolution note (docs-health 2026-09-11)
+23. ~~**Split `cmd_configure.go`** — 541 lines, 8 concerns in one file~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~**Split `ConfigLoader` God Object** — 8-method interface violates ISP~~ done — see header resolution note (docs-health 2026-09-11)
+25. ~~**Remove 10 type aliases in config/loader.go** — re-exports of `types.*` creating import confusion~~ done — see header resolution note (docs-health 2026-09-11)
+26. ~~**Consolidate `ValidationError` + `HealthIssue`** — overlapping types~~ done — see header resolution note (docs-health 2026-09-11)
+27. ~~**Move interfaces from `pkg/types/` to consumer packages** — ConfigLoader/LinterAnalyzer are ports, not domain types~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Error Handling
 
-28. **Define error code naming convention** — ~40 ad-hoc codes exist with no registry or uniqueness test
-29. **Add test verifying error codes are unique** — prevent collisions
-30. **Document the `[family:code]` prefix decision** — should it be visible in user-facing CLI output?
-31. **Register `os.ErrPermission` as Infrastructure** — permission denied is a system issue
-32. **Audit all `WrapClassified` calls** — verify cause chain has registered sentinels
-33. **Adopt HandleError at CLI boundary** — replaces slog.Error with structured pattern
+28. ~~**Define error code naming convention** — ~40 ad-hoc codes exist with no registry or uniqueness test~~ done — see header resolution note (docs-health 2026-09-11)
+29. ~~**Add test verifying error codes are unique** — prevent collisions~~ done — see header resolution note (docs-health 2026-09-11)
+30. ~~**Document the `[family:code]` prefix decision** — should it be visible in user-facing CLI output?~~ done — see header resolution note (docs-health 2026-09-11)
+31. ~~**Register `os.ErrPermission` as Infrastructure** — permission denied is a system issue~~ done — see header resolution note (docs-health 2026-09-11)
+32. ~~**Audit all `WrapClassified` calls** — verify cause chain has registered sentinels~~ done — see header resolution note (docs-health 2026-09-11)
+33. ~~**Adopt HandleError at CLI boundary** — replaces slog.Error with structured pattern~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Architecture
 
-34. **Consider Result type for CLI commands** — enables assertion-based testing without binary exec
-35. **Convert coverage-check.sh to Go test** — more portable, testable
-36. **Extract `errUnsupportedConfigFormat` to `pkg/errors/`** and classify it
-37. **Add `--output=stderr` for errors** — currently errors go to stdout via fang
-38. **Consider Config immutability** — all mutations via methods (biggest type-safety improvement)
+34. ~~**Consider Result type for CLI commands** — enables assertion-based testing without binary exec~~ done — see header resolution note (docs-health 2026-09-11)
+35. ~~**Convert coverage-check.sh to Go test** — more portable, testable~~ done — see header resolution note (docs-health 2026-09-11)
+36. ~~**Extract `errUnsupportedConfigFormat` to `pkg/errors/`** and classify it~~ done — see header resolution note (docs-health 2026-09-11)
+37. ~~**Add `--output=stderr` for errors** — currently errors go to stdout via fang~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~**Consider Config immutability** — all mutations via methods (biggest type-safety improvement)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### CI / Build
 
-39. **Run integration tests with `-tags=integration` in CI** — currently only run manually
-40. **Add Nix check derivation for integration tests**
-41. **Add `flake.lock` drift check to CI** — fail if `nix flake check` modifies lock file
-42. **Add a `make verify` or Nix check** that runs build + lint + test + format in one command
+39. ~~**Run integration tests with `-tags=integration` in CI** — currently only run manually~~ done — see header resolution note (docs-health 2026-09-11)
+40. ~~**Add Nix check derivation for integration tests**~~ done — see header resolution note (docs-health 2026-09-11)
+41. ~~**Add `flake.lock` drift check to CI** — fail if `nix flake check` modifies lock file~~ done — see header resolution note (docs-health 2026-09-11)
+42. ~~**Add a `make verify` or Nix check** that runs build + lint + test + format in one command~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Documentation Polish
 
-43. **Document tag case policy in README.md** — user-facing since JSON output changed
-44. **Update `docs/references/testing-style-and-patterns.md`** with struct tag case conventions
-45. **Document `--quiet` and `--json-errors` in README.md** — user-facing flags not documented
-46. **Consider cutting v0.3.0 release** — [Unreleased] section is very large, many breaking changes accumulated
+43. ~~**Document tag case policy in README.md** — user-facing since JSON output changed~~ done — see header resolution note (docs-health 2026-09-11)
+44. ~~**Update `docs/references/testing-style-and-patterns.md`** with struct tag case conventions~~ done — see header resolution note (docs-health 2026-09-11)
+45. ~~**Document `--quiet` and `--json-errors` in README.md** — user-facing flags not documented~~ done — see header resolution note (docs-health 2026-09-11)
+46. ~~**Consider cutting v0.3.0 release** — [Unreleased] section is very large, many breaking changes accumulated~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Session Process
 
-47. **Always review ALL staged files before committing** — not just the ones I changed
-48. **Split commits by concern** — doc fixes vs pre-existing staged changes should be separate commits
-49. **Run lint after doc changes** — catches stale nolint directives, broken references in comments
-50. **Consolidate the 11 status reports' "next steps" into a single canonical backlog** — then archive the reports
+47. ~~**Always review ALL staged files before committing** — not just the ones I changed~~ done — see header resolution note (docs-health 2026-09-11)
+48. ~~**Split commits by concern** — doc fixes vs pre-existing staged changes should be separate commits~~ done — see header resolution note (docs-health 2026-09-11)
+49. ~~**Run lint after doc changes** — catches stale nolint directives, broken references in comments~~ done — see header resolution note (docs-health 2026-09-11)
+50. ~~**Consolidate the 11 status reports' "next steps" into a single canonical backlog** — then archive the reports~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

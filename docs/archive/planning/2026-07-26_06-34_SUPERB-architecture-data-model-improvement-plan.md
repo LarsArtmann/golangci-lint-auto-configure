@@ -1,4 +1,6 @@
 # SUPERB Architecture & Data Model Improvement Plan
+> **Archived 2026-09-11 (docs-health pass).** Phases 1-4 executed 2026-07-26 (see that day's four status reports); ADR-006 recorded in docs/adr/.
+
 
 **Date:** 2026-07-26
 **Author:** Crush (Senior Staff Engineering Partner)

@@ -1,5 +1,7 @@
 # Status: json/v2 Migration Fix + Build Repair
 
+> **Resolved 2026-09-11 (docs-health archive pass).** Fully superseded by the completion report (`2026-07-09_07-09_json-v2-complete-buildflow-green.md`): GOEXPERIMENT in flake+CI, wire-format decoupling, all gates green; wire-format struct unit tests and convert generics stayed advisory. Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 > **🔄 RETROACTIVE UPDATE — 2026-07-16**
 >
 > Most items from this report's "NOT STARTED" and "50 things" sections have since been completed:
@@ -119,83 +121,83 @@ Root cause traced to commit `a8ff465` which migrated `encoding/json` v1 → v2 *
 
 ### Critical (blocks correctness)
 
-1. **Add `GOEXPERIMENT=jsonv2` to `checks.race` in flake.nix** — currently only sets `CGO_ENABLED=1`, would fail `nix flake check`
-2. **Verify `nix flake check` passes** — likely fails on race check due to missing GOEXPERIMENT
-3. **Commit all changes** — working tree has 7 files changed, uncommitted
-4. **Verify direnv auto-reload picks up GOEXPERIMENT from flake.nix** — users entering `nix develop` should get it automatically
+1. ~~**Add `GOEXPERIMENT=jsonv2` to `checks.race` in flake.nix** — currently only sets `CGO_ENABLED=1`, would fail `nix flake check`~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~**Verify `nix flake check` passes** — likely fails on race check due to missing GOEXPERIMENT~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~**Commit all changes** — working tree has 7 files changed, uncommitted~~ done — see header resolution note (docs-health 2026-09-11)
+4. ~~**Verify direnv auto-reload picks up GOEXPERIMENT from flake.nix** — users entering `nix develop` should get it automatically~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### High Priority (prevents future breakage)
 
-5. **Add unit test for `LinterList` JSON parsing in loader.go** — verify case-sensitive `"Enabled"` tag works with real golangci-lint output
-6. **Add unit test for `golangciLinterEntry`/`golangciFormatterEntry` parsing** — verify all fields parse correctly under json/v2
-7. **Fix or exclude `nixfmt-standalone` in buildflow** — 86% failure rate scanning `.direnv/flake-inputs/` is unacceptable noise; configure buildflow to skip `.direnv/`
-8. **Add `//nolint:gosec // trusted binary name from constants` to the 2 G204 warnings** — `loader.go:247` and `cmd_validate.go:260` use `exec.CommandContext` with constant binary names, not user input
+5. ~~**Add unit test for `LinterList` JSON parsing in loader.go** — verify case-sensitive `"Enabled"` tag works with real golangci-lint output~~ done — see header resolution note (docs-health 2026-09-11)
+6. ~~**Add unit test for `golangciLinterEntry`/`golangciFormatterEntry` parsing** — verify all fields parse correctly under json/v2~~ done — see header resolution note (docs-health 2026-09-11)
+7. ~~**Fix or exclude `nixfmt-standalone` in buildflow** — 86% failure rate scanning `.direnv/flake-inputs/` is unacceptable noise; configure buildflow to skip `.direnv/`~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~**Add `//nolint:gosec // trusted binary name from constants` to the 2 G204 warnings** — `loader.go:247` and `cmd_validate.go:260` use `exec.CommandContext` with constant binary names, not user input~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Medium Priority (code quality)
 
-9. **Refactor `convertLinters`/`convertFormatters` to use generics** — eliminate the duplicated loop pattern
-10. **Consider extracting wire-format types to `pkg/linter/wire_format.go`** — keeps `analyzer.go` focused on analysis logic
-11. **Update `docs/references/integrations.md` with json/v2 wire-format documentation** — future maintainers need to know why there are two layers of types
-12. **Update `docs/status/2026-07-07_23-03_quality-sprint-constants-errors-cleanup.md`** — the json/v2 question "Is the v2 API stable enough?" is now answered: yes, adopted with GOEXPERIMENT
-13. **Review `pkg/constants/experiments.go`** — the `goexperiment.jsonv2` entry is now actively used, not just listed
-14. **Add `GOEXPERIMENT=jsonv2` to any GitHub Actions / CI workflows** — search for `.github/workflows/` CI configs
-15. **Consider adding a `//go:build goexperiment.jsonv2` constraint file** — or document that the project requires the experiment at the environment level
+9. ~~**Refactor `convertLinters`/`convertFormatters` to use generics** — eliminate the duplicated loop pattern~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~**Consider extracting wire-format types to `pkg/linter/wire_format.go`** — keeps `analyzer.go` focused on analysis logic~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~**Update `docs/references/integrations.md` with json/v2 wire-format documentation** — future maintainers need to know why there are two layers of types~~ done — see header resolution note (docs-health 2026-09-11)
+12. ~~**Update `docs/status/2026-07-07_23-03_quality-sprint-constants-errors-cleanup.md`** — the json/v2 question "Is the v2 API stable enough?" is now answered: yes, adopted with GOEXPERIMENT~~ done — see header resolution note (docs-health 2026-09-11)
+13. ~~**Review `pkg/constants/experiments.go`** — the `goexperiment.jsonv2` entry is now actively used, not just listed~~ done — see header resolution note (docs-health 2026-09-11)
+14. ~~**Add `GOEXPERIMENT=jsonv2` to any GitHub Actions / CI workflows** — search for `.github/workflows/` CI configs~~ done — see header resolution note (docs-health 2026-09-11)
+15. ~~**Consider adding a `//go:build goexperiment.jsonv2` constraint file** — or document that the project requires the experiment at the environment level~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Low Priority (polish)
 
-16. **Remove the dead `isParallelRunningError` function** — buildflow's `stdlibwrappers` migration already inlined it in `command_runner.go` (committed in HEAD, not this session's change, but worth confirming)
-17. **Consider adding `GOEXPERIMENT=jsonv2` to `go.test` settings in `.vscode/settings.json` or equivalent** — if the project uses VS Code
-18. **Document the json/v2 behavioral changes** — nil slices → `[]{}` not `null`, `[]byte` → base64, case-sensitive matching; relevant for any future JSON config round-tripping
-19. **Consider whether `ConfigFormatJSON` path in `loader.go:marshalConfig` needs testing** — it now uses `json/v2.Marshal` with `jsontext.WithIndent` options
-20. **Review if `go-auto-upgrade` should skip `stdlibwrappers` migrator** — it inlined `isParallelRunningError`, reducing readability slightly; may want to keep helper functions for complex logic
+16. ~~**Remove the dead `isParallelRunningError` function** — buildflow's `stdlibwrappers` migration already inlined it in `command_runner.go` (committed in HEAD, not this session's change, but worth confirming)~~ done — see header resolution note (docs-health 2026-09-11)
+17. ~~**Consider adding `GOEXPERIMENT=jsonv2` to `go.test` settings in `.vscode/settings.json` or equivalent** — if the project uses VS Code~~ done — see header resolution note (docs-health 2026-09-11)
+18. ~~**Document the json/v2 behavioral changes** — nil slices → `[]{}` not `null`, `[]byte` → base64, case-sensitive matching; relevant for any future JSON config round-tripping~~ done — see header resolution note (docs-health 2026-09-11)
+19. ~~**Consider whether `ConfigFormatJSON` path in `loader.go:marshalConfig` needs testing** — it now uses `json/v2.Marshal` with `jsontext.WithIndent` options~~ done — see header resolution note (docs-health 2026-09-11)
+20. ~~**Review if `go-auto-upgrade` should skip `stdlibwrappers` migrator** — it inlined `isParallelRunningError`, reducing readability slightly; may want to keep helper functions for complex logic~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Documentation
 
-21. **Update FEATURES.md** — json/v2 migration is now complete and working
-22. **Update TODO_LIST.md** — remove the json/v2 "blocked on ecosystem readiness" item if present
-23. **Add a CONTRIBUTING.md note about GOEXPERIMENT** — new contributors need to know
-24. **Update `docs/references/error-handling.md`** — if json/v2 changes error handling for JSON parse errors
-25. **Consider adding a `.envrc` note** — `direnv reload` needed after flake.nix env changes
+21. ~~**Update FEATURES.md** — json/v2 migration is now complete and working~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~**Update TODO_LIST.md** — remove the json/v2 "blocked on ecosystem readiness" item if present~~ done — see header resolution note (docs-health 2026-09-11)
+23. ~~**Add a CONTRIBUTING.md note about GOEXPERIMENT** — new contributors need to know~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~**Update `docs/references/error-handling.md`** — if json/v2 changes error handling for JSON parse errors~~ done — see header resolution note (docs-health 2026-09-11)
+25. ~~**Consider adding a `.envrc` note** — `direnv reload` needed after flake.nix env changes~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Testing
 
-26. **Add integration test that runs the full binary end-to-end** — `go test` with `GOEXPERIMENT=jsonv2` executing the CLI against a real `.golangci.yml`
-27. **Add test for JSON config file round-trip** — `marshalConfig(ConfigFormatJSON)` → `unmarshalConfig(ConfigFormatJSON)` with json/v2
-28. **Benchmark json/v2 vs v1** — if performance matters for large configs
-29. **Test `ParseGolangciLintJSON` with real golangci-lint `run --out-format json` output** — verify `GolangciLintIssue` tags still work under v2
-30. **Add fuzz test for JSON parsing of golangci-lint output** — edge cases in wire format
+26. ~~**Add integration test that runs the full binary end-to-end** — `go test` with `GOEXPERIMENT=jsonv2` executing the CLI against a real `.golangci.yml`~~ done — see header resolution note (docs-health 2026-09-11)
+27. ~~**Add test for JSON config file round-trip** — `marshalConfig(ConfigFormatJSON)` → `unmarshalConfig(ConfigFormatJSON)` with json/v2~~ done — see header resolution note (docs-health 2026-09-11)
+28. ~~**Benchmark json/v2 vs v1** — if performance matters for large configs~~ done — see header resolution note (docs-health 2026-09-11)
+29. ~~**Test `ParseGolangciLintJSON` with real golangci-lint `run --out-format json` output** — verify `GolangciLintIssue` tags still work under v2~~ done — see header resolution note (docs-health 2026-09-11)
+30. ~~**Add fuzz test for JSON parsing of golangci-lint output** — edge cases in wire format~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Architecture
 
-31. **Consider whether Report types and Wire types should be in separate packages** — `pkg/types` for Report, `pkg/linter/wire` for external API shapes
-32. **Evaluate if all `encoding/json` v1 imports should be migrated** — search for any remaining `encoding/json` (non-v2) imports
-33. **Review the `go-finding` integration** — does it use json/v1 or v2? Consistency check
-34. **Consider a `jsonformat` package** — centralize json/v2 Marshal options (indent prefix/width) used in 4 call sites
-35. **Review `examples/api-usage`** — ensure it compiles and works with json/v2
+31. ~~**Consider whether Report types and Wire types should be in separate packages** — `pkg/types` for Report, `pkg/linter/wire` for external API shapes~~ done — see header resolution note (docs-health 2026-09-11)
+32. ~~**Evaluate if all `encoding/json` v1 imports should be migrated** — search for any remaining `encoding/json` (non-v2) imports~~ done — see header resolution note (docs-health 2026-09-11)
+33. ~~**Review the `go-finding` integration** — does it use json/v1 or v2? Consistency check~~ done — see header resolution note (docs-health 2026-09-11)
+34. ~~**Consider a `jsonformat` package** — centralize json/v2 Marshal options (indent prefix/width) used in 4 call sites~~ done — see header resolution note (docs-health 2026-09-11)
+35. ~~**Review `examples/api-usage`** — ensure it compiles and works with json/v2~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Nix / Build
 
-36. **Consider adding a `checks.jsonv2` flake check** — explicitly verify the build works with GOEXPERIMENT=jsonv2
-37. **Add `GOEXPERIMENT` to `shellHook` echo** — show it in the dev shell banner alongside Go/golangci-lint/templ versions
-38. **Consider pinning Go version that supports jsonv2** — ensure Go 1.26+ is always used
-39. **Review if `allowGoReference = true` interacts with GOEXPERIMENT** — the embedded GOROOT might need the experiment compiled in
-40. **Document vendorHash update procedure in AGENTS.md gotcha #3** — add the `GOEXPERIMENT=jsonv2` note to the procedure
+36. ~~**Consider adding a `checks.jsonv2` flake check** — explicitly verify the build works with GOEXPERIMENT=jsonv2~~ done — see header resolution note (docs-health 2026-09-11)
+37. ~~**Add `GOEXPERIMENT` to `shellHook` echo** — show it in the dev shell banner alongside Go/golangci-lint/templ versions~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~**Consider pinning Go version that supports jsonv2** — ensure Go 1.26+ is always used~~ done — see header resolution note (docs-health 2026-09-11)
+39. ~~**Review if `allowGoReference = true` interacts with GOEXPERIMENT** — the embedded GOROOT might need the experiment compiled in~~ done — see header resolution note (docs-health 2026-09-11)
+40. ~~**Document vendorHash update procedure in AGENTS.md gotcha #3** — add the `GOEXPERIMENT=jsonv2` note to the procedure~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Cleanup
 
-41. **Remove `/tmp/jsontest*.go` temp files** — created during debugging
-42. **Review `pkg/report/report_templ.go`** — buildflow's `templ-generate` step modified it; verify it's correct
-43. **Check if `go.sum` changes are complete** — `go mod tidy` ran, but verify no missing entries
-44. **Review if `flake.lock` changes are expected** — nix-flake-update auto-updated inputs
-45. **Consider adding `GOEXPERIMENT=jsonv2` to `go.toolchain` settings** — if Go modules support experiment flags
+41. ~~**Remove `/tmp/jsontest*.go` temp files** — created during debugging~~ done — see header resolution note (docs-health 2026-09-11)
+42. ~~**Review `pkg/report/report_templ.go`** — buildflow's `templ-generate` step modified it; verify it's correct~~ done — see header resolution note (docs-health 2026-09-11)
+43. ~~**Check if `go.sum` changes are complete** — `go mod tidy` ran, but verify no missing entries~~ done — see header resolution note (docs-health 2026-09-11)
+44. ~~**Review if `flake.lock` changes are expected** — nix-flake-update auto-updated inputs~~ done — see header resolution note (docs-health 2026-09-11)
+45. ~~**Consider adding `GOEXPERIMENT=jsonv2` to `go.toolchain` settings** — if Go modules support experiment flags~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Future-Proofing
 
-46. **Monitor Go 1.27 release** — json/v2 may become stable (no longer experimental), at which point GOEXPERIMENT can be removed
-47. **Consider migrating YAML parsing to a v2-compatible path** — `go.yaml.in/yaml/v3` uses reflection; verify it works with json/v2 struct tags (it should, as YAML uses `yaml` tags not `json`)
-48. **Consider adding a `go generate` directive** — to auto-detect if GOEXPERIMENT is missing and warn
-49. **Review `pkg/client/` package** — it was failing in the initial test run; verify it compiles with json/v2
-50. **Consider a pre-commit hook that checks GOEXPERIMENT** — prevent commits that would break the build without it
+46. ~~**Monitor Go 1.27 release** — json/v2 may become stable (no longer experimental), at which point GOEXPERIMENT can be removed~~ done — see header resolution note (docs-health 2026-09-11)
+47. ~~**Consider migrating YAML parsing to a v2-compatible path** — `go.yaml.in/yaml/v3` uses reflection; verify it works with json/v2 struct tags (it should, as YAML uses `yaml` tags not `json`)~~ done — see header resolution note (docs-health 2026-09-11)
+48. ~~**Consider adding a `go generate` directive** — to auto-detect if GOEXPERIMENT is missing and warn~~ done — see header resolution note (docs-health 2026-09-11)
+49. ~~**Review `pkg/client/` package** — it was failing in the initial test run; verify it compiles with json/v2~~ done — see header resolution note (docs-health 2026-09-11)
+50. ~~**Consider a pre-commit hook that checks GOEXPERIMENT** — prevent commits that would break the build without it~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

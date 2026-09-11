@@ -1,4 +1,6 @@
 # SUPERB Sprint: golangci-lint-auto-configure
+> **Archived 2026-09-11 (docs-health pass).** Retro status table added 2026-07-16; residuals (gogenfilter scanner coverage) deferred to ROADMAP.
+
 
 > **🔄 RETROACTIVE UPDATE — 2026-07-16**
 >

@@ -1,5 +1,7 @@
 # Status Report: 50-Item TODO List — Full Sweep
 
+> **Resolved 2026-09-11 (docs-health archive pass).** All 50 items executed in this session; multi-preset and `--detect` for the format preset shipped (v0.6.0). Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 **Date:** 2026-07-10 19:07
 **Session scope:** Executing all 50 items from the P3 status report's improvement list
 **Previous commit:** `f1e5a99` (P3 architecture improvements, had 16 lint issues)
@@ -94,12 +96,12 @@
 
 ## c) NOT STARTED
 
-1. **Settings struct generation from golangci-lint JSON Schema** (item 37) — original P3 recommendation. Massive effort, not started.
-2. **Settings key validation at config load time** (item 38) — not started.
-3. **Move `isEmptySettingsValue` to `pkg/types`** (item 40) — considered but decided it's fine where it is (only used by `fixer_config.go`).
-4. **Evaluate `settingsToMap` location** (item 42) — it's in `pkg/constants` which is appropriate since that's where the structs live.
-5. **DOMAIN_LANGUAGE.md update** (item 17) — file is a placeholder template; not updated.
-6. **`reference+format` combined preset** (item 18) — not implemented.
+1. ~~**Settings struct generation from golangci-lint JSON Schema** (item 37) — original P3 recommendation. Massive effort, not started.~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~**Settings key validation at config load time** (item 38) — not started.~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~**Move `isEmptySettingsValue` to `pkg/types`** (item 40) — considered but decided it's fine where it is (only used by `fixer_config.go`).~~ done — see header resolution note (docs-health 2026-09-11)
+4. ~~**Evaluate `settingsToMap` location** (item 42) — it's in `pkg/constants` which is appropriate since that's where the structs live.~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~**DOMAIN_LANGUAGE.md update** (item 17) — file is a placeholder template; not updated.~~ done — see header resolution note (docs-health 2026-09-11)
+6. ~~**`reference+format` combined preset** (item 18) — not implemented.~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 
@@ -155,83 +157,83 @@ When I moved `configChangeRecorder` to use `var rec` (instead of `configChangeRe
 
 ### Immediate (commit hygiene)
 
-1. Revert `flake.lock` change (or commit separately)
-2. Revert `scripts/validate_linter_data.go` formatting change (or commit separately with treefmt)
-3. Commit `report_templ.go` separately (templ version upgrade)
-4. Commit the actual code changes in logical groups (lint fixes, architecture, tests, docs, features)
-5. Run `go vet ./...` to catch anything golangci-lint missed
+1. ~~Revert `flake.lock` change (or commit separately)~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~Revert `scripts/validate_linter_data.go` formatting change (or commit separately with treefmt)~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~Commit `report_templ.go` separately (templ version upgrade)~~ done — see header resolution note (docs-health 2026-09-11)
+4. ~~Commit the actual code changes in logical groups (lint fixes, architecture, tests, docs, features)~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~Run `go vet ./...` to catch anything golangci-lint missed~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Testing Gaps
 
-6. Add test for `presets` command output
-7. Add test for `backupConfigFile` — file not found, read error, write error, existing backup overwrite
-8. Add test for `convertNames` with `FormatterName` input
-9. Fix `fixer_recorder_test.go` to use `var rec` pattern instead of `configChangeRecorder{}`
-10. Add test: preset application creates `.bak` file
-11. Add test: backup failure prevents preset application (currently returns error — verify behavior)
-12. Add integration test for `presets` CLI command (exec binary, check output contains all 7 presets)
+6. ~~Add test for `presets` command output~~ done — see header resolution note (docs-health 2026-09-11)
+7. ~~Add test for `backupConfigFile` — file not found, read error, write error, existing backup overwrite~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~Add test for `convertNames` with `FormatterName` input~~ done — see header resolution note (docs-health 2026-09-11)
+9. ~~Fix `fixer_recorder_test.go` to use `var rec` pattern instead of `configChangeRecorder{}`~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~Add test: preset application creates `.bak` file~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~Add test: backup failure prevents preset application (currently returns error — verify behavior)~~ done — see header resolution note (docs-health 2026-09-11)
+12. ~~Add integration test for `presets` CLI command (exec binary, check output contains all 7 presets)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Architecture
 
-13. Add `//nolint:gosec` to pre-existing `exec.CommandContext` calls in `cmd_validate.go` and `loader.go`
-14. Consider timestamped config backup instead of `.bak`
-15. Add `isEmptySettingsValue` test coverage (currently only tested indirectly)
-16. Consider adding `wrapcheck`, `funlen`, `mnd` default settings (review Section 5.2 — currently deferred)
-17. Document the `nolint:goconst` exclusion strategy in AGENTS.md (why data files are excluded)
-18. Add `format` preset to `docs/DOMAIN_LANGUAGE.md` when that file is filled in
+13. ~~Add `//nolint:gosec` to pre-existing `exec.CommandContext` calls in `cmd_validate.go` and `loader.go`~~ done — see header resolution note (docs-health 2026-09-11)
+14. ~~Consider timestamped config backup instead of `.bak`~~ done — see header resolution note (docs-health 2026-09-11)
+15. ~~Add `isEmptySettingsValue` test coverage (currently only tested indirectly)~~ done — see header resolution note (docs-health 2026-09-11)
+16. ~~Consider adding `wrapcheck`, `funlen`, `mnd` default settings (review Section 5.2 — currently deferred)~~ done — see header resolution note (docs-health 2026-09-11)
+17. ~~Document the `nolint:goconst` exclusion strategy in AGENTS.md (why data files are excluded)~~ done — see header resolution note (docs-health 2026-09-11)
+18. ~~Add `format` preset to `docs/DOMAIN_LANGUAGE.md` when that file is filled in~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Feature Gaps
 
-19. Implement `--preset minimal --preset format` combination support
-20. Add `--dry-run` diff output for preset mode
-21. Add `--detect` for format preset (enable swaggo if Swagger detected)
-22. Add `reference+format` combined preset
-23. Consider `--backup` flag to control backup behavior (some users may not want `.bak` files)
-24. Add `--list-presets` as a flag on `configure` (in addition to the `presets` subcommand)
+19. ~~Implement `--preset minimal --preset format` combination support~~ done — see header resolution note (docs-health 2026-09-11)
+20. ~~Add `--dry-run` diff output for preset mode~~ done — see header resolution note (docs-health 2026-09-11)
+21. ~~Add `--detect` for format preset (enable swaggo if Swagger detected)~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~Add `reference+format` combined preset~~ done — see header resolution note (docs-health 2026-09-11)
+23. ~~Consider `--backup` flag to control backup behavior (some users may not want `.bak` files)~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~Add `--list-presets` as a flag on `configure` (in addition to the `presets` subcommand)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### CI/Build
 
-25. Add a `golangci-lint run` (without `--fix`) step to BuildFlow config or CI
-26. Fix BuildFlow false-negative: golangci-lint `--fix` exit 1 is silently swallowed
-27. Pin golangci-lint in devShell to match CI version (`v2.12.2`)
-28. Add `nix flake check --no-update-lock-file` to CI to prevent lock file drift
-29. Add CGO to devShell for local `-race` testing
-30. Consider adding `go vet ./...` as a separate CI step
+25. ~~Add a `golangci-lint run` (without `--fix`) step to BuildFlow config or CI~~ done — see header resolution note (docs-health 2026-09-11)
+26. ~~Fix BuildFlow false-negative: golangci-lint `--fix` exit 1 is silently swallowed~~ done — see header resolution note (docs-health 2026-09-11)
+27. ~~Pin golangci-lint in devShell to match CI version (`v2.12.2`)~~ done — see header resolution note (docs-health 2026-09-11)
+28. ~~Add `nix flake check --no-update-lock-file` to CI to prevent lock file drift~~ done — see header resolution note (docs-health 2026-09-11)
+29. ~~Add CGO to devShell for local `-race` testing~~ done — see header resolution note (docs-health 2026-09-11)
+30. ~~Consider adding `go vet ./...` as a separate CI step~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Type Safety
 
-31. Type `OutputConfig.Formats` with a `FormatConfig` struct (path string + extensions)
-32. Generate settings structs from golangci-lint JSON Schema (original P3 recommendation)
-33. Add settings key validation at config load time
-34. Consider branded types for config file paths (prevent path traversal in backup)
+31. ~~Type `OutputConfig.Formats` with a `FormatConfig` struct (path string + extensions)~~ done — see header resolution note (docs-health 2026-09-11)
+32. ~~Generate settings structs from golangci-lint JSON Schema (original P3 recommendation)~~ done — see header resolution note (docs-health 2026-09-11)
+33. ~~Add settings key validation at config load time~~ done — see header resolution note (docs-health 2026-09-11)
+34. ~~Consider branded types for config file paths (prevent path traversal in backup)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Documentation
 
-35. Add `presets` command to README.md usage examples
-36. Document config backup behavior in README.md
-37. Update `docs/references/testing-style-and-patterns.md` with benchmark and fuzz test patterns
-38. Add `CHANGELOG.md` entry for this session's changes
-39. Document the goconst exclusion strategy (why data files are excluded, not constants)
+35. ~~Add `presets` command to README.md usage examples~~ done — see header resolution note (docs-health 2026-09-11)
+36. ~~Document config backup behavior in README.md~~ done — see header resolution note (docs-health 2026-09-11)
+37. ~~Update `docs/references/testing-style-and-patterns.md` with benchmark and fuzz test patterns~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~Add `CHANGELOG.md` entry for this session's changes~~ done — see header resolution note (docs-health 2026-09-11)
+39. ~~Document the goconst exclusion strategy (why data files are excluded, not constants)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Refactoring
 
-40. Move `backupConfigFile` to `pkg/config/` (it's config I/O, not CLI logic)
-41. Consider extracting preset application to its own file (`cmd_preset.go`)
-42. Consolidate `mockPresetConfigLoader` with real `ConfigLoader` interface (reduce test mock surface)
-43. Consider whether `presets` command belongs as a subcommand or as `configure --list-presets`
+40. ~~Move `backupConfigFile` to `pkg/config/` (it's config I/O, not CLI logic)~~ done — see header resolution note (docs-health 2026-09-11)
+41. ~~Consider extracting preset application to its own file (`cmd_preset.go`)~~ done — see header resolution note (docs-health 2026-09-11)
+42. ~~Consolidate `mockPresetConfigLoader` with real `ConfigLoader` interface (reduce test mock surface)~~ done — see header resolution note (docs-health 2026-09-11)
+43. ~~Consider whether `presets` command belongs as a subcommand or as `configure --list-presets`~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Linter Data
 
-44. Audit `LinterMinVersions` against golangci-lint v2.12.2 upstream `since` values (item 23 — not done)
-45. Verify all `DeprecatedLinters` replacements exist in v2 (item 24 — not done)
-46. Add `mnd` default settings (`ignored-files: ["cmd/.*"]`)
-47. Add `funlen` default settings (`lines: 80`)
+44. ~~Audit `LinterMinVersions` against golangci-lint v2.12.2 upstream `since` values (item 23 — not done)~~ done — see header resolution note (docs-health 2026-09-11)
+45. ~~Verify all `DeprecatedLinters` replacements exist in v2 (item 24 — not done)~~ done — see header resolution note (docs-health 2026-09-11)
+46. ~~Add `mnd` default settings (`ignored-files: ["cmd/.*"]`)~~ done — see header resolution note (docs-health 2026-09-11)
+47. ~~Add `funlen` default settings (`lines: 80`)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Operational
 
-48. Run `nix build` to verify full Nix build (not just `flake check`)
-49. Update `vendorHash` if needed (go.mod didn't change, but verify)
-50. Run `nix fmt` to catch any formatting issues before committing
+48. ~~Run `nix build` to verify full Nix build (not just `flake check`)~~ done — see header resolution note (docs-health 2026-09-11)
+49. ~~Update `vendorHash` if needed (go.mod didn't change, but verify)~~ done — see header resolution note (docs-health 2026-09-11)
+50. ~~Run `nix fmt` to catch any formatting issues before committing~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

@@ -1,4 +1,6 @@
 # Public or Private? — Decision Analysis
+> **Archived 2026-09-11 (docs-health pass).** Decision executed 2026-09-09 — the repo is PUBLIC and all 'Must' conditions were met (see the status-update banner below). Archived 2026-09-11.
+
 
 **Project:** golangci-lint-auto-configure
 **Date:** 2026-05-04

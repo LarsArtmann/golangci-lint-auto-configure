@@ -174,7 +174,7 @@ Injecting `*gin.Context`, `*httpx.Context`, `*koanf.Koanf` into every project's 
 
 23. Update `docs/plans/cv-config-learnings.md` to mark items completed and note the mnd pivot
 24. Add CHANGELOG entry for depguard policy change (DisabledLinters to NeverAutoEnableLinters)
-25. Update `docs/status/README.md` index with both status reports from this session
+25. ~~Update `docs/status/README.md` index with both status reports from this session~~ done — docs-health pass 2026-09-11 (index refreshed + archive sweep)
 26. Add data-integrity test entries for the 5 new settings structs (GocognitSettings, GocycloSettings, NestifSettings, GoconstSettings, TagalignSettings) in the "DefaultLinterSettings ToMap equivalence" Describe block
 27. Consider: add `gocognit`/`gocyclo`/`nestif`/`goconst` to the `DefaultExclusionRules` for `_test.go` (complexity linters are noisy in tests)
 28. Review: does `tagalign` default ordering conflict with `tagliatelle` case enforcement? Both touch struct tags

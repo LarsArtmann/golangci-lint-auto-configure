@@ -1,5 +1,7 @@
 # Status Report: omitzero Fix Verification, Documentation Closure & Self-Critique
 
+> **Resolved 2026-09-11 (docs-health archive pass).** All open questions answered in-file; config_types omission policy documented (AGENTS.md #17, TODO_LIST 2026-09-11); non-load-bearing type families closed. Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 **Date:** 2026-07-21 10:38 CEST
 **Session type:** Verification + documentation closure + self-critique
 **Previous report:** [`2026-07-21_09-58_buildflow-jsonv2-omitempty-and-nix-hash-fix.md`](./2026-07-21_09-58_buildflow-jsonv2-omitempty-and-nix-hash-fix.md)
@@ -43,11 +45,11 @@ The previous session (09-58 report) applied a `omitempty` → `omitzero` fix for
 
 | # | Item                                                      | Why                                                                                                                                                                                                                        |
 | - | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 | **Commit the doc changes** (CHANGELOG.md + AGENTS.md)     | User did not explicitly ask to commit. Changes are staged in working tree.                                                                                                                                                 |
-| 2 | **Update the stale 09-58 status report**                  | That report has "3 open questions" — all now resolved this session. It should be annotated as resolved per the update-old-docs pattern, but I didn't touch it.                                                             |
-| 3 | **Smoke-test the built binary**                           | `nix build` produces a working binary, but I never ran the actual CLI (e.g., `nix run . -- analyze --format json`) to verify runtime report output omits false fields correctly. Tests pass but no integration smoke test. |
-| 4 | **Verify `docs/references/json-v2.md` committed content** | The doc was committed in `5f4d6b1` by the previous session. I referenced it but did not re-read it this session to verify accuracy of the committed text.                                                                  |
-| 5 | **Audit remaining json.Marshal type families**            | See section d — the bool+omitempty bug class was only partially audited.                                                                                                                                                   |
+| 1 | ~~**Commit the doc changes** (CHANGELOG.md + AGENTS.md)~~ done — see header resolution note (docs-health 2026-09-11) | User did not explicitly ask to commit. Changes are staged in working tree.                                                                                                                                                 |
+| 2 | ~~**Update the stale 09-58 status report**~~ done — see header resolution note (docs-health 2026-09-11) | That report has "3 open questions" — all now resolved this session. It should be annotated as resolved per the update-old-docs pattern, but I didn't touch it.                                                             |
+| 3 | ~~**Smoke-test the built binary**~~ done — see header resolution note (docs-health 2026-09-11) | `nix build` produces a working binary, but I never ran the actual CLI (e.g., `nix run . -- analyze --format json`) to verify runtime report output omits false fields correctly. Tests pass but no integration smoke test. |
+| 4 | ~~**Verify `docs/references/json-v2.md` committed content**~~ done — see header resolution note (docs-health 2026-09-11) | The doc was committed in `5f4d6b1` by the previous session. I referenced it but did not re-read it this session to verify accuracy of the committed text.                                                                  |
+| 5 | ~~**Audit remaining json.Marshal type families**~~ done — see header resolution note (docs-health 2026-09-11) | See section d — the bool+omitempty bug class was only partially audited.                                                                                                                                                   |
 
 ---
 
@@ -98,80 +100,80 @@ I found **20 `json.Marshal` call sites** in the codebase via grep. I only deeply
 
 ### High impact — close the bug class audit
 
-1. **Audit `audit.Entry` type** (`pkg/audit/ledger.go`) for `bool`/`int + omitempty` fields — the JSONL ledger writes every mutation; extra false/0 fields bloat every line
-2. **Audit `JSONReport` type** (`pkg/report/json_report_generator.go`) for `bool`/`int + omitempty` fields — user-facing JSON report output
-3. **Audit `ConfigAnalysis` type** (`pkg/types/types.go`) for `bool`/`int + omitempty` fields beyond the already-fixed `LinterInfo`/`FormatterInfo`
-4. **Audit `HealthIssue` type** for `bool`/`int + omitempty` fields — flows through SARIF/JSON output
-5. **Audit `MergeResult` type** (`pkg/config/merger.go`) — currently test-only but could be production output
+1. ~~**Audit `audit.Entry` type** (`pkg/audit/ledger.go`) for `bool`/`int + omitempty` fields — the JSONL ledger writes every mutation; extra false/0 fields bloat every line~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~**Audit `JSONReport` type** (`pkg/report/json_report_generator.go`) for `bool`/`int + omitempty` fields — user-facing JSON report output~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~**Audit `ConfigAnalysis` type** (`pkg/types/types.go`) for `bool`/`int + omitempty` fields beyond the already-fixed `LinterInfo`/`FormatterInfo`~~ done — see header resolution note (docs-health 2026-09-11)
+4. ~~**Audit `HealthIssue` type** for `bool`/`int + omitempty` fields — flows through SARIF/JSON output~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~**Audit `MergeResult` type** (`pkg/config/merger.go`) — currently test-only but could be production output~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### High impact — fix config_types.go
 
-6. **Decide config_types.go omission policy** — should JSON config output emit `false`/`0` or omit them? (Open question Q1)
-7. **Fix `RunConfig.Tests`** (`config_types.go:27`) — `bool + omitempty`, emits `tests:false` in JSON config
-8. **Fix `RunConfig.IssuesExitCode`** (`config_types.go:26`) — `int + omitempty`, emits `issues-exit-code:0` in JSON config
-9. **Fix `RunConfig.Concurrency`** (`config_types.go:28`) — `int + omitempty`, emits `concurrency:0` in JSON config
-10. **Fix `OutputConfig.ShowStats`** (`config_types.go:40`) — `bool + omitempty`
-11. **Fix `LintersExclusionsConfig.WarnUnused`** (`config_types.go:53`) — `bool + omitempty`
-12. **Fix `IssuesConfig` fields** (`config_types.go:77,79,80,81`) — `New`, `WholeFiles`, `Fix`, `UniqByLine` all `bool + omitempty`
-13. **Fix `IssuesConfig.MaxIssuesPerLinter`/`MaxSameIssues`** (`config_types.go:73,74`) — `int + omitempty`
-14. **Fix `FormattersExclusionsConfig.WarnUnused`** (`config_types.go:93`) — `bool + omitempty`
-15. **Update test at `json_tags_test.go:271`** if config_types.go omission policy changes
+6. ~~**Decide config_types.go omission policy** — should JSON config output emit `false`/`0` or omit them? (Open question Q1)~~ done — see header resolution note (docs-health 2026-09-11)
+7. ~~**Fix `RunConfig.Tests`** (`config_types.go:27`) — `bool + omitempty`, emits `tests:false` in JSON config~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~**Fix `RunConfig.IssuesExitCode`** (`config_types.go:26`) — `int + omitempty`, emits `issues-exit-code:0` in JSON config~~ done — see header resolution note (docs-health 2026-09-11)
+9. ~~**Fix `RunConfig.Concurrency`** (`config_types.go:28`) — `int + omitempty`, emits `concurrency:0` in JSON config~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~**Fix `OutputConfig.ShowStats`** (`config_types.go:40`) — `bool + omitempty`~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~**Fix `LintersExclusionsConfig.WarnUnused`** (`config_types.go:53`) — `bool + omitempty`~~ done — see header resolution note (docs-health 2026-09-11)
+12. ~~**Fix `IssuesConfig` fields** (`config_types.go:77,79,80,81`) — `New`, `WholeFiles`, `Fix`, `UniqByLine` all `bool + omitempty`~~ done — see header resolution note (docs-health 2026-09-11)
+13. ~~**Fix `IssuesConfig.MaxIssuesPerLinter`/`MaxSameIssues`** (`config_types.go:73,74`) — `int + omitempty`~~ done — see header resolution note (docs-health 2026-09-11)
+14. ~~**Fix `FormattersExclusionsConfig.WarnUnused`** (`config_types.go:93`) — `bool + omitempty`~~ done — see header resolution note (docs-health 2026-09-11)
+15. ~~**Update test at `json_tags_test.go:271`** if config_types.go omission policy changes~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### High impact — verification gaps
 
-16. **Smoke-test the built binary** — `nix run . -- analyze --format json` and verify `Fast`/`AutoFix` are absent when false
-17. **Smoke-test `report --format json`** — verify the full JSON report shape
-18. **Smoke-test `configure --dry-run`** — verify config output shape
-19. **Run `govulncheck`** — not run this session or previous session
-20. **Run `nix flake check --all-systems`** — only ran default systems (x86_64-linux)
+16. ~~**Smoke-test the built binary** — `nix run . -- analyze --format json` and verify `Fast`/`AutoFix` are absent when false~~ done — see header resolution note (docs-health 2026-09-11)
+17. ~~**Smoke-test `report --format json`** — verify the full JSON report shape~~ done — see header resolution note (docs-health 2026-09-11)
+18. ~~**Smoke-test `configure --dry-run`** — verify config output shape~~ done — see header resolution note (docs-health 2026-09-11)
+19. ~~**Run `govulncheck`** — not run this session or previous session~~ done — see header resolution note (docs-health 2026-09-11)
+20. ~~**Run `nix flake check --all-systems`** — only ran default systems (x86_64-linux)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Medium impact — testing
 
-21. **Add a regression test** that marshals ALL report types and asserts no unexpected `false`/`0` fields leak
-22. **Add a regression test** for Config type omission behavior (whatever policy is chosen)
-23. **Add a property-based test** (fuzz or generative) that round-trips Config through JSON and asserts omission consistency
-24. **Write a test asserting `audit.Entry` omission behavior** once audited
-25. **Write a test asserting `JSONReport` omission behavior** once audited
+21. ~~**Add a regression test** that marshals ALL report types and asserts no unexpected `false`/`0` fields leak~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~**Add a regression test** for Config type omission behavior (whatever policy is chosen)~~ done — see header resolution note (docs-health 2026-09-11)
+23. ~~**Add a property-based test** (fuzz or generative) that round-trips Config through JSON and asserts omission consistency~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~**Write a test asserting `audit.Entry` omission behavior** once audited~~ done — see header resolution note (docs-health 2026-09-11)
+25. ~~**Write a test asserting `JSONReport` omission behavior** once audited~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Medium impact — documentation & guardrails
 
-26. **Commit CHANGELOG.md + AGENTS.md changes** — currently uncommitted in working tree
-27. **Update the stale 09-58 status report** — mark its 3 open questions as resolved (per update-old-docs pattern)
-28. **Verify `docs/references/json-v2.md` committed content** is accurate and complete
-29. **Add a section to json-v2.md** listing ALL affected types and their omission status (a tracking table)
-30. **Consider a custom linter rule** or tagliatelle config that flags `bool + omitempty` in json/v2 codepaths
-31. **Add a CONTRIBUTING.md note** about the omitzero requirement for new Report types
+26. ~~**Commit CHANGELOG.md + AGENTS.md changes** — currently uncommitted in working tree~~ done — see header resolution note (docs-health 2026-09-11)
+27. ~~**Update the stale 09-58 status report** — mark its 3 open questions as resolved (per update-old-docs pattern)~~ done — see header resolution note (docs-health 2026-09-11)
+28. ~~**Verify `docs/references/json-v2.md` committed content** is accurate and complete~~ done — see header resolution note (docs-health 2026-09-11)
+29. ~~**Add a section to json-v2.md** listing ALL affected types and their omission status (a tracking table)~~ done — see header resolution note (docs-health 2026-09-11)
+30. ~~**Consider a custom linter rule** or tagliatelle config that flags `bool + omitempty` in json/v2 codepaths~~ done — see header resolution note (docs-health 2026-09-11)
+31. ~~**Add a CONTRIBUTING.md note** about the omitzero requirement for new Report types~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Medium impact — the analyzer.go decision
 
-32. **Finalize analyzer.go decision** — keep (current) or revert (if user prefers surgical scope). Currently committed with "consistency" rationale.
-33. **If keeping: add a code comment** in analyzer.go explaining why omitzero is on a parse-only struct (so the next person doesn't "fix" it back)
-34. **If reverting: `git revert` or targeted edit** + update the commit's rationale
+32. ~~**Finalize analyzer.go decision** — keep (current) or revert (if user prefers surgical scope). Currently committed with "consistency" rationale.~~ done — see header resolution note (docs-health 2026-09-11)
+33. ~~**If keeping: add a code comment** in analyzer.go explaining why omitzero is on a parse-only struct (so the next person doesn't "fix" it back)~~ done — see header resolution note (docs-health 2026-09-11)
+34. ~~**If reverting: `git revert` or targeted edit** + update the commit's rationale~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Lower impact — cleanup
 
-35. **Check if `SaveConfig(ConfigFormatJSON)` is reachable from any CLI command** — determines real-world urgency of config_types.go fix
-36. **Review the 23 gopls "requires go1.27" warnings** — expected under GOEXPERIMENT=jsonv2 on Go 1.26, but worth confirming none are real issues
-37. **Run `nix build` and verify the binary version string** is correct (ldflags injection)
-38. **Verify CI workflow files** set `GOEXPERIMENT: jsonv2` for all Go-compiling jobs (per AGENTS.md gotcha #13)
-39. **Check `.buildflow.yml` is green** locally
-40. **Review flake.nix `vendorHash`** is still correct after any go.mod changes
+35. ~~**Check if `SaveConfig(ConfigFormatJSON)` is reachable from any CLI command** — determines real-world urgency of config_types.go fix~~ done — see header resolution note (docs-health 2026-09-11)
+36. ~~**Review the 23 gopls "requires go1.27" warnings** — expected under GOEXPERIMENT=jsonv2 on Go 1.26, but worth confirming none are real issues~~ done — see header resolution note (docs-health 2026-09-11)
+37. ~~**Run `nix build` and verify the binary version string** is correct (ldflags injection)~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~**Verify CI workflow files** set `GOEXPERIMENT: jsonv2` for all Go-compiling jobs (per AGENTS.md gotcha #13)~~ done — see header resolution note (docs-health 2026-09-11)
+39. ~~**Check `.buildflow.yml` is green** locally~~ done — see header resolution note (docs-health 2026-09-11)
+40. ~~**Review flake.nix `vendorHash`** is still correct after any go.mod changes~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Lower impact — future-proofing
 
-41. **Consider `omitzero` as the project-wide default** for optional fields (document the policy decision)
-42. **Evaluate whether Config types should use `*bool`/`*int` pointers** instead of omitempty/omitzero (tri-state: unset vs false vs true)
-43. **Add a `go vet`-style check** for struct tag consistency across the three type families
-44. **Consider migrating the wire-format structs in analyzer.go** to use a shared "wire format" tag policy doc
-45. **Document the three-family tag policy** (Report/Config/Wire) in a single reference table in AGENTS.md or a dedicated doc
+41. ~~**Consider `omitzero` as the project-wide default** for optional fields (document the policy decision)~~ done — see header resolution note (docs-health 2026-09-11)
+42. ~~**Evaluate whether Config types should use `*bool`/`*int` pointers** instead of omitempty/omitzero (tri-state: unset vs false vs true)~~ done — see header resolution note (docs-health 2026-09-11)
+43. ~~**Add a `go vet`-style check** for struct tag consistency across the three type families~~ done — see header resolution note (docs-health 2026-09-11)
+44. ~~**Consider migrating the wire-format structs in analyzer.go** to use a shared "wire format" tag policy doc~~ done — see header resolution note (docs-health 2026-09-11)
+45. ~~**Document the three-family tag policy** (Report/Config/Wire) in a single reference table in AGENTS.md or a dedicated doc~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Polish
 
-46. **Run `nix fmt` one more time** after any code changes and before committing
-47. **Write a commit message** for the doc changes following the project's commit message style
-48. **Consider splitting the commit**: CHANGELOG fix entry vs AGENTS.md gotcha (or bundle — see Q3)
-49. **Tag a patch release** if the omitzero fix is user-facing (semver bump)
-50. **Update FEATURES.md** if the omitzero fix counts as a behavior change worth noting
+46. ~~**Run `nix fmt` one more time** after any code changes and before committing~~ done — see header resolution note (docs-health 2026-09-11)
+47. ~~**Write a commit message** for the doc changes following the project's commit message style~~ done — see header resolution note (docs-health 2026-09-11)
+48. ~~**Consider splitting the commit**: CHANGELOG fix entry vs AGENTS.md gotcha (or bundle — see Q3)~~ done — see header resolution note (docs-health 2026-09-11)
+49. ~~**Tag a patch release** if the omitzero fix is user-facing (semver bump)~~ done — see header resolution note (docs-health 2026-09-11)
+50. ~~**Update FEATURES.md** if the omitzero fix counts as a behavior change worth noting~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

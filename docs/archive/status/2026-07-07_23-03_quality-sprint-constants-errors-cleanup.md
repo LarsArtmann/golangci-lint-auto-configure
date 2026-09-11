@@ -1,5 +1,7 @@
 # Status Report: Quality Sprint — Constants, Error Classification, and Code Cleanup
 
+> **Resolved 2026-09-11 (docs-health archive pass).** cmd_configure split and ConfigLoader interface decomposition shipped in v0.6.0; error-consistency items consumed by the structured-error migration (07-08) and the go-error-family adoption (v0.7.0); swallowed-errors audit completed 2026-07-26 (erraudit). Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 > **🔄 RETROACTIVE UPDATE — 2026-07-16**
 >
 > Items from this report's "50 things to do next" have the following status:
@@ -161,64 +163,64 @@
 
 ### High Impact / Low Effort
 
-1. Add `//nolint:gosec // trusted binary path` to the 2 pre-existing G204 warnings
-2. Consolidate `ErrNoConfigFiles` — remove deprecated alias in `config/merger.go` once consumers updated
-3. Extract `errUnsupportedConfigFormat` from `config/loader.go` to `pkg/errors/` and classify it
-4. Add missing `//nolint:mnd` or extract `0o111` permission mask in `analyzer.go:267`
-5. Move remaining scattered sentinels (`errUnsupportedConfigFormat`) to `pkg/errors/`
+1. ~~Add `//nolint:gosec // trusted binary path` to the 2 pre-existing G204 warnings~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~Consolidate `ErrNoConfigFiles` — remove deprecated alias in `config/merger.go` once consumers updated~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~Extract `errUnsupportedConfigFormat` from `config/loader.go` to `pkg/errors/` and classify it~~ done — see header resolution note (docs-health 2026-09-11)
+4. ~~Add missing `//nolint:mnd` or extract `0o111` permission mask in `analyzer.go:267`~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~Move remaining scattered sentinels (`errUnsupportedConfigFormat`) to `pkg/errors/`~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### High Impact / Medium Effort
 
-6. Split `cmd_configure.go` into focused files (preset, fixer, diff, output helpers)
-7. Split `ConfigLoader` interface into `ConfigReader` + `ConfigWriter` + `ConfigDiscoverer`
-8. Move `ConfigLoader`/`LinterAnalyzer` interfaces from `pkg/types/` to consumer packages
-9. Remove type alias indirection in `config/loader.go` (10 re-exported type aliases)
-10. Consolidate `ValidationError` + `HealthIssue` into a single structured config problem type
-11. Extract `getAllLinterNames` + `GetLocalGoVersion` from `config/loader.go` to appropriate packages
-12. Move `LinterList` struct from inline in `loader.go` to `pkg/types/`
-13. Address swallowed errors in `commands.go:100,131` (config merge fallback silently swallows errors)
+6. ~~Split `cmd_configure.go` into focused files (preset, fixer, diff, output helpers)~~ done — see header resolution note (docs-health 2026-09-11)
+7. ~~Split `ConfigLoader` interface into `ConfigReader` + `ConfigWriter` + `ConfigDiscoverer`~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~Move `ConfigLoader`/`LinterAnalyzer` interfaces from `pkg/types/` to consumer packages~~ done — see header resolution note (docs-health 2026-09-11)
+9. ~~Remove type alias indirection in `config/loader.go` (10 re-exported type aliases)~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~Consolidate `ValidationError` + `HealthIssue` into a single structured config problem type~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~Extract `getAllLinterNames` + `GetLocalGoVersion` from `config/loader.go` to appropriate packages~~ done — see header resolution note (docs-health 2026-09-11)
+12. ~~Move `LinterList` struct from inline in `loader.go` to `pkg/types/`~~ done — see header resolution note (docs-health 2026-09-11)
+13. ~~Address swallowed errors in `commands.go:100,131` (config merge fallback silently swallows errors)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Medium Impact / Medium Effort
 
-14. Collapse `ConfigError`/`ReportError`/`MigrationError`/`AnalysisError` boilerplate into shared configurable type
-15. Standardize `errors` import alias (`stderrors` in some files, `errors` in others)
-16. Replace `fmt.Errorf` with structured error wrapping in `internal/cli/` commands (14 instances)
-17. Replace `fmt.Errorf` with structured error wrapping in `pkg/finding/` (9 instances)
-18. Replace `fmt.Errorf` with structured error wrapping in `pkg/config/` (8 instances)
-19. Replace `fmt.Errorf` with structured error wrapping in `pkg/migration/` (6 instances)
-20. Replace `fmt.Errorf` with structured error wrapping in `pkg/linter/` (6 instances)
-21. Replace `fmt.Errorf` with structured error wrapping in `pkg/client/` (6 instances)
-22. Replace `fmt.Errorf` with structured error wrapping in `pkg/detection/` (5 instances)
-23. Replace `fmt.Errorf` with structured error wrapping in `pkg/gogenfilter/` (5 instances)
-24. Pass global flags as struct params instead of reading package globals in `cmd_configure.go`
-25. Add `ErrChangesNeeded` → `Conflict` exit code test to `exit_code_test.go`
-26. Add integration test for `--json-errors` output verifying `family` field per sentinel
+14. ~~Collapse `ConfigError`/`ReportError`/`MigrationError`/`AnalysisError` boilerplate into shared configurable type~~ done — see header resolution note (docs-health 2026-09-11)
+15. ~~Standardize `errors` import alias (`stderrors` in some files, `errors` in others)~~ done — see header resolution note (docs-health 2026-09-11)
+16. ~~Replace `fmt.Errorf` with structured error wrapping in `internal/cli/` commands (14 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+17. ~~Replace `fmt.Errorf` with structured error wrapping in `pkg/finding/` (9 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+18. ~~Replace `fmt.Errorf` with structured error wrapping in `pkg/config/` (8 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+19. ~~Replace `fmt.Errorf` with structured error wrapping in `pkg/migration/` (6 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+20. ~~Replace `fmt.Errorf` with structured error wrapping in `pkg/linter/` (6 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+21. ~~Replace `fmt.Errorf` with structured error wrapping in `pkg/client/` (6 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~Replace `fmt.Errorf` with structured error wrapping in `pkg/detection/` (5 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+23. ~~Replace `fmt.Errorf` with structured error wrapping in `pkg/gogenfilter/` (5 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~Pass global flags as struct params instead of reading package globals in `cmd_configure.go`~~ done — see header resolution note (docs-health 2026-09-11)
+25. ~~Add `ErrChangesNeeded` → `Conflict` exit code test to `exit_code_test.go`~~ done — see header resolution note (docs-health 2026-09-11)
+26. ~~Add integration test for `--json-errors` output verifying `family` field per sentinel~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Medium Impact / Low Effort
 
-27. Fix `_ = scanner.Err()` patterns in `detection/detector.go` (3 instances)
-28. Fix `_ = filepath.Walk` in `detection/detector.go:189` (silently ignoring walk errors)
-29. Fix `_ = filepath.Walk` in `detection/detector.go:288` (silently ignoring walk errors)
-30. Fix `_ = filepath.Walk` in `detection/detector.go:334` (silently ignoring walk errors)
-31. Fix swallowed error in `merger_helpers.go:106` (`*primary, _ = mergeUniqueItems(...)`)
+27. ~~Fix `_ = scanner.Err()` patterns in `detection/detector.go` (3 instances)~~ done — see header resolution note (docs-health 2026-09-11)
+28. ~~Fix `_ = filepath.Walk` in `detection/detector.go:189` (silently ignoring walk errors)~~ done — see header resolution note (docs-health 2026-09-11)
+29. ~~Fix `_ = filepath.Walk` in `detection/detector.go:288` (silently ignoring walk errors)~~ done — see header resolution note (docs-health 2026-09-11)
+30. ~~Fix `_ = filepath.Walk` in `detection/detector.go:334` (silently ignoring walk errors)~~ done — see header resolution note (docs-health 2026-09-11)
+31. ~~Fix swallowed error in `merger_helpers.go:106` (`*primary, _ = mergeUniqueItems(...)`)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Low Impact / High Effort
 
 32. ~~Migrate `encoding/json` v1 → v2 across 12 files~~ ✅ **DONE**
-33. Add typed wrapper for `map[string]any` linter settings with safe accessors
-34. Add property-based tests for config validation sentinel classification
-35. Add snapshot tests for JSON report output format
-36. Extract `newDefaultConfig` to a `DefaultConfigFactory` type
-37. Extract format detection + marshal/unmarshal to a `Codec` type in `config/`
-38. Investigate and fix `nixfmt-standalone` scanning `.direnv/flake-inputs/` (upstream buildflow issue)
+33. ~~Add typed wrapper for `map[string]any` linter settings with safe accessors~~ done — see header resolution note (docs-health 2026-09-11)
+34. ~~Add property-based tests for config validation sentinel classification~~ done — see header resolution note (docs-health 2026-09-11)
+35. ~~Add snapshot tests for JSON report output format~~ done — see header resolution note (docs-health 2026-09-11)
+36. ~~Extract `newDefaultConfig` to a `DefaultConfigFactory` type~~ done — see header resolution note (docs-health 2026-09-11)
+37. ~~Extract format detection + marshal/unmarshal to a `Codec` type in `config/`~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~Investigate and fix `nixfmt-standalone` scanning `.direnv/flake-inputs/` (upstream buildflow issue)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Documentation / Process
 
-39. Update `AGENTS.md` with the 10 newly registered sentinel errors
-40. Document the `GolangciLintBinaryName` and `ConfigVersionV2` constants
-41. Add architectural decision record for error family classification strategy
-42. Update `FEATURES.md` with the sentinel classification fix
-43. Update `TODO_LIST.md` with the remaining error handling cleanup items
+39. ~~Update `AGENTS.md` with the 10 newly registered sentinel errors~~ done — see header resolution note (docs-health 2026-09-11)
+40. ~~Document the `GolangciLintBinaryName` and `ConfigVersionV2` constants~~ done — see header resolution note (docs-health 2026-09-11)
+41. ~~Add architectural decision record for error family classification strategy~~ done — see header resolution note (docs-health 2026-09-11)
+42. ~~Update `FEATURES.md` with the sentinel classification fix~~ done — see header resolution note (docs-health 2026-09-11)
+43. ~~Update `TODO_LIST.md` with the remaining error handling cleanup items~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

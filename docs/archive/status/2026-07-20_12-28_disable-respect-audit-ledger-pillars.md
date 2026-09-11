@@ -1,5 +1,7 @@
 # Status Report: Disable-Respect + Audit Ledger (Pillars A/B/C)
 
+> **Resolved 2026-09-11 (docs-health archive pass).** Superseded same-day by the 22-57 completion report; audit ledger + sidecar enforcement shipped and documented (AGENTS.md gotchas #15/#16). Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 > **Date:** 2026-07-20 12:28
 > **Session driver:** Feedback `docs/feedback/new/2026-07-20_repair-re-enables-disabled-linters.md`
 > **Branch:** master
@@ -131,77 +133,77 @@ I edited `internal/cli/cmd_configure.go` to:
 
 ### Fix the build (BLOCKER)
 
-1. Define `newRunLedger(ctx, logger, configFile)` helper in `internal/cli/` — resolve repo path from configFile parent dir, build `audit.RunContext`, return `*audit.Ledger`
-2. Run `go build ./...` to confirm the CLI compiles
-3. Run full lint on `internal/cli/...`
+1. ~~Define `newRunLedger(ctx, logger, configFile)` helper in `internal/cli/` — resolve repo path from configFile parent dir, build `audit.RunContext`, return `*audit.Ledger`~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~Run `go build ./...` to confirm the CLI compiles~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~Run full lint on `internal/cli/...`~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Pillar B completion
 
-4. Add `audit` CLI subcommand with `--json`, `--since`, `--linter`, `--clear` flags
-5. Implement `--since` duration parsing (e.g. `24h`, `7d`) for the audit command
-6. Implement `--linter` filter for the audit command
-7. Implement `--clear` (delete the ledger file) for the audit command
-8. Add `--no-audit` flag to the root/configure command
-9. Add `GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT` env var support
-10. Thread `--no-audit` through to skip ledger creation
-11. Add ledger retention: purge entries older than 90 days after each run
-12. Record formatter enable/disable changes in `recordConfigChanges`
-13. Record exclusion-path additions in the ledger
-14. Record run-settings changes (parallel/serial runners, issues-exit-code) in the ledger
-15. Record build-tag additions in the ledger
-16. Record issues-settings injections (max-issues-per-linter, max-same-issues) in the ledger
-17. Record output-formats normalization in the ledger
-18. Record generated-exclusions scan results in the ledger
-19. Log the ledger path in verbose mode so the user knows where it's written
-20. Add `--audit-path` flag to override the default ledger location
+4. ~~Add `audit` CLI subcommand with `--json`, `--since`, `--linter`, `--clear` flags~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~Implement `--since` duration parsing (e.g. `24h`, `7d`) for the audit command~~ done — see header resolution note (docs-health 2026-09-11)
+6. ~~Implement `--linter` filter for the audit command~~ done — see header resolution note (docs-health 2026-09-11)
+7. ~~Implement `--clear` (delete the ledger file) for the audit command~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~Add `--no-audit` flag to the root/configure command~~ done — see header resolution note (docs-health 2026-09-11)
+9. ~~Add `GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT` env var support~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~Thread `--no-audit` through to skip ledger creation~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~Add ledger retention: purge entries older than 90 days after each run~~ done — see header resolution note (docs-health 2026-09-11)
+12. ~~Record formatter enable/disable changes in `recordConfigChanges`~~ done — see header resolution note (docs-health 2026-09-11)
+13. ~~Record exclusion-path additions in the ledger~~ done — see header resolution note (docs-health 2026-09-11)
+14. ~~Record run-settings changes (parallel/serial runners, issues-exit-code) in the ledger~~ done — see header resolution note (docs-health 2026-09-11)
+15. ~~Record build-tag additions in the ledger~~ done — see header resolution note (docs-health 2026-09-11)
+16. ~~Record issues-settings injections (max-issues-per-linter, max-same-issues) in the ledger~~ done — see header resolution note (docs-health 2026-09-11)
+17. ~~Record output-formats normalization in the ledger~~ done — see header resolution note (docs-health 2026-09-11)
+18. ~~Record generated-exclusions scan results in the ledger~~ done — see header resolution note (docs-health 2026-09-11)
+19. ~~Log the ledger path in verbose mode so the user knows where it's written~~ done — see header resolution note (docs-health 2026-09-11)
+20. ~~Add `--audit-path` flag to override the default ledger location~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Pillar C — reason sidecar
 
-21. Design the `.golangci-lint-auto-configure.yml` schema (`disable-reasons: { <linter>: <reason> }`)
-22. Create `pkg/policy/` (or `pkg/reasons/`) loader package
-23. Decide: freeform reasons vs categorized reasons (see question 1)
-24. Implement sidecar loader with graceful absence (no file = no reasons = enforcement applies)
-25. Implement re-enable enforcement in the fixer: unjustified disable → re-enable + `ActionReEnabled` ledger entry
-26. Exempt `constants.DisabledLinters` (funcorder/noinlineerr/depguard) from enforcement — they have built-in reasons
-27. Add tests: justified disable is preserved; unjustified disable is re-enabled
-28. Add tests: sidecar absent → all user disables treated as unjustified
-29. Add tests: sidecar malformed → graceful degradation (warn + treat as absent)
-30. Add a `disable-reasons init` helper command to scaffold the sidecar
+21. ~~Design the `.golangci-lint-auto-configure.yml` schema (`disable-reasons: { <linter>: <reason> }`)~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~Create `pkg/policy/` (or `pkg/reasons/`) loader package~~ done — see header resolution note (docs-health 2026-09-11)
+23. ~~Decide: freeform reasons vs categorized reasons (see question 1)~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~Implement sidecar loader with graceful absence (no file = no reasons = enforcement applies)~~ done — see header resolution note (docs-health 2026-09-11)
+25. ~~Implement re-enable enforcement in the fixer: unjustified disable → re-enable + `ActionReEnabled` ledger entry~~ done — see header resolution note (docs-health 2026-09-11)
+26. ~~Exempt `constants.DisabledLinters` (funcorder/noinlineerr/depguard) from enforcement — they have built-in reasons~~ done — see header resolution note (docs-health 2026-09-11)
+27. ~~Add tests: justified disable is preserved; unjustified disable is re-enabled~~ done — see header resolution note (docs-health 2026-09-11)
+28. ~~Add tests: sidecar absent → all user disables treated as unjustified~~ done — see header resolution note (docs-health 2026-09-11)
+29. ~~Add tests: sidecar malformed → graceful degradation (warn + treat as absent)~~ done — see header resolution note (docs-health 2026-09-11)
+30. ~~Add a `disable-reasons init` helper command to scaffold the sidecar~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Pillar C — runtime cost analysis
 
-31. Implement per-disabled-linter findings count (run golangci-lint with the linter enabled, count issues)
-32. Decide: run on every `configure` or only on `analyze` (see question 2)
-33. Cache the findings count to avoid re-running on every commit
-34. Record `findings_hidden` in the audit `Entry`
-35. Surface `findings_hidden` in the `analyze` command's disabled-linter report
+31. ~~Implement per-disabled-linter findings count (run golangci-lint with the linter enabled, count issues)~~ done — see header resolution note (docs-health 2026-09-11)
+32. ~~Decide: run on every `configure` or only on `analyze` (see question 2)~~ done — see header resolution note (docs-health 2026-09-11)
+33. ~~Cache the findings count to avoid re-running on every commit~~ done — see header resolution note (docs-health 2026-09-11)
+34. ~~Record `findings_hidden` in the audit `Entry`~~ done — see header resolution note (docs-health 2026-09-11)
+35. ~~Surface `findings_hidden` in the `analyze` command's disabled-linter report~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Pillar C — go-finding export
 
-36. Convert ledger entries to `go-finding` Finding structs
-37. Wire into the existing `--output`/`--format` (sarif/json/html) pipeline
-38. Test the SARIF output renders correctly in GitHub Code Scanning
+36. ~~Convert ledger entries to `go-finding` Finding structs~~ done — see header resolution note (docs-health 2026-09-11)
+37. ~~Wire into the existing `--output`/`--format` (sarif/json/html) pipeline~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~Test the SARIF output renders correctly in GitHub Code Scanning~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Escape hatch
 
-39. Add `--no-add-linters` flag to configure
-40. Add `GOLANGCI_LINT_AUTO_CONFIGURE_NO_ADD_LINTERS` env var
-41. Thread through to `enableRecommendedLinters` (becomes a no-op)
-42. Tests: with flag, no linters are added; without flag, normal behavior
+39. ~~Add `--no-add-linters` flag to configure~~ done — see header resolution note (docs-health 2026-09-11)
+40. ~~Add `GOLANGCI_LINT_AUTO_CONFIGURE_NO_ADD_LINTERS` env var~~ done — see header resolution note (docs-health 2026-09-11)
+41. ~~Thread through to `enableRecommendedLinters` (becomes a no-op)~~ done — see header resolution note (docs-health 2026-09-11)
+42. ~~Tests: with flag, no linters are added; without flag, normal behavior~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Docs
 
-43. README: "How to permanently disable a linter" (linters.disable + sidecar reason)
-44. README: "Audit trail" (ledger location, `audit` command)
-45. README: "Escape hatch" (--no-add-linters, --no-audit)
-46. AGENTS.md: add audit package, ledger behavior, sidecar, Critical Gotchas #14+
-47. Move feedback doc to `docs/feedback/resolved/`
-48. Update FEATURES.md (audit trail, disable-respect, anti-gaming)
-49. Update TODO_LIST.md
+43. ~~README: "How to permanently disable a linter" (linters.disable + sidecar reason)~~ done — see header resolution note (docs-health 2026-09-11)
+44. ~~README: "Audit trail" (ledger location, `audit` command)~~ done — see header resolution note (docs-health 2026-09-11)
+45. ~~README: "Escape hatch" (--no-add-linters, --no-audit)~~ done — see header resolution note (docs-health 2026-09-11)
+46. ~~AGENTS.md: add audit package, ledger behavior, sidecar, Critical Gotchas #14+~~ done — see header resolution note (docs-health 2026-09-11)
+47. ~~Move feedback doc to `docs/feedback/resolved/`~~ done — see header resolution note (docs-health 2026-09-11)
+48. ~~Update FEATURES.md (audit trail, disable-respect, anti-gaming)~~ done — see header resolution note (docs-health 2026-09-11)
+49. ~~Update TODO_LIST.md~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Validation
 
-50. Run `go test -race ./pkg/... ./internal/...`, `nix build`, `nix flake check`; update vendorHash if go.mod changed
+50. ~~Run `go test -race ./pkg/... ./internal/...`, `nix build`, `nix flake check`; update vendorHash if go.mod changed~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

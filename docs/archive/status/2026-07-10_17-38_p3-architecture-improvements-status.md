@@ -1,5 +1,7 @@
 # Status Report: P3 Architecture Improvements
 
+> **Resolved 2026-09-11 (docs-health archive pass).** Typed settings structs, configChangeRecorder, and the format preset shipped; recorder consistency achieved via configChangeRecorder (AGENTS.md gotcha #6); preset composition and settings-key validation shipped in v0.6.0. Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 **Date:** 2026-07-10 17:38
 **Session scope:** Implementing all P3 items from `docs/reviews/2026-07-10_deep-architecture-data-model-review.md`
 **Commit:** `f1e5a99` — pushed to `origin/master`
@@ -136,83 +138,83 @@ I renamed the variables during the edit but didn't update the comments. This is 
 
 ### Immediate (fix what I broke)
 
-1. Fix stale comments in `linter_settings.go` (`TypedDefault*` → `Default*`)
-2. Fix `noinlineerr` in `settingsToMap` — extract to plain `err :=` assignment
-3. Resolve 13 `goconst` issues — either `//nolint:goconst` or extract constants
-4. Update FEATURES.md with format preset
-5. Update TODO_LIST.md — mark P0-P3 as completed
-6. Update `--preset` CLI flag help text to include `format`
+1. ~~Fix stale comments in `linter_settings.go` (`TypedDefault*` → `Default*`)~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~Fix `noinlineerr` in `settingsToMap` — extract to plain `err :=` assignment~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~Resolve 13 `goconst` issues — either `//nolint:goconst` or extract constants~~ done — see header resolution note (docs-health 2026-09-11)
+4. ~~Update FEATURES.md with format preset~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~Update TODO_LIST.md — mark P0-P3 as completed~~ done — see header resolution note (docs-health 2026-09-11)
+6. ~~Update `--preset` CLI flag help text to include `format`~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Testing
 
-7. Add ToMap equivalence test (typed struct output vs old untyped map output)
-8. Add integration test: apply `format` preset, read YAML, assert formatters present
-9. Add test: `configChangeRecorder` with zero-return mutations doesn't inflate counts
-10. Add test: format preset produces `formatters.enable` with correct ordering
-11. Add benchmark: `settingsToMap` performance impact (YAML round-trip on every injection)
-12. Add fuzz test: `settingsToMap` with malformed struct inputs
+7. ~~Add ToMap equivalence test (typed struct output vs old untyped map output)~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~Add integration test: apply `format` preset, read YAML, assert formatters present~~ done — see header resolution note (docs-health 2026-09-11)
+9. ~~Add test: `configChangeRecorder` with zero-return mutations doesn't inflate counts~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~Add test: format preset produces `formatters.enable` with correct ordering~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~Add benchmark: `settingsToMap` performance impact (YAML round-trip on every injection)~~ done — see header resolution note (docs-health 2026-09-11)
+12. ~~Add fuzz test: `settingsToMap` with malformed struct inputs~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Architecture
 
-13. Extract linter name constants to eliminate goconst class of issues
-14. Apply `configChangeRecorder` to `applyAllFixes` for consistency
-15. Document the recorder design decision (why `applyAllFixes` uses raw counts)
-16. Consider preset composition pattern (`format` = `minimal` + formatters)
-17. Add `format` preset to `docs/DOMAIN_LANGUAGE.md` if presets are documented there
-18. Consider `reference+format` combined preset for projects that want everything
+13. ~~Extract linter name constants to eliminate goconst class of issues~~ done — see header resolution note (docs-health 2026-09-11)
+14. ~~Apply `configChangeRecorder` to `applyAllFixes` for consistency~~ done — see header resolution note (docs-health 2026-09-11)
+15. ~~Document the recorder design decision (why `applyAllFixes` uses raw counts)~~ done — see header resolution note (docs-health 2026-09-11)
+16. ~~Consider preset composition pattern (`format` = `minimal` + formatters)~~ done — see header resolution note (docs-health 2026-09-11)
+17. ~~Add `format` preset to `docs/DOMAIN_LANGUAGE.md` if presets are documented there~~ done — see header resolution note (docs-health 2026-09-11)
+18. ~~Consider `reference+format` combined preset for projects that want everything~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Linter Data Accuracy
 
-19. Audit remaining linter settings against golangci-lint v2.12.2 upstream docs
-20. Add missing default settings from review Section 5.2 (`wrapcheck`, `funlen`, `mnd`)
-21. Verify `depguard` rule key casing (`main` vs `Main`) against golangci-lint schema
-22. Check if `clickhouselint` should be in the `reference` preset
-23. Audit `LinterMinVersions` for accuracy against upstream `since` values
-24. Verify all `DeprecatedLinters` replacements point to linters that actually exist in v2
+19. ~~Audit remaining linter settings against golangci-lint v2.12.2 upstream docs~~ done — see header resolution note (docs-health 2026-09-11)
+20. ~~Add missing default settings from review Section 5.2 (`wrapcheck`, `funlen`, `mnd`)~~ done — see header resolution note (docs-health 2026-09-11)
+21. ~~Verify `depguard` rule key casing (`main` vs `Main`) against golangci-lint schema~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~Check if `clickhouselint` should be in the `reference` preset~~ done — see header resolution note (docs-health 2026-09-11)
+23. ~~Audit `LinterMinVersions` for accuracy against upstream `since` values~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~Verify all `DeprecatedLinters` replacements point to linters that actually exist in v2~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### CI/Build
 
-25. Fix BuildFlow false-negative: fail when `golangci-lint` reports unfixable issues
-26. Add a `golangci-lint run` (no `--fix`) step to CI separate from BuildFlow
-27. Enable CGO in test environment for `-race` detector support
-28. Add golangci-lint version pinning in CI to match devShell version
+25. ~~Fix BuildFlow false-negative: fail when `golangci-lint` reports unfixable issues~~ done — see header resolution note (docs-health 2026-09-11)
+26. ~~Add a `golangci-lint run` (no `--fix`) step to CI separate from BuildFlow~~ done — see header resolution note (docs-health 2026-09-11)
+27. ~~Enable CGO in test environment for `-race` detector support~~ done — see header resolution note (docs-health 2026-09-11)
+28. ~~Add golangci-lint version pinning in CI to match devShell version~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Documentation
 
-29. Document the `SettingsConverter` pattern in `docs/references/code-organization.md`
-30. Document the `configChangeRecorder` pattern in `docs/references/working-with-codebase.md`
-31. Update `docs/reviews/2026-07-10_deep-architecture-data-model-review.md` with resolution status
-32. Add `format` preset to README.md usage examples
-33. Update `docs/planning/2026-07-10_14-54_linter-data-accuracy-fixes.md` with completion status
+29. ~~Document the `SettingsConverter` pattern in `docs/references/code-organization.md`~~ done — see header resolution note (docs-health 2026-09-11)
+30. ~~Document the `configChangeRecorder` pattern in `docs/references/working-with-codebase.md`~~ done — see header resolution note (docs-health 2026-09-11)
+31. ~~Update `docs/reviews/2026-07-10_deep-architecture-data-model-review.md` with resolution status~~ done — see header resolution note (docs-health 2026-09-11)
+32. ~~Add `format` preset to README.md usage examples~~ done — see header resolution note (docs-health 2026-09-11)
+33. ~~Update `docs/planning/2026-07-10_14-54_linter-data-accuracy-fixes.md` with completion status~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Type Safety
 
-34. Type `OutputConfig.Formats` (only has two known shapes: `format: path`)
-35. Type `LintersSettingsV1` or document why it must stay untyped
-36. Add compile-time interface compliance check for `SettingsConverter` (`var _ SettingsConverter = DepguardSettings{}`)
-37. Consider generating settings structs from golangci-lint's JSON Schema (original P3 recommendation)
-38. Add settings key validation against golangci-lint schema at config load time
+34. ~~Type `OutputConfig.Formats` (only has two known shapes: `format: path`)~~ done — see header resolution note (docs-health 2026-09-11)
+35. ~~Type `LintersSettingsV1` or document why it must stay untyped~~ done — see header resolution note (docs-health 2026-09-11)
+36. ~~Add compile-time interface compliance check for `SettingsConverter` (`var _ SettingsConverter = DepguardSettings{}`)~~ done — see header resolution note (docs-health 2026-09-11)
+37. ~~Consider generating settings structs from golangci-lint's JSON Schema (original P3 recommendation)~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~Add settings key validation against golangci-lint schema at config load time~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Refactoring
 
-39. Consolidate `convertLinterNames` and `convertFormatterNames` into a generic `convertNames[T ~string]`
-40. Move `isEmptySettingsValue` to `pkg/types` as a utility
-41. Consider whether `configChangeRecorder` should be in its own file
-42. Evaluate whether `settingsToMap` belongs in `pkg/constants` or `pkg/config`
+39. ~~Consolidate `convertLinterNames` and `convertFormatterNames` into a generic `convertNames[T ~string]`~~ done — see header resolution note (docs-health 2026-09-11)
+40. ~~Move `isEmptySettingsValue` to `pkg/types` as a utility~~ done — see header resolution note (docs-health 2026-09-11)
+41. ~~Consider whether `configChangeRecorder` should be in its own file~~ done — see header resolution note (docs-health 2026-09-11)
+42. ~~Evaluate whether `settingsToMap` belongs in `pkg/constants` or `pkg/config`~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Feature Gaps
 
-43. Add `--list-presets` CLI command showing all presets with descriptions
-44. Add preset combination support (`--preset minimal --preset format`)
-45. Add `--dry-run` output showing diff instead of just counts
-46. Add config backup before preset application
-47. Consider `--detect` mode for format preset (enable `swaggo` if Swagger detected)
+43. ~~Add `--list-presets` CLI command showing all presets with descriptions~~ done — see header resolution note (docs-health 2026-09-11)
+44. ~~Add preset combination support (`--preset minimal --preset format`)~~ done — see header resolution note (docs-health 2026-09-11)
+45. ~~Add `--dry-run` output showing diff instead of just counts~~ done — see header resolution note (docs-health 2026-09-11)
+46. ~~Add config backup before preset application~~ done — see header resolution note (docs-health 2026-09-11)
+47. ~~Consider `--detect` mode for format preset (enable `swaggo` if Swagger detected)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Operational
 
-48. Run `nix flake check` to verify Nix build still works after changes
-49. Update `vendorHash` if go.mod changed (it didn't, but verify)
-50. Verify `templ generate` produces no diff (committed `_templ.go` files)
+48. ~~Run `nix flake check` to verify Nix build still works after changes~~ done — see header resolution note (docs-health 2026-09-11)
+49. ~~Update `vendorHash` if go.mod changed (it didn't, but verify)~~ done — see header resolution note (docs-health 2026-09-11)
+50. ~~Verify `templ generate` produces no diff (committed `_templ.go` files)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

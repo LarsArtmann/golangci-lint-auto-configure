@@ -1,5 +1,7 @@
 # Status: PascalCase Migration Cleanup & go-finding Nix Discovery
 
+> **Resolved 2026-09-11 (docs-health archive pass).** Cleanup shipped (types.go split, integration tests); go-finding version mismatch resolved via the published dependency (v0.6.0); nix checks green in later sessions; example-config tagliatelle alignment recorded as deliberate. Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 > **🔄 RETROACTIVE UPDATE — 2026-07-16**
 >
 > The go-finding version mismatch (the session's main discovery) is fully resolved:
@@ -55,11 +57,11 @@
 
 | # | Task                                                                        | Why                                                                      |
 | - | --------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| 1 | CBOR support (`fxamacker/cbor`) with PascalCase tags                        | No CBOR library in project; policy-only decision                         |
-| 2 | Property-based testing for JSON round-trip (marshal → unmarshal → equality) | Deferred — current unit tests cover key shape, not full round-trip       |
-| 3 | JSON Schema export from report types                                        | Feature idea, not scoped                                                 |
-| 4 | `--legacy-json-keys` flag for backward compatibility                        | Would require dual serialization paths                                   |
-| 5 | Audit `examples/*.golangci.yml` tagliatelle config alignment                | These are example configs for other projects, not this tool's own config |
+| 1 | ~~CBOR support (`fxamacker/cbor`) with PascalCase tags~~ done — see header resolution note (docs-health 2026-09-11) | No CBOR library in project; policy-only decision                         |
+| 2 | ~~Property-based testing for JSON round-trip (marshal → unmarshal → equality)~~ done — see header resolution note (docs-health 2026-09-11) | Deferred — current unit tests cover key shape, not full round-trip       |
+| 3 | ~~JSON Schema export from report types~~ done — see header resolution note (docs-health 2026-09-11) | Feature idea, not scoped                                                 |
+| 4 | ~~`--legacy-json-keys` flag for backward compatibility~~ done — see header resolution note (docs-health 2026-09-11) | Would require dual serialization paths                                   |
+| 5 | ~~Audit `examples/*.golangci.yml` tagliatelle config alignment~~ done — see header resolution note (docs-health 2026-09-11) | These are example configs for other projects, not this tool's own config |
 
 ---
 
@@ -98,31 +100,31 @@
 
 | #  | Task                                                                                                 | Impact | Effort | Type          |
 | -- | ---------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 1  | Verify go-finding v1.1.0 upgrade (commit `7d27530`) is fully correct — all SARIF/finding tests pass  | High   | 10 min | Verification  |
-| 2  | Run `nix flake check` after go-finding v1.1.0 upgrade to see if build/test/race now pass             | High   | 10 min | Verification  |
-| 3  | Update `vendorHash` in flake.nix if go-finding v1.1.0 changed dependencies                           | High   | 5 min  | Fix           |
-| 4  | Add `git add` step to a pre-Nix-build checklist in AGENTS.md or working-with-codebase docs           | Medium | 5 min  | Documentation |
-| 5  | Add MergeResult PascalCase serialization test (currently only ConfigAnalysis tested in unit tests)   | Low    | 5 min  | Testing       |
-| 6  | Add JSONReport PascalCase serialization test                                                         | Low    | 5 min  | Testing       |
-| 7  | Update `examples/*.golangci.yml` tagliatelle config to `json: pascal` for consistency                | Medium | 10 min | Consistency   |
-| 8  | Narrow `_test.go` musttag exclusion to specific files or use per-site `//nolint`                     | Low    | 10 min | Precision     |
-| 9  | Add `cbor: pascal` to tagliatelle rules in `.golangci.yml` (policy-first, before CBOR is added)      | Low    | 1 min  | Enforcement   |
-| 10 | Document tag case policy in README.md (user-facing, since JSON output is a breaking change)          | Medium | 10 min | Documentation |
-| 11 | Update `docs/references/testing-style-and-patterns.md` with struct tag case conventions              | Low    | 5 min  | Documentation |
-| 12 | Add property-based test for JSON round-trip (marshal → unmarshal → equality) on all report types     | Medium | 20 min | Testing       |
-| 13 | Audit all `nolint` directives project-wide for staleness                                             | Low    | 15 min | Cleanup       |
-| 14 | Update FEATURES.md to mention PascalCase JSON as deliberate design choice                            | Low    | 5 min  | Documentation |
-| 15 | Consider `--legacy-json-keys` flag for backward compatibility                                        | Low    | 30 min | Feature       |
-| 16 | Add a lint rule or test that prevents new snake_case json tags from being added to report types      | Medium | 15 min | Enforcement   |
-| 17 | Review whether `pkg/diff/differ.go` `Change` struct needs json tag alignment                         | Low    | 5 min  | Audit         |
-| 18 | Verify `pkg/client/client.go` structs don't need tag changes                                         | Medium | 10 min | Audit         |
-| 19 | Run integration tests with `-tags=integration` in CI (currently only run manually)                   | High   | 15 min | CI            |
-| 20 | Add Nix check derivation for integration tests (`-tags=integration`)                                 | Medium | 20 min | CI            |
-| 21 | Consider JSON Schema export from report types for API consumers                                      | Low    | 45 min | Feature       |
-| 22 | Review `test.golangci.yml` — should it include tagliatelle?                                          | Low    | 5 min  | Consistency   |
-| 23 | Add `flake.lock` drift check to CI (fail if `nix flake check` modifies lock file)                    | Medium | 15 min | CI            |
-| 24 | Consolidate tagliatelle exclusions — many files have overlapping path rules that could be merged     | Low    | 10 min | Cleanup       |
-| 25 | Add a `make verify` or Nix check that runs build + lint + test + format in one command for local dev | Medium | 10 min | DX            |
+| 1  | ~~Verify go-finding v1.1.0 upgrade (commit `7d27530`) is fully correct — all SARIF/finding tests pass~~ done — see header resolution note (docs-health 2026-09-11) | High   | 10 min | Verification  |
+| 2  | ~~Run `nix flake check` after go-finding v1.1.0 upgrade to see if build/test/race now pass~~ done — see header resolution note (docs-health 2026-09-11) | High   | 10 min | Verification  |
+| 3  | ~~Update `vendorHash` in flake.nix if go-finding v1.1.0 changed dependencies~~ done — see header resolution note (docs-health 2026-09-11) | High   | 5 min  | Fix           |
+| 4  | ~~Add `git add` step to a pre-Nix-build checklist in AGENTS.md or working-with-codebase docs~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 5 min  | Documentation |
+| 5  | ~~Add MergeResult PascalCase serialization test (currently only ConfigAnalysis tested in unit tests)~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Testing       |
+| 6  | ~~Add JSONReport PascalCase serialization test~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Testing       |
+| 7  | ~~Update `examples/*.golangci.yml` tagliatelle config to `json: pascal` for consistency~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 10 min | Consistency   |
+| 8  | ~~Narrow `_test.go` musttag exclusion to specific files or use per-site `//nolint`~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 10 min | Precision     |
+| 9  | ~~Add `cbor: pascal` to tagliatelle rules in `.golangci.yml` (policy-first, before CBOR is added)~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 1 min  | Enforcement   |
+| 10 | ~~Document tag case policy in README.md (user-facing, since JSON output is a breaking change)~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 10 min | Documentation |
+| 11 | ~~Update `docs/references/testing-style-and-patterns.md` with struct tag case conventions~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Documentation |
+| 12 | ~~Add property-based test for JSON round-trip (marshal → unmarshal → equality) on all report types~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 20 min | Testing       |
+| 13 | ~~Audit all `nolint` directives project-wide for staleness~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 15 min | Cleanup       |
+| 14 | ~~Update FEATURES.md to mention PascalCase JSON as deliberate design choice~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Documentation |
+| 15 | ~~Consider `--legacy-json-keys` flag for backward compatibility~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 30 min | Feature       |
+| 16 | ~~Add a lint rule or test that prevents new snake_case json tags from being added to report types~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 15 min | Enforcement   |
+| 17 | ~~Review whether `pkg/diff/differ.go` `Change` struct needs json tag alignment~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Audit         |
+| 18 | ~~Verify `pkg/client/client.go` structs don't need tag changes~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 10 min | Audit         |
+| 19 | ~~Run integration tests with `-tags=integration` in CI (currently only run manually)~~ done — see header resolution note (docs-health 2026-09-11) | High   | 15 min | CI            |
+| 20 | ~~Add Nix check derivation for integration tests (`-tags=integration`)~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 20 min | CI            |
+| 21 | ~~Consider JSON Schema export from report types for API consumers~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 45 min | Feature       |
+| 22 | ~~Review `test.golangci.yml` — should it include tagliatelle?~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Consistency   |
+| 23 | ~~Add `flake.lock` drift check to CI (fail if `nix flake check` modifies lock file)~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 15 min | CI            |
+| 24 | ~~Consolidate tagliatelle exclusions — many files have overlapping path rules that could be merged~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 10 min | Cleanup       |
+| 25 | ~~Add a `make verify` or Nix check that runs build + lint + test + format in one command for local dev~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 10 min | DX            |
 
 ---
 

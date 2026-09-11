@@ -1,4 +1,6 @@
 # Pareto Plan v2: golangci-lint Friction Reduction
+> **Archived 2026-09-11 (docs-health pass).** Executed same day (resolution table in-file); C16 funcorder test gap re-triaged into TODO_LIST; C19 shipped via the v0.6.0-v0.8.0 releases.
+
 
 **Date:** 2026-07-25 07:56 · **v2 revision:** 2026-07-25
 **Author:** Pareto-planning session, grounded in `docs/research/2026-07-25_golangci-config-ecosystem-report.md`

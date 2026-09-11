@@ -1,5 +1,7 @@
 # Status: PascalCase JSON Migration — Brutal Self-Review
 
+> **Resolved 2026-09-11 (docs-health archive pass).** slog-key scope creep reverted; follow-ups consumed by the same-day cleanup (09-56) and the 2026-07-10 50-item sweep; broad `_test.go` musttag exclusion kept deliberately; CBOR: Won't implement (ROADMAP non-goal). Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 > **🔄 RETROACTIVE UPDATE — 2026-07-16**
 >
 > Items from this report's "Next 25 things" have the following status:
@@ -61,12 +63,12 @@
 
 | # | Task                                                                     | Why                                                             |
 | - | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| 1 | Split `pkg/types/types.go` into report + config files                    | Future refactor; current file-level tagliatelle exclusion works |
-| 2 | CBOR support (`fxamacker/cbor`) with PascalCase tags                     | No CBOR library in project; policy-only decision                |
-| 3 | CHANGELOG.md entry for breaking JSON key change                          | No CHANGELOG.md exists yet                                      |
-| 4 | CLI integration test asserting PascalCase keys in `--format json` output | Current integration tests only check substring presence         |
-| 5 | `nix flake check` (comprehensive: format + build + tests)                | Not run this session                                            |
-| 6 | `nix fmt` (treefmt: Go, Nix, templ formatting)                           | Not run this session                                            |
+| 1 | ~~Split `pkg/types/types.go` into report + config files~~ done — see header resolution note (docs-health 2026-09-11) | Future refactor; current file-level tagliatelle exclusion works |
+| 2 | ~~CBOR support (`fxamacker/cbor`) with PascalCase tags~~ done — see header resolution note (docs-health 2026-09-11) | No CBOR library in project; policy-only decision                |
+| 3 | ~~CHANGELOG.md entry for breaking JSON key change~~ done — see header resolution note (docs-health 2026-09-11) | No CHANGELOG.md exists yet                                      |
+| 4 | ~~CLI integration test asserting PascalCase keys in `--format json` output~~ done — see header resolution note (docs-health 2026-09-11) | Current integration tests only check substring presence         |
+| 5 | ~~`nix flake check` (comprehensive: format + build + tests)~~ done — see header resolution note (docs-health 2026-09-11) | Not run this session                                            |
+| 6 | ~~`nix fmt` (treefmt: Go, Nix, templ formatting)~~ done — see header resolution note (docs-health 2026-09-11) | Not run this session                                            |
 
 ---
 
@@ -99,31 +101,31 @@
 
 | #  | Task                                                                                                          | Impact | Effort | Type          |
 | -- | ------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 1  | **Revert slog keys in `examples/api-usage/main.go` back to snake_case**                                       | High   | 2 min  | Bugfix        |
-| 2  | Run `nix fmt` to verify treefmt formatting                                                                    | High   | 3 min  | Verification  |
-| 3  | Run `nix flake check` for comprehensive validation                                                            | High   | 10 min | Verification  |
-| 4  | Add integration test (`//go:build integration`): parse `analyze --format json` output, assert PascalCase keys | High   | 15 min | Testing       |
-| 5  | Add integration test: parse `report --format json` output, assert PascalCase keys                             | High   | 15 min | Testing       |
-| 6  | Split `pkg/types/types.go` → `report_types.go` + `config_types.go`                                            | Medium | 12 min | Refactor      |
-| 7  | Remove tagliatelle exclusion for `pkg/types/types.go` after split                                             | Medium | 2 min  | Enforcement   |
-| 8  | Update `examples/*.golangci.yml` tagliatelle config to `json: pascal` (if applicable)                         | Medium | 10 min | Consistency   |
-| 9  | Add CHANGELOG.md entry for breaking JSON key change                                                           | High   | 5 min  | Documentation |
-| 10 | Update `docs/references/testing-style-and-patterns.md` with struct tag case conventions                       | Low    | 5 min  | Documentation |
-| 11 | Narrow `_test.go` musttag exclusion to specific files or use per-site `//nolint`                              | Low    | 10 min | Precision     |
-| 12 | Add `fxamacker/cbor` dependency + PascalCase `cbor:` tags on report types                                     | Low    | 12 min | Feature       |
-| 13 | Add `cbor: pascal` to tagliatelle rules in `.golangci.yml`                                                    | Low    | 1 min  | Enforcement   |
-| 14 | Consider `--legacy-json-keys` flag for backward compatibility                                                 | Low    | 30 min | Feature       |
-| 15 | Document tag case policy in README.md (user-facing)                                                           | Medium | 10 min | Documentation |
-| 16 | Add property-based test for JSON round-trip (marshal → unmarshal → equality)                                  | Medium | 20 min | Testing       |
-| 17 | Audit all `nolint` directives project-wide for staleness                                                      | Low    | 15 min | Cleanup       |
-| 18 | Update FEATURES.md to mention PascalCase JSON as deliberate design choice                                     | Low    | 5 min  | Documentation |
-| 19 | Verify `pkg/client/client.go` structs don't need tag changes                                                  | Medium | 10 min | Audit         |
-| 20 | Add `go:generate` linter script to auto-detect policy violations                                              | Low    | 30 min | Tooling       |
-| 21 | Consider JSON Schema export from report types                                                                 | Low    | 45 min | Feature       |
-| 22 | Review `test.golangci.yml` — should it include tagliatelle?                                                   | Low    | 5 min  | Consistency   |
-| 23 | Add test that `MergeResult` marshals PascalCase (currently only ConfigAnalysis tested)                        | Low    | 5 min  | Testing       |
-| 24 | Remove or commit previous status report (`05-54` file)                                                        | Low    | 1 min  | Cleanup       |
-| 25 | Review whether `pkg/diff/differ.go` `Change` struct needs json tags                                           | Low    | 5 min  | Audit         |
+| 1  | ~~**Revert slog keys in `examples/api-usage/main.go` back to snake_case**~~ done — see header resolution note (docs-health 2026-09-11) | High   | 2 min  | Bugfix        |
+| 2  | ~~Run `nix fmt` to verify treefmt formatting~~ done — see header resolution note (docs-health 2026-09-11) | High   | 3 min  | Verification  |
+| 3  | ~~Run `nix flake check` for comprehensive validation~~ done — see header resolution note (docs-health 2026-09-11) | High   | 10 min | Verification  |
+| 4  | ~~Add integration test (`//go:build integration`): parse `analyze --format json` output, assert PascalCase keys~~ done — see header resolution note (docs-health 2026-09-11) | High   | 15 min | Testing       |
+| 5  | ~~Add integration test: parse `report --format json` output, assert PascalCase keys~~ done — see header resolution note (docs-health 2026-09-11) | High   | 15 min | Testing       |
+| 6  | ~~Split `pkg/types/types.go` → `report_types.go` + `config_types.go`~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 12 min | Refactor      |
+| 7  | ~~Remove tagliatelle exclusion for `pkg/types/types.go` after split~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 2 min  | Enforcement   |
+| 8  | ~~Update `examples/*.golangci.yml` tagliatelle config to `json: pascal` (if applicable)~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 10 min | Consistency   |
+| 9  | ~~Add CHANGELOG.md entry for breaking JSON key change~~ done — see header resolution note (docs-health 2026-09-11) | High   | 5 min  | Documentation |
+| 10 | ~~Update `docs/references/testing-style-and-patterns.md` with struct tag case conventions~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Documentation |
+| 11 | ~~Narrow `_test.go` musttag exclusion to specific files or use per-site `//nolint`~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 10 min | Precision     |
+| 12 | ~~Add `fxamacker/cbor` dependency + PascalCase `cbor:` tags on report types~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 12 min | Feature       |
+| 13 | ~~Add `cbor: pascal` to tagliatelle rules in `.golangci.yml`~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 1 min  | Enforcement   |
+| 14 | ~~Consider `--legacy-json-keys` flag for backward compatibility~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 30 min | Feature       |
+| 15 | ~~Document tag case policy in README.md (user-facing)~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 10 min | Documentation |
+| 16 | ~~Add property-based test for JSON round-trip (marshal → unmarshal → equality)~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 20 min | Testing       |
+| 17 | ~~Audit all `nolint` directives project-wide for staleness~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 15 min | Cleanup       |
+| 18 | ~~Update FEATURES.md to mention PascalCase JSON as deliberate design choice~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Documentation |
+| 19 | ~~Verify `pkg/client/client.go` structs don't need tag changes~~ done — see header resolution note (docs-health 2026-09-11) | Medium | 10 min | Audit         |
+| 20 | ~~Add `go:generate` linter script to auto-detect policy violations~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 30 min | Tooling       |
+| 21 | ~~Consider JSON Schema export from report types~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 45 min | Feature       |
+| 22 | ~~Review `test.golangci.yml` — should it include tagliatelle?~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Consistency   |
+| 23 | ~~Add test that `MergeResult` marshals PascalCase (currently only ConfigAnalysis tested)~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Testing       |
+| 24 | ~~Remove or commit previous status report (`05-54` file)~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 1 min  | Cleanup       |
+| 25 | ~~Review whether `pkg/diff/differ.go` `Change` struct needs json tags~~ done — see header resolution note (docs-health 2026-09-11) | Low    | 5 min  | Audit         |
 
 ---
 

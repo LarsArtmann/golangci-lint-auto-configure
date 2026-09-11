@@ -1,5 +1,7 @@
 # Status Report: Test Gap Closure for `presets` Command and `backupConfigFile`
 
+> **Resolved 2026-09-11 (docs-health archive pass).** 9 presets/backup tests shipped (`8dd98da`); `presets --json` shipped (v0.6.0); backup rotation/restore intentionally never prioritized (single `.bak` kept). Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 **Date:** 2026-07-10 21:54
 **Session scope:** Close test gaps identified in the prior session's handoff notes
 **Commit:** `8dd98da` — test: add unit tests for presets command and config backup
@@ -35,10 +37,10 @@
 
 | # | Item                                                                                                  | Why                                                                                                                         |
 | - | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| 1 | Update prior session's status report (`docs/status/2026-07-10_19-07_50-item-todo-list-full-sweep.md`) | The handoff said "Zero tests for presets command and backupConfigFile" — this is now resolved but the report wasn't updated |
-| 2 | End-to-end CLI test for `presets` subcommand                                                          | No integration test that runs `golangci-lint-auto-configure presets` as a binary and checks stdout                          |
-| 3 | Test for `backupConfigFile` permission mode (`0o600`)                                                 | Not tested whether the `.bak` file is created with the intended restrictive permissions                                     |
-| 4 | `--backup` flag decision                                                                              | The handoff noted this as an open question — backup is always-on, no opt-in/opt-out flag                                    |
+| 1 | ~~Update prior session's status report (`docs/status/2026-07-10_19-07_50-item-todo-list-full-sweep.md`)~~ done — see header resolution note (docs-health 2026-09-11) | The handoff said "Zero tests for presets command and backupConfigFile" — this is now resolved but the report wasn't updated |
+| 2 | ~~End-to-end CLI test for `presets` subcommand~~ done — see header resolution note (docs-health 2026-09-11) | No integration test that runs `golangci-lint-auto-configure presets` as a binary and checks stdout                          |
+| 3 | ~~Test for `backupConfigFile` permission mode (`0o600`)~~ done — see header resolution note (docs-health 2026-09-11) | Not tested whether the `.bak` file is created with the intended restrictive permissions                                     |
+| 4 | ~~`--backup` flag decision~~ done — see header resolution note (docs-health 2026-09-11) | The handoff noted this as an open question — backup is always-on, no opt-in/opt-out flag                                    |
 
 ---
 
@@ -83,80 +85,80 @@ Nothing this session. However, calling out honest issues from the code I wrote:
 
 ### Testing — Close CLI Coverage Gaps (Priority: High)
 
-1. Add unit test for `ensureConfigFile` (creates default config when missing)
-2. Add unit test for `prepareConfigFile` (wraps ensureConfigFile + load)
-3. Add unit test for `loadPresetConfig` (loads + validates config for preset application)
-4. Add unit test for `savePresetConfig` (saves config after applying preset linters + formatters)
-5. Add unit test for `handlePresetMode` (orchestrates load → apply → save with backup)
-6. Add unit test for `logDryRunPreset` (prints preset linters and formatters in dry-run)
-7. Add unit test for `finalizeFixerResult` (displays fix counts and next steps)
-8. Add unit test for `runFmtCommand` (runs gofmt/gofumpt via subprocess)
-9. Add unit test for `runFixerMode` (full fixer pipeline with mock analyzer)
-10. Add unit test for `showConfigDiff` (generates and displays config diff)
-11. Add unit test for `applyCheckDiff` non-NoOp path (actual diff application)
-12. Add unit test for `runPresetOrFixer` (dispatches between preset and fixer modes)
-13. Add unit test for `runDetectOrConfigure` (detect → configure pipeline)
-14. Add unit test for `runConfigure` (main configure entry point)
-15. Add unit test for `newConfigureCommand` (flag wiring, help text)
-16. Add unit test for `addConfigureFlags` (all flags registered correctly)
+1. ~~Add unit test for `ensureConfigFile` (creates default config when missing)~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~Add unit test for `prepareConfigFile` (wraps ensureConfigFile + load)~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~Add unit test for `loadPresetConfig` (loads + validates config for preset application)~~ done — see header resolution note (docs-health 2026-09-11)
+4. ~~Add unit test for `savePresetConfig` (saves config after applying preset linters + formatters)~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~Add unit test for `handlePresetMode` (orchestrates load → apply → save with backup)~~ done — see header resolution note (docs-health 2026-09-11)
+6. ~~Add unit test for `logDryRunPreset` (prints preset linters and formatters in dry-run)~~ done — see header resolution note (docs-health 2026-09-11)
+7. ~~Add unit test for `finalizeFixerResult` (displays fix counts and next steps)~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~Add unit test for `runFmtCommand` (runs gofmt/gofumpt via subprocess)~~ done — see header resolution note (docs-health 2026-09-11)
+9. ~~Add unit test for `runFixerMode` (full fixer pipeline with mock analyzer)~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~Add unit test for `showConfigDiff` (generates and displays config diff)~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~Add unit test for `applyCheckDiff` non-NoOp path (actual diff application)~~ done — see header resolution note (docs-health 2026-09-11)
+12. ~~Add unit test for `runPresetOrFixer` (dispatches between preset and fixer modes)~~ done — see header resolution note (docs-health 2026-09-11)
+13. ~~Add unit test for `runDetectOrConfigure` (detect → configure pipeline)~~ done — see header resolution note (docs-health 2026-09-11)
+14. ~~Add unit test for `runConfigure` (main configure entry point)~~ done — see header resolution note (docs-health 2026-09-11)
+15. ~~Add unit test for `newConfigureCommand` (flag wiring, help text)~~ done — see header resolution note (docs-health 2026-09-11)
+16. ~~Add unit test for `addConfigureFlags` (all flags registered correctly)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Testing — Strengthen Existing Tests (Priority: Medium)
 
-17. Add `convertNames` edge case tests (empty, nil, single element)
-18. Add `backupConfigFile` permission mode test (verify `0o600`)
-19. Add integration test for `presets` subcommand (run binary, check stdout)
-20. Add test for `runListPresets` with exact linter/formatter counts per preset
-21. Add fuzz test for `ParsePriorityParam` (random strings)
-22. Add table-driven test for `applyPreset` with all preset × dryRun combinations
+17. ~~Add `convertNames` edge case tests (empty, nil, single element)~~ done — see header resolution note (docs-health 2026-09-11)
+18. ~~Add `backupConfigFile` permission mode test (verify `0o600`)~~ done — see header resolution note (docs-health 2026-09-11)
+19. ~~Add integration test for `presets` subcommand (run binary, check stdout)~~ done — see header resolution note (docs-health 2026-09-11)
+20. ~~Add test for `runListPresets` with exact linter/formatter counts per preset~~ done — see header resolution note (docs-health 2026-09-11)
+21. ~~Add fuzz test for `ParsePriorityParam` (random strings)~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~Add table-driven test for `applyPreset` with all preset × dryRun combinations~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Architecture — Backup Strategy (Priority: Medium)
 
-23. Replace `.bak` overwrite with timestamped backups (`.golangci.yml.bak.20260710-215400`)
-24. Add `--backup` flag to make backup opt-in or always-on configurable
-25. Add backup rotation (keep last N backups, default 3)
-26. Add `--restore-backup` flag to undo last preset application
+23. ~~Replace `.bak` overwrite with timestamped backups (`.golangci.yml.bak.20260710-215400`)~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~Add `--backup` flag to make backup opt-in or always-on configurable~~ done — see header resolution note (docs-health 2026-09-11)
+25. ~~Add backup rotation (keep last N backups, default 3)~~ done — see header resolution note (docs-health 2026-09-11)
+26. ~~Add `--restore-backup` flag to undo last preset application~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Architecture — Output Formatting (Priority: Medium)
 
-27. Change `runListPresets` from `logger.Infof` to `fmt.Println` for clean CLI output
-28. Add `--json` flag to `presets` command for machine-readable output
-29. Add `presets --verbose` to show full linter/formatter lists per preset
+27. ~~Change `runListPresets` from `logger.Infof` to `fmt.Println` for clean CLI output~~ done — see header resolution note (docs-health 2026-09-11)
+28. ~~Add `--json` flag to `presets` command for machine-readable output~~ done — see header resolution note (docs-health 2026-09-11)
+29. ~~Add `presets --verbose` to show full linter/formatter lists per preset~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Architecture — Type Safety (Priority: Low)
 
-30. Make `backupConfigFile` return the backup path (not just error) for logging consistency
-31. Extract preset application into a dedicated `PresetApplier` type (testable, injectable)
-32. Add `PresetName` typed string (currently raw `string` everywhere)
+30. ~~Make `backupConfigFile` return the backup path (not just error) for logging consistency~~ done — see header resolution note (docs-health 2026-09-11)
+31. ~~Extract preset application into a dedicated `PresetApplier` type (testable, injectable)~~ done — see header resolution note (docs-health 2026-09-11)
+32. ~~Add `PresetName` typed string (currently raw `string` everywhere)~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### CI/CD (Priority: Medium)
 
-33. Add minimum coverage gate to CI (start at 15%, ratchet up)
-34. Add `-race` flag support locally (requires CGO — document the setup)
-35. Pin `GOEXPERIMENT=jsonv2` in `.envrc` or Makefile-equivalent for non-Nix users
-36. Add integration test job that builds binary and runs `presets`, `configure --preset`, `fix`
+33. ~~Add minimum coverage gate to CI (start at 15%, ratchet up)~~ done — see header resolution note (docs-health 2026-09-11)
+34. ~~Add `-race` flag support locally (requires CGO — document the setup)~~ done — see header resolution note (docs-health 2026-09-11)
+35. ~~Pin `GOEXPERIMENT=jsonv2` in `.envrc` or Makefile-equivalent for non-Nix users~~ done — see header resolution note (docs-health 2026-09-11)
+36. ~~Add integration test job that builds binary and runs `presets`, `configure --preset`, `fix`~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Documentation (Priority: Low)
 
-37. Update `docs/status/2026-07-10_19-07_50-item-todo-list-full-sweep.md` to mark items resolved
-38. Document `backupConfigFile` behavior in `docs/references/working-with-codebase.md`
-39. Add `presets` command to README.md usage examples (currently only mentions `--preset` flag)
-40. Update FEATURES.md to note that `presets` command is tested
+37. ~~Update `docs/status/2026-07-10_19-07_50-item-todo-list-full-sweep.md` to mark items resolved~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~Document `backupConfigFile` behavior in `docs/references/working-with-codebase.md`~~ done — see header resolution note (docs-health 2026-09-11)
+39. ~~Add `presets` command to README.md usage examples (currently only mentions `--preset` flag)~~ done — see header resolution note (docs-health 2026-09-11)
+40. ~~Update FEATURES.md to note that `presets` command is tested~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Code Quality (Priority: Low)
 
-41. Remove `//nolint:gosec,mnd` on `backupConfigFile` WriteFile — use named constant for `0o600`
-42. Extract `.bak` suffix to named constant (`const backupSuffix = ".bak"`)
-43. Add `errors.Is` checks in backup tests instead of just `err == nil`
-44. Consider `io/fs` permission constants instead of octal literals
+41. ~~Remove `//nolint:gosec,mnd` on `backupConfigFile` WriteFile — use named constant for `0o600`~~ done — see header resolution note (docs-health 2026-09-11)
+42. ~~Extract `.bak` suffix to named constant (`const backupSuffix = ".bak"`)~~ done — see header resolution note (docs-health 2026-09-11)
+43. ~~Add `errors.Is` checks in backup tests instead of just `err == nil`~~ done — see header resolution note (docs-health 2026-09-11)
+44. ~~Consider `io/fs` permission constants instead of octal literals~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Prior Session Debt (Priority: Medium)
 
-45. Audit all 50 items from prior session — verify each is actually complete in the codebase
-46. Verify `GomoddirectivesSettings` type in `linter_settings.go` matches golangci-lint v2.12.2 schema
-47. Verify format preset formatter ordering (`gci, goimports, gofumpt`) matches `FormatterOrder` constant
-48. Check if `PresetDescriptions` linter counts in text match actual `PresetLinters` slice lengths
-49. Verify `CGO_ENABLED: 1` in CI actually fixes `-race` tests (can't verify locally without CGO)
-50. Run `nix flake check` and verify `flake.lock` wasn't mutated this session
+45. ~~Audit all 50 items from prior session — verify each is actually complete in the codebase~~ done — see header resolution note (docs-health 2026-09-11)
+46. ~~Verify `GomoddirectivesSettings` type in `linter_settings.go` matches golangci-lint v2.12.2 schema~~ done — see header resolution note (docs-health 2026-09-11)
+47. ~~Verify format preset formatter ordering (`gci, goimports, gofumpt`) matches `FormatterOrder` constant~~ done — see header resolution note (docs-health 2026-09-11)
+48. ~~Check if `PresetDescriptions` linter counts in text match actual `PresetLinters` slice lengths~~ done — see header resolution note (docs-health 2026-09-11)
+49. ~~Verify `CGO_ENABLED: 1` in CI actually fixes `-race` tests (can't verify locally without CGO)~~ done — see header resolution note (docs-health 2026-09-11)
+50. ~~Run `nix flake check` and verify `flake.lock` wasn't mutated this session~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

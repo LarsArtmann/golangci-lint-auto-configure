@@ -108,7 +108,7 @@ The full ranked backlog is section (f).
 | 17 | Determinism guard: run generator twice, assert byte-identical output                                                                                 | Low      | S      | Quality       |
 | 18 | CHANGELOG entry for the generator gofmt fix + regenerated file                                                                                       | Medium   | S      | Documentation |
 | 19 | Confirm daemon-injected `.golangci.yml` additions (goconst/nestif/tagalign in `8645cd3`) were intentional self-config                                | Low      | S      | Documentation |
-| 20 | Commit AGENTS.md gotcha #35 (pending daemon)                                                                                                         | Medium   | S      | Documentation |
+| 20 | ~~Commit AGENTS.md gotcha #35 (pending daemon)~~ done — committed (`ff6dca9` era); verified in AGENTS.md                                                                                                         | Medium   | S      | Documentation |
 | 21 | Refresh or delete stale root `coverprofile.out` (dated Jun 18)                                                                                       | Low      | S      | Cleanup       |
 | 22 | Act on or archive `BDD_TESTS_REVIEW.md` findings (Sep 2)                                                                                             | Low      | M      | Cleanup       |
 | 23 | Add `--version` smoke check (ldflags correctness) to flake checks                                                                                    | Low      | S      | Quality       |
@@ -122,7 +122,7 @@ The full ranked backlog is section (f).
 | 31 | Make flake checks multi-system or explicitly gate (`--all-systems` currently omits aarch64/darwin)                                                   | Low      | S      | Quality       |
 | 32 | Verify go-finding v1.10.0 / ginkgo v2.32.1 bumps against integration docs; update referenced versions                                                | Low      | S      | Documentation |
 | 33 | Prune AGENTS.md (28KB): move narrative to docs/references, keep gotchas terse                                                                        | Low      | M      | Documentation |
-| 34 | Harvest this report's section (f) into TODO_LIST.md / ROADMAP.md via docs-health HARVEST                                                             | High     | S      | Documentation |
+| 34 | ~~Harvest this report's section (f) into TODO_LIST.md / ROADMAP.md via docs-health HARVEST~~ done — docs-health harvest pass 2026-09-11 (TODO_LIST.md/ROADMAP.md updated)                                                             | High     | S      | Documentation |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 

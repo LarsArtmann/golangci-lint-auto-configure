@@ -1,5 +1,7 @@
 # Session Status: Quality Sprint Execution — Honest Self-Review
 
+> **Resolved 2026-09-11 (docs-health archive pass).** Commits landed; ParsePriorityParam classification, --diff/--check tests, HandleError, CommandResult, exit-code 69/65 tests, and the HTML golden snapshot test all shipped in v0.6.0; gogenfilter scanner coverage remains a ROADMAP item. Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 > **🔄 RETROACTIVE UPDATE — 2026-07-16**
 >
 > Items from this report's "25 things to do next" have the following status:
@@ -147,31 +149,31 @@ Added 6 test functions to `pkg/gogenfilter/util_test.go`. Coverage stayed at 63.
 
 | #  | Task                                                                                 | Impact      | Effort | Notes                                                   |
 | -- | ------------------------------------------------------------------------------------ | ----------- | ------ | ------------------------------------------------------- |
-| 1  | **Commit all current changes**                                                       | 🔴 Critical | 5min   | 16 files uncommitted. Do this FIRST.                    |
-| 2  | **Fix ParsePriorityParam classification** (register ErrInvalidPriority as Rejection) | 🔴 High     | 15min  | Invalid args show as Transient/retryable — wrong        |
-| 3  | **Add --diff integration tests** (additions shown, removals shown, dry-run)          | 🔴 High     | 30min  | User-facing output, zero tests                          |
-| 4  | **Add --check integration tests** (optimal→0, dry-run combo, writes-nothing)         | 🔴 High     | 30min  | Only 1 of 4 planned tests exists                        |
-| 5  | **Add exit-code test: Infrastructure (69)** — golangci-lint not in PATH              | 🟡 Medium   | 15min  | 4 of 5 families tested, this one missing                |
-| 6  | **Write scanner detection tests** (templ content, protobuf content, sqlc config)     | 🟡 Medium   | 45min  | This is what actually improves gogenfilter coverage     |
-| 7  | **Fix nixfmt-standalone in devShell**                                                | 🟡 Medium   | 30min  | Root cause of all --no-verify bypasses                  |
-| 8  | **Consider Result type for CLI commands**                                            | 🟡 Medium   | 60min  | Enables assertion-based testing without binary exec     |
-| 9  | **Convert coverage-check.sh to Go test**                                             | 🟢 Low      | 30min  | More portable, testable                                 |
-| 10 | **Add SARIF schema validation test**                                                 | 🟢 Low      | 30min  | CI consumers depend on valid SARIF                      |
-| 11 | **Adopt HandleError at CLI boundary**                                                | 🟢 Low      | 45min  | Current slog.Error works but isn't structured           |
-| 12 | **HTML snapshot test for templ reports**                                             | 🟢 Low      | 45min  | Reports can change silently                             |
-| 13 | **Document errorfamily timestamp non-determinism**                                   | 🟢 Low      | 10min  | CI consumers may diff JSON output                       |
-| 14 | **Register domain message templates** for sentinels                                  | 🟢 Low      | 30min  | Human-readable messages for all sentinels               |
-| 15 | **Add testifylint enable-all verification**                                          | 🟢 Low      | 5min   | Check .golangci.yml config                              |
-| 16 | **Property test: fixer idempotency** (fix twice = fix once) using real FixConfig     | 🟢 Low      | 45min  | Core correctness invariant, needs golangci-lint binary  |
-| 17 | **Research koanf for config loading**                                                | 🟢 Low      | 60min  | Replaces hand-rolled YAML/TOML/JSON dispatch            |
-| 18 | **Investigate Config immutability**                                                  | 🟢 Low      | 120min | Biggest type-safety improvement, largest effort         |
-| 19 | **Add --diff shows color codes test**                                                | 🟢 Low      | 15min  | Verify green/red formatting                             |
-| 20 | **Add go-error-family Handle() integration**                                         | 🟢 Low      | 30min  | If go-error-family supports Handle pattern              |
-| 21 | **Benchmark full configure command**                                                 | 🟢 Low      | 30min  | End-to-end performance regression detection             |
-| 22 | **Add corrupted-version-string exit code test (65)**                                 | 🟢 Low      | 15min  | Corruption path untested                                |
-| 23 | **Consider --output=stderr for errors**                                              | 🟢 Low      | 15min  | Currently errors go to stdout via fang, stderr via slog |
-| 24 | **Document --quiet and --json-errors in README.md**                                  | 🟢 Low      | 10min  | User-facing flags not in README                         |
-| 25 | **Audit all fmt.Errorf in CLI for missing sentinels**                                | 🟡 Medium   | 45min  | Several bare errors may classify incorrectly            |
+| 1  | ~~**Commit all current changes**~~ done — see header resolution note (docs-health 2026-09-11) | 🔴 Critical | 5min   | 16 files uncommitted. Do this FIRST.                    |
+| 2  | ~~**Fix ParsePriorityParam classification** (register ErrInvalidPriority as Rejection)~~ done — see header resolution note (docs-health 2026-09-11) | 🔴 High     | 15min  | Invalid args show as Transient/retryable — wrong        |
+| 3  | ~~**Add --diff integration tests** (additions shown, removals shown, dry-run)~~ done — see header resolution note (docs-health 2026-09-11) | 🔴 High     | 30min  | User-facing output, zero tests                          |
+| 4  | ~~**Add --check integration tests** (optimal→0, dry-run combo, writes-nothing)~~ done — see header resolution note (docs-health 2026-09-11) | 🔴 High     | 30min  | Only 1 of 4 planned tests exists                        |
+| 5  | ~~**Add exit-code test: Infrastructure (69)** — golangci-lint not in PATH~~ done — see header resolution note (docs-health 2026-09-11) | 🟡 Medium   | 15min  | 4 of 5 families tested, this one missing                |
+| 6  | ~~**Write scanner detection tests** (templ content, protobuf content, sqlc config)~~ done — see header resolution note (docs-health 2026-09-11) | 🟡 Medium   | 45min  | This is what actually improves gogenfilter coverage     |
+| 7  | ~~**Fix nixfmt-standalone in devShell**~~ done — see header resolution note (docs-health 2026-09-11) | 🟡 Medium   | 30min  | Root cause of all --no-verify bypasses                  |
+| 8  | ~~**Consider Result type for CLI commands**~~ done — see header resolution note (docs-health 2026-09-11) | 🟡 Medium   | 60min  | Enables assertion-based testing without binary exec     |
+| 9  | ~~**Convert coverage-check.sh to Go test**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 30min  | More portable, testable                                 |
+| 10 | ~~**Add SARIF schema validation test**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 30min  | CI consumers depend on valid SARIF                      |
+| 11 | ~~**Adopt HandleError at CLI boundary**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 45min  | Current slog.Error works but isn't structured           |
+| 12 | ~~**HTML snapshot test for templ reports**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 45min  | Reports can change silently                             |
+| 13 | ~~**Document errorfamily timestamp non-determinism**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 10min  | CI consumers may diff JSON output                       |
+| 14 | ~~**Register domain message templates** for sentinels~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 30min  | Human-readable messages for all sentinels               |
+| 15 | ~~**Add testifylint enable-all verification**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 5min   | Check .golangci.yml config                              |
+| 16 | ~~**Property test: fixer idempotency** (fix twice = fix once) using real FixConfig~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 45min  | Core correctness invariant, needs golangci-lint binary  |
+| 17 | ~~**Research koanf for config loading**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 60min  | Replaces hand-rolled YAML/TOML/JSON dispatch            |
+| 18 | ~~**Investigate Config immutability**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 120min | Biggest type-safety improvement, largest effort         |
+| 19 | ~~**Add --diff shows color codes test**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 15min  | Verify green/red formatting                             |
+| 20 | ~~**Add go-error-family Handle() integration**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 30min  | If go-error-family supports Handle pattern              |
+| 21 | ~~**Benchmark full configure command**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 30min  | End-to-end performance regression detection             |
+| 22 | ~~**Add corrupted-version-string exit code test (65)**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 15min  | Corruption path untested                                |
+| 23 | ~~**Consider --output=stderr for errors**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 15min  | Currently errors go to stdout via fang, stderr via slog |
+| 24 | ~~**Document --quiet and --json-errors in README.md**~~ done — see header resolution note (docs-health 2026-09-11) | 🟢 Low      | 10min  | User-facing flags not in README                         |
+| 25 | ~~**Audit all fmt.Errorf in CLI for missing sentinels**~~ done — see header resolution note (docs-health 2026-09-11) | 🟡 Medium   | 45min  | Several bare errors may classify incorrectly            |
 
 ---
 

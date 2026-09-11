@@ -1,5 +1,7 @@
 # Status: json/v2 Migration Completion + BuildFlow 44/44 Green
 
+> **Resolved 2026-09-11 (docs-health archive pass).** json/v2 migration complete and durable (44/44 buildflow, flake checks green); follow-ups shipped or codified in AGENTS.md gotchas #12/#17/#23. Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 > **🔄 RETROACTIVE UPDATE — 2026-07-16**
 >
 > Since this report, the following loose ends have been resolved:
@@ -126,20 +128,20 @@ Commit a8ff465 migrated `encoding/json` v1→v2 but left the project broken: no 
 
 ### Immediate (this session's loose ends)
 
-1. **Commit `.buildflow.yml`** — it's untracked and required for 44/44 buildflow
-2. **Remove `/tmp/jsontest*.go` and `/tmp/jsontest2.go`** — debug temp files
-3. **Verify the previous status report at `docs/status/2026-07-09_06-29` is still accurate** — or mark it superseded by this one
+1. ~~**Commit `.buildflow.yml`** — it's untracked and required for 44/44 buildflow~~ done — see header resolution note (docs-health 2026-09-11)
+2. ~~**Remove `/tmp/jsontest*.go` and `/tmp/jsontest2.go`** — debug temp files~~ done — see header resolution note (docs-health 2026-09-11)
+3. ~~**Verify the previous status report at `docs/status/2026-07-09_06-29` is still accurate** — or mark it superseded by this one~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Testing
 
-4. **Add unit test for `golangciLinterEntry` JSON parsing** — mock golangci-lint `{"Enabled": [...], "Disabled": [...]}` JSON, verify all fields parse
-5. **Add unit test for `golangciFormatterEntry` JSON parsing** — same for formatters
-6. **Add unit test for `LinterList` in loader.go** — verify case-sensitive `"Enabled"` tag with real golangci-lint output shape
-7. **Add JSON config round-trip test** — `marshalConfig(ConfigFormatJSON)` → `unmarshalConfig(ConfigFormatJSON)` under json/v2
-8. **Add fuzz test for `ParseGolangciLintJSON`** — verify `GolangciLintIssue` tags work under v2 with edge cases
-9. **Test `getAllLinterNames` function directly** — currently only indirect coverage via fixer tests
-10. **Add integration test running the full CLI binary** — end-to-end `golangci-lint-auto-configure configure` with real config
-11. **Benchmark json/v2 vs v1 for config parsing** — if performance matters for large configs
+4. ~~**Add unit test for `golangciLinterEntry` JSON parsing** — mock golangci-lint `{"Enabled": [...], "Disabled": [...]}` JSON, verify all fields parse~~ done — see header resolution note (docs-health 2026-09-11)
+5. ~~**Add unit test for `golangciFormatterEntry` JSON parsing** — same for formatters~~ done — see header resolution note (docs-health 2026-09-11)
+6. ~~**Add unit test for `LinterList` in loader.go** — verify case-sensitive `"Enabled"` tag with real golangci-lint output shape~~ done — see header resolution note (docs-health 2026-09-11)
+7. ~~**Add JSON config round-trip test** — `marshalConfig(ConfigFormatJSON)` → `unmarshalConfig(ConfigFormatJSON)` under json/v2~~ done — see header resolution note (docs-health 2026-09-11)
+8. ~~**Add fuzz test for `ParseGolangciLintJSON`** — verify `GolangciLintIssue` tags work under v2 with edge cases~~ done — see header resolution note (docs-health 2026-09-11)
+9. ~~**Test `getAllLinterNames` function directly** — currently only indirect coverage via fixer tests~~ done — see header resolution note (docs-health 2026-09-11)
+10. ~~**Add integration test running the full CLI binary** — end-to-end `golangci-lint-auto-configure configure` with real config~~ done — see header resolution note (docs-health 2026-09-11)
+11. ~~**Benchmark json/v2 vs v1 for config parsing** — if performance matters for large configs~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Build / CI
 
@@ -152,15 +154,15 @@ Commit a8ff465 migrated `encoding/json` v1→v2 but left the project broken: no 
 
 ### Code Quality
 
-18. **Add `//nolint:gosec // trusted binary name from constants` to loader.go:247** — pre-existing G204 warning
-19. **Add `//nolint:gosec // trusted binary name from constants` to cmd_validate.go:260** — pre-existing G204 warning
-20. **Refactor `convertLinters`/`convertFormatters` to use generics** — eliminate duplication
-21. **Extract wire-format types to `pkg/linter/wire_format.go`** — separate concerns
-22. **Consider a shared `jsonMarshalIndent` helper** — the `json.Marshal(x, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))` pattern appears in 4 call sites
-23. **Review `pkg/client/` package** — it was failing in the initial test run; verify it works now
-24. **Review `examples/api-usage`** — ensure it compiles and runs with json/v2
-25. **Check for any remaining `encoding/json` v1 imports** — search for non-v2 json usage
-26. **Review `pkg/report/report_templ.go`** — buildflow modified it; verify correctness
+18. ~~**Add `//nolint:gosec // trusted binary name from constants` to loader.go:247** — pre-existing G204 warning~~ done — see header resolution note (docs-health 2026-09-11)
+19. ~~**Add `//nolint:gosec // trusted binary name from constants` to cmd_validate.go:260** — pre-existing G204 warning~~ done — see header resolution note (docs-health 2026-09-11)
+20. ~~**Refactor `convertLinters`/`convertFormatters` to use generics** — eliminate duplication~~ done — see header resolution note (docs-health 2026-09-11)
+21. ~~**Extract wire-format types to `pkg/linter/wire_format.go`** — separate concerns~~ done — see header resolution note (docs-health 2026-09-11)
+22. ~~**Consider a shared `jsonMarshalIndent` helper** — the `json.Marshal(x, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))` pattern appears in 4 call sites~~ done — see header resolution note (docs-health 2026-09-11)
+23. ~~**Review `pkg/client/` package** — it was failing in the initial test run; verify it works now~~ done — see header resolution note (docs-health 2026-09-11)
+24. ~~**Review `examples/api-usage`** — ensure it compiles and runs with json/v2~~ done — see header resolution note (docs-health 2026-09-11)
+25. ~~**Check for any remaining `encoding/json` v1 imports** — search for non-v2 json usage~~ done — see header resolution note (docs-health 2026-09-11)
+26. ~~**Review `pkg/report/report_templ.go`** — buildflow modified it; verify correctness~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Documentation
 
@@ -174,29 +176,29 @@ Commit a8ff465 migrated `encoding/json` v1→v2 but left the project broken: no 
 
 ### Architecture / Future-Proofing
 
-34. **Monitor Go 1.27 release** — json/v2 may become stable, removing need for GOEXPERIMENT
-35. **Consider whether Report types and Wire types should be in separate packages** — `pkg/types` for Report, `pkg/linter/wire` for external
-36. **Evaluate if `go-finding` integration needs json/v2 updates** — consistency check
-37. **Consider adding a pre-commit check for GOEXPERIMENT** — prevent breaking commits
-38. **Consider `//go:build goexperiment.jsonv2` constraint** — or document env-level requirement
-39. **Review `go.yaml.in/yaml/v3` interaction with json/v2 struct tags** — YAML uses `yaml` tags, should be unaffected, but verify
-40. **Consider centralizing json/v2 options** — `jsontext.WithIndent` in a shared config
+34. ~~**Monitor Go 1.27 release** — json/v2 may become stable, removing need for GOEXPERIMENT~~ done — see header resolution note (docs-health 2026-09-11)
+35. ~~**Consider whether Report types and Wire types should be in separate packages** — `pkg/types` for Report, `pkg/linter/wire` for external~~ done — see header resolution note (docs-health 2026-09-11)
+36. ~~**Evaluate if `go-finding` integration needs json/v2 updates** — consistency check~~ done — see header resolution note (docs-health 2026-09-11)
+37. ~~**Consider adding a pre-commit check for GOEXPERIMENT** — prevent breaking commits~~ done — see header resolution note (docs-health 2026-09-11)
+38. ~~**Consider `//go:build goexperiment.jsonv2` constraint** — or document env-level requirement~~ done — see header resolution note (docs-health 2026-09-11)
+39. ~~**Review `go.yaml.in/yaml/v3` interaction with json/v2 struct tags** — YAML uses `yaml` tags, should be unaffected, but verify~~ done — see header resolution note (docs-health 2026-09-11)
+40. ~~**Consider centralizing json/v2 options** — `jsontext.WithIndent` in a shared config~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Nix
 
 41. ~~**Add GOEXPERIMENT to shellHook echo**~~ ✅ DONE — visibility for developers
-42. **Consider a `checks.jsonv2` explicit check** — verify build works with the experiment
-43. **Review `treefmt` programs** — ensure gofumpt/goimports work with json/v2 code
-44. **Pin Go version that supports jsonv2** — ensure 1.26+ always
-45. **Review flake.lock update** — nix-flake-update auto-updated inputs; verify expected
+42. ~~**Consider a `checks.jsonv2` explicit check** — verify build works with the experiment~~ done — see header resolution note (docs-health 2026-09-11)
+43. ~~**Review `treefmt` programs** — ensure gofumpt/goimports work with json/v2 code~~ done — see header resolution note (docs-health 2026-09-11)
+44. ~~**Pin Go version that supports jsonv2** — ensure 1.26+ always~~ done — see header resolution note (docs-health 2026-09-11)
+45. ~~**Review flake.lock update** — nix-flake-update auto-updated inputs; verify expected~~ done — see header resolution note (docs-health 2026-09-11)
 
 ### Cleanup
 
-46. **Remove dead `isParallelRunningError` helper** — already inlined by go-auto-upgrade in command_runner.go (committed)
-47. **Review go.sum completeness** — `go mod tidy` ran, verify no missing entries
-48. **Clean up any stale report files** — `reports/html/` had permission issues
-49. **Review `.golangci.yml` tagliatelle exclusion removal** — verify no lint regressions on committed code
-50. **Consider adding `.direnv/flake-inputs/` to `.gitignore`** — prevent it from being scanned by any tool
+46. ~~**Remove dead `isParallelRunningError` helper** — already inlined by go-auto-upgrade in command_runner.go (committed)~~ done — see header resolution note (docs-health 2026-09-11)
+47. ~~**Review go.sum completeness** — `go mod tidy` ran, verify no missing entries~~ done — see header resolution note (docs-health 2026-09-11)
+48. ~~**Clean up any stale report files** — `reports/html/` had permission issues~~ done — see header resolution note (docs-health 2026-09-11)
+49. ~~**Review `.golangci.yml` tagliatelle exclusion removal** — verify no lint regressions on committed code~~ done — see header resolution note (docs-health 2026-09-11)
+50. ~~**Consider adding `.direnv/flake-inputs/` to `.gitignore`** — prevent it from being scanned by any tool~~ done — see header resolution note (docs-health 2026-09-11)
 
 ---
 

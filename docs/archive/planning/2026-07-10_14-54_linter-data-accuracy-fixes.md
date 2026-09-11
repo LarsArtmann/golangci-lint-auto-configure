@@ -1,4 +1,6 @@
 # Linter Data Accuracy & Integrity Fixes
+> **Archived 2026-09-11 (docs-health pass).** P0-P3 all COMPLETE 2026-07-10 (in-file completion section).
+
 
 **Date:** 2026-07-10\
 **Source:** Deep Architecture & Data Model Review (`docs/reviews/2026-07-10_deep-architecture-data-model-review.md`)\

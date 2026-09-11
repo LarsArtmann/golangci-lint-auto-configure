@@ -1,4 +1,6 @@
 # Plan: Complete go-error-family Adoption & Restore Build/Docs Truth
+> **Archived 2026-09-11 (docs-health pass).** Executed 2026-06-29; gogenfilter coverage lift consciously deferred (ROADMAP).
+
 
 **Date:** 2026-06-29 02:13
 **Status:** Approved for execution

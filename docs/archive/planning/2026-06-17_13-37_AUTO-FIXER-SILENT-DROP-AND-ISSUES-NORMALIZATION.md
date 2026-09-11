@@ -1,4 +1,6 @@
 # Auto-Fixer Improvement Sprint: Silent-Drop Fix & Issues Normalization
+> **Archived 2026-09-11 (docs-health pass).** Executed 2026-06-17 (auto-fixer audit sprint; see the 2026-06-17 status reports).
+
 
 **Date:** 2026-06-17
 **Status:** ✅ COMPLETED — All tasks executed, all tests green, committed and pushed.

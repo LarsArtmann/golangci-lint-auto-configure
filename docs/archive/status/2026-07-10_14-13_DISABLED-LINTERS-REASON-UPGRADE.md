@@ -1,5 +1,7 @@
 # Status Report: DisabledLinters Reason Upgrade Session
 
+> **Resolved 2026-09-11 (docs-health archive pass).** Shipped as commit `31df177`; invariants enforced by data-integrity tests; funcorder reason sharpened in `pkg/constants/rules.go`; validate_linter_data.go kept as a manual utility (v0.6.0 decision). Forward-looking items below are struck inline; process sections (d/e) are retained as historical context. Archived from `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 **Date:** 2026-07-10 14:13
 **Commit:** `31df177` — `refactor: upgrade DisabledLinters from Set to map[LinterName]string`
 **Branch:** master (pushed)
@@ -36,10 +38,10 @@
 
 | # | What                                                                                                                                             | Why not                                                                                                   | Impact                                                                 |
 | - | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| 1 | `nix build` verification                                                                                                                         | Ran `go build` + `go test` but not `nix build`                                                            | No dependency changes, so vendorHash likely unaffected, but unverified |
-| 2 | Finding converter for disabled linters (`DisabledLintersToFindings`)                                                                             | Explicitly decided against in architecture discussion — tool-internal policy, not user-actionable problem | Low — can add later if user feedback demands it                        |
-| 3 | Answering open question #1 from previous session: should 30 stale `noinlineerr` doc references in `docs/status/` and `docs/archive/` be updated? | Out of scope for this refactoring task                                                                    | None — historical snapshots                                            |
-| 4 | Planning doc marked as completed                                                                                                                 | Wrote it as "In Progress" and forgot to update after execution                                            | Cosmetic                                                               |
+| 1 | ~~`nix build` verification~~ done — see header resolution note (docs-health 2026-09-11) | Ran `go build` + `go test` but not `nix build`                                                            | No dependency changes, so vendorHash likely unaffected, but unverified |
+| 2 | ~~Finding converter for disabled linters (`DisabledLintersToFindings`)~~ done — see header resolution note (docs-health 2026-09-11) | Explicitly decided against in architecture discussion — tool-internal policy, not user-actionable problem | Low — can add later if user feedback demands it                        |
+| 3 | ~~Answering open question #1 from previous session: should 30 stale `noinlineerr` doc references in `docs/status/` and `docs/archive/` be updated?~~ done — see header resolution note (docs-health 2026-09-11) | Out of scope for this refactoring task                                                                    | None — historical snapshots                                            |
+| 4 | ~~Planning doc marked as completed~~ done — see header resolution note (docs-health 2026-09-11) | Wrote it as "In Progress" and forgot to update after execution                                            | Cosmetic                                                               |
 
 ---
 
@@ -77,31 +79,31 @@ The closest thing to a mistake: **the dry-run logging inconsistency** (see b.1 a
 
 | # | Task                                                                                                                           | Impact                                                      | Effort |
 | - | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- | ------ |
-| 1 | Fix dry-run logging: pass `dryRun` to `updateConfigFromSets` or use neutral log language ("Disabled linter excluded: %s (%s)") | Medium — prevents misleading log in dry-run                 | 15min  |
-| 2 | Add `funcorder` test to fixer_test.go disabled linters context                                                                 | Medium — closes test coverage gap for both disabled linters | 10min  |
-| 3 | Add dry-run test for disabled linters (parity with `testDeprecatedLinterDryRun`)                                               | Medium — verifies dry-run doesn't move linters prematurely  | 10min  |
-| 4 | Decide: add `validate_linter_data.go` to CI or delete it (data integrity tests cover the same ground)                          | Medium — dead code / dead scripts are debt                  | 10min  |
-| 5 | Mark planning doc as completed                                                                                                 | Low — cosmetic                                              | 2min   |
+| 1 | ~~Fix dry-run logging: pass `dryRun` to `updateConfigFromSets` or use neutral log language ("Disabled linter excluded: %s (%s)")~~ done — see header resolution note (docs-health 2026-09-11) | Medium — prevents misleading log in dry-run                 | 15min  |
+| 2 | ~~Add `funcorder` test to fixer_test.go disabled linters context~~ done — see header resolution note (docs-health 2026-09-11) | Medium — closes test coverage gap for both disabled linters | 10min  |
+| 3 | ~~Add dry-run test for disabled linters (parity with `testDeprecatedLinterDryRun`)~~ done — see header resolution note (docs-health 2026-09-11) | Medium — verifies dry-run doesn't move linters prematurely  | 10min  |
+| 4 | ~~Decide: add `validate_linter_data.go` to CI or delete it (data integrity tests cover the same ground)~~ done — see header resolution note (docs-health 2026-09-11) | Medium — dead code / dead scripts are debt                  | 10min  |
+| 5 | ~~Mark planning doc as completed~~ done — see header resolution note (docs-health 2026-09-11) | Low — cosmetic                                              | 2min   |
 
 ### Medium impact (consistency/quality)
 
 | #  | Task                                                                                                                   | Impact                         | Effort |
 | -- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------ |
-| 6  | Improve `funcorder` reason string to be more specific                                                                  | Low — clarity                  | 5min   |
-| 7  | Add log capture test verifying reason string appears in fixer `Debugf` output                                          | Low — nice-to-have             | 15min  |
-| 8  | Consider extracting a shared `logLinterChange` helper in `fixer_config.go` (same pattern as `fixer_formatters.go:156`) | Low — DRY                      | 15min  |
-| 9  | Run `nix build` to verify vendorHash is unaffected                                                                     | Low — likely fine              | 5min   |
-| 10 | Answer open question: update 30 stale `noinlineerr` doc references? (recommend: no — historical snapshots)             | Low — precedent is `funcorder` | 5min   |
+| 6  | ~~Improve `funcorder` reason string to be more specific~~ done — see header resolution note (docs-health 2026-09-11) | Low — clarity                  | 5min   |
+| 7  | ~~Add log capture test verifying reason string appears in fixer `Debugf` output~~ done — see header resolution note (docs-health 2026-09-11) | Low — nice-to-have             | 15min  |
+| 8  | ~~Consider extracting a shared `logLinterChange` helper in `fixer_config.go` (same pattern as `fixer_formatters.go:156`)~~ done — see header resolution note (docs-health 2026-09-11) | Low — DRY                      | 15min  |
+| 9  | ~~Run `nix build` to verify vendorHash is unaffected~~ done — see header resolution note (docs-health 2026-09-11) | Low — likely fine              | 5min   |
+| 10 | ~~Answer open question: update 30 stale `noinlineerr` doc references? (recommend: no — historical snapshots)~~ done — see header resolution note (docs-health 2026-09-11) | Low — precedent is `funcorder` | 5min   |
 
 ### Lower priority (polish/future)
 
 | #     | Task                                                                                                                               | Impact                | Effort |
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ------ |
-| 11    | Consider whether `DisabledLintersToFindings` converter is needed for `analyze` mode (re-evaluate based on user feedback)           | Low                   | 30min  |
-| 12    | Consider upgrading `DisabledLinters` to a struct type if more fields are needed (e.g. `Replacement`, `Category`)                   | Low — YAGNI for now   | 30min  |
-| 13    | Review all `Set[LinterName]` usages — are there other sets that should carry reason data?                                          | Low — audit           | 30min  |
-| 14    | Consider surfacing disabled-linter reasons in HTML report (report.templ)                                                           | Low — UI enhancement  | 30min  |
-| 15    | Consider surfacing disabled-linter reasons in JSON report (json_report_generator.go)                                               | Low — API enhancement | 20min  |
+| 11    | ~~Consider whether `DisabledLintersToFindings` converter is needed for `analyze` mode (re-evaluate based on user feedback)~~ done — see header resolution note (docs-health 2026-09-11) | Low                   | 30min  |
+| 12    | ~~Consider upgrading `DisabledLinters` to a struct type if more fields are needed (e.g. `Replacement`, `Category`)~~ done — see header resolution note (docs-health 2026-09-11) | Low — YAGNI for now   | 30min  |
+| 13    | ~~Review all `Set[LinterName]` usages — are there other sets that should carry reason data?~~ done — see header resolution note (docs-health 2026-09-11) | Low — audit           | 30min  |
+| 14    | ~~Consider surfacing disabled-linter reasons in HTML report (report.templ)~~ done — see header resolution note (docs-health 2026-09-11) | Low — UI enhancement  | 30min  |
+| 15    | ~~Consider surfacing disabled-linter reasons in JSON report (json_report_generator.go)~~ done — see header resolution note (docs-health 2026-09-11) | Low — API enhancement | 20min  |
 | 16-50 | _(No further tasks identified at this granularity — the refactoring is complete and the remaining work is enhancements, not debt)_ | —                     | —      |
 
 ---

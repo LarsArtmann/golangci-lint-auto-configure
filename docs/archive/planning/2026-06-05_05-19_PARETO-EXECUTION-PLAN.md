@@ -1,4 +1,6 @@
 # Pareto Execution Plan — golangci-lint-auto-configure
+> **Archived 2026-09-11 (docs-health pass).** Superseded by the 2026-07 quality sprints and later sweeps; residuals live in TODO_LIST/ROADMAP (gogenfilter scanner coverage remains the notable deferral).
+
 
 **Date:** 2026-06-05\
 **Pareto Principle:** 1% → 51%, 4% → 64%, 20% → 80%

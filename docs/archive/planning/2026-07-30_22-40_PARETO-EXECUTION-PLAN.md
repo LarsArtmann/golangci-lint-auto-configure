@@ -1,4 +1,6 @@
 # Pareto Execution Plan — 2026-07-30
+> **Archived 2026-09-11 (docs-health pass).** DoD fully checked in-file; P2/P3 residuals routed to TODO_LIST/ROADMAP (2026-09-11 re-triage).
+
 
 > **Project:** golangci-lint-auto-configure
 > **Version:** v0.6.0 (post-release)
