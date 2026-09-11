@@ -39,7 +39,7 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exhaustruct
+    - exhaustruct_v5
     - exptostd
     - fatcontext
     - forbidigo
@@ -147,8 +147,8 @@ linters:
         - fmt.Println
         - (*strings.Builder).WriteString
         - (*bytes.Buffer).WriteString
-    exhaustruct:
-      exclude:
+    exhaustruct_v5:
+      ignore-patterns:
         - .*\.Test.*
         - .*Test.*
         - charm.land/log.Options
@@ -157,6 +157,7 @@ linters:
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/audit.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/policy.*
+        - github.com/larsartmann/golangci-lint-auto-configure/pkg/migration.*
         - github.com/larsartmann/go-finding.Position
         - github.com/larsartmann/go-finding.ToolInfo
     funlen:
@@ -262,7 +263,7 @@ linters:
     rules:
       - path: _test\.go
         linters:
-          - exhaustruct
+          - exhaustruct_v5
           - err113
           - wrapcheck
           - testpackage
@@ -294,7 +295,7 @@ linters:
           - funcorder
       - path: internal/cli/|examples/|pkg/client/client\.go
         linters:
-          - exhaustruct
+          - exhaustruct_v5
       - path: pkg/constants/|pkg/finding/categories\.go|pkg/config/merger_helpers\.go|pkg/version/
         linters:
           - gochecknoglobals
@@ -464,7 +465,7 @@ linters:
         linters:
           - goconst
           - musttag
-          - exhaustruct
+          - exhaustruct_v5
           - testpackage
           - gochecknoglobals
           - funlen

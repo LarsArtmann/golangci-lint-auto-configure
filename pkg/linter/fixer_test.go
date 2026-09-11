@@ -415,7 +415,7 @@ linters:
 				)
 			},
 			Entry("wsl -> wsl_v5", "wsl", "wsl_v5", "wsl:"),
-			Entry("gomodguard -> gomodguard_v2", "gomodguard", "gomodguard_v2", "- gomodguard\n"\n"),
+			Entry("gomodguard -> gomodguard_v2", "gomodguard", "gomodguard_v2", "- gomodguard\n"),
 			Entry("exhaustruct -> exhaustruct_v5", "exhaustruct", "exhaustruct_v5", "- exhaustruct\n"),
 		)
 
