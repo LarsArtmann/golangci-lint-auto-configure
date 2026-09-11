@@ -91,3 +91,4 @@ Point-in-time snapshots from development sessions. Each report captures what was
 | 2026-09-09 | `02-08_going-public-launch-and-sanitization`      | Repo made public; sanitization battery        |
 | 2026-09-11 | `06-38_buildflow-failures-resolved`               | Generator formatting, vendorHash triage       |
 | 2026-09-11 | `08-33_github-metadata-and-ci-rehabilitation-status` | Metadata, CI re-enable, goconst schema fix |
+| 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`  | Living-docs overhaul + 28-file archive sweep  |
