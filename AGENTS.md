@@ -16,7 +16,8 @@ nix build                              # reproducible build (preferred)
 go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 
 # Test (Ginkgo BDD specs, but run via go test)
-go test -race ./pkg/... ./internal/...
+go test -race ./pkg/... ./internal/...    # serial, ~2.5 min
+ginkgo -r -p -race --skip-package=cmd/ ./pkg/... ./internal/... ./cmd/...   # parallel, ~50s (preferred)
 ginkgo -r --cover                      # alternative: ginkgo directly
 
 # Lint
