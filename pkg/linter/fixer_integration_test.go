@@ -77,7 +77,9 @@ linters:
 	}
 
 	writeSidecar := func(content string) {
-		Expect(os.WriteFile(filepath.Join(testDir, ".golangci-lint-auto-configure.yml"), []byte(content), 0o644)).To(Succeed())
+		sidecarPath := filepath.Join(testDir, ".golangci-lint-auto-configure.yml")
+
+		Expect(os.WriteFile(sidecarPath, []byte(content), 0o644)).To(Succeed())
 	}
 
 	ledgerContents := func() string {
