@@ -70,7 +70,6 @@ type Entry struct {
 	Linter         string    `json:"linter"`
 	Action         Action    `json:"action"`
 	Reason         string    `json:"reason,omitempty"`
-	FindingsHidden int       `json:"findings_hidden,omitempty"`
 }
 
 // RunContext holds the immutable per-run metadata stamped on every entry.
@@ -193,7 +192,6 @@ func (l *Ledger) Record(action Action, linter, reason string) {
 		Linter:         linter,
 		Action:         action,
 		Reason:         reason,
-		FindingsHidden: 0,
 	}
 
 	line, err := json.Marshal(entry)

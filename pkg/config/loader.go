@@ -49,8 +49,6 @@ const (
 	maxValidYAMLIndent = 8
 )
 
-var errUnsupportedFormat = errors.New("unsupported config format")
-
 // FS defines the filesystem operations needed by the config package.
 type FS interface {
 	ReadFile(name string) ([]byte, error)
@@ -395,7 +393,8 @@ func marshalConfig(config *types.Config, format ConfigFormat, indent int) ([]byt
 		return marshalYAML(config, indent)
 	}
 
-	return nil, errUnsupportedFormat
+	return nil, errorfamily.WrapRejectionf(errUnsupportedConfigFormat, "config.unsupported_format",
+		"format %s", format)
 }
 
 // marshalYAML encodes a config using a yaml.Encoder with the given indent.
