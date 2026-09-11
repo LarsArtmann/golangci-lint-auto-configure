@@ -316,21 +316,21 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 		Expect(checksSlice).To(ContainElement(ContainSubstring("ifElseChain")))
 	})
 
-	It("exhaustruct should produce exclude list", func() {
-		m := constants.DefaultLinterSettings["exhaustruct"].ToMap()
-		exclude, ok := m["exclude"]
-		Expect(ok).To(BeTrue(), "exhaustruct settings missing exclude key")
-		excludeSlice, ok := exclude.([]any)
-		Expect(ok).To(BeTrue(), "exhaustruct exclude is not []any")
-		Expect(excludeSlice).To(ContainElement(ContainSubstring("os/exec.Cmd")))
+	It("exhaustruct_v5 should produce ignore-patterns list", func() {
+		m := constants.DefaultLinterSettings["exhaustruct_v5"].ToMap()
+		patterns, ok := m["ignore-patterns"]
+		Expect(ok).To(BeTrue(), "exhaustruct_v5 settings missing ignore-patterns key")
+		patternsSlice, ok := patterns.([]any)
+		Expect(ok).To(BeTrue(), "exhaustruct_v5 ignore-patterns is not []any")
+		Expect(patternsSlice).To(ContainElement(ContainSubstring("os/exec.Cmd")))
 	})
 
-	It("exhaustruct exclude should contain the canonical stdlib structs", func() {
-		m := constants.DefaultLinterSettings["exhaustruct"].ToMap()
-		exclude, ok := m["exclude"]
-		Expect(ok).To(BeTrue(), "exhaustruct settings missing exclude key")
-		excludeSlice, ok := exclude.([]any)
-		Expect(ok).To(BeTrue(), "exhaustruct exclude is not []any")
+	It("exhaustruct_v5 ignore-patterns should contain the canonical stdlib structs", func() {
+		m := constants.DefaultLinterSettings["exhaustruct_v5"].ToMap()
+		patterns, ok := m["ignore-patterns"]
+		Expect(ok).To(BeTrue(), "exhaustruct_v5 settings missing ignore-patterns key")
+		patternsSlice, ok := patterns.([]any)
+		Expect(ok).To(BeTrue(), "exhaustruct_v5 ignore-patterns is not []any")
 
 		// These stdlib structs are the top sources of exhaustruct false-positive
 		// noise (954 nolints across 146 configs in the cross-project audit).
@@ -342,14 +342,14 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 			"os/exec.Cmd",
 		}
 
-		excludeStrings := make([]string, 0, len(excludeSlice))
-		for _, e := range excludeSlice {
-			excludeStrings = append(excludeStrings, e.(string))
+		patternStrings := make([]string, 0, len(patternsSlice))
+		for _, e := range patternsSlice {
+			patternStrings = append(patternStrings, e.(string))
 		}
 
 		for _, r := range required {
-			Expect(excludeStrings).To(ContainElement(r),
-				"exhaustruct exclude must contain canonical stdlib struct %q", r)
+			Expect(patternStrings).To(ContainElement(r),
+				"exhaustruct_v5 ignore-patterns must contain canonical stdlib struct %q", r)
 		}
 	})
 

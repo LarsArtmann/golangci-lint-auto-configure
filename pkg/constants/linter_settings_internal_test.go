@@ -57,7 +57,7 @@ func FuzzSettingsToMap_StringField(f *testing.F) {
 	f.Add("very-long-string-with-special-chars-!@#$%^&*()")
 
 	f.Fuzz(func(t *testing.T, name string) {
-		s := ExhaustructSettings{Exclude: []string{name}}
+		s := ExhaustructV5Settings{IgnorePatterns: []string{name}}
 
 		defer func() {
 			if r := recover(); r != nil {

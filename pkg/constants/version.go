@@ -19,4 +19,5 @@ const ExpectedGolangCILintVersion = "v2.12.2"
 var LinterMinVersions = map[types.LinterName]string{
 	"gomodguard_v2":  "v2.12.0",
 	"clickhouselint": "v2.12.0",
+	"exhaustruct_v5": "v2.13.0",
 }

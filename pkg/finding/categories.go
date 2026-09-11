@@ -64,6 +64,7 @@ var linterCategories = map[string]finding.Category{
 	// Type safety
 	"exhaustive":      finding.CategoryTypeSafety,
 	"exhaustruct":     finding.CategoryTypeSafety,
+	"exhaustruct_v5":  finding.CategoryTypeSafety,
 	"forcetypeassert": finding.CategoryTypeSafety,
 	"musttag":         finding.CategoryTypeSafety,
 	"gochecksumtype":  finding.CategoryTypeSafety,
