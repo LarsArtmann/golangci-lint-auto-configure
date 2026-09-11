@@ -92,3 +92,4 @@ Point-in-time snapshots from development sessions. Each report captures what was
 | 2026-09-11 | `06-38_buildflow-failures-resolved`               | Generator formatting, vendorHash triage       |
 | 2026-09-11 | `08-33_github-metadata-and-ci-rehabilitation-status` | Metadata, CI re-enable, goconst schema fix |
 | 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`  | Living-docs overhaul + 28-file archive sweep  |
+| 2026-09-11 | `13-27_pareto-execution-v081-shipped-and-guards-installed` | v0.8.1 released (first GHCR image), min-len self-heal + schema gate + watchdog live |
