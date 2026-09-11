@@ -2,6 +2,10 @@
 
 **Automatically configure, optimize, and maintain golangci-lint configurations for Go projects with smart linter recommendations, deprecation handling, and auto-fixing.**
 
+[![CI](https://github.com/LarsArtmann/golangci-lint-auto-configure/actions/workflows/ci.yml/badge.svg)](https://github.com/LarsArtmann/golangci-lint-auto-configure/actions/workflows/ci.yml)
+[![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go)](https://go.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 ## Purpose
 
 This tool automatically configures golangci-lint for Go projects by:
