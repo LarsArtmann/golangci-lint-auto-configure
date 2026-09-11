@@ -192,7 +192,7 @@ func (s NestifSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
 type GoconstSettings struct {
 	IgnoreTests    bool `yaml:"ignore-tests"`
-	MinLength      int  `yaml:"min-length"`
+	MinLength      int  `yaml:"min-len"`
 	MinOccurrences int  `yaml:"min-occurrences"`
 }
 

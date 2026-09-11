@@ -58,6 +58,12 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
+      - name: Install golangci-lint for CLI tests
+        uses: golangci/golangci-lint-action@db9de0fc1a667e1a49d2291a1a042dff081d78f6 # v9
+        with:
+          version: v2.13.2
+          install-only: true
+
       - name: Build verification
         run: |
           go build -v ./...
@@ -119,7 +125,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@db9de0fc1a667e1a49d2291a1a042dff081d78f6 # v9
         with:
-          version: v2.12.2
+          version: v2.13.2
           args: --config=.golangci.yml --timeout=5m
           working-directory: .
           skip-cache: false
