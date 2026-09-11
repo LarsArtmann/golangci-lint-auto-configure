@@ -239,23 +239,23 @@ var _ = Describe("CategorizeLinters", func() {
 	})
 
 	Context("NeverAutoEnable Linters", func() {
-		It("should never auto-enable exhaustruct even when pragmatic is disabled", func() {
-			entries := newDisabledEntries("exhaustruct", "misspell")
+		It("should never auto-enable exhaustruct_v5 even when pragmatic is disabled", func() {
+			entries := newDisabledEntries("exhaustruct_v5", "misspell")
 			disabledLinters := disabledLintersWith(entries...)
 			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
 
-			Expect(names).NotTo(ContainElement("exhaustruct"))
+			Expect(names).NotTo(ContainElement("exhaustruct_v5"))
 			Expect(names).To(ContainElement("misspell"))
 		})
 
-		It("should never auto-enable exhaustruct even when pragmatic is enabled", func() {
+		It("should never auto-enable exhaustruct_v5 even when pragmatic is enabled", func() {
 			analyzer.SetPragmatic(true)
 
-			entries := newDisabledEntries("exhaustruct", "misspell")
+			entries := newDisabledEntries("exhaustruct_v5", "misspell")
 			disabledLinters := disabledLintersWith(entries...)
 			names := extractLinterNames(analyzer.CategorizeLinters(disabledLinters, []types.FormatterInfo{}))
 
-			Expect(names).NotTo(ContainElement("exhaustruct"))
+			Expect(names).NotTo(ContainElement("exhaustruct_v5"))
 			Expect(names).To(ContainElement("misspell"))
 		})
 	})
