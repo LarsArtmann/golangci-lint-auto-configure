@@ -23,6 +23,7 @@ permissions:
 env:
   GOEXPERIMENT: jsonv2
   REGISTRY_IMAGE: ghcr.io/larsartmann/golangci-lint-auto-configure
+  TAG: ${{ inputs.tag }}
 
 jobs:
   backfill:
@@ -41,9 +42,11 @@ jobs:
           cache: true
 
       - name: Build linux binaries (goreleaser-equivalent)
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           COMMIT="$(git rev-parse HEAD)"
           DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           LDFLAGS="-s -w \
@@ -73,15 +76,17 @@ jobs:
 
       - name: Build and push image
         working-directory: dist
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           COMMIT="$(git rev-parse HEAD)"
           DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --file "${GITHUB_WORKSPACE}/Dockerfile.goreleaser" \
-            --tag "${REGISTRY_IMAGE}:${GITHUB_REF_NAME}" \
+            --tag "${REGISTRY_IMAGE}:${TAG}" \
             --label "org.opencontainers.image.created=${DATE}" \
             --label "org.opencontainers.image.title=golangci-lint-auto-configure" \
             --label "org.opencontainers.image.revision=${COMMIT}" \
@@ -91,7 +96,10 @@ jobs:
             .
 
       - name: Verify image
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          docker buildx imagetools inspect "${REGISTRY_IMAGE}:${GITHUB_REF_NAME}"
-          docker run --rm --platform linux/amd64 "${REGISTRY_IMAGE}:${GITHUB_REF_NAME}" --version
+          docker buildx imagetools inspect "${REGISTRY_IMAGE}:${TAG}"
+          docker run --rm --platform linux/amd64 \
+            --entrypoint golangci-lint-auto-configure "${REGISTRY_IMAGE}:${TAG}" --version
