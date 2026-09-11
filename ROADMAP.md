@@ -85,7 +85,11 @@ The repo went public 2026-09-09 and got metadata + CI rehabilitation
 - **Git history sanitization**: sibling-project references exist in pre-cleanup
   history (accepted 2026-09-09). Reopen as a `git filter-repo` purge, or close
   as "acceptable forever"? Everything downstream (gitleaks scope, announcement)
-  depends on this.
+  depends on this. **Update 2026-09-11**: full-history gitleaks scan
+  (`gitleaks git . --log-opts=--all`) over 1,117 commits / 9.95 MB found
+  **zero secrets** — the exposure is limited to sibling project *names* (all
+  public repos), so the security dimension is closed; only the
+  name-privacy/announcement dimension remains open.
 - **gohumanize strategy**: project-specific (current, dep-gated on
   `dustin/go-humanize`) vs everywhere (requires custom-binary story for stock
   golangci-lint users). Analysis in `docs/status/2026-08-05_04-14…md`; decision
