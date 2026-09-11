@@ -2,7 +2,7 @@
 
 ### Directory Structure
 
-```
+```text
 golangci-lint-auto-configure/
 ├── cmd/
 │   ├── golangci-lint-auto-configure/

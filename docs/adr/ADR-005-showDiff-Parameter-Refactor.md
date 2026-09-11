@@ -13,7 +13,7 @@ This violated the "explicit over implicit" principle and made the functions unte
 
 Thread `showDiff` as an explicit `bool` parameter through the entire call chain:
 
-```
+```text
 newConfigureCommand → runDetectOrConfigure → runConfigure → runPresetOrFixer → runFixerMode → finalizeFixerResult
 ```
 

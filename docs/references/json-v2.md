@@ -6,7 +6,7 @@ The codebase uses `encoding/json/v2` + `encoding/json/jsontext` (experimental st
 
 `encoding/json/v2` is behind the `GOEXPERIMENT=jsonv2` experiment flag in Go 1.26. Without it, any import of `encoding/json/v2` or `encoding/json/jsontext` fails at compile time:
 
-```
+```text
 build constraints exclude all Go files in encoding/json/v2
 ```
 

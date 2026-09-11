@@ -55,7 +55,7 @@ The data shows **two distinct config regimes**, not one:
 Both regimes converge on the **same core ~50 linters** (the critical + high priority set).
 The top-30 most-enabled linters all appear in 133-136 configs (97-100%):
 
-```
+```text
 misspell, unconvert, exhaustive, copyloopvar, nilerr, nolintlint, revive, gosec,
 errorlint, nakedret, gocognit, goconst, errname, nilnesserr, gocyclo, funlen,
 dupl, prealloc, sqlclosecheck, nestif, rowserrcheck, intrange, gocritic, bodyclose,

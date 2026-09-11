@@ -93,7 +93,7 @@ var _ = Describe("Set", func() {
 
 ## Test Structure Convention
 
-```
+```text
 Describe("Component")
 ├── Context("when in state X")
 │   ├── BeforeEach()        // Setup

@@ -12,6 +12,8 @@
     "no-bare-urls": false,
     "first-line-heading": false,
     "no-inline-html": false,
+    "no-emphasis-as-heading": false,
+    "table-column-style": false,
     "no-trailing-spaces": {
       "br_spaces": 0,
     },

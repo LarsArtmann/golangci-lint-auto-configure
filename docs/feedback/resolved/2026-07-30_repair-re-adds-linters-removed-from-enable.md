@@ -226,7 +226,7 @@ before adding a linter to `enable`. If the ledger has an `ActionAddedToEnable`
 entry for the linter (meaning the tool previously auto-enabled it), the tool
 skips re-adding and logs a warning:
 
-```
+```text
 ⚠️  Skipping godoclint: was auto-enabled in a previous run and subsequently removed.
     To make this permanent, add it to linters.disable or .golangci-lint-auto-configure.yml under never-enable.
 ```

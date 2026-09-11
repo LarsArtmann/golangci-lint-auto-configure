@@ -10,7 +10,7 @@
 > unfinished task** — now tracked in `TODO_LIST.md`. Per-task status in
 > [Execution resolution](#execution-resolution-2026-07-25) at the end of this
 > file. The DoD checklist in §6 is superseded by that resolution table.
-
+>
 > **What changed in v2?** A critical re-review of v1 against the _actual_ codebase found
 > **6 correctness defects + 3 structural gaps**. They are listed in [§7 Revision history](#7-revision-history--v1--v2-changelog)
 > and fixed throughout. v1 is preserved in git history (`62baa44`).

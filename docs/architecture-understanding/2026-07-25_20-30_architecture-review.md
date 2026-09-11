@@ -39,7 +39,7 @@ The codebase exhibits **strong modular architecture** with clean package boundar
 
 ### Dependency Direction
 
-```
+```text
 internal/cli → pkg/linter → pkg/config → pkg/types (leaf)
                                     ↗
               pkg/constants ────────┘

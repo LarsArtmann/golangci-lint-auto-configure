@@ -61,7 +61,7 @@ func (d *Detector) HasSwaggo() (bool, error)
 
 **Extraction Recommendation:**
 
-```
+```text
 github.com/larsartmann/go-project-detector
 ```
 
@@ -129,7 +129,7 @@ LinterPriorities = map[types.LinterName]types.LinterPriority{
 
 **Extraction Recommendation:**
 
-```
+```text
 github.com/larsartmann/golangci-lint-knowledge
 ```
 
@@ -184,7 +184,7 @@ func (l *Loader) GetLintersDisabled(config *Config) []string
 **Extraction Recommendation:**
 Bundle with `go-project-detector` or create separate:
 
-```
+```text
 github.com/larsartmann/golangci-lint-config
 ```
 
@@ -401,7 +401,7 @@ Bundle with extracted libraries. Pattern worth reusing but not standalone librar
 
 #### 1.1 `go-project-detector`
 
-```
+```text
 github.com/larsartmann/go-project-detector
 ```
 
@@ -446,7 +446,7 @@ type Detector interface {
 
 #### 1.2 `golangci-lint-knowledge`
 
-```
+```text
 github.com/larsartmann/golangci-lint-knowledge
 ```
 
@@ -501,7 +501,7 @@ func GetQualityLinters() []LinterInfo
 
 #### 2.1 `golangci-lint-config`
 
-```
+```text
 github.com/larsartmann/golangci-lint-config
 ```
 

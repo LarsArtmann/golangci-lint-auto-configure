@@ -23,7 +23,7 @@
 
 The word "pipeline" means something genuinely different in each project, and they sit in a **layered relationship**:
 
-```
+```text
                  go-finding (Finding/Report model + pipeline/ SDK)
                 ╱        ╱              ╲              ╲
 go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors
@@ -60,7 +60,7 @@ go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors
 
 ### Ours — `FixConfig` (`fixer.go:29`), linear 7-stage
 
-```
+```text
 LoadConfig → GetLintersEnabled → detectVersion → runPreFlightChecks (4 mutations,
 saved to disk so golangci-lint will run) → analyzeAndFix → applyLintersFix →
 applyAllFixes+applyAndSave → runFmt
@@ -70,7 +70,7 @@ Pre-flight is **unusual**: it mutates-and-saves _before_ analysis (timeout, vers
 
 ### go-finding — `Pipeline.Run` (`pipeline.go:146`), iterative
 
-```
+```text
 for iterations < MaxIterations:
     Detect (partial/graceful-degradation) → Process (FindingTransformer chain)
     → [len==0? break: ReasonStable]
@@ -83,7 +83,7 @@ This is a genuine **convergent loop** — it re-detects after applying fixes, ha
 
 ### BuildFlow — `runPipeline` (`execution/pipeline.go:42`), 10-stage DAG lifecycle
 
-```
+```text
 AugmentPath → resolveStore → (single-step OR build-mode filter) → circuit-breaker
 → resume-filter → BuildProjectState → health-checks → Build DAG →
 Workflow.Do(ctx) → reportSkipped/Finish/convertResults/healState/audit-snapshot
@@ -209,7 +209,7 @@ The three are **complementary layers**, not competitors: go-finding defines the 
 
 After cross-referencing `go-structure-linter/docs/pipeline-comparison.md` and `hierarchical-errors/docs/pipeline-comparison.md`, the full ecosystem picture is:
 
-```
+```text
                  go-finding (Finding/Report model + pipeline/ SDK)
                 ╱        ╱              ╲              ╲
 go-structure-linter   golangci-lint-     BuildFlow    hierarchical-errors

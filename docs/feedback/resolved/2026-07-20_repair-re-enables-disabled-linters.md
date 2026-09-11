@@ -85,7 +85,7 @@ settings blocks (previously removed because the linters were disabled).
 
 With the linters re-enabled, the next `golangci-lint run` reports:
 
-```
+```text
 485 issues:
 * golines: 12
 * ireturn: 79

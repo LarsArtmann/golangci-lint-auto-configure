@@ -250,7 +250,7 @@ type LinterReplacement struct {
 
 ### 4.1 Package Structure — Excellent
 
-```
+```text
 pkg/
 ├── constants/     # Static data: priorities, reasons, presets, rules, defaults
 ├── types/         # Domain models: Config, LinterInfo, Set[T], interfaces
@@ -300,7 +300,7 @@ type LinterAnalyzer interface {
 
 The fixer follows a clear pipeline:
 
-```
+```text
 FixConfig
   ├── LoadConfig
   ├── detectVersion (for version-gated replacements)

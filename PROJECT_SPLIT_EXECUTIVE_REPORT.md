@@ -13,7 +13,7 @@
 
 ## Current Architecture
 
-```
+```text
 golangci-lint-auto-configure/
 ├── cmd/                    # CLI entrypoint
 ├── internal/cli/           # CLI commands (831 lines - needs internal refactoring)

@@ -79,7 +79,7 @@ golangci-lint-auto-configure analyze --verbose
 
 **Output Example:**
 
-```
+```text
 INFO Analyzing configuration: .golangci.yml
 
 ━━ golangci-lint Configuration ━━
