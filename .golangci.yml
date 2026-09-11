@@ -167,6 +167,10 @@ linters:
       forbid-spec-pollution: true
     gocognit:
       min-complexity: 25
+    goconst:
+      ignore-tests: true
+      min-length: 4
+      min-occurrences: 5
     gocritic:
       disabled-checks:
         - ifElseChain
@@ -193,12 +197,25 @@ linters:
         - "1"
         - "2"
         - "100"
+    nestif:
+      min-complexity: 6
     revive:
       rules:
         - disabled: true
           name: exported
         - disabled: true
           name: package-comments
+    tagalign:
+      align: false
+      order:
+        - binding
+        - json
+        - yaml
+        - xml
+        - toml
+        - validate
+        - mapstructure
+      sort: true
     tagliatelle:
       case:
         rules:
@@ -447,6 +464,19 @@ linters:
         linters:
           - goconst
           - musttag
+          - exhaustruct
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - forcetypeassert
+          - gosec
+          - errcheck
+          - wrapcheck
+          - ireturn
+          - recvcheck
+          - contextcheck
+          - exhaustive
       - path: pkg/types/types\.go|pkg/types/validation\.go|pkg/detection/patterns\.go|pkg/finding/categories\.go|pkg/migration/rules\.go
         linters:
           - goconst
@@ -456,6 +486,7 @@ linters:
           - unused
     paths:
       - \.gen\.go$
+      - ^pkg/constants/linter_settings_generated\.go$
       - _templ\.go$
       - pkg/gogenfilter/
       - vendor/
@@ -473,6 +504,7 @@ formatters:
   exclusions:
     generated: lax
     paths:
+      - ^pkg/constants/linter_settings_generated\.go$
       - _templ\.go$
       - pkg/gogenfilter/
       - wire_gen\.go$
