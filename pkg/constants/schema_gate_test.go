@@ -70,25 +70,6 @@ var _ = Describe("Schema fixture gate", func() {
 	})
 })
 
-func findRepoRoot() string {
-	wd, err := os.Getwd()
-	Expect(err).NotTo(HaveOccurred())
-
-	dir := wd
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			Fail("go.mod not found above " + wd)
-		}
-
-		dir = parent
-	}
-}
-
 func readFileString(path string) string {
 	content, err := os.ReadFile(path)
 	Expect(err).NotTo(HaveOccurred())
