@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- `validate --format sarif` health findings are now emitted through
+  `linter-autoconfigure-sdk`'s `FindingFromIssue` instead of a hand-rolled
+  builder loop (second SDK consumer; tracks the SDK via a local `replace`
+  until its next tag). Behavior deltas: a health issue without a known line
+  now gets a file-level position instead of a fabricated `Line: 1`, and an
+  empty suggestion maps to `FixStrategyNone` instead of an empty
+  `FixStrategySuggest`. The linter-recommendation findings (`missing-linter`,
+  per-linter categories/tags) are intentionally unchanged — ConfigIssue does
+  not model that metadata.
 - varnamelen shared `ignore-decls` defaults are now stdlib-only: the
   framework-typed entries (`c *gin.Context`, `*httpx.Context`,
   `*koanf.Koanf` historically) injected dead declarations into projects not
