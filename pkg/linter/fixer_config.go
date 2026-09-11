@@ -304,16 +304,23 @@ func normalizeKnownBadSettingsKeys(cfg *types.Config, logger *log.Logger) int {
 			}
 
 			delete(settings, badKey)
+
 			changed++
 
 			if _, hasGood := settings[goodKey]; hasGood {
-				logger.Infof("Dropped invalid settings key for %s: %q (valid key %q already set)", linterName, badKey, goodKey)
+				logger.Infof(
+					"Dropped invalid settings key for %s: %q (valid key %q already set)",
+					linterName, badKey, goodKey,
+				)
 
 				continue
 			}
 
 			settings[goodKey] = badValue
-			logger.Infof("Normalized invalid settings key for %s: %q -> %q (schema-invalid key emitted by older tool versions)", linterName, badKey, goodKey)
+			logger.Infof(
+				"Normalized invalid settings key for %s: %q -> %q (schema-invalid key emitted by older tool versions)",
+				linterName, badKey, goodKey,
+			)
 		}
 	}
 
