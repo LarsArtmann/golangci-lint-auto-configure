@@ -88,7 +88,7 @@ Legend: each micro is independently verifiable. Times are max minutes.
 | 2.7 | AGENTS.md gotcha note + configure-summary line mentioning the repair                             | 8   |
 | 2.8 | Full suite + lint + manual fixture verify                                                        | 12  |
 
-### T3 — CI schema-compat gate (42)
+### T3 — CI schema-compat gate (52)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
@@ -131,7 +131,7 @@ Legend: each micro is independently verifiable. Times are max minutes.
 | 6.3 | Verify locally: corrupt file → red; restore → green                                          | 10  |
 | 6.4 | AGENTS #35 addendum: drift guard exists                                                      | 6   |
 
-### T7 — Watchdog (36)
+### T7 — CI-health watchdog (38)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
@@ -140,7 +140,7 @@ Legend: each micro is independently verifiable. Times are max minutes.
 | 7.3 | On drift: open/update an issue (idempotent, labeled `ci-health`)                             | 10  |
 | 7.4 | Test via `workflow_dispatch` (force a fake-drift dry mode)                                   | 8   |
 
-### T8 — BDD spec debt (part 1: settings structs) (40)
+### T8 — BDD spec debt (all 12 features from 2026-08-08) (96)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
@@ -148,195 +148,195 @@ Legend: each micro is independently verifiable. Times are max minutes.
 | 8.2 | `Goconst` ToMap specs (`min-len`, `min-occurrences`, `ignore-tests`)                          | 12  |
 | 8.3 | `Tagalign` ToMap specs (align/order/sort + ordering)                                         | 10  |
 | 8.4 | `mnd` specs (`ignored-files`, `ignored-numbers` intentionally absent)                        | 10  |
-| 8.5 | Run `pkg/constants` suite; lint                                                               | 6   |
+| 8.5 | `wrapcheck.IgnoreSigRegexps`: count + sample-pattern spec                                    | 12  |
+| 8.6 | `errcheck.CheckTypeAssertions: true` spec                                                    | 8   |
+| 8.7 | `varnamelen` typed `ignore-decls` + distance/name-length spec                                | 12  |
+| 8.8 | `checkAbsolutePathExclusions`: Unix + Windows + glob-ignored specs                           | 12  |
+| 8.9 | `checkDuplicateExclusionLinters` + `pruneUnenabledLinterSettings` specs                      | 12  |
+| 8.10| Run `pkg/constants` suite; lint                                                              | 6   |
 
-### T9 — BDD spec debt (part 2: wrapcheck/errcheck/varnamelen/checks) (46) *(labeled T8b in IDs)*
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 8b.1| `wrapcheck.IgnoreSigRegexps`: count + sample-pattern spec                                    | 12  |
-| 8b.2| `errcheck.CheckTypeAssertions: true` spec                                                    | 8   |
-| 8b.3| `varnamelen` typed `ignore-decls` + distance/name-length spec                                | 12  |
-| 8b.4| `checkAbsolutePathExclusions`: Unix + Windows + glob-ignored specs                           | 12  |
-| 8b.5| `checkDuplicateExclusionLinters` + `pruneUnenabledLinterSettings` specs                      | 12  |
-
-*(adjust: this section = 56 min total; keep as one task T8b ≈ 56 min)*
-
-### T10 — varnamelen trim (38)
+### T9 — varnamelen trim (38)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 10.1| Remove `*gin.Context`, `*httpx.Context`, `*koanf.Koanf` from `IgnoreDecls`                    | 8   |
-| 10.2| Update the 8b.3 spec to stdlib-only expectation                                              | 8   |
-| 10.3| Sanity: grep sibling configs for framework-typed varnamelen reliance                          | 12  |
-| 10.4| Suite + CHANGELOG `[Unreleased]` note                                                        | 10  |
+| 9.1 | Remove `*gin.Context`, `*httpx.Context`, `*koanf.Koanf` from `IgnoreDecls`                    | 8   |
+| 9.2 | Update the 8.7 spec to stdlib-only expectation                                               | 8   |
+| 9.3 | Sanity: grep sibling configs for framework-typed varnamelen reliance                          | 12  |
+| 9.4 | Suite + CHANGELOG `[Unreleased]` note                                                        | 10  |
 
-### T11 — go install e2e (30)
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 11.1| Clean-`GOMODCACHE` env; `go install …/cmd/golangci-lint-auto-configure@v0.8.1`               | 12  |
-| 11.2| Run installed binary: `--version` + `analyze` on a fixture                                   | 10  |
-| 11.3| Record result (TODO row removal + CHANGELOG/README note if needed)                           | 8   |
-
-### T12 — Release-adjacent verification (38)
+### T10 — go install e2e (30)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 12.1| Verify homebrew cask + scoop manifest URLs for v0.8.1                                        | 12  |
-| 12.2| README: artifact-verification section (`cosign verify checksums.txt`, SBOM)                  | 12  |
-| 12.3| `gh workflow run ci.yml`; confirm the dispatch path is green                                 | 10  |
-| 12.4| Prune the TODO rows this closes                                                              | 8   |
+| 10.1| Clean-`GOMODCACHE` env; `go install …/cmd/golangci-lint-auto-configure@v0.8.1`               | 12  |
+| 10.2| Run installed binary: `--version` + `analyze` on a fixture                                   | 10  |
+| 10.3| Record result (TODO row removal + CHANGELOG/README note if needed)                           | 8   |
 
-### T13 — GHCR backfill (42)
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 13.1| Buildx-build the v0.8.0 image exactly as the release workflow does                           | 12  |
-| 13.2| Push to `ghcr.io` with `v0.8.0` tag                                                          | 10  |
-| 13.3| Verify anonymous pull + attestation                                                          | 12  |
-| 13.4| Decide v0.7.x backfill (yes/no) + note rationale                                             | 8   |
-
-### T14 — Protections (40)
+### T11 — Release-adjacent verification (42)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 14.1| Draft master ruleset (require CI; propose linear history)                                    | 10  |
-| 14.2| Tag ruleset: `v*` creatable only by release path                                             | 10  |
-| 14.3| Decide + execute `auto-tag.yml` fate; record decision                                        | 10  |
-| 14.4| Apply via `gh api`; screenshot/verify settings                                               | 12  |
+| 11.1| Verify homebrew cask + scoop manifest URLs for v0.8.1                                        | 12  |
+| 11.2| README: artifact-verification section (`cosign verify checksums.txt`, SBOM)                  | 12  |
+| 11.3| `gh workflow run ci.yml`; confirm the dispatch path is green                                 | 10  |
+| 11.4| Prune the TODO rows this closes                                                              | 8   |
 
-### T15 — Dependabot (40)
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 15.1| Read the 3 failed run logs; classify the failure cause                                       | 12  |
-| 15.2| Fix the cause (config or dependency)                                                         | 12  |
-| 15.3| Evaluate custom manager for the `ci.yml` golangci-lint input pin                             | 12  |
-| 15.4| Document outcome + TODO update                                                               | 8   |
-
-### T16 — gitleaks (46)
+### T12 — GHCR backfill (42)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 16.1| Ensure gitleaks; run the full-history scan                                                   | 12  |
-| 16.2| Triage findings: real secrets vs sibling-name references                                     | 12  |
-| 16.3| Quantify + write the risk summary into the ROADMAP history question                          | 10  |
-| 16.4| Allowlist known-benign patterns if any; re-run clean                                         | 12  |
+| 12.1| Buildx-build the v0.8.0 image exactly as the release workflow does                           | 12  |
+| 12.2| Push to `ghcr.io` with `v0.8.0` tag                                                          | 10  |
+| 12.3| Verify anonymous pull + attestation                                                          | 12  |
+| 12.4| Decide v0.7.x backfill (yes/no) + note rationale                                             | 8   |
 
-### T17 — Buildflow (60)
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 17.1| Locate the buildflow config (global paths, `--help`, docs)                                   | 12  |
-| 17.2| Raise `test-coverage` timeout (committed override or global)                                 | 10  |
-| 17.3| Investigate "9 tools unavailable" health check with `--verbose`                              | 12  |
-| 17.4| Full buildflow run end-to-end; confirm 0 failures                                            | 12  |
-| 17.5| Record outcome; update TODO/ROADMAP rows                                                     | 8   |
-
-### T18 — generate-settings schema awareness (46) *(includes goconst-drift decision)*
+### T13 — Protections (40)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 18.1| Generator header: document schema snapshot version + tool minimum supported                  | 10  |
-| 18.2| Implement warning when schema version > tool minimum                                         | 12  |
-| 18.3| Decide goconst drift: regenerate+annotate vs exclude goconst                                 | 12  |
-| 18.4| Execute the decision; run tests                                                              | 10  |
-| 18.5| AGENTS #35 extension                                                                          | 8   |
+| 13.1| Draft master ruleset (require CI; propose linear history)                                    | 10  |
+| 13.2| Tag ruleset: `v*` creatable only by release path                                             | 10  |
+| 13.3| Decide + execute `auto-tag.yml` fate; record decision                                        | 10  |
+| 13.4| Apply via `gh api`; verify settings                                                          | 12  |
 
-### T19 — internal/cli coverage sprint (66)
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 19.1| Coverage report: rank untested `cmd_*` paths by user impact                                  | 10  |
-| 19.2| Specs: `cmd_check` exit-code branches                                                        | 12  |
-| 19.3| Specs: `cmd_analyze` output modes                                                            | 12  |
-| 19.4| Specs: `cmd_configure_config` flag branches                                                  | 12  |
-| 19.5| Specs: `cmd_presets --json` edge cases                                                       | 12  |
-| 19.6| Spec: FixConfig sidecar + ledger integration (never-enable e2e — old Low TODO)               | 12  |
-| 19.7| Coverage delta report; prune TODO rows                                                       | 10  |
-
-### T20 — Suite speedup (56)
+### T14 — Dependabot (44)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 20.1| Profile: per-suite timing of `internal/cli` under `-race`                                    | 12  |
-| 20.2| Identify sleeps + serial bottlenecks (build-once BeforeSuite)                                | 12  |
-| 20.3| Parallelize independent Describe suites                                                      | 12  |
-| 20.4| Re-measure; target ≤60s; iterate once                                                        | 12  |
-| 20.5| Record result (may retire the buildflow timeout need)                                        | 8   |
+| 14.1| Read the 3 failed run logs; classify the failure cause                                       | 12  |
+| 14.2| Fix the cause (config or dependency)                                                         | 12  |
+| 14.3| Evaluate custom manager for the `ci.yml` golangci-lint input pin                             | 12  |
+| 14.4| Document outcome + TODO update                                                               | 8   |
 
-### T21 — omitzero (54)
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 21.1| Inventory `bool`/`int + omitempty` json tags in `config_types.go`                            | 10  |
-| 21.2| Per-field decision: `omitzero` vs keep (round-trip risk)                                     | 12  |
-| 21.3| Apply edits                                                                                  | 12  |
-| 21.4| Update JSON-format output tests/goldens                                                      | 12  |
-| 21.5| Close out AGENTS #17 latent note                                                             | 8   |
-
-### T22 — ADR consolidation (52)
+### T15 — gitleaks (46)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 22.1| Extract ADR-001…004 from `ARCHITECTURE.md` into `docs/adr/ADR-00x-*.md`                      | 12  |
-| 22.2| Extract ADR-005…008                                                                          | 12  |
-| 22.3| Rename `001-yaml-dependency-decision.md` to the `ADR-NNN-` scheme                            | 8   |
-| 22.4| Replace inline ADR sections with a linked index                                              | 12  |
-| 22.5| Link sweep + markdownlint + AGENTS pointer                                                   | 8   |
+| 15.1| Ensure gitleaks; run the full-history scan                                                   | 12  |
+| 15.2| Triage findings: real secrets vs sibling-name references                                     | 12  |
+| 15.3| Quantify + write the risk summary into the ROADMAP history question                          | 10  |
+| 15.4| Allowlist known-benign patterns if any; re-run clean                                         | 12  |
 
-### T23 — README audit part 1 (56)
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 23.1| Verify Purpose + install claims (commands exist, flags real)                                 | 12  |
-| 23.2| Verify Requirements + example outputs vs the actual binary                                   | 12  |
-| 23.3| Verify linter counts/priority tables vs constants                                            | 12  |
-| 23.4| Fix the drift found                                                                          | 12  |
-| 23.5| Record audit progress in TODO                                                                | 8   |
-
-### T24 — README audit part 2 + CI/CD (54)
+### T16 — Buildflow (54)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 24.1| Audit flags table vs cobra registration                                                      | 12  |
-| 24.2| Audit presets table vs `presets.go` counts                                                   | 10  |
-| 24.3| Audit reports/sidecar/audit-ledger sections                                                  | 12  |
-| 24.4| Add the CI/CD section (workflows + gates table)                                              | 12  |
-| 24.5| markdownlint + close the TODO rows                                                           | 8   |
+| 16.1| Locate the buildflow config (global paths, `--help`, docs)                                   | 12  |
+| 16.2| Raise `test-coverage` timeout (committed override or global)                                 | 10  |
+| 16.3| Investigate "9 tools unavailable" health check with `--verbose`                              | 12  |
+| 16.4| Full buildflow run end-to-end; confirm 0 failures                                            | 12  |
+| 16.5| Record outcome; update TODO/ROADMAP rows                                                     | 8   |
 
-### T25 — Sibling sweep (42)
-
-| ID  | Micro task                                                                                  | Min |
-|-----|----------------------------------------------------------------------------------------------|-----|
-| 25.1| Sweep script: find `min-length` under sibling `.golangci.yml` files                          | 12  |
-| 25.2| Run across ~160 repos; collect the hit list                                                  | 10  |
-| 25.3| Repair each hit (tool run with T2 fix, or targeted edit)                                     | 12  |
-| 25.4| Summarize repaired count + outstanding                                                       | 8   |
-
-### T26 — Small-code-fixes bundle (54)
+### T17 — generate-settings schema awareness (52)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 26.1| `FindingsHidden`: grep usages → remove-or-implement decision                                 | 12  |
-| 26.2| Multi-preset test: two-preset linter union fixture                                           | 12  |
-| 26.3| Multi-preset test: formatter union + dedup assertions                                        | 12  |
-| 26.4| `errUnsupportedFormat`: verify go-error-family registration; register if missing             | 10  |
-| 26.5| Suite green                                                                                  | 8   |
+| 17.1| Generator header: document schema snapshot version + tool minimum supported                  | 10  |
+| 17.2| Implement warning when schema version > tool minimum                                         | 12  |
+| 17.3| Decide goconst drift: regenerate+annotate vs exclude goconst                                 | 12  |
+| 17.4| Execute the decision; run tests                                                              | 10  |
+| 17.5| AGENTS #35 extension                                                                          | 8   |
 
-### T27 — Docs-hygiene + decisions bundle (60)
+### T18 — internal/cli coverage sprint (80)
 
 | ID  | Micro task                                                                                  | Min |
 |-----|----------------------------------------------------------------------------------------------|-----|
-| 27.1| Annotate `2026-08-05_03-25_humanize-linter-status.md` as resolved                            | 8   |
-| 27.2| Route the dropped 07-31 F-ideas into ROADMAP (or consciously drop)                           | 10  |
-| 27.3| Version-reference sweep (AGENTS #11, docs/references)                                        | 12  |
-| 27.4| Status cadence policy into `docs/status/README.md`                                           | 10  |
-| 27.5| Decision note: PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates + homepage/announcement routing    | 12  |
-| 27.6| Extend docs-integrity test beyond preset counts; run gates                                   | 12  |
+| 18.1| Coverage report: rank untested `cmd_*` paths by user impact                                  | 10  |
+| 18.2| Specs: `cmd_check` exit-code branches                                                        | 12  |
+| 18.3| Specs: `cmd_analyze` output modes                                                            | 12  |
+| 18.4| Specs: `cmd_configure_config` flag branches                                                  | 12  |
+| 18.5| Specs: `cmd_presets --json` edge cases                                                       | 12  |
+| 18.6| Spec: FixConfig sidecar + ledger integration (never-enable e2e — old Low TODO)               | 12  |
+| 18.7| Coverage delta report; prune TODO rows                                                       | 10  |
 
-**Micro total: 144 tasks.**
+### T19 — Suite speedup (56)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 19.1| Profile: per-suite timing of `internal/cli` under `-race`                                    | 12  |
+| 19.2| Identify sleeps + serial bottlenecks (build-once BeforeSuite)                                | 12  |
+| 19.3| Parallelize independent Describe suites                                                      | 12  |
+| 19.4| Re-measure; target ≤60s; iterate once                                                        | 12  |
+| 19.5| Record result (may retire the buildflow timeout need)                                        | 8   |
+
+### T20 — omitzero (54)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 20.1| Inventory `bool`/`int + omitempty` json tags in `config_types.go`                            | 10  |
+| 20.2| Per-field decision: `omitzero` vs keep (round-trip risk)                                     | 12  |
+| 20.3| Apply edits                                                                                  | 12  |
+| 20.4| Update JSON-format output tests/goldens                                                      | 12  |
+| 20.5| Close out AGENTS #17 latent note                                                             | 8   |
+
+### T21 — ADR consolidation (52)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 21.1| Extract ADR-001…004 from `ARCHITECTURE.md` into `docs/adr/ADR-00x-*.md`                      | 12  |
+| 21.2| Extract ADR-005…008                                                                          | 12  |
+| 21.3| Rename `001-yaml-dependency-decision.md` to the `ADR-NNN-` scheme                            | 8   |
+| 21.4| Replace inline ADR sections with a linked index                                              | 12  |
+| 21.5| Link sweep + markdownlint + AGENTS pointer                                                   | 8   |
+
+### T22 — README audit part 1 (56)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 22.1| Verify Purpose + install claims (commands exist, flags real)                                 | 12  |
+| 22.2| Verify Requirements + example outputs vs the actual binary                                   | 12  |
+| 22.3| Verify linter counts/priority tables vs constants                                            | 12  |
+| 22.4| Fix the drift found                                                                          | 12  |
+| 22.5| Record audit progress in TODO                                                                | 8   |
+
+### T23 — README audit part 2 + CI/CD (54)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 23.1| Audit flags table vs cobra registration                                                      | 12  |
+| 23.2| Audit presets table vs `presets.go` counts                                                   | 10  |
+| 23.3| Audit reports/sidecar/audit-ledger sections                                                  | 12  |
+| 23.4| Add the CI/CD section (workflows + gates table)                                              | 12  |
+| 23.5| markdownlint + close the TODO rows                                                           | 8   |
+
+### T24 — Sibling sweep (42)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 24.1| Sweep script: find `min-length` under sibling `.golangci.yml` files                          | 12  |
+| 24.2| Run across ~160 repos; collect the hit list                                                  | 10  |
+| 24.3| Repair each hit (tool run with T2 fix, or targeted edit)                                     | 12  |
+| 24.4| Summarize repaired count + outstanding                                                       | 8   |
+
+### T25 — Small-code-fixes bundle (54)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 25.1| `FindingsHidden`: grep usages → remove-or-implement decision                                 | 12  |
+| 25.2| Multi-preset test: two-preset linter union fixture                                           | 12  |
+| 25.3| Multi-preset test: formatter union + dedup assertions                                        | 12  |
+| 25.4| `errUnsupportedFormat`: verify go-error-family registration; register if missing             | 10  |
+| 25.5| Suite green                                                                                  | 8   |
+
+### T26 — Docs-hygiene bundle (40)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 26.1| Annotate `2026-08-05_03-25_humanize-linter-status.md` as resolved                            | 8   |
+| 26.2| Route the dropped 07-31 F-ideas into ROADMAP (or consciously drop)                           | 10  |
+| 26.3| Version-reference sweep (AGENTS #11, docs/references)                                        | 12  |
+| 26.4| Status cadence policy into `docs/status/README.md`; prune TODO rows this closes              | 10  |
+
+### T27 — Decisions + docs-integrity (46)
+
+| ID  | Micro task                                                                                  | Min |
+|-----|----------------------------------------------------------------------------------------------|-----|
+| 27.1| Decision note: PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates (ROADMAP/TODO)                     | 12  |
+| 27.2| Homepage + announcement posture routing (ROADMAP Open questions)                             | 10  |
+| 27.3| Extend docs-integrity test beyond preset counts                                              | 12  |
+| 27.4| Run full gates; final plan-status report                                                     | 12  |
+
+**Micro total: 140 tasks.**
 
 ---
 
