@@ -17,7 +17,7 @@ linters:
   enable:
     - cyclop
     - errcheck
-    - exhaustruct
+    - exhaustruct_v5
     - funlen
     - ginkgolinter
     - gocognit
@@ -58,8 +58,8 @@ linters:
         - fmt.Println
         - (*strings.Builder).WriteString
         - (*bytes.Buffer).WriteString
-    exhaustruct:
-      exclude:
+    exhaustruct_v5:
+      ignore-patterns:
         - net/http.Client
         - net/http.Server
         - net/http.Request
@@ -201,7 +201,7 @@ linters:
     rules:
       - path: _test\.go
         linters:
-          - exhaustruct
+          - exhaustruct_v5
           - testpackage
           - gochecknoglobals
           - funlen

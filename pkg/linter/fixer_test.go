@@ -241,7 +241,7 @@ linters:
     rules:
       - path: _test\.go
         linters:
-          - exhaustruct
+          - exhaustruct_v5
           - testpackage
           - gochecknoglobals
           - funlen
@@ -850,7 +850,7 @@ linters:
 			Expect(content).NotTo(ContainSubstring("always: true"))
 		})
 
-		It("should inject exhaustruct stdlib excludes when exhaustruct is enabled", func() {
+		It("should inject exhaustruct_v5 stdlib ignore-patterns when exhaustruct is enabled", func() {
 			configContent := `version: "2"
 linters:
   enable:
@@ -859,7 +859,11 @@ linters:
 `
 			content, err := fixAndRead(fixer, testConfig, configContent, types.LinterPriorityMedium, false)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("exhaustruct:"))
+
+			By("replacing the deprecated exhaustruct with exhaustruct_v5")
+			Expect(content).To(ContainSubstring("exhaustruct_v5:"))
+			Expect(content).To(ContainSubstring("ignore-patterns:"))
+			Expect(content).NotTo(ContainSubstring("exhaustruct:"))
 			Expect(content).To(ContainSubstring("net/http.Client"))
 			Expect(content).To(ContainSubstring("net/http.Server"))
 			Expect(content).To(ContainSubstring("os/exec.Cmd"))
