@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/internal/cli"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -27,6 +26,7 @@ func executeInProcess(args ...string) string {
 	os.Stdout = writer
 
 	done := make(chan string, 1)
+
 	go func() {
 		captured, _ := io.ReadAll(reader)
 		done <- string(captured)

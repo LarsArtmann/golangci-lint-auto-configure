@@ -39,7 +39,7 @@ linters:
 `
 
 	// linterSections parses the fixed config into its enable/disable lists.
-	linterSections := func() (enable, disable []string) {
+	linterSections := func() ([]string, []string) {
 		fixed, readErr := os.ReadFile(configPath)
 		Expect(readErr).NotTo(HaveOccurred())
 
