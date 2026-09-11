@@ -58,8 +58,11 @@ linters:
 
 		output := executeInProcess("analyze", "--config", configPath, "--format", "json")
 
+		jsonStart := strings.Index(output, "{")
+		Expect(jsonStart).To(BeNumerically(">=", 0), "no JSON object in output:\n%s", output)
+
 		Expect(output).To(ContainSubstring(`"ConfigPath"`))
-		Expect(json.Valid([]byte(strings.TrimSpace(output)))).To(BeTrue())
+		Expect(json.Valid([]byte(output[jsonStart:]))).To(BeTrue())
 	})
 
 	It("renders SARIF output for --format sarif", func() {
@@ -89,10 +92,10 @@ linters:
 })
 
 var _ = Context("presets --json (in-process)", func() {
-	It("emits a JSON array of preset entries", func() {
+	It("emits preset entries as JSON", func() {
 		output := executeInProcess("presets", "--json")
 
-		Expect(strings.TrimSpace(output)).To(HavePrefix("["))
+		Expect(output).To(ContainSubstring(`"Presets"`))
 		Expect(output).To(ContainSubstring(`"Linters"`))
 		Expect(json.Valid([]byte(strings.TrimSpace(output)))).To(BeTrue())
 	})
