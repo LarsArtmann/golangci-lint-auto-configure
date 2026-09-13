@@ -2,7 +2,7 @@ package cli_test
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
 	"io"
 	"os"
 	"strings"
@@ -62,7 +62,7 @@ linters:
 		Expect(jsonStart).To(BeNumerically(">=", 0), "no JSON object in output:\n%s", output)
 
 		Expect(output).To(ContainSubstring(`"ConfigPath"`))
-		Expect(json.Valid([]byte(output[jsonStart:]))).To(BeTrue())
+		Expect(jsontext.Value([]byte(output[jsonStart:])).IsValid()).To(BeTrue())
 	})
 
 	It("renders SARIF output for --format sarif", func() {
@@ -97,7 +97,7 @@ var _ = Context("presets --json (in-process)", func() {
 
 		Expect(output).To(ContainSubstring(`"Presets"`))
 		Expect(output).To(ContainSubstring(`"Linters"`))
-		Expect(json.Valid([]byte(strings.TrimSpace(output)))).To(BeTrue())
+		Expect(jsontext.Value([]byte(strings.TrimSpace(output))).IsValid()).To(BeTrue())
 	})
 })
 

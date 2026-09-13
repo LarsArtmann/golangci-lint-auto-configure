@@ -35,12 +35,12 @@
 
 ## c) NOT STARTED
 
-| # | Item                                                                                                  | Why                                                                                                                         |
-| - | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| # | Item                                                                                                                                                                 | Why                                                                                                                         |
+| - | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | 1 | ~~Update prior session's status report (`docs/status/2026-07-10_19-07_50-item-todo-list-full-sweep.md`)~~ done — see header resolution note (docs-health 2026-09-11) | The handoff said "Zero tests for presets command and backupConfigFile" — this is now resolved but the report wasn't updated |
-| 2 | ~~End-to-end CLI test for `presets` subcommand~~ done — see header resolution note (docs-health 2026-09-11) | No integration test that runs `golangci-lint-auto-configure presets` as a binary and checks stdout                          |
-| 3 | ~~Test for `backupConfigFile` permission mode (`0o600`)~~ done — see header resolution note (docs-health 2026-09-11) | Not tested whether the `.bak` file is created with the intended restrictive permissions                                     |
-| 4 | ~~`--backup` flag decision~~ done — see header resolution note (docs-health 2026-09-11) | The handoff noted this as an open question — backup is always-on, no opt-in/opt-out flag                                    |
+| 2 | ~~End-to-end CLI test for `presets` subcommand~~ done — see header resolution note (docs-health 2026-09-11)                                                          | No integration test that runs `golangci-lint-auto-configure presets` as a binary and checks stdout                          |
+| 3 | ~~Test for `backupConfigFile` permission mode (`0o600`)~~ done — see header resolution note (docs-health 2026-09-11)                                                 | Not tested whether the `.bak` file is created with the intended restrictive permissions                                     |
+| 4 | ~~`--backup` flag decision~~ done — see header resolution note (docs-health 2026-09-11)                                                                              | The handoff noted this as an open question — backup is always-on, no opt-in/opt-out flag                                    |
 
 ---
 

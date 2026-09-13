@@ -376,13 +376,13 @@ jobs:
 
 The CLI uses BSD `sysexits.h` exit codes for CI/CD integration, powered by [go-error-family](https://github.com/larsartmann/go-error-family).
 
-| Code | Constant                  | Meaning        | When                                                                          |
-| ---- | ------------------------- | -------------- | ----------------------------------------------------------------------------- |
-| 0    | `EX_OK`                   | Success        | Command completed successfully                                                |
-| 1    | —                         | User error     | Bad input, missing config, invalid version, `--check` detected needed changes |
-| 65   | `EX_DATAERR`              | Corruption     | Unparseable golangci-lint output (broken installation)                        |
-| 69   | `EX_UNAVAILABLE`          | Infrastructure | golangci-lint binary not found in PATH                                        |
-| 75   | `EX_TEMPFAIL`             | Transient      | Temporary failure (retry in CI)                                               |
+| Code | Constant         | Meaning        | When                                                                          |
+| ---- | ---------------- | -------------- | ----------------------------------------------------------------------------- |
+| 0    | `EX_OK`          | Success        | Command completed successfully                                                |
+| 1    | —                | User error     | Bad input, missing config, invalid version, `--check` detected needed changes |
+| 65   | `EX_DATAERR`     | Corruption     | Unparseable golangci-lint output (broken installation)                        |
+| 69   | `EX_UNAVAILABLE` | Infrastructure | golangci-lint binary not found in PATH                                        |
+| 75   | `EX_TEMPFAIL`    | Transient      | Temporary failure (retry in CI)                                               |
 
 CI pipelines can branch on these codes:
 
@@ -414,26 +414,26 @@ esac
 
 ## Flags
 
-| Flag               | Description                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------- |
-| `-c, --config`     | Path to golangci-lint config file                                                  |
-| `-d, --dry-run`    | Show what would be done without making changes                                     |
-| `--check`          | CI mode: exit 1 if changes needed, 0 if optimal                                    |
-| `--diff`           | Show diff of config changes before applying                                        |
-| `--priority`       | Minimum priority level (critical, high, medium, optional)                          |
+| Flag               | Description                                                                                                |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `-c, --config`     | Path to golangci-lint config file                                                                          |
+| `-d, --dry-run`    | Show what would be done without making changes                                                             |
+| `--check`          | CI mode: exit 1 if changes needed, 0 if optimal                                                            |
+| `--diff`           | Show diff of config changes before applying                                                                |
+| `--priority`       | Minimum priority level (critical, high, medium, optional)                                                  |
 | `--preset`         | Use a preset (minimal, standard, strict, security, performance, reference, format, house); can be repeated |
-| `--detect`         | Auto-detect project type and select appropriate preset                             |
-| `-v, --verbose`    | Enable verbose output                                                              |
-| `--format`         | Output format (html, json, sarif, finding)                                         |
-| `--output`         | Output path for report file                                                        |
-| `--no-auto-merge`  | Disable automatic merging of multiple config files                                 |
-| `--no-audit`       | Skip writing to the audit ledger                                                   |
-| `--force-settings` | Overwrite existing linter/formatter settings with curated defaults                 |
-| `--pragmatic`      | Drop the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen)    |
-| `--recommend`      | Analyze project and recommend multiple presets (implies `--detect`)                |
-| `--quiet`          | Suppress all output except errors (useful for CI)                                  |
-| `--json-errors`    | Output errors as JSON to stderr for programmatic consumption                       |
-| `--no-color`       | Disable colored output (also honored via NO_COLOR env var)                         |
+| `--detect`         | Auto-detect project type and select appropriate preset                                                     |
+| `-v, --verbose`    | Enable verbose output                                                                                      |
+| `--format`         | Output format (html, json, sarif, finding)                                                                 |
+| `--output`         | Output path for report file                                                                                |
+| `--no-auto-merge`  | Disable automatic merging of multiple config files                                                         |
+| `--no-audit`       | Skip writing to the audit ledger                                                                           |
+| `--force-settings` | Overwrite existing linter/formatter settings with curated defaults                                         |
+| `--pragmatic`      | Drop the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen)                            |
+| `--recommend`      | Analyze project and recommend multiple presets (implies `--detect`)                                        |
+| `--quiet`          | Suppress all output except errors (useful for CI)                                                          |
+| `--json-errors`    | Output errors as JSON to stderr for programmatic consumption                                               |
+| `--no-color`       | Disable colored output (also honored via NO_COLOR env var)                                                 |
 
 ## Project-Specific Examples
 
@@ -582,13 +582,13 @@ BDD-tested parsing logic.
 
 The repository runs these GitHub Actions workflows:
 
-| Workflow                | Trigger                       | What it gates                                                                                     |
-| ----------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------- |
-| `ci.yml`                | push/PR (non-markdown)        | Nix flake check, govulncheck, **schema-compat gate** (every injected default verified against live golangci-lint), golangci-lint, test + build with `-race`, coverage ≥60% |
-| `release.yml`           | `v*` tags                     | GoReleaser: binaries, archives, deb/rpm/apk, cosign keyless signing, SBOMs, GHCR multi-arch image  |
-| `markdown-lint.yml`     | markdown changes              | markdownlint-cli2 over docs (excludes status reports, archive, CHANGELOG)                         |
-| `ci-watchdog.yml`       | weekly cron                   | Asserts `ci.yml` is active and the last master run is green; opens an issue on drift               |
-| `backfill-image.yml`    | manual dispatch               | Rebuilds + pushes the GHCR image for any already-released tag whose docker stage failed            |
+| Workflow             | Trigger                | What it gates                                                                                                                                                              |
+| -------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`             | push/PR (non-markdown) | Nix flake check, govulncheck, **schema-compat gate** (every injected default verified against live golangci-lint), golangci-lint, test + build with `-race`, coverage ≥60% |
+| `release.yml`        | `v*` tags              | GoReleaser: binaries, archives, deb/rpm/apk, cosign keyless signing, SBOMs, GHCR multi-arch image                                                                          |
+| `markdown-lint.yml`  | markdown changes       | markdownlint-cli2 over docs (excludes status reports, archive, CHANGELOG)                                                                                                  |
+| `ci-watchdog.yml`    | weekly cron            | Asserts `ci.yml` is active and the last master run is green; opens an issue on drift                                                                                       |
+| `backfill-image.yml` | manual dispatch        | Rebuilds + pushes the GHCR image for any already-released tag whose docker stage failed                                                                                    |
 
 Branch protection: the `master` ruleset blocks history rewrites and deletions; a `v*` tag ruleset makes release tags immutable once pushed.
 

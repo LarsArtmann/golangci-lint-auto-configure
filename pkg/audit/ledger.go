@@ -62,14 +62,14 @@ const (
 
 // Entry is a single audit record, serialized as one JSONL line.
 type Entry struct {
-	Timestamp      time.Time `json:"timestamp"`
-	RunID          string    `json:"run_id"`
-	RepoHash       string    `json:"repo_hash"`
-	RepoPath       string    `json:"repo_path"`
-	GitHead        string    `json:"git_head,omitempty"`
-	Linter         string    `json:"linter"`
-	Action         Action    `json:"action"`
-	Reason         string    `json:"reason,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+	RunID     string    `json:"run_id"`
+	RepoHash  string    `json:"repo_hash"`
+	RepoPath  string    `json:"repo_path"`
+	GitHead   string    `json:"git_head,omitempty"`
+	Linter    string    `json:"linter"`
+	Action    Action    `json:"action"`
+	Reason    string    `json:"reason,omitempty"`
 }
 
 // RunContext holds the immutable per-run metadata stamped on every entry.
@@ -184,14 +184,14 @@ func (l *Ledger) Record(action Action, linter, reason string) {
 	}
 
 	entry := Entry{
-		Timestamp:      time.Now().UTC(),
-		RunID:          l.runCtx.RunID,
-		RepoHash:       l.runCtx.RepoHash,
-		RepoPath:       l.runCtx.RepoPath,
-		GitHead:        l.runCtx.GitHead,
-		Linter:         linter,
-		Action:         action,
-		Reason:         reason,
+		Timestamp: time.Now().UTC(),
+		RunID:     l.runCtx.RunID,
+		RepoHash:  l.runCtx.RepoHash,
+		RepoPath:  l.runCtx.RepoPath,
+		GitHead:   l.runCtx.GitHead,
+		Linter:    linter,
+		Action:    action,
+		Reason:    reason,
 	}
 
 	line, err := json.Marshal(entry)

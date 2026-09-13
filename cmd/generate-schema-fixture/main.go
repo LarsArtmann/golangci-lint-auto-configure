@@ -17,12 +17,14 @@
 package main
 
 import (
-	"charm.land/log/v2"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
+
+	"charm.land/log/v2"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -66,7 +68,7 @@ func buildFixture() *types.Config {
 		settings[string(name)] = converter.ToMap()
 	}
 
-	sort.Slice(linterNames, func(i, j int) bool { return linterNames[i] < linterNames[j] })
+	slices.Sort(linterNames)
 
 	formatterNames := make([]types.FormatterName, 0, len(constants.DefaultFormatterSettings))
 	formatterSettings := make(map[string]any, len(constants.DefaultFormatterSettings))
@@ -76,7 +78,7 @@ func buildFixture() *types.Config {
 		formatterSettings[string(name)] = converter.ToMap()
 	}
 
-	sort.Slice(formatterNames, func(i, j int) bool { return formatterNames[i] < formatterNames[j] })
+	slices.Sort(formatterNames)
 
 	buildTags := constants.GoExperimentTags()
 	sort.Strings(buildTags)

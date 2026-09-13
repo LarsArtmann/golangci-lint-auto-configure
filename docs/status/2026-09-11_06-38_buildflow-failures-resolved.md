@@ -87,42 +87,42 @@ The full ranked backlog is section (f).
 
 ## f) NEXT TASKS (ranked; HARVEST input for TODO_LIST.md / ROADMAP.md)
 
-| #  | Task                                                                                                                                                 | Impact   | Effort | Category      |
-| -- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ------------- |
-| 1  | Raise buildflow `test-coverage` tool timeout (suite needs ≥5 min cold with `-race`) via global config or committed `.buildflow.yml`                  | Critical | S      | Quality       |
-| 2  | Fix daemon/vendorHash footgun: CI (or pre-push hook) runs `nix build` on go.mod/go.sum changes and surfaces the `got:` hash                          | Critical | M      | Bug           |
-| 3  | Re-run full buildflow end-to-end; confirm 0 failures (close the original report)                                                                     | Critical | S      | Quality       |
-| 4  | Add generated-file drift guard: regenerate in CI, `git diff --exit-code` on `linter_settings_generated.go`                                           | High     | S      | Quality       |
-| 5  | Root-cause `nix flake check` "running 0 flake checks" vs 4 checks present in eval                                                                    | High     | S      | Bug           |
-| 6  | Investigate buildflow "9 tools unavailable" health check with `--verbose`; fix PATH or document                                                      | High     | S      | Quality       |
-| 7  | Disable/scope the `go-auto-upgrade` buildflow tool for this repo (its migrations break compilation then self-revert)                                 | High     | S      | Quality       |
-| 8  | Resolve the two pre-existing CI failures documented at v0.8.0 (TODO_LIST.md via `ff88e51`)                                                           | High     | M      | Bug           |
-| 9  | Migrate `exhaustruct` → `exhaustruct_v5`; port curated stdlib excludes (AGENTS.md #19)                                                               | Medium   | M      | Quality       |
-| 10 | Fix latent json/v2 `omitempty` → `omitzero` in `pkg/types/config_types.go` (AGENTS.md #17)                                                           | Medium   | M      | Bug           |
-| 11 | Speed up `internal/cli` suite (116s with `-race`): profile, parallelize, trim                                                                        | Medium   | L      | Quality       |
-| 12 | Add `GOEXPERIMENT=jsonv2` to gopls buildFlags; exclude generated file via directoryFilters                                                           | Medium   | S      | Quality       |
-| 13 | Run full-repo `golangci-lint run` (this session covered changed packages only)                                                                       | Medium   | S      | Quality       |
-| 14 | Verify the wsl v5 path end-to-end: is generated `WslV5Settings` ever emitted by `injectDefaultSettings`, or only curated `WslSettings`? Add BDD spec | Medium   | M      | Feature       |
-| 15 | Document `cmd/generate-settings` in `docs/references/working-with-codebase.md`; add `//go:generate` line                                             | Medium   | S      | Documentation |
-| 16 | Add unit tests for generator helpers (`schemaTypeToGo`, `toPascalCase` edge cases)                                                                   | Low      | S      | Quality       |
-| 17 | Determinism guard: run generator twice, assert byte-identical output                                                                                 | Low      | S      | Quality       |
-| 18 | CHANGELOG entry for the generator gofmt fix + regenerated file                                                                                       | Medium   | S      | Documentation |
-| 19 | Confirm daemon-injected `.golangci.yml` additions (goconst/nestif/tagalign in `8645cd3`) were intentional self-config                                | Low      | S      | Documentation |
-| 20 | ~~Commit AGENTS.md gotcha #35 (pending daemon)~~ done — committed (`ff6dca9` era); verified in AGENTS.md                                                                                                         | Medium   | S      | Documentation |
-| 21 | Refresh or delete stale root `coverprofile.out` (dated Jun 18)                                                                                       | Low      | S      | Cleanup       |
-| 22 | Act on or archive `BDD_TESTS_REVIEW.md` findings (Sep 2)                                                                                             | Low      | M      | Cleanup       |
-| 23 | Add `--version` smoke check (ldflags correctness) to flake checks                                                                                    | Low      | S      | Quality       |
-| 24 | Add `nix run .#coverage-check` smoke test to flake checks                                                                                            | Low      | S      | Quality       |
-| 25 | Audit flake.lock update policy: scheduled `nix flake update` job vs daemon heuristic                                                                 | Low      | M      | Quality       |
-| 26 | Consider Renovate/Dependabot so Go dep bumps are deliberate PRs, not daemon heuristic commits                                                        | Medium   | M      | Quality       |
-| 27 | Add pre-push hook running `nix flake check` to catch vendorHash/treefmt drift before remote                                                          | Medium   | S      | Quality       |
-| 28 | Investigate buildflow cache: 0% hit rate (36 misses) this run — why cold?                                                                            | Low      | S      | Quality       |
-| 29 | Decide `examples/api-usage` story: own module/tests, or stop it polluting coverage output                                                            | Low      | S      | Cleanup       |
-| 30 | Clarify whether flake `race` check should cover `./cmd/...` tests too                                                                                | Low      | M      | Quality       |
-| 31 | Make flake checks multi-system or explicitly gate (`--all-systems` currently omits aarch64/darwin)                                                   | Low      | S      | Quality       |
-| 32 | Verify go-finding v1.10.0 / ginkgo v2.32.1 bumps against integration docs; update referenced versions                                                | Low      | S      | Documentation |
-| 33 | Prune AGENTS.md (28KB): move narrative to docs/references, keep gotchas terse                                                                        | Low      | M      | Documentation |
-| 34 | ~~Harvest this report's section (f) into TODO_LIST.md / ROADMAP.md via docs-health HARVEST~~ done — docs-health harvest pass 2026-09-11 (TODO_LIST.md/ROADMAP.md updated)                                                             | High     | S      | Documentation |
+| #  | Task                                                                                                                                                                      | Impact   | Effort | Category      |
+| -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ------------- |
+| 1  | Raise buildflow `test-coverage` tool timeout (suite needs ≥5 min cold with `-race`) via global config or committed `.buildflow.yml`                                       | Critical | S      | Quality       |
+| 2  | Fix daemon/vendorHash footgun: CI (or pre-push hook) runs `nix build` on go.mod/go.sum changes and surfaces the `got:` hash                                               | Critical | M      | Bug           |
+| 3  | Re-run full buildflow end-to-end; confirm 0 failures (close the original report)                                                                                          | Critical | S      | Quality       |
+| 4  | Add generated-file drift guard: regenerate in CI, `git diff --exit-code` on `linter_settings_generated.go`                                                                | High     | S      | Quality       |
+| 5  | Root-cause `nix flake check` "running 0 flake checks" vs 4 checks present in eval                                                                                         | High     | S      | Bug           |
+| 6  | Investigate buildflow "9 tools unavailable" health check with `--verbose`; fix PATH or document                                                                           | High     | S      | Quality       |
+| 7  | Disable/scope the `go-auto-upgrade` buildflow tool for this repo (its migrations break compilation then self-revert)                                                      | High     | S      | Quality       |
+| 8  | Resolve the two pre-existing CI failures documented at v0.8.0 (TODO_LIST.md via `ff88e51`)                                                                                | High     | M      | Bug           |
+| 9  | Migrate `exhaustruct` → `exhaustruct_v5`; port curated stdlib excludes (AGENTS.md #19)                                                                                    | Medium   | M      | Quality       |
+| 10 | Fix latent json/v2 `omitempty` → `omitzero` in `pkg/types/config_types.go` (AGENTS.md #17)                                                                                | Medium   | M      | Bug           |
+| 11 | Speed up `internal/cli` suite (116s with `-race`): profile, parallelize, trim                                                                                             | Medium   | L      | Quality       |
+| 12 | Add `GOEXPERIMENT=jsonv2` to gopls buildFlags; exclude generated file via directoryFilters                                                                                | Medium   | S      | Quality       |
+| 13 | Run full-repo `golangci-lint run` (this session covered changed packages only)                                                                                            | Medium   | S      | Quality       |
+| 14 | Verify the wsl v5 path end-to-end: is generated `WslV5Settings` ever emitted by `injectDefaultSettings`, or only curated `WslSettings`? Add BDD spec                      | Medium   | M      | Feature       |
+| 15 | Document `cmd/generate-settings` in `docs/references/working-with-codebase.md`; add `//go:generate` line                                                                  | Medium   | S      | Documentation |
+| 16 | Add unit tests for generator helpers (`schemaTypeToGo`, `toPascalCase` edge cases)                                                                                        | Low      | S      | Quality       |
+| 17 | Determinism guard: run generator twice, assert byte-identical output                                                                                                      | Low      | S      | Quality       |
+| 18 | CHANGELOG entry for the generator gofmt fix + regenerated file                                                                                                            | Medium   | S      | Documentation |
+| 19 | Confirm daemon-injected `.golangci.yml` additions (goconst/nestif/tagalign in `8645cd3`) were intentional self-config                                                     | Low      | S      | Documentation |
+| 20 | ~~Commit AGENTS.md gotcha #35 (pending daemon)~~ done — committed (`ff6dca9` era); verified in AGENTS.md                                                                  | Medium   | S      | Documentation |
+| 21 | Refresh or delete stale root `coverprofile.out` (dated Jun 18)                                                                                                            | Low      | S      | Cleanup       |
+| 22 | Act on or archive `BDD_TESTS_REVIEW.md` findings (Sep 2)                                                                                                                  | Low      | M      | Cleanup       |
+| 23 | Add `--version` smoke check (ldflags correctness) to flake checks                                                                                                         | Low      | S      | Quality       |
+| 24 | Add `nix run .#coverage-check` smoke test to flake checks                                                                                                                 | Low      | S      | Quality       |
+| 25 | Audit flake.lock update policy: scheduled `nix flake update` job vs daemon heuristic                                                                                      | Low      | M      | Quality       |
+| 26 | Consider Renovate/Dependabot so Go dep bumps are deliberate PRs, not daemon heuristic commits                                                                             | Medium   | M      | Quality       |
+| 27 | Add pre-push hook running `nix flake check` to catch vendorHash/treefmt drift before remote                                                                               | Medium   | S      | Quality       |
+| 28 | Investigate buildflow cache: 0% hit rate (36 misses) this run — why cold?                                                                                                 | Low      | S      | Quality       |
+| 29 | Decide `examples/api-usage` story: own module/tests, or stop it polluting coverage output                                                                                 | Low      | S      | Cleanup       |
+| 30 | Clarify whether flake `race` check should cover `./cmd/...` tests too                                                                                                     | Low      | M      | Quality       |
+| 31 | Make flake checks multi-system or explicitly gate (`--all-systems` currently omits aarch64/darwin)                                                                        | Low      | S      | Quality       |
+| 32 | Verify go-finding v1.10.0 / ginkgo v2.32.1 bumps against integration docs; update referenced versions                                                                     | Low      | S      | Documentation |
+| 33 | Prune AGENTS.md (28KB): move narrative to docs/references, keep gotchas terse                                                                                             | Low      | M      | Documentation |
+| 34 | ~~Harvest this report's section (f) into TODO_LIST.md / ROADMAP.md via docs-health HARVEST~~ done — docs-health harvest pass 2026-09-11 (TODO_LIST.md/ROADMAP.md updated) | High     | S      | Documentation |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 

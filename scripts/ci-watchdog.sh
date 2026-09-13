@@ -28,10 +28,13 @@ ISSUE_TITLE="ci-health: master CI is unhealthy"
 FORCE_DRIFT=false
 CHECK_ONLY=false
 case "${1:-}" in
-	"--force-drift") FORCE_DRIFT=true ;;
-	"--check-only") CHECK_ONLY=true ;;
-	"") ;;
-	*) echo "usage: $0 [--force-drift|--check-only]" >&2; exit 2 ;;
+"--force-drift") FORCE_DRIFT=true ;;
+"--check-only") CHECK_ONLY=true ;;
+"") ;;
+*)
+	echo "usage: $0 [--force-drift|--check-only]" >&2
+	exit 2
+	;;
 esac
 
 problems=()
@@ -93,10 +96,10 @@ existing=$(
 		--jq '.items[0].number' 2>/dev/null || echo ""
 )
 if [ -n "$existing" ] && [ "$existing" != "null" ]; then
-	gh issue edit "$existing" --repo "$REPO" --body "$body" > /dev/null
+	gh issue edit "$existing" --repo "$REPO" --body "$body" >/dev/null
 	echo "Updated existing ci-health issue #${existing}"
 else
-	gh issue create --repo "$REPO" --title "$ISSUE_TITLE" --label "$LABEL" --body "$body" > /dev/null
+	gh issue create --repo "$REPO" --title "$ISSUE_TITLE" --label "$LABEL" --body "$body" >/dev/null
 	echo "Created ci-health issue"
 fi
 

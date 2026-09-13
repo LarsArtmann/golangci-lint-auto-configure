@@ -87,7 +87,7 @@ check "golangci-lint passes" golangci-lint run --config=.golangci.yml --timeout=
 
 # 6. Coverage (same gate as CI: cmd/coverage-check parses the profile total;
 #    grepping per-package "coverage:" lines matches every line and mis-parses)
-go test -coverprofile=/tmp/coverage-check.out -covermode=atomic ./pkg/... ./internal/... > /dev/null
+go test -coverprofile=/tmp/coverage-check.out -covermode=atomic ./pkg/... ./internal/... >/dev/null
 if go run ./cmd/coverage-check -min=60 -profile=/tmp/coverage-check.out; then
 	echo -e "${GREEN}✓${NC} Coverage >= 60% threshold"
 	pass=$((pass + 1))

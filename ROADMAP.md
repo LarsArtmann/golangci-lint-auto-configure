@@ -27,7 +27,7 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
   detect/recommend paths do not accept it yet, so analysis-only runs can still
   surface stale settings they cannot fix.
 - **Settings-key exhaustiveness** — unknown-key soft warnings exist at load
-  time; a complementary "known keys the tool *should* manage but doesn't" audit
+  time; a complementary "known keys the tool _should_ manage but doesn't" audit
   (driven by `cmd/generate-settings` output) would catch silently-unmanaged
   settings.
 
@@ -87,7 +87,7 @@ The repo went public 2026-09-09 and got metadata + CI rehabilitation
   as "acceptable forever"? Everything downstream (gitleaks scope, announcement)
   depends on this. **Update 2026-09-11**: full-history gitleaks scan
   (`gitleaks git . --log-opts=--all`) over 1,117 commits / 9.95 MB found
-  **zero secrets** — the exposure is limited to sibling project *names* (all
+  **zero secrets** — the exposure is limited to sibling project _names_ (all
   public repos), so the security dimension is closed; only the
   name-privacy/announcement dimension remains open.
 - **gohumanize strategy**: project-specific (current, dep-gated on
