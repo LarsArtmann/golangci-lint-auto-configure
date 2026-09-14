@@ -1,5 +1,16 @@
 # PARTS.md - Component Analysis for Reusable Libraries/SDKs
 
+> **Decision 2026-09-14 (pareto plan T27.1):** consciously deferred. The two
+> HIGH-priority extractions (`pkg/detection` as `go-project-detector`,
+> `pkg/constants` as `golangci-lint-knowledge`) were never acted on in the
+> 4+ months since this analysis; no second consumer has appeared. Recorded in
+> `ROADMAP.md` explicit non-goals with a revisit condition (a real second
+> consumer) instead of TODO_LIST — extraction adds release/maintenance burden
+> that a single-consumer CLI does not justify. The MEDIUM items (`pkg/client`
+> as public API facade, `pkg/config` bundling) are covered by the existing
+> `pkg/client` facade; LOW items were always keep-internal. Archived from the
+> repo root — live state: `TODO_LIST.md` / `ROADMAP.md`.
+
 > Analysis of golangci-lint-auto-configure components that could be extracted as standalone reusable libraries.
 > **Last Updated:** April 30, 2026
 

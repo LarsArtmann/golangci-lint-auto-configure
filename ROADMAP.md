@@ -111,6 +111,12 @@ The repo went public 2026-09-09 and got metadata + CI rehabilitation
 - **Daemon-mangled commit messages**: several mid-2026-07 commits have
   truncated/garbled messages (`5b91141`, `df5f006`, `dc2b0d6` era). Rewrite via
   rebase (public-history risk), annotate via `git notes`, or leave as-is?
+- **Homepage + announcement posture** (routed 2026-09-14, pareto plan T27.2):
+  both the website launch (homepage field is deliberately empty, theme 6) and
+  any public announcement (r/golang, HN, X) gate on one decision — is this
+  officially maintained OSS (triaged issues, response expectations, launch
+  support) or portfolio code? Decide the posture first; the homepage, the
+  announcement, and the gohumanize strategy all inherit from it.
 
 ---
 
@@ -128,6 +134,14 @@ The repo went public 2026-09-09 and got metadata + CI rehabilitation
   has 0 adoption across 160 projects. The feature stays functional (backward
   compatible) but will not be actively promoted. The `--pragmatic` flag is the
   preferred friction-reduction mechanism going forward.
+- **Splitting the repository** — decided NO (2026-09-14, ratifying
+  `docs/archive/PROJECT_SPLIT_EXECUTIVE_REPORT.md`): one responsibility,
+  packages coupled to exactly that purpose. Reopen only if a genuinely
+  independent second consumer of a whole package family appears.
+- **Extracting `pkg/detection` / `pkg/constants` into sibling libraries
+  (for now)** — `docs/archive/PARTS.md` rated these HIGH in April 2026, but
+  no second consumer appeared in 4+ months. Revisit only when one does;
+  until then, extraction's release/maintenance burden outweighs the value.
 - **A typed `OutputConfig.Formats`** — investigated and deliberately kept as
   `map[string]any`. This tool round-trips arbitrary user config; a typed struct
   would risk dropping unknown YAML fields. The flexibility is the feature.

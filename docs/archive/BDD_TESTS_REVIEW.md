@@ -1,5 +1,16 @@
 # BDD Tests Review - golangci-lint-auto-configure
 
+> **Resolved 2026-09-14 (pareto plan T27.1).** The headline gap is closed:
+> coverage rose from 29.5% to **69.8%** (CI gate: `cmd/coverage-check -min=60`,
+> green 2026-09-14), Ginkgo is 100% of test files, and the missing e2e layer
+> shipped 2026-09-13 (in-process CLI execution specs, real-sidecar/real-ledger
+> `FixConfig` integration specs — pareto T18). Ginkgo BDD conventions are
+> codified in `docs/references/testing-style-and-patterns.md`. The
+> user-scenario-test idea (section 4) remains deliberately unrefined: in six
+> months nothing prioritized it, and the coverage gate plus e2e specs cover
+> the material part. The March 2026 numbers below are historical. Archived
+> from the repo root — live state: `TODO_LIST.md` / `ROADMAP.md`.
+
 **Review Date:** 2026-03-28
 **Reviewer:** AI Agent (Crush)
 **Project:** golangci-lint-auto-configure

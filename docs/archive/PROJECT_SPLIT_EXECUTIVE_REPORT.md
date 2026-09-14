@@ -1,5 +1,13 @@
 # Project Split Analysis: golangci-lint-auto-configure
 
+> **Decision 2026-09-14 (pareto plan T27.1):** the report's own conclusion —
+> **NO SPLIT** — is ratified and final for the current scope. The tool has one
+> responsibility (configuring golangci-lint) and its packages are coupled to
+> exactly that purpose; recorded as an explicit non-goal in `ROADMAP.md`.
+> Reopen only if a genuinely independent second consumer of a whole package
+> family appears. Archived from the repo root — live state: `TODO_LIST.md` /
+> `ROADMAP.md`.
+
 ## Executive Summary
 
 **NOT RECOMMENDED** - The project has a single, well-defined responsibility (auto-configuring golangci-lint) with cohesive packages that are tightly coupled to this core purpose. Splitting would fragment a focused tool and introduce unnecessary complexity.

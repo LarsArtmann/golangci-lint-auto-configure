@@ -42,10 +42,8 @@ section.
 
 | Task                                                                                                   | Impact   | Effort   | Evidence                                                                                                  |
 | ------------------------------------------------------------------------------------------------------ | -------- | -------- | --------------------------------------------------------------------------------------------------------- |
-| Extend docs-integrity test to ALL hardcoded FEATURES.md counts                                         | Low      | 1h       | `pkg/constants/docs_integrity_test.go` covers preset counts only (verified 2026-09-11: single `Describe`) |
 | Swallowed-error governance audit (erraudit + periodic re-check)                                        | Low      | 1h       | 194 findings reviewed 2026-07-30; 141 `context_loss` are noise; next quarterly re-check due ~2026-10      |
 | Decide `Detect()` error-path contract (`(ProjectType, error)` vs nil-on-error)                         | Low      | decision | `docs/status/2026-07-26_22-07…md` f20/g2; deferred twice                                                  |
 | Root-cause `nix flake check` "running 0 flake checks" vs 4 checks in eval                              | Low      | S        | `docs/status/2026-09-11_06-38…md` d3/f5                                                                   |
-| Act on or archive `BDD_TESTS_REVIEW.md`, `PARTS.md`, `PROJECT_SPLIT_EXECUTIVE_REPORT.md` findings      | Low      | M        | `docs/status/2026-09-11_06-38…md` f22; f16 (root reports are one-off analyses, undecided)                 |
 | Link checker (lychee) in CI + render-check struck archive tables                                       | Low      | S        | `docs/status/2026-09-09_02-08…md` f23; surfaced by the 2026-09-11 archive pass                            |
 | Metadata checklist script (description/topics/badges/workflow-state/release-page in one `gh api` pass) | Low      | M        | `docs/status/2026-09-11_08-33…md` e8/f25                                                                  |
