@@ -1,5 +1,19 @@
 # Session Status Report: Humanize Linter Finding
 
+> **Resolved 2026-09-14 (docs-health pass, pareto plan T26.1).** H004 was
+> resolved 2026-08-07 via a documented `//nolint:gohumanize` in
+> `scripts/validate_linter_data.go` — see
+> `2026-08-07_08-58_gohumanize-linter-h004-resolved.md` and AGENTS.md
+> "Where to Find Detail" #1. Root cause of the dead end documented here:
+> gohumanize is a golangci-lint v2 **module plugin**, not an importable
+> `humanize.Plural` package, so the dependency path investigated below was
+> abandoned by design. The pluralization-helper test ideas (b3, f8) are moot
+> under the suppression path — no source change was made to `noun`. The
+> dep-verification lessons (e1–e3: inspect the tool before changing
+> dependencies, verify APIs before `go get`, never guess module paths) were
+> folded into the verify-external-claims discipline. Archived from
+> `docs/status/` — live state: `TODO_LIST.md` / `ROADMAP.md` / `CHANGELOG.md`.
+
 - **Timestamp:** 2026-08-05 03:25:08 CEST
 - **Repository:** `golangci-lint-auto-configure`
 - **Branch:** `master`

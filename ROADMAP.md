@@ -30,6 +30,19 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
   time; a complementary "known keys the tool _should_ manage but doesn't" audit
   (driven by `cmd/generate-settings` output) would catch silently-unmanaged
   settings.
+- **Exclusion-merge control & observability** (routed from the 2026-07-31
+  50-item list, never refined) — a `--reset-exclusions` flag (replace all
+  exclusion rules with defaults), a `--show-merged-rules`/`--validate-merge`
+  dry-run (which rules would merge, which linters get added), logging which
+  linters were merged into each rule, recording exclusion-rule merges in the
+  audit ledger, and versioned default exclusion rules ("v1 defaults" vs
+  "v2 defaults"). One coherent theme: make RuleKey merging visible and
+  reversible instead of implicit.
+- **Comment-preserving YAML round-trip** — `yaml.Node`-based save path that
+  preserves comments and blank lines (current `SaveConfig` reorders/reformats);
+  pairs naturally with a `--indent` override flag. Fuzz tests for
+  `detectYAMLIndent` and `mergeExclusionLinters` (duplicate-heavy/randomized
+  inputs must never panic) belong to the same robustness theme.
 
 ### 3. CLI layer testability
 
@@ -37,8 +50,9 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
   (2026-07-26); some CLI functions still accept the concrete `*config.Loader`
   where the `ConfigReader`/`ConfigWriter` sub-interfaces would make every code
   path mockable.
-- **`internal/cli` suite performance** — 116s with `-race` is the direct cause
-  of buildflow timeout-class failures; profile, parallelize, trim sleeps.
+- **`internal/cli` suite performance** — profile, parallelize, trim sleeps
+  (the 116s → 48s parallel `-race` win landed 2026-09-13; remaining idea is
+  trimming the serial `cmd/` tail).
 
 ### 4. Build automation & process maturity
 
