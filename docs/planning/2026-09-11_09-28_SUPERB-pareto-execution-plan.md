@@ -1,5 +1,17 @@
 # SUPERB Pareto Execution Plan — v0.8.1 Delivery & Trust Restoration
 
+> **COMPLETE 2026-09-14 (docs-health ANNOTATE, guardrail 7).** All 27 tasks
+> executed, verified, and pushed across three sessions: T1–T10 + partial T11
+> (2026-09-11, v0.8.1 shipped —
+> `docs/status/2026-09-11_13-27_pareto-execution-v081-shipped-and-guards-installed.md`),
+> T11–T24 + partial T25 (2026-09-13 —
+> `docs/status/2026-09-11_23-26_pareto-execution-t11-t25-thirteen-tasks-and-honest-scars.md`),
+> T25–T27 (2026-09-14 — final report:
+> `docs/status/2026-09-14_11-22_pareto-plan-complete-all-27-tasks.md`).
+> Open residue lives in `TODO_LIST.md` (Dependabot green-run confirmation,
+> buildflow posture [user-gated], release dry-run) and `ROADMAP.md` (routed
+> ideas). The task tables below are a historical snapshot — never rewritten.
+
 **Created:** 2026-09-11 09:28 CEST
 **Source:** `TODO_LIST.md` (2026-09-11 edition: 5 High / 17 Medium / 16 Low) + the f-section delta of `docs/status/2026-09-11_09-23_docs-health-archive-and-living-docs-pass.md` + ROADMAP ideas. **Every open TODO is placed** — either in the execution tables below or in the Scheduled/Deferred table.
 

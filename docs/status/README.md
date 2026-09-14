@@ -113,3 +113,4 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 | 2026-09-11 | `08-33_github-metadata-and-ci-rehabilitation-status`       | Metadata, CI re-enable, goconst schema fix                                          |
 | 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`           | Living-docs overhaul + 28-file archive sweep                                        |
 | 2026-09-11 | `13-27_pareto-execution-v081-shipped-and-guards-installed` | v0.8.1 released (first GHCR image), min-len self-heal + schema gate + watchdog live |
+| 2026-09-14 | `11-22_pareto-plan-complete-all-27-tasks`                  | Pareto plan closed: T25–T27 finished, reports archived, cadence policy live         |
