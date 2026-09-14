@@ -16,7 +16,7 @@ migration, spec debt, drift guards, watchdog, `go install` e2e) — see
 
 The 2026-09-13/14 pareto execution (tasks T11–T25, see
 `docs/status/2026-09-11_23-26_pareto-execution-t11-t25-thirteen-tasks-and-honest-scars.md`)
-closed twelve more rows: sibling `min-length` sweep, GHCR v0.8.0 backfill,
+closed fifteen more rows: sibling `min-length` sweep, GHCR v0.8.0 backfill,
 branch/tag rulesets, README claim audit, ADR consolidation, gitleaks
 full-history scan, schema-version awareness, `internal/cli` coverage +
 suite speedup (116s → 48s parallel), `omitzero` migration, multi-preset
