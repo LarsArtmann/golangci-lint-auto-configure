@@ -120,4 +120,70 @@ var _ = Describe("FEATURES.md documentation integrity", func() {
 				fmt.Sprintf("test exclusion linter %q is missing from FEATURES.md", linter))
 		}
 	})
+
+	It("every preset in constants should be documented in FEATURES.md", func() {
+		for preset := range constants.PresetLinters {
+			Expect(content).To(ContainSubstring("`"+preset+"` preset"),
+				"preset %q exists in constants.PresetLinters but is not documented in FEATURES.md", preset)
+		}
+	})
+
+	It("documented counts for every preset should match constants when present", func() {
+		for preset, linters := range constants.PresetLinters {
+			formatterPattern := regexp.MustCompile(
+				"`" + regexp.QuoteMeta(preset) + "` preset \\((\\d+) linters \\+ (\\d+) formatters\\)",
+			)
+			if match := formatterPattern.FindStringSubmatch(content); match != nil {
+				documentedLinters, err := strconv.Atoi(match[1])
+				Expect(err).ToNot(HaveOccurred())
+				documentedFormatters, err := strconv.Atoi(match[2])
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(documentedLinters).To(Equal(len(linters)),
+					"FEATURES.md documents %s preset with %d linters, but constants have %d",
+					preset, documentedLinters, len(linters))
+				Expect(documentedFormatters).To(Equal(len(constants.PresetFormatters[preset])),
+					"FEATURES.md documents %s preset with %d formatters, but constants have %d",
+					preset, documentedFormatters, len(constants.PresetFormatters[preset]))
+
+				continue
+			}
+
+			linterPattern := regexp.MustCompile("`" + regexp.QuoteMeta(preset) + "` preset \\((\\d+) linters\\)")
+			if match := linterPattern.FindStringSubmatch(content); match != nil {
+				documentedLinters, err := strconv.Atoi(match[1])
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(documentedLinters).To(Equal(len(linters)),
+					"FEATURES.md documents %s preset with %d linters, but constants have %d",
+					preset, documentedLinters, len(linters))
+			}
+		}
+	})
+
+	It("pragmatic noise linter count and names should match FEATURES.md", func() {
+		pattern := regexp.MustCompile(`Drops (\d+) highest-noise linters`)
+		match := pattern.FindStringSubmatch(content)
+		Expect(match).ToNot(BeNil(), "pragmatic mode linter-drop count not found in FEATURES.md")
+
+		documented, err := strconv.Atoi(match[1])
+		Expect(err).ToNot(HaveOccurred())
+		Expect(documented).To(Equal(len(constants.PragmaticNoiseLinters)),
+			"FEATURES.md documents %d pragmatic noise linters, but constants have %d",
+			documented, len(constants.PragmaticNoiseLinters))
+
+		for name := range constants.PragmaticNoiseLinters {
+			Expect(content).To(ContainSubstring(string(name)),
+				fmt.Sprintf("pragmatic noise linter %q is missing from FEATURES.md", name))
+		}
+	})
+
+	It("tool-level disabled linters should be documented by name", func() {
+		Expect(constants.DisabledLinters).ToNot(BeEmpty())
+
+		for name := range constants.DisabledLinters {
+			Expect(content).To(ContainSubstring(string(name)),
+				fmt.Sprintf("tool-level disabled linter %q is missing from FEATURES.md", name))
+		}
+	})
 })
