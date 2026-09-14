@@ -10,9 +10,31 @@ Point-in-time snapshots from development sessions. Each report captures what was
 > 2026-06/07 reports (JSON-v2 chain, error migration, 07-10 sweeps, audit-ledger
 > pillars, omitempty fixes, and the matching planning docs) were annotated
 > inline and moved to [`../archive/status/`](../archive/status/) and
-> [`../archive/planning/`](../archive/planning/). Reports listed below still
+> [`../archive/planning/`](../archive/planning/). **Second sweep (2026-09-14,
+> pareto plan T26):** the 07-31 session review (all 50 section-f items routed
+> or dropped) and the 08-05 humanize first-attempt report (H004 resolved via
+> documented nolint) were annotated and archived. Reports listed below still
 > carry open residue — their "next tasks" sections are the HARVEST source that
 > feeds `TODO_LIST.md`.
+
+## Lifecycle & Cadence
+
+Status reports are point-in-time snapshots, never living documents. The
+standing rule (established 2026-09-14, pareto plan T26.4):
+
+1. **Write** a report at the end of any session that ships or decides
+   something worth recording; its open residue goes into `TODO_LIST.md`
+   immediately (harvest-at-creation).
+2. **Resolve** a report once nothing in it is open: add a top annotation
+   blockquote stating each open item's fate (shipped / routed to ROADMAP /
+   consciously dropped), then `git mv` to `../archive/status/` and remove its
+   row from the index below. Verify stale claims before annotating — a report
+   saying "X is broken" is not evidence that X is still broken.
+3. **Sweep** `docs/status/` at least quarterly, or whenever live reports
+   exceed ~15, whichever comes first. The sweep is mechanical: for each
+   report, re-verify open claims, annotate, archive.
+4. **Never edit** an archived report's body (annotations go at the top only);
+   historical text stays as written.
 
 ---
 
@@ -71,13 +93,11 @@ Point-in-time snapshots from development sessions. Each report captures what was
 | 2026-07-30 | `22-39_regression-loop-prevention-never-enable-cycle-detection` | `never-enable` + cycle detection   |
 | 2026-07-30 | `23-21_PARETO-SESSION-REVIEW`                                   | YAML indent, `--force-settings`    |
 | 2026-07-30 | `23-22_never-enable-enforcement-fix-and-review`                 | Enforcement bypass fixed           |
-| 2026-07-31 | `03-40_SESSION-2-REVIEW`                                        | Tab handling, merger RuleKey dedup |
 
 ### gohumanize & CV-Config Learnings (2026-08)
 
 | Date       | Report                                            | Key Outcome                         |
 | ---------- | ------------------------------------------------- | ----------------------------------- |
-| 2026-08-05 | `03-25_humanize-linter-status`                    | Failed first H004 attempt (honest)  |
 | 2026-08-05 | `03-48_gohumanize-project-specific-integration`   | Dep-gated gohumanize shipped        |
 | 2026-08-05 | `04-14_gohumanize-everywhere-pushback-comparison` | Module-plugin vs Go-plugin analysis |
 | 2026-08-07 | `08-58_gohumanize-linter-h004-resolved`           | H004 resolved via documented nolint |
