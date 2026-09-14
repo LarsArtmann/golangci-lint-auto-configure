@@ -16,6 +16,11 @@ nix build                              # reproducible build (preferred)
 go build -o bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 
 # Test (Ginkgo BDD specs, but run via go test)
+# CGO_ENABLED=1 is required for -race: fresh shells may inherit CGO_ENABLED=0,
+# which makes ginkgo report phantom "[Compilation failure]" for packages that
+# compile fine (the real error is "-race requires cgo"). GOEXPERIMENT=jsonv2
+# is required per gotcha #3 in Where to Find Detail.
+export CGO_ENABLED=1 GOEXPERIMENT=jsonv2
 go test -race ./pkg/... ./internal/...    # serial, ~2.5 min
 ginkgo -r -p -race --skip-package=cmd/ ./pkg/... ./internal/... ./cmd/...   # parallel, ~50s (preferred)
 ginkgo -r --cover                      # alternative: ginkgo directly
