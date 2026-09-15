@@ -88,11 +88,11 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 
 ### Regression-Loop Prevention & Pareto (2026-07-30/31)
 
-| Date       | Report                                                          | Key Outcome                        |
-| ---------- | --------------------------------------------------------------- | ---------------------------------- |
-| 2026-07-30 | `22-39_regression-loop-prevention-never-enable-cycle-detection` | `never-enable` + cycle detection   |
-| 2026-07-30 | `23-21_PARETO-SESSION-REVIEW`                                   | YAML indent, `--force-settings`    |
-| 2026-07-30 | `23-22_never-enable-enforcement-fix-and-review`                 | Enforcement bypass fixed           |
+| Date       | Report                                                          | Key Outcome                      |
+| ---------- | --------------------------------------------------------------- | -------------------------------- |
+| 2026-07-30 | `22-39_regression-loop-prevention-never-enable-cycle-detection` | `never-enable` + cycle detection |
+| 2026-07-30 | `23-21_PARETO-SESSION-REVIEW`                                   | YAML indent, `--force-settings`  |
+| 2026-07-30 | `23-22_never-enable-enforcement-fix-and-review`                 | Enforcement bypass fixed         |
 
 ### gohumanize & CV-Config Learnings (2026-08)
 

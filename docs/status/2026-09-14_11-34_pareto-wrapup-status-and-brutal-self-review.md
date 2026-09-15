@@ -136,7 +136,7 @@ into AGENTS.md. All gates green: build ✓, 18-suite `-race` suite ✓ (48s),
     JS/TS+Python noise for a Go repo).
 14. Schema snapshot regeneration from live golangci-lint 2.13.2 with the new
     `-schema-version` flag (+ CI command update).
-15. Backfill-image workflow proven for a *new* tag (v0.8.0 backfill verified;
+15. Backfill-image workflow proven for a _new_ tag (v0.8.0 backfill verified;
     the v0.8.1 image came from GoReleaser, so the workflow's fresh-tag path
     is untested end-to-end).
 
@@ -157,7 +157,7 @@ into AGENTS.md. All gates green: build ✓, 18-suite `-race` suite ✓ (48s),
 3. **A wrong count shipped to TODO_LIST during T26.4.** "closed twelve more
    rows" followed by a fifteen-item enumeration. Found by this self-review,
    fixed on sight — but it proves my prose-review pass over my own written
-   docs was too shallow when the *number* was derived mentally instead of
+   docs was too shallow when the _number_ was derived mentally instead of
    counted.
 4. **Five detailed commit messages lost to the daemon race.** T25 and T27
    both finished with tests green and lint clean, yet the daemon committed
@@ -179,7 +179,7 @@ into AGENTS.md. All gates green: build ✓, 18-suite `-race` suite ✓ (48s),
 
 1. **Extract the error before re-running — make it a reflex.** Any
    "[Compilation failure]" must be chased with a single-package
-   `ginkgo <pkg> 2>&1 | grep -B2 -A12 compile` *first*. The AGENTS.md note
+   `ginkgo <pkg> 2>&1 | grep -B2 -A12 compile` _first_. The AGENTS.md note
    now documents the cause; the reflex needs practice.
 2. **Pin the toolchain environment in the command itself.** Done
    (`CGO_ENABLED=1 GOEXPERIMENT=jsonv2` in AGENTS.md) — fresh shells can no
@@ -212,38 +212,38 @@ Sorted by impact; the first block is actionable-now, the rest is ROADMAP
 fuel (docs-health HARVEST should apply routing rigor — most already have a
 home in TODO_LIST/ROADMAP).
 
-| #  | Task                                                                                                          | Impact    | Effort | Status/tracking                                        |
-|---:|---------------------------------------------------------------------------------------------------------------|-----------|--------|--------------------------------------------------------|
-| 1  | Check the Sunday Dependabot run result (`gh api …/workflows/320348528/runs`); prune the TODO row if green     | Critical  | S      | TODO_LIST Medium (overdue — run already fired)         |
-| 2  | Add CHANGELOG "Unreleased" entries (omitzero, multi-preset dedup, suppression ledger, spinner race, schema-version) | High  | S      | new (b5)                                               |
-| 3  | Decide v0.8.2 vs v0.9.0; if v0.8.2: CHANGELOG → tag → watch pipeline → verify GHCR                             | High      | M      | user-gated (g1)                                        |
-| 4  | Buildflow findings-gate posture: `fail_on`/`skip_steps` vs fix the 44 erraudit findings vs documented-red      | High      | S–M    | user-gated (g2)                                        |
-| 5  | Commit + push the 8 sibling `.golangci.yml` `min-len` repairs                                                  | High      | S      | user-gated (g3)                                        |
-| 6  | Release dry-run (`goreleaser release --snapshot --clean`) on PRs                                              | High      | M      | TODO_LIST Medium                                       |
-| 7  | Raise coverage gate 60 → 65 (internal/cli 45.6% is the pull target)                                            | Medium    | S      | new (e10)                                              |
-| 8  | homebrew-tap PAT + first tap publish                                                                          | Medium    | M      | user-gated                                             |
-| 9  | Delete stray GHCR `:master` tag (needs `delete:packages`)                                                     | Medium    | S      | user-gated (token scope)                               |
-| 10 | Decide `Detect()` error-path contract (`(ProjectType, error)` vs nil-on-error)                                | Medium    | S      | TODO_LIST Low (deferred twice)                         |
-| 11 | Root-cause `nix flake check` "running 0 flake checks" vs 4 in eval                                            | Medium    | S      | TODO_LIST Low                                          |
-| 12 | Prove the backfill-image workflow on a fresh tag (next release or a dry tag)                                   | Medium    | S      | new (c15)                                              |
-| 13 | Quarterly erraudit re-check (194 findings last reviewed 2026-07-30)                                           | Medium    | M      | TODO_LIST Low (due ~2026-10 — soon)                    |
-| 14 | Extend docs-integrity derivation to the deprecation-mapping table (FEATURES.md counts for replacements)        | Medium    | S      | new (e7)                                               |
-| 15 | Link checker (lychee) in CI                                                                                    | Low       | S      | TODO_LIST Low                                          |
-| 16 | Metadata checklist script (description/topics/badges/workflows/release-page in one `gh api` pass)              | Low       | M      | TODO_LIST Low                                          |
-| 17 | File BuildFlow language-filter feedback upstream ("9 tools unavailable" noise)                                 | Low       | S      | carried from prior report f-list                       |
-| 18 | Regenerate schema snapshot from live golangci-lint 2.13.2 with `-schema-version`; update the CI command         | Low       | S      | carried; T17 made it possible                          |
-| 19 | Refine ROADMAP exclusion-merge observability cluster into bounded tasks (`--reset-exclusions`, `--show-merged-rules`, merge logging, ledger recording, versioned rules) | Low | M   | ROADMAP theme 2 (routed this session)                  |
-| 20 | `yaml.Node` comment-preserving round-trip + `--indent` flag                                                   | Low       | L      | ROADMAP theme 2                                        |
-| 21 | Fuzz tests for `detectYAMLIndent` and `mergeExclusionLinters`                                                  | Low       | M      | ROADMAP theme 2                                        |
-| 22 | `--force-settings` scope flag (linters-only vs formatters-only vs both)                                        | Low       | S–M    | ROADMAP theme 2                                        |
-| 23 | Multi-system flake checks (`nix flake check --all-systems`)                                                    | Low       | M      | ROADMAP theme 4                                        |
-| 24 | Error-code registry + convention test (~40 ad-hoc codes)                                                       | Low       | M      | ROADMAP theme 5                                        |
-| 25 | Narrow interface adoption (ConfigReader/ConfigWriter) in remaining CLI paths                                    | Low       | M      | ROADMAP theme 3                                        |
-| 26 | Trim the serial `cmd/` test tail (parallel suite is 48s; `cmd/` is skipped by `--skip-package`)                 | Low       | S       | ROADMAP theme 3 (updated this session)                |
-| 27 | `nix flake update` + validated rebuild (2026-era revs)                                                          | Low       | M      | plan Scheduled table                                   |
-| 28 | go-finding/gogenfilter dependency refresh sweep (next minor release window)                                     | Low       | M      | plan Scheduled table                                   |
-| 29 | User-scenario BDD specs (consciously unrefined since March — revisit only if prioritized)                       | Low       | L      | consciously parked (T27.1 annotation)                  |
-| 30 | Website launch + demo GIF + announcement (all gated on the support-posture decision)                            | Low       | L      | ROADMAP theme 6 + open question                        |
+|  # | Task                                                                                                                                                                    | Impact   | Effort | Status/tracking                                |
+| -: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ---------------------------------------------- |
+|  1 | Check the Sunday Dependabot run result (`gh api …/workflows/320348528/runs`); prune the TODO row if green                                                               | Critical | S      | TODO_LIST Medium (overdue — run already fired) |
+|  2 | Add CHANGELOG "Unreleased" entries (omitzero, multi-preset dedup, suppression ledger, spinner race, schema-version)                                                     | High     | S      | new (b5)                                       |
+|  3 | Decide v0.8.2 vs v0.9.0; if v0.8.2: CHANGELOG → tag → watch pipeline → verify GHCR                                                                                      | High     | M      | user-gated (g1)                                |
+|  4 | Buildflow findings-gate posture: `fail_on`/`skip_steps` vs fix the 44 erraudit findings vs documented-red                                                               | High     | S–M    | user-gated (g2)                                |
+|  5 | Commit + push the 8 sibling `.golangci.yml` `min-len` repairs                                                                                                           | High     | S      | user-gated (g3)                                |
+|  6 | Release dry-run (`goreleaser release --snapshot --clean`) on PRs                                                                                                        | High     | M      | TODO_LIST Medium                               |
+|  7 | Raise coverage gate 60 → 65 (internal/cli 45.6% is the pull target)                                                                                                     | Medium   | S      | new (e10)                                      |
+|  8 | homebrew-tap PAT + first tap publish                                                                                                                                    | Medium   | M      | user-gated                                     |
+|  9 | Delete stray GHCR `:master` tag (needs `delete:packages`)                                                                                                               | Medium   | S      | user-gated (token scope)                       |
+| 10 | Decide `Detect()` error-path contract (`(ProjectType, error)` vs nil-on-error)                                                                                          | Medium   | S      | TODO_LIST Low (deferred twice)                 |
+| 11 | Root-cause `nix flake check` "running 0 flake checks" vs 4 in eval                                                                                                      | Medium   | S      | TODO_LIST Low                                  |
+| 12 | Prove the backfill-image workflow on a fresh tag (next release or a dry tag)                                                                                            | Medium   | S      | new (c15)                                      |
+| 13 | Quarterly erraudit re-check (194 findings last reviewed 2026-07-30)                                                                                                     | Medium   | M      | TODO_LIST Low (due ~2026-10 — soon)            |
+| 14 | Extend docs-integrity derivation to the deprecation-mapping table (FEATURES.md counts for replacements)                                                                 | Medium   | S      | new (e7)                                       |
+| 15 | Link checker (lychee) in CI                                                                                                                                             | Low      | S      | TODO_LIST Low                                  |
+| 16 | Metadata checklist script (description/topics/badges/workflows/release-page in one `gh api` pass)                                                                       | Low      | M      | TODO_LIST Low                                  |
+| 17 | File BuildFlow language-filter feedback upstream ("9 tools unavailable" noise)                                                                                          | Low      | S      | carried from prior report f-list               |
+| 18 | Regenerate schema snapshot from live golangci-lint 2.13.2 with `-schema-version`; update the CI command                                                                 | Low      | S      | carried; T17 made it possible                  |
+| 19 | Refine ROADMAP exclusion-merge observability cluster into bounded tasks (`--reset-exclusions`, `--show-merged-rules`, merge logging, ledger recording, versioned rules) | Low      | M      | ROADMAP theme 2 (routed this session)          |
+| 20 | `yaml.Node` comment-preserving round-trip + `--indent` flag                                                                                                             | Low      | L      | ROADMAP theme 2                                |
+| 21 | Fuzz tests for `detectYAMLIndent` and `mergeExclusionLinters`                                                                                                           | Low      | M      | ROADMAP theme 2                                |
+| 22 | `--force-settings` scope flag (linters-only vs formatters-only vs both)                                                                                                 | Low      | S–M    | ROADMAP theme 2                                |
+| 23 | Multi-system flake checks (`nix flake check --all-systems`)                                                                                                             | Low      | M      | ROADMAP theme 4                                |
+| 24 | Error-code registry + convention test (~40 ad-hoc codes)                                                                                                                | Low      | M      | ROADMAP theme 5                                |
+| 25 | Narrow interface adoption (ConfigReader/ConfigWriter) in remaining CLI paths                                                                                            | Low      | M      | ROADMAP theme 3                                |
+| 26 | Trim the serial `cmd/` test tail (parallel suite is 48s; `cmd/` is skipped by `--skip-package`)                                                                         | Low      | S      | ROADMAP theme 3 (updated this session)         |
+| 27 | `nix flake update` + validated rebuild (2026-era revs)                                                                                                                  | Low      | M      | plan Scheduled table                           |
+| 28 | go-finding/gogenfilter dependency refresh sweep (next minor release window)                                                                                             | Low      | M      | plan Scheduled table                           |
+| 29 | User-scenario BDD specs (consciously unrefined since March — revisit only if prioritized)                                                                               | Low      | L      | consciously parked (T27.1 annotation)          |
+| 30 | Website launch + demo GIF + announcement (all gated on the support-posture decision)                                                                                    | Low      | L      | ROADMAP theme 6 + open question                |
 
 ## g) Questions I can NOT figure out myself
 
