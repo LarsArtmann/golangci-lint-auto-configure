@@ -39,10 +39,8 @@ exclude:
   - mix.lock
   - .direnv
 
-# nixfmt-standalone runs raw `nixfmt .` which scans .direnv/ flake-inputs cache
-# (third-party .nix files). Use nix-fmt (treefmt) instead, which respects excludes.
-skip_steps:
-  - nixfmt-standalone
+# REMOVED 2026-09-17: skip entry `nixfmt-standalone` referenced a tool name that
+# no longer exists (the provider is now `nix-fmt`, which respects excludes).
 
 auto_fix: false
 
