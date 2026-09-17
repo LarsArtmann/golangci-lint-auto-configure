@@ -1,2 +1,1 @@
-# Managed by buildflow nix-checker — update with: nix build 2>&1 | rg "got:"
-"sha256-S6xL6Rf6k2HbyadAj2bEkhpqvBiKVnssjoqse5bVZu8="
+"sha256-sx98n6+q4m5Ef/g6S9M6XwJ9z9TvNQW0M5Xr4tVWGVc="
