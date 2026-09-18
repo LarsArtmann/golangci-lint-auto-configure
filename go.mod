@@ -8,7 +8,7 @@ require (
 	charm.land/log/v2 v2.0.1
 	github.com/LarsArtmann/gogenfilter/v3 v3.6.0
 	github.com/a-h/templ v0.3.1020
-	github.com/larsartmann/go-error-family v0.10.0
+	github.com/larsartmann/go-error-family v0.10.1
 	github.com/larsartmann/go-finding v1.10.0
 	github.com/larsartmann/linter-autoconfigure-sdk v0.2.0
 	github.com/onsi/ginkgo/v2 v2.32.1
