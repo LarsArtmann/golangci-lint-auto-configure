@@ -1,6 +1,6 @@
 module github.com/larsartmann/golangci-lint-auto-configure
 
-go 1.26.7
+go 1.27.1
 
 require (
 	charm.land/fang/v2 v2.0.1
@@ -9,7 +9,7 @@ require (
 	github.com/LarsArtmann/gogenfilter/v3 v3.6.0
 	github.com/a-h/templ v0.3.1020
 	github.com/larsartmann/go-error-family v0.10.1
-	github.com/larsartmann/go-finding v1.10.0
+	github.com/larsartmann/go-finding v1.12.0
 	github.com/larsartmann/linter-autoconfigure-sdk v0.2.0
 	github.com/onsi/ginkgo/v2 v2.32.1
 	github.com/onsi/gomega v1.43.0
@@ -44,8 +44,8 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20260604005048-7023385849c0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/larsartmann/go-atomic-write v0.5.1 // indirect
-	github.com/larsartmann/go-finding/toolsdk v1.10.0 // indirect
+	github.com/larsartmann/go-atomic-write v0.5.2 // indirect
+	github.com/larsartmann/go-finding/toolsdk v1.12.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-runewidth v0.0.30 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
