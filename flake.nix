@@ -45,6 +45,10 @@
         vendorHash = import ./vendorHash.nix;
         description = "Automatically configure and optimize golangci-lint configurations";
         enableTempl = true;
+        # 2026-09-19: the go-finding input's module floors are >= 1.27.1;
+        # nixpkgs go_1_26 (the module default, 1.26.7) cannot satisfy them
+        # under GOTOOLCHAIN=local.
+        goPkgAttr = "go_1_27";
 
         deps = {
           "github.com/larsartmann/go-finding" = inputs.go-finding;
