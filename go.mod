@@ -1,6 +1,6 @@
 module github.com/larsartmann/golangci-lint-auto-configure
 
-go 1.27.1
+go 1.27
 
 require (
 	charm.land/fang/v2 v2.0.1
