@@ -9,9 +9,9 @@ require (
 	github.com/LarsArtmann/gogenfilter/v3 v3.6.1
 	github.com/a-h/templ v0.3.1020
 	github.com/larsartmann/go-error-family v0.10.1
-	github.com/larsartmann/go-finding v1.12.0
+	github.com/larsartmann/go-finding v1.13.0
 	github.com/larsartmann/linter-autoconfigure-sdk v0.2.0
-	github.com/onsi/ginkgo/v2 v2.32.1
+	github.com/onsi/ginkgo/v2 v2.32.2
 	github.com/onsi/gomega v1.43.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/spf13/cobra v1.10.2
@@ -45,7 +45,7 @@ require (
 	github.com/google/pprof v0.0.0-20260604005048-7023385849c0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/larsartmann/go-atomic-write v0.5.2 // indirect
-	github.com/larsartmann/go-finding/toolsdk v1.12.0 // indirect
+	github.com/larsartmann/go-finding/toolsdk v1.13.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-runewidth v0.0.30 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
