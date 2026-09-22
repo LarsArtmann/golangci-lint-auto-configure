@@ -1,6 +1,6 @@
 module github.com/larsartmann/golangci-lint-auto-configure
 
-go 1.27
+go 1.27.1
 
 require (
 	charm.land/fang/v2 v2.0.1
@@ -8,9 +8,9 @@ require (
 	charm.land/log/v2 v2.0.1
 	github.com/LarsArtmann/gogenfilter/v3 v3.6.1
 	github.com/a-h/templ v0.3.1020
-	github.com/larsartmann/go-error-family v0.10.1
+	github.com/larsartmann/go-error-family v0.10.2
 	github.com/larsartmann/go-finding v1.13.0
-	github.com/larsartmann/linter-autoconfigure-sdk v0.2.0
+	github.com/larsartmann/linter-autoconfigure-sdk v0.3.1
 	github.com/onsi/ginkgo/v2 v2.32.2
 	github.com/onsi/gomega v1.43.0
 	github.com/pelletier/go-toml/v2 v2.4.3
@@ -44,7 +44,7 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20260604005048-7023385849c0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/larsartmann/go-atomic-write v0.5.2 // indirect
+	github.com/larsartmann/go-atomic-write v0.6.0 // indirect
 	github.com/larsartmann/go-finding/toolsdk v1.13.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-runewidth v0.0.30 // indirect
@@ -64,5 +64,3 @@ require (
 	golang.org/x/text v0.42.0 // indirect
 	golang.org/x/tools v0.50.0 // indirect
 )
-
-replace github.com/larsartmann/linter-autoconfigure-sdk => ../linter-autoconfigure-sdk
