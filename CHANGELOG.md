@@ -6,12 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Dependencies
+
+- Dropped the local `replace` for `linter-autoconfigure-sdk` and pinned
+  `v0.3.1` (was `v0.2.0` + replace). The tag carries the `SaveJSON`
+  determinism fix (map-bearing configs marshal to stable bytes) and pulls
+  `go-atomic-write` v0.6.0 + `go-error-family` v0.10.2; the go directive
+  floor moves `1.27` → `1.27.1` (dependency-imposed by the SDK tag).
+
 ### Changed
 
 - `validate --format sarif` health findings are now emitted through
   `linter-autoconfigure-sdk`'s `FindingFromIssue` instead of a hand-rolled
-  builder loop (second SDK consumer; tracks the SDK via a local `replace`
-  until its next tag). Behavior deltas: a health issue without a known line
+  builder loop (second SDK consumer). Behavior deltas: a health issue without
+  a known line
   now gets a file-level position instead of a fabricated `Line: 1`, and an
   empty suggestion maps to `FixStrategyNone` instead of an empty
   `FixStrategySuggest`. The linter-recommendation findings (`missing-linter`,
