@@ -163,20 +163,22 @@ var summaryTests = []struct {
 }
 
 func TestChangeType_String(t *testing.T) {
+	// ChangeType aliases the shared SDK Kind, whose underlying string values
+	// are the canonical lowercase kind names (the old int enum's ADDED-style
+	// String() had no production consumers).
 	tests := []struct {
 		changeType diffpkg.ChangeType
 		want       string
 	}{
-		{diffpkg.ChangeTypeAdded, "ADDED"},
-		{diffpkg.ChangeTypeRemoved, "REMOVED"},
-		{diffpkg.ChangeTypeModified, "MODIFIED"},
-		{diffpkg.ChangeType(99), "UNKNOWN"},
+		{diffpkg.ChangeTypeAdded, "added"},
+		{diffpkg.ChangeTypeRemoved, "removed"},
+		{diffpkg.ChangeTypeModified, "modified"},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.want, func(t *testing.T) {
-			if got := tc.changeType.String(); got != tc.want {
-				t.Errorf("String() = %q, want %q", got, tc.want)
+			if got := string(tc.changeType); got != tc.want {
+				t.Errorf("kind value = %q, want %q", got, tc.want)
 			}
 		})
 	}

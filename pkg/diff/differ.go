@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	autoconfigure "github.com/larsartmann/linter-autoconfigure-sdk"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -18,27 +19,15 @@ type Change struct {
 	Description string
 }
 
-// ChangeType indicates the type of change.
-type ChangeType int
+// ChangeType indicates the type of change: an alias of the shared SDK's
+// diff Kind, so both auto-configurers speak one change-kind vocabulary.
+type ChangeType = autoconfigure.Kind
 
 const (
-	ChangeTypeAdded ChangeType = iota
-	ChangeTypeRemoved
-	ChangeTypeModified
+	ChangeTypeAdded    = autoconfigure.KindAdded
+	ChangeTypeRemoved  = autoconfigure.KindRemoved
+	ChangeTypeModified = autoconfigure.KindModified
 )
-
-func (c ChangeType) String() string {
-	switch c {
-	case ChangeTypeAdded:
-		return "ADDED"
-	case ChangeTypeRemoved:
-		return "REMOVED"
-	case ChangeTypeModified:
-		return "MODIFIED"
-	default:
-		return "UNKNOWN"
-	}
-}
 
 // Differ compares two configurations and returns the differences.
 type Differ struct{}
@@ -124,21 +113,23 @@ func (d *Differ) addTestChangeIfDifferent(changes []Change, oldTests, newTests b
 	return changes
 }
 
+// compareListChanges diffs two enable/disable lists through the SDK's
+// set comparator (deterministic path-sorted output; order and duplicates in
+// the input carry no meaning), then derives this tool's user-facing
+// Description per item.
 func (d *Differ) compareListChanges(oldItems, newItems []string, pathPrefix, entityName, subKey string) []Change {
-	oldSet := types.NewSet(oldItems...)
-	newSet := types.NewSet(newItems...)
+	engineChanges := autoconfigure.DiffSets(oldItems, newItems, pathPrefix+"."+subKey+".")
 
-	var changes []Change
+	changes := make([]Change, 0, len(engineChanges))
 
-	for item := range newSet {
-		if !oldSet.Contains(item) {
-			changes = append(changes, d.makeAddedChange(pathPrefix, subKey, entityName, item))
-		}
-	}
-
-	for item := range oldSet {
-		if !newSet.Contains(item) {
-			changes = append(changes, d.makeRemovedChange(pathPrefix, subKey, entityName, item))
+	for _, engineChange := range engineChanges {
+		switch engineChange.Kind {
+		case autoconfigure.KindAdded:
+			changes = append(changes, d.makeAddedChange(pathPrefix, subKey, entityName, engineChange.New))
+		case autoconfigure.KindRemoved:
+			changes = append(changes, d.makeRemovedChange(pathPrefix, subKey, entityName, engineChange.Old))
+		case autoconfigure.KindModified:
+			// Set semantics never produce modified entries.
 		}
 	}
 
