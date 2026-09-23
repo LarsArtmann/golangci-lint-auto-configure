@@ -7,8 +7,8 @@ import (
 	"bytes"
 	"os"
 
-	errorfamily "github.com/larsartmann/go-error-family"
 	atomicwrite "github.com/larsartmann/go-atomic-write"
+	errorfamily "github.com/larsartmann/go-error-family"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"go.yaml.in/yaml/v3"
 )

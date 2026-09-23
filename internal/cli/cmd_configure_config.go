@@ -12,6 +12,8 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
+const backupFilePermission = 0o600 // rw-------: backups carry the config's sensitivity
+
 func prepareConfigFile(
 	ctx context.Context,
 	configPath string,
@@ -102,7 +104,7 @@ func backupConfigFile(logger *log.Logger, configFile string) error {
 
 	backupPath := configFile + ".bak"
 
-	if err := atomicwrite.WriteWithPerm(backupPath, data, 0o600); err != nil {
+	if err := atomicwrite.WriteWithPerm(backupPath, data, backupFilePermission); err != nil {
 		return apperrors.WrapClassified(err, "configure.backup_write", "write backup file")
 	}
 
