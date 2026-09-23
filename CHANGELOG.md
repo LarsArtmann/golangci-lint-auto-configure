@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- `pkg/diff.ChangeType` is now an alias of the shared SDK's diff `Kind`
+  (linter-autoconfigure-sdk v0.4.1): one change-kind vocabulary across both
+  auto-configurers. The underlying values are the lowercase strings
+  `added`/`removed`/`modified`; the old int enum's `ADDED`-style `String()`
+  had no production consumers. Enable/disable list comparison runs through
+  the SDK's deterministic set comparator; user-visible `Description`,
+  `FormatChanges`, and `GetSummary` strings are unchanged.
+
 ### Dependencies
 
 - Dropped the local `replace` for `linter-autoconfigure-sdk` and pinned
@@ -13,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   determinism fix (map-bearing configs marshal to stable bytes) and pulls
   `go-atomic-write` v0.6.0 + `go-error-family` v0.10.2; the go directive
   floor moves `1.27` → `1.27.1` (dependency-imposed by the SDK tag).
+  Now at `v0.4.1` (shared diff engine + I/O matrix).
 
 ### Changed
 

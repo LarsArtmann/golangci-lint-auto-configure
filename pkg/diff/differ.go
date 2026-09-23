@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	autoconfigure "github.com/larsartmann/linter-autoconfigure-sdk"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	autoconfigure "github.com/larsartmann/linter-autoconfigure-sdk"
 )
 
 // Change represents a single change between two configs.
