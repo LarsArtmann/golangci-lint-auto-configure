@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.9.0] - 2026-09-23
+
 ### Changed
 
 - `pkg/diff.ChangeType` is now an alias of the shared SDK's diff `Kind`
@@ -18,29 +28,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Dependencies
 
-- Dropped the local `replace` for `linter-autoconfigure-sdk` and pinned
-  `v0.3.1` (was `v0.2.0` + replace). The tag carries the `SaveJSON`
-  determinism fix (map-bearing configs marshal to stable bytes) and pulls
-  `go-atomic-write` v0.6.0 + `go-error-family` v0.10.2; the go directive
-  floor moves `1.27` → `1.27.1` (dependency-imposed by the SDK tag).
-  Now at `v0.4.1` (shared diff engine + I/O matrix).
-
-### Changed
-
-- `validate --format sarif` health findings are now emitted through
-  `linter-autoconfigure-sdk`'s `FindingFromIssue` instead of a hand-rolled
-  builder loop (second SDK consumer). Behavior deltas: a health issue without
-  a known line
-  now gets a file-level position instead of a fabricated `Line: 1`, and an
-  empty suggestion maps to `FixStrategyNone` instead of an empty
-  `FixStrategySuggest`. The linter-recommendation findings (`missing-linter`,
-  per-linter categories/tags) are intentionally unchanged — ConfigIssue does
-  not model that metadata.
-- varnamelen shared `ignore-decls` defaults are now stdlib-only: the
-  framework-typed entries (`c *gin.Context`, `*httpx.Context`,
-  `*koanf.Koanf` historically) injected dead declarations into projects not
-  using those frameworks. Framework-specific decls belong in per-project
-  config.
+- Dropped the local `replace` for `linter-autoconfigure-sdk` (was `v0.2.0` +
+  replace) and pinned `v0.4.1`: v0.3.1 carried the `SaveJSON` determinism fix
+  (map-bearing configs marshal to stable bytes) and pulled `go-atomic-write`
+  v0.6.0 + `go-error-family` v0.10.2; v0.4.1 adds the shared diff engine and
+  I/O matrix this release aliases onto. The go directive floor moves
+  `1.27` → `1.27.1` (dependency-imposed by the SDK tag).
 
 ## [0.8.2] - 2026-09-22
 
@@ -50,6 +43,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   root floor) and toolsdk v1.13.0
 - `go` directive normalized from `go 1.27.1` to the minor form `go 1.27`
   (fleet-adopted floor form; see ADR-0001 in go-version-auto-configure)
+- `validate --format sarif` health findings are now emitted through
+  `linter-autoconfigure-sdk`'s `FindingFromIssue` instead of a hand-rolled
+  builder loop (second SDK consumer). Behavior deltas: a health issue without
+  a known line now gets a file-level position instead of a fabricated
+  `Line: 1`, and an empty suggestion maps to `FixStrategyNone` instead of an
+  empty `FixStrategySuggest`. The linter-recommendation findings
+  (`missing-linter`, per-linter categories/tags) are intentionally unchanged
+  — ConfigIssue does not model that metadata. (Entry stranded in Unreleased
+  during the original v0.8.2 cut; recorded 2026-09-23.)
+- varnamelen shared `ignore-decls` defaults are now stdlib-only: the
+  framework-typed entries (`c *gin.Context`, `*httpx.Context`, `*koanf.Koanf`
+  historically) injected dead declarations into projects not using those
+  frameworks. Framework-specific decls belong in per-project config. (Entry
+  stranded in Unreleased during the original v0.8.2 cut; recorded
+  2026-09-23.)
 
 ## [0.8.1] - 2026-09-11
 
