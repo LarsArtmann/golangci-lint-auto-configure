@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Config and backup writes are now atomic** (crash-safe temp + fsync +
+  rename via `go-atomic-write` v0.6.0, now a direct dependency). Audit of
+  every write site and its disposition:
+  - `pkg/config` `osFS.WriteFile` (the `.golangci.yml` write path and every
+    `createBackup` through the `config.FS` seam): migrated, caller perms
+    (0600) preserved; new `config.NewOSFS()` constructor exposes the default
+    atomic filesystem.
+  - `pkg/migration.SaveConfig` (migration YAML writes, 0600): migrated.
+  - `internal/cli` config backup (`.golangci.yml.bak`, 0600): migrated
+    (`backupFilePermission` constant replaces the magic literal).
+  - Report writers (`pkg/report` JSON, `internal/cli/cmd_report.go`),
+    `installhook` git hook (0755, executable), and `cmd/generate-settings`
+    (dev codegen): documented-keep — not config-bearing; a crash mid-write
+    loses a regenerable artifact, not user data, and the hook's executable
+    bit is a deployment concern rather than a durability one.
+  Pinned by `TestOsFSWriteFileIsAtomicAndPermPreserving`: no temp-file
+  residue, full-content replacement, perms preserved through the rename.
+
 ### Added
 
 - Nothing yet.
