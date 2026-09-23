@@ -18,6 +18,7 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	atomicwrite "github.com/larsartmann/go-atomic-write"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/pelletier/go-toml/v2"
 	"go.yaml.in/yaml/v3"
@@ -61,10 +62,17 @@ type osFS struct{}
 
 func (osFS) ReadFile(name string) ([]byte, error) { return os.ReadFile(name) }
 func (osFS) WriteFile(name string, data []byte, perm os.FileMode) error {
-	return os.WriteFile(name, data, perm)
+	// Atomic (temp + fsync + rename) so a crash mid-write cannot truncate
+	// the user's .golangci.yml or its backups; perms preserved per caller.
+	return atomicwrite.WriteWithPerm(name, data, perm)
 }
 func (osFS) Stat(name string) (os.FileInfo, error) { return os.Stat(name) }
 func (osFS) Remove(name string) error              { return os.Remove(name) }
+
+// NewOSFS returns the default FS backed by the real os package. Its
+// WriteFile is atomic (temp + fsync + rename via go-atomic-write), so
+// config and backup writes cannot truncate on a crash mid-write.
+func NewOSFS() FS { return osFS{} }
 
 // Loader handles loading golangci-lint configuration files.
 type Loader struct {

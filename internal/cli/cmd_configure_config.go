@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"charm.land/log/v2"
+	atomicwrite "github.com/larsartmann/go-atomic-write"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -101,7 +102,7 @@ func backupConfigFile(logger *log.Logger, configFile string) error {
 
 	backupPath := configFile + ".bak"
 
-	if err := os.WriteFile(backupPath, data, 0o600); err != nil { //nolint:gosec,mnd
+	if err := atomicwrite.WriteWithPerm(backupPath, data, 0o600); err != nil {
 		return apperrors.WrapClassified(err, "configure.backup_write", "write backup file")
 	}
 

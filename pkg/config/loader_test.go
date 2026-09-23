@@ -575,3 +575,45 @@ var _ = Describe("JSON-format config marshal (json/v2 omitzero)", func() {
 		Expect(setJSON).To(ContainSubstring(`"max-same-issues": 10`))
 	})
 })
+
+func TestOsFSWriteFileIsAtomicAndPermPreserving(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".golangci.yml")
+
+	if err := os.WriteFile(path, []byte("old: true\n"), 0o600); err != nil {
+		t.Fatalf("seed config: %v", err)
+	}
+
+	// The default filesystem behind config.FS writes atomically (temp +
+	// fsync + rename via go-atomic-write): a crash mid-write can never
+	// truncate the user's config, and the caller's permissions survive.
+	var filesystem config.FS = config.NewOSFS()
+
+	if err := filesystem.WriteFile(path, []byte("new: true\n"), 0o600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("read dir: %v", err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("atomic write must leave no temp-file residue, got %d entries", len(entries))
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	if string(data) != "new: true\n" {
+		t.Fatalf("content = %q, want the full replacement", data)
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat config: %v", err)
+	}
+	if info.Mode().Perm() != 0o600 {
+		t.Fatalf("perms = %o, want 0600 preserved through the atomic replace", info.Mode().Perm())
+	}
+}

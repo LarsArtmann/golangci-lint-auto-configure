@@ -8,6 +8,7 @@ import (
 	"os"
 
 	errorfamily "github.com/larsartmann/go-error-family"
+	atomicwrite "github.com/larsartmann/go-atomic-write"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"go.yaml.in/yaml/v3"
 )
@@ -44,7 +45,7 @@ func SaveConfig(config *Config, path string) error {
 			"failed to encode YAML %s", path)
 	}
 
-	err = os.WriteFile(path, data, permOwnerOnly)
+	err = atomicwrite.WriteWithPerm(path, data, permOwnerOnly)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "migration.write_config",
 			"failed to write config file %s", path)
