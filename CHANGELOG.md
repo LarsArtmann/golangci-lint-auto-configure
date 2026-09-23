@@ -28,13 +28,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Nothing yet.
+- Release gate (and CI) now runs the SDK's `jsondeterminism` analyzer over
+  the whole module: bare `encoding/json/v2` Marshal calls fail the gate. Its
+  first run caught 9 production and 27 test-fixture marshals without
+  `json.Deterministic(true)` — report writers, the audit ledger, CLI JSON
+  outputs, and schema round-trip tests are now byte-stable (snapshot-friendly,
+  diff-friendly).
 
-### Fixed
+### Dependencies
 
-- Nothing yet.
+- `linter-autoconfigure-sdk` v0.4.1 → v0.6.0 (determinism analyzer + vettool
+  cmd; v0.5.0's bootstrap provider lifecycle rides along unused-by-CLI).
 
-## [0.9.0] - 2026-09-23
+## [0.10.0] - 2026-09-23
 
 ### Changed
 

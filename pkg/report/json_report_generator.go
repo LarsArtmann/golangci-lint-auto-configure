@@ -48,7 +48,12 @@ func (g *JSONGenerator) GenerateJSONReport(analysis *types.ConfigAnalysis, outpu
 
 	jsonReport := g.buildJSONReport(analysis)
 
-	jsonData, err := json.Marshal(jsonReport, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "), json.Deterministic(true))
+	jsonData, err := json.Marshal(
+		jsonReport,
+		jsontext.WithIndentPrefix(""),
+		jsontext.WithIndent("  "),
+		json.Deterministic(true),
+	)
 	if err != nil {
 		return errorfamily.WrapCorruptionf(err, "report.json_marshal",
 			"failed to marshal JSON report (outputPath=%s)", outputPath)

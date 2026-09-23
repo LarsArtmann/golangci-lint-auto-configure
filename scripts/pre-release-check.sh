@@ -84,6 +84,7 @@ check "Tests pass (-race)" go test -race ./pkg/... ./internal/...
 
 # 5. Lint
 check "golangci-lint passes" golangci-lint run --config=.golangci.yml --timeout=5m
+check "deterministic marshals (jsondeterminism)" go run github.com/larsartmann/linter-autoconfigure-sdk/cmd/jsondeterminism ./...
 
 # 6. Coverage (same gate as CI: cmd/coverage-check parses the profile total;
 #    grepping per-package "coverage:" lines matches every line and mis-parses)

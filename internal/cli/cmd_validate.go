@@ -211,7 +211,12 @@ func outputHealthSARIF(health *types.ConfigHealth, configFile string, logger *lo
 
 	var raw jsontext.Value = sarif
 
-	pretty, err := json.Marshal(raw, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "), json.Deterministic(true))
+	pretty, err := json.Marshal(
+		raw,
+		jsontext.WithIndentPrefix(""),
+		jsontext.WithIndent("  "),
+		json.Deterministic(true),
+	)
 	if err != nil {
 		return errorfamily.WrapCorruption(err, "validate.sarif_format_health",
 			"failed to format SARIF")
