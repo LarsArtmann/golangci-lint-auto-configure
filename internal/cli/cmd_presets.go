@@ -56,7 +56,7 @@ func outputPresetsJSON() error {
 
 	output := map[string]any{"Presets": entries}
 
-	data, err := json.Marshal(output)
+	data, err := json.Marshal(output, json.Deterministic(true))
 	if err != nil {
 		return errorfamily.WrapCorruptionf(err, "presets.marshal_json", "marshal presets JSON")
 	}

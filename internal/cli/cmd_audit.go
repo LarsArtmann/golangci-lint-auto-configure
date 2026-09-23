@@ -272,7 +272,12 @@ func parseSinceDuration(since string) (time.Duration, error) {
 }
 
 func outputAuditJSON(entries []audit.Entry) error {
-	data, err := json.Marshal(entries, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
+	data, err := json.Marshal(
+		entries,
+		jsontext.WithIndentPrefix(""),
+		jsontext.WithIndent("  "),
+		json.Deterministic(true),
+	)
 	if err != nil {
 		return errorfamily.WrapCorruptionf(err, "audit.marshal_json", "marshal audit entries")
 	}

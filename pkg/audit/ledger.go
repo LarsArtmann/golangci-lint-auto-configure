@@ -194,7 +194,7 @@ func (l *Ledger) Record(action Action, linter, reason string) {
 		Reason:    reason,
 	}
 
-	line, err := json.Marshal(entry)
+	line, err := json.Marshal(entry, json.Deterministic(true))
 	if err != nil {
 		l.logger.Warnf("Audit ledger: cannot marshal entry: %v", err)
 
@@ -403,7 +403,7 @@ func rewriteLedger(path string, entries []Entry) error {
 	defer file.Close()
 
 	for _, entry := range entries {
-		line, err := json.Marshal(entry)
+		line, err := json.Marshal(entry, json.Deterministic(true))
 		if err != nil {
 			slog.Warn("audit ledger: skipping unmarshalable entry during compaction", "error", err)
 

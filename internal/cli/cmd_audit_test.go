@@ -57,7 +57,7 @@ func writeTestLedger(t *testing.T, path string, entries ...audit.Entry) {
 	var buf bytes.Buffer
 
 	for _, e := range entries {
-		data, err := json.Marshal(e)
+		data, err := json.Marshal(e, json.Deterministic(true))
 		if err != nil {
 			t.Fatalf("marshal entry: %v", err)
 		}

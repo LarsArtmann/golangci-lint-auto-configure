@@ -151,6 +151,7 @@ func outputAnalysis(analysis *types.ConfigAnalysis, format, configFile string) e
 	case formatJSON:
 		data, err := json.Marshal(
 			analysis,
+			json.Deterministic(true),
 			jsontext.WithIndentPrefix(""),
 			jsontext.WithIndent("  "),
 		)

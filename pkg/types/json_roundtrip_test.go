@@ -22,7 +22,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Since:       "v1.0.0",
 				OriginalURL: "https://example.com/gosec",
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.LinterInfo
@@ -36,7 +36,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Description: "Vet checks",
 				Since:       "v1.0.0",
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.LinterInfo
@@ -50,7 +50,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Description: "Formats Go code",
 				AutoFix:     true,
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.FormatterInfo
@@ -64,7 +64,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Priority: types.LinterPriorityCritical,
 				Reason:   "Unchecked errors cause bugs",
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.LinterRecommendation
@@ -78,7 +78,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Priority: types.FormatterPriorityHigh,
 				Reason:   "Stricter gofmt",
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.FormatterRecommendation
@@ -92,7 +92,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Reason:      "wsl deprecated since v2.2.0",
 				MinVersion:  "v2.2.0",
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.LinterReplacement
@@ -106,7 +106,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Message: "unknown linter: foobar",
 				Line:    42,
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.ValidationError
@@ -119,7 +119,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Field:   "linters.disable",
 				Message: "empty list",
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.ValidationError
@@ -134,7 +134,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				NextSteps:    []string{"review changes", "run golangci-lint"},
 				DryRun:       true,
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.MigrationResult
@@ -150,7 +150,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 					{Field: "linters.enable", Message: "duplicate", Line: 10},
 				},
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.ValidationResult
@@ -174,7 +174,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				OptionalCount:    4,
 				DeprecatedCount:  0,
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.ConfigAnalysis
@@ -197,7 +197,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				Message:      "done",
 				Error:        errors.New("something went wrong"),
 			}
-			data, err := json.Marshal(original)
+			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			var rt types.MigrationResult
@@ -215,7 +215,7 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 					Priority: priority,
 					Reason:   "test",
 				}
-				data, err := json.Marshal(rec)
+				data, err := json.Marshal(rec, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var rt types.LinterRecommendation

@@ -23,7 +23,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					OriginalURL: "https://example.com",
 				}
 
-				data, err := json.Marshal(linter)
+				data, err := json.Marshal(linter, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -51,7 +51,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					Since:       "v1.0.0",
 				}
 
-				data, err := json.Marshal(linter)
+				data, err := json.Marshal(linter, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -76,7 +76,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					DeprecatedCount:  0,
 				}
 
-				data, err := json.Marshal(analysis)
+				data, err := json.Marshal(analysis, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -104,7 +104,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					Reason:      "old linter deprecated",
 				}
 
-				data, err := json.Marshal(rep)
+				data, err := json.Marshal(rep, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -123,7 +123,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					MinVersion:  "v1.50.0",
 				}
 
-				data, err := json.Marshal(rep)
+				data, err := json.Marshal(rep, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -143,7 +143,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					DryRun:       false,
 				}
 
-				data, err := json.Marshal(result)
+				data, err := json.Marshal(result, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -164,7 +164,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					Message:      "nothing to do",
 				}
 
-				data, err := json.Marshal(result)
+				data, err := json.Marshal(result, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -180,7 +180,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					Valid: true,
 				}
 
-				data, err := json.Marshal(result)
+				data, err := json.Marshal(result, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -200,7 +200,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					Field:   "linters.enable",
 				}
 
-				data, err := json.Marshal(issue)
+				data, err := json.Marshal(issue, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any
@@ -249,7 +249,7 @@ var _ = Describe("JSON Tag Serialization", func() {
 					},
 				}
 
-				data, err := json.Marshal(cfg)
+				data, err := json.Marshal(cfg, json.Deterministic(true))
 				Expect(err).NotTo(HaveOccurred())
 
 				var raw map[string]any

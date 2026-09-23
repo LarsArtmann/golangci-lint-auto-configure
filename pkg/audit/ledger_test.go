@@ -199,7 +199,7 @@ var _ = Describe("PurgeOlder", func() {
 		lines := make([]string, 0, len(entries))
 
 		for _, entry := range entries {
-			data, err := json.Marshal(entry)
+			data, err := json.Marshal(entry, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
 
 			lines = append(lines, string(data))
