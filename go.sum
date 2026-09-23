@@ -79,8 +79,6 @@ github.com/larsartmann/go-finding v1.13.0 h1:JTLKvlNb6C9Yldwu1Iojyte7c6ng8frzGTd
 github.com/larsartmann/go-finding v1.13.0/go.mod h1:0ebJF4MSuJDqO1+u2SK/QVJF+vJfwxJDuzTSjc39eIs=
 github.com/larsartmann/go-finding/toolsdk v1.13.0 h1:GFUn/AGifKZzJA7R97/nM58RFOhLHraEadpMCv7O1qU=
 github.com/larsartmann/go-finding/toolsdk v1.13.0/go.mod h1:F90xnE95ibWIpmpjDVWqqkTXahQL5V5kqraHLwr/z1E=
-github.com/larsartmann/linter-autoconfigure-sdk v0.4.1 h1:rEV5U6mif6awh/hNqd92vq3F0hk+F84GHpFL7IJbaMc=
-github.com/larsartmann/linter-autoconfigure-sdk v0.4.1/go.mod h1:RpPwhuL/Ok9s1nptolvU+nsaUdwDLM1qWYhsDAPLavE=
 github.com/larsartmann/linter-autoconfigure-sdk v0.6.0 h1:9Ahr0XBdnPrpx4H+0QxTbCGlJryEKpUhrNEu4eZyLp4=
 github.com/larsartmann/linter-autoconfigure-sdk v0.6.0/go.mod h1:DVe3LhGSjDKVmq7GJ1lp7OO8NkTd7U+EC1Ybyh8v4Gg=
 github.com/lucasb-eyer/go-colorful v1.4.1 h1:1EO+WB73+EH8EVbzlrG3KLAfEypQWVHIBqlTf+2hNss=
@@ -101,8 +99,8 @@ github.com/muesli/mango-pflag v0.2.0 h1:QViokgKDZQCzKhYe1zH8D+UlPJzBSGoP9yx0hBG0
 github.com/muesli/mango-pflag v0.2.0/go.mod h1:X9LT1p/pbGA1wjvEbtwnixujKErkP0jVmrxwrw3fL0Y=
 github.com/muesli/roff v0.1.0 h1:YD0lalCotmYuF5HhZliKWlIx7IEhiXeSfq7hNjFqGF8=
 github.com/muesli/roff v0.1.0/go.mod h1:pjAHQM9hdUUwm/krAfrLGgJkXJ+YuhtsfZ42kieB2Ig=
-github.com/onsi/ginkgo/v2 v2.32.2 h1:2o6vyFvR6snrJWgRVztC+OwuqqPEMI1UzYl2s2iU7Cg=
-github.com/onsi/ginkgo/v2 v2.32.2/go.mod h1:+aXOY+vzZ5mu2iI2HpTZUPmM//oQfsNFX6gU9kNcA44=
+github.com/onsi/ginkgo/v2 v2.33.0 h1:C8gBA6Uc2ZEubiV+SXiu5tZnMTwEmXHgkJwGozKtZf8=
+github.com/onsi/ginkgo/v2 v2.33.0/go.mod h1:+aXOY+vzZ5mu2iI2HpTZUPmM//oQfsNFX6gU9kNcA44=
 github.com/onsi/gomega v1.43.0 h1:VlG/1FxqNxhSO+lq/OHBNaaqwiBK/mO8JbVkX9Y+FeU=
 github.com/onsi/gomega v1.43.0/go.mod h1:REff/hsDsodHoKlWsP2mAPhu1+5/6hVYNf9rIEBpeSg=
 github.com/pelletier/go-toml/v2 v2.4.3 h1:GTRvJQutkOSftxIFD5xw9aepkYNuPWmVJpffdDPYVpY=
