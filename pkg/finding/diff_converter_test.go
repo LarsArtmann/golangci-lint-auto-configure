@@ -15,11 +15,11 @@ func TestChangeSeverity(t *testing.T) {
 		{diff.ChangeTypeAdded, finding.SeverityInfo},
 		{diff.ChangeTypeRemoved, finding.SeverityWarning},
 		{diff.ChangeTypeModified, finding.SeverityInfo},
-		{diff.ChangeType(99), finding.SeverityInfo},
+		{diff.ChangeType("bogus"), finding.SeverityInfo},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.input.String(), func(t *testing.T) {
+		t.Run(string(tt.input), func(t *testing.T) {
 			got := changeSeverity(tt.input)
 			if got != tt.expected {
 				t.Errorf("changeSeverity(%v) = %v, want %v", tt.input, got, tt.expected)
@@ -36,11 +36,11 @@ func TestChangeRule(t *testing.T) {
 		{diff.ChangeTypeAdded, "config-added"},
 		{diff.ChangeTypeRemoved, "config-removed"},
 		{diff.ChangeTypeModified, "config-modified"},
-		{diff.ChangeType(99), "config-changed"},
+		{diff.ChangeType("bogus"), "config-changed"},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.input.String(), func(t *testing.T) {
+		t.Run(string(tt.input), func(t *testing.T) {
 			got := changeRule(tt.input)
 			if got != tt.expected {
 				t.Errorf("changeRule(%v) = %q, want %q", tt.input, got, tt.expected)
