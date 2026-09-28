@@ -4,7 +4,7 @@ Thanks for your interest in contributing!
 
 ## Prerequisites
 
-- **Go 1.26+** — the codebase uses `encoding/json/v2` (experimental in Go 1.26)
+- **Go 1.27+** — the codebase uses `encoding/json/v2` (non-experimental since Go 1.27)
 - **Nix** (recommended) — provides a reproducible dev shell with all tools
 - **golangci-lint v2.x**
 
@@ -16,20 +16,14 @@ Thanks for your interest in contributing!
 nix develop          # enters dev shell with Go, golangci-lint, templ, gopls, etc.
 ```
 
-The dev shell automatically sets `GOEXPERIMENT=jsonv2` (required — the codebase
-imports `encoding/json/v2` which is behind this experiment flag in Go 1.26).
+The dev shell still sets `GOEXPERIMENT=jsonv2` (inert on Go 1.27, where
+`encoding/json/v2` ships enabled by default; kept for consistency).
 
 ### Option B: Manual setup
 
-If you're not using Nix, you **must** export this environment variable before
-any `go` command:
-
-```bash
-export GOEXPERIMENT=jsonv2   # required for encoding/json/v2
-```
-
-Without it, `go build` and `go test` will fail with
-"build constraints exclude all Go files in encoding/json/v2".
+Any Go 1.27+ toolchain works out of the box — no environment variable needed.
+(On Go 1.26 you would have to `export GOEXPERIMENT=jsonv2`; the flag no longer
+exists as a gate on 1.27.)
 
 ## Common Commands
 

@@ -5,7 +5,7 @@
 # =============================================================================
 # Build Stage
 # =============================================================================
-FROM golang:1.26-alpine AS builder
+FROM golang:1.27-alpine AS builder
 
 # Install git for go install
 RUN apk add --no-cache git
@@ -39,7 +39,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 # =============================================================================
 # Runtime Stage
 # =============================================================================
-FROM golangci/golangci-lint:v2.1-alpine AS runtime
+FROM golangci/golangci-lint:v2.13.2-alpine AS runtime
 
 # Install git (needed for version check)
 RUN apk add --no-cache git bash

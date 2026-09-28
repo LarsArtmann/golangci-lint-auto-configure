@@ -135,14 +135,14 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## Build & Runner Settings
 
-| Feature                                | Status           | Notes                                                     |
-| -------------------------------------- | ---------------- | --------------------------------------------------------- |
+| Feature                                | Status           | Notes                                                                                                                |
+| -------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Go version auto-detection              | FULLY_FUNCTIONAL | Sets run.go to local major.minor, capped at golangci-lint's build Go version; repairs unloadable run.go pre-analysis |
-| GOEXPERIMENT build tags auto-injection | FULLY_FUNCTIONAL | arenas, goroutineleakprofile, jsonv2, runtimesecret, simd |
-| allow-parallel-runners enablement      | FULLY_FUNCTIONAL | Always enabled                                            |
-| allow-serial-runners enablement        | FULLY_FUNCTIONAL | Always enabled                                            |
-| Version field fix (empty → "2")        | FULLY_FUNCTIONAL | Pre-flight check                                          |
-| Benchmarking suite                     | FULLY_FUNCTIONAL | analyzer and fixer benchmarks                             |
+| GOEXPERIMENT build tags auto-injection | FULLY_FUNCTIONAL | arenas, goroutineleakprofile, jsonv2, runtimesecret, simd                                                            |
+| allow-parallel-runners enablement      | FULLY_FUNCTIONAL | Always enabled                                                                                                       |
+| allow-serial-runners enablement        | FULLY_FUNCTIONAL | Always enabled                                                                                                       |
+| Version field fix (empty → "2")        | FULLY_FUNCTIONAL | Pre-flight check                                                                                                     |
+| Benchmarking suite                     | FULLY_FUNCTIONAL | analyzer and fixer benchmarks                                                                                        |
 
 ## Migration (v1 → v2)
 
@@ -204,7 +204,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Feature                             | Status           | Notes                                                               |
 | ----------------------------------- | ---------------- | ------------------------------------------------------------------- |
 | Nix flake build                     | FULLY_FUNCTIONAL | Reproducible builds                                                 |
-| GitHub Actions CI (Go 1.26)         | FULLY_FUNCTIONAL |                                                                     |
+| GitHub Actions CI (Go 1.27)         | FULLY_FUNCTIONAL |                                                                     |
 | Pre-commit hook                     | FULLY_FUNCTIONAL | golangci-lint, go-test, go-fmt                                      |
 | Version injection via ldflags       | FULLY_FUNCTIONAL | version, commit, date, treeState                                    |
 | Auto-tag workflow                   | FULLY_FUNCTIONAL | Tags on merge to master                                             |
