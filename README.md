@@ -3,7 +3,7 @@
 **Automatically configure, optimize, and maintain golangci-lint configurations for Go projects with smart linter recommendations, deprecation handling, and auto-fixing.**
 
 [![CI](https://github.com/LarsArtmann/golangci-lint-auto-configure/actions/workflows/ci.yml/badge.svg)](https://github.com/LarsArtmann/golangci-lint-auto-configure/actions/workflows/ci.yml)
-[![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go)](https://go.dev/)
+[![Go Version](https://img.shields.io/badge/Go-1.27+-00ADD8?logo=go)](https://go.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Purpose
@@ -26,7 +26,7 @@ This tool automatically configures golangci-lint for Go projects by:
 3. Clone this repo
 4. Run `nix develop` — you're ready to go
 
-All tools (Go 1.26, ginkgo, golangci-lint, templ) are provided automatically. No SSH keys needed — all flake inputs are fetched over https.
+All tools (Go 1.27, ginkgo, golangci-lint, templ) are provided automatically. No SSH keys needed — all flake inputs are fetched over https.
 
 ```bash
 nix build                            # Build the CLI binary
@@ -40,14 +40,14 @@ nix run github:LarsArtmann/golangci-lint-auto-configure -- analyze
 ### Install without Nix
 
 ```bash
-# Install the latest version (GOEXPERIMENT=jsonv2 is required: the codebase
-# uses encoding/json/v2, which stock Go 1.26 gates behind the experiment)
-GOEXPERIMENT=jsonv2 go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
+# Install the latest version (Go 1.27+ required; encoding/json/v2 is
+# non-experimental there, so no GOEXPERIMENT is needed)
+go install github.com/larsartmann/golangci-lint-auto-configure/cmd/golangci-lint-auto-configure@latest
 
 # Or build from source
 git clone https://github.com/larsartmann/golangci-lint-auto-configure
 cd golangci-lint-auto-configure
-GOEXPERIMENT=jsonv2 go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
+go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto-configure
 ```
 
 ### Container Image
@@ -89,7 +89,7 @@ cosign verify-blob \
 
 ### Without Nix
 
-- **Go**: 1.26+
+- **Go**: 1.27+
 - **golangci-lint**: v2.10.1+ minimum (v2.13.2+ recommended; tool warns if below recommended)
 - **Git**: Must run inside a git repository (for version control)
 - **ginkgo**: For running tests (`go install github.com/onsi/ginkgo/v2/ginkgo@latest`)
