@@ -317,7 +317,7 @@ func (f *Fixer) applyAndSave(
 	version string,
 	counts fixCounts,
 ) (*types.MigrationResult, error) {
-	updater := newConfigUpdater(f.logger, f.goVersionProvider)
+	updater := newConfigUpdater(f.logger, f.goVersionProvider, f.analyzer.GetDetectedGoVersion())
 
 	rec := configChangeRecorder{counts: counts}
 	rec.normalize(func() int { return updater.updateGoVersion(ctx, cfg) })

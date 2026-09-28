@@ -93,6 +93,8 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 		)
 	}
 
+	a.setDetectedGoVersion(versionInfo.GoVersion)
+
 	return a.validateVersion(versionInfo.Version)
 }
 
@@ -133,6 +135,8 @@ func (a *Analyzer) checkVersionText(ctx context.Context) error {
 		)
 	}
 
+	a.setDetectedGoVersion(parseBuiltWithGoVersion(outputStr))
+
 	return a.validateVersion(version)
 }
 
@@ -142,6 +146,31 @@ func (a *Analyzer) parseVersionText(output string) string {
 	parts := strings.Fields(output)
 	for i, part := range parts {
 		if part == "version" && i+1 < len(parts) {
+			return parts[i+1]
+		}
+	}
+
+	return ""
+}
+
+// setDetectedGoVersion records the Go version golangci-lint was built with,
+// normalized to major.minor. Unknown or unparsable values clear the field
+// so the fixer skips its run.go cap instead of capping against garbage.
+func (a *Analyzer) setDetectedGoVersion(raw string) {
+	majorMinor, ok := normalizeGoMajorMinor(raw)
+	if !ok {
+		a.detectedGoVersion = ""
+		return
+	}
+
+	a.detectedGoVersion = majorMinor
+}
+
+// parseBuiltWithGoVersion extracts the Go build version from
+// "golangci-lint has version X.Y.Z built with go1.27.1 from ..." text output.
+func parseBuiltWithGoVersion(output string) string {
+	for i, part := range strings.Fields(output) {
+		if part == "with" && i+1 < len(parts) && strings.HasPrefix(parts[i+1], "go1.") {
 			return parts[i+1]
 		}
 	}

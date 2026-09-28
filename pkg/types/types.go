@@ -292,6 +292,7 @@ type LinterAnalyzer interface {
 	FindBinary(ctx context.Context) error
 	CheckVersion(ctx context.Context) error
 	GetDetectedVersion() string
+	GetDetectedGoVersion() string
 	GetSummary(analysis *ConfigAnalysis) string
 	GetLintersByPriority(recommendations []LinterRecommendation, priority LinterPriority) []LinterRecommendation
 }

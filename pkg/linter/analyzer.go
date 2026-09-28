@@ -25,21 +25,23 @@ import (
 
 // Analyzer analyzes golangci-lint configurations and provides recommendations.
 type Analyzer struct {
-	golangciLintPath string
-	logger           *log.Logger
-	detectedVersion  string
-	projectRoot      string
-	pragmatic        bool
+	golangciLintPath  string
+	logger            *log.Logger
+	detectedVersion   string
+	detectedGoVersion string
+	projectRoot       string
+	pragmatic         bool
 }
 
 // NewAnalyzer creates a new linter analyzer.
 func NewAnalyzer(logger *log.Logger) *Analyzer {
 	return &Analyzer{
-		golangciLintPath: "",
-		logger:           logger,
-		detectedVersion:  "",
-		projectRoot:      "",
-		pragmatic:        false,
+		golangciLintPath:  "",
+		logger:            logger,
+		detectedVersion:   "",
+		detectedGoVersion: "",
+		projectRoot:       "",
+		pragmatic:         false,
 	}
 }
 
@@ -61,6 +63,13 @@ func (a *Analyzer) SetProjectRoot(root string) {
 // GetDetectedVersion returns the detected golangci-lint version, or empty string if not yet checked.
 func (a *Analyzer) GetDetectedVersion() string {
 	return a.detectedVersion
+}
+
+// GetDetectedGoVersion returns the Go version golangci-lint was built with,
+// normalized to major.minor (e.g. "1.27"), or empty string when unknown.
+// golangci-lint refuses to load configs whose run.go is newer than this.
+func (a *Analyzer) GetDetectedGoVersion() string {
+	return a.detectedGoVersion
 }
 
 // golangciLinterEntry matches the JSON wire format of golangci-lint's linterHelp struct.

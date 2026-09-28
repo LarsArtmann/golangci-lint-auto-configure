@@ -17,25 +17,59 @@ type GoVersionProvider func(ctx context.Context) string
 
 // configUpdater handles updating config fields.
 type configUpdater struct {
-	logger            *log.Logger
-	goVersionProvider GoVersionProvider
+	logger                *log.Logger
+	goVersionProvider     GoVersionProvider
+	golangciLintGoVersion string
 }
 
-// newConfigUpdater creates a new config updater.
-func newConfigUpdater(logger *log.Logger, goVersionProvider GoVersionProvider) *configUpdater {
-	return &configUpdater{logger: logger, goVersionProvider: goVersionProvider}
+// newConfigUpdater creates a new config updater. golangciLintGoVersion is the
+// Go version golangci-lint was built with (major.minor, e.g. "1.27"); empty
+// means unknown, which disables the run.go cap.
+func newConfigUpdater(
+	logger *log.Logger, goVersionProvider GoVersionProvider, golangciLintGoVersion string,
+) *configUpdater {
+	return &configUpdater{
+		logger:                logger,
+		goVersionProvider:     goVersionProvider,
+		golangciLintGoVersion: golangciLintGoVersion,
+	}
 }
 
-// updateGoVersion sets the Go version in the config to the local version.
+// updateGoVersion sets the Go version in the config to the local Go version,
+// reduced to major.minor (patch releases do not change language semantics,
+// and dropping the patch avoids rewriting every config on each toolchain bump).
+// The value is capped at the Go version golangci-lint was built with: a run.go
+// newer than the binary's build Go version makes golangci-lint refuse to load
+// the config at all.
 func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config) int {
-	goVersion := cu.goVersionProvider(ctx)
-	if goVersion == "" {
+	localGoVersion := cu.goVersionProvider(ctx)
+	if localGoVersion == "" {
 		return 0
 	}
 
-	if cfg.Run.Go != goVersion {
-		cu.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, goVersion)
-		cfg.Run.Go = goVersion
+	target, ok := normalizeGoMajorMinor(localGoVersion)
+	if !ok {
+		cu.logger.Debugf(
+			"Local Go version %q is not parsable; leaving run.go unchanged (%q)",
+			localGoVersion, cfg.Run.Go,
+		)
+
+		return 0
+	}
+
+	if cu.golangciLintGoVersion != "" && compareGoMajorMinor(target, cu.golangciLintGoVersion) > 0 {
+		cu.logger.Warnf(
+			"Local Go %s is newer than the Go used to build golangci-lint (%s); "+
+				"capping run.go at %s — upgrade golangci-lint to lint with %s semantics",
+				target, cu.golangciLintGoVersion, cu.golangciLintGoVersion, target,
+		)
+
+		target = cu.golangciLintGoVersion
+	}
+
+	if cfg.Run.Go != target {
+		cu.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, target)
+		cfg.Run.Go = target
 
 		return 1
 	}
@@ -250,7 +284,7 @@ func (cu *configUpdater) updateIssuesSettings(cfg *types.Config) int {
 // and injects exclusion paths into the config. This is the public entry point
 // used by both the fixer flow and the preset flow.
 func ApplyGeneratedExclusions(logger *log.Logger, cfg *types.Config, configPath string) int {
-	updater := newConfigUpdater(logger, nil)
+	updater := newConfigUpdater(logger, nil, "")
 
 	return updater.updateGeneratedExclusions(cfg, configPath)
 }

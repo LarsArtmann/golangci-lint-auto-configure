@@ -245,7 +245,7 @@ func TestUpdateGeneratedExclusions_Idempotent(t *testing.T) {
 	writeFixerFixture("internal/gen/handwritten.go", "package gen\n\nfunc handwritten() {}")
 
 	logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
-	cu := newConfigUpdater(logger, nil)
+	cu := newConfigUpdater(logger, nil, "")
 
 	cfg := &types.Config{}
 
