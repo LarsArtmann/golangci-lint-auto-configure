@@ -12,7 +12,7 @@ import (
 // and language semantics only change per minor release, so the patch component
 // carries no meaning for linting. ok is false when the string does not look
 // like a Go version (e.g. "devel", "1.x", "").
-func normalizeGoMajorMinor(version string) (majorMinor string, ok bool) {
+func normalizeGoMajorMinor(version string) (string, bool) {
 	major, minor, ok := parseGoMajorMinor(version)
 	if !ok {
 		return "", false
@@ -40,7 +40,7 @@ func compareGoMajorMinor(a, b string) int {
 	return cmp.Compare(aMinor, bMinor)
 }
 
-func parseGoMajorMinor(version string) (major, minor int, ok bool) {
+func parseGoMajorMinor(version string) (int, int, bool) {
 	version = strings.TrimPrefix(version, "go")
 
 	majorStr, rest, found := strings.Cut(version, ".")
@@ -55,7 +55,7 @@ func parseGoMajorMinor(version string) (major, minor int, ok bool) {
 		return 0, 0, false
 	}
 
-	minor, err = strconv.Atoi(minorStr)
+	minor, err := strconv.Atoi(minorStr)
 	if err != nil || minor < 0 {
 		return 0, 0, false
 	}

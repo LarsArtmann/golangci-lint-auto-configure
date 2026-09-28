@@ -160,6 +160,7 @@ func (a *Analyzer) setDetectedGoVersion(raw string) {
 	majorMinor, ok := normalizeGoMajorMinor(raw)
 	if !ok {
 		a.detectedGoVersion = ""
+
 		return
 	}
 

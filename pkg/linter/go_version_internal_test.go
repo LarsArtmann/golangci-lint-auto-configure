@@ -90,12 +90,12 @@ func TestUpdateGoVersion(t *testing.T) {
 	logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
 
 	tests := []struct {
-		name             string
-		localGoVersion   string
-		golangciLintGo   string
-		currentRunGo     string
-		wantRunGo        string
-		wantChangeCount  int
+		name            string
+		localGoVersion  string
+		golangciLintGo  string
+		currentRunGo    string
+		wantRunGo       string
+		wantChangeCount int
 	}{
 		{
 			name:            "strips patch from local version",

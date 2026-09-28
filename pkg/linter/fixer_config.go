@@ -61,7 +61,7 @@ func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config)
 		cu.logger.Warnf(
 			"Local Go %s is newer than the Go used to build golangci-lint (%s); "+
 				"capping run.go at %s — upgrade golangci-lint to lint with %s semantics",
-				target, cu.golangciLintGoVersion, cu.golangciLintGoVersion, target,
+			target, cu.golangciLintGoVersion, cu.golangciLintGoVersion, target,
 		)
 
 		target = cu.golangciLintGoVersion
