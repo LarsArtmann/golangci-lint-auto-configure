@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	errorfamily "github.com/larsartmann/go-error-family"
-
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -24,34 +23,52 @@ func (f *Fixer) rescueOverspecifiedRunGo(cfg *types.Config, configPath string, d
 	}
 
 	golangciLintGoVersion := f.analyzer.GetDetectedGoVersion()
-	if golangciLintGoVersion == "" || cfg.Run.Go == "" {
+	if !runGoExceedsBinary(cfg.Run.Go, golangciLintGoVersion) {
 		return nil
 	}
 
-	configGoVersion, ok := types.NormalizeGoMajorMinor(cfg.Run.Go)
-	if !ok {
-		return nil
-	}
-
-	if types.CompareGoMajorMinor(configGoVersion, golangciLintGoVersion) <= 0 {
-		return nil
-	}
+	configGoVersion, _ := types.NormalizeGoMajorMinor(cfg.Run.Go)
 
 	if dryRun {
-		return apperrors.NewAnalysisError(
-			fmt.Sprintf("run.go %s is newer than the Go used to build golangci-lint (%s)",
-				configGoVersion, golangciLintGoVersion),
-			configPath,
-			errorfamily.WrapRejectionf(apperrors.ErrRunGoNewerThanBinary, "config.run_go.newer_than_binary",
-				"run.go %s vs binary built with go%s (dry run: not repaired)",
-				configGoVersion, golangciLintGoVersion),
-		)
+		return dryRunRescueError(configGoVersion, golangciLintGoVersion, configPath)
 	}
 
+	return f.applyRunGoRescue(cfg, configPath, golangciLintGoVersion)
+}
+
+// runGoExceedsBinary reports whether the config's run.go is a parsable Go
+// version strictly newer than the version golangci-lint was built with.
+// Empty or unparsable values never exceed (golangci-lint owns those errors).
+func runGoExceedsBinary(runGo, golangciLintGoVersion string) bool {
+	if runGo == "" || golangciLintGoVersion == "" {
+		return false
+	}
+
+	configGoVersion, ok := types.NormalizeGoMajorMinor(runGo)
+
+	return ok && types.CompareGoMajorMinor(configGoVersion, golangciLintGoVersion) > 0
+}
+
+// dryRunRescueError explains, without touching the file, why the config is
+// unloadable and how to proceed.
+func dryRunRescueError(configGoVersion, golangciLintGoVersion, configPath string) error {
+	return apperrors.NewAnalysisError(
+		fmt.Sprintf("run.go %s is newer than the Go used to build golangci-lint (%s)",
+			configGoVersion, golangciLintGoVersion),
+		configPath,
+		errorfamily.WrapRejectionf(apperrors.ErrRunGoNewerThanBinary, "config.run_go.newer_than_binary",
+			"run.go %s vs binary built with go%s (dry run: not repaired)",
+			configGoVersion, golangciLintGoVersion),
+	)
+}
+
+// applyRunGoRescue rewrites run.go to the binary's build Go version, persists
+// the config, and records the mutation in the audit ledger.
+func (f *Fixer) applyRunGoRescue(cfg *types.Config, configPath, golangciLintGoVersion string) error {
 	f.logger.Warnf(
 		"run.go %s is newer than the Go used to build golangci-lint (%s); "+
 			"golangci-lint cannot load this config at all — repairing run.go to %s",
-		configGoVersion, golangciLintGoVersion, golangciLintGoVersion,
+		cfg.Run.Go, golangciLintGoVersion, golangciLintGoVersion,
 	)
 
 	previous := cfg.Run.Go

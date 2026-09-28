@@ -24,7 +24,13 @@ import (
 func init() {
 	errorfamily.RegisterStdlibDefaults(errorfamily.DefaultRegistry)
 
-	errorfamily.RegisterClassifications(map[error]errorfamily.Family{
+	errorfamily.RegisterClassifications(commandClassifications())
+	errorfamily.RegisterClassifications(configValidationClassifications())
+}
+
+// commandClassifications classifies tool-command level sentinel errors.
+func commandClassifications() map[error]errorfamily.Family {
+	return map[error]errorfamily.Family{
 		// User-fault errors — bad input, missing prerequisites.
 		ErrNotGitRepository:       errorfamily.Rejection,
 		ErrNotInGitWorkingTree:    errorfamily.Rejection,
@@ -34,19 +40,6 @@ func init() {
 		ErrRunGoNewerThanBinary:   errorfamily.Rejection,
 		ErrConfigValidationFailed: errorfamily.Rejection,
 		ErrNoConfigFiles:          errorfamily.Rejection,
-
-		// Config validation sentinels — all user-fault.
-		types.ErrConfigNil:       errorfamily.Rejection,
-		types.ErrVersionRequired: errorfamily.Rejection,
-		types.ErrVersionInvalid:  errorfamily.Rejection,
-		types.ErrTimeoutRequired: errorfamily.Rejection,
-		types.ErrIssuesExitCode:  errorfamily.Rejection,
-		types.ErrConcurrency:     errorfamily.Rejection,
-		types.ErrMaxIssues:       errorfamily.Rejection,
-		types.ErrMaxSameIssues:   errorfamily.Rejection,
-
-		// Linter priority parse errors — user-fault.
-		types.ErrInvalidLinterPriority: errorfamily.Rejection,
 
 		// State conflicts — user must resolve before proceeding.
 		ErrHookAlreadyExists: errorfamily.Conflict,
@@ -58,7 +51,25 @@ func init() {
 
 		// Infrastructure — golangci-lint binary not found in PATH.
 		exec.ErrNotFound: errorfamily.Infrastructure,
-	})
+	}
+}
+
+// configValidationClassifications classifies config-validation sentinel
+// errors (pkg/types) and linter priority parse errors — all user-fault.
+func configValidationClassifications() map[error]errorfamily.Family {
+	return map[error]errorfamily.Family{
+		types.ErrConfigNil:       errorfamily.Rejection,
+		types.ErrVersionRequired: errorfamily.Rejection,
+		types.ErrVersionInvalid:  errorfamily.Rejection,
+		types.ErrTimeoutRequired: errorfamily.Rejection,
+		types.ErrIssuesExitCode:  errorfamily.Rejection,
+		types.ErrConcurrency:     errorfamily.Rejection,
+		types.ErrMaxIssues:       errorfamily.Rejection,
+		types.ErrMaxSameIssues:   errorfamily.Rejection,
+
+		// Linter priority parse errors — user-fault.
+		types.ErrInvalidLinterPriority: errorfamily.Rejection,
+	}
 }
 
 // ErrorFamily classifies ConfigError as Rejection.

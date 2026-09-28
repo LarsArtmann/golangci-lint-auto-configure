@@ -61,8 +61,7 @@ func (r *rescueRecorder) hasRescuedRunGo() bool {
 	return false
 }
 
-func TestRescueOverspecifiedRunGo(t *testing.T) {
-	const brokenConfig = `version: "2"
+const brokenRescueConfig = `version: "2"
 run:
   timeout: 5m
   go: "1.99"
@@ -70,142 +69,135 @@ linters:
   default: standard
 `
 
-	writeConfig := func(t *testing.T) (string, *config.Loader) {
-		t.Helper()
+func newRescueFixer(t *testing.T, binaryGoVersion string, loader *config.Loader) *Fixer {
+	t.Helper()
 
-		dir := t.TempDir()
-		configPath := filepath.Join(dir, ".golangci.yml")
+	return &Fixer{
+		configLoader: loader,
+		analyzer:     stubRescueAnalyzer{golangciLintGoVersion: binaryGoVersion},
+		logger:       log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel}),
+		ledger:       &rescueRecorder{},
+	}
+}
 
-		if err := os.WriteFile(configPath, []byte(brokenConfig), 0o644); err != nil {
-			t.Fatal(err)
-		}
+func writeBrokenRescueConfig(t *testing.T) (string, *config.Loader) {
+	t.Helper()
 
-		logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, ".golangci.yml")
 
-		return configPath, config.NewLoader(logger)
+	if err := os.WriteFile(configPath, []byte(brokenRescueConfig), 0o644); err != nil {
+		t.Fatal(err)
 	}
 
-	t.Run("repairs overspecified run.go and records audit entry", func(t *testing.T) {
-		configPath, loader := writeConfig(t)
-		recorder := &rescueRecorder{}
-		fixer := &Fixer{
-			configLoader: loader,
-			analyzer:     stubRescueAnalyzer{golangciLintGoVersion: "1.27"},
-			logger:       log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel}),
-			ledger:       recorder,
-		}
+	logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
 
-		cfg, err := loader.LoadConfig(configPath)
-		if err != nil {
-			t.Fatal(err)
-		}
+	return configPath, config.NewLoader(logger)
+}
 
-		if err := fixer.rescueOverspecifiedRunGo(cfg, configPath, false); err != nil {
-			t.Fatalf("expected repair to succeed, got %v", err)
-		}
+func TestRescueOverspecifiedRunGoRepairs(t *testing.T) {
+	configPath, loader := writeBrokenRescueConfig(t)
+	fixer := newRescueFixer(t, "1.27", loader)
+	recorder := fixer.ledger.(*rescueRecorder)
 
-		if cfg.Run.Go != "1.27" {
-			t.Fatalf("in-memory run.go = %q, want %q", cfg.Run.Go, "1.27")
-		}
+	cfg, err := loader.LoadConfig(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		reloaded, err := loader.LoadConfig(configPath)
-		if err != nil {
-			t.Fatal(err)
-		}
+	if err := fixer.rescueOverspecifiedRunGo(cfg, configPath, false); err != nil {
+		t.Fatalf("expected repair to succeed, got %v", err)
+	}
 
-		if reloaded.Run.Go != "1.27" {
-			t.Fatalf("on-disk run.go = %q, want %q", reloaded.Run.Go, "1.27")
-		}
+	if cfg.Run.Go != "1.27" {
+		t.Fatalf("in-memory run.go = %q, want %q", cfg.Run.Go, "1.27")
+	}
 
-		if !recorder.hasRescuedRunGo() {
-			t.Fatal("expected an ActionRescuedRunGo audit entry")
-		}
-	})
+	reloaded, err := loader.LoadConfig(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	t.Run("dry run leaves file untouched and returns classified error", func(t *testing.T) {
-		configPath, loader := writeConfig(t)
-		recorder := &rescueRecorder{}
-		fixer := &Fixer{
-			configLoader: loader,
-			analyzer:     stubRescueAnalyzer{golangciLintGoVersion: "1.27"},
-			logger:       log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel}),
-			ledger:       recorder,
-		}
+	if reloaded.Run.Go != "1.27" {
+		t.Fatalf("on-disk run.go = %q, want %q", reloaded.Run.Go, "1.27")
+	}
 
-		cfg, err := loader.LoadConfig(configPath)
-		if err != nil {
-			t.Fatal(err)
-		}
+	if !recorder.hasRescuedRunGo() {
+		t.Fatal("expected an ActionRescuedRunGo audit entry")
+	}
+}
 
-		err = fixer.rescueOverspecifiedRunGo(cfg, configPath, true)
-		if !errors.Is(err, apperrors.ErrRunGoNewerThanBinary) {
-			t.Fatalf("expected ErrRunGoNewerThanBinary, got %v", err)
-		}
+func TestRescueOverspecifiedRunGoDryRun(t *testing.T) {
+	configPath, loader := writeBrokenRescueConfig(t)
+	fixer := newRescueFixer(t, "1.27", loader)
+	recorder := fixer.ledger.(*rescueRecorder)
 
-		if code := errorfamily.Code(err); code != "config.run_go.newer_than_binary" {
-			t.Fatalf("expected classified code config.run_go.newer_than_binary, got %q", code)
-		}
+	cfg, err := loader.LoadConfig(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		if cfg.Run.Go != "1.99" {
-			t.Fatalf("dry run must not modify config, run.go = %q", cfg.Run.Go)
-		}
+	err = fixer.rescueOverspecifiedRunGo(cfg, configPath, true)
+	if !errors.Is(err, apperrors.ErrRunGoNewerThanBinary) {
+		t.Fatalf("expected ErrRunGoNewerThanBinary, got %v", err)
+	}
 
-		reloaded, err := loader.LoadConfig(configPath)
-		if err != nil {
-			t.Fatal(err)
-		}
+	if code := errorfamily.Code(err); code != "config.run_go.newer_than_binary" {
+		t.Fatalf("expected classified code config.run_go.newer_than_binary, got %q", code)
+	}
 
-		if reloaded.Run.Go != "1.99" {
-			t.Fatalf("dry run must not modify file, run.go = %q", reloaded.Run.Go)
-		}
+	if cfg.Run.Go != "1.99" {
+		t.Fatalf("dry run must not modify config, run.go = %q", cfg.Run.Go)
+	}
 
-		if recorder.hasRescuedRunGo() {
-			t.Fatal("dry runs must not record audit entries")
-		}
-	})
+	reloaded, err := loader.LoadConfig(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	t.Run("no-op cases", func(t *testing.T) {
-		cases := []struct {
-			name       string
-			runGo      string
-			binaryGo   string
-			expectNoOp bool
-		}{
-			{name: "run.go equals binary", runGo: "1.27", binaryGo: "1.27", expectNoOp: true},
-			{name: "run.go older than binary", runGo: "1.24", binaryGo: "1.27", expectNoOp: true},
-			{name: "run.go empty", runGo: "", binaryGo: "1.27", expectNoOp: true},
-			{name: "binary go version unknown", runGo: "1.99", binaryGo: "", expectNoOp: true},
-			{name: "unparsable run.go left to golangci-lint", runGo: "banana", binaryGo: "1.27", expectNoOp: true},
-		}
+	if reloaded.Run.Go != "1.99" {
+		t.Fatalf("dry run must not modify file, run.go = %q", reloaded.Run.Go)
+	}
 
-		for _, testCase := range cases {
-			t.Run(testCase.name, func(t *testing.T) {
-				configPath, loader := writeConfig(t)
+	if recorder.hasRescuedRunGo() {
+		t.Fatal("dry runs must not record audit entries")
+	}
+}
 
-				logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
-				recorder := &rescueRecorder{}
-				fixer := &Fixer{
-					configLoader: loader,
-					analyzer:     stubRescueAnalyzer{golangciLintGoVersion: testCase.binaryGo},
-					logger:       logger,
-					ledger:       recorder,
-				}
+func TestRescueOverspecifiedRunGoNoOps(t *testing.T) {
+	cases := []struct {
+		name       string
+		runGo      string
+		binaryGo   string
+		expectNoOp bool
+	}{
+		{name: "run.go equals binary", runGo: "1.27", binaryGo: "1.27", expectNoOp: true},
+		{name: "run.go older than binary", runGo: "1.24", binaryGo: "1.27", expectNoOp: true},
+		{name: "run.go empty", runGo: "", binaryGo: "1.27", expectNoOp: true},
+		{name: "binary go version unknown", runGo: "1.99", binaryGo: "", expectNoOp: true},
+		{name: "unparsable run.go left to golangci-lint", runGo: "banana", binaryGo: "1.27", expectNoOp: true},
+	}
 
-				cfg := &types.Config{}
-				cfg.Run.Go = testCase.runGo
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			configPath, loader := writeBrokenRescueConfig(t)
+			fixer := newRescueFixer(t, testCase.binaryGo, loader)
+			recorder := fixer.ledger.(*rescueRecorder)
 
-				if err := fixer.rescueOverspecifiedRunGo(cfg, configPath, false); err != nil {
-					t.Fatalf("expected no-op, got error %v", err)
-				}
+			cfg := &types.Config{}
+			cfg.Run.Go = testCase.runGo
 
-				if cfg.Run.Go != testCase.runGo {
-					t.Fatalf("run.go changed %q -> %q in a no-op case", testCase.runGo, cfg.Run.Go)
-				}
+			if err := fixer.rescueOverspecifiedRunGo(cfg, configPath, false); err != nil {
+				t.Fatalf("expected no-op, got error %v", err)
+			}
 
-				if recorder.hasRescuedRunGo() {
-					t.Fatal("no-op case must not record audit entries")
-				}
-			})
-		}
-	})
+			if cfg.Run.Go != testCase.runGo {
+				t.Fatalf("run.go changed %q -> %q in a no-op case", testCase.runGo, cfg.Run.Go)
+			}
+
+			if recorder.hasRescuedRunGo() {
+				t.Fatal("no-op case must not record audit entries")
+			}
+		})
+	}
 }
