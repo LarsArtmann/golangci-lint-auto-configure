@@ -1,7 +1,6 @@
 package linter
 
 import (
-	"context"
 	"fmt"
 
 	errorfamily "github.com/larsartmann/go-error-family"
