@@ -6,8 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Go 1.27 compatibility: `run.go` is now version-aware.** golangci-lint
+  refuses to load any config whose `run.go` targets a Go version newer than
+  the one it was built with, so a local toolchain ahead of the linter binary
+  could produce configs that break linting entirely.
+  - `run.go` is written as major.minor only (`1.27`, not `1.27.1`) — patch
+    releases do not change language semantics and patch-pinning caused a
+    config rewrite on every toolchain bump.
+  - The value is capped at the Go version the installed golangci-lint was
+    built with (detected from `golangci-lint version`), with a warning that
+    recommends upgrading golangci-lint.
+  - `configure` now repairs an already-broken config (overspecified `run.go`)
+    before analysis, audited as `rescued-run-go`; `--check`/`--dry-run`
+    instead fail with a classified, actionable error and leave the file
+    untouched.
+  - Newly created default configs use the normalized major.minor form too
+    and omit `run.go` entirely when the local version is unparsable (devel
+    toolchains).
+
 ### Changed
 
+- **Go 1.27 is now the minimum toolchain** (go.mod `go 1.27`).
+  `encoding/json/v2` is non-experimental in Go 1.27, so `GOEXPERIMENT=jsonv2`
+  is no longer required (still set in flake/CI, inert).
+- `linter-autoconfigure-sdk` bumped to v0.7.0 (first release with a
+  major.minor `go` directive; v0.6.0's `go 1.27.1` floor forced a patch-level
+  directive onto every consumer).
+- Recommended golangci-lint version (`ExpectedGolangCILintVersion`) raised
+  from v2.12.2 to v2.13.2 — the first line built with Go 1.27.
 - **Config and backup writes are now atomic** (crash-safe temp + fsync +
   rename via `go-atomic-write` v0.6.0, now a direct dependency). Audit of
   every write site and its disposition:

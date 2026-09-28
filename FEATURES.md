@@ -137,7 +137,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 | Feature                                | Status           | Notes                                                     |
 | -------------------------------------- | ---------------- | --------------------------------------------------------- |
-| Go version auto-detection              | FULLY_FUNCTIONAL | Sets run.go to local version                              |
+| Go version auto-detection              | FULLY_FUNCTIONAL | Sets run.go to local major.minor, capped at golangci-lint's build Go version; repairs unloadable run.go pre-analysis |
 | GOEXPERIMENT build tags auto-injection | FULLY_FUNCTIONAL | arenas, goroutineleakprofile, jsonv2, runtimesecret, simd |
 | allow-parallel-runners enablement      | FULLY_FUNCTIONAL | Always enabled                                            |
 | allow-serial-runners enablement        | FULLY_FUNCTIONAL | Always enabled                                            |

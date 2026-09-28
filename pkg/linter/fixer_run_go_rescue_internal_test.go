@@ -166,10 +166,10 @@ linters:
 
 	t.Run("no-op cases", func(t *testing.T) {
 		cases := []struct {
-			name        string
-			runGo       string
-			binaryGo    string
-			expectNoOp  bool
+			name       string
+			runGo      string
+			binaryGo   string
+			expectNoOp bool
 		}{
 			{name: "run.go equals binary", runGo: "1.27", binaryGo: "1.27", expectNoOp: true},
 			{name: "run.go older than binary", runGo: "1.24", binaryGo: "1.27", expectNoOp: true},

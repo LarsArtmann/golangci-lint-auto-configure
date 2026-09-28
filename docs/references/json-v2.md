@@ -1,14 +1,16 @@
 # encoding/json/v2 Migration
 
-The codebase uses `encoding/json/v2` + `encoding/json/jsontext` (experimental stdlib in Go 1.26). This document covers the behavioral changes, the `GOEXPERIMENT=jsonv2` requirement, and the wire-format decoupling pattern.
+The codebase uses `encoding/json/v2` + `encoding/json/jsontext` (experimental stdlib in Go 1.26, **graduated to non-experimental in Go 1.27**). This document covers the behavioral changes, the historical `GOEXPERIMENT=jsonv2` requirement, and the wire-format decoupling pattern.
 
 ## GOEXPERIMENT=jsonv2
 
-`encoding/json/v2` is behind the `GOEXPERIMENT=jsonv2` experiment flag in Go 1.26. Without it, any import of `encoding/json/v2` or `encoding/json/jsontext` fails at compile time:
+`encoding/json/v2` was behind the `GOEXPERIMENT=jsonv2` experiment flag in Go 1.26. Without it, any import of `encoding/json/v2` or `encoding/json/jsontext` failed at compile time:
 
 ```text
 build constraints exclude all Go files in encoding/json/v2
 ```
+
+**Go 1.27 status:** json/v2 ships enabled by default; the flag is accepted but inert. The repo requires Go 1.27 (go.mod directive), so builds work with or without `GOEXPERIMENT=jsonv2`. The env settings below are retained for belt-and-braces consistency across the flake and CI.
 
 ### Where it's configured
 
