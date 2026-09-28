@@ -47,7 +47,7 @@ func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config)
 		return 0
 	}
 
-	target, ok := normalizeGoMajorMinor(localGoVersion)
+	target, ok := types.NormalizeGoMajorMinor(localGoVersion)
 	if !ok {
 		cu.logger.Debugf(
 			"Local Go version %q is not parsable; leaving run.go unchanged (%q)",
@@ -57,7 +57,7 @@ func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config)
 		return 0
 	}
 
-	if cu.golangciLintGoVersion != "" && compareGoMajorMinor(target, cu.golangciLintGoVersion) > 0 {
+	if cu.golangciLintGoVersion != "" && types.CompareGoMajorMinor(target, cu.golangciLintGoVersion) > 0 {
 		cu.logger.Warnf(
 			"Local Go %s is newer than the Go used to build golangci-lint (%s); "+
 				"capping run.go at %s — upgrade golangci-lint to lint with %s semantics",

@@ -28,12 +28,12 @@ func (f *Fixer) rescueOverspecifiedRunGo(cfg *types.Config, configPath string, d
 		return nil
 	}
 
-	configGoVersion, ok := normalizeGoMajorMinor(cfg.Run.Go)
+	configGoVersion, ok := types.NormalizeGoMajorMinor(cfg.Run.Go)
 	if !ok {
 		return nil
 	}
 
-	if compareGoMajorMinor(configGoVersion, golangciLintGoVersion) <= 0 {
+	if types.CompareGoMajorMinor(configGoVersion, golangciLintGoVersion) <= 0 {
 		return nil
 	}
 

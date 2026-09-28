@@ -9,6 +9,7 @@ import (
 	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"golang.org/x/mod/semver"
 )
 
@@ -157,7 +158,7 @@ func (a *Analyzer) parseVersionText(output string) string {
 // normalized to major.minor. Unknown or unparsable values clear the field
 // so the fixer skips its run.go cap instead of capping against garbage.
 func (a *Analyzer) setDetectedGoVersion(raw string) {
-	majorMinor, ok := normalizeGoMajorMinor(raw)
+	majorMinor, ok := types.NormalizeGoMajorMinor(raw)
 	if !ok {
 		a.detectedGoVersion = ""
 

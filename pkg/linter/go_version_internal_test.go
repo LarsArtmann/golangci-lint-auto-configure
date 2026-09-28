@@ -9,59 +9,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-func TestNormalizeGoMajorMinor(t *testing.T) {
-	tests := []struct {
-		name string
-		in   string
-		want string
-		ok   bool
-	}{
-		{name: "go-prefixed patch version", in: "go1.27.1", want: "1.27", ok: true},
-		{name: "bare patch version", in: "1.27.1", want: "1.27", ok: true},
-		{name: "major.minor only", in: "1.27", want: "1.27", ok: true},
-		{name: "older version", in: "1.26.7", want: "1.26", ok: true},
-		{name: "empty", in: "", want: "", ok: false},
-		{name: "devel keyword", in: "devel", want: "", ok: false},
-		{name: "devel pseudo version", in: "go1.28-0f9a9bc", want: "", ok: false},
-		{name: "non-numeric minor", in: "1.x", want: "", ok: false},
-		{name: "major only", in: "1", want: "", ok: false},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got, ok := normalizeGoMajorMinor(test.in)
-			if got != test.want || ok != test.ok {
-				t.Fatalf("normalizeGoMajorMinor(%q) = (%q, %t), want (%q, %t)",
-					test.in, got, ok, test.want, test.ok)
-			}
-		})
-	}
-}
-
-func TestCompareGoMajorMinor(t *testing.T) {
-	tests := []struct {
-		name string
-		a, b string
-		want int
-	}{
-		{name: "newer minor", a: "1.27", b: "1.26", want: 1},
-		{name: "older minor", a: "1.26", b: "1.27", want: -1},
-		{name: "equal", a: "1.27", b: "1.27", want: 0},
-		{name: "equal ignoring patch", a: "1.27.0", b: "go1.27.9", want: 0},
-		{name: "numeric minor not lexicographic", a: "1.9", b: "1.10", want: -1},
-		{name: "newer major", a: "2.0", b: "1.99", want: 1},
-		{name: "unparsable compares equal", a: "devel", b: "1.27", want: 0},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			if got := compareGoMajorMinor(test.a, test.b); got != test.want {
-				t.Fatalf("compareGoMajorMinor(%q, %q) = %d, want %d", test.a, test.b, got, test.want)
-			}
-		})
-	}
-}
-
 func TestParseBuiltWithGoVersion(t *testing.T) {
 	tests := []struct {
 		name string

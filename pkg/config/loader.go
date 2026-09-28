@@ -357,10 +357,24 @@ func (l *Loader) fetchLintersWithFallback(ctx context.Context) []types.LinterNam
 }
 
 func (l *Loader) detectGoVersion(ctx context.Context) string {
-	goVersion := GetLocalGoVersion(ctx)
-	if goVersion != "" {
-		l.logger.Infof("Detected local Go version: %s", goVersion)
+	rawVersion := GetLocalGoVersion(ctx)
+	if rawVersion == "" {
+		return ""
 	}
+
+	// Default configs pin major.minor only: patch releases do not change
+	// language semantics, and a patch-pinned run.go would report a change on
+	// every toolchain patch bump. Unparsable versions (devel toolchains) are
+	// dropped so golangci-lint falls back to the go.mod / binary version
+	// instead of receiving a garbage value.
+	goVersion, ok := types.NormalizeGoMajorMinor(rawVersion)
+	if !ok {
+		l.logger.Warnf("Local Go version %q is not parsable; omitting run.go from the default config", rawVersion)
+
+		return ""
+	}
+
+	l.logger.Infof("Detected local Go version: %s", goVersion)
 
 	return goVersion
 }
