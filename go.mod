@@ -9,7 +9,7 @@ require (
 	github.com/LarsArtmann/gogenfilter/v3 v3.6.1
 	github.com/a-h/templ v0.3.1020
 	github.com/larsartmann/go-atomic-write v0.6.0
-	github.com/larsartmann/go-error-family v0.10.2
+	github.com/larsartmann/go-error-family v0.10.3
 	github.com/larsartmann/go-finding v1.13.0
 	github.com/larsartmann/linter-autoconfigure-sdk v0.7.0
 	github.com/onsi/ginkgo/v2 v2.32.2
@@ -23,12 +23,12 @@ require (
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
-	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.10.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20260910203606-6c9e17dc7a16 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20260928045949-bbf040aedf25 // indirect
 	github.com/charmbracelet/x/ansi v0.11.8 // indirect
-	github.com/charmbracelet/x/exp/charmtone v0.0.0-20260913004009-c615ff2f7805 // indirect
+	github.com/charmbracelet/x/exp/charmtone v0.1.0 // indirect
 	github.com/charmbracelet/x/exp/golden v0.0.0-20251106172358-54469c29c2bc // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
@@ -45,7 +45,7 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20260604005048-7023385849c0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/larsartmann/go-finding/toolsdk v1.13.0 // indirect
+	github.com/larsartmann/go-finding/toolsdk v1.13.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-runewidth v0.0.30 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
