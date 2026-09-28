@@ -58,6 +58,10 @@ const (
 	ActionFormatterAddedToEnable Action = "formatter-added-to-enable"
 	// ActionFormatterRemovedFromEnable records a formatter being removed from the enable list.
 	ActionFormatterRemovedFromEnable Action = "formatter-removed-from-enable"
+	// ActionRescuedRunGo records that run.go was rewritten because it targeted
+	// a Go version newer than the installed golangci-lint binary supports
+	// (golangci-lint refuses to load such configs at all).
+	ActionRescuedRunGo Action = "rescued-run-go"
 )
 
 // Entry is a single audit record, serialized as one JSONL line.

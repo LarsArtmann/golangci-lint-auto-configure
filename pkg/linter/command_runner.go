@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	errorfamily "github.com/larsartmann/go-error-family"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
@@ -58,6 +59,18 @@ func (a *Analyzer) formatCommandError(name string, output []byte, err error) err
 
 	a.logger.Debugf("%s command failed: %v", name, err)
 	a.logger.Debugf("Output: %s", outputStr)
+
+	// golangci-lint refuses to load configs whose run.go exceeds its build Go
+	// version; surface that as a classified, actionable error instead of a
+	// generic command failure (the configure fixer can auto-repair it).
+	if strings.Contains(outputStr, "is lower than the targeted Go version") {
+		return apperrors.NewAnalysisError(
+			fmt.Sprintf("golangci-lint %s command failed: %s", name, outputStr),
+			"",
+			errorfamily.WrapRejectionf(apperrors.ErrRunGoNewerThanBinary, "config.run_go.newer_than_binary",
+				"command %s rejected the config", name),
+		)
+	}
 
 	if outputStr != "" {
 		return apperrors.NewAnalysisError(

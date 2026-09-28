@@ -1,0 +1,71 @@
+package linter
+
+import (
+	"context"
+	"fmt"
+
+	errorfamily "github.com/larsartmann/go-error-family"
+
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
+	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+)
+
+// rescueOverspecifiedRunGo repairs a config whose run.go targets a Go version
+// newer than the one the installed golangci-lint binary was built with.
+// golangci-lint refuses to load such a config at all ("the Go language version
+// used to build golangci-lint is lower than the targeted Go version"), so the
+// analysis phase would fail before the fixer ever gets a chance to heal the
+// config. This runs before analysis: in normal mode it rewrites run.go to the
+// binary's build Go version (audited as ActionRescuedRunGo); in dry-run mode
+// the file must stay untouched, so a classified error explains the way out.
+func (f *Fixer) rescueOverspecifiedRunGo(cfg *types.Config, configPath string, dryRun bool) error {
+	if f.analyzer == nil {
+		return nil
+	}
+
+	golangciLintGoVersion := f.analyzer.GetDetectedGoVersion()
+	if golangciLintGoVersion == "" || cfg.Run.Go == "" {
+		return nil
+	}
+
+	configGoVersion, ok := normalizeGoMajorMinor(cfg.Run.Go)
+	if !ok {
+		return nil
+	}
+
+	if compareGoMajorMinor(configGoVersion, golangciLintGoVersion) <= 0 {
+		return nil
+	}
+
+	if dryRun {
+		return apperrors.NewAnalysisError(
+			fmt.Sprintf("run.go %s is newer than the Go used to build golangci-lint (%s)",
+				configGoVersion, golangciLintGoVersion),
+			configPath,
+			errorfamily.WrapRejectionf(apperrors.ErrRunGoNewerThanBinary, "config.run_go.newer_than_binary",
+				"run.go %s vs binary built with go%s (dry run: not repaired)",
+				configGoVersion, golangciLintGoVersion),
+		)
+	}
+
+	f.logger.Warnf(
+		"run.go %s is newer than the Go used to build golangci-lint (%s); "+
+			"golangci-lint cannot load this config at all — repairing run.go to %s",
+		configGoVersion, golangciLintGoVersion, golangciLintGoVersion,
+	)
+
+	previous := cfg.Run.Go
+	cfg.Run.Go = golangciLintGoVersion
+
+	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
+		return apperrors.WrapClassifiedf(err, "configure.rescue_run_go",
+			"saving rescued config %s", configPath)
+	}
+
+	f.ledger.Record(audit.ActionRescuedRunGo, "run.go",
+		fmt.Sprintf("%s -> %s (golangci-lint built with go%s)",
+			previous, golangciLintGoVersion, golangciLintGoVersion))
+
+	return nil
+}

@@ -109,6 +109,10 @@ func (f *Fixer) FixConfig(
 		return migrationError("pre-flight checks", priority, dryRun, configPath, version, err)
 	}
 
+	if err := f.rescueOverspecifiedRunGo(cfg, configPath, dryRun); err != nil {
+		return migrationError("rescue run.go", priority, dryRun, configPath, version, err)
+	}
+
 	if dryRun {
 		if result, shouldReturn := f.checkDryRunEarlyReturns(
 			cfg, hasInvalid, hasDeprecatedLinters(originalEnabled, version),

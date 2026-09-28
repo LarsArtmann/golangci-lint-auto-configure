@@ -17,6 +17,7 @@ var (
 	ErrVersionParse           = errors.New("could not parse version from output")
 	ErrInvalidVersionFormat   = errors.New("invalid version format")
 	ErrVersionTooOld          = errors.New("version is too old")
+	ErrRunGoNewerThanBinary   = errors.New("run.go targets a Go version newer than the golangci-lint binary supports")
 	ErrConfigValidationFailed = errors.New("configuration validation failed")
 	ErrChangesNeeded          = errors.New("configuration changes needed")
 	ErrNoConfigFiles          = errors.New("no config files to merge")

@@ -71,6 +71,12 @@ var domainMessageTemplates = map[string]errorfamily.MessageTemplate{
 	},
 
 	// ── Config validation ────────────────────────────────────────────────────
+	"config.run_go.newer_than_binary": {
+		What: "Config 'run.go' targets a Go version newer than the installed golangci-lint.",
+		Why: "golangci-lint refuses to load any config whose run.go exceeds the Go version it was built with, so no linting can happen at all.",
+		Fix:  "Re-run 'golangci-lint-auto-configure configure' without --check/--dry-run to auto-repair run.go, or set run.go to the binary's build Go version manually.",
+		WayOut: "Upgrade golangci-lint (v2.13.2+ is built with Go 1.27) to keep the newer run.go, then re-run configure.",
+	},
 	"config.validation.version": {
 		What:   "Invalid 'run.go' in config.",
 		Why:    "The Go version string does not follow the required '1.x' or '1.x.y' format.",

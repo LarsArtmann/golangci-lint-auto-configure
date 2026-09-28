@@ -31,6 +31,7 @@ func init() {
 		ErrUnknownPreset:          errorfamily.Rejection,
 		ErrInvalidActivityContext: errorfamily.Rejection,
 		ErrVersionTooOld:          errorfamily.Rejection,
+		ErrRunGoNewerThanBinary:   errorfamily.Rejection,
 		ErrConfigValidationFailed: errorfamily.Rejection,
 		ErrNoConfigFiles:          errorfamily.Rejection,
 
