@@ -72,10 +72,10 @@ var domainMessageTemplates = map[string]errorfamily.MessageTemplate{
 
 	// ── Config validation ────────────────────────────────────────────────────
 	"config.validation.version": {
-		What:   "Invalid 'run.go-version' in config.",
-		Why:    "The Go version string does not follow the required '1.x.y' format.",
-		Fix:    "Set run.go-version to a valid Go version (e.g., '1.26.0').",
-		WayOut: "Remove the run.go-version field to use the system default.",
+		What:   "Invalid 'run.go' in config.",
+		Why:    "The Go version string does not follow the required '1.x' or '1.x.y' format.",
+		Fix:    "Set run.go to a valid Go version (e.g., '1.27').",
+		WayOut: "Remove the run.go field to use the version from go.mod.",
 	},
 	"config.validation.issues_exit_code": {
 		What:   "Invalid 'run.issues-exit-code' in config.",
