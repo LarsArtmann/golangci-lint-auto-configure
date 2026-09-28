@@ -28,6 +28,7 @@ func normalizeGoMajorMinor(version string) (majorMinor string, ok bool) {
 func compareGoMajorMinor(a, b string) int {
 	aMajor, aMinor, aOK := parseGoMajorMinor(a)
 	bMajor, bMinor, bOK := parseGoMajorMinor(b)
+
 	if !aOK || !bOK {
 		return 0
 	}

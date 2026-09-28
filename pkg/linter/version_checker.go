@@ -169,7 +169,9 @@ func (a *Analyzer) setDetectedGoVersion(raw string) {
 // parseBuiltWithGoVersion extracts the Go build version from
 // "golangci-lint has version X.Y.Z built with go1.27.1 from ..." text output.
 func parseBuiltWithGoVersion(output string) string {
-	for i, part := range strings.Fields(output) {
+	parts := strings.Fields(output)
+
+	for i, part := range parts {
 		if part == "with" && i+1 < len(parts) && strings.HasPrefix(parts[i+1], "go1.") {
 			return parts[i+1]
 		}
