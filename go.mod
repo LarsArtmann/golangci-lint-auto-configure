@@ -9,7 +9,7 @@ require (
 	github.com/LarsArtmann/gogenfilter/v3 v3.6.1
 	github.com/a-h/templ v0.3.1020
 	github.com/larsartmann/go-atomic-write v0.6.0
-	github.com/larsartmann/go-error-family v0.10.3
+	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-finding v1.13.0
 	github.com/larsartmann/linter-autoconfigure-sdk v0.7.0
 	github.com/onsi/ginkgo/v2 v2.32.2
