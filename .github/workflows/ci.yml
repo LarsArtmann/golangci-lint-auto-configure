@@ -61,7 +61,7 @@ jobs:
       - name: Install golangci-lint for CLI tests
         uses: golangci/golangci-lint-action@db9de0fc1a667e1a49d2291a1a042dff081d78f6 # v9
         with:
-          version: v2.13.2
+          version: v2.14.0
           install-only: true
 
       - name: Build verification
@@ -128,7 +128,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@db9de0fc1a667e1a49d2291a1a042dff081d78f6 # v9
         with:
-          version: v2.13.2
+          version: v2.14.0
           args: --config=.golangci.yml --timeout=5m
           working-directory: .
           skip-cache: false
@@ -160,7 +160,7 @@ jobs:
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@db9de0fc1a667e1a49d2291a1a042dff081d78f6 # v9
         with:
-          version: v2.13.2
+          version: v2.14.0
           install-only: true
 
       - name: Fixture drift guard (regenerate + diff)
