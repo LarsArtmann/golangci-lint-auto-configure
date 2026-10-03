@@ -11,7 +11,7 @@ require (
 	github.com/larsartmann/go-atomic-write v0.6.0
 	github.com/larsartmann/go-error-family v0.11.0
 	github.com/larsartmann/go-finding v1.13.0
-	github.com/larsartmann/linter-autoconfigure-sdk v0.7.0
+	github.com/larsartmann/linter-autoconfigure-sdk v0.8.0
 	github.com/onsi/ginkgo/v2 v2.33.0
 	github.com/onsi/gomega v1.44.0
 	github.com/pelletier/go-toml/v2 v2.4.3
@@ -26,7 +26,7 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.10.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20260930135840-270558f35f71 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20261001125412-878653296cfd // indirect
 	github.com/charmbracelet/x/ansi v0.11.8 // indirect
 	github.com/charmbracelet/x/exp/charmtone v0.1.0 // indirect
 	github.com/charmbracelet/x/exp/golden v0.0.0-20251106172358-54469c29c2bc // indirect
@@ -62,5 +62,5 @@ require (
 	golang.org/x/net v0.59.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/text v0.42.0 // indirect
-	golang.org/x/tools v0.50.0 // indirect
+	golang.org/x/tools v0.51.0 // indirect
 )
