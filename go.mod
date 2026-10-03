@@ -43,7 +43,7 @@ require (
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gofrs/flock v0.13.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20260926063103-aaccee046517 // indirect
+	github.com/google/pprof v0.0.0-20261002000307-77d3b59017a0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/larsartmann/go-finding/toolsdk v1.14.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
