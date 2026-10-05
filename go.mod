@@ -7,10 +7,10 @@ require (
 	charm.land/lipgloss/v2 v2.0.6
 	charm.land/log/v2 v2.0.1
 	github.com/LarsArtmann/gogenfilter/v3 v3.6.1
-	github.com/a-h/templ v0.3.1020
+	github.com/a-h/templ v0.3.1070
 	github.com/larsartmann/go-atomic-write v0.6.0
 	github.com/larsartmann/go-error-family v0.11.0
-	github.com/larsartmann/go-finding v1.13.0
+	github.com/larsartmann/go-finding v1.14.0
 	github.com/larsartmann/linter-autoconfigure-sdk v0.8.0
 	github.com/onsi/ginkgo/v2 v2.33.0
 	github.com/onsi/gomega v1.44.0
@@ -43,9 +43,9 @@ require (
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gofrs/flock v0.13.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20261002000307-77d3b59017a0 // indirect
+	github.com/google/pprof v0.0.0-20261003200830-ebaad5f31b4d // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/larsartmann/go-finding/toolsdk v1.14.0 // indirect
+	github.com/larsartmann/go-finding/toolsdk v1.15.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-runewidth v0.0.30 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
