@@ -8,7 +8,7 @@ updates:
     groups:
       actions:
         patterns:
-          - '*'
+          - "*"
     labels:
       - dependencies
       - github-actions
