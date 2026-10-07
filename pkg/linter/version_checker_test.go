@@ -38,10 +38,10 @@ var _ = Describe("validateVersion", func() {
 			between := "v2.13.0"
 			// Guards rot loudly: bump this spec constant together with the
 			// constants when the minimum or recommendation moves.
-			Expect(semver.Compare(between, constants.MinGolangCILintVersion) >= 0).
-				To(BeTrue(), "spec constant must be >= MinGolangCILintVersion — update it when the minimum bumps")
-			Expect(semver.Compare(between, constants.ExpectedGolangCILintVersion) < 0).
-				To(BeTrue(), "spec constant must be < ExpectedGolangCILintVersion — update it when the recommendation bumps")
+			Expect(semver.Compare(between, constants.MinGolangCILintVersion)).
+				To(BeNumerically(">=", 0), "spec constant must be >= MinGolangCILintVersion — update it when the minimum bumps")
+			Expect(semver.Compare(between, constants.ExpectedGolangCILintVersion)).
+				To(BeNumerically("<", 0), "spec constant must be < ExpectedGolangCILintVersion — update it when the recommendation bumps")
 
 			err := analyzer.validateVersion(between)
 			Expect(err).ToNot(HaveOccurred())
@@ -63,8 +63,8 @@ var _ = Describe("validateVersion", func() {
 	Context("when version is below minimum", func() {
 		It("should return an error without warning", func() {
 			below := "v2.9.0"
-			Expect(semver.Compare(below, constants.MinGolangCILintVersion) < 0).
-				To(BeTrue(), "spec constant must be < MinGolangCILintVersion — update it when the minimum bumps")
+			Expect(semver.Compare(below, constants.MinGolangCILintVersion)).
+				To(BeNumerically("<", 0), "spec constant must be < MinGolangCILintVersion — update it when the minimum bumps")
 
 			err := analyzer.validateVersion(below)
 			Expect(err).To(HaveOccurred())
