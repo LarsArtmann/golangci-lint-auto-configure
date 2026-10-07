@@ -10,6 +10,14 @@ I introduced and fixed myself.
 
 ---
 
+> **VERIFIED 2026-10-07 (docs-health third sweep).** Residue routed since
+> this report: cross-repo auth + tap posture are now ROADMAP open questions;
+> Dependabot, buildflow gate, release dry-run, erraudit, lychee, metadata
+> script, schema dating, and GHCR hygiene are TODO_LIST rows. Still bare:
+> BuildFlow upstream issue (unfiled), ADR-016 findings-gate (gated), gitleaks
+> scheduled job (now TODO_LIST), cmd/ test-debt cluster, schema-snapshot
+> dating (now TODO_LIST).
+
 ## 1. What was forgotten / done badly (the blunt section)
 
 1. **First GHCR backfill pushed the image as `:master` instead of `:v0.8.0`** — on

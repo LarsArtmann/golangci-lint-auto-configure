@@ -34,7 +34,16 @@ Point-in-time snapshots from development sessions. Each report captures what was
 > | 2026-07-25 ecosystem report (research)                                     | ARCHIVE        | 7/7 recommendations shipped; residue routed to ROADMAP theme 2                     |
 > | 2026-07-10 deep architecture review                                        | ARCHIVE        | 12/12 P0–P3 recommendations shipped; Resolution Status table verified              |
 >
-> The remaining 38 live reports keep bare (unstruck) open items — absence of a
+> **Fourth sweep wave (same day, 2026-10-07):** after routing, seven more
+> reports became fully resolved (every numbered item struck or routed) and
+> were archived: 2026-07-26_17-13 (50/50 closed), 2026-07-30_22-39 (50/50),
+> 2026-07-30_23-21 (50/50), 2026-07-30_23-22 (50/50), 2026-09-11_13-27
+> (30/30), 2026-09-14_11-22 (10/10 routed), 2026-09-14_11-34 (30/30 routed).
+> The remaining 31 live reports carry partial strikes (done items struck,
+> open items bare) plus sweep-verification banners where item-level strikes
+> were not mechanically possible.
+>
+> The remaining 31 live reports keep bare (unstruck) open items — absence of a
 > marker IS the open signal. Harvest from this sweep: 10 new TODO_LIST rows,
 > ROADMAP theme-2/4 additions, 2 FEATURES ghost rows removed (auto-tag
 > workflow, CI retry logic), AGENTS gotcha 13 version-drift fix.
@@ -76,7 +85,6 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 | 2026-07-26 | `09-41_superb-plan-phase-1-3-execution`                | Branded types, decoupling                   |
 | 2026-07-26 | `10-06_deduplication-to-zero-session-report`           | art-dupl → 0 clones                         |
 | 2026-07-26 | `16-37_superb-plan-phase-4-execution`                  | Flags struct, SettingsMap                   |
-| 2026-07-26 | `17-13_phase-4-cleanup-comprehensive`                  | Dead code, 12 SettingsMap specs             |
 
 ### Linter Policy & Tiers (2026-07-10 → 07-26)
 
@@ -107,9 +115,6 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 
 | Date       | Report                                                          | Key Outcome                      |
 | ---------- | --------------------------------------------------------------- | -------------------------------- |
-| 2026-07-30 | `22-39_regression-loop-prevention-never-enable-cycle-detection` | `never-enable` + cycle detection |
-| 2026-07-30 | `23-21_PARETO-SESSION-REVIEW`                                   | YAML indent, `--force-settings`  |
-| 2026-07-30 | `23-22_never-enable-enforcement-fix-and-review`                 | Enforcement bypass fixed         |
 
 ### gohumanize & CV-Config Learnings (2026-08)
 
@@ -129,8 +134,5 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 | 2026-09-11 | `06-38_buildflow-failures-resolved`                        | Generator formatting, vendorHash triage                                             |
 | 2026-09-11 | `08-33_github-metadata-and-ci-rehabilitation-status`       | Metadata, CI re-enable, goconst schema fix                                          |
 | 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`           | Living-docs overhaul + 28-file archive sweep                                        |
-| 2026-09-11 | `13-27_pareto-execution-v081-shipped-and-guards-installed` | v0.8.1 released (first GHCR image), min-len self-heal + schema gate + watchdog live |
 | 2026-09-11 | `23-26_pareto-execution-t11-t25-thirteen-tasks-and-honest-scars` | T11–T25: GHCR backfill, rulesets, gitleaks, ADR consolidation, README audit |
-| 2026-09-14 | `11-22_pareto-plan-complete-all-27-tasks`                  | Pareto plan closed: T25–T27 finished, reports archived, cadence policy live         |
-| 2026-09-14 | `11-34_pareto-wrapup-status-and-brutal-self-review`        | Wrap-up + brutal self-review; residue routed to TODO_LIST/ROADMAP                   |
 | 2026-09-28 | `21-59_go-1.27-readiness-shipped-and-reviewed`             | Go 1.27 readiness: `run.go` major.minor + cap + rescue; live frontier               |

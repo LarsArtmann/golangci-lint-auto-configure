@@ -8,6 +8,12 @@
 
 ---
 
+> **VERIFIED 2026-10-07 (docs-health third sweep).** This sweep executed
+> this report's b1/b3 follow-ups at sweep scale (48 files, ~200 archive
+> strikes). Residue unchanged: precision-annotate per-hash (b1), Detect()
+> contract, lychee, 0-checks, schema dating, erraudit cadence — all
+> TODO_LIST rows; the gohumanize README row stays USER-GATED.
+
 ## a) FULLY DONE
 
 | #   | What                                                                                                                                                                                                                  | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

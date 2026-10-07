@@ -7,7 +7,7 @@ long-term ideas live in `ROADMAP.md`. **This file contains OPEN work only** —
 when a task ships, remove it here and record it in `CHANGELOG.md`.
 
 Harvest history: the 2026-09-11 High tier + 20% tier closed with v0.8.1
-(`docs/status/2026-09-11_13-27…md`); the 2026-09-13/14 pareto execution closed
+(`docs/archive/status/2026-09-11_13-27…md`); the 2026-09-13/14 pareto execution closed
 fifteen more rows (T11–T25, `docs/status/2026-09-11_23-26…md`). The 2026-10-07
 docs-health sweep re-verified every row below against the repo and harvested
 the Go-1.27 frontier (`docs/status/2026-09-28_21-59…md`) plus residue that
@@ -45,6 +45,6 @@ output, gitleaks cadence).
 | Pin a golangci-lint version matrix in e2e CI to exercise the `run.go` cap path against an older binary (e.g. v2.12.2) | Low    | M         | `docs/status/2026-09-28_21-59…md` c7/f13; cap path only tested against the pinned v2.14.0          |
 | Scheduled gitleaks job (full-history scan ran once manually 2026-09-11: 0 secrets over 1,117 commits)  | Low    | S         | ROADMAP theme 6 / `docs/status/2026-09-11_23-26…md` f21                                            |
 | Surface `golangci-lint run` as a `flake.nix` check output (checks currently: race only)                | Low    | S         | `flake.nix` checks block; surfaced by 2026-07-25 friction report f34                               |
-| Coverage gate 60 → 65 (suite total 69.8% after T18/T19; headroom exists)                               | Low    | XS        | `.github/workflows/ci.yml` `-min=60`; `docs/status/2026-09-14_11-34…md` f13                        |
-| GHCR hygiene: delete stray `:master` tag (needs `delete:packages` scope — USER-GATED) + smoke-test backfill-image on a fresh tag | Low    | S         | `docs/status/2026-09-14_11-34…md` c5/c15                                                           |
+| Coverage gate 60 → 65 (suite total 69.8% after T18/T19; headroom exists)                               | Low    | XS        | `.github/workflows/ci.yml` `-min=60`; `docs/archive/status/2026-09-14_11-34…md` f13                        |
+| GHCR hygiene: delete stray `:master` tag (needs `delete:packages` scope — USER-GATED) + smoke-test backfill-image on a fresh tag | Low    | S         | `docs/archive/status/2026-09-14_11-34…md` c5/c15                                                           |
 | README "Go version handling" user-facing section (how `run.go` is written, capped, and rescued)        | Low    | S         | `docs/status/2026-09-28_21-59…md` f19; CHANGELOG [Unreleased] carries the behavior                  |

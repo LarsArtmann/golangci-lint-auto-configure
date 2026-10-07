@@ -89,38 +89,38 @@ Also worth naming (not a fuckup but a near-miss): the first `go install` test si
 
 **Immediate (finish the interrupted task + tier completion):**
 
-1. Finish T11.2: write the README artifact-verification section (cosign verify command proven in a5 + SBOM note + docker pull snippet).
-2. T11.3: `gh workflow run ci.yml` + confirm dispatch path green.
-3. T11.4: prune the TODO_LIST rows T1–T11 close (one consolidated pass).
-4. T12: backfill GHCR image for v0.8.0 using the proven buildx path; decide v0.7.x backfill.
-5. T13: master + `v*` rulesets via `gh api`; decide `auto-tag.yml` fate.
-6. T14: read the 3 failed dependabot runs; fix; evaluate custom manager for the ci.yml golangci-lint pin.
-7. T15: gitleaks full-history scan + triage + quantified risk note into ROADMAP.
-8. T16: locate buildflow config; raise `test-coverage` timeout; "9 tools" health check; full e2e.
-9. T17: generate-settings schema-version note + warning; decide goconst drift (fixture gate from T3 is the new context).
-10. T18: internal/cli coverage sprint (cmd_check/cmd_analyze/cmd_configure_config/cmd_presets + FixConfig sidecar e2e).
-11. T19: profile the 116s `-race` suite; target ≤60s.
-12. T20: omitzero migration in `config_types.go` with per-field round-trip decisions + goldens.
-13. T21: ADR consolidation (extract 8 inline ADRs, rename odd file, linked index, link sweep).
-14. T22: README audit part 1 against the released v0.8.1.
-15. T23: README audit part 2 + CI/CD section.
-16. T24: sibling sweep for emitted `min-length` keys (~160 repos) + repair with the T2 fix.
-17. T25: FindingsHidden decision, multi-preset union tests, `errUnsupportedFormat` registration.
-18. T26: docs-hygiene bundle (08-05 annotation, 07-31 ideas routing, version sweep, cadence policy).
-19. T27: PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates + homepage posture + docs-integrity extension.
-20. Docs-health ANNOTATE the plan file as tasks complete (guardrail 7) — do it incrementally, not at the end.
+1. ~~Finish T11.2: write the README artifact-verification section (cosign verify command proven in a5 + SBOM note + docker pull snippet).~~ done (docs-health pass 2026-10-07)
+2. ~~T11.3: `gh workflow run ci.yml` + confirm dispatch path green.~~ done (docs-health pass 2026-10-07)
+3. ~~T11.4: prune the TODO_LIST rows T1–T11 close (one consolidated pass).~~ done (docs-health pass 2026-10-07)
+4. ~~T12: backfill GHCR image for v0.8.0 using the proven buildx path; decide v0.7.x backfill.~~ done (docs-health pass 2026-10-07)
+5. ~~T13: master + `v*` rulesets via `gh api`; decide `auto-tag.yml` fate.~~ done (docs-health pass 2026-10-07)
+6. T14: read the 3 failed dependabot runs; fix; evaluate custom manager for the ci.yml golangci-lint pin. **→ routed — TODO_LIST Dependabot row (confirm green run)**
+7. ~~T15: gitleaks full-history scan + triage + quantified risk note into ROADMAP.~~ done (docs-health pass 2026-10-07)
+8. ~~T16: locate buildflow config; raise `test-coverage` timeout; "9 tools" health check; full e2e.~~ **Won't implement — debunked — no step-level timeout exists in BuildFlow.**
+9. ~~T17: generate-settings schema-version note + warning; decide goconst drift (fixture gate from T3 is the new context).~~ done (docs-health pass 2026-10-07)
+10. ~~T18: internal/cli coverage sprint (cmd_check/cmd_analyze/cmd_configure_config/cmd_presets + FixConfig sidecar e2e).~~ done (docs-health pass 2026-10-07)
+11. ~~T19: profile the 116s `-race` suite; target ≤60s.~~ done (docs-health pass 2026-10-07)
+12. ~~T20: omitzero migration in `config_types.go` with per-field round-trip decisions + goldens.~~ done (docs-health pass 2026-10-07)
+13. ~~T21: ADR consolidation (extract 8 inline ADRs, rename odd file, linked index, link sweep).~~ done (docs-health pass 2026-10-07)
+14. ~~T22: README audit part 1 against the released v0.8.1.~~ done (docs-health pass 2026-10-07)
+15. ~~T23: README audit part 2 + CI/CD section.~~ done (docs-health pass 2026-10-07)
+16. ~~T24: sibling sweep for emitted `min-length` keys (~160 repos) + repair with the T2 fix.~~ done (docs-health pass 2026-10-07)
+17. ~~T25: FindingsHidden decision, multi-preset union tests, `errUnsupportedFormat` registration.~~ done (docs-health pass 2026-10-07)
+18. ~~T26: docs-hygiene bundle (08-05 annotation, 07-31 ideas routing, version sweep, cadence policy).~~ done (docs-health pass 2026-10-07)
+19. ~~T27: PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates + homepage posture + docs-integrity extension.~~ done (docs-health pass 2026-10-07)
+20. ~~Docs-health ANNOTATE the plan file as tasks complete (guardrail 7) — do it incrementally, not at the end.~~ done (docs-health pass 2026-10-07)
 
 **Follow-ups surfaced by this session (new, evidence-backed):**
-21. Cut v0.8.2 to ship the README GOEXPERIMENT fix + exhaustruct_v5 migration (both are master-only until the next tag).
-22. Add an end-to-end spec: exhaustruct→v5 linter rename + settings-block migration + `exclude`→`ignore-patterns` in one FixConfig run (b4).
-23. Enabling homebrew/scoop publishing requires a PAT with `repo` scope on `homebrew-tap` — decide posture (enable with PAT in release workflow vs keep `skip_upload: true` and drop the tap repo).
-24. Consider GoReleaser cosign `--bundle` migration (b3) before cosign 3.x drops `.pem` support.
-25. Consider a structural fix for the GOEXPERIMENT install gap (vendor json/v2, or Go's eventual json/v2 stabilization) — ROADMAP.
-26. Release-notes curation is now proven — codify it into `scripts/post-release-verify.sh` as a check (it already checks notes exist; add "not a commit dump" heuristic).
-27. Watchdog currently covers ci.yml only — extend to release.yml + markdown-lint.yml states.
-28. schema-verify job could also run `golangci-lint config verify` against `test.golangci.yml` + `examples/standard.golangci.yml` (example configs rot independently).
-29. `nix flake update` + validated rebuild (Scheduled table — after v0.8.1 stabilizes).
-30. Quarterly erraudit re-check (~2026-10, Scheduled table).
+21. ~~Cut v0.8.2 to ship the README GOEXPERIMENT fix + exhaustruct_v5 migration (both are master-only until the next tag).~~ done (docs-health pass 2026-10-07)
+22. Add an end-to-end spec: exhaustruct→v5 linter rename + settings-block migration + `exclude`→`ignore-patterns` in one FixConfig run (b4). **→ open — full-block e2e spec not located**
+23. Enabling homebrew/scoop publishing requires a PAT with `repo` scope on `homebrew-tap` — decide posture (enable with PAT in release workflow vs keep `skip_upload: true` and drop the tap repo). **→ routed — ROADMAP open question (tap posture)**
+24. Consider GoReleaser cosign `--bundle` migration (b3) before cosign 3.x drops `.pem` support. **→ open — cosign bundle migration not done**
+25. ~~Consider a structural fix for the GOEXPERIMENT install gap (vendor json/v2, or Go's eventual json/v2 stabilization) — ROADMAP.~~ **Won't implement — moot — json/v2 non-experimental on Go 1.27.**
+26. Release-notes curation is now proven — codify it into `scripts/post-release-verify.sh` as a check (it already checks notes exist; add "not a commit dump" heuristic). **→ open — codification not done**
+27. Watchdog currently covers ci.yml only — extend to release.yml + markdown-lint.yml states. **→ open — watchdog scope not extended**
+28. schema-verify job could also run `golangci-lint config verify` against `test.golangci.yml` + `examples/standard.golangci.yml` (example configs rot independently). **→ open — schema-verify covers the fixture only**
+29. `nix flake update` + validated rebuild (Scheduled table — after v0.8.1 stabilizes). **→ open — scheduled upkeep, no row**
+30. Quarterly erraudit re-check (~2026-10, Scheduled table). **→ routed — TODO_LIST erraudit row**
 
 ## g) QUESTIONS FOR YOU (cannot answer myself)
 

@@ -6,6 +6,15 @@
 
 ---
 
+> **RESOLVED 2026-10-07 (docs-health sweep).** The P0/P1 findings shipped
+> (configChangeRecorder, issues-block normalization, stale-settings self-heal,
+> house preset, default exclusion paths, generated:lax). Not adopted, with
+> reasons: `run.modules-download-mode` suggestion (niche; no consumer ask),
+> `--normalize` timeout flag (superseded by the v0.8.1 key-normalization
+> self-heal), `run.tests`/`run.issues-exit-code` normalization (loader already
+> defaults them). Two ideas remain open and bare below: modules-download-mode
+> detect/suggest and the `--normalize` flag concept.
+
 ## 1. Executive Summary
 
 The auto-fixer is a **resounding success** at imposing a consistent house style: 100% of

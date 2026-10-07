@@ -8,6 +8,15 @@
 
 ---
 
+> **VERIFIED 2026-10-07 (docs-health third sweep).** Every numbered item in
+> sections f/g was re-verified against the repo: 20 done, 5 obsolete/decided-
+> against, 9 USER-GATED (history, posture, homepage, announcement, identity),
+> and the open residue is routed — lychee, erraudit cadence, demo GIF,
+> multi-system flake checks, daemon message quality, issue templates all have
+> TODO_LIST/ROADMAP rows. Unrouted micro-opens: coverage 70% target (gate is
+> 60; raising tracked in TODO_LIST), CodeQL workflow, README HTML screenshot,
+> examples/ validation in CI, markdownlint-in-treefmt — left bare below.
+
 ## Executive Summary
 
 The 2026-05-04 decision doc (`PUBLIC_OR_PRIVATE.md`) listed "go-finding is private" as the single hard blocker for going public. This session verified that blocker no longer exists (all four `LarsArtmann/*` dependencies are public **and** proxy-cached), sanitized every trace of private-project data from the working tree, removed the SSH-only fetch path from the Nix flake, added community health files, ran the full verification battery (Go build, race tests, flake evaluation, hermetic Nix build), and flipped the repo public after explicit user confirmation. The accepted tradeoff: **git history still contains pre-cleanup references to sibling projects** — user chose to accept this rather than rewrite history.

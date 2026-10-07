@@ -7,6 +7,13 @@
 
 ---
 
+> **VERIFIED 2026-10-07 (docs-health third sweep).** Open residue is routed:
+> release dry-run, metadata checklist script, Dependabot green-run, schema
+> snapshot dating, and the tap posture are TODO_LIST/ROADMAP rows. Bare
+> leftovers are unverified externals (pkg.go.dev health, private-vuln toggle,
+> social preview) plus small ideas without rows (CHANGELOG convention note,
+> browsable HTML reports, config-verify in validate).
+
 ## Executive Summary
 
 The session started as cosmetic GitHub metadata work and turned into a CI/CD rehabilitation. Findings, in order of severity:

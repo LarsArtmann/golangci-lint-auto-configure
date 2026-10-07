@@ -6,6 +6,13 @@
 
 ---
 
+> **VERIFIED 2026-10-07 (docs-health third sweep).** Residue re-checked:
+> the 0-checks puzzle, buildflow gate posture, and Dependabot policy are
+> TODO_LIST rows; multi-system flake checks + BuildFlow upstream feedback are
+> ROADMAP rows; exhaustruct_v5/omitzero/suite-speed/generator-guard items all
+> shipped (struck inline on 2026-09-14). Remaining bare items are unverified
+> one-offs (gopls config, cache hit rate, pre-push hook contents).
+
 ## Meta: Direct Answers to Your Three Questions
 
 **What did you forget?**
