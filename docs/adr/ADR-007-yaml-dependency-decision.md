@@ -76,5 +76,5 @@ These are all appropriate usage locations for YAML parsing in this codebase.
 ## References
 
 - Repository: https://github.com/yaml/go-yaml
-- Go module proxy: https://proxy.golang.org/go.yaml.in/yaml/v3
+- Go module: https://pkg.go.dev/go.yaml.in/yaml/v3
 - Vanity URL redirects to: https://github.com/yaml/go-yaml/tree/v3/
