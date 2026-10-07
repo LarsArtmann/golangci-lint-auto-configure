@@ -27,6 +27,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Newly created default configs use the normalized major.minor form too
     and omit `run.go` entirely when the local version is unparsable (devel
     toolchains).
+  - A project `go.mod` whose `go` directive targets a newer Go than the
+    golangci-lint binary was built with now triggers a warning (all modes).
+    `go.mod` is the project's declared language version and is never
+    rewritten — the fix is upgrading golangci-lint.
 
 ### Changed
 

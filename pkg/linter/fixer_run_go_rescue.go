@@ -101,7 +101,10 @@ func readGoModGoDirective(configPath string) string {
 
 	defer func() { _ = file.Close() }()
 
-	scanner := bufio.NewScanner(file)
+	return scanGoDirective(bufio.NewScanner(file))
+}
+
+func scanGoDirective(scanner *bufio.Scanner) string {
 	inBlock := false
 
 	for scanner.Scan() {
