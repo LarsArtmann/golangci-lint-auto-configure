@@ -39,7 +39,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 # =============================================================================
 # Runtime Stage
 # =============================================================================
-FROM golangci/golangci-lint:v2.13.2-alpine AS runtime
+FROM golangci/golangci-lint:v2.14.0-alpine AS runtime
 
 # Install git (needed for version check)
 RUN apk add --no-cache git bash
@@ -55,18 +55,6 @@ WORKDIR /app
 
 # Default command
 CMD ["golangci-lint-auto-configure", "--help"]
-
-# =============================================================================
-# Slim Variant (alternative, smaller but without golangci-lint)
-# =============================================================================
-# FROM alpine:3.20 AS slim
-#
-# RUN apk add --no-cache git bash
-#
-# COPY --from=builder /usr/local/bin/golangci-lint-auto-configure /usr/local/bin/
-# COPY examples/ /examples/
-#
-# CMD ["golangci-lint-auto-configure", "--help"]
 
 # =============================================================================
 # Usage Examples

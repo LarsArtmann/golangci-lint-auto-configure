@@ -1,0 +1,34 @@
+name: Gitleaks Secret Scan
+
+# Weekly full-history secret scan. Detects credentials the diff-gates miss:
+# a secret committed directly to master never shows up in a PR diff.
+# Full history (not just the pushing revision) so rotation deadlines are
+# computable from the scan date.
+
+on:
+  schedule:
+    # Thursdays 04:17 UTC — weekly, off-phase from the CI watchdog (Mon) and
+    # Dependabot to spread load.
+    - cron: "17 4 * * 4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: Scan full history for secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          # Fail the job on any finding; no org-level license needed for
+          # single-repo public use.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

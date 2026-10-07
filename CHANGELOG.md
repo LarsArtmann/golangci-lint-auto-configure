@@ -58,8 +58,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   settings keys; none affect curated defaults.
 - Docker image: builder base bumped `golang:1.26-alpine` → `golang:1.27-alpine`
   (required by the go.mod directive) and runtime golangci-lint
-  `v2.1-alpine` → `v2.13.2-alpine` (the old runtime could not lint Go 1.27
-  projects and predates the tool's minimum v2.10.1).
+  `v2.1-alpine` → `v2.14.0-alpine` (the old runtime could not lint Go 1.27
+  projects and predates the tool's minimum; the new base aligns the image
+  with the CI pin and the dated schema snapshot). The dead commented
+  "slim variant" block was removed (no `--target` consumer, no user ask).
 - **Config and backup writes are now atomic** (crash-safe temp + fsync +
   rename via `go-atomic-write` v0.6.0, now a direct dependency). Audit of
   every write site and its disposition:
