@@ -16,6 +16,28 @@ Point-in-time snapshots from development sessions. Each report captures what was
 > documented nolint) were annotated and archived. Reports listed below still
 > carry open residue — their "next tasks" sections are the HARVEST source that
 > feeds `TODO_LIST.md`.
+>
+> **Third sweep (2026-10-07, docs-health AUDIT):** all 48 non-archived
+> 2026-0* docs were read and every numbered forward-looking item re-verified
+> against the repo (~1,500 items across 5 triage passes). Eight fully-resolved
+> or fully-routed files were annotated inline (every item struck or routed)
+> and archived:
+>
+> | Archived file                                                              | Classification | Deciding reason                                                                    |
+> | -------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------- |
+> | 2026-07-25_06-30 docs-health annotation pass                               | ARCHIVE        | 56/56 §e/§f items closed (1 routed: error-code registry → ROADMAP theme 5)         |
+> | 2026-07-25_06-52 follow-up resolving open questions                        | ARCHIVE        | 50/50 §f items closed (1 routed to ROADMAP theme 5); §g answered                   |
+> | 2026-07-25_17-31 coverage-check quality-debt cleanup                       | ARCHIVE        | 61/61 §c/§f items closed (2 declined: OutputConfig typing, CI retry)               |
+> | 2026-07-25_18-15 comprehensive 50-item execution                           | ARCHIVE        | 17/17 remaining-item rows struck with commit hashes                                |
+> | 2026-07-25_20-55 complete 17-item execution                                | ARCHIVE        | No forward-looking section; 2 stale claims inline-corrected                        |
+> | 2026-07-06 pipeline comparison (research)                                  | ARCHIVE        | 5/5 recommendations resolved (3 shipped, 2 validated); banner + inline strikes     |
+> | 2026-07-25 ecosystem report (research)                                     | ARCHIVE        | 7/7 recommendations shipped; residue routed to ROADMAP theme 2                     |
+> | 2026-07-10 deep architecture review                                        | ARCHIVE        | 12/12 P0–P3 recommendations shipped; Resolution Status table verified              |
+>
+> The remaining 38 live reports keep bare (unstruck) open items — absence of a
+> marker IS the open signal. Harvest from this sweep: 10 new TODO_LIST rows,
+> ROADMAP theme-2/4 additions, 2 FEATURES ghost rows removed (auto-tag
+> workflow, CI retry logic), AGENTS gotcha 13 version-drift fix.
 
 ## Lifecycle & Cadence
 
@@ -45,16 +67,11 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 | Date       | Report                                                 | Key Outcome                                 |
 | ---------- | ------------------------------------------------------ | ------------------------------------------- |
 | 2026-07-25 | `05-40_forcetypeassert-test-exclusion-default`         | Test exclusion default                      |
-| 2026-07-25 | `06-30_docs-health-and-old-docs-annotation-pass`       | Old-docs annotation pass                    |
-| 2026-07-25 | `06-52_follow-up-resolving-docs-health-open-questions` | Open questions resolved                     |
 | 2026-07-25 | `07-03_test-coverage-sprint-status`                    | Enforcement + audit CLI tests               |
 | 2026-07-25 | `07-35_docs-health-todo-sweep-self-review`             | 15/50 sweep items                           |
 | 2026-07-25 | `14-01_50-item-todo-list-second-sweep`                 | 16/50 sweep items                           |
 | 2026-07-25 | `14-01_friction-reduction-plan-execution`              | `--pragmatic`, house preset, funlen 200/100 |
 | 2026-07-25 | `14-29_quality-debt-cleanup`                           | CoreFormatters, gosec/errcheck alignment    |
-| 2026-07-25 | `17-31_coverage-check-quality-debt-cleanup`            | Ghost script deleted, parser specs          |
-| 2026-07-25 | `18-15_comprehensive-50-item-execution`                | 32/50 executed                              |
-| 2026-07-25 | `20-55_complete-17-item-execution`                     | Remaining 17 executed                       |
 | 2026-07-26 | `06-33_docs-health-and-old-docs-second-pass`           | Second annotation pass                      |
 | 2026-07-26 | `09-41_superb-plan-phase-1-3-execution`                | Branded types, decoupling                   |
 | 2026-07-26 | `10-06_deduplication-to-zero-session-report`           | art-dupl → 0 clones                         |
