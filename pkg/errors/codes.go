@@ -1,0 +1,178 @@
+package apperrors
+
+// RegisteredCodes is the canonical registry of every error-family code this
+// codebase may attach to an error (the second argument of the errorfamily
+// Wrap* constructors). It exists so a convention test can forbid unregistered
+// codes: a typo in a code literal (e.g. "config.run_go.newer_then_binary")
+// silently escapes every template lookup and renders as a raw slog line
+// instead of a user-facing What/Fix message.
+//
+// Codes follow "<domain>[.<subdomain>].<action-or-noun>" in kebab/snake
+// lowercase. Call-site literals are NOT funneled through named constants —
+// the convention test is the enforcement mechanism, not identifier churn.
+//
+//nolint:gochecknoglobals // immutable registration table, written once at init
+var RegisteredCodes = map[string]bool{
+	// analyze
+	"analyze.config":         true,
+	"analyze.config_analyze": true,
+	"analyze.find_config":    true,
+	"analyze.finding_json":   true,
+	"analyze.finding_report": true,
+	"analyze.marshal_json":   true,
+	"analyze.resolve_config": true,
+	"analyze.sarif":          true,
+	// audit
+	"audit.clear_ledger":         true,
+	"audit.ledger_path":          true,
+	"audit.marshal_json":         true,
+	"audit.open_ledger":          true,
+	"audit.parse_since_days":     true,
+	"audit.parse_since_duration": true,
+	"audit.read_ledger":          true,
+	"audit.rewrite_ledger":       true,
+	"audit.scan_ledger":          true,
+	"audit.write_ledger":         true,
+	// client
+	"client.analysis_failed": true,
+	"client.analyze":         true,
+	"client.fix_config":      true,
+	"client.fix_failed":      true,
+	"client.load_config":     true,
+	"client.save_config":     true,
+	// cli
+	"cli.execute":             true,
+	"cli.resolve_config_path": true,
+	// config
+	"config.backup_read":                      true,
+	"config.backup_write":                     true,
+	"config.linters_parse":                    true,
+	"config.linters_run":                      true,
+	"config.load_primary":                     true,
+	"config.run_go.newer_than_binary":         true,
+	"config.save_merged":                      true,
+	"config.unsupported_format":               true,
+	"config.validation.concurrency":           true,
+	"config.validation.issues_exit_code":      true,
+	"config.validation.max_issues_per_linter": true,
+	"config.validation.max_same_issues":       true,
+	"config.validation.version":               true,
+	// configure
+	"configure.backup":               true,
+	"configure.backup_read":          true,
+	"configure.backup_write":         true,
+	"configure.check_file":           true,
+	"configure.create_default":       true,
+	"configure.fixer":                true,
+	"configure.load_preset":          true,
+	"configure.load_preset_config":   true,
+	"configure.parse_priority":       true,
+	"configure.parse_priority_param": true,
+	"configure.prepare_config":       true,
+	"configure.preset":               true,
+	"configure.rescue_run_go":        true,
+	"configure.save_preset":          true,
+	"configure.unknown_preset":       true,
+	// converter
+	"converter.build_report":       true,
+	"converter.error_finding":      true,
+	"converter.formatter_finding":  true,
+	"converter.linter_finding":     true,
+	"converter.sarif":              true,
+	"converter.validation_finding": true,
+	// detector
+	"detector.analyze":            true,
+	"detector.convert_validation": true,
+	"detector.open_file":          true,
+	"detector.open_gomod":         true,
+	"detector.scan_gomod":         true,
+	"detector.scan_swaggo":        true,
+	"detector.walk_dir":           true,
+	"detector.walk_failed":        true,
+	// diff_converter
+	"diff_converter.change":           true,
+	"diff_converter.migration_result": true,
+	// finding
+	"finding.build":   true,
+	"finding.builder": true,
+	// git
+	"git.not_repository": true,
+	"git.not_work_tree":  true,
+	// golangci_lint
+	"golangci_lint.convert_issue": true,
+	"golangci_lint.parse_json":    true,
+	// hook
+	"hook.write": true,
+	// linter
+	"linter.fmt_failed":       true,
+	"linter.priority.invalid": true,
+	"linter.retry":            true,
+	// migrate (the v1→v2 subcommand in internal/cli/cmd)
+	"migrate.create_migrator":    true,
+	"migrate.empty_path":         true,
+	"migrate.find_config":        true,
+	"migrate.load_config":        true,
+	"migrate.load_for_migration": true,
+	"migrate.migrate":            true,
+	"migrate.resolve_config":     true,
+	// migration
+	"migration.encode_yaml":     true,
+	"migration.find_binary":     true,
+	"migration.git_check":       true,
+	"migration.load_config":     true,
+	"migration.parse_yaml":      true,
+	"migration.read_config":     true,
+	"migration.save":            true,
+	"migration.validate":        true,
+	"migration.validate_config": true,
+	"migration.write_config":    true,
+	// policy
+	"policy.parse": true,
+	"policy.read":  true,
+	// presets
+	"presets.marshal_json": true,
+	// report
+	"report.analyze":           true,
+	"report.analyze_config":    true,
+	"report.build_autofixable": true,
+	"report.build_by_category": true,
+	"report.build_by_file":     true,
+	"report.close_output":      true,
+	"report.create_output":     true,
+	"report.finding":           true,
+	"report.finding_json":      true,
+	"report.html":              true,
+	"report.json":              true,
+	"report.json_marshal":      true,
+	"report.json_write":        true,
+	"report.render":            true,
+	"report.resolve_config":    true,
+	"report.sarif":             true,
+	"report.write_file":        true,
+	// retry
+	"retry.exhausted":   true,
+	"retry.interrupted": true,
+	// scanner
+	"scanner.scan": true,
+	// validate
+	"validate.config":              true,
+	"validate.errors_to_findings":  true,
+	"validate.health":              true,
+	"validate.internal":            true,
+	"validate.load_config":         true,
+	"validate.loaded_config":       true,
+	"validate.resolve_config":      true,
+	"validate.sarif":               true,
+	"validate.sarif_format":        true,
+	"validate.sarif_format_health": true,
+	"validate.sarif_health":        true,
+	"validate.sarif_write":         true,
+	"validate.sarif_write_health":  true,
+	"validate.schema_verify":       true,
+	// version
+	"version.command_failed": true,
+	"version.invalid_format": true,
+	"version.parse_json":     true,
+	"version.parse_text":     true,
+	"version.too_old":        true,
+}

@@ -63,3 +63,13 @@ var _ = Describe("run.go newer-than-binary affordance", func() {
 			"the What must cover both overspecification sources")
 	})
 })
+
+var _ = Describe("template ↔ code registry lockstep", func() {
+	It("every template code is present in the RegisteredCodes registry", func() {
+		for code := range domainMessageTemplates {
+			_, registered := RegisteredCodes[code]
+			Expect(registered).To(BeTrue(),
+				"template %q has no RegisteredCodes entry — the convention test cannot protect it", code)
+		}
+	})
+})
