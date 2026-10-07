@@ -135,68 +135,68 @@
 
 ### High Priority (Correctness)
 
-1. **Fix the `Detect` error-path behavior change** — return nil findings on error, matching original contract
-2. Write CLI integration test that exercises `NewRootCommand` + `Execute` with `configure --dry-run`
-3. Run `nix flake check` for full CI pipeline verification
-4. Run `UPDATE_GOLDEN=1 go test ./pkg/report/...` to verify golden snapshot
-5. Verify `vendorHash` in `flake.nix` is current after session changes
+1. **Fix the `Detect` error-path behavior change** — return nil findings on error, matching original contract **→ routed — TODO_LIST Detect() error-contract row**
+2. ~~Write CLI integration test that exercises `NewRootCommand` + `Execute` with `configure --dry-run`~~ done (docs-health pass 2026-10-07)
+3. ~~Run `nix flake check` for full CI pipeline verification~~ done (docs-health pass 2026-10-07)
+4. ~~Run `UPDATE_GOLDEN=1 go test ./pkg/report/...` to verify golden snapshot~~ done (docs-health pass 2026-10-07)
+5. ~~Verify `vendorHash` in `flake.nix` is current after session changes~~ done (docs-health pass 2026-10-07)
 
 ### Medium Priority (Testing)
 
-6. Write Flags struct binding test — verify all 14 flags parse correctly through cobra
-7. Add test for `appendAnalysisFindings` error paths (verify findings is nil/empty on error)
-8. Add test for `resolvePresets` returning `extraFormatters` when swaggo is detected
-9. Add test for `applyPreset` with non-nil `extraFormatters` (verify formatters are applied)
-10. Test `auditDisabled(true)` and `auditDisabled(false)` edge cases (item 11 from prior report)
-11. Run `examples/api-usage/main.go` to verify the public API works after type changes
-12. Add coverage for `internal/cli/cmd/migrate.go` (0% coverage, no test files)
+6. Write Flags struct binding test — verify all 14 flags parse correctly through cobra **→ open — no dedicated Flags-binding test exists**
+7. Add test for `appendAnalysisFindings` error paths (verify findings is nil/empty on error) **→ open — no dedicated error-path test**
+8. Add test for `resolvePresets` returning `extraFormatters` when swaggo is detected **→ open — no explicit swaggo test**
+9. Add test for `applyPreset` with non-nil `extraFormatters` (verify formatters are applied) **→ open — no test located**
+10. ~~Test `auditDisabled(true)` and `auditDisabled(false)` edge cases (item 11 from prior report)~~ done (docs-health pass 2026-10-07)
+11. Run `examples/api-usage/main.go` to verify the public API works after type changes **→ open — compile-only verified via CI; runtime never exercised**
+12. ~~Add coverage for `internal/cli/cmd/migrate.go` (0% coverage, no test files)~~ done (docs-health pass 2026-10-07)
 
 ### Medium Priority (Architecture)
 
-13. Consider a `PresetRequest` struct to bundle `applyPreset`'s 7 parameters
-14. Evaluate whether `appendAnalysisFindings` is the right decomposition or if grouping by category is better
-15. Add `String()` method to `SettingsMap` for debug logging (item 21)
-16. Consider `SettingsMap.HasKey(key string) bool` (item 23)
-17. Consider `SettingsMap.Merge(other SettingsMap) int` to centralize merge logic (item 22)
-18. Evaluate if `types.Config` should embed `SettingsMap` for `Linters.Settings` (item 45)
-19. Review if `resolveConfig` should be narrowed — it takes `*Flags` but only reads 3 fields (item 32)
-20. Check if `mapKeys` can use `types.ToSortedSlice` (item 31)
+13. Consider a `PresetRequest` struct to bundle `applyPreset`'s 7 parameters **→ declined-for-now — 7-param call site is stable**
+14. Evaluate whether `appendAnalysisFindings` is the right decomposition or if grouping by category is better **→ declined-for-now — decomposition is adequate**
+15. Add `String()` method to `SettingsMap` for debug logging (item 21) **→ declined-for-now — SettingsMap helper surface stays minimal; revisit on demand**
+16. Consider `SettingsMap.HasKey(key string) bool` (item 23) **→ declined-for-now — SettingsMap helper surface stays minimal**
+17. Consider `SettingsMap.Merge(other SettingsMap) int` to centralize merge logic (item 22) **→ declined-for-now — SettingsMap helper surface stays minimal**
+18. Evaluate if `types.Config` should embed `SettingsMap` for `Linters.Settings` (item 45) **→ declined-for-now — embedding adds coupling; map wrapper is enough**
+19. Review if `resolveConfig` should be narrowed — it takes `*Flags` but only reads 3 fields (item 32) **→ routed — ROADMAP theme 3 (narrow interfaces)**
+20. Check if `mapKeys` can use `types.ToSortedSlice` (item 31) **→ declined-for-now — cosmetic simplification**
 
 ### Medium Priority (Documentation)
 
-21. Write `ADR-007-SettingsMap-Wrapper.md`
-22. Write `ADR-008-Flags-Struct.md`
-23. Update `CHANGELOG.md` with Phase 4 changes
-24. Update `docs/references/testing-style-and-patterns.md` with how to test commands using `*Flags` (item 18)
-25. Document the settings write-path (`SettingsConverter.ToMap()`) vs read-path (`SettingsMap`) split (item 46)
+21. ~~Write `ADR-007-SettingsMap-Wrapper.md`~~ **Won't implement — ADR number since taken; AGENTS #25 documents the design.**
+22. ~~Write `ADR-008-Flags-Struct.md`~~ **Won't implement — ADR number since taken; AGENTS #24 documents the pattern.**
+23. ~~Update `CHANGELOG.md` with Phase 4 changes~~ **Won't implement — never written; superseded by later release notes.**
+24. Update `docs/references/testing-style-and-patterns.md` with how to test commands using `*Flags` (item 18) **→ open — testing-style doc lacks the Flags pattern**
+25. ~~Document the settings write-path (`SettingsConverter.ToMap()`) vs read-path (`SettingsMap`) split (item 46)~~ done (docs-health pass 2026-10-07)
 
 ### Low Priority (Polish)
 
-26. Normalize multi-arg-per-line parameter packing in `runFixerMode` and `savePresetConfig` back to one-per-line (accept the funlen nolint or find another decomposition)
-27. Audit all `//nolint` directives in files touched this session (item 25)
-28. Check if `cmd_configure_preset.go`'s `applyPresetFormatters` can use `types.NewSet` (item 34)
-29. Check if `resolveAnalyzeConfig` should use `resolveConfigPath` (item 33)
-30. Add `SettingsMap.GetString(key string) (string, bool)` if needed (item 24)
-31. Consider making `Flags` immutable (all fields unexported, accessors only) (item 42)
-32. Consider `CommandContext` struct bundling `*Flags`, `*log.Logger`, `*Analyzer`, `*Loader` (item 41)
-33. Consider `FlagSet` interface for commands needing custom flags (item 43)
-34. Evaluate `SettingsMap` implementing `json.Marshaler`/`Unmarshaler` (item 44)
-35. Consider `LinterSettings` branded type wrapper for settings keys (item 48)
-36. Consider `Version` branded type with `MarshalYAML`/`UnmarshalYAML` (item 49)
-37. Document `TriState` sharing between migration and types packages (item 47)
-38. Plan for removing v1 migration support entirely (item 50)
-39. Run `golangci-lint fmt` to verify formatting consistency (item 40)
-40. Check for remaining `map[string]any` type assertions outside SettingsMap wrapper (item 37)
-41. Verify `go mod tidy` is clean (it is — verified this session)
-42. Consider extracting a `ConfigChange` type for the audit ledger
-43. Review the `Version` var — still a package-level global, intentional but inconsistent with Flags pattern
-44. Evaluate if the migrate command should accept `*Flags` via a shared interface (avoids the sub-package circular dependency differently)
-45. Consider a `PresetResult` struct returned from `applyPreset` for testability
-46. Add benchmark for `SettingsMap.Clone()` with deeply nested maps
-47. Check if `finding/converter.go` changes from the daemon need a deeper review
-48. Consider whether `appendDetectorFindings` should be generic or stay as-is
-49. Review if the 3-funlen-exclusion pattern in `.golangci.yml` (one per file) is sustainable or if the limit should be raised
-50. Evaluate if Phase 4 is complete enough to mark the SUPERB plan as done
+26. ~~Normalize multi-arg-per-line parameter packing in `runFixerMode` and `savePresetConfig` back to one-per-line (accept the funlen nolint or find another decomposition)~~ **Won't implement — funlen house style (200/100) removed the packing pressure.**
+27. ~~Audit all `//nolint` directives in files touched this session (item 25)~~ done (docs-health pass 2026-10-07)
+28. Check if `cmd_configure_preset.go`'s `applyPresetFormatters` can use `types.NewSet` (item 34) **→ open — source signature not re-verified**
+29. Check if `resolveAnalyzeConfig` should use `resolveConfigPath` (item 33) **→ declined-for-now — cosmetic dedup**
+30. Add `SettingsMap.GetString(key string) (string, bool)` if needed (item 24) **→ declined-for-now — SettingsMap helper surface stays minimal**
+31. Consider making `Flags` immutable (all fields unexported, accessors only) (item 42) **→ declined-for-now — exported fields are fine for an internal struct**
+32. Consider `CommandContext` struct bundling `*Flags`, `*log.Logger`, `*Analyzer`, `*Loader` (item 41) **→ declined-for-now — CommandBuilder stays informal**
+33. Consider `FlagSet` interface for commands needing custom flags (item 43) **→ declined-for-now — cobra covers the need; migrate is the documented exception**
+34. Evaluate `SettingsMap` implementing `json.Marshaler`/`Unmarshaler` (item 44) **→ declined-for-now — no JSON use case for SettingsMap today**
+35. Consider `LinterSettings` branded type wrapper for settings keys (item 48) **→ declined-for-now — branded settings-key wrapper not worth the churn**
+36. Consider `Version` branded type with `MarshalYAML`/`UnmarshalYAML` (item 49) **→ declined-for-now — no YAML marshal use case**
+37. ~~Document `TriState` sharing between migration and types packages (item 47)~~ **Won't implement — TriState stays in pkg/migration; v1 non-goal.**
+38. ~~Plan for removing v1 migration support entirely (item 50)~~ **Won't implement — decided — v1 stays functional (ROADMAP non-goals).**
+39. ~~Run `golangci-lint fmt` to verify formatting consistency (item 40)~~ **Won't implement — treefmt owns formatting.**
+40. ~~Check for remaining `map[string]any` type assertions outside SettingsMap wrapper (item 37)~~ done (docs-health pass 2026-10-07)
+41. ~~Verify `go mod tidy` is clean (it is — verified this session)~~ done (docs-health pass 2026-10-07)
+42. ~~Consider extracting a `ConfigChange` type for the audit ledger~~ done (docs-health pass 2026-10-07)
+43. ~~Review the `Version` var — still a package-level global, intentional but inconsistent with Flags pattern~~ done (docs-health pass 2026-10-07)
+44. ~~Evaluate if the migrate command should accept `*Flags` via a shared interface (avoids the sub-package circular dependency differently)~~ done (docs-health pass 2026-10-07)
+45. Consider a `PresetResult` struct returned from `applyPreset` for testability **→ declined-for-now — same as PresetRequest**
+46. Add benchmark for `SettingsMap.Clone()` with deeply nested maps **→ declined-for-now — no benchmark need demonstrated**
+47. ~~Check if `finding/converter.go` changes from the daemon need a deeper review~~ **Won't implement — point-in-time concern; converter is errorfamily-clean now.**
+48. Consider whether `appendDetectorFindings` should be generic or stay as-is **→ declined-for-now — generics add no safety here**
+49. ~~Review if the 3-funlen-exclusion pattern in `.golangci.yml` (one per file) is sustainable or if the limit should be raised~~ done (docs-health pass 2026-10-07)
+50. ~~Evaluate if Phase 4 is complete enough to mark the SUPERB plan as done~~ done (docs-health pass 2026-10-07)
 
 ---
 

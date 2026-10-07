@@ -161,45 +161,45 @@
 
 ### High Priority (Architecture correctness)
 
-1. Pass `*Flags` to `runFixerMode` and `handlePresetMode` instead of unpacking individual fields — eliminates `//nolint:funlen` on `runConfigure`
-2. Remove the `_ bool` unused `noAudit` parameter from `handlePresetMode` — either wire it or remove it
-3. Fix `detectedExtraFormatters` global — return from `resolvePresets` as second return value
-4. Remove unused `GetMap` method from `SettingsMap`
-5. Decide on `MigrateFlags` vs `Flags` — merge or document separation
-6. Verify the actual CLI binary works: `go build && ./bin/golangci-lint-auto-configure configure --dry-run`
+1. ~~Pass `*Flags` to `runFixerMode` and `handlePresetMode` instead of unpacking individual fields — eliminates `//nolint:funlen` on `runConfigure`~~ done (docs-health pass 2026-10-07)
+2. ~~Remove the `_ bool` unused `noAudit` parameter from `handlePresetMode` — either wire it or remove it~~ done (docs-health pass 2026-10-07)
+3. ~~Fix `detectedExtraFormatters` global — return from `resolvePresets` as second return value~~ done (docs-health pass 2026-10-07)
+4. ~~Remove unused `GetMap` method from `SettingsMap`~~ done (docs-health pass 2026-10-07)
+5. ~~Decide on `MigrateFlags` vs `Flags` — merge or document separation~~ done (docs-health pass 2026-10-07)
+6. ~~Verify the actual CLI binary works: `go build && ./bin/golangci-lint-auto-configure configure --dry-run`~~ done (docs-health pass 2026-10-07)
 
 ### Medium Priority (Testing)
 
-7. Write BDD specs for `SettingsMap` (`pkg/types/settings_map_test.go`) — `AsSettingsMap`, `IsEmpty`, `GetMap`, `Clone`
-8. Write a CLI integration test that exercises `NewRootCommand` + `Execute` with actual args (not just calling internal functions)
-9. Run `go run ./cmd/coverage-check -min=60` to verify coverage didn't drop
+7. ~~Write BDD specs for `SettingsMap` (`pkg/types/settings_map_test.go`) — `AsSettingsMap`, `IsEmpty`, `GetMap`, `Clone`~~ done (docs-health pass 2026-10-07)
+8. ~~Write a CLI integration test that exercises `NewRootCommand` + `Execute` with actual args (not just calling internal functions)~~ done (docs-health pass 2026-10-07)
+9. ~~Run `go run ./cmd/coverage-check -min=60` to verify coverage didn't drop~~ done (docs-health pass 2026-10-07)
 10. Add a test for `Flags` struct binding — verify all 14 flags parse correctly
-11. Add test for `auditDisabled(true)` and `auditDisabled(false)` edge cases (currently only 3 cases tested)
-12. Test the `pkg/client` public API end-to-end with a real config file after branded-type migration
+11. ~~Add test for `auditDisabled(true)` and `auditDisabled(false)` edge cases (currently only 3 cases tested)~~ done (docs-health pass 2026-10-07)
+12. ~~Test the `pkg/client` public API end-to-end with a real config file after branded-type migration~~ done (docs-health pass 2026-10-07)
 
 ### Medium Priority (Documentation)
 
-13. Update `AGENTS.md` with: Flags struct pattern, SettingsMap wrapper, ADR-006 decision
-14. Update `docs/references/working-with-codebase.md` — remove old global var references, add Flags pattern
-15. Update `FEATURES.md` if the Flags refactor changed any user-visible behavior
-16. Add `ADR-007-SettingsMap-Wrapper.md` documenting the SettingsMap design decision
-17. Add `ADR-008-Flags-Struct.md` documenting the Flags pattern and why globals were removed
+13. ~~Update `AGENTS.md` with: Flags struct pattern, SettingsMap wrapper, ADR-006 decision~~ done (docs-health pass 2026-10-07)
+14. ~~Update `docs/references/working-with-codebase.md` — remove old global var references, add Flags pattern~~ done (docs-health pass 2026-10-07)
+15. ~~Update `FEATURES.md` if the Flags refactor changed any user-visible behavior~~ **Won't implement — internal refactor; FEATURES is feature-level.**
+16. ~~Add `ADR-007-SettingsMap-Wrapper.md` documenting the SettingsMap design decision~~ **Won't implement — ADR number since taken; AGENTS #25 documents the design.**
+17. ~~Add `ADR-008-Flags-Struct.md` documenting the Flags pattern and why globals were removed~~ **Won't implement — ADR number since taken; AGENTS #24 documents the pattern.**
 18. Update `docs/references/testing-style-and-patterns.md` with how to test commands that use `*Flags`
 
 ### Low Priority (Polish)
 
-19. Rename `MigrateFlags` fields to match `Flags` naming if they're merged
+19. ~~Rename `MigrateFlags` fields to match `Flags` naming if they're merged~~ **Won't implement — MigrateFlags deleted entirely.**
 20. Consider moving `Version` var into the `Flags` struct or a `BuildInfo` struct
 21. Add `String()` method to `SettingsMap` for debug logging
 22. Consider `SettingsMap.Merge(other SettingsMap) int` to centralize the merge logic from `merger_helpers.go`
 23. Consider `SettingsMap.HasKey(key string) bool` to replace raw map lookups
 24. Add `SettingsMap.GetString(key string) (string, bool)` if string type assertions appear in migration code
-25. Audit all `//nolint` directives in files touched this session — verify each is still justified
+25. ~~Audit all `//nolint` directives in files touched this session — verify each is still justified~~ done (docs-health pass 2026-10-07)
 26. Check if `examples/api-usage/main.go` compiles and works after all the type changes
-27. Run `nix flake check` for the full CI pipeline verification
-28. Verify `vendorHash` in `flake.nix` is up to date after any go.mod changes
-29. Update `CHANGELOG.md` with the Phase 4 changes
-30. Review if `pkg/client/client_test.go` needs updating for branded types (it may still use `[]string` in test data)
+27. ~~Run `nix flake check` for the full CI pipeline verification~~ done (docs-health pass 2026-10-07)
+28. ~~Verify `vendorHash` in `flake.nix` is up to date after any go.mod changes~~ done (docs-health pass 2026-10-07)
+29. ~~Update `CHANGELOG.md` with the Phase 4 changes~~ **Won't implement — never written; superseded by later release notes.**
+30. ~~Review if `pkg/client/client_test.go` needs updating for branded types (it may still use `[]string` in test data)~~ done (docs-health pass 2026-10-07)
 
 ### Cleanup
 
@@ -207,12 +207,12 @@
 32. Audit `resolveConfig` — it now takes `*Flags` but only reads 2 fields (`ConfigPath`, `DryRun`, `NoAutoMerge`). Consider narrowing the interface.
 33. Check if `resolveAnalyzeConfig` should use `resolveConfigPath` instead of duplicating the config-path-resolution logic
 34. Review if `cmd_configure_preset.go`'s `applyPresetFormatters` can use `types.NewSet` instead of manual `map[string]struct{}` + `mapKeys`
-35. Verify the golden snapshot test for HTML reports still passes (`UPDATE_GOLDEN=1 go test ./pkg/report/...`)
-36. Check if any `.golangci.yml` lint rule changes are needed for the new `Flags` struct pattern
-37. Audit for any remaining `map[string]any` type assertions outside the SettingsMap wrapper
-38. Check if `finding/converter.go` (touched by auto-commit daemon) is related to this session's work or unrelated
-39. Verify `go mod tidy` is clean
-40. Run `golangci-lint fmt` to verify formatting is consistent
+35. ~~Verify the golden snapshot test for HTML reports still passes (`UPDATE_GOLDEN=1 go test ./pkg/report/...`)~~ done (docs-health pass 2026-10-07)
+36. ~~Check if any `.golangci.yml` lint rule changes are needed for the new `Flags` struct pattern~~ done (docs-health pass 2026-10-07)
+37. ~~Audit for any remaining `map[string]any` type assertions outside the SettingsMap wrapper~~ done (docs-health pass 2026-10-07)
+38. ~~Check if `finding/converter.go` (touched by auto-commit daemon) is related to this session's work or unrelated~~ **Won't implement — point-in-time concern; converter is errorfamily-clean now.**
+39. ~~Verify `go mod tidy` is clean~~ done (docs-health pass 2026-10-07)
+40. ~~Run `golangci-lint fmt` to verify formatting is consistent~~ **Won't implement — treefmt owns formatting.**
 
 ### Future Architecture
 
@@ -221,11 +221,11 @@
 43. Consider a `FlagSet` interface for commands that need custom flags (like migrate's `--skip-validation`)
 44. Evaluate if `SettingsMap` should implement `json.Marshaler`/`json.Unmarshaler` for the JSON config format
 45. Consider if `types.Config` should embed `SettingsMap` for `Linters.Settings` and `Formatters.Settings` instead of raw `map[string]any`
-46. Document the settings write-path (`SettingsConverter.ToMap()`) vs read-path (`SettingsMap`) split in an ADR
-47. Evaluate if the migration package's `TriState` type should be shared with `types` package
+46. ~~Document the settings write-path (`SettingsConverter.ToMap()`) vs read-path (`SettingsMap`) split in an ADR~~ done (docs-health pass 2026-10-07)
+47. ~~Evaluate if the migration package's `TriState` type should be shared with `types` package~~ **Won't implement — TriState stays in pkg/migration; v1 is a non-goal.**
 48. Consider a unified `LinterSettings` branded type wrapper (like `LinterName`) for settings keys
 49. Review if `Version` branded type needs `MarshalYAML`/`UnmarshalYAML` for explicit v1/v2 version validation
-50. Plan for removing v1 migration support entirely (flag with deprecation timeline) — this would allow deleting the entire `migration` package
+50. ~~Plan for removing v1 migration support entirely (flag with deprecation timeline) — this would allow deleting the entire `migration` package~~ **Won't implement — decided — v1 stays functional, bug-fixes only (ROADMAP non-goals).**
 
 ---
 

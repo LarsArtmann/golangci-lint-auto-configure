@@ -138,80 +138,80 @@ The validation script prints "All 1 never-auto-enable linters" — grammatically
 
 ### Immediate follow-ups (this session's unfinished work)
 
-1. **Fix `fixer_enforce_test.go:72-74` test names** — change "tool-level disabled" → "tool-level managed (forcibly disabled)" for the 3 DisabledLinters entries
-2. **Fix pluralization in `validate_linter_data.go`** — "1 linter" vs "N linters" for all 8 checks (or at least checks 7 & 8)
-3. **Add sidecar enforcement integration test** — sidecar present + exhaustruct in disable list → fixer must NOT re-enable it (exempt via `isToolLevelManaged`). This is the highest-value missing test.
+1. ~~**Fix `fixer_enforce_test.go:72-74` test names** — change "tool-level disabled" → "tool-level managed (forcibly disabled)" for the 3 DisabledLinters entries~~ done (docs-health pass 2026-10-07)
+2. ~~**Fix pluralization in `validate_linter_data.go`** — "1 linter" vs "N linters" for all 8 checks (or at least checks 7 & 8)~~ done (docs-health pass 2026-10-07)
+3. ~~**Add sidecar enforcement integration test** — sidecar present + exhaustruct in disable list → fixer must NOT re-enable it (exempt via `isToolLevelManaged`). This is the highest-value missing test.~~ done (docs-health pass 2026-10-07)
 4. **Verify HTML report golden test** — confirm exhaustruct doesn't appear as a "recommended linter" in `pkg/report/testdata/golden/report.html`. If it does, regenerate with `UPDATE_GOLDEN=1`.
 
 ### Short-term improvements (from prior report, still open)
 
-5. **Consider whether `gochecknoglobals` (friction 5.1) should move to NeverAutoEnable** — second-highest friction linter, no config knobs in v2. Currently PragmaticNoise.
-6. **Consider whether `ireturn` should be NeverAutoEnable** — friction 1.3, heavy nolint volume.
+5. ~~**Consider whether `gochecknoglobals` (friction 5.1) should move to NeverAutoEnable** — second-highest friction linter, no config knobs in v2. Currently PragmaticNoise.~~ done (docs-health pass 2026-10-07)
+6. ~~**Consider whether `ireturn` should be NeverAutoEnable** — friction 1.3, heavy nolint volume.~~ done (docs-health pass 2026-10-07)
 7. **Audit `docs/research/` and `docs/planning/` for stale "5 noise linters" references** — annotate as historical or update.
 8. **Check `pkg/report/report.templ`** — verify the HTML report doesn't list exhaustruct in any "recommended" or "should enable" section.
-9. **Add `NeverAutoEnableLinters` to the `presets` command output** — so users can see which linters are excluded from auto-enable.
-10. **Consider a `--list-never-auto-enable` CLI flag** — transparency for users.
+9. **Add `NeverAutoEnableLinters` to the `presets` command output** — so users can see which linters are excluded from auto-enable. **→ declined-for-now — presets output stays minimal**
+10. **Consider a `--list-never-auto-enable` CLI flag** — transparency for users. **→ declined-for-now — transparency flag not worth the surface**
 
 ### Test debt
 
-11. **Add a test verifying `injectDefaultSettings` still fires for manually-enabled exhaustruct** — the round-trip test checks the output contains `exhaustruct:` settings, but a focused unit test on `injectDefaultSettings` with exhaustruct in the enable list would be more precise.
-12. **Add coverage analysis on `isNeverAutoEnable`** — verify the categorizer method is covered (the categorizer_test specs should cover it, but verify with `-cover`).
+11. ~~**Add a test verifying `injectDefaultSettings` still fires for manually-enabled exhaustruct** — the round-trip test checks the output contains `exhaustruct:` settings, but a focused unit test on `injectDefaultSettings` with exhaustruct in the enable list would be more precise.~~ done (docs-health pass 2026-10-07)
+12. ~~**Add coverage analysis on `isNeverAutoEnable`** — verify the categorizer method is covered (the categorizer_test specs should cover it, but verify with `-cover`).~~ done (docs-health pass 2026-10-07)
 13. **Add a test for the `analyze` command output** — when analyzing a config with exhaustruct disabled, it should NOT recommend enabling it.
-14. **Golden snapshot for CLI output** — the `configure` command output should not mention exhaustruct as a recommendation.
+14. ~~**Golden snapshot for CLI output** — the `configure` command output should not mention exhaustruct as a recommendation.~~ done (docs-health pass 2026-10-07)
 
 ### Architecture
 
-15. **Unify the three tier maps into a typed enum** — `map[LinterName]LinterManagementTier` where tier is `Disabled | NeverAutoEnable | PragmaticNoise | Default`. Eliminates the "check 3 maps" pattern in categorizer + fixer_enforce.
-16. **Extract shared `ValidateTiers()` function** — single source of truth for tier constraints, called by both Ginkgo tests and the standalone script.
-17. **Consider whether the `migrate` command should handle exhaustruct** — when migrating v1→v2, if exhaustruct is enabled in v1, should it be preserved? Currently yes (migrate doesn't use categorizer skip logic). Verify this is intentional.
+15. **Unify the three tier maps into a typed enum** — `map[LinterName]LinterManagementTier` where tier is `Disabled | NeverAutoEnable | PragmaticNoise | Default`. Eliminates the "check 3 maps" pattern in categorizer + fixer_enforce. **→ declined-for-now — three maps documented; enum not worth the churn**
+16. ~~**Extract shared `ValidateTiers()` function** — single source of truth for tier constraints, called by both Ginkgo tests and the standalone script.~~ **Won't implement — resolved YAGNI in-file — duplication kept, Ginkgo specs are the gate.**
+17. ~~**Consider whether the `migrate` command should handle exhaustruct** — when migrating v1→v2, if exhaustruct is enabled in v1, should it be preserved? Currently yes (migrate doesn't use categorizer skip logic). Verify this is intentional.~~ done (docs-health pass 2026-10-07)
 18. **Review interaction with `--check` mode** — configs with exhaustruct disabled won't trigger a "you should enable exhaustruct" diff. Verify.
 
 ### Documentation debt
 
 19. **Update `docs/references/working-with-codebase.md`** — "Adding commands/linters" section should document the three-tier system.
-20. **Annotate `docs/reviews/2026-07-10_deep-architecture-data-model-review.md:431`** — still says "62 linters" for the reference preset.
+20. ~~**Annotate `docs/reviews/2026-07-10_deep-architecture-data-model-review.md:431`** — still says "62 linters" for the reference preset.~~ done (docs-health pass 2026-10-07)
 21. **Annotate `docs/cross-project-golangci-lint-audit-report.md:111`** — still says "62 linters enabled".
 22. **Update `docs/research/validation-delta.md`** — its "Resolution" section says `--pragmatic` is the mechanism for exhaustruct friction; now outdated.
-23. **Review all `docs/status/` reports** that reference "exhaustruct enabled by default" — annotate as historical.
+23. ~~**Review all `docs/status/` reports** that reference "exhaustruct enabled by default" — annotate as historical.~~ done (docs-health pass 2026-10-07)
 
 ### CI/CD and release
 
-24. **Cut a release** — significant unreleased changes since v0.5.0.
-25. **Verify CI pipeline** — confirm new tests pass in CI with `GOEXPERIMENT: jsonv2`.
-26. **Verify coverage gate** — `cmd/coverage-check` enforces ≥60%.
+24. ~~**Cut a release** — significant unreleased changes since v0.5.0.~~ done (docs-health pass 2026-10-07)
+25. ~~**Verify CI pipeline** — confirm new tests pass in CI with `GOEXPERIMENT: jsonv2`.~~ done (docs-health pass 2026-10-07)
+26. ~~**Verify coverage gate** — `cmd/coverage-check` enforces ≥60%.~~ done (docs-health pass 2026-10-07)
 
 ### Research
 
-27. **Re-run the friction baseline measurement** — validate the impact of exhaustruct now being never-auto-enabled.
-28. **Survey sibling projects** — how many currently have exhaustruct in their enable list (auto-configured by this tool)?
-29. **Evaluate if the `ExhaustructSettings` (14 stdlib excludes) are still worth maintaining** — fewer projects will use exhaustruct now.
-30. **Consider `wrapcheck` as NeverAutoEnable candidate** — friction 1.8 but heavy nolint volume.
-31. **Document the decision rationale** — why NeverAutoEnable instead of just removing from presets + priorities? (Answer: preserves the "respect manual additions" requirement.)
+27. ~~**Re-run the friction baseline measurement** — validate the impact of exhaustruct now being never-auto-enabled.~~ done (docs-health pass 2026-10-07)
+28. ~~**Survey sibling projects** — how many currently have exhaustruct in their enable list (auto-configured by this tool)?~~ done (docs-health pass 2026-10-07)
+29. ~~**Evaluate if the `ExhaustructSettings` (14 stdlib excludes) are still worth maintaining** — fewer projects will use exhaustruct now.~~ done (docs-health pass 2026-10-07)
+30. ~~**Consider `wrapcheck` as NeverAutoEnable candidate** — friction 1.8 but heavy nolint volume.~~ done (docs-health pass 2026-10-07)
+31. ~~**Document the decision rationale** — why NeverAutoEnable instead of just removing from presets + priorities? (Answer: preserves the "respect manual additions" requirement.)~~ done (docs-health pass 2026-10-07)
 
 ### Polish
 
-32. **Standardize all "tool-level" language across the codebase** — grep for "tool-level disabled" and "tool-level managed" and make consistent.
-33. **Add `NeverAutoEnableLinters` to the `analyze --json` output** — so programmatic consumers can detect tool-managed linters.
-34. **Consider a `--force-enable exhaustruct` flag** — for users who want the old behavior.
+32. ~~**Standardize all "tool-level" language across the codebase** — grep for "tool-level disabled" and "tool-level managed" and make consistent.~~ done (docs-health pass 2026-10-07)
+33. **Add `NeverAutoEnableLinters` to the `analyze --json` output** — so programmatic consumers can detect tool-managed linters. **→ declined-for-now — analyze output stays minimal**
+34. **Consider a `--force-enable exhaustruct` flag** — for users who want the old behavior. **→ declined-for-now — YAGNI; never-enable section covers the need**
 35. **Review `pkg/finding/categories.go:66`** — exhaustruct is mapped to `CategoryTypeSafety`; verify this is still correct.
-36. **Consider migration path for existing configs** — configs auto-generated with exhaustruct enabled are now "stranded" (enabled but never recommended); should the tool warn?
+36. ~~**Consider migration path for existing configs** — configs auto-generated with exhaustruct enabled are now "stranded" (enabled but never recommended); should the tool warn?~~ done (docs-health pass 2026-10-07)
 
 ### Cleanup
 
-37. **Remove any remaining hardcoded exhaustruct expectations in tests** — verify no other test hardcodes the old reference preset list.
+37. ~~**Remove any remaining hardcoded exhaustruct expectations in tests** — verify no other test hardcodes the old reference preset list.~~ done (docs-health pass 2026-10-07)
 38. **Review `internal/cli/cmd_configure_test.go`** — any tests that assert exhaustruct appears in configure output.
 39. **Review `internal/cli/integration_test.go`** — any integration tests where exhaustruct appears in output.
-40. **Add singular/plural helper to validation script** — `func plural(n int, word string) string`.
+40. ~~**Add singular/plural helper to validation script** — `func plural(n int, word string) string`.~~ done (docs-health pass 2026-10-07)
 41. **Consider whether `recvcheck` (friction ~2.5) should join NeverAutoEnable** — another high-friction linter from the baseline data.
-42. **Verify `pkg/config/settings_validator.go:30`** — it validates linter settings keys against `LinterPriorities`; exhaustruct is still in Priorities (Medium), so this works, but verify.
+42. ~~**Verify `pkg/config/settings_validator.go:30`** — it validates linter settings keys against `LinterPriorities`; exhaustruct is still in Priorities (Medium), so this works, but verify.~~ done (docs-health pass 2026-10-07)
 43. **Review `fixer_audit.go:56`** — looks up `DisabledLinters[linter]` for the audit reason; NeverAutoEnable linters won't have a reason there. Verify audit output is sensible.
 44. **Consider whether `--recommend` flow is affected** — currently applies presets, which don't include exhaustruct, but verify.
 45. **Update `--help` output for `configure`** — mention that exhaustruct is never auto-enabled but supported when manual.
-46. **Review `gosec` friction** — gosec has 590 nolints (friction ~3.7); evaluate if it should get similar treatment.
-47. **Add a test verifying `updateConfigFromSets` does NOT move exhaustruct to disable list** — the round-trip test covers this indirectly, but a focused unit test on the function itself would be more precise.
+46. ~~**Review `gosec` friction** — gosec has 590 nolints (friction ~3.7); evaluate if it should get similar treatment.~~ done (docs-health pass 2026-10-07)
+47. ~~**Add a test verifying `updateConfigFromSets` does NOT move exhaustruct to disable list** — the round-trip test covers this indirectly, but a focused unit test on the function itself would be more precise.~~ done (docs-health pass 2026-10-07)
 48. **Consider whether other linters from the baseline data should join NeverAutoEnable** — data-driven decision.
-49. **Review the `presets.go` `reference` preset** — verify no other High-priority linters should be reconsidered.
-50. **Consider whether the three-tier model should be documented in README.md** — currently only in AGENTS.md and DOMAIN_LANGUAGE.md.
+49. ~~**Review the `presets.go` `reference` preset** — verify no other High-priority linters should be reconsidered.~~ done (docs-health pass 2026-10-07)
+50. **Consider whether the three-tier model should be documented in README.md** — currently only in AGENTS.md and DOMAIN_LANGUAGE.md. **→ declined-for-now — README stays user-level; tiers live in constants + DOMAIN_LANGUAGE**
 
 ---
 
