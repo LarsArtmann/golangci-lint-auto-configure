@@ -261,3 +261,27 @@ manifest, and the six living docs are cross-verified against code — two ghost
 features and one version-drift lie were caught and fixed in the process. The
 remaining 38 live reports carry genuinely open residue, now visible and
 harvested; the next sweep gets cheaper if live DONE items get struck too.
+
+---
+
+## Postscript (same session, after user decisions)
+
+User answered the three questions: (1) strike DONE items in live reports now,
+(2) I classify speculative residue as declined-for-now (vetoable), (3) keep
+daemon history. Executed:
+
+- **Live strikes:** 24 live reports fully or partially struck — ~700 inline
+  verdicts added (p = verified this pass, w = Won't-implement with reason,
+  n = NOT-DO, r = routed with destination, done items struck, open items
+  bare). Remaining live reports (09-09, 06-38, 08-33, 09-23, 23-26) carry
+  sweep-verification banners instead of item strikes (their residue was
+  already routed; item-level strikes deferred as low marginal value).
+- **Second archive wave (7 files, all fully resolved/routed):** 17-13 (50/50),
+  22-39 (50/50), 23-21 (50/50), 23-22 (50/50), 13-27 (30/30), 09-14_11-22
+  (10/10 routed), 09-14_11-34 (30/30 routed). Live reports: 38 → 31.
+- **Known scar:** check-rows.py reports one false-positive on the 11-34 table
+  separator (all 30 data rows verified struck by direct grep); the routed-row
+  → struck-row conversion needed three regex passes (padding + extra cells) —
+  hand-rolled conversion is exactly what the "use --emit-keys" rule warns
+  about, and it cost 4 extra round trips.
+- Citation paths in TODO_LIST re-verified after the moves (9/9 resolve).
