@@ -31,6 +31,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     golangci-lint binary was built with now triggers a warning (all modes).
     `go.mod` is the project's declared language version and is never
     rewritten — the fix is upgrading golangci-lint.
+  - The classified run.go error now leads its Fix with the concrete repair
+    command (`configure --config <path>`), rendered by every command surface
+    (analyze, report, validate); `analyze --verbose` prints a Go-versions
+    doctor line (local toolchain vs golangci-lint build Go).
 
 ### Changed
 

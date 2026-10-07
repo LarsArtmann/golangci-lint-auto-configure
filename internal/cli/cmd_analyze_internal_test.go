@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -35,24 +36,10 @@ func TestDoctorLine(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			got := doctorLine(test.localGo, test.golangciGo)
 			for _, want := range test.wantSubstring {
-				if !contains(got, want) {
+				if !strings.Contains(got, want) {
 					t.Fatalf("doctorLine(%q, %q) = %q, want substring %q", test.localGo, test.golangciGo, got, want)
 				}
 			}
 		})
 	}
-}
-
-func contains(haystack, needle string) bool {
-	return len(needle) == 0 || (len(haystack) >= len(needle) && indexOf(haystack, needle) >= 0)
-}
-
-func indexOf(haystack, needle string) int {
-	for i := 0; i+len(needle) <= len(haystack); i++ {
-		if haystack[i:i+len(needle)] == needle {
-			return i
-		}
-	}
-
-	return -1
 }
