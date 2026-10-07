@@ -136,3 +136,4 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 | 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`           | Living-docs overhaul + 28-file archive sweep                                        |
 | 2026-09-11 | `23-26_pareto-execution-t11-t25-thirteen-tasks-and-honest-scars` | T11–T25: GHCR backfill, rulesets, gitleaks, ADR consolidation, README audit |
 | 2026-09-28 | `21-59_go-1.27-readiness-shipped-and-reviewed`             | Go 1.27 readiness: `run.go` major.minor + cap + rescue; live frontier               |
+| 2026-10-07 | `02-57_docs-health-third-sweep-full-audit`                 | Third docs-health sweep: 15 files archived, living docs rehabilitated               |

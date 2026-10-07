@@ -82,7 +82,7 @@ question routed). The plan file is annotated per guardrail 7.
 
 ## c) NOT STARTED (all answer-gated, do not start without the user)
 
-1. v0.8.2 cut now vs batching into v0.9.0 (open question 2).
+1. ~~v0.8.2 cut now vs batching into v0.9.0 (open question 2).~~ shipped — v0.8.2 (2026-09-22) and v0.10.0 (2026-09-23) released
 2. Buildflow findings-gate posture: skip erraudit/branching-flow vs fix the
    44 vs leave documented-red (open question 3).
 3. Cross-repo commit/push authorization for the 8 sibling repairs.
