@@ -1,0 +1,151 @@
+# Status: SUPERB Pareto Execution — 13 of 34 Macros Done, Release Staged, CI-Blind Window Open
+
+**Created:** 2026-10-07 04:27 CEST
+**Session scope:** Executing `docs/planning/2026-10-07_03-26_SUPERB-pareto-execution-plan-v2.md` (M1–M34) in one autonomous run.
+**State at write time:** working tree clean (daemon), **6 commits unpushed**, last CI run 02:10 (predates ALL of this session's work), full suite + lint + pre-release battery green locally, release v0.11.0 staged but **NOT tagged**.
+
+---
+
+## 0. Executive Summary
+
+13 macro tasks done or resolved, 1 staged to the gate (M1-prep: everything short of `git tag`), 15 not started, 4 held at their user gates (M7/M13/M14/M15 — with M31 memos not yet written to unlock them). The session's highest-value moment: **the e2e pin matrix earned its keep on its very first local run** — it proved the tool's declared minimum golangci-lint (v2.10.1) was a lie (injected `goconst.ignore-tests` breaks v2.10.x/v2.11.x configs at load time), which forced an honest minimum bump to v2.12.0. The release v0.11.0 now carries a real, matrix-proven compatibility contract.
+
+The session's biggest honest scar: **everything is only locally verified.** Six commits sit unpushed; the dogfood gate, pin matrix, gitleaks workflow, and release-dry-run workflow have never executed in real CI. Guardrail 3 ("runs locally OR on a draft PR") is technically satisfied; the plan's own micro-gates that say "observe CI green" (4.5, 8.3) are not.
+
+---
+
+## a) FULLY DONE (verified with gates)
+
+| Task | What landed | Verification |
+| ---- | ----------- | ------------ |
+| **M3 Schema provenance** | Committed snapshot replaced with live v2.14.0 schema (captured from `jsonschema/golangci.jsonschema.json` at upstream tag v2.14.0 — per-version files there stop at v2.12); reference file regenerated with `-schema-version=v2.14.0` provenance header; CI drift-guard command updated with the same flag; AGENTS gotcha 6 rewritten (stale "UNDATED ≈v2.13.0" claim gone) | Byte-identical CI regen simulation ✓; `golangci-lint config verify` on fixture exit 0 ✓; `go test ./pkg/constants/...` green ✓; drift documented (+canonicalheader, +exhaustruct_v5, +6 keys, none affect curated defaults) |
+| **M4 e2e pin matrix** | `scripts/e2e-pin-matrix.sh` (A0 below-min refusal contract; A1–A5 full contract: cap path, pinned `config verify`, check-mode idempotence, classified rescue refusal); CI matrix job `e2e-pin-matrix` (v2.10.1/v2.12.0/v2.13.2/v2.14.0, `fail-fast: false`); **MinGolangCILintVersion bumped v2.10.1 → v2.12.0** (goconst `ignore-tests` only exists since v2.12.0); generator `-min-tool-version` default synced; README/pkg/README/ROADMAP/working-with-codebase min-version references updated; CHANGELOG entry; AGENTS gotcha 28 records the coupling rule | **All 4 cells green locally** (v2.10.1 → classified `version.too_old` refusal; v2.12.0 incl. A5 rescue-refusal; v2.13.2; v2.14.0); empirically proved the below-min refusal end-to-end with the real v2.10.1 binary (exit 1, JSON error, run.go still rescued 1.27.1→1.26 pre-refusal); YAML valid; version_checker specs made rot-loud with `semver.Compare` guards against the constants |
+| **M5 README go-version section** | "Go version handling (`run.go`)" section after Requirements: patch-free form, cap at binary Go, rescue + `rescued-run-go` audit, classified `--check` error with the **actual template text** (cross-checked `pkg/errors/templates.go`, not invented), min-version coupling, matrix pointer | markdownlint clean ✓ |
+| **M6 erraudit quarterly** | Full review, plain run 42 findings / type-aware+enforce run 81 (vs 218 at 2026-07-30 — erraudit's own context_loss noise shrank); **zero new real bugs**; 36/36 stdlib_constructor accounted (25 sentinel definitions + 4 coverage-check sentinels + 6 coverage-check fmt.Errorf + 1 errors.Join); 16 ignored = documented idiomatic set (spot-verified 3 sites); 29 context_loss = noise (sampled 3) | AGENTS #26 quarterly addendum; TODO_LIST next-due ~2027-01; committed `100fa0d` |
+| **M8 dogfood gate** | ci.yml lint job step: `go run ./cmd/golangci-lint-auto-configure configure --config .golangci.yml --check`; README CI table mentions it. **This gate immediately caught a real split-brain** (see M11) | Local dogfood `--check` exit 0 ✓ (after the M11 root-cause fix) |
+| **M9 gitleaks** | `.github/workflows/gitleaks.yml`: weekly cron (Thu 04:17 UTC, off-phase from Monday watchdog), SHA-pinned `gitleaks-action@e0c47f4…` (v3.0.0), full-history checkout, `contents: read` only | YAML valid ✓; **local full-history scan: 1243 commits, 0 leaks** ✓ |
+| **M10 coverage 60→65** | `-min=65` in ci.yml, pre-release-check.sh, README (×2 incl. table), AGENTS gotcha 22 | Suite total 72.5% (7.5pt headroom); weakest package internal/cli 49.4% noted as total-gated, not blocking; TODO row closed |
+| **M11 jsonv2 cleanup — root cause fixed, not just the symptom** | Removing `goexperiment.jsonv2` from `.golangci.yml` was not enough: the dogfood check exposed that `updateBuildTags` **re-injects** it on every run. Fixed at the root: `GraduatedIn` field on `types.GoExperiment`, `GoExperimentTagsFor(localGo)` filter (graduated experiments skipped on ≥ graduation toolchain; Go 1.26 users keep the tag; empty/unparsable local version preserves inject-all), `updateBuildTags(ctx, …)` threads context (contextcheck-clean), `.golangci.yml` tag removed; AGENTS gotcha 13 updated (env removal stays user-gated); CHANGELOG behavior-change entry; 5 new BDD specs | Own lint **0 issues** ✓; constants + linter suites green ✓; dogfood exit 0 ✓ |
+| **M12 Dockerfile** | Runtime base `v2.13.2-alpine` → `v2.14.0-alpine` (verified the tag is pullable on Docker Hub first); dead commented slim-variant block deleted (plan's own recommendation: no consumer ask); CHANGELOG updated | `docker build` completed in background (job 0FE, no failure surfaced) |
+| **M16 release dry-run** | `.github/workflows/release-dry-run.yml`: PR-path-filtered (`.goreleaser.yaml`, go.mod/sum, Dockerfile, cmd/pkg, self) + dispatch; `goreleaser release --snapshot --clean --skip=sign,sbom,docker`; artifact-exists assertion; `contents: read` permission = structurally cannot publish (double-lock with snapshot mode) | `goreleaser check` ✓; **local snapshot build succeeded** (job 11D, "release succeeded after 5s", nothing published) ✓; YAML valid ✓ |
+| **M17 nix flake check** | Root-caused as **unreproducible on nix 2.34.8**: check enumerates + passes all 5 x86_64-linux derivations (build/format/race/treefmt/vendor-hash) + packages + apps; eval shows 3 systems × 5 checks; historical 2-vs-0 flapping attributed to stale eval on older nix or mid-session flake.lock mutation by the buildflow nix-checker | Full `nix flake check` output captured; TODO row closed with resolution + re-open condition |
+| **M19 metadata script** | `scripts/metadata-check.sh`: 7 checks in one pass (description/homepage/topics/6 workflows/latest-release asset completeness/README URL liveness/rulesets) with `--fix` stub; found and fixed two of its own false positives (goreleaser names archives `x86_64` not `amd64`; OIDC-issuer 404 and `[.]`-escaped badge template excluded) | **20 pass / 2 fail — both expected**: homepage null (user-gated posture, ROADMAP open question) and `release-dry-run.yml` 404 (not pushed yet) |
+| **M1-prep (release staging, NO TAG)** | `pre-release-check.sh` green **9/9 real gates** (build, tests -race, lint, jsondeterminism, coverage, goreleaser check, CHANGELOG entry, FEATURES match; the 1 reported "failure" is the expected chicken-egg "tag v0.10.0 already exists" that dissolves on the version bump); CHANGELOG `[Unreleased]` → `## [0.11.0] - 2026-10-07`; FEATURES version → v0.11.0; claims cross-checked (atomic writes dep in go.mod, jsondeterminism gate ran green, run.go behavior matrix-proven) | **No tag pushed. No release. User gate respected** (guardrail 2) |
+
+## b) PARTIALLY DONE
+
+| Task | Done | Missing |
+| ---- | ---- | ------- |
+| **M4.5/8.3 CI observation** | Everything implemented and locally green | **CI has never seen it** — 6 unpushed commits; the matrix, dogfood gate, gitleaks, and release-dry-run have zero real CI executions. The metadata audit's `release-dry-run.yml` 404 proves it |
+| **M11.2** | Root-cause fixer graduation shipped; `.golangci.yml` tag removed | flake.nix devShell + ci.yml `GOEXPERIMENT=jsonv2` env removal is USER-GATED (per plan); AGENTS gotcha 13 updated to say so |
+| **M2** | N/A yet | Post-release verification battery — blocked behind M1 tag (user gate), correctly not started |
+| **M7 fleet sweep (gated)** | Nothing staged | No sibling-repo list built, no scratch-clone script run. Guardrail 1 (per-repo diff check) not even rehearsed |
+| **M13 Dependabot policy (gated)** | Nothing | Memo 13.1 not written |
+| **M14 GHCR hygiene (gated)** | Nothing | No scope probe (`gh auth status` delete:packages check) performed |
+| **M15 Buildflow posture (gated)** | Nothing | Memo 15.1 not written |
+| **M20 Detect() contract** | Nothing written | Memo + decision + decline path all outstanding; deferred twice before this session |
+| **M1 itself** | Fully staged to the gate | `git tag v0.11.0` + push + release watch + FEATURES/README badge (1.4–1.7) — user-gated on timing |
+
+## c) NOT STARTED (0% — no files touched)
+
+M2, M7 (beyond nothing), M13–M15 (beyond nothing), M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30, M31, M32, M33, M34.
+
+Notable: M21/M22 (run.go hardening I+II) and M23 (fuzz targets) are the largest untouched code clusters. M31 (decision memos) is the highest-leverage untouched item — it unblocks six gated rows including M7, the tool's actual purpose at fleet scale.
+
+## d) TOTALLY FUCKED UP
+
+Nothing is broken in the tree — but four things went genuinely wrong before being caught, worth naming:
+
+1. **My matrix script shipped with an inverted version comparison.** The `below_minimum` check compared `sort -V | head -1` against the wrong operand, so v2.10.1 initially ran the full contract path and "failed A1" misleadingly, and v2.13.2/v2.14.0 were misreported as "below minimum". Caught because the script's own assertions failed loudly; fixed and all four cells re-verified green. A wrong gate is worse than no gate — this one would have made CI red for the right reason written the wrong way.
+2. **A lexical string-compare bug in my own test guard.** `"v2.9.0" < "v2.12.0"` is false in Go string comparison ('9' > '1'). The guard I added to prevent silent test rot caught its own author. Fixed with `semver.Compare` (already a dependency). Humbling and exactly what the guard was for.
+3. **Three ginkgolinter violations from my first test edit** — `To(BeTrue())` on comparisons instead of `BeNumerically`. Caught by the repo's own lint gate, not by me reading the house style first. Also wasted one `lsp_replace_symbol` attempt (LSP connection closed) and two edit attempts hitting daemon mid-write file churn — the auto-commit daemon touching files between my read and edit cost round trips; should have used write-via-python or re-read immediately after each daemon tick.
+4. **The first pre-release run failed on a stale binary.** My below-min refusal "verification" initially used `bin/golangci-lint-auto-configure` built **before** the minimum bump — it happily accepted v2.10.1 and applied 95 fixes, the exact catastrophic behavior the bump exists to prevent. I almost recorded a false green. Rebuilt, re-tested, got the true classified refusal. Lesson now explicit: after touching constants, rebuild before any behavioral claim.
+
+Non-damage note: the daemon interleaved its own commits with mine (e.g. `2b35538` grabbed gitleaks.yml/Dockerfile/.golangci.yml minutes before my thematic commit) — attribution noise only, nothing lost, working tree clean.
+
+## e) WHAT WE SHOULD IMPROVE
+
+1. **Push earlier, push in slices.** Six commits of CI-affecting change accumulated unpushed. The plan's own gates said "observe CI green" and I let local-green substitute. Next session: push after each macro (or at minimum after each trust-fabric cluster), then watch runs before starting the next task.
+2. **Make the minimum-coupling rule executable.** AGENTS gotcha 28 states "injected key newer than minimum ⇒ bump minimum" as prose. A data-integrity spec (fixture config verified against a pinned old binary, or a static scan of curated defaults vs a min-version key table) would enforce it. Prose gotchas don't stop the next contributor.
+3. **Kill the version-comparison shell-fragility.** Three separate bash spots in `e2e-pin-matrix.sh` do `sort -V` dances; one was wrong. A tiny `scripts/lib/semver.sh` helper (or moving the matrix driver into Go, where `semver.Compare` exists) removes the whole class.
+4. **Rebuild-before-claim discipline.** The stale-binary incident deserves a guard: `pre-release-check.sh` and the matrix script should rebuild the binary themselves unconditionally (the matrix script does; my manual probe didn't).
+5. **M31 before more M-work.** Six gated rows are waiting on memos that cost 60 minutes total. The memos are the cheapest unblock in the entire plan and were skipped in favor of code tasks — Pareto-inverted, honestly.
+6. **Verification asymmetry.** Docs edits (README sections, CHANGELOG) got lint gates; behavioral claims (the README console example) got only template cross-check, not an actual captured run. Capturing real output into docs would be stronger.
+7. **Metadata homepage row** keeps failing by design. Either decide the posture (it's been an open question for weeks) or teach the script a `--allow-null-homepage` expectation file so 20/22-green is expressible as "all expected".
+8. **Session-level progress tracking in the plan file** — the plan has no per-task status column; the todo tool was my only tracker. A `Status` column updated as tasks land would make the next session's resume instant.
+
+## f) UP TO 50 THINGS TO DO NEXT (priority-sorted)
+
+**Immediate (unblocks everything else):**
+1. **Push the 6 commits** and watch the four new/changed CI surfaces (pin matrix, dogfood step, gitleaks, release-dry-run on a throwaway PR path-touch) — micro 4.5/8.3 completion.
+2. **M1 user gate: cut v0.11.0** (tag + push tag + watch release.yml dockers_v2/cosign/SBOM) — everything staged; one command away.
+3. **M2 post-release verification battery** (`post-release-verify.sh v0.11.0`, binary download + analyze fixture, cosign verify, GHCR pull, clean-cache `go install @v0.11.0`).
+4. **M31.1–31.6 decision memos** (history sanitization, gohumanize strategy, daemon commit messages, homepage/announcement, cross-repo auth + tap posture) — unlocks 6 gated rows for 5 minutes of your time each.
+
+**Memos/decisions that gate other work:**
+5. **M20 Detect() contract memo** → decide `(ProjectType, error)` vs nil-on-error, or document decline (third deferral).
+6. **M32 never-enable × replaceLinters trace** → is the deprecated-replacement bypass real? Guard or documented decline.
+7. **M13.1 Dependabot vendorHash policy memo** → auto-commit vs continue-on-error; then 13.2–13.4.
+8. **M15.1 Buildflow posture memo** (44 erraudit advisory + 190 branching-flow) → gate vs document; then 15.2–15.3.
+9. **M14 GHCR hygiene** — probe `gh auth status` for delete:packages; if present: delete stray `:master`, backfill-image smoke on scratch tag; else record the missing scope.
+10. **M7 fleet sweep** — 7.1 build the sibling list (patch-form run.go scan), 7.2–7.3 scratch-clone dry-run + 5-repo diff spot-check (guardrail 1), then batches after cross-repo auth answer.
+
+**Go-1.27 quality loop (plan P1):**
+11. **M21 run.go hardening I** — `1.27.0 ≡ 1.27` no-op spec; go.mod-driven overspecification rescue (the error template already promises go.mod handling — make the fixer honor it).
+12. **M22 run.go hardening II** — analyze/report/validate `--fix` affordance suggesting `configure` on the classified run.go error; doctor-style local-vs-binary Go line in analyze verbose.
+13. **M23 fuzz targets** — `NormalizeGoMajorMinor`/`CompareGoMajorMinor` (idempotence, total order), `detectYAMLIndent` (never panic, falls back to 2), `mergeExclusionLinters` extension; 30s `-fuzztime` CI step.
+14. **M26 upstream data audits** — diff `LinterMinVersions` `since` values and `DeprecatedLinters` targets against golangci-lint release notes (v2.11→v2.14 window, same capture method as M3).
+15. **M27 schema-verify extension** — `golangci-lint config verify` over `examples/*.golangci.yml` + `test.golangci.yml` in CI; fix any invalid examples found.
+
+**Trust fabric continuation (plan P2):**
+16. **M18 lychee link checker** in CI + struck-archive render-check (coordinates with the metadata script's README URL check).
+17. **M24 yaml.Node comment-preserving round-trip spike** — feasibility measured on a commented fixture, then ADR or documented decline (do not let it linger as unbounded "spike").
+18. **M25 exclusion-merge observability** — `--show-merged-rules` dry-run flag + `ActionExclusionRuleMerged` ledger record + README flags table.
+19. **M28 error-code registry** — inventory ~40 ad-hoc `errorfamily` code strings → `codes.go` + convention test forbidding unregistered codes.
+20. **M29 test modernization** — `b.N`→`b.Loop` (7 gopls warnings) + profile/parallelize the 3 slowest cmd/ serial specs.
+21. **M30 ConfigReader/Writer narrow interfaces** — convert remaining CLI paths from `*config.Loader` params to sub-interfaces + mocks.
+22. **M17 follow-up only if it reproduces** — the closed nix-flake row has an explicit re-open condition; don't touch otherwise.
+23. **Homepage decision** (metadata audit's standing ✗) — fold into M31.4's announcement memo rather than a separate thread.
+24. **M34 docs-integrity derivation** — spec: `DeprecatedLinters` count == FEATURES migration-table rows.
+25. **M33 precision live-report strikes** — remaining ~250 bare items in 31 live reports, oldest first (09-09, 06-38, 08-33, then 09-23, 23-26), check-rows sweep-verified.
+
+**Hardening/details noticed this session (not in the plan):**
+26. **Data-integrity spec for min-version coupling** (improvement #2 made concrete).
+27. **Matrix script semver helper** (improvement #3).
+28. **Add `GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT=1` to the CI dogfood step** — currently the dogfood `--check` is dry-run so no ledger writes happen, but making the hermeticity explicit costs one env line and survives future refactors to non-dry modes.
+29. **Release-notes curation check** — micro 1.6: verify the v0.11.0 GitHub Release renders curated keep-a-changelog content, not a commit dump (release.yml generates from goreleaser changelog groups; confirm).
+30. **FEATURES.md rows for today's features** — e2e pin matrix, dogfood gate, gitleaks workflow, release-dry-run workflow are absent from the feature inventory (docs-health keeps FEATURES honest; today's session violated that).
+31. **Plan-file status column** — mark M3–M19 outcomes in `2026-10-07_03-26_SUPERB-pareto-execution-plan-v2.md` so the artifact self-documents execution state.
+32. **`docker build` verification evidence** — job 0FE finished without surfaced failure, but I never captured the image's `--version` output from a container run (micro 12.3's second half). One `docker run --rm … --version` closes it.
+33. **README badge for the release-dry-run workflow** — the README badge table predates the new workflow; add or consciously skip (badge sprawl is real).
+34. **`.golangci.yml` other four experiment tags** — arenas/goroutineleakprofile/runtimesecret/simd are speculative for this repo (only jsonv2 was used). Propose removing all four from the tool's own config (the fixer data stays — it's for users).
+35. **Confirm v0.11.0 CHANGELOG date on release day** — the section is stamped 2026-10-07; if the tag slips past today, update the stamp first (a dated lie in a release header is exactly what this project exists to prevent).
+
+**Fleet/docs hygiene:**
+36. TODO_LIST post-session sweep — rows for M21/M22/M23/M25/M26/M27/M28/M29/M30 remain accurate, but add pointers to today's new evidence (pin matrix as verification vehicle for M26's min-version data).
+37. Archive today's status report chain per docs-health convention (this file becomes the newest live report; annotate superseded 04-07 files if any).
+38. Cross-check AGENTS gotcha 27's spec list against the new graduation specs (fixer_config build-tag tests) — gotcha 27 predates the `GraduatedIn` field.
+39. `scripts/validate_linter_data.go` — does it need a rule for `GraduatedIn` consistency (graduated ⇒ also valid in `LinterMinVersions` if present)? Small integrity check, natural home.
+40. Consider `nix run .#coverage-check` flake app args doc — README shows `-min=65` now; verify the flake app passes args through unchanged.
+
+**If time remains (long tail):**
+41. M24 spike alternative worth pre-thinking: measure yaml.Node round-trip against our `detectYAMLIndent` SaveConfig on a real sibling config with comments before writing the ADR.
+42. M28 registry: start from `pkg/errors/templates.go` codes + `grep -rn 'Wrap[A-Za-z]*f\?('` extraction; the convention test is the durable half.
+43. M29: the gopls b.Loop warnings list — capture `gopls check` or `go vet` output as the worklist.
+44. M30: grep-driven inventory first (`*config.Loader` params in internal/cli), then convert 3–4 sites, then the rest.
+45. M33: use the established `--emit-keys` lesson; the 11-34 separator false-positive cost 4 round trips last time.
+46. Consider pinning `golangci-lint-action` version per matrix cell input validation — the action ignores unknown versions with a cryptic error; assert `golangci-lint --version` matches in-step (script already does this — just ensure the workflow passes the right arg).
+47. Weekly-gitleaks + ci-watchdog cron collision check — Thursday 04:17 vs Monday 06:23 are off-phase; confirm no runner-quota concern, else re-slot.
+48. `metadata-check.sh` — add step 8: workflow cron sanity (parse `.yml` cron fields, warn on duplicates/too-frequent).
+49. Post-release: bump `ExpectedGolangCILintVersion` only when a NEWER golangci-lint actually ships — today's v2.14.0 stays; do not churn.
+50. Bookkeeping: after M1 tag exists, re-run `scripts/metadata-check.sh` → expect 21/22 (release asset patterns against v0.11.0, release-dry-run workflow now present) with homepage the only standing ✗ until the posture decision.
+
+## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
+
+1. **Release timing:** v0.11.0 is fully staged (CHANGELOG stamped, FEATURES stamped, pre-release 9/9 green, M3's dated schema snapshot ready to cite). Do I tag `v0.11.0` and push the tag now — and if yes, do you want the M2 verification battery run immediately after, or do you want to eyeball the release page first?
+2. **Push policy for this session's 6 unpushed commits:** the plan's micro-gates expect CI observation, but pushing is how CI sees them (this repo works on master with the daemon). Push now as-is? Or do you want the release-dry-run and gitleaks workflows to have their first run on a throwaway branch/PR instead of master?
+3. **Fleet sweep blast-radius authorization (M7):** if I build the sibling list and rehearse the scratch-clone + diff verification locally (no writes to any sibling), may I then commit+push run.go fixes to the ~160 siblings in batches once the diff spot-check passes — or does every batch wait for your explicit go?
+
+---
+
+*Awaiting instructions.*
