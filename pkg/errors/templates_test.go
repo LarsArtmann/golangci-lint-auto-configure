@@ -51,3 +51,15 @@ var _ = Describe("Domain message templates", func() {
 		}
 	})
 })
+
+var _ = Describe("run.go newer-than-binary affordance", func() {
+	It("leads the Fix with the configure repair command", func() {
+		tmpl, ok := errorfamily.TemplateForCode("config.run_go.newer_than_binary")
+		Expect(ok).To(BeTrue())
+		Expect(tmpl.Fix).To(ContainSubstring("golangci-lint-auto-configure configure --config"),
+			"the Fix must suggest the concrete repair command every command surface renders")
+		Expect(tmpl.What).To(ContainSubstring("run.go"))
+		Expect(tmpl.What).To(ContainSubstring("go.mod directive"),
+			"the What must cover both overspecification sources")
+	})
+})

@@ -122,7 +122,31 @@ func runAnalyze(
 		return apperrors.WrapClassified(err, "analyze.config_analyze", "analyze config")
 	}
 
+	if format == "text" && flags.Verbose {
+		fmt.Fprintln(os.Stdout, doctorLine(config.GetLocalGoVersion(cmd.Context()), analyzer.GetDetectedGoVersion()))
+	}
+
 	return outputAnalysis(analysis, format, configFile)
+}
+
+// doctorLine renders the Go-versions doctor line: the local toolchain version
+// versus the Go version golangci-lint was built with. run.go is capped at the
+// latter, so a mismatch is the root cause of every "newer than the binary"
+// failure — surfacing it in analyze --verbose makes the mismatch visible
+// before it becomes a load failure.
+func doctorLine(localGo, golangciLintGo string) string {
+	local := "unknown"
+	if localGo != "" {
+		local = "go" + localGo
+	}
+
+	binary := "unknown"
+	if golangciLintGo != "" {
+		binary = "go" + golangciLintGo
+	}
+
+	return fmt.Sprintf("Go doctor: local %s · golangci-lint built with %s (run.go is capped at %s)",
+		local, binary, binary)
 }
 
 func resolveAnalyzeConfig(configLoader *config.Loader, configPath string) (string, error) {
