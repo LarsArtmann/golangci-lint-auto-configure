@@ -70,12 +70,14 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
 - **Auto-commit daemon quality** — the daemon mixes file types into generic
   commits, bumped go.mod/go.sum without `vendorHash.nix` (breaking `nix build`
   for all clones), and produces `heuristic` messages that are now public
-  history. The concrete vendorHash guard is in TODO_LIST; the broader theme is
-  making daemon commits deliberate (Renovate-style PRs, file-type-scoped
-  messages, or push heartbeats).
-- **Status report lifecycle cadence** — the 2026-09-11 docs-health sweep
-  archived the fully-resolved 2026-06/07 reports; a standing rule (quarterly,
-  or keep-latest-N) would keep `docs/status/` containing only live residue.
+  history. The vendorHash guard shipped 2026-09-11 (scripts + CI drift check);
+  the remaining theme is making daemon commits deliberate (Renovate-style PRs,
+  file-type-scoped messages, or push heartbeats).
+- **Status report lifecycle cadence** — the 2026-09-11 and 2026-10-07
+  docs-health sweeps archived the fully-resolved 2026-06/07 reports (38 live
+  reports remain as of the 10-07 sweep); the standing rule (quarterly, or
+  keep-latest-N, `docs/status/README.md`) keeps `docs/status/` containing
+  only live residue.
 - **Multi-system flake checks** — `nix flake check --all-systems` currently
   omits aarch64-linux/darwin targets; either gate explicitly or extend.
 - **BuildFlow upstream feedback** — file the language-filter issue (the
