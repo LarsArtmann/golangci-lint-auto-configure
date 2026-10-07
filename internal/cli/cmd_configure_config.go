@@ -45,7 +45,7 @@ func ensureConfigFile(
 	configFile string,
 	inGitRepo bool,
 	logger *log.Logger,
-	configLoader *config.Loader,
+	creator defaultConfigWriter,
 ) error {
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		if !inGitRepo {
@@ -56,9 +56,9 @@ func ensureConfigFile(
 
 		logger.Infof("No config file found, creating default: %s", configFile)
 
-		defaultConfig := configLoader.CreateDefaultConfig(ctx)
+		defaultConfig := creator.CreateDefaultConfig(ctx)
 
-		if err := configLoader.SaveConfig(defaultConfig, configFile); err != nil {
+		if err := creator.SaveConfig(defaultConfig, configFile); err != nil {
 			return apperrors.WrapClassifiedf(err, "configure.create_default",
 				"failed to create default config (inGitRepo=%t)", inGitRepo)
 		}
@@ -81,8 +81,8 @@ func ParsePriorityParam(priorityParam string) (types.LinterPriority, error) {
 	return priority, nil
 }
 
-func cloneConfig(configLoader *config.Loader, configFile string, logger *log.Logger) *types.Config {
-	cfg, err := configLoader.LoadConfig(configFile)
+func cloneConfig(reader configReader, configFile string, logger *log.Logger) *types.Config {
+	cfg, err := reader.LoadConfig(configFile)
 	if err != nil {
 		logger.Debugf("Failed to load config for diff: %v", err)
 

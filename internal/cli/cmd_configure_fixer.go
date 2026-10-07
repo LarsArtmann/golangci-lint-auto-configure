@@ -175,12 +175,12 @@ func handleCheckMode(check bool, result *types.MigrationResult, logger *log.Logg
 }
 
 func showConfigDiff(
-	configLoader *config.Loader,
+	reader configReader,
 	oldCfg *types.Config,
 	configFile string,
 	logger *log.Logger,
 ) {
-	newCfg, err := configLoader.LoadConfig(configFile)
+	newCfg, err := reader.LoadConfig(configFile)
 	if err != nil {
 		logger.Debugf("Failed to load modified config for diff: %v", err)
 
@@ -198,12 +198,12 @@ func showConfigDiff(
 }
 
 func restoreOriginalConfig(
-	configLoader *config.Loader,
+	writer configWriter,
 	originalCfg *types.Config,
 	configFile string,
 	logger *log.Logger,
 ) {
-	if err := configLoader.SaveConfig(originalCfg, configFile); err != nil {
+	if err := writer.SaveConfig(originalCfg, configFile); err != nil {
 		logger.Warnf("⚠️  Failed to restore original config after check+diff: %v", err)
 
 		return

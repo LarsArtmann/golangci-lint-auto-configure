@@ -152,18 +152,18 @@ func doctorLine(localGo, golangciLintGo string) string {
 		local, binary, binary)
 }
 
-func resolveAnalyzeConfig(configLoader *config.Loader, configPath string) (string, error) {
+func resolveAnalyzeConfig(locator configLocator, configPath string) (string, error) {
 	configFile := configPath
 	if configFile == "" {
 		var err error
 
-		configFile, err = configLoader.FindConfigFile(".")
+		configFile, err = locator.FindConfigFile(".")
 		if err != nil {
 			return "", apperrors.WrapClassified(err, "analyze.find_config", "find config")
 		}
 	}
 
-	configLoader.HasMultipleConfigFiles(".")
+	locator.HasMultipleConfigFiles(".")
 
 	return configFile, nil
 }

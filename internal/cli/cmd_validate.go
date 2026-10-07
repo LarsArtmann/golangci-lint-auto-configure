@@ -113,12 +113,12 @@ func validateConfig(
 }
 
 func validateLoadedConfig(
-	configLoader *config.Loader,
+	loader loadedConfigValidator,
 	logger *log.Logger,
 	configFile string,
 	reportFormat string,
 ) error {
-	cfg, loadErr := configLoader.LoadConfig(configFile)
+	cfg, loadErr := loader.LoadConfig(configFile)
 	if loadErr != nil {
 		if reportFormat == formatSARIF {
 			return outputValidationSARIF(nil, configFile, []error{loadErr})
@@ -129,7 +129,7 @@ func validateLoadedConfig(
 
 	logger.Infof("✓ Basic structure valid")
 
-	validationErrors := configLoader.ValidateConfig(cfg)
+	validationErrors := loader.ValidateConfig(cfg)
 	if len(validationErrors) > 0 {
 		if reportFormat == formatSARIF {
 			return outputValidationSARIF(cfg, configFile, validationErrors)
