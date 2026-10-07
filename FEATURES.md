@@ -1,7 +1,7 @@
 # golangci-lint-auto-configure — Feature Audit
 
 **Version:** v0.10.0
-**Last Audited:** 2026-09-11
+**Last Audited:** 2026-10-07
 
 Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `PLANNED`.
 
@@ -207,14 +207,17 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | GitHub Actions CI (Go 1.27)         | FULLY_FUNCTIONAL |                                                                     |
 | Pre-commit hook                     | FULLY_FUNCTIONAL | golangci-lint, go-test, go-fmt                                      |
 | Version injection via ldflags       | FULLY_FUNCTIONAL | version, commit, date, treeState                                    |
-| Auto-tag workflow                   | FULLY_FUNCTIONAL | Tags on merge to master                                             |
+| GitHub release pipeline (GoReleaser) | FULLY_FUNCTIONAL | dockers_v2 → GHCR, cosign keyless signing, SBOMs, curated release notes; manual tagging via the go-release flow (the auto-tag workflow was deleted 2026-09-13) |
 | Committed templ output (\_templ.go) | FULLY_FUNCTIONAL | No build-time generation needed                                     |
 | Govulncheck security scanning       | FULLY_FUNCTIONAL | CI job runs govulncheck ./...                                       |
 | Coverage threshold gate             | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 60% threshold)                      |
-| GitHub Actions pinned to SHAs       | FULLY_FUNCTIONAL | 21 actions across 4 workflows pinned to immutable commit hashes     |
+| GitHub Actions pinned to SHAs       | FULLY_FUNCTIONAL | 14 distinct actions across 5 workflows, all pinned to immutable commit hashes |
 | Settings struct codegen             | FULLY_FUNCTIONAL | `cmd/generate-settings` generates 88 structs from JSON Schema       |
-| CI retry logic                      | FULLY_FUNCTIONAL | 3-attempt retry for nix build; resilient magic-nix-cache            |
-| Dependabot automation               | FULLY_FUNCTIONAL | `.github/dependabot.yml` for Actions + Go modules                   |
+| jsondeterminism release gate        | FULLY_FUNCTIONAL | Release gate + CI run the SDK's `jsondeterminism` analyzer; bare `encoding/json/v2` Marshal fails the gate |
+| Atomic config writes                | FULLY_FUNCTIONAL | Config + backup writes are crash-safe (temp + fsync + rename via `go-atomic-write`) |
+| CI watchdog                         | FULLY_FUNCTIONAL | `ci-watchdog.yml` + `scripts/ci-watchdog.sh` monitor CI health      |
+| Branch/tag protection rulesets      | FULLY_FUNCTIONAL | GitHub rulesets on `master` and `v*` (2026-09-13)                   |
+| Dependabot automation               | FULLY_FUNCTIONAL | `.github/dependabot.yml` for Actions + Go modules (grouped bumps)   |
 | `git-cliff` changelog automation    | FULLY_FUNCTIONAL | `cliff.toml` config for changelog generation from commits           |
 | `--no-color` flag                   | FULLY_FUNCTIONAL | CI/scripting output (sets `NO_COLOR=1`)                             |
 | Fuzz + property tests               | FULLY_FUNCTIONAL | Set algebra invariants (commutative, idempotent, subset)            |

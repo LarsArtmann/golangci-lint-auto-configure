@@ -43,6 +43,17 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
   pairs naturally with a `--indent` override flag. Fuzz tests for
   `detectYAMLIndent` and `mergeExclusionLinters` (duplicate-heavy/randomized
   inputs must never panic) belong to the same robustness theme.
+- **`run.go` hardening tail** (routed from the 2026-09-28 Go-1.27 session) —
+  treat `1.27.0` ≡ `1.27` as a no-op rewrite (avoid churn on zero-patch
+  specs); rescue go.mod-driven overspecification (a `go 1.27.1` directive
+  can still push `run.go` past the binary); an `analyze`/`report`/`validate`
+  `--fix` affordance for the classified `run.go` error; fuzz
+  `NormalizeGoMajorMinor`/`CompareGoMajorMinor`; a doctor-style diagnostic
+  that prints local Go vs golangci-lint build Go side by side.
+- **Schema-verify coverage beyond the fixture** — the CI schema gate proves
+  the generated fixture verifies; extending the same `golangci-lint config
+  verify` pass to `examples/*.golangci.yml` and `test.golangci.yml` would
+  close the remaining unverified in-repo configs.
 
 ### 3. CLI layer testability
 
@@ -67,6 +78,11 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
   or keep-latest-N) would keep `docs/status/` containing only live residue.
 - **Multi-system flake checks** — `nix flake check --all-systems` currently
   omits aarch64-linux/darwin targets; either gate explicitly or extend.
+- **BuildFlow upstream feedback** — file the language-filter issue (the
+  "9 tools unavailable" health check counts JS/TS+Python tool absence as
+  failures for a Go-only repo) and the findings-gate advisory-vs-blocking
+  design question; both are external, low-effort, and unblocked
+  (routed from the 2026-09-13 pareto session).
 
 ### 5. Error handling governance (largely complete)
 

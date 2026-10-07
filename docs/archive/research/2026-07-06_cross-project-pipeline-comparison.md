@@ -1,5 +1,12 @@
 # Pipeline Comparison: `golangci-lint-auto-configure` vs `go-finding` vs `BuildFlow`
 
+> **RESOLVED + ARCHIVED (docs-health sweep 2026-10-07).** All 5 actionable
+> recommendations below carry inline verdicts — 3 shipped (coverage gate now
+> the Go-program `cmd/coverage-check`, merger fuzz targets, govulncheck) and
+> 2 architecture decisions held. Nothing here is open; the archival
+> RETROACTIVE UPDATE banner below is retained as the original resolution
+> record. `docs/status/README.md` holds the manifest.
+
 > **🔄 RETROACTIVE UPDATE — 2026-07-16**
 >
 > The 5 actionable recommendations at the end of this report have the following status:

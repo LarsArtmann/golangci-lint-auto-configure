@@ -4,6 +4,15 @@
 **Scope:** every `.golangci.*` config **outside** this repo, under `/home/lars/projects/` (sibling projects only; the current `golangci-lint-auto-configure` repo is excluded from counts).
 **Method:** parsed all configs with PyYAML + ripgrepped `//nolint` directives across all non-vendored `.go` files, then cross-referenced.
 
+> **RESOLVED + ARCHIVED (docs-health sweep 2026-10-07).** All seven §5
+> recommendations shipped the same day (verdicts inline at each item; outcome
+> table in the "Actions taken" section below, re-verified against the current
+> repo). The one standing residue — 88 machine-generated sibling configs keep
+> pre-improvement defaults until re-injection — is routed to ROADMAP theme 2
+> ("Settings refresh scope"), partially mitigated by the `KnownBadSettingsKeys`
+> self-heal. Nothing else here is open; `docs/status/README.md` holds the
+> manifest.
+
 ---
 
 ## 1. Headline numbers
