@@ -119,8 +119,17 @@ directions:
 ```console
 $ golangci-lint-auto-configure configure --check
 ❌ golangci-lint refuses to load the config: the targeted Go version (run.go or the go.mod directive) is newer than the binary.
-   → Upgrade golangci-lint to a build made with the newer Go (v2.13.2+ is built with Go 1.27), or set run.go in the config to the binary's build Go version.
+   → Run 'golangci-lint-auto-configure configure --config <config-path>' to auto-repair an overspecified run.go (audited as rescued-run-go), or upgrade golangci-lint to a build made with the newer Go (v2.13.2+ is built with Go 1.27). A too-new go.mod can only be fixed by upgrading golangci-lint.
 ```
+
+Every command that hits this classified error (analyze, report, validate) renders
+the same repair affordance. `analyze --verbose` also prints a Go-versions doctor
+line (`local goX` vs the golangci-lint build Go) so the mismatch is visible
+before it becomes a load failure.
+
+When the project's `go.mod` `go` directive is newer than the golangci-lint
+build Go, every mode warns that packages may not analyze — the directive is
+never rewritten; the fix is upgrading golangci-lint.
 
 The minimum supported golangci-lint (v2.12.0) is coupled to the oldest
 settings key the tool injects (`goconst.ignore-tests`, added in v2.12.0);

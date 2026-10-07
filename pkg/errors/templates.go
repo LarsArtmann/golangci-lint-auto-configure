@@ -74,7 +74,7 @@ var domainMessageTemplates = map[string]errorfamily.MessageTemplate{
 	"config.run_go.newer_than_binary": {
 		What:   "golangci-lint refuses to load the config: the targeted Go version (run.go or the go.mod directive) is newer than the binary.",
 		Why:    "The Go language version used to build golangci-lint is lower than the targeted Go version, and golangci-lint hard-fails on load — no linting can happen at all.",
-		Fix:    "Upgrade golangci-lint to a build made with the newer Go (v2.13.2+ is built with Go 1.27), or set run.go in the config to the binary's build Go version.",
+		Fix:    "Run 'golangci-lint-auto-configure configure --config <config-path>' to auto-repair an overspecified run.go (audited as rescued-run-go), or upgrade golangci-lint to a build made with the newer Go (v2.13.2+ is built with Go 1.27). A too-new go.mod can only be fixed by upgrading golangci-lint.",
 		WayOut: "'configure' without --check/--dry-run auto-repairs an overspecified run.go; a too-new go.mod requires the golangci-lint upgrade.",
 	},
 	"config.validation.version": {
