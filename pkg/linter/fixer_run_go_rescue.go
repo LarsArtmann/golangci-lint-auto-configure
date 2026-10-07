@@ -1,7 +1,11 @@
 package linter
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
 	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
@@ -23,6 +27,9 @@ func (f *Fixer) rescueOverspecifiedRunGo(cfg *types.Config, configPath string, d
 	}
 
 	golangciLintGoVersion := f.analyzer.GetDetectedGoVersion()
+
+	f.warnIfGoModExceedsBinary(configPath, golangciLintGoVersion)
+
 	if !runGoExceedsBinary(cfg.Run.Go, golangciLintGoVersion) {
 		return nil
 	}
@@ -47,6 +54,77 @@ func runGoExceedsBinary(runGo, golangciLintGoVersion string) bool {
 	configGoVersion, ok := types.NormalizeGoMajorMinor(runGo)
 
 	return ok && types.CompareGoMajorMinor(configGoVersion, golangciLintGoVersion) > 0
+}
+
+// warnIfGoModExceedsBinary warns when the project's go.mod go-directive targets
+// a newer Go than the installed golangci-lint was built with. The go directive
+// is the project's declared language version and is never rewritten — the only
+// fix is upgrading golangci-lint — so this stays a warning in every mode
+// (including --check/--dry-run), never an error and never a mutation.
+// Best-effort: a missing or unparsable go.mod is silent.
+func (f *Fixer) warnIfGoModExceedsBinary(configPath, golangciLintGoVersion string) {
+	directive := readGoModGoDirective(configPath)
+	if directive == "" || golangciLintGoVersion == "" {
+		return
+	}
+
+	if !goModExceedsBinary(directive, golangciLintGoVersion) {
+		return
+	}
+
+	f.logger.Warnf(
+		"go.mod declares go %s, newer than the Go used to build golangci-lint (%s); "+
+			"golangci-lint may fail to analyze packages using newer syntax — upgrade golangci-lint "+
+			"(go.mod is never rewritten by this tool)",
+		directive, golangciLintGoVersion,
+	)
+}
+
+// goModExceedsBinary reports whether a normalized go-directive version is
+// strictly newer than the Go version golangci-lint was built with.
+func goModExceedsBinary(directive, golangciLintGoVersion string) bool {
+	return types.CompareGoMajorMinor(directive, golangciLintGoVersion) > 0
+}
+
+// readGoModGoDirective returns the go-directive version from the go.mod next to
+// the config, normalized to major.minor (e.g. "1.27"), or "" when the file is
+// absent, unreadable, or carries no parsable directive. Directives inside
+// parenthesized blocks (require/exclude/replace) are ignored — the go directive
+// is a top-level statement.
+func readGoModGoDirective(configPath string) string {
+	goModPath := filepath.Join(filepath.Dir(configPath), "go.mod")
+
+	file, err := os.Open(goModPath)
+	if err != nil {
+		return ""
+	}
+
+	defer func() { _ = file.Close() }()
+
+	scanner := bufio.NewScanner(file)
+	inBlock := false
+
+	for scanner.Scan() {
+		fields := strings.Fields(scanner.Text())
+		if len(fields) == 0 {
+			continue
+		}
+
+		switch fields[0] {
+		case "(":
+			inBlock = true
+		case ")":
+			inBlock = false
+		case "go":
+			if !inBlock && len(fields) >= 2 {
+				if normalized, ok := types.NormalizeGoMajorMinor(fields[1]); ok {
+					return normalized
+				}
+			}
+		}
+	}
+
+	return ""
 }
 
 // dryRunRescueError explains, without touching the file, why the config is

@@ -15,6 +15,7 @@ var _ = Describe("NormalizeGoMajorMinor", func() {
 		},
 		Entry("go-prefixed patch version", "go1.27.1", "1.27", true),
 		Entry("bare patch version", "1.27.1", "1.27", true),
+		Entry("zero patch version is a no-op", "1.27.0", "1.27", true),
 		Entry("major.minor only", "1.27", "1.27", true),
 		Entry("older version", "1.26.7", "1.26", true),
 		Entry("empty", "", "", false),
