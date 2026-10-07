@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -33,10 +34,18 @@ var _ = Describe("validateVersion", func() {
 
 	Context("when version is older than expected but meets minimum", func() {
 		It("should warn about unexpected version", func() {
-			err := analyzer.validateVersion("v2.11.0")
+			between := "v2.13.0"
+			// Lexical compare is safe for vX.Y.Z strings. Guards rot loudly:
+			// bump this spec constant together with MinGolangCILintVersion.
+			Expect(between > constants.MinGolangCILintVersion).
+				To(BeTrue(), "spec constant must be >= MinGolangCILintVersion — update it when the minimum bumps")
+			Expect(between < constants.ExpectedGolangCILintVersion).
+				To(BeTrue(), "spec constant must be < ExpectedGolangCILintVersion — update it when the recommendation bumps")
+
+			err := analyzer.validateVersion(between)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(buf.String()).To(ContainSubstring("v2.11.0"))
-			Expect(buf.String()).To(ContainSubstring("v2.14.0"))
+			Expect(buf.String()).To(ContainSubstring(between))
+			Expect(buf.String()).To(ContainSubstring(constants.ExpectedGolangCILintVersion))
 			Expect(buf.String()).To(ContainSubstring("recommended"))
 		})
 	})
@@ -46,13 +55,17 @@ var _ = Describe("validateVersion", func() {
 			err := analyzer.validateVersion("v2.15.0")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(buf.String()).To(ContainSubstring("v2.15.0"))
-			Expect(buf.String()).To(ContainSubstring("v2.14.0"))
+			Expect(buf.String()).To(ContainSubstring(constants.ExpectedGolangCILintVersion))
 		})
 	})
 
 	Context("when version is below minimum", func() {
 		It("should return an error without warning", func() {
-			err := analyzer.validateVersion("v2.9.0")
+			below := "v2.9.0"
+			Expect(below < constants.MinGolangCILintVersion).
+				To(BeTrue(), "spec constant must be < MinGolangCILintVersion — update it when the minimum bumps")
+
+			err := analyzer.validateVersion(below)
 			Expect(err).To(HaveOccurred())
 			Expect(buf.String()).To(BeEmpty())
 		})
