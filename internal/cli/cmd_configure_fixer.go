@@ -22,11 +22,13 @@ func newConfiguredFixer(
 	configFile string,
 	noAudit bool,
 	forceSettings bool,
+	showMergedRules bool,
 ) *linter.Fixer {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
 	fixer.SetLedger(newRunLedger(ctx, logger, configFile, noAudit))
 	fixer.SetGoVersionProvider(config.GetLocalGoVersion)
 	fixer.SetForceSettings(forceSettings)
+	fixer.SetShowMergedRules(showMergedRules)
 
 	return fixer
 }
@@ -74,7 +76,7 @@ func prepareFixerRun(
 	configLoader *config.Loader, configFile string, flags *Flags,
 ) (*linter.Fixer, types.LinterPriority, error) {
 	fixer := newConfiguredFixer(ctx, logger, analyzer, configLoader, configFile,
-		flags.NoAudit, flags.ForceSettings)
+		flags.NoAudit, flags.ForceSettings, flags.ShowMergedRules)
 
 	linterPriority, err := ParsePriorityParam(flags.Priority)
 	if err != nil {

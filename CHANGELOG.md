@@ -38,6 +38,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Benchmarks modernized to `for b.Loop()`** (12 sites across pkg/types,
+  pkg/config, pkg/constants) — the compiler keeps loop-carried values alive
+  correctly and gopls modernize warnings are gone. CI now also runs the
+  `cmd/coverage-check` test package (it was silently outside the CI test
+  scope); coverage total verified 72.6% ≥ 65 with it included.
+- **Narrow config interfaces in CLI paths.** Seven leaf helpers
+  (config diff/restore, clone, validate-loaded, analyze/report config
+  resolution, auto-merge listing, default-config creation) now declare the
+  Loader methods they use as small interfaces, making them mockable without
+  a full `*config.Loader`. Pass-through helpers keep the concrete type.
 - **Error-code registry with convention tests.** All 139 error-family
   codes are now inventoried in `pkg/errors/codes.go` (`RegisteredCodes`);
   convention tests forbid unregistered codes at call sites (a typo would

@@ -26,7 +26,7 @@ var Version = version.Get().Short()
 // resolveConfigPath finds the config file if not specified, with multiple config warning.
 func resolveConfigPath(
 	_ context.Context,
-	resolver defaultConfigPathResolver,
+	configLoader *config.Loader,
 	logger *log.Logger,
 	specifiedPath string,
 	isDryRun bool,

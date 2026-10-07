@@ -20,6 +20,15 @@ type configUpdater struct {
 	logger                *log.Logger
 	goVersionProvider     GoVersionProvider
 	golangciLintGoVersion string
+	showMergedRules       bool
+	exclusionMerges       []ExclusionMerge
+}
+
+// ExclusionMerge describes linters that a default exclusion rule contributed
+// to an existing rule during updateExclusionRules (RuleKey match + union).
+type ExclusionMerge struct {
+	RuleKey      string
+	AddedLinters []string
 }
 
 // newConfigUpdater creates a new config updater. golangciLintGoVersion is the
@@ -33,6 +42,22 @@ func newConfigUpdater(
 		goVersionProvider:     goVersionProvider,
 		golangciLintGoVersion: golangciLintGoVersion,
 	}
+}
+
+// setShowMergedRules controls whether exclusion-rule merges are logged at
+// info level (the --show-merged-rules affordance). Merges are always
+// collected for the audit ledger regardless.
+func (cu *configUpdater) setShowMergedRules(show bool) {
+	cu.showMergedRules = show
+}
+
+// drainExclusionMerges returns and clears the exclusion-rule merges collected
+// during updateExclusionRules.
+func (cu *configUpdater) drainExclusionMerges() []ExclusionMerge {
+	merges := cu.exclusionMerges
+	cu.exclusionMerges = nil
+
+	return merges
 }
 
 // updateGoVersion sets the Go version in the config to the local Go version,
@@ -223,10 +248,21 @@ func (cu *configUpdater) updateExclusionRules(cfg *types.Config) int {
 	for _, defaultRule := range constants.DefaultExclusionRules {
 		key := defaultRule.RuleKey()
 		if idx, exists := existingByKey[key]; exists {
-			merged := mergeExclusionLinters(cfg.Linters.Exclusions.Rules[idx].Linters, defaultRule.Linters)
-			if len(merged) > len(cfg.Linters.Exclusions.Rules[idx].Linters) {
+			existingLinters := cfg.Linters.Exclusions.Rules[idx].Linters
+			merged := mergeExclusionLinters(existingLinters, defaultRule.Linters)
+			if len(merged) > len(existingLinters) {
 				cfg.Linters.Exclusions.Rules[idx].Linters = merged
 				changed++
+
+				added := merged[len(existingLinters):]
+				cu.exclusionMerges = append(cu.exclusionMerges, ExclusionMerge{
+					RuleKey:      key,
+					AddedLinters: slices.Clone(added),
+				})
+
+				if cu.showMergedRules {
+					cu.logger.Infof("\U0001f500 merged default exclusion rule %s: added linters %v", key, added)
+				}
 			}
 
 			continue

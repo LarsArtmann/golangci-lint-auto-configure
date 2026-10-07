@@ -121,6 +121,8 @@ func addConfigureFlags(
 		BoolVar(&flags.Pragmatic, "pragmatic", false, "Drop the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen) from the enable set")
 	cmd.Flags().
 		BoolVar(&flags.ForceSettings, "force-settings", false, "Overwrite existing linter settings with curated defaults (useful for refreshing stale configs)")
+	cmd.Flags().
+		BoolVar(&flags.ShowMergedRules, "show-merged-rules", false, "Log every default exclusion rule merged into an existing rule (RuleKey + added linters)")
 }
 
 func runDetectOrConfigure(

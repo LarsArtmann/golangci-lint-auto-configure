@@ -38,17 +38,6 @@ type configLister interface {
 	FindAllConfigFiles(startDir string) []string
 }
 
-// defaultConfigPathResolver resolves the effective config path, creating
-// path defaults where needed.
-type defaultConfigPathResolver interface {
-	FindOrGetDefaultConfigPath(startDir string) string
-}
-
-// repoChecker reports whether the working directory is inside a git repo.
-type repoChecker interface {
-	IsGitRepo(ctx context.Context, startDir string) bool
-}
-
 // defaultConfigCreator builds a fresh default config.
 type defaultConfigCreator interface {
 	CreateDefaultConfig(ctx context.Context) *types.Config

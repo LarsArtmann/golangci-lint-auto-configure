@@ -2,6 +2,7 @@ package linter
 
 import (
 	"context"
+	"strings"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
@@ -35,6 +36,7 @@ type Fixer struct {
 	pol               *policy.Policy
 	goVersionProvider GoVersionProvider
 	forceSettings     bool
+	showMergedRules   bool
 }
 
 // NewFixer creates a new fixer.
@@ -84,6 +86,13 @@ func (f *Fixer) SetGoVersionProvider(provider GoVersionProvider) {
 // linter settings (true) or only fills missing ones (false, the default).
 func (f *Fixer) SetForceSettings(force bool) {
 	f.forceSettings = force
+}
+
+// SetShowMergedRules controls whether exclusion-rule merges are logged at
+// info level (the --show-merged-rules affordance). The audit-ledger records
+// are independent of this flag.
+func (f *Fixer) SetShowMergedRules(show bool) {
+	f.showMergedRules = show
 }
 
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
@@ -322,6 +331,7 @@ func (f *Fixer) applyAndSave(
 	counts fixCounts,
 ) (*types.MigrationResult, error) {
 	updater := newConfigUpdater(f.logger, f.goVersionProvider, f.analyzer.GetDetectedGoVersion())
+	updater.setShowMergedRules(f.showMergedRules)
 
 	rec := configChangeRecorder{counts: counts}
 	rec.normalize(func() int { return updater.updateGoVersion(ctx, cfg) })
@@ -338,6 +348,13 @@ func (f *Fixer) applyAndSave(
 
 	rec.generated(func() int { return updater.updateGeneratedExclusions(cfg, configPath) })
 	rec.generated(func() int { return updater.updateExclusionRules(cfg) })
+
+	if !dryRun {
+		for _, merge := range updater.drainExclusionMerges() {
+			f.ledger.Record(audit.ActionExclusionRuleMerged, merge.RuleKey,
+				"merged default linters into existing rule: "+strings.Join(merge.AddedLinters, ", "))
+		}
+	}
 
 	rec.normalize(func() int { return updater.updateIssuesSettings(cfg) })
 

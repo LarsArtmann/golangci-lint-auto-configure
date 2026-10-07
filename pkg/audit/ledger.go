@@ -62,6 +62,10 @@ const (
 	// a Go version newer than the installed golangci-lint binary supports
 	// (golangci-lint refuses to load such configs at all).
 	ActionRescuedRunGo Action = "rescued-run-go"
+	// ActionExclusionRuleMerged records that a default exclusion rule matched
+	// an existing rule by RuleKey and unioned additional linters into it —
+	// the observable trace of exclusion-merge dedup.
+	ActionExclusionRuleMerged Action = "exclusion-rule-merged"
 )
 
 // Entry is a single audit record, serialized as one JSONL line.
