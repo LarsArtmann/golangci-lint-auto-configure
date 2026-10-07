@@ -130,13 +130,13 @@ These are enabled in **~150 configs each and receive ZERO `//nolint` directives*
 
 ## 5. Concrete recommendations (for the auto-configure tool)
 
-1. **Reconsider enabling `exhaustruct` by default.** It is the #1 source of AI nolint-spam (6.5 friction). Either keep it off the default enable-list or auto-populate a generous `exhaustruct.exclude` for stdlib (`os/exec.Cmd`, `net/http.Server`, `net/http.Request`, `time.Ticker`, …) — most projects already hand-curate exactly this list.
-2. **`gochecknoglobals` + `ireturn` + `wrapcheck`** are the next-tier friction generators. Worth offering a "strict vs. pragmatic" preset so pragmatic projects aren't pushed into 500+ nolints.
-3. **The issues pair `(50, 10)` is already de-facto standard** — keep injecting it (gotcha #6 is validated by 128 configs).
-4. **The sidecar policy feature has 0 adoption.** Either promote it (docs/defaults) or de-emphasize it — currently it is dead surface area.
-5. **`gosec` needs curated ignores.** 589 nolints (mostly test fixtures / hardcoded dev secrets) suggest the tool could auto-add a test-path exclusion or a `gosec.excludes` for common benign findings.
-6. **Formatter quadruple `{gci, gofumpt, goimports, golines}`** is clearly the winning house stack — lock it in as the single recommended formatter preset.
-7. **v1 support can move to maintenance-only.** Live v1 configs = 0. Migration effort is better spent on v2 ergonomics.
+~~1. **Reconsider enabling `exhaustruct` by default.** It is the #1 source of AI nolint-spam (6.5 friction). Either keep it off the default enable-list or auto-populate a generous `exhaustruct.exclude` for stdlib (`os/exec.Cmd`, `net/http.Server`, `net/http.Request`, `time.Ticker`, …) — most projects already hand-curate exactly this list.~~ done — exhaustruct kept with 14 curated stdlib excludes; later migrated to exhaustruct_v5 with ignore-patterns (AGENTS gotcha 19); --pragmatic drops the noise tier on demand
+~~2. **`gochecknoglobals` + `ireturn` + `wrapcheck`** are the next-tier friction generators. Worth offering a "strict vs. pragmatic" preset so pragmatic projects aren't pushed into 500+ nolints.~~ done — --pragmatic flag ships (now drops 4 highest-noise linters; exhaustruct moved to NeverAutoEnable instead)
+~~3. **The issues pair `(50, 10)` is already de-facto standard** — keep injecting it (gotcha #6 is validated by 128 configs).~~ done — (50, 10) pair kept; validated across 128/160 configs
+~~4. **The sidecar policy feature has 0 adoption.** Either promote it (docs/defaults) or de-emphasize it — currently it is dead surface area.~~ done — de-emphasized: ROADMAP explicit non-goal; never-enable section kept functional
+~~5. **`gosec` needs curated ignores.** 589 nolints (mostly test fixtures / hardcoded dev secrets) suggest the tool could auto-add a test-path exclusion or a `gosec.excludes` for common benign findings.~~ done — GosecSettings with G304/G115 excludes + gosec in _test.go exclusions (G104 later removed as too broad)
+~~6. **Formatter quadruple `{gci, gofumpt, goimports, golines}`** is clearly the winning house stack — lock it in as the single recommended formatter preset.~~ done — house preset + CoreFormatters lock {gci, gofumpt, goimports, golines}
+~~7. **v1 support can move to maintenance-only.** Live v1 configs = 0. Migration effort is better spent on v2 ergonomics.~~ done — v1 maintenance-only declared in ROADMAP non-goals + AGENTS (0 live v1 configs)
 
 ---
 

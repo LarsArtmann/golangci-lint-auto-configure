@@ -5,6 +5,12 @@
 **Scope:** Architecture, data models, linter/formatter coverage, configuration handling\
 **Benchmark:** [golangci-lint v2.12.2](https://github.com/golangci/golangci-lint) upstream — [linters config](https://golangci-lint.run/docs/linters/configuration/), [formatters config](https://golangci-lint.run/docs/formatters/configuration/)
 
+> **RESOLVED + ARCHIVED (docs-health sweep 2026-10-07).** Every recommendation
+> in Section 9 (P0–P3, 12 items) carries an inline verdict and shipped — the
+> Resolution Status table at the end of this file maps them to code, and each
+> was re-verified against the current repo in this sweep. Nothing here is
+> open; `docs/status/README.md` holds the manifest.
+
 ---
 
 ## Executive Summary
@@ -486,27 +492,27 @@ The fixer auto-injects Go experiment build tags (`goexperiment.arenas`, `goexper
 
 ### P0 — Data Accuracy (Fix Immediately)
 
-1. **Add `clickhouselint`** to `LinterPriorities`, `LinterReasons`, and `LinterMinVersions`
-2. **Move `exportloopref` to `DeprecatedLinters`** with replacement `copyloopvar`
-3. **Remove `gofmt` and `gci`** from `LinterPriorities` and `LinterReasons` (they're formatters)
-4. **Fix `validVersions()`** in migration rules — use prefix matching instead of hardcoded list
+~~1. **Add `clickhouselint`** to `LinterPriorities`, `LinterReasons`, and `LinterMinVersions`~~ done — clickhouselint in linter_priorities.go + linter_reasons.go + LinterMinVersions (resolution block below; verified 2026-10-07)
+~~2. **Move `exportloopref` to `DeprecatedLinters`** with replacement `copyloopvar`~~ done — exportloopref in DeprecatedLinters with copyloopvar replacement (pkg/constants/rules.go)
+~~3. **Remove `gofmt` and `gci`** from `LinterPriorities` and `LinterReasons` (they're formatters)~~ done — formatter names absent from the linter maps
+~~4. **Fix `validVersions()`** in migration rules — use prefix matching instead of hardcoded list~~ done — prefix matching in pkg/migration/rules.go
 
 ### P1 — Deprecation Coverage (Fix Soon)
 
-1. **Add missing v1 removed linters** to `DeprecatedLinters`: `golint`, `scopelint`, `tenv`, `ifshort`, `execinquery`
-2. **Add v1 alternative names** to `DeprecatedLinters`: `gas`, `goerr113`, `gomnd`, `logrlint`, `megacheck`, `vet`, `vetshadow`
+~~1. **Add missing v1 removed linters** to `DeprecatedLinters`: `golint`, `scopelint`, `tenv`, `ifshort`, `execinquery`~~ done — all five v1 removals present in DeprecatedLinters
+~~2. **Add v1 alternative names** to `DeprecatedLinters`: `gas`, `goerr113`, `gomnd`, `logrlint`, `megacheck`, `vet`, `vetshadow`~~ done — all seven v1 alt names present in DeprecatedLinters
 
 ### P2 — Data Integrity (Improve Safeguards)
 
-1. **Add cross-map integrity tests** (Section 7.2) to prevent formatter-in-linter-map regressions
-2. **Add test: `LinterPriorities` keys ⊆ `LinterReasons` keys** and vice versa
-3. **Add test: `DeprecatedLinters` keys ∉ `LinterPriorities`**
+~~1. **Add cross-map integrity tests** (Section 7.2) to prevent formatter-in-linter-map regressions~~ done — pkg/constants/data_integrity_test.go disjointness + parity specs
+~~2. **Add test: `LinterPriorities` keys ⊆ `LinterReasons` keys** and vice versa~~ done — data_integrity_test.go exact-same-keys spec
+~~3. **Add test: `DeprecatedLinters` keys ∉ `LinterPriorities`**~~ done — data_integrity_test.go disjointness spec
 
 ### P3 — Architecture Improvements (Nice to Have)
 
-1. **Consider a `format` preset** that enables core formatters
-2. **Long-term: typed linter settings** via code generation from JSON Schema
-3. **Consider wrapping config mutations** in a counter-incrementing pattern to prevent the `normalization==0` footgun
+~~1. **Consider a `format` preset** that enables core formatters~~ done — format + house presets compose the formatter quadruple (presets.go)
+~~2. **Long-term: typed linter settings** via code generation from JSON Schema~~ done — cmd/generate-settings emits 88 typed structs (AGENTS Where-to-Find-Detail 6)
+~~3. **Consider wrapping config mutations** in a counter-incrementing pattern to prevent the `normalization==0` footgun~~ done — configChangeRecorder in pkg/linter/fixer_recorder.go (AGENTS gotcha 6)
 
 ---
 

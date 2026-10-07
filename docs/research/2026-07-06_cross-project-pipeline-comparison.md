@@ -197,11 +197,11 @@ The three are **complementary layers**, not competitors: go-finding defines the 
 
 ## Actionable recommendations for our project
 
-1. **Borrow go-finding's coverage-gate pattern** — add per-package coverage thresholds to CI (go-finding enforces core 98%, pipeline 95%, CLI 90%). We currently upload to Codecov with no threshold.
-2. **Add a fuzz target on the config merger/fixer** — the `merger.go` multi-config merge and `fixer.go` normalization are pure functions ripe for fuzzing. go-finding proves this pattern works (23 fuzz targets).
-3. **Add `govulncheck` to CI** — go-finding and BuildFlow both run it; we don't.
-4. **Do NOT adopt `go-finding/pipeline/`** — the domain mismatch is real (config mutation vs source-byte editing). Our linear pipeline is correct for a single config file.
-5. **Do NOT grow into a DAG** — BuildFlow owns that layer. Our value is focus.
+~~1. **Borrow go-finding's coverage-gate pattern** — add per-package coverage thresholds to CI (go-finding enforces core 98%, pipeline 95%, CLI 90%). We currently upload to Codecov with no threshold.~~ done — coverage gate shipped: cmd/coverage-check (Go program, -min=60) runs in ci.yml; script later removed
+~~2. **Add a fuzz target on the config merger/fixer** — the `merger.go` multi-config merge and `fixer.go` normalization are pure functions ripe for fuzzing. go-finding proves this pattern works (23 fuzz targets).~~ done — FuzzMergeConfigInto + FuzzMergeIdempotent in pkg/config/merger_fuzz_test.go
+~~3. **Add `govulncheck` to CI** — go-finding and BuildFlow both run it; we don't.~~ done — govulncheck job in ci.yml
+~~4. **Do NOT adopt `go-finding/pipeline/`** — the domain mismatch is real (config mutation vs source-byte editing). Our linear pipeline is correct for a single config file.~~ validated — decision held; domain mismatch confirmed
+~~5. **Do NOT grow into a DAG** — BuildFlow owns that layer. Our value is focus.~~ validated — decision held; BuildFlow owns orchestration
 
 ---
 
