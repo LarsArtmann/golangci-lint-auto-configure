@@ -1,0 +1,22 @@
+# Link-check configuration, shared by the CI job
+# (.github/workflows/link-check.yml) and local runs:
+#
+#   nix run nixpkgs#lychee -- --config .lychee.toml --no-progress './**/*.md'
+#
+# Historical snapshots are excluded, not fixed: status reports, archived docs,
+# and planning files record URLs as they were at writing time (docs-sweep
+# guardrail: never rewrite history), and CHANGELOG entries are append-only.
+
+exclude_path = [
+  "docs/status",
+  "docs/archive",
+  "docs/planning",
+  "CHANGELOG.md",
+  "vendor",
+  ".direnv",
+  "node_modules",
+]
+
+# Retry transient network failures so CI does not flake on single hiccups.
+max_retries = 2
+timeout = 20

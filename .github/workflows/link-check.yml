@@ -1,0 +1,47 @@
+name: Link Check
+
+on:
+  push:
+    branches: [master, main, develop]
+    paths:
+      - "**/*.md"
+      - ".lychee.toml"
+      - ".github/workflows/link-check.yml"
+  pull_request:
+    branches: [master, main, develop]
+    paths:
+      - "**/*.md"
+      - ".lychee.toml"
+      - ".github/workflows/link-check.yml"
+  schedule:
+    - cron: "0 5 * * 1" # Mondays 05:00 UTC — link rot happens without md changes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    name: Check Links (lychee)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: >-
+            --config .lychee.toml
+            --no-progress
+            './**/*.md'
+          fail: true
+          format: markdown
+          output: /tmp/lychee-report.md
+
+      - name: Show report
+        if: always()
+        run: cat /tmp/lychee-report.md
+
+    timeout-minutes: 10
