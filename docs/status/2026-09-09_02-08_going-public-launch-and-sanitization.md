@@ -71,8 +71,8 @@ The 2026-05-04 decision doc (`PUBLIC_OR_PRIVATE.md`) listed "go-finding is priva
 | 1 | Public-consumer install path    | Deps public + proxy-cached (verified)                                            | Actual `go install ...@latest` never executed end-to-end                                        | S        |
 | 2 | Post-publish CI health          | Workflows triggered by push                                                      | Status never checked; markdown-lint applies to new `.md` files that were never linted locally   | S        |
 | 3 | GitHub repo metadata for launch | Repo is public with MIT license, releases, CONTRIBUTING                          | Description, topics, social preview, vulnerability reporting, branch protection — all untouched | S each   |
-| 4 | Doc link integrity              | Deletions complete                                                               | No sweep for references to the 4 deleted files across ~100 archived reports                     | S–M      |
-| 5 | History sanitization decision   | Explicitly accepted this session, recorded in `PUBLIC_OR_PRIVATE.md` status note | Never formally closed as "forever" — can be reopened (filter-repo + force push)                 | decision |
+| ~~4~~ | ~~Doc link integrity~~ | Deletions complete                                                               | No sweep for references to the 4 deleted files across ~100 archived reports                     | S–M **DONE 2026-10-07:** lychee link-check covers living docs (2026-10-07); archived reports excluded by design (never rewrite history) |
+| ~~5~~ | ~~History sanitization decision~~ | Explicitly accepted this session, recorded in `PUBLIC_OR_PRIVATE.md` status note | Never formally closed as "forever" — can be reopened (filter-repo + force push)                 | decision **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-history-sanitization.md closes it: accept history as-is, forever |
 
 ## c) NOT STARTED
 
@@ -81,11 +81,11 @@ The 2026-05-04 decision doc (`PUBLIC_OR_PRIVATE.md`) listed "go-finding is priva
 | 1  | Issue/PR templates                                | "Nice to have" tier in decision doc                                                        | Yes — higher value now that repo is public                |
 | 2  | Renovate/Dependabot                               | Decision doc item #9                                                                       | Yes                                                       |
 | 3  | Demo GIF/asciinema for README                     | Decision doc item #10                                                                      | Yes                                                       |
-| 4  | Coverage 70%+ (gate is 60%)                       | Decision doc item #7                                                                       | Yes                                                       |
-| 5  | Full-history gitleaks scan                        | Only tip was swept this session                                                            | Yes — cheap insurance before closing the history question |
+| ~~4~~ | ~~Coverage 70%+ (gate is 60%)~~ | Decision doc item #7                                                                       | Yes **DONE 2026-10-07:** gate raised 60 to 65, total coverage 72.5% (2026-10-07); the 70% aspiration is exceeded by measurement |
+| ~~5~~ | ~~Full-history gitleaks scan~~ | Only tip was swept this session                                                            | Yes — cheap insurance before closing the history question **DONE 2026-10-07:** scheduled weekly gitleaks workflow .github/workflows/gitleaks.yml (2026-10-07) |
 | 6  | v0.7.0 public-launch release                      | Out of session scope; releases exist through v0.6.0                                        | Decision needed                                           |
 | 7  | Remove `SSH_DEPLOY_KEY` secret from repo settings | GitHub settings, not repo content                                                          | Yes — now dead weight                                     |
-| 8  | Link checker in CI (lychee)                       | markdownlint doesn't check links; discovered gap                                           | Yes                                                       |
+| ~~8~~ | ~~Link checker in CI (lychee)~~ | markdownlint doesn't check links; discovered gap                                           | Yes **DONE 2026-10-07:** .github/workflows/link-check.yml + .lychee.toml (2026-10-07), 54 links green locally |
 | 9  | Flake input rev refresh (`nix flake update`)      | Deliberately avoided — rev bumps risk build breakage (go-finding churn history); pins kept | Yes, as a validated task                                  |
 | 10 | README note that Nix quick start needs no SSH     | Not noticed until writing this report                                                      | Yes                                                       |
 
@@ -126,21 +126,21 @@ Also noted, not session-caused: the repo carried a stale `PUBLIC_OR_PRIVATE.md` 
 | 8  | Add issue templates (bug report + "linter knowledge base correction")                                        | High     | S      | Feature       |
 | 9  | Add PR template                                                                                              | Medium   | S      | Feature       |
 | 10 | Enable branch protection on `master` (require CI) now that public                                            | High     | S      | Feature       |
-| 11 | Decide forever: accept history as-is vs schedule `git filter-repo` purge                                     | High     | M      | Decision      |
+| ~~11~~ | ~~Decide forever: accept history as-is vs schedule `git filter-repo` purge~~ | High     | M      | Decision **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-history-sanitization.md (accept history as-is, forever) |
 | 12 | Cut v0.7.0 public-launch release (CHANGELOG + GoReleaser + verify binaries report version, per gotcha 11)    | High     | M      | Release       |
 | 13 | README: state that the Nix quick start needs no SSH keys                                                     | Medium   | S      | Documentation |
 | 14 | README: promote `go install` above "build from source"                                                       | Medium   | S      | Documentation |
 | 15 | README: add demo GIF/asciinema                                                                               | Medium   | M      | Documentation |
 | 16 | README: badges (CI, coverage, Go version, license, Go Report Card)                                           | Medium   | S      | Documentation |
 | 17 | README: HTML report screenshot/demo                                                                          | Medium   | S      | Documentation |
-| 18 | Raise coverage gate 60% → 70% (`cmd/coverage-check -min`)                                                    | Medium   | L      | Quality       |
-| 19 | Set up Renovate or Dependabot                                                                                | Medium   | S      | Feature       |
+| ~~18~~ | ~~Raise coverage gate 60% → 70% (`cmd/coverage-check -min`)~~ | Medium   | L      | Quality **DONE 2026-10-07:** gate raised 60 to 65 (total 72.5%) rather than 70; 2026-10-07 |
+| ~~19~~ | ~~Set up Renovate or Dependabot~~ | Medium   | S      | Feature **DONE 2026-10-07:** decided against Renovate/Dependabot: docs/decisions/2026-10-07-memo-dependabot-vendorhash-policy.md (guard --fix + conditional commit) |
 | 20 | `nix flake update` + full validated rebuild (refresh pinned 2026-era revs)                                   | Medium   | M      | Cleanup       |
 | 21 | Bump go-finding v1.6.0 → v1.8.0 (proxy has 2 newer versions)                                                 | Medium   | M      | Feature       |
 | 22 | Check go-error-family v0.10.0 and gogenfilter v3.4.0 against latest                                          | Medium   | S      | Cleanup       |
-| 23 | Add link checker (lychee) to CI                                                                              | Medium   | S      | Quality       |
-| 24 | Validate `examples/` configs against latest golangci-lint                                                    | Medium   | M      | Quality       |
-| 25 | Audit the 119-linter knowledge base against current golangci-lint (deprecations since May)                   | High     | L      | Quality       |
+| ~~23~~ | ~~Add link checker (lychee) to CI~~ | Medium   | S      | Quality **DONE 2026-10-07:** .github/workflows/link-check.yml (2026-10-07) |
+| ~~24~~ | ~~Validate `examples/` configs against latest golangci-lint~~ | Medium   | M      | Quality **DONE 2026-10-07:** CI schema-verify job extended to examples/*.golangci.yml + test.golangci.yml (2026-10-07), all green |
+| ~~25~~ | ~~Audit the 119-linter knowledge base against current golangci-lint (deprecations since May)~~ | High     | L      | Quality **DONE 2026-10-07:** M26 audit: DeprecatedLinters pinned against live v2.14.0 linter list, 3 data-integrity specs (2026-10-07) |
 | 26 | Verify GoReleaser binaries report proper version (post-v0.6.0 ldflags fix)                                   | Medium   | S      | Quality       |
 | 27 | Extend `nix flake check` to `--all-systems` (aarch64-linux/darwin, x86_64-darwin currently omitted)          | Medium   | S      | Quality       |
 | 28 | Run `nix fmt` and confirm treefmt covers the edited files                                                    | Medium   | S      | Quality       |
@@ -148,7 +148,7 @@ Also noted, not session-caused: the repo carried a stale `PUBLIC_OR_PRIVATE.md` 
 | 30 | SECURITY.md: replace "latest/older" supported-versions table with concrete version                           | Low      | S      | Documentation |
 | 31 | Adopt full Contributor Covenant text (or affirm the short version)                                           | Low      | S      | Documentation |
 | 32 | Decide GitHub Discussions on/off                                                                             | Low      | S      | Feature       |
-| 33 | Improve auto-commit daemon messages (now publicly visible heuristic spam)                                    | Low      | M      | Cleanup       |
+| ~~33~~ | ~~Improve auto-commit daemon messages (now publicly visible heuristic spam)~~ | Low      | M      | Cleanup **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-daemon-commit-messages.md (leave as-is, documented) |
 | 34 | Add markdown formatting to treefmt (markdownlint is CI-only today)                                           | Low      | S      | Quality       |
 | 35 | Run fresh `erraudit` pass (existing cadence, per AGENTS.md #26)                                              | Medium   | M      | Quality       |
 | 36 | Verify Docker build works for anonymous public consumers                                                     | Low      | S      | Quality       |
@@ -160,17 +160,17 @@ Also noted, not session-caused: the repo carried a stale `PUBLIC_OR_PRIVATE.md` 
 | 42 | Consolidate inline ADRs from `docs/ARCHITECTURE.md` into `docs/adr/` (carried from TODO_LIST)                | Low      | M      | Cleanup       |
 | 43 | Verify `pkg/client` SDK example compiles/works for public consumers                                          | Medium   | M      | Quality       |
 | 44 | Consider publishing to Homebrew/Scoop via GoReleaser                                                         | Low      | M      | Feature       |
-| 45 | Announce launch (r/golang, HN, X) — user decision                                                            | Low      | S      | Feature       |
+| ~~45~~ | ~~Announce launch (r/golang, HN, X) — user decision~~ | Low      | S      | Feature **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-homepage-announcement-posture.md (portfolio-plus; announcement gated on user) |
 | 46 | Decision: does `AUTHORS`/email exposure match the public identity you want?                                  | Low      | S      | Decision      |
 | 47 | Periodic re-check that all 4 dependency repos remain public (they're now silent requirements)                | Medium   | S      | Quality       |
 | 48 | Add "how to update the linter knowledge base" contributor doc (supports item 25)                             | Medium   | M      | Documentation |
 | 49 | Confirm `.golangci-lint-auto-configure.yml` sidecar + audit-ledger docs are public-ready (no internal paths) | Low      | S      | Documentation |
-| 50 | Schedule next full `nix build` validation after any go.mod change (vendorHash gotcha #3)                     | Low      | S      | Quality       |
+| ~~50~~ | ~~Schedule next full `nix build` validation after any go.mod change (vendorHash gotcha #3)~~ | Low      | S      | Quality **DONE 2026-10-07:** scripts/vendorhash-guard.sh --fix runs in the ci.yml nix job with drift check (2026-09-11) |
 
 ## g) Top 3 questions I cannot figure out myself
 
-1. **Is the sibling-project data in git history commercially sensitive, or acceptable forever?** The tip is clean, but history contains audit details of storbi, desire-secrets, GmbH, Polish-Customs, etc. I can't know whether these are private client engagements (→ schedule a `filter-repo` purge now, while it's cheap) or your own portfolio projects nobody cares about (→ close the question permanently). Everything downstream (gitleaks item #5, public announcements) depends on this.
-2. **What is the support posture of this repo now that it's public?** Officially maintained OSS (issues triaged, response-time expectations, roadmap public, templates polished) or as-is portfolio code? This decides how much of the (f) community tier (items 3, 8, 9, 10, 19, 31, 32) actually matters versus being polish theater.
+1. ~~**Is the sibling-project data in git history commercially sensitive, or acceptable forever?** The tip is clean, but history contains audit details of storbi, desire-secrets, GmbH, Polish-Customs, etc. I can't know whether these are private client engagements (→ schedule a `filter-repo` purge now, while it's cheap) or your own portfolio projects nobody cares about (→ close the question permanently). Everything downstream (gitleaks item #5, public announcements) depends on this.~~ **DONE 2026-10-07:** answered by docs/decisions/2026-10-07-memo-history-sanitization.md: acceptable forever, no filter-repo
+2. ~~**What is the support posture of this repo now that it's public?** Officially maintained OSS (issues triaged, response-time expectations, roadmap public, templates polished) or as-is portfolio code? This decides how much of the (f) community tier (items 3, 8, 9, 10, 19, 31, 32) actually matters versus being polish theater.~~ **DONE 2026-10-07:** answered by docs/decisions/2026-10-07-memo-homepage-announcement-posture.md: portfolio-plus
 3. **Do you want a v0.7.0 "public launch" release cut now (with announcement), or should releases continue silently on the existing cadence?** If launch: do we bump deps first (go-finding v1.8.0 is waiting) or tag the current tree as-is? I can't decide the marketing cadence or whether "launch" is a thing you want at all.
 
 ---

@@ -77,7 +77,7 @@ I introduced and fixed myself.
 | - | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1 | **T25 Small-code-fixes bundle** (~90% done, uncommitted) | DONE: `FindingsHidden` dead ledger field removed; duplicate `errUnsupportedFormat`/`errUnsupportedConfigFormat` sentinels deduped (marshal path now wraps the rejection properly); multi-preset merge specs written; **real dedup bug found and fixed** (extra formatters were appended after set conversion → duplicates possible). REMAINING: my third spec fails on a type mismatch in the assertion (`ContainElements("gci")` vs `[]types.FormatterName`) — needs `types.FormatterName(...)` + 2 lint nits (wsl_v5, gci), then full suite + commit. `pkg/audit` + `pkg/config` suites already green; staged files: `cmd_configure_preset.go` + new internal test |
 | 2 | **Dependabot green-run confirmation**                    | Waits for the Sunday 2026-09-13 18:52 UTC scheduled run; everything else verified                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| 3 | **T16.4 buildflow e2e green**                            | Runs clean through 35 steps; only the findings gate (advisory) blocks. Needs a posture decision (see question 3)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ~~3~~ | ~~**T16.4 buildflow e2e green**~~ | Runs clean through 35 steps; only the findings gate (advisory) blocks. Needs a posture decision (see question 3) **DONE 2026-10-07:** findings-gate posture decided: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (keep no-config, expected-red documented) |
 | 4 | **3 user-gated questions from the previous session**     | Still unanswered (see section g) — homebrew-tap publish, v0.8.2 timing, release-page README                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ## 4. c) NOT STARTED
@@ -113,12 +113,12 @@ I introduced and fixed myself.
 5. **Use `golangci-lint run --fix` as the FIRST resort for format findings**, not the last.
 6. **Stop using bash heredocs for Go string literals entirely** — the edit tool is strictly
    better; this session's two corruptions were both predictable.
-7. **Cross-repo work needs an explicit authorization model** — 8 sibling repos sit in limbo
+7. ~~**Cross-repo work needs an explicit authorization model** — 8 sibling repos sit in limbo~~ **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07): standing auth + rehearsal protocol
    (fixed but uncommitted) because push authority is unclear.
 8. **Build-once caching and process-level test parallelism** should be the default assumption
    for new integration tests (write in-process first, subprocess only when the boundary IS the
    process).
-9. **The findings-gate posture needs a written policy** — "erraudit is manual-review" lives in
+9. ~~**The findings-gate posture needs a written policy** — "erraudit is manual-review" lives in~~ **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)
    AGENTS #26, but buildflow's gate enforces error-severity anyway; the two sources disagree.
 10. **GHCR tag hygiene** needs a decision (scope grant or accepted-wart note in release-process docs).
 
@@ -129,14 +129,14 @@ I introduced and fixed myself.
 1. Fix the T25 spec assertion type + 2 lint nits, run full suite, commit (30 min).
 2. Watch the Sunday 2026-09-13 Dependabot run; if green, prune the TODO row + record in AGENTS.
 3. Remove the stray `:master` GHCR tag (needs `delete:packages` PAT or a one-shot workflow).
-4. Decide + execute buildflow findings-gate posture (`fail_on: critical` won't help — erraudit findings ARE critical; likely `skip_steps: [erraudit, branching-flow]` or fix the 44).
-5. Commit/push the 8 sibling `.golangci.yml` repairs (pending question 1).
+4. ~~Decide + execute buildflow findings-gate posture (`fail_on: critical` won't help — erraudit findings ARE critical; likely `skip_steps: [erraudit, branching-flow]` or fix the 44).~~ **DONE 2026-10-07:** decided: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)
+5. ~~Commit/push the 8 sibling `.golangci.yml` repairs (pending question 1).~~ **DONE 2026-10-07:** authorized: docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07); execution stays user-triggered
 6. T26.1: annotate `2026-08-05_03-25_humanize-linter-status.md` as resolved.
 7. T26.2: route the dropped 07-31 F-ideas into ROADMAP or consciously drop.
 8. T26.3: version-reference sweep (AGENTS #11, docs/references).
 9. T26.4: status cadence policy into `docs/status/README.md` + final TODO prune.
 10. T27.1: decision note on PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates.
-11. T27.2: homepage + announcement posture routing.
+11. ~~T27.2: homepage + announcement posture routing.~~ **DONE 2026-10-07:** decided: docs/decisions/2026-10-07-memo-homepage-announcement-posture.md (2026-10-07)
 12. T27.3: extend docs-integrity test beyond preset counts (FEATURES.md counts).
 13. T27.4: final plan-status report + docs-health ANNOTATE the pareto plan file (guardrail 7 — overdue for all 15 done tasks).
 14. Mark T25/T26/T27 rows closed in TODO_LIST.md.
@@ -146,7 +146,7 @@ I introduced and fixed myself.
 16. Cut v0.8.2 (README fixes, exhaustruct migration, varnamelen trim, omitzero, dedup fix — pending question 2).
 17. Backfill-image workflow: smoke-test with a throwaway tag before the next real need.
 18. Add a CI job that asserts the schema-fixture ALSO round-trips as JSON (omitzero class bugs).
-19. gitleaks: add the full-history scan as a scheduled CI job (currently manual-only).
+19. ~~gitleaks: add the full-history scan as a scheduled CI job (currently manual-only).~~ **DONE 2026-10-07:** scheduled weekly gitleaks workflow (2026-10-07)
 20. Dependabot: add `groups` for golang.org/x minor bumps to cut PR noise.
 21. Wire `buildflow diff` into PR checks so only changed-file findings gate PRs.
 
@@ -167,19 +167,19 @@ I introduced and fixed myself.
 **Upstream / ecosystem**
 32. File the BuildFlow language-filter issue for the tools-unavailable health check.
 33. Suggest BuildFlow surface step-level timeout config (`.buildflow.yml` per-step override).
-34. Consider a `docs/adr/ADR-016` for the findings-gate policy decision once made.
+34. ~~Consider a `docs/adr/ADR-016` for the findings-gate policy decision once made.~~ **DONE 2026-10-07:** decided as memo instead of ADR: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md; ADR-016 slot taken by the YAML-Node decline (2026-10-07)
 35. Sibling sweep part 2: check siblings for OTHER KnownBadSettingsKeys-class drift (the map will grow).
 36. Add the 8 repaired siblings to the audit ledger's cross-repo story (or a status note).
 
 **Hygiene**
-37. `nix flake check` "running 0 flake checks" root-cause (open Low TODO, untouched).
+37. ~~`nix flake check` "running 0 flake checks" root-cause (open Low TODO, untouched).~~ **DONE 2026-10-07:** root-caused 2026-10-07: unreproducible on nix 2.34.8 (TODO_LIST)
 38. `FindingsHidden` removal follow-up: bump the audit JSONL schema note (consumers may expect the field).
 39. Link sweep for the renamed `001-yaml-dependency-decision.md` (TODO/status docs reference the old name — historical, but a redirect note in the file would help).
 40. `erraudit` quarterly re-check is due ~2026-10 (calendar item).
-41. Metadata checklist script (description/topics/badges in one gh api pass — open Low TODO).
-42. Link checker (lychee) in CI (open Low TODO).
-43. `Detect()` error-path contract decision (deferred twice, still open).
-44. Homebrew cask + scoop publish story (pending previous question 1).
+41. ~~Metadata checklist script (description/topics/badges in one gh api pass — open Low TODO).~~ **DONE 2026-10-07:** scripts/metadata-check.sh (2026-10-07)
+42. ~~Link checker (lychee) in CI (open Low TODO).~~ **DONE 2026-10-07:** .github/workflows/link-check.yml + .lychee.toml (2026-10-07)
+43. ~~`Detect()` error-path contract decision (deferred twice, still open).~~ **DONE 2026-10-07:** decided: docs/decisions/2026-10-07-memo-detect-error-contract.md (2026-10-07)
+44. ~~Homebrew cask + scoop publish story (pending previous question 1).~~ **DONE 2026-10-07:** decided: docs/decisions/2026-10-07-memo-tap-posture.md (2026-10-07): delete
 45. Release-page README warning for v0.8.1 (pending previous question 3).
 46. Move buildBinary() shared dir cleanup into TestMain (temp dirs accumulate per run).
 47. Consider `Serial`-labeling the two os.Stdout-capturing in-process suites if future parallel flakes appear.
@@ -189,7 +189,7 @@ I introduced and fixed myself.
 
 ## 8. g) Questions I cannot answer myself
 
-1. **Cross-repo write authorization:** The 8 sibling `.golangci.yml` repairs (goconst
+1. ~~**Cross-repo write authorization:** The 8 sibling `.golangci.yml` repairs (goconst~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07)
    `min-length` → `min-len`, verified against `golangci-lint config verify`) are sitting
    uncommitted in Code-Quality-Agent, crush-daily, erraudit, go-idempotency, licenseforge,
    plugmarket, go-cqrs-lite, and go-finding. Should I commit (and push?) them, or do their
@@ -199,7 +199,7 @@ I introduced and fixed myself.
    migration, varnamelen trim, omitzero JSON fix, the multi-preset formatter-dedup fix, and the
    FindingsHidden/sentinel cleanups. Cut v0.8.2 now (users get the omitzero + dedup fixes), or
    batch into v0.9.0? (This was question 2 from the 13-27 status report — still unanswered.)
-3. **Buildflow findings-gate policy:** The e2e gate fails on 235 advisory findings
+3. ~~**Buildflow findings-gate policy:** The e2e gate fails on 235 advisory findings~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)
    (branching-flow 190, erraudit 44 critical-severity, go-structure-linter 1) while AGENTS #26
    says erraudit is manual-review, not a gate. Do I (a) add `erraudit`/`branching-flow` to
    `skip_steps` in `.buildflow.yml`, (b) drop gate severity via `fail_on: critical`-plus-fixes,

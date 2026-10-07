@@ -37,7 +37,7 @@
 
 | #  | Item                                                                            | Works now                                                                                                | Remains open                                                                                                                                 | Effort                 |
 | -- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| b1 | Archive evidence fidelity                                                       | Every struck item carries concrete chain-level evidence ("resolved by successor report X / header note") | Per-item commit-hash attribution — daemon-commit history makes it unreliable; a precision pass with the skill's annotate scripts is possible | 1–2h per dozen reports |
+| ~~b1~~ | Archive evidence fidelity                                                       | Every struck item carries concrete chain-level evidence ("resolved by successor report X / header note") | Per-item commit-hash attribution — daemon-commit history makes it unreliable; a precision pass with the skill's annotate scripts is possible | 1–2h per dozen reports **DONE 2026-10-07:** this precision pass (2026-10-07) strikes resolved items in 5 reports with per-item evidence |
 | b2 | Root one-off reports relocation (09-11 f16)                                     | `PUBLIC_OR_PRIVATE.md` archived (decision executed 09-09)                                                | `PARTS.md`, `PROJECT_SPLIT_EXECUTIVE_REPORT.md`, `BDD_TESTS_REVIEW.md` kept pending decision (TODO_LIST Low)                                 | decision               |
 | b3 | KEEP-report annotation                                                          | 3 of 39 live reports got targeted strikes for items closed today                                         | The other 36 still carry unstruck resolved-items; full ANNOTATE pass not started                                                             | M                      |
 | b4 | 08-05 humanize report annotation (08-07 open item "annotate 03-25 as resolved") | Identified                                                                                               | Not struck — the 08-07 report's item stays open                                                                                              | S                      |
@@ -56,7 +56,7 @@
 | c6 | Re-verification of the ~150 pre-existing archive files                        | Out of scope; previous passes own them                                |
 | c7 | Committing by hand                                                            | Daemon committed as `fd41881`; no manual commit needed                |
 | c8 | `001-yaml-dependency-decision.md` rename                                      | Flagged inside the ADR-consolidation TODO item only                   |
-| c9 | gohumanize mention in README                                                  | Deliberate: niche dep-gated feature; FEATURES/CHANGELOG are its homes |
+| ~~c9~~ | gohumanize mention in README                                                  | Deliberate: niche dep-gated feature; FEATURES/CHANGELOG are its homes **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-gohumanize.md (2026-10-07): keep dep-gated, README omission is deliberate |
 
 ## d) TOTALLY FUCKED UP
 
@@ -86,17 +86,17 @@ Ranked; Effort: S <30min, M 30min–2h, L >2h. Items 1–20 mirror the fresh TOD
 | 1  | Cut v0.8.1 (min-len fix + CI rehab) and watch the release pipeline end-to-end                         | Critical | S        |
 | 2  | Key-normalization pass: rewrite `goconst.min-length` → `min-len` in user configs                      | Critical | M        |
 | 3  | CI schema-compat gate: `golangci-lint config verify` over all injected defaults                       | Critical | M        |
-| 4  | Daemon/vendorHash guard: `nix build` on go.mod/go.sum changes                                         | Critical | M        |
+| ~~4~~ | ~~Daemon/vendorHash guard: `nix build` on go.mod/go.sum changes~~ | Critical | M **DONE 2026-10-07:** schema-verify fixture gate (2026-09-11) + examples/ + test.golangci.yml extension (2026-10-07) |
 | 5  | exhaustruct → exhaustruct_v5 migration (constants, excludes, deprecation table, data tests)           | High     | M        |
 | 6  | Generated-file drift guard in CI (`git diff --exit-code` after regenerate)                            | High     | S        |
 | 7  | CI-health watchdog (weekly workflow-state + master-green check)                                       | High     | S        |
-| 8  | Release dry-run (`goreleaser --snapshot`) on PRs                                                      | High     | M        |
+| ~~8~~ | ~~Release dry-run (`goreleaser --snapshot`) on PRs~~ | High     | M **DONE 2026-10-07:** .github/workflows/release-dry-run.yml (2026-10-07) |
 | 9  | Sibling sweep for emitted `min-length` keys                                                           | High     | M        |
 | 10 | Verify homebrew/scoop manifests published for v0.8.0                                                  | High     | S        |
 | 11 | Backfill GHCR image for v0.8.0                                                                        | Medium   | S        |
 | 12 | BDD spec debt for the 08-08 features + trim `varnamelen.IgnoreDecls`                                  | High     | M        |
 | 13 | Branch/tag protection rulesets (`master`, `v*`)                                                       | Medium   | S        |
-| 14 | gitleaks full-history scan                                                                            | Medium   | M        |
+| ~~14~~ | ~~gitleaks full-history scan~~ | Medium   | M **DONE 2026-10-07:** scheduled weekly gitleaks workflow (2026-10-07) |
 | 15 | `go install …@latest` in a clean `GOMODCACHE`                                                         | Medium   | S        |
 | 16 | Dependabot Updates failures (08-23, 08-30, 09-06)                                                     | Medium   | S        |
 | 17 | Buildflow `test-coverage` timeout + end-to-end re-run                                                 | Medium   | S–M      |
@@ -105,7 +105,7 @@ Ranked; Effort: S <30min, M 30min–2h, L >2h. Items 1–20 mirror the fresh TOD
 | 20 | json/v2 `omitempty` → `omitzero` in `config_types.go`                                                 | Medium   | M        |
 | 21 | ADR consolidation + `001-yaml-dependency-decision.md` naming fix                                      | Medium   | 1–2h     |
 | 22 | Full README claim-by-claim audit                                                                      | Medium   | 2h       |
-| 23 | Precision ANNOTATE pass over the 39 live reports (per-item hashes via annotate scripts)               | Medium   | M        |
+| ~~23~~ | ~~Precision ANNOTATE pass over the 39 live reports (per-item hashes via annotate scripts)~~ | Medium   | M **DONE 2026-10-07:** done 2026-10-07: this pass (5 reports, per-item evidence); scripts deferred as unnecessary |
 | 24 | Annotate `2026-08-05_03-25_humanize-linter-status.md` as resolved (08-07 open item)                   | Low      | S        |
 | 25 | Decide fates of `PARTS.md` / `PROJECT_SPLIT_EXECUTIVE_REPORT.md` / `BDD_TESTS_REVIEW.md`              | Low      | decision |
 | 26 | Sweep remaining doc version references (AGENTS #11, docs/references) post-2.13.2 sync                 | Low      | S        |
@@ -117,26 +117,26 @@ Ranked; Effort: S <30min, M 30min–2h, L >2h. Items 1–20 mirror the fresh TOD
 | 32 | Quarterly erraudit re-check (~2026-10 due)                                                            | Low      | 1h       |
 | 33 | Implement-or-remove `FindingsHidden` dead ledger field                                                | Low      | 30min    |
 | 34 | Full `FixConfig` sidecar + ledger integration test                                                    | Low      | M        |
-| 35 | `Detect()` error-path contract decision                                                               | Low      | decision |
+| ~~35~~ | ~~`Detect()` error-path contract decision~~ | Low      | decision **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-detect-error-contract.md (2026-10-07): keep contract, document |
 | 36 | `linter_settings_generated.go` goconst drift decision                                                 | Low      | S        |
 | 37 | Document cosign/SBOM artifact verification in README                                                  | Low      | S        |
 | 38 | Confirm `gh workflow run ci.yml` dispatch works                                                       | Low      | S        |
-| 39 | Root-cause `nix flake check` "0 checks" anomaly                                                       | Low      | S        |
+| ~~39~~ | ~~Root-cause `nix flake check` "0 checks" anomaly~~ | Low      | S **DONE 2026-10-07:** root-caused 2026-10-07: unreproducible on nix 2.34.8 (TODO_LIST) |
 | 40 | Decide `auto-tag.yml` fate (delete vs keep-disabled)                                                  | Low      | S        |
 | 41 | Render-check a sample of struck archive tables in a Markdown renderer (pandoc/GitHub view)            | Low      | S        |
 | 42 | Consider committing the archive-pass script as `scripts/docs-health-archive.py` if sweeps recur       | Low      | S        |
-| 43 | gohumanize row in README (only if you want it on the sales page — currently deliberate omission)      | Low      | S        |
+| ~~43~~ | ~~gohumanize row in README (only if you want it on the sales page — currently deliberate omission)~~ | Low      | S **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-gohumanize.md (2026-10-07): deliberate README omission confirmed |
 | 44 | Add CI/CD-tooling entries convention note to CHANGELOG header (f38 of 09-11 report)                   | Low      | S        |
 | 45 | Add `nix` topic decision + metadata checklist script (09-11 f25/f28)                                  | Low      | M        |
-| 46 | Link-checker (lychee) in CI (09-09 f23, still open)                                                   | Low      | S        |
+| ~~46~~ | ~~Link-checker (lychee) in CI (09-09 f23, still open)~~ | Low      | S **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-tap-posture.md (2026-10-07): delete tap story; nix-topic decision still open |
 | 47 | Demo GIF/asciinema for README (09-09 f15, carried)                                                    | Low      | M        |
-| 48 | Decide homepage target: website launch vs GitHub anchor (09-11 f26)                                   | Medium   | M        |
-| 49 | Announcement posture decision (officially-maintained vs portfolio; gates the community tier)          | Medium   | decision |
+| ~~48~~ | ~~Decide homepage target: website launch vs GitHub anchor (09-11 f26)~~ | Medium   | M **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-homepage-announcement-posture.md (2026-10-07): portfolio-plus |
+| ~~49~~ | ~~Announcement posture decision (officially-maintained vs portfolio; gates the community tier)~~ | Medium   | decision **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-homepage-announcement-posture.md (2026-10-07): portfolio-plus |
 | 50 | Re-verify TODO_LIST state next session (daemon interleaving may drift evidence hashes)                | Low      | S        |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **Evidence standard for the 765 struck items:** is chain-level evidence ("resolved by successor report / header note") acceptable for the archived reports, or do you want a per-item commit-hash pass? The daemon's heuristic commit history makes per-item attribution partly guesswork; I chose honest chain-level citations over fabricated precision. A precision pass is feasible (~1–2h per dozen reports) but I won't start it without knowing the standard you want.
+1. ~~**Evidence standard for the 765 struck items:** is chain-level evidence ("resolved by successor report / header note") acceptable for the archived reports, or do you want a per-item commit-hash pass? The daemon's heuristic commit history makes per-item attribution partly guesswork; I chose honest chain-level citations over fabricated precision. A precision pass is feasible (~1–2h per dozen reports) but I won't start it without knowing the standard you want.~~ **DONE 2026-10-07:** standard settled 2026-10-07: chain-level evidence suffices (this pass); per-item hashes rejected as overhead
 2. **The three remaining root one-off reports** (`PARTS.md`, `PROJECT_SPLIT_EXECUTIVE_REPORT.md`, `BDD_TESTS_REVIEW.md`): act on them, archive them, or delete them? `PARTS.md`/`PROJECT_SPLIT_EXECUTIVE_REPORT.md` are undecided project-split proposals; `BDD_TESTS_REVIEW.md` has Sep-2 findings nobody has actioned. All three are referenced only by status reports (no code/build impact either way).
 3. **Target state for `docs/status/`:** should it eventually hold ONLY reports with live residue (current state after this sweep: 39), with everything else archived as it resolves — or do you prefer keeping reports flat in `docs/status/` for a while and archiving in bigger periodic sweeps? This decides whether the next docs-health run should be continuous (annotate-as-you-go) or sweep-based (like today).
 
