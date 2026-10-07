@@ -321,6 +321,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 33.3 | Sweep-verify with check-rows ▸ no PARTIAL tables | 10 |
 
 ### M34 docs-integrity deprecation mapping
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 34.1 | Spec: DeprecatedLinters count == FEATURES migration-table rows | 10 |
