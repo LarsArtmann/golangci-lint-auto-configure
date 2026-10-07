@@ -141,71 +141,71 @@ Injecting `*gin.Context`, `*httpx.Context`, `*koanf.Koanf` into every project's 
 
 ### Tier 1: Critical — Fix Broken/Bad Things (items 1-5)
 
-1. **FIXED:** `data_integrity_test.go` mnd test updated to assert `ignored-files` instead of `ignored-numbers` — done in this session
-2. **Trim `varnamelen.IgnoreDecls`** — remove `c *gin.Context`, `c *httpx.Context`, `k *koanf.Koanf`. Keep only stdlib types
-3. Write BDD spec: `varnamelen` trimmed `IgnoreDecls` only contains stdlib types
-4. Write BDD spec: `wrapcheck.IgnoreSigRegexps` produces 16 stdlib regexps in ToMap
-5. Write BDD spec: `errcheck.CheckTypeAssertions` produces `true` in ToMap
+1. ~~**FIXED:** `data_integrity_test.go` mnd test updated to assert `ignored-files` instead of `ignored-numbers` — done in this session~~ done (docs-health pass 2026-10-07)
+2. ~~**Trim `varnamelen.IgnoreDecls`** — remove `c *gin.Context`, `c *httpx.Context`, `k *koanf.Koanf`. Keep only stdlib types~~ done (docs-health pass 2026-10-07)
+3. ~~Write BDD spec: `varnamelen` trimmed `IgnoreDecls` only contains stdlib types~~ done (docs-health pass 2026-10-07)
+4. ~~Write BDD spec: `wrapcheck.IgnoreSigRegexps` produces 16 stdlib regexps in ToMap~~ done (docs-health pass 2026-10-07)
+5. ~~Write BDD spec: `errcheck.CheckTypeAssertions` produces `true` in ToMap~~ done (docs-health pass 2026-10-07)
 
 ### Tier 2: High — BDD Test Debt (items 6-17)
 
-6. Write BDD spec: `varnamelen.IgnoreDecls` produces correct YAML key in ToMap
-7. Write BDD spec: `varnamelen.MaxDistance` and `MinNameLength` in ToMap output
-8. Write BDD spec: `GocognitSettings` produces `min-complexity: 25` in ToMap
-9. Write BDD spec: `GocycloSettings` produces `min-complexity: 20` in ToMap
-10. Write BDD spec: `NestifSettings` produces `min-complexity: 6` in ToMap
-11. Write BDD spec: `GoconstSettings` produces `ignore-tests/min-length/min-occurrences` in ToMap
-12. Write BDD spec: `TagalignSettings` produces `align/order/sort` in ToMap
-13. Write BDD spec: `checkAbsolutePathExclusions` detects Unix absolute paths (`/home/...`)
-14. Write BDD spec: `checkAbsolutePathExclusions` detects Windows absolute paths (`C:\...`)
-15. Write BDD spec: `checkAbsolutePathExclusions` ignores relative paths and globs
-16. Write BDD spec: `checkAbsolutePathExclusions` checks both linter AND formatter exclusion paths
-17. Write BDD spec: `checkDuplicateExclusionLinters` detects and reports duplicates within a rule
+6. ~~Write BDD spec: `varnamelen.IgnoreDecls` produces correct YAML key in ToMap~~ done (docs-health pass 2026-10-07)
+7. ~~Write BDD spec: `varnamelen.MaxDistance` and `MinNameLength` in ToMap output~~ done (docs-health pass 2026-10-07)
+8. ~~Write BDD spec: `GocognitSettings` produces `min-complexity: 25` in ToMap~~ done (docs-health pass 2026-10-07)
+9. ~~Write BDD spec: `GocycloSettings` produces `min-complexity: 20` in ToMap~~ done (docs-health pass 2026-10-07)
+10. ~~Write BDD spec: `NestifSettings` produces `min-complexity: 6` in ToMap~~ done (docs-health pass 2026-10-07)
+11. ~~Write BDD spec: `GoconstSettings` produces `ignore-tests/min-length/min-occurrences` in ToMap~~ done (docs-health pass 2026-10-07)
+12. ~~Write BDD spec: `TagalignSettings` produces `align/order/sort` in ToMap~~ done (docs-health pass 2026-10-07)
+13. ~~Write BDD spec: `checkAbsolutePathExclusions` detects Unix absolute paths (`/home/...`)~~ done (docs-health pass 2026-10-07)
+14. ~~Write BDD spec: `checkAbsolutePathExclusions` detects Windows absolute paths (`C:\...`)~~ done (docs-health pass 2026-10-07)
+15. ~~Write BDD spec: `checkAbsolutePathExclusions` ignores relative paths and globs~~ done (docs-health pass 2026-10-07)
+16. ~~Write BDD spec: `checkAbsolutePathExclusions` checks both linter AND formatter exclusion paths~~ done (docs-health pass 2026-10-07)
+17. ~~Write BDD spec: `checkDuplicateExclusionLinters` detects and reports duplicates within a rule~~ done (docs-health pass 2026-10-07)
 
 ### Tier 3: High — Pruning & Integration Tests (items 18-22)
 
-18. Write BDD spec: `pruneUnenabledLinterSettings` removes settings for absent linters
-19. Write BDD spec: `pruneUnenabledLinterSettings` preserves settings for enabled linters
-20. Write BDD spec: `pruneUnenabledLinterSettings` preserves settings for disabled linters (handled by other pruner)
-21. Write BDD spec: `pruneUnenabledLinterSettings` does NOT remove settings for manually-enabled NeverAutoEnable linters (depguard, exhaustruct)
-22. Write integration spec: configure run prunes orphaned settings (e.g., `lll` settings without `lll` enabled)
+18. ~~Write BDD spec: `pruneUnenabledLinterSettings` removes settings for absent linters~~ done (docs-health pass 2026-10-07)
+19. ~~Write BDD spec: `pruneUnenabledLinterSettings` preserves settings for enabled linters~~ done (docs-health pass 2026-10-07)
+20. ~~Write BDD spec: `pruneUnenabledLinterSettings` preserves settings for disabled linters (handled by other pruner)~~ done (docs-health pass 2026-10-07)
+21. ~~Write BDD spec: `pruneUnenabledLinterSettings` does NOT remove settings for manually-enabled NeverAutoEnable linters (depguard, exhaustruct)~~ done (docs-health pass 2026-10-07)
+22. ~~Write integration spec: configure run prunes orphaned settings (e.g., `lll` settings without `lll` enabled)~~ done (docs-health pass 2026-10-07)
 
 ### Tier 4: Medium — Polish & Correctness (items 23-32)
 
-23. Update `docs/plans/cv-config-learnings.md` to mark items completed and note the mnd pivot
-24. Add CHANGELOG entry for depguard policy change (DisabledLinters to NeverAutoEnableLinters)
+23. Update `docs/plans/cv-config-learnings.md` to mark items completed and note the mnd pivot **→ open — plan doc never marked complete**
+24. ~~Add CHANGELOG entry for depguard policy change (DisabledLinters to NeverAutoEnableLinters)~~ done (docs-health pass 2026-10-07)
 25. ~~Update `docs/status/README.md` index with both status reports from this session~~ done — docs-health pass 2026-09-11 (index refreshed + archive sweep)
-26. Add data-integrity test entries for the 5 new settings structs (GocognitSettings, GocycloSettings, NestifSettings, GoconstSettings, TagalignSettings) in the "DefaultLinterSettings ToMap equivalence" Describe block
-27. Consider: add `gocognit`/`gocyclo`/`nestif`/`goconst` to the `DefaultExclusionRules` for `_test.go` (complexity linters are noisy in tests)
-28. Review: does `tagalign` default ordering conflict with `tagliatelle` case enforcement? Both touch struct tags
-29. Consider: `varnamelen` also needs `ignore-chan-recv-ok` and `ignore-for-root-var` in defaults (CV uses both)
-30. Research: friction impact of `errcheck.CheckTypeAssertions: true` across sibling projects
-31. Research: should `goconst` `min-occurrences` be 5 (our default) or 6 (CV's value)?
-32. Squash the empty-message commit `fe0ffbf`
+26. ~~Add data-integrity test entries for the 5 new settings structs (GocognitSettings, GocycloSettings, NestifSettings, GoconstSettings, TagalignSettings) in the "DefaultLinterSettings ToMap equivalence" Describe block~~ done (docs-health pass 2026-10-07)
+27. Consider: add `gocognit`/`gocyclo`/`nestif`/`goconst` to the `DefaultExclusionRules` for `_test.go` (complexity linters are noisy in tests) **→ declined-for-now — complexity linters stay in defaults unexcluded**
+28. Review: does `tagalign` default ordering conflict with `tagliatelle` case enforcement? Both touch struct tags **→ open — conflict never reviewed**
+29. Consider: `varnamelen` also needs `ignore-chan-recv-ok` and `ignore-for-root-var` in defaults (CV uses both) **→ declined-for-now — upstream knobs stay unset**
+30. Research: friction impact of `errcheck.CheckTypeAssertions: true` across sibling projects **→ declined-for-now — research not done**
+31. Research: should `goconst` `min-occurrences` be 5 (our default) or 6 (CV's value)? **→ open — USER-GATED (goconst 5 vs 6 question)**
+32. Squash the empty-message commit `fe0ffbf` **→ routed — ROADMAP open question (daemon commit messages)**
 
 ### Tier 5: Medium — CV Config Round 2 Learnings (items 33-40)
 
-33. CV removed `funlen` custom thresholds entirely — validates our 200/100 default as correct
-34. CV expanded `mnd` ignored-numbers to 21 values (6, 8, 15, 25, 30, 40, 50, 60, 70, 80, 90) — confirms the per-project thesis
+33. ~~CV removed `funlen` custom thresholds entirely — validates our 200/100 default as correct~~ **Won't implement — point-in-time observation; no action.**
+34. ~~CV expanded `mnd` ignored-numbers to 21 values (6, 8, 15, 25, 30, 40, 50, 60, 70, 80, 90) — confirms the per-project thesis~~ **Won't implement — point-in-time observation; no action.**
 35. CV added a `nolintlint` exclusion rule for `gochecknoglobals` multi-line var directives — consider adding as default exclusion
-36. CV still has triple-duplicate `exhaustruct` in test exclusion rule (lines 409, 432, 433) — our `checkDuplicateExclusionLinters` health check would catch this
-37. CV still has duplicate `filepath\.` in wrapcheck regexps (lines 396, 397) — bug in their config
-38. CV still has absolute paths in exclusions (lines 452, 472) — our `checkAbsolutePathExclusions` health check would catch this
-39. CV's `funlen` removal means our tool would inject 200/100 — acceptable since CV gave up on customizing
-40. Consider: should the tool auto-detect and warn about the nolintlint multi-line var limitation?
+36. ~~CV still has triple-duplicate `exhaustruct` in test exclusion rule (lines 409, 432, 433) — our `checkDuplicateExclusionLinters` health check would catch this~~ **Won't implement — CV-side issue; our duplicate check exists.**
+37. ~~CV still has duplicate `filepath\.` in wrapcheck regexps (lines 396, 397) — bug in their config~~ **Won't implement — CV-side bug; no action here.**
+38. ~~CV still has absolute paths in exclusions (lines 452, 472) — our `checkAbsolutePathExclusions` health check would catch this~~ **Won't implement — CV-side; our absolute-path check exists.**
+39. ~~CV's `funlen` removal means our tool would inject 200/100 — acceptable since CV gave up on customizing~~ **Won't implement — observation; injection is by design.**
+40. Consider: should the tool auto-detect and warn about the nolintlint multi-line var limitation? **→ declined-for-now — warning surface stays minimal**
 
 ### Tier 6: Low — Future & Research (items 41-50)
 
-41. Consider adding `tagliatelle` `header: kebab` default (CV uses it)
-42. Consider adding `interfacebloat` default max-interface-methods threshold
-43. Consider adding `importas` defaults for common alias patterns
-44. Consider adding `godox` keywords default (`FIXME, BUG, HACK`)
-45. Consider: `wrapcheck.IgnoreSigRegexps` — should we add `go.opentelemetry.io/otel` for OTel projects?
-46. Consider: depguard health signal — positive report when architectural enforcement detected
-47. Consider: depguard health warning when enabled but has no rules (simple deny-list where library-policy would be better)
-48. Update `docs/status/README.md` Linter Policy section: depguard entry now says "disabled" — needs correction to "never-auto-enable"
-49. Consider: should `pruneUnenabledLinterSettings` also prune formatter settings for unenabled formatters?
-50. Full `go test -race -count=1 ./...` run (no cache) to catch any other stale-cache false positives
+41. Consider adding `tagliatelle` `header: kebab` default (CV uses it) **→ declined-for-now — CV-specific, not generalizable**
+42. Consider adding `interfacebloat` default max-interface-methods threshold **→ declined-for-now — CV-specific**
+43. Consider adding `importas` defaults for common alias patterns **→ declined-for-now — CV-specific**
+44. Consider adding `godox` keywords default (`FIXME, BUG, HACK`) **→ declined-for-now — CV-specific**
+45. Consider: `wrapcheck.IgnoreSigRegexps` — should we add `go.opentelemetry.io/otel` for OTel projects? **→ declined-for-now — research not done**
+46. Consider: depguard health signal — positive report when architectural enforcement detected **→ declined-for-now — depguard stays NeverAutoEnable**
+47. Consider: depguard health warning when enabled but has no rules (simple deny-list where library-policy would be better) **→ declined-for-now — warning surface stays minimal**
+48. ~~Update `docs/status/README.md` Linter Policy section: depguard entry now says "disabled" — needs correction to "never-auto-enable"~~ done (docs-health pass 2026-10-07)
+49. Consider: should `pruneUnenabledLinterSettings` also prune formatter settings for unenabled formatters? **→ declined-for-now — prune scope stays linter settings**
+50. ~~Full `go test -race -count=1 ./...` run (no cache) to catch any other stale-cache false positives~~ done (docs-health pass 2026-10-07)
 
 ---
 

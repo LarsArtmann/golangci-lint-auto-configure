@@ -135,22 +135,22 @@ question routed). The plan file is annotated per guardrail 7.
 
 ## f) Next things (bounded, in order)
 
-1. Check the Dependabot run result (`gh api …/workflows/320348528/runs`);
+1. Check the Dependabot run result (`gh api …/workflows/320348528/runs`); **→ routed — TODO_LIST Dependabot row**
    if green, prune the TODO row.
-2. Answer the three standing questions (v0.8.2 timing; buildflow gate
+2. Answer the three standing questions (v0.8.2 timing; buildflow gate **→ open — v0.8.2 shipped; gate + cross-repo answers still open**
    posture; sibling-repo commit authorization) — each unblocks a bounded
    task.
-3. Release dry-run (`goreleaser release --snapshot --clean`) on PRs — last
+3. Release dry-run (`goreleaser release --snapshot --clean`) on PRs — last **→ routed — TODO_LIST release dry-run row**
    remaining Medium TODO row.
-4. Decide `Detect()` error-path contract (deferred twice; 30-minute
+4. Decide `Detect()` error-path contract (deferred twice; 30-minute **→ routed — TODO_LIST Detect() contract row**
    decision note).
-5. Root-cause `nix flake check` "running 0 flake checks" vs 4 in eval.
-6. Quarterly erraudit re-check (~2026-10).
-7. Link checker (lychee) in CI.
-8. Metadata checklist script (one `gh api` pass).
-9. ROADMAP theme-2 ideas when capacity allows: exclusion-merge
+5. Root-cause `nix flake check` "running 0 flake checks" vs 4 in eval. **→ routed — TODO_LIST nix-flake-checks row**
+6. Quarterly erraudit re-check (~2026-10). **→ routed — TODO_LIST erraudit row (due now, 2026-10)**
+7. Link checker (lychee) in CI. **→ routed — TODO_LIST lychee row**
+8. Metadata checklist script (one `gh api` pass). **→ routed — TODO_LIST metadata-script row**
+9. ROADMAP theme-2 ideas when capacity allows: exclusion-merge **→ routed — ROADMAP theme 2**
    observability, `yaml.Node` round-trip, fuzz tests.
-10. Revisit homepage/announcement after the support-posture decision.
+10. Revisit homepage/announcement after the support-posture decision. **→ routed — ROADMAP open question (homepage/announcement posture)**
 
 ## g) Questions that cannot be figured out from the repository alone
 
