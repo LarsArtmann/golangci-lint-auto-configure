@@ -95,6 +95,39 @@ cosign verify-blob \
 - **ginkgo**: For running tests (`go install github.com/onsi/ginkgo/v2/ginkgo@latest`)
 - **templ**: For report template generation (`go install github.com/a-h/templ/cmd/templ@latest`)
 
+### Go Version Handling (`run.go`)
+
+golangci-lint **refuses to load** any config whose `run.go` targets a Go
+version newer than the one the golangci-lint binary was built with
+(`the Go language version used to build golangci-lint is lower than the
+targeted Go version`). This tool keeps `run.go` loadable in all three
+directions:
+
+1. **Patch-free form.** `run.go` is always written as major.minor (`1.27`,
+   never `1.27.1`) — patch releases do not change language semantics, and
+   patch-pinning caused a config rewrite on every toolchain bump.
+2. **Capped at the binary's build Go.** If your local Go is newer than the
+   one golangci-lint was built with, `run.go` is capped at the binary's
+   version with a warning recommending a golangci-lint upgrade.
+3. **Rescue of already-broken configs.** If the config already contains an
+   unloadable `run.go` (newer than the binary), `configure` repairs it
+   *before* analysis — otherwise golangci-lint would refuse the config and
+   no other fix could run. The repair is recorded in the audit ledger as
+   `rescued-run-go`. Read-only modes (`--check`, `--dry-run`) never touch
+   the file; they fail with a classified, actionable error instead:
+
+```console
+$ golangci-lint-auto-configure configure --check
+❌ golangci-lint refuses to load the config: the targeted Go version (run.go or the go.mod directive) is newer than the binary.
+   → Upgrade golangci-lint to a build made with the newer Go (v2.13.2+ is built with Go 1.27), or set run.go in the config to the binary's build Go version.
+```
+
+The minimum supported golangci-lint (v2.12.0) is coupled to the oldest
+settings key the tool injects (`goconst.ignore-tests`, added in v2.12.0);
+older binaries get a clear refusal instead of a config they cannot load.
+CI verifies this contract across four pinned golangci-lint versions via the
+e2e pin matrix (`scripts/e2e-pin-matrix.sh`).
+
 ## Usage
 
 ### Analyze Your Configuration
