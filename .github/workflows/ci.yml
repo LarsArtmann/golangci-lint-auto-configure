@@ -97,6 +97,37 @@ jobs:
           verbose: true
 
     timeout-minutes: 15
+  e2e-pin-matrix:
+    name: E2E Pin Matrix (golangci-lint ${{ matrix.golangci }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        golangci: [v2.10.1, v2.12.0, v2.13.2, v2.14.0]
+    env:
+      GOEXPERIMENT: jsonv2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Install pinned golangci-lint
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: ${{ matrix.golangci }}
+          install-only: true
+
+      - name: Run pin-matrix cell
+        run: bash scripts/e2e-pin-matrix.sh ${{ matrix.golangci }} v2.12.0
+
+    timeout-minutes: 15
   lint:
     name: Lint with golangci-lint
     runs-on: ubuntu-latest

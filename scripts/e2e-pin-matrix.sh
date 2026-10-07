@@ -2,26 +2,35 @@
 # e2e-pin-matrix.sh — exercise `configure` against one pinned golangci-lint version.
 #
 # The CI job (e2e-pin-matrix in ci.yml) runs this script once per matrix cell
-# (minimum v2.10.1, previous v2.13.2, current v2.14.0). Each cell proves:
+# (v2.10.1 pre-minimum, v2.12.0 minimum, v2.13.2 previous, v2.14.0 current).
+# Each cell proves one of two contracts:
+#
+# Below the tool minimum (e.g. v2.10.1):
+#   A0  configure refuses with the classified version.too_old error and a
+#       non-zero exit — a broken, unloadable config must never be written.
+#
+# At or above the minimum:
 #   A1  configure exits 0 on a fixture whose run.go is patch-form and
 #       overspecified (run.go: "1.27.1")
 #   A2  the configured run.go is capped at min(local Go, binary build Go),
 #       stripped to major.minor (no patch churn)
 #   A3  the PINNED golangci-lint loads the configured config (config verify
 #       exits 0) — injected defaults are valid for that version, not just
-#       for the latest
+#       for the latest. This is the invariant that caught the goconst
+#       ignore-tests / v2.10.1 incompatibility (2026-10-07).
 #   A4  a second `configure --check` on the configured fixture exits 0
 #       (configure is idempotent across the pin)
 #   A5  when the binary's build Go is older than the fixture's run.go,
 #       `configure --check --json-errors` fails with the classified
 #       config.run_go.newer_than_binary error (rescue refused in check mode)
 #
-# Usage: e2e-pin-matrix.sh <expected-golangci-lint-version>
+# Usage: e2e-pin-matrix.sh <expected-golangci-lint-version> [min-tool-version]
 #   GOLANGCI_LINT_BIN  optional path to the pinned golangci-lint binary
 #                      (default: `golangci-lint` from PATH)
 set -euo pipefail
 
-EXPECTED_VERSION="${1:?usage: e2e-pin-matrix.sh <expected-golangci-lint-version>}"
+EXPECTED_VERSION="${1:?usage: e2e-pin-matrix.sh <expected-golangci-lint-version> [min-tool-version]}"
+MIN_TOOL_VERSION="${2:-v2.12.0}"
 GOLANGCI_LINT_BIN="${GOLANGCI_LINT_BIN:-$(command -v golangci-lint)}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -29,7 +38,7 @@ TOOL_BIN="$REPO_ROOT/bin/golangci-lint-auto-configure"
 
 fail() { echo "✗ FAIL: $*" >&2; exit 1; }
 
-echo "==> e2e pin matrix cell: $EXPECTED_VERSION (binary: $GOLANGCI_LINT_BIN)"
+echo "==> e2e pin matrix cell: $EXPECTED_VERSION (min supported: $MIN_TOOL_VERSION)"
 
 # The tool's analyzer shells out to `golangci-lint`; make sure it finds the
 # pinned binary, not some other install.
@@ -40,6 +49,12 @@ export GOEXPERIMENT="${GOEXPERIMENT:-jsonv2}"
 binary_version="$("$GOLANGCI_LINT_BIN" --version 2>/dev/null | grep -o 'version [0-9.]*' | grep -o '[0-9.]*')"
 [ "$binary_version" = "${EXPECTED_VERSION#v}" ] || fail "binary reports version $binary_version, expected ${EXPECTED_VERSION#v}"
 
+below_minimum=false
+lowest="$(printf '%s\n%s\n' "${EXPECTED_VERSION#v}" "${MIN_TOOL_VERSION#v}" | sort -V | head -1)"
+if [ "$lowest" = "${EXPECTED_VERSION#v}" ] && [ "${EXPECTED_VERSION#v}" != "${MIN_TOOL_VERSION#v}" ]; then
+	below_minimum=true
+fi
+
 binary_go="$("$GOLANGCI_LINT_BIN" --version 2>/dev/null | grep -o 'built with go[0-9.]*' | grep -o '[0-9.]*' | cut -d. -f1,2)"
 [ -n "$binary_go" ] || fail "cannot parse build Go version from --version output"
 echo "    binary Go (major.minor): $binary_go"
@@ -47,13 +62,6 @@ echo "    binary Go (major.minor): $binary_go"
 local_go="$(go version | grep -o 'go[0-9][0-9.]*' | head -1 | cut -d. -f1,2 | tr -d go)"
 [ -n "$local_go" ] || fail "cannot parse local Go version from 'go version'"
 echo "    local Go  (major.minor): $local_go"
-
-# run.go after configure must be min(local Go, binary Go).
-expected_run_go="$binary_go"
-if [ "$(printf '%s\n%s\n' "$binary_go" "$local_go" | sort -V | head -1)" = "$local_go" ]; then
-	expected_run_go="$local_go"
-fi
-echo "    expected run.go:         $expected_run_go"
 
 echo "==> Building tool binary"
 (cd "$REPO_ROOT" && go build -o "$TOOL_BIN" ./cmd/golangci-lint-auto-configure)
@@ -87,6 +95,29 @@ linters:
 EOF
 	(cd "$dir" && git init -q && git -c user.email=e2e@fixture -c user.name=fixture add -A && git -c user.email=e2e@fixture -c user.name=fixture commit -qm init)
 }
+
+if [ "$below_minimum" = true ]; then
+	# --- A0: below-minimum installs get a classified refusal, never a broken config ---
+	echo "==> A0: configure must refuse (pinned $EXPECTED_VERSION < minimum $MIN_TOOL_VERSION)"
+	make_fixture "$WORKDIR/belowmin"
+	set +e
+	refusal_err="$(cd "$WORKDIR/belowmin" && "$TOOL_BIN" configure --config .golangci.yml --json-errors 2>&1 >/dev/null)"
+	refusal_status=$?
+	set -e
+	[ "$refusal_status" -ne 0 ] || fail "A0: configure exited 0 on a below-minimum golangci-lint ($EXPECTED_VERSION < $MIN_TOOL_VERSION)"
+	echo "$refusal_err" | grep -q "version.too_old" \
+		|| fail "A0: expected classified code version.too_old in --json-errors output, got: $refusal_err"
+	echo "    ✓ classified version.too_old refusal, exit $refusal_status"
+	echo "✓ ALL CHECKS PASSED for $EXPECTED_VERSION (below-minimum contract)"
+	exit 0
+fi
+
+# run.go after configure must be min(local Go, binary Go).
+expected_run_go="$binary_go"
+if [ "$(printf '%s\n%s\n' "$binary_go" "$local_go" | sort -V | head -1)" = "$local_go" ]; then
+	expected_run_go="$local_go"
+fi
+echo "    expected run.go:         $expected_run_go"
 
 # --- A1+A2: configure repairs the overspecified patch-form run.go ---
 echo "==> A1/A2: configure on overspecified fixture"
