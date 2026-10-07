@@ -61,8 +61,6 @@ linters:
       min-complexity: 25
     revive:
       rules:
-        - name: default
-          disabled: false
         - name: package-comments
           disabled: true
   exclusions:

@@ -38,6 +38,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **CI now schema-verifies every shipped example config.** The
+  schema-verify job runs `golangci-lint config verify` over
+  `examples/*.golangci.yml` and `test.golangci.yml`. The first run caught
+  two invalid examples (a nonexistent `varnamelen.max-name-length` key and
+  a `revive` rule named `default`, which is not a valid rule) — both fixed.
+- **Upstream data audit (golangci-lint v2.14.0):** `LinterMinVersions`
+  `since` values and `DeprecatedLinters` mappings match the live v2.14.0
+  linter list exactly (wsl, gomodguard, exhaustruct are the only upstream
+  deprecations and all are mapped). New data-integrity specs lock the
+  cross-table version agreement and the v2.14.0 deprecation set.
 - **Fuzz targets pin the core string/version invariants.**
   `NormalizeGoMajorMinor` (idempotence), `CompareGoMajorMinor`
   (antisymmetry, reflexivity, patch-invariance), `detectYAMLIndent`

@@ -228,6 +228,22 @@ jobs:
           golangci-lint config verify
           echo "✓ every injected default is schema-valid"
 
+      - name: Verify example configs against golangci-lint schema
+        run: |
+          set -euo pipefail
+          failures=0
+          for f in examples/*.golangci.yml test.golangci.yml; do
+            dir=$(dirname "$f")
+            base=$(basename "$f")
+            if (cd "$dir" && golangci-lint config verify --config="$base" >/dev/null); then
+              echo "✓ $f"
+            else
+              echo "✗ $f fails 'golangci-lint config verify' — fix or the shipped examples teach invalid configs"
+              failures=$((failures + 1))
+            fi
+          done
+          exit "$failures"
+
     timeout-minutes: 10
   nix:
     name: Nix Flake Check

@@ -63,7 +63,6 @@ linters:
       min-complexity: 20
     varnamelen:
       min-name-length: 2
-      max-name-length: 40
 
 issues:
   max-issues-per-linter: 50 # Stricter for libraries
