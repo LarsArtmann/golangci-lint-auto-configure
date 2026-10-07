@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-07
+
 ### Added
 
 - **Go 1.27 compatibility: `run.go` is now version-aware.** golangci-lint
