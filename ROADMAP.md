@@ -135,6 +135,16 @@ The repo went public 2026-09-09 and got metadata + CI rehabilitation
   officially maintained OSS (triaged issues, response expectations, launch
   support) or portfolio code? Decide the posture first; the homepage, the
   announcement, and the gohumanize strategy all inherit from it.
+- **Cross-repo write authorization** (routed 2026-10-07 from the 09-14 pareto
+  wrap-up, g3): 8 sibling repos have uncommitted `min-length` → `min-len`
+  repairs from the 2026-09-13 sweep; committing them needs per-repo push
+  authorization. Also covers the fleet sweep follow-ups in TODO_LIST.
+- **Homebrew/Scoop tap publishing posture** (routed 2026-10-07 from the
+  release-hardening reports): `.goreleaser.yaml` has homebrew_casks/scoop
+  blocks wired with `skip_upload: true` and a PAT slot in `release.yml` —
+  publish (create the tap repos, flip the flags, own the first cask), or
+  delete the dead blocks? Deciding also cleans up the release-page footer,
+  which still advertises the non-working install methods.
 
 ---
 
