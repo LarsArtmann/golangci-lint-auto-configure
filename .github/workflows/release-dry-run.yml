@@ -1,0 +1,62 @@
+name: Release Dry-Run
+
+# Proves the release pipeline still builds on PRs that touch release
+# inputs, without publishing anything: goreleaser snapshot mode writes
+# artifacts to dist/ and never uploads or signs-for-release. Catches
+# .goreleaser.yaml rot, docker-stage breakage, and ldflags drift days
+# before a real tag hits them.
+
+on:
+  pull_request:
+    paths:
+      - ".goreleaser.yaml"
+      - "go.mod"
+      - "go.sum"
+      - "Dockerfile"
+      - "cmd/**"
+      - "pkg/**"
+      - ".github/workflows/release-dry-run.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    name: goreleaser snapshot (no publish)
+    runs-on: ubuntu-latest
+    env:
+      GOEXPERIMENT: jsonv2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Validate GoReleaser config
+        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        with:
+          version: "~> v2"
+          args: check
+
+      - name: Snapshot build (nothing is published)
+        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        with:
+          version: "~> v2"
+          args: release --snapshot --clean --skip=sign,sbom,docker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Assert artifacts exist and nothing was published
+        run: |
+          test -d dist || { echo "✗ no dist/ produced"; exit 1; }
+          ls dist/ | head -20
+          echo "✓ snapshot artifacts produced (sign/sbom/docker skipped: real releases prove those on tag push)"

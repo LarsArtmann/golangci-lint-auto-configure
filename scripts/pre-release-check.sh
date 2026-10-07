@@ -89,7 +89,7 @@ check "deterministic marshals (jsondeterminism)" go run github.com/larsartmann/l
 # 6. Coverage (same gate as CI: cmd/coverage-check parses the profile total;
 #    grepping per-package "coverage:" lines matches every line and mis-parses)
 go test -coverprofile=/tmp/coverage-check.out -covermode=atomic ./pkg/... ./internal/... >/dev/null
-if go run ./cmd/coverage-check -min=60 -profile=/tmp/coverage-check.out; then
+if go run ./cmd/coverage-check -min=65 -profile=/tmp/coverage-check.out; then
 	echo -e "${GREEN}✓${NC} Coverage >= 60% threshold"
 	pass=$((pass + 1))
 else

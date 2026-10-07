@@ -602,10 +602,10 @@ The `cmd/coverage-check` binary enforces a minimum test coverage threshold in CI
 
 ```bash
 # Fail if total coverage drops below 60%
-go run ./cmd/coverage-check -min=60 -profile=coverage.out
+go run ./cmd/coverage-check -min=65 -profile=coverage.out
 
 # Also available via Nix
-nix run .#coverage-check -- -min=60 -profile=coverage.out
+nix run .#coverage-check -- -min=65 -profile=coverage.out
 ```
 
 This replaces the previous bash script with a portable Go program that has
@@ -617,7 +617,7 @@ The repository runs these GitHub Actions workflows:
 
 | Workflow             | Trigger                | What it gates                                                                                                                                                              |
 | -------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`             | push/PR (non-markdown) | Nix flake check, govulncheck, **schema-compat gate** (every injected default verified against live golangci-lint), **e2e pin matrix** (v2.10.1/v2.12.0/v2.13.2/v2.14.0 — see below), **dogfood gate** (`configure --check` on the repo's own config), golangci-lint, test + build with `-race`, coverage ≥60% |
+| `ci.yml`             | push/PR (non-markdown) | Nix flake check, govulncheck, **schema-compat gate** (every injected default verified against live golangci-lint), **e2e pin matrix** (v2.10.1/v2.12.0/v2.13.2/v2.14.0 — see below), **dogfood gate** (`configure --check` on the repo's own config), golangci-lint, test + build with `-race`, coverage ≥65% |
 | `release.yml`        | `v*` tags              | GoReleaser: binaries, archives, deb/rpm/apk, cosign keyless signing, SBOMs, GHCR multi-arch image                                                                          |
 | `markdown-lint.yml`  | markdown changes       | markdownlint-cli2 over docs (excludes status reports, archive, CHANGELOG)                                                                                                  |
 | `ci-watchdog.yml`    | weekly cron            | Asserts `ci.yml` is active and the last master run is green; opens an issue on drift                                                                                       |
