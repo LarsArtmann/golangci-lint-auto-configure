@@ -170,6 +170,11 @@ jobs:
           go build -v ./...
           echo "✓ Build verification successful"
 
+      - name: Dogfood gate (own config is optimal)
+        run: |
+          go run ./cmd/golangci-lint-auto-configure configure --config .golangci.yml --check
+          echo "✓ the tool accepts its own .golangci.yml unchanged"
+
     timeout-minutes: 15
   schema-verify:
     name: Schema compat gate (injected defaults verify)

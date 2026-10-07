@@ -68,6 +68,35 @@ var _ = Describe("GoExperimentTags", func() {
 	})
 })
 
+var _ = Describe("GoExperimentTagsFor", func() {
+	It("should exclude graduated experiments on a toolchain at the graduation release", func() {
+		tags := constants.GoExperimentTagsFor("1.27")
+		Expect(tags).NotTo(ContainElement("goexperiment.jsonv2"))
+		Expect(tags).To(ContainElement("goexperiment.arenas"))
+		Expect(tags).To(ContainElement("goexperiment.simd"))
+	})
+
+	It("should keep pre-graduation experiments on older toolchains", func() {
+		tags := constants.GoExperimentTagsFor("1.26")
+		Expect(tags).To(ContainElement("goexperiment.jsonv2"))
+	})
+
+	It("should return all tags for an empty local version", func() {
+		Expect(constants.GoExperimentTagsFor("")).To(HaveLen(len(constants.GoExperiments)))
+	})
+
+	It("should return all tags for an unparsable local version", func() {
+		Expect(constants.GoExperimentTagsFor("devel")).To(HaveLen(len(constants.GoExperiments)))
+	})
+
+	It("should never invent tags", func() {
+		all := types.NewSet(constants.GoExperimentTags()...)
+		for _, tag := range constants.GoExperimentTagsFor("1.27") {
+			Expect(all).To(HaveKey(tag))
+		}
+	})
+})
+
 var _ = Describe("GoExperiment type", func() {
 	It("should store and retrieve fields", func() {
 		exp := types.GoExperiment{

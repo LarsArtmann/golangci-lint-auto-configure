@@ -35,6 +35,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Below-minimum installs now get a classified `version.too_old` refusal with
   an upgrade path instead of a broken config. (`exhaustruct_v5` needs
   v2.13.0 but is never auto-enabled, so it does not constrain the minimum.)
+- **Graduated Go experiments are no longer injected into `build-tags`.**
+  `goexperiment.jsonv2` graduated in Go 1.27 (encoding/json/v2 is on by
+  default), so on a Go 1.27+ toolchain the fixer skips it — previously it
+  re-added the inert tag on every configure run, fighting hand-cleaned
+  configs. Go 1.26 toolchains (where the experiment gate still applies)
+  keep getting the tag. Experiments now carry a `GraduatedIn` release; an
+  unparsable local version preserves the old inject-all behavior.
 - **Go 1.27 is now the minimum toolchain** (go.mod `go 1.27`).
   `encoding/json/v2` is non-experimental in Go 1.27, so `GOEXPERIMENT=jsonv2`
   is no longer required (still set in flake/CI, inert).
