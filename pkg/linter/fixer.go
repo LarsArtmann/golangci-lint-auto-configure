@@ -300,6 +300,9 @@ func (f *Fixer) applyAllFixes(
 	var rec configChangeRecorder
 
 	handler := newDeprecatedLinterHandler(f.logger, version)
+	if f.pol != nil {
+		handler.neverEnable = f.pol.IsNeverEnable
+	}
 
 	rec.deprecation(func() int {
 		var count int

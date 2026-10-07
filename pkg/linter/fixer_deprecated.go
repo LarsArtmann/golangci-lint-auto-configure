@@ -11,11 +11,19 @@ import (
 type deprecatedLinterHandler struct {
 	logger  *log.Logger
 	version string // detected golangci-lint version
+	// neverEnable reports whether the sidecar policy forbids adding the given
+	// linter to enable. When it fires, the deprecated predecessor is still
+	// removed (deprecation cleanup) but the replacement is NOT added — the
+	// documented never-enable contract ("never added to enable, period")
+	// outranks deprecation migration. NeverAutoEnableLinters deliberately
+	// does NOT apply here: replacing a linter the user manually enabled is a
+	// migration of their explicit choice, not an auto-enable.
+	neverEnable func(types.LinterName) bool
 }
 
 // newDeprecatedLinterHandler creates a new deprecated linter handler.
 func newDeprecatedLinterHandler(logger *log.Logger, version string) *deprecatedLinterHandler {
-	return &deprecatedLinterHandler{logger: logger, version: version}
+	return &deprecatedLinterHandler{logger: logger, version: version, neverEnable: nil}
 }
 
 // replaceLinters replaces deprecated linters with their successors in the linter set.
@@ -72,6 +80,12 @@ func (h *deprecatedLinterHandler) applyReplacement(
 
 	if linterSet.Contains(replacement.Replacement) {
 		h.logKeep(linter, replacement.Replacement, dryRun)
+
+		return 1
+	}
+
+	if h.blockedByNeverEnable(replacement.Replacement) {
+		h.logNeverEnableSkip(linter, replacement, dryRun)
 
 		return 1
 	}
@@ -194,4 +208,19 @@ func resolveLinterName(name types.LinterName) types.LinterName {
 	}
 
 	return name
+}
+
+// blockedByNeverEnable reports whether the sidecar policy forbids adding the
+// replacement linter to enable.
+func (h *deprecatedLinterHandler) blockedByNeverEnable(replacement types.LinterName) bool {
+	return h.neverEnable != nil && h.neverEnable(replacement)
+}
+
+func (h *deprecatedLinterHandler) logNeverEnableSkip(
+	linter types.LinterName, replacement types.LinterReplacement, dryRun bool,
+) {
+	h.logger.Infof(
+		"%sremove deprecated linter: %s — replacement %s is under never-enable, NOT added",
+		dryRunActionPrefix(dryRun), linter, replacement.Replacement,
+	)
 }

@@ -38,6 +38,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Deprecated-linter replacement now respects the sidecar `never-enable`
+  section.** When the replacement linter is listed under `never-enable`,
+  `configure` still removes the deprecated predecessor (deprecation cleanup)
+  but does NOT add the replacement and does NOT migrate its settings —
+  restoring the documented "never added to `enable`, period" contract.
+  (`NeverAutoEnableLinters` deliberately stays bypassed on replacements:
+  migrating a linter the user manually enabled is migration, not
+  auto-enabling. Trace + rationale: `docs/decisions/2026-10-07-memo-never-enable-replacement-bypass.md`.)
+- **ADR-016 documents the declined yaml.Node comment-preserving save path**
+  with measured spike evidence (comments survive, blank lines do not, deep
+  merge is the real cost) and explicit revisit conditions.
 - **Exclusion-merge observability (`--show-merged-rules`).** When a default
   exclusion rule matches an existing rule by `RuleKey` and unions additional
   linters into it, `configure --show-merged-rules` logs each merge (rule key
