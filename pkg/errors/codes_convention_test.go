@@ -43,8 +43,7 @@ func scanUsedCodes(t *testing.T, root string) map[string]string {
 
 		name := d.Name()
 		if !strings.HasSuffix(name, ".go") || slices.Contains(scanSkipSuffixes, name) {
-			//nolint:nilerr // skip non-source files by design
-			return nil
+			return nil // skip non-source files by design
 		}
 
 		data, readErr := os.ReadFile(path)

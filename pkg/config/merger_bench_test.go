@@ -17,7 +17,7 @@ func BenchmarkMergeConfigInto(b *testing.B) {
 
 	b.ResetTimer()
 
-	for range b.N {
+	for b.Loop() {
 		b.StopTimer()
 
 		primary := &types.Config{
@@ -84,7 +84,7 @@ linters:
 
 	b.ResetTimer()
 
-	for range b.N {
+	for b.Loop() {
 		_, _, err := cm.MergeConfigs(paths)
 		if err != nil {
 			b.Fatal(err)

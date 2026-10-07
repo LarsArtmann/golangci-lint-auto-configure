@@ -73,11 +73,11 @@ jobs:
         run: go run github.com/larsartmann/linter-autoconfigure-sdk/cmd/jsondeterminism ./...
 
       - name: Run tests
-        run: go test -v -race ./pkg/... ./internal/...
+        run: go test -v -race ./pkg/... ./internal/... ./cmd/...
 
       - name: Test with coverage
         run: |
-          go test -v -coverprofile=coverage.out -covermode=atomic ./pkg/... ./internal/...
+          go test -v -coverprofile=coverage.out -covermode=atomic ./pkg/... ./internal/... ./cmd/coverage-check/
           echo "Coverage per package:"
           go test ./pkg/... ./internal/... -cover 2>&1 | grep coverage:
           echo ""

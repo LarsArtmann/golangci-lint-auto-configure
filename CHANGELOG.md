@@ -38,6 +38,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Error-code registry with convention tests.** All 139 error-family
+  codes are now inventoried in `pkg/errors/codes.go` (`RegisteredCodes`);
+  convention tests forbid unregistered codes at call sites (a typo would
+  silently escape every template lookup), forbid dead registry entries,
+  pin the `<domain>.<action>` naming convention, and keep the
+  message-template table in lockstep with the registry.
 - **CI now schema-verifies every shipped example config.** The
   schema-verify job runs `golangci-lint config verify` over
   `examples/*.golangci.yml` and `test.golangci.yml`. The first run caught

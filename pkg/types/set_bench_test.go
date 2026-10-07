@@ -32,7 +32,7 @@ func BenchmarkAdd(b *testing.B) {
 
 			b.ResetTimer()
 
-			for range b.N {
+			for b.Loop() {
 				set.Add("new-element")
 			}
 		})
@@ -50,7 +50,7 @@ func BenchmarkContains(b *testing.B) {
 
 			b.ResetTimer()
 
-			for range b.N {
+			for b.Loop() {
 				set.Contains(element)
 			}
 		})
@@ -68,7 +68,7 @@ func BenchmarkUnion(b *testing.B) {
 
 			b.ResetTimer()
 
-			for range b.N {
+			for b.Loop() {
 				primary.Union(secondary)
 			}
 		})
@@ -86,7 +86,7 @@ func BenchmarkIntersect(b *testing.B) {
 
 			b.ResetTimer()
 
-			for range b.N {
+			for b.Loop() {
 				primary.Intersect(secondary)
 			}
 		})
@@ -104,7 +104,7 @@ func BenchmarkDifference(b *testing.B) {
 
 			b.ResetTimer()
 
-			for range b.N {
+			for b.Loop() {
 				primary.Difference(secondary)
 			}
 		})
@@ -122,7 +122,7 @@ func BenchmarkIsSubset(b *testing.B) {
 
 			b.ResetTimer()
 
-			for range b.N {
+			for b.Loop() {
 				subset.IsSubset(superset)
 			}
 		})

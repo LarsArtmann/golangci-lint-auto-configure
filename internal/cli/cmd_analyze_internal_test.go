@@ -13,10 +13,14 @@ func TestDoctorLine(t *testing.T) {
 		wantSubstring []string
 	}{
 		{
-			name:          "both known",
-			localGo:       "1.27.1",
-			golangciGo:    "1.27",
-			wantSubstring: []string{"local go1.27.1", "golangci-lint built with go1.27", "capped at go1.27"},
+			name:       "both known",
+			localGo:    "1.27.1",
+			golangciGo: "1.27",
+			wantSubstring: []string{
+				"local go1.27.1",
+				"golangci-lint built with go1.27",
+				"capped at go1.27",
+			},
 		},
 		{
 			name:          "local unknown",
@@ -37,7 +41,13 @@ func TestDoctorLine(t *testing.T) {
 			got := doctorLine(test.localGo, test.golangciGo)
 			for _, want := range test.wantSubstring {
 				if !strings.Contains(got, want) {
-					t.Fatalf("doctorLine(%q, %q) = %q, want substring %q", test.localGo, test.golangciGo, got, want)
+					t.Fatalf(
+						"doctorLine(%q, %q) = %q, want substring %q",
+						test.localGo,
+						test.golangciGo,
+						got,
+						want,
+					)
 				}
 			}
 		})

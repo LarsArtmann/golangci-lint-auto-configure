@@ -9,7 +9,7 @@ func BenchmarkSettingsToMap_Simple(b *testing.B) {
 
 	b.ResetTimer()
 
-	for range b.N {
+	for b.Loop() {
 		_ = s.ToMap()
 	}
 }
@@ -21,7 +21,7 @@ func BenchmarkSettingsToMap_WithSlices(b *testing.B) {
 
 	b.ResetTimer()
 
-	for range b.N {
+	for b.Loop() {
 		_ = s.ToMap()
 	}
 }
@@ -36,7 +36,7 @@ func BenchmarkSettingsToMap_WithNestedStructs(b *testing.B) {
 
 	b.ResetTimer()
 
-	for range b.N {
+	for b.Loop() {
 		_ = s.ToMap()
 	}
 }
@@ -44,7 +44,7 @@ func BenchmarkSettingsToMap_WithNestedStructs(b *testing.B) {
 func BenchmarkSettingsToMap_AllDefaults(b *testing.B) {
 	b.ResetTimer()
 
-	for range b.N {
+	for b.Loop() {
 		for _, s := range DefaultLinterSettings {
 			_ = s.ToMap()
 		}

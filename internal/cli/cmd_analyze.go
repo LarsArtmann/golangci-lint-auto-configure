@@ -123,7 +123,10 @@ func runAnalyze(
 	}
 
 	if format == "text" && flags.Verbose {
-		fmt.Fprintln(os.Stdout, doctorLine(config.GetLocalGoVersion(cmd.Context()), analyzer.GetDetectedGoVersion()))
+		fmt.Fprintln(
+			os.Stdout,
+			doctorLine(config.GetLocalGoVersion(cmd.Context()), analyzer.GetDetectedGoVersion()),
+		)
 	}
 
 	return outputAnalysis(analysis, format, configFile)
