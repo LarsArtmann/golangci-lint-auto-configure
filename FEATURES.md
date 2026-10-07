@@ -201,25 +201,25 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## Build & CI
 
-| Feature                             | Status           | Notes                                                               |
-| ----------------------------------- | ---------------- | ------------------------------------------------------------------- |
-| Nix flake build                     | FULLY_FUNCTIONAL | Reproducible builds                                                 |
-| GitHub Actions CI (Go 1.27)         | FULLY_FUNCTIONAL |                                                                     |
-| Pre-commit hook                     | FULLY_FUNCTIONAL | golangci-lint, go-test, go-fmt                                      |
-| Version injection via ldflags       | FULLY_FUNCTIONAL | version, commit, date, treeState                                    |
+| Feature                              | Status           | Notes                                                                                                                                                          |
+| ------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nix flake build                      | FULLY_FUNCTIONAL | Reproducible builds                                                                                                                                            |
+| GitHub Actions CI (Go 1.27)          | FULLY_FUNCTIONAL |                                                                                                                                                                |
+| Pre-commit hook                      | FULLY_FUNCTIONAL | golangci-lint, go-test, go-fmt                                                                                                                                 |
+| Version injection via ldflags        | FULLY_FUNCTIONAL | version, commit, date, treeState                                                                                                                               |
 | GitHub release pipeline (GoReleaser) | FULLY_FUNCTIONAL | dockers_v2 → GHCR, cosign keyless signing, SBOMs, curated release notes; manual tagging via the go-release flow (the auto-tag workflow was deleted 2026-09-13) |
-| Committed templ output (\_templ.go) | FULLY_FUNCTIONAL | No build-time generation needed                                     |
-| Govulncheck security scanning       | FULLY_FUNCTIONAL | CI job runs govulncheck ./...                                       |
-| Coverage threshold gate             | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 60% threshold)                      |
-| GitHub Actions pinned to SHAs       | FULLY_FUNCTIONAL | 14 distinct actions across 5 workflows, all pinned to immutable commit hashes |
-| Settings struct codegen             | FULLY_FUNCTIONAL | `cmd/generate-settings` generates 88 structs from JSON Schema       |
-| jsondeterminism release gate        | FULLY_FUNCTIONAL | Release gate + CI run the SDK's `jsondeterminism` analyzer; bare `encoding/json/v2` Marshal fails the gate |
-| Atomic config writes                | FULLY_FUNCTIONAL | Config + backup writes are crash-safe (temp + fsync + rename via `go-atomic-write`) |
-| CI watchdog                         | FULLY_FUNCTIONAL | `ci-watchdog.yml` + `scripts/ci-watchdog.sh` monitor CI health      |
-| Branch/tag protection rulesets      | FULLY_FUNCTIONAL | GitHub rulesets on `master` and `v*` (2026-09-13)                   |
-| Dependabot automation               | FULLY_FUNCTIONAL | `.github/dependabot.yml` for Actions + Go modules (grouped bumps)   |
-| `git-cliff` changelog automation    | FULLY_FUNCTIONAL | `cliff.toml` config for changelog generation from commits           |
-| `--no-color` flag                   | FULLY_FUNCTIONAL | CI/scripting output (sets `NO_COLOR=1`)                             |
-| Fuzz + property tests               | FULLY_FUNCTIONAL | Set algebra invariants (commutative, idempotent, subset)            |
-| `--json-errors` flag                | FULLY_FUNCTIONAL | JSON error output for CI/CD                                         |
-| `encoding/json/v2` migration        | FULLY_FUNCTIONAL | All files migrated; GOEXPERIMENT=jsonv2 in flake.nix + CI workflows |
+| Committed templ output (\_templ.go)  | FULLY_FUNCTIONAL | No build-time generation needed                                                                                                                                |
+| Govulncheck security scanning        | FULLY_FUNCTIONAL | CI job runs govulncheck ./...                                                                                                                                  |
+| Coverage threshold gate              | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 60% threshold)                                                                                                                 |
+| GitHub Actions pinned to SHAs        | FULLY_FUNCTIONAL | 14 distinct actions across 5 workflows, all pinned to immutable commit hashes                                                                                  |
+| Settings struct codegen              | FULLY_FUNCTIONAL | `cmd/generate-settings` generates 88 structs from JSON Schema                                                                                                  |
+| jsondeterminism release gate         | FULLY_FUNCTIONAL | Release gate + CI run the SDK's `jsondeterminism` analyzer; bare `encoding/json/v2` Marshal fails the gate                                                     |
+| Atomic config writes                 | FULLY_FUNCTIONAL | Config + backup writes are crash-safe (temp + fsync + rename via `go-atomic-write`)                                                                            |
+| CI watchdog                          | FULLY_FUNCTIONAL | `ci-watchdog.yml` + `scripts/ci-watchdog.sh` monitor CI health                                                                                                 |
+| Branch/tag protection rulesets       | FULLY_FUNCTIONAL | GitHub rulesets on `master` and `v*` (2026-09-13)                                                                                                              |
+| Dependabot automation                | FULLY_FUNCTIONAL | `.github/dependabot.yml` for Actions + Go modules (grouped bumps)                                                                                              |
+| `git-cliff` changelog automation     | FULLY_FUNCTIONAL | `cliff.toml` config for changelog generation from commits                                                                                                      |
+| `--no-color` flag                    | FULLY_FUNCTIONAL | CI/scripting output (sets `NO_COLOR=1`)                                                                                                                        |
+| Fuzz + property tests                | FULLY_FUNCTIONAL | Set algebra invariants (commutative, idempotent, subset)                                                                                                       |
+| `--json-errors` flag                 | FULLY_FUNCTIONAL | JSON error output for CI/CD                                                                                                                                    |
+| `encoding/json/v2` migration         | FULLY_FUNCTIONAL | All files migrated; GOEXPERIMENT=jsonv2 in flake.nix + CI workflows                                                                                            |

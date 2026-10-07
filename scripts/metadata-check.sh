@@ -19,8 +19,14 @@ FIX="${1:-}"
 PASS=0
 FAIL=0
 
-ok() { echo "  ✓ $1"; PASS=$((PASS + 1)); }
-bad() { echo "  ✗ $1"; FAIL=$((FAIL + 1)); }
+ok() {
+	echo "  ✓ $1"
+	PASS=$((PASS + 1))
+}
+bad() {
+	echo "  ✗ $1"
+	FAIL=$((FAIL + 1))
+}
 
 echo "==> Metadata audit for $REPO"
 
@@ -80,7 +86,10 @@ for url in $badges; do
 	code="$(curl -s -o /dev/null -w '%{http_code}' -I "$url" || echo 000)"
 	case "$code" in
 	200 | 301 | 302 | 403 | 404) : ;; # 403 = shields HEAD rate-limit; 404 = OIDC issuer, not a page
-	*) echo "    dead badge: $url -> $code"; dead=$((dead + 1)) ;;
+	*)
+		echo "    dead badge: $url -> $code"
+		dead=$((dead + 1))
+		;;
 	esac
 done
 if [ "$dead" -eq 0 ]; then ok "all README URLs reachable"; else bad "$dead dead URL(s) in README"; fi

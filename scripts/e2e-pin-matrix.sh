@@ -36,7 +36,10 @@ GOLANGCI_LINT_BIN="${GOLANGCI_LINT_BIN:-$(command -v golangci-lint)}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TOOL_BIN="$REPO_ROOT/bin/golangci-lint-auto-configure"
 
-fail() { echo "✗ FAIL: $*" >&2; exit 1; }
+fail() {
+	echo "✗ FAIL: $*" >&2
+	exit 1
+}
 
 echo "==> e2e pin matrix cell: $EXPECTED_VERSION (min supported: $MIN_TOOL_VERSION)"
 
@@ -105,8 +108,8 @@ if [ "$below_minimum" = true ]; then
 	refusal_status=$?
 	set -e
 	[ "$refusal_status" -ne 0 ] || fail "A0: configure exited 0 on a below-minimum golangci-lint ($EXPECTED_VERSION < $MIN_TOOL_VERSION)"
-	echo "$refusal_err" | grep -q "version.too_old" \
-		|| fail "A0: expected classified code version.too_old in --json-errors output, got: $refusal_err"
+	echo "$refusal_err" | grep -q "version.too_old" ||
+		fail "A0: expected classified code version.too_old in --json-errors output, got: $refusal_err"
 	echo "    ✓ classified version.too_old refusal, exit $refusal_status"
 	echo "✓ ALL CHECKS PASSED for $EXPECTED_VERSION (below-minimum contract)"
 	exit 0
@@ -122,24 +125,24 @@ echo "    expected run.go:         $expected_run_go"
 # --- A1+A2: configure repairs the overspecified patch-form run.go ---
 echo "==> A1/A2: configure on overspecified fixture"
 make_fixture "$WORKDIR/configured"
-(cd "$WORKDIR/configured" && "$TOOL_BIN" configure --config .golangci.yml) >/dev/null 2>&1 \
-	|| fail "A1: configure exited non-zero"
+(cd "$WORKDIR/configured" && "$TOOL_BIN" configure --config .golangci.yml) >/dev/null 2>&1 ||
+	fail "A1: configure exited non-zero"
 
 actual_run_go="$(grep -A2 '^run:' "$WORKDIR/configured/.golangci.yml" | grep 'go:' | head -1 | grep -o '[0-9.]*')"
-[ "$actual_run_go" = "$expected_run_go" ] \
-	|| fail "A2: run.go is $actual_run_go, expected $expected_run_go (min of local $local_go and binary $binary_go, no patch)"
+[ "$actual_run_go" = "$expected_run_go" ] ||
+	fail "A2: run.go is $actual_run_go, expected $expected_run_go (min of local $local_go and binary $binary_go, no patch)"
 echo "    ✓ run.go: 1.27.1 -> $actual_run_go"
 
 # --- A3: the pinned binary loads the configured config ---
 echo "==> A3: pinned golangci-lint loads configured config"
-(cd "$WORKDIR/configured" && "$GOLANGCI_LINT_BIN" config verify) \
-	|| fail "A3: pinned $EXPECTED_VERSION refuses the configured config (injected defaults incompatible?)"
+(cd "$WORKDIR/configured" && "$GOLANGCI_LINT_BIN" config verify) ||
+	fail "A3: pinned $EXPECTED_VERSION refuses the configured config (injected defaults incompatible?)"
 echo "    ✓ config verify green on $EXPECTED_VERSION"
 
 # --- A4: configure is idempotent under the pin ---
 echo "==> A4: configure --check on configured fixture"
-(cd "$WORKDIR/configured" && "$TOOL_BIN" configure --config .golangci.yml --check) >/dev/null 2>&1 \
-	|| fail "A4: --check on the configured fixture wants more changes (configure not idempotent under $EXPECTED_VERSION)"
+(cd "$WORKDIR/configured" && "$TOOL_BIN" configure --config .golangci.yml --check) >/dev/null 2>&1 ||
+	fail "A4: --check on the configured fixture wants more changes (configure not idempotent under $EXPECTED_VERSION)"
 echo "    ✓ --check exits 0 (config optimal)"
 
 # --- A5: check mode refuses to rescue, with the classified error ---
@@ -151,8 +154,8 @@ if [ "$(printf '%s\n1.27\n' "$binary_go" | sort -V | head -1)" = "$binary_go" ] 
 	check_status=$?
 	set -e
 	[ "$check_status" -ne 0 ] || fail "A5: --check exited 0 but run.go 1.27.1 is unloadable for $EXPECTED_VERSION"
-	echo "$check_err" | grep -q "config.run_go.newer_than_binary" \
-		|| fail "A5: expected classified code config.run_go.newer_than_binary in --json-errors output, got: $check_err"
+	echo "$check_err" | grep -q "config.run_go.newer_than_binary" ||
+		fail "A5: expected classified code config.run_go.newer_than_binary in --json-errors output, got: $check_err"
 	echo "    ✓ classified config.run_go.newer_than_binary, exit $check_status"
 else
 	echo "==> A5: skipped (binary Go $binary_go can load 1.27 — nothing to rescue)"

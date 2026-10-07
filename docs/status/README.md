@@ -23,16 +23,16 @@ Point-in-time snapshots from development sessions. Each report captures what was
 > or fully-routed files were annotated inline (every item struck or routed)
 > and archived:
 >
-> | Archived file                                                              | Classification | Deciding reason                                                                    |
-> | -------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------- |
-> | 2026-07-25_06-30 docs-health annotation pass                               | ARCHIVE        | 56/56 §e/§f items closed (1 routed: error-code registry → ROADMAP theme 5)         |
-> | 2026-07-25_06-52 follow-up resolving open questions                        | ARCHIVE        | 50/50 §f items closed (1 routed to ROADMAP theme 5); §g answered                   |
-> | 2026-07-25_17-31 coverage-check quality-debt cleanup                       | ARCHIVE        | 61/61 §c/§f items closed (2 declined: OutputConfig typing, CI retry)               |
-> | 2026-07-25_18-15 comprehensive 50-item execution                           | ARCHIVE        | 17/17 remaining-item rows struck with commit hashes                                |
-> | 2026-07-25_20-55 complete 17-item execution                                | ARCHIVE        | No forward-looking section; 2 stale claims inline-corrected                        |
-> | 2026-07-06 pipeline comparison (research)                                  | ARCHIVE        | 5/5 recommendations resolved (3 shipped, 2 validated); banner + inline strikes     |
-> | 2026-07-25 ecosystem report (research)                                     | ARCHIVE        | 7/7 recommendations shipped; residue routed to ROADMAP theme 2                     |
-> | 2026-07-10 deep architecture review                                        | ARCHIVE        | 12/12 P0–P3 recommendations shipped; Resolution Status table verified              |
+> | Archived file                                        | Classification | Deciding reason                                                                |
+> | ---------------------------------------------------- | -------------- | ------------------------------------------------------------------------------ |
+> | 2026-07-25_06-30 docs-health annotation pass         | ARCHIVE        | 56/56 §e/§f items closed (1 routed: error-code registry → ROADMAP theme 5)     |
+> | 2026-07-25_06-52 follow-up resolving open questions  | ARCHIVE        | 50/50 §f items closed (1 routed to ROADMAP theme 5); §g answered               |
+> | 2026-07-25_17-31 coverage-check quality-debt cleanup | ARCHIVE        | 61/61 §c/§f items closed (2 declined: OutputConfig typing, CI retry)           |
+> | 2026-07-25_18-15 comprehensive 50-item execution     | ARCHIVE        | 17/17 remaining-item rows struck with commit hashes                            |
+> | 2026-07-25_20-55 complete 17-item execution          | ARCHIVE        | No forward-looking section; 2 stale claims inline-corrected                    |
+> | 2026-07-06 pipeline comparison (research)            | ARCHIVE        | 5/5 recommendations resolved (3 shipped, 2 validated); banner + inline strikes |
+> | 2026-07-25 ecosystem report (research)               | ARCHIVE        | 7/7 recommendations shipped; residue routed to ROADMAP theme 2                 |
+> | 2026-07-10 deep architecture review                  | ARCHIVE        | 12/12 P0–P3 recommendations shipped; Resolution Status table verified          |
 >
 > **Fourth sweep wave (same day, 2026-10-07):** after routing, seven more
 > reports became fully resolved (every numbered item struck or routed) and
@@ -73,18 +73,18 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 
 ### Quality Sprints & Sweeps (2026-07-25/26)
 
-| Date       | Report                                                 | Key Outcome                                 |
-| ---------- | ------------------------------------------------------ | ------------------------------------------- |
-| 2026-07-25 | `05-40_forcetypeassert-test-exclusion-default`         | Test exclusion default                      |
-| 2026-07-25 | `07-03_test-coverage-sprint-status`                    | Enforcement + audit CLI tests               |
-| 2026-07-25 | `07-35_docs-health-todo-sweep-self-review`             | 15/50 sweep items                           |
-| 2026-07-25 | `14-01_50-item-todo-list-second-sweep`                 | 16/50 sweep items                           |
-| 2026-07-25 | `14-01_friction-reduction-plan-execution`              | `--pragmatic`, house preset, funlen 200/100 |
-| 2026-07-25 | `14-29_quality-debt-cleanup`                           | CoreFormatters, gosec/errcheck alignment    |
-| 2026-07-26 | `06-33_docs-health-and-old-docs-second-pass`           | Second annotation pass                      |
-| 2026-07-26 | `09-41_superb-plan-phase-1-3-execution`                | Branded types, decoupling                   |
-| 2026-07-26 | `10-06_deduplication-to-zero-session-report`           | art-dupl → 0 clones                         |
-| 2026-07-26 | `16-37_superb-plan-phase-4-execution`                  | Flags struct, SettingsMap                   |
+| Date       | Report                                         | Key Outcome                                 |
+| ---------- | ---------------------------------------------- | ------------------------------------------- |
+| 2026-07-25 | `05-40_forcetypeassert-test-exclusion-default` | Test exclusion default                      |
+| 2026-07-25 | `07-03_test-coverage-sprint-status`            | Enforcement + audit CLI tests               |
+| 2026-07-25 | `07-35_docs-health-todo-sweep-self-review`     | 15/50 sweep items                           |
+| 2026-07-25 | `14-01_50-item-todo-list-second-sweep`         | 16/50 sweep items                           |
+| 2026-07-25 | `14-01_friction-reduction-plan-execution`      | `--pragmatic`, house preset, funlen 200/100 |
+| 2026-07-25 | `14-29_quality-debt-cleanup`                   | CoreFormatters, gosec/errcheck alignment    |
+| 2026-07-26 | `06-33_docs-health-and-old-docs-second-pass`   | Second annotation pass                      |
+| 2026-07-26 | `09-41_superb-plan-phase-1-3-execution`        | Branded types, decoupling                   |
+| 2026-07-26 | `10-06_deduplication-to-zero-session-report`   | art-dupl → 0 clones                         |
+| 2026-07-26 | `16-37_superb-plan-phase-4-execution`          | Flags struct, SettingsMap                   |
 
 ### Linter Policy & Tiers (2026-07-10 → 07-26)
 
@@ -113,8 +113,8 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 
 ### Regression-Loop Prevention & Pareto (2026-07-30/31)
 
-| Date       | Report                                                          | Key Outcome                      |
-| ---------- | --------------------------------------------------------------- | -------------------------------- |
+| Date | Report | Key Outcome |
+| ---- | ------ | ----------- |
 
 ### gohumanize & CV-Config Learnings (2026-08)
 
@@ -128,12 +128,12 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 
 ### Public Launch & CI Rehabilitation (2026-09)
 
-| Date       | Report                                                     | Key Outcome                                                                         |
-| ---------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 2026-09-09 | `02-08_going-public-launch-and-sanitization`               | Repo made public; sanitization battery                                              |
-| 2026-09-11 | `06-38_buildflow-failures-resolved`                        | Generator formatting, vendorHash triage                                             |
-| 2026-09-11 | `08-33_github-metadata-and-ci-rehabilitation-status`       | Metadata, CI re-enable, goconst schema fix                                          |
-| 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`           | Living-docs overhaul + 28-file archive sweep                                        |
+| Date       | Report                                                           | Key Outcome                                                                 |
+| ---------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| 2026-09-09 | `02-08_going-public-launch-and-sanitization`                     | Repo made public; sanitization battery                                      |
+| 2026-09-11 | `06-38_buildflow-failures-resolved`                              | Generator formatting, vendorHash triage                                     |
+| 2026-09-11 | `08-33_github-metadata-and-ci-rehabilitation-status`             | Metadata, CI re-enable, goconst schema fix                                  |
+| 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`                 | Living-docs overhaul + 28-file archive sweep                                |
 | 2026-09-11 | `23-26_pareto-execution-t11-t25-thirteen-tasks-and-honest-scars` | T11–T25: GHCR backfill, rulesets, gitleaks, ADR consolidation, README audit |
-| 2026-09-28 | `21-59_go-1.27-readiness-shipped-and-reviewed`             | Go 1.27 readiness: `run.go` major.minor + cap + rescue; live frontier               |
-| 2026-10-07 | `02-57_docs-health-third-sweep-full-audit`                 | Third docs-health sweep: 15 files archived, living docs rehabilitated               |
+| 2026-09-28 | `21-59_go-1.27-readiness-shipped-and-reviewed`                   | Go 1.27 readiness: `run.go` major.minor + cap + rescue; live frontier       |
+| 2026-10-07 | `02-57_docs-health-third-sweep-full-audit`                       | Third docs-health sweep: 15 files archived, living docs rehabilitated       |

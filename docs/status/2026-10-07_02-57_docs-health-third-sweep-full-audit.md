@@ -24,16 +24,16 @@ implement` / `NOT-DO` / routed verdict; top resolution blockquotes added;
 `git mv` to `docs/archive/{status,research,reviews}/`; manifest table written
 into `docs/status/README.md` (per the 2026-10-01 bulk-archive rule):
 
-| Archived file                                          | Deciding reason                                                              |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| 2026-07-25_06-30 docs-health annotation pass           | 56/56 §e/§f closed (1 routed: error-code registry → ROADMAP theme 5)         |
-| 2026-07-25_06-52 follow-up open questions              | 50/50 §f closed (1 routed); §g answered in-file                              |
-| 2026-07-25_17-31 coverage-check cleanup                | 61/61 §c/§f closed (2 declined: OutputConfig typing, CI retry)               |
-| 2026-07-25_18-15 comprehensive 50-item execution       | 17/17 remaining rows struck with the in-file commit hashes                   |
-| 2026-07-25_20-55 complete 17-item execution            | No forward-looking section; 2 stale claims inline-corrected                  |
-| 2026-07-06 pipeline comparison (research)              | 5/5 recommendations resolved (3 shipped, 2 validated)                        |
-| 2026-07-25 ecosystem report (research)                 | 7/7 recommendations shipped; residue routed to ROADMAP theme 2               |
-| 2026-07-10 deep architecture review                    | 12/12 P0–P3 recommendations shipped; Resolution table verified               |
+| Archived file                                    | Deciding reason                                                      |
+| ------------------------------------------------ | -------------------------------------------------------------------- |
+| 2026-07-25_06-30 docs-health annotation pass     | 56/56 §e/§f closed (1 routed: error-code registry → ROADMAP theme 5) |
+| 2026-07-25_06-52 follow-up open questions        | 50/50 §f closed (1 routed); §g answered in-file                      |
+| 2026-07-25_17-31 coverage-check cleanup          | 61/61 §c/§f closed (2 declined: OutputConfig typing, CI retry)       |
+| 2026-07-25_18-15 comprehensive 50-item execution | 17/17 remaining rows struck with the in-file commit hashes           |
+| 2026-07-25_20-55 complete 17-item execution      | No forward-looking section; 2 stale claims inline-corrected          |
+| 2026-07-06 pipeline comparison (research)        | 5/5 recommendations resolved (3 shipped, 2 validated)                |
+| 2026-07-25 ecosystem report (research)           | 7/7 recommendations shipped; residue routed to ROADMAP theme 2       |
+| 2026-07-10 deep architecture review              | 12/12 P0–P3 recommendations shipped; Resolution table verified       |
 
 All annotations ran through the skill scripts (`annotate-rows.py`,
 `annotate-prose.py`, `annotate-status-items.py`) with dry-run before every

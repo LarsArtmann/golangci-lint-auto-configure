@@ -111,7 +111,7 @@ directions:
    version with a warning recommending a golangci-lint upgrade.
 3. **Rescue of already-broken configs.** If the config already contains an
    unloadable `run.go` (newer than the binary), `configure` repairs it
-   *before* analysis — otherwise golangci-lint would refuse the config and
+   _before_ analysis — otherwise golangci-lint would refuse the config and
    no other fix could run. The repair is recorded in the audit ledger as
    `rescued-run-go`. Read-only modes (`--check`, `--dry-run`) never touch
    the file; they fail with a classified, actionable error instead:
@@ -615,13 +615,13 @@ BDD-tested parsing logic.
 
 The repository runs these GitHub Actions workflows:
 
-| Workflow             | Trigger                | What it gates                                                                                                                                                              |
-| -------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Workflow             | Trigger                | What it gates                                                                                                                                                                                                                                                                                                 |
+| -------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ci.yml`             | push/PR (non-markdown) | Nix flake check, govulncheck, **schema-compat gate** (every injected default verified against live golangci-lint), **e2e pin matrix** (v2.10.1/v2.12.0/v2.13.2/v2.14.0 — see below), **dogfood gate** (`configure --check` on the repo's own config), golangci-lint, test + build with `-race`, coverage ≥65% |
-| `release.yml`        | `v*` tags              | GoReleaser: binaries, archives, deb/rpm/apk, cosign keyless signing, SBOMs, GHCR multi-arch image                                                                          |
-| `markdown-lint.yml`  | markdown changes       | markdownlint-cli2 over docs (excludes status reports, archive, CHANGELOG)                                                                                                  |
-| `ci-watchdog.yml`    | weekly cron            | Asserts `ci.yml` is active and the last master run is green; opens an issue on drift                                                                                       |
-| `backfill-image.yml` | manual dispatch        | Rebuilds + pushes the GHCR image for any already-released tag whose docker stage failed                                                                                    |
+| `release.yml`        | `v*` tags              | GoReleaser: binaries, archives, deb/rpm/apk, cosign keyless signing, SBOMs, GHCR multi-arch image                                                                                                                                                                                                             |
+| `markdown-lint.yml`  | markdown changes       | markdownlint-cli2 over docs (excludes status reports, archive, CHANGELOG)                                                                                                                                                                                                                                     |
+| `ci-watchdog.yml`    | weekly cron            | Asserts `ci.yml` is active and the last master run is green; opens an issue on drift                                                                                                                                                                                                                          |
+| `backfill-image.yml` | manual dispatch        | Rebuilds + pushes the GHCR image for any already-released tag whose docker stage failed                                                                                                                                                                                                                       |
 
 **E2E pin matrix.** CI runs `scripts/e2e-pin-matrix.sh` against four pinned
 golangci-lint versions. Cells below the supported minimum (v2.12.0) must get

@@ -75,25 +75,25 @@
 
 ## Remaining Items (sorted by impact)
 
-| #  | Item                                            | Category       | Impact | Effort | Why Not Done                                         |
-| -- | ----------------------------------------------- | -------------- | ------ | ------ | ---------------------------------------------------- |
-| ~~1~~  | ~~Split cmd_configure.go (586 lines) (#24)~~ done at `9a41447` | ~~Refactor~~ | ~~High~~ | ~~3-4h~~ | ~~Largest SRP violation; high-risk mechanical split~~ |
-| ~~2~~  | ~~Extract typed linter constants (#25)~~ done at `9e0e702` | ~~Type safety~~ | ~~Medium~~ | ~~2-3h~~ | ~~Mechanical but touches many files~~ |
-| ~~3~~  | ~~Split ConfigLoader interface (#28)~~ done at `39cca87` | ~~Architecture~~ | ~~Medium~~ | ~~2-3h~~ | ~~Interface refactor with wide blast radius~~ |
-| ~~4~~  | ~~Consolidate ValidationError + HealthIssue (#29)~~ done at `58fbe3c` | ~~Type safety~~ | ~~Medium~~ | ~~1-2h~~ | ~~Type consolidation across packages~~ |
-| ~~5~~  | ~~Add settings key validation (#31)~~ done at `e8f30f0` | ~~Type safety~~ | ~~Medium~~ | ~~2h~~ | ~~Needs golangci-lint schema reference~~ |
-| ~~6~~  | ~~Generate settings from JSON Schema (#30)~~ done at `3665d79` | ~~Type safety~~ | ~~Medium~~ | ~~4-6h~~ | ~~Codegen project; replaces 15 hand-maintained structs~~ |
-| ~~7~~  | ~~Add Result type for CLI (#27)~~ done at `40eda4c` | ~~Architecture~~ | ~~Medium~~ | ~~1-2h~~ | ~~New abstraction touching all command handlers~~ |
-| ~~8~~  | ~~Multi-preset support (#34)~~ done at `86ddc2d` | ~~Feature~~ | ~~Low~~ | ~~2-3h~~ | ~~Changes --preset to StringSlice; needs merge logic~~ |
-| ~~9~~  | ~~Format --detect mode (#35)~~ done at `ecb3fe0` | ~~Feature~~ | ~~Low~~ | ~~1h~~ | ~~Extends detection to format-specific linters~~ |
-| ~~10~~ | ~~Preset recommendation (#37)~~ done at `d97237c` | ~~Feature~~ | ~~Low~~ | ~~2-3h~~ | ~~Needs analysis-to-preset heuristic design~~ |
-| ~~11~~ | ~~Register domain message templates (#39)~~ done at `03a0806` | ~~Error handling~~ | ~~Low~~ | ~~30min~~ | ~~Deeper change touching many error sites~~ |
-| ~~12~~ | ~~HTML report CSS regression test (#12)~~ done at `2c6accf` | ~~Testing~~ | ~~Low~~ | ~~1h~~ | ~~Needs golden snapshot of color values~~ |
-| ~~13~~ | ~~CI retry logic (#10)~~ done — landed 5c76e1c; later removed as marginal value — no retry logic in any workflow today (2026-10-07 docs-health verify) | ~~CI/CD~~ | ~~Low~~ | ~~1h~~ | ~~Caching already robust; marginal value~~ |
-| ~~14~~ | ~~Coverage-check integration test (#13)~~ done at `65fec5c` | ~~Testing~~ | ~~Low~~ | ~~30min~~ | ~~Existing unit tests cover parsing logic~~ |
-| ~~15~~ | ~~Run deduplicate-code skill (#41)~~ done — 0 clone groups — re-verified clean by the 2026-07-26 deduplication session | ~~Code quality~~ | ~~Low~~ | ~~30min+~~ | ~~Skill invocation needs dedicated session~~ |
-| ~~16~~ | ~~Run architecture-review skill (#42)~~ done at `f39f7f7` | ~~Code quality~~ | ~~Low~~ | ~~30min+~~ | ~~Skill invocation needs dedicated session~~ |
-| ~~17~~ | ~~Consolidate status reports (#44)~~ done at `fb7c9eb` | ~~Code quality~~ | ~~Low~~ | ~~30min~~ | ~~29 reports; non-destructive annotation needed~~ |
+| #      | Item                                                                                                                                                   | Category           | Impact     | Effort     | Why Not Done                                             |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ---------- | ---------- | -------------------------------------------------------- |
+| ~~1~~  | ~~Split cmd_configure.go (586 lines) (#24)~~ done at `9a41447`                                                                                         | ~~Refactor~~       | ~~High~~   | ~~3-4h~~   | ~~Largest SRP violation; high-risk mechanical split~~    |
+| ~~2~~  | ~~Extract typed linter constants (#25)~~ done at `9e0e702`                                                                                             | ~~Type safety~~    | ~~Medium~~ | ~~2-3h~~   | ~~Mechanical but touches many files~~                    |
+| ~~3~~  | ~~Split ConfigLoader interface (#28)~~ done at `39cca87`                                                                                               | ~~Architecture~~   | ~~Medium~~ | ~~2-3h~~   | ~~Interface refactor with wide blast radius~~            |
+| ~~4~~  | ~~Consolidate ValidationError + HealthIssue (#29)~~ done at `58fbe3c`                                                                                  | ~~Type safety~~    | ~~Medium~~ | ~~1-2h~~   | ~~Type consolidation across packages~~                   |
+| ~~5~~  | ~~Add settings key validation (#31)~~ done at `e8f30f0`                                                                                                | ~~Type safety~~    | ~~Medium~~ | ~~2h~~     | ~~Needs golangci-lint schema reference~~                 |
+| ~~6~~  | ~~Generate settings from JSON Schema (#30)~~ done at `3665d79`                                                                                         | ~~Type safety~~    | ~~Medium~~ | ~~4-6h~~   | ~~Codegen project; replaces 15 hand-maintained structs~~ |
+| ~~7~~  | ~~Add Result type for CLI (#27)~~ done at `40eda4c`                                                                                                    | ~~Architecture~~   | ~~Medium~~ | ~~1-2h~~   | ~~New abstraction touching all command handlers~~        |
+| ~~8~~  | ~~Multi-preset support (#34)~~ done at `86ddc2d`                                                                                                       | ~~Feature~~        | ~~Low~~    | ~~2-3h~~   | ~~Changes --preset to StringSlice; needs merge logic~~   |
+| ~~9~~  | ~~Format --detect mode (#35)~~ done at `ecb3fe0`                                                                                                       | ~~Feature~~        | ~~Low~~    | ~~1h~~     | ~~Extends detection to format-specific linters~~         |
+| ~~10~~ | ~~Preset recommendation (#37)~~ done at `d97237c`                                                                                                      | ~~Feature~~        | ~~Low~~    | ~~2-3h~~   | ~~Needs analysis-to-preset heuristic design~~            |
+| ~~11~~ | ~~Register domain message templates (#39)~~ done at `03a0806`                                                                                          | ~~Error handling~~ | ~~Low~~    | ~~30min~~  | ~~Deeper change touching many error sites~~              |
+| ~~12~~ | ~~HTML report CSS regression test (#12)~~ done at `2c6accf`                                                                                            | ~~Testing~~        | ~~Low~~    | ~~1h~~     | ~~Needs golden snapshot of color values~~                |
+| ~~13~~ | ~~CI retry logic (#10)~~ done — landed 5c76e1c; later removed as marginal value — no retry logic in any workflow today (2026-10-07 docs-health verify) | ~~CI/CD~~          | ~~Low~~    | ~~1h~~     | ~~Caching already robust; marginal value~~               |
+| ~~14~~ | ~~Coverage-check integration test (#13)~~ done at `65fec5c`                                                                                            | ~~Testing~~        | ~~Low~~    | ~~30min~~  | ~~Existing unit tests cover parsing logic~~              |
+| ~~15~~ | ~~Run deduplicate-code skill (#41)~~ done — 0 clone groups — re-verified clean by the 2026-07-26 deduplication session                                 | ~~Code quality~~   | ~~Low~~    | ~~30min+~~ | ~~Skill invocation needs dedicated session~~             |
+| ~~16~~ | ~~Run architecture-review skill (#42)~~ done at `f39f7f7`                                                                                              | ~~Code quality~~   | ~~Low~~    | ~~30min+~~ | ~~Skill invocation needs dedicated session~~             |
+| ~~17~~ | ~~Consolidate status reports (#44)~~ done at `fb7c9eb`                                                                                                 | ~~Code quality~~   | ~~Low~~    | ~~30min~~  | ~~29 reports; non-destructive annotation needed~~        |
 
 ---
 
