@@ -115,7 +115,14 @@
       ]
     },
     "gocritic-tags": {
-      "enum": ["diagnostic", "style", "performance", "experimental", "opinionated", "security"]
+      "enum": [
+        "diagnostic",
+        "style",
+        "performance",
+        "experimental",
+        "opinionated",
+        "security"
+      ]
     },
     "staticcheck-checks": {
       "enum": [
@@ -705,7 +712,13 @@
       ]
     },
     "iface-analyzers": {
-      "enum": ["identical", "unused", "opaque", "unexported"]
+      "enum": [
+        "identical",
+        "unused",
+        "opaque",
+        "unexported",
+        "unusedmethod"
+      ]
     },
     "tagliatelle-cases": {
       "enum": [
@@ -727,15 +740,21 @@
     "modernize-analyzers": {
       "enum": [
         "any",
-        "fmtappendf",
+        "atomictypes",
+        "embedlit",
+        "errorsastype",
         "forvar",
+        "importcomment",
         "mapsloop",
         "minmax",
         "newexpr",
         "omitzero",
         "plusbuild",
         "rangeint",
+        "reflecttypeassert",
         "reflecttypefor",
+        "slicesbackward",
+        "slicesclip",
         "slicescontains",
         "slicessort",
         "stditerators",
@@ -745,7 +764,7 @@
         "stringsbuilder",
         "testingcontext",
         "unsafefuncs",
-        "waitgroup"
+        "waitgroupgo"
       ]
     },
     "wsl-checks": {
@@ -781,7 +800,12 @@
       ]
     },
     "relative-path-modes": {
-      "enum": ["gomod", "gitroot", "cfg", "wd"]
+      "enum": [
+        "gomod",
+        "gitroot",
+        "cfg",
+        "wd"
+      ]
     },
     "simple-format": {
       "type": "object",
@@ -793,10 +817,13 @@
         }
       }
     },
-    "formats-path": {
+    "formats-path" : {
       "anyOf": [
         {
-          "enum": ["stdout", "stderr"]
+          "enum": [
+            "stdout",
+            "stderr"
+          ]
         },
         {
           "type": "string"
@@ -833,6 +860,7 @@
             "errorlint",
             "exhaustive",
             "exhaustruct",
+            "exhaustruct_v5",
             "exptostd",
             "fatcontext",
             "forbidigo",
@@ -932,7 +960,14 @@
     },
     "formatter-names": {
       "description": "Usable formatter names.",
-      "enum": ["gci", "gofmt", "gofumpt", "goimports", "golines", "swaggo"]
+      "enum": [
+        "gci",
+        "gofmt",
+        "gofumpt",
+        "goimports",
+        "golines",
+        "swaggo"
+      ]
     },
     "settings": {
       "definitions": {
@@ -960,6 +995,11 @@
             },
             "comments-only": {
               "description": "Checks only comments, skip strings.",
+              "type": "boolean",
+              "default": false
+            },
+            "skip-raw-strings": {
+              "description": "Skip raw string literals (backtick-delimited) from duplicate word checking.",
               "type": "boolean",
               "default": false
             }
@@ -1044,6 +1084,23 @@
               "description": "Check that the response body is consumed.",
               "type": "boolean",
               "default": false
+            }
+          }
+        },
+        "canonicalheaderSettings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "use-default-exclusions": {
+              "type": "boolean",
+               "default": true
+            },
+            "exclusions": {
+              "additionalProperties": false,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1409,6 +1466,60 @@
             }
           }
         },
+        "exhaustructv5Settings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enforce-patterns": {
+              "description": "List of regular expressions to match type names that should be checked.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ignore-patterns":{
+              "description": "List of regular expressions to match type names that should be skipped from checking.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "optional-patterns": {
+              "description": "List of regular expressions to match type names where all fields are treated as optional.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allow-empty":{
+              "description": "Allows empty structures, effectively excluding them from the check.",
+              "type": "boolean",
+              "default": false
+            },
+            "allow-empty-patterns": {
+              "description": "List of regular expressions to match type names that should be allowed to be empty.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allow-empty-returns": {
+              "description": "Allows empty structures in return statements.",
+              "type": "boolean",
+              "default": false
+            },
+            "allow-empty-declarations": {
+              "description": "Allows empty structures in variable declarations.",
+              "type": "boolean",
+              "default": false
+            },
+            "explicit-mode":{
+              "description": "When true, only types marked with //exhaustruct:enforce directive or matching enforce-rx patterns are checked.",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
         "fatcontextSettings": {
           "type": "object",
           "additionalProperties": false,
@@ -1417,6 +1528,16 @@
               "description": "Check for potential fat contexts in struct pointers.",
               "type": "boolean",
               "default": false
+            },
+            "check-loops": {
+              "description": "Disable detection of fat contexts in function literals.",
+              "type": "boolean",
+              "default": true
+            },
+            "check-function-literals": {
+              "description": "Disable detection of fat contexts in function literals.",
+              "type": "boolean",
+              "default": true
             }
           }
         },
@@ -1515,7 +1636,14 @@
               "items": {
                 "anyOf": [
                   {
-                    "enum": ["standard", "default", "blank", "dot", "alias", "localmodule"]
+                    "enum": [
+                      "standard",
+                      "default",
+                      "blank",
+                      "dot",
+                      "alias",
+                      "localmodule"
+                    ]
                   },
                   {
                     "type": "string"
@@ -1668,6 +1796,19 @@
               "type": "integer",
               "default": 3
             },
+            "exclude-types": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "Assignment",
+                  "Binary",
+                  "Case",
+                  "Return",
+                  "Call",
+                  "CompositeLit"
+                ]
+              }
+            },
             "ignore-calls": {
               "description": "Ignore when constant is not used as function argument",
               "type": "boolean",
@@ -1715,6 +1856,10 @@
               "items": {
                 "type": "string"
               }
+            },
+            "ignore-map-keys": {
+              "description": "Ignore string literals used as map keys",
+              "type": "boolean"
             }
           }
         },
@@ -1760,7 +1905,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "paramsOnly": {
+                    "paramsOnly" : {
                       "type": "boolean",
                       "default": true
                     }
@@ -1770,7 +1915,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "minLength": {
+                    "minLength" : {
                       "type": "number",
                       "default": 15
                     }
@@ -1780,7 +1925,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "skipBalanced": {
+                    "skipBalanced" : {
                       "type": "boolean",
                       "default": true
                     }
@@ -1790,7 +1935,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "sizeThreshold": {
+                    "sizeThreshold" : {
                       "type": "number",
                       "default": 80
                     }
@@ -1800,7 +1945,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "minThreshold": {
+                    "minThreshold" : {
                       "type": "number",
                       "default": 2
                     }
@@ -1810,7 +1955,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "bodyWidth": {
+                    "bodyWidth" : {
                       "type": "number",
                       "default": 5
                     }
@@ -1820,11 +1965,11 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "sizeThreshold": {
+                    "sizeThreshold" : {
                       "type": "number",
                       "default": 512
                     },
-                    "skipTestFuncs": {
+                    "skipTestFuncs" : {
                       "type": "boolean",
                       "default": true
                     }
@@ -1834,11 +1979,11 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "sizeThreshold": {
+                    "sizeThreshold" : {
                       "type": "number",
                       "default": 128
                     },
-                    "skipTestFuncs": {
+                    "skipTestFuncs" : {
                       "type": "boolean",
                       "default": true
                     }
@@ -1848,19 +1993,19 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "debug": {
+                    "debug" : {
                       "type": "string"
                     },
-                    "enable": {
+                    "enable" : {
                       "type": "string"
                     },
-                    "disable": {
+                    "disable" : {
                       "type": "string"
                     },
-                    "failOn": {
+                    "failOn" : {
                       "type": "string"
                     },
-                    "rules": {
+                    "rules" : {
                       "type": "string"
                     }
                   }
@@ -1869,7 +2014,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "maxResults": {
+                    "maxResults" : {
                       "type": "number",
                       "default": 5
                     }
@@ -1879,7 +2024,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "skipArchDependent": {
+                    "skipArchDependent" : {
                       "type": "boolean",
                       "default": true
                     }
@@ -1889,7 +2034,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "skipRecvDeref": {
+                    "skipRecvDeref" : {
                       "type": "boolean",
                       "default": true
                     }
@@ -1899,7 +2044,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "checkExported": {
+                    "checkExported" : {
                       "type": "boolean",
                       "default": false
                     }
@@ -2118,6 +2263,24 @@
             "module-path": {
               "description": " Module path which contains the source code being formatted.",
               "type": "string"
+            },
+            "extra": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "group-params": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "clothe-returns": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "balance-calls": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
             }
           }
         },
@@ -2176,7 +2339,10 @@
               "examples": ["my_header_template.txt"]
             }
           },
-          "oneOf": [{ "required": ["template"] }, { "required": ["template-path"] }]
+          "oneOf": [
+            { "required": ["template"] },
+            { "required": ["template-path"] }
+          ]
         },
         "goimportsSettings": {
           "type": "object",
@@ -2206,6 +2372,11 @@
               "items": {
                 "type": "string"
               }
+            },
+            "replace-allow-all": {
+              "description": "Allow all `replace` directives.",
+              "type": "boolean",
+              "default": false
             },
             "retract-allow-no-explanation": {
               "description": "Allow to not explain why the version has been retracted in the `retract` directives.",
@@ -2574,6 +2745,18 @@
                       }
                     }
                   }
+                },
+                "unusedmethod": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "exclude": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -2873,7 +3056,7 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "only-two": {
+            "only-two":  {
               "type": "boolean",
               "description": "To check functions with only two return values.",
               "default": true
@@ -2937,7 +3120,14 @@
               "description": "The list of enabled checks, see https://github.com/tommy-muehle/go-mnd/#checks for description.",
               "type": "array",
               "items": {
-                "enum": ["argument", "case", "condition", "operation", "return", "assign"]
+                "enum": [
+                  "argument",
+                  "case",
+                  "condition",
+                  "operation",
+                  "return",
+                  "assign"
+                ]
               }
             }
           }
@@ -3020,6 +3210,11 @@
           "properties": {
             "report-error-in-defer": {
               "description": "Report named error if it is assigned inside defer.",
+              "type": "boolean",
+              "default": false
+            },
+            "allow-unused-named-returns": {
+              "description": "Allow named returns in the signature but report them if referenced in the body or used by a naked return.",
               "type": "boolean",
               "default": false
             }
@@ -3613,7 +3808,17 @@
                 "type": "string"
               },
               "default": [],
-              "examples": [["json", "yaml", "yml", "toml", "mapstructure", "binding", "validate"]]
+              "examples": [
+                [
+                  "json",
+                  "yaml",
+                  "yml",
+                  "toml",
+                  "mapstructure",
+                  "binding",
+                  "validate"
+                ]
+              ]
             },
             "strict": {
               "description": "Whether enable strict style.",
@@ -3858,7 +4063,9 @@
                   "suite-thelper",
                   "useless-assert"
                 ],
-                "default": ["suite-thelper"]
+                "default": [
+                  "suite-thelper"
+                ]
               }
             },
             "bool-compare": {
@@ -4401,7 +4608,9 @@
               "items": {
                 "type": "string"
               },
-              "examples": [["c echo.Context", "t testing.T", "f *foo.Bar", "const C"]]
+              "examples": [
+                ["c echo.Context", "t testing.T", "f *foo.Bar", "const C"]
+              ]
             }
           }
         },
@@ -4427,7 +4636,10 @@
           "properties": {
             "extra-ignore-sigs": {
               "description": "An array of strings specifying additional substrings of signatures to ignore.",
-              "default": [".CustomError(", ".SpecificWrap("],
+              "default": [
+                ".CustomError(",
+                ".SpecificWrap("
+              ],
               "type": "array",
               "items": {
                 "type": "string"
@@ -4650,7 +4862,7 @@
               "oneOf": [
                 {
                   "properties": {
-                    "type": { "enum": ["module"] }
+                    "type": {"enum": ["module"] }
                   },
                   "required": ["type"]
                 },
@@ -4852,7 +5064,12 @@
       "additionalProperties": false,
       "properties": {
         "default": {
-          "enum": ["standard", "all", "none", "fast"]
+          "enum": [
+            "standard",
+            "all",
+            "none",
+            "fast"
+          ]
         },
         "enable": {
           "description": "List of enabled linters.",
@@ -4885,13 +5102,16 @@
             "bodyclose": {
               "$ref": "#/definitions/settings/definitions/bodycloseSettings"
             },
+            "canonicalheader": {
+              "$ref": "#/definitions/settings/definitions/canonicalheaderSettings"
+            },
             "cyclop": {
               "$ref": "#/definitions/settings/definitions/cyclopSettings"
             },
             "decorder": {
               "$ref": "#/definitions/settings/definitions/decorderSettings"
             },
-            "depguard": {
+            "depguard":{
               "$ref": "#/definitions/settings/definitions/depguardSettings"
             },
             "dogsled": {
@@ -4917,6 +5137,9 @@
             },
             "exhaustruct": {
               "$ref": "#/definitions/settings/definitions/exhaustructSettings"
+            },
+            "exhaustruct_v5": {
+              "$ref": "#/definitions/settings/definitions/exhaustructv5Settings"
             },
             "fatcontext": {
               "$ref": "#/definitions/settings/definitions/fatcontextSettings"
@@ -4957,7 +5180,7 @@
             "godox": {
               "$ref": "#/definitions/settings/definitions/godoxSettings"
             },
-            "interfacebloat": {
+            "interfacebloat":{
               "$ref": "#/definitions/settings/definitions/interfacebloatSettings"
             },
             "goheader": {
@@ -5008,7 +5231,7 @@
             "maintidx": {
               "$ref": "#/definitions/settings/definitions/maintidxSettings"
             },
-            "makezero": {
+            "makezero":{
               "$ref": "#/definitions/settings/definitions/makezeroSettings"
             },
             "loggercheck": {
@@ -5038,7 +5261,7 @@
             "modernize": {
               "$ref": "#/definitions/settings/definitions/modernizeSettings"
             },
-            "nolintlint": {
+            "nolintlint":{
               "$ref": "#/definitions/settings/definitions/nolintlintSettings"
             },
             "reassign": {
@@ -5080,7 +5303,7 @@
             "spancheck": {
               "$ref": "#/definitions/settings/definitions/spancheckSettings"
             },
-            "staticcheck": {
+            "staticcheck":{
               "$ref": "#/definitions/settings/definitions/staticcheckSettings"
             },
             "tagalign": {
@@ -5134,12 +5357,12 @@
             "copyloopvar": {
               "$ref": "#/definitions/settings/definitions/copyloopvarSettings"
             },
-            "custom": {
+            "custom":{
               "$ref": "#/definitions/settings/definitions/customSettings"
             }
           }
         },
-        "exclusions": {
+        "exclusions":{
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -5154,7 +5377,12 @@
             "presets": {
               "type": "array",
               "items": {
-                "enum": ["comments", "std-error-handling", "common-false-positives", "legacy"]
+                "enum": [
+                  "comments",
+                  "std-error-handling",
+                  "common-false-positives",
+                  "legacy"
+                ]
               }
             },
             "rules": {
@@ -5190,13 +5418,13 @@
                 ]
               }
             },
-            "paths": {
+            "paths":  {
               "type": "array",
               "items": {
                 "type": "string"
               }
             },
-            "paths-except": {
+            "paths-except":  {
               "type": "array",
               "items": {
                 "type": "string"
