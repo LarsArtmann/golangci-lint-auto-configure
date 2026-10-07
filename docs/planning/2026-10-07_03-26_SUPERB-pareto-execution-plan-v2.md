@@ -67,6 +67,7 @@ The project is a **public Go CLI that auto-configures golangci-lint**. Value = w
 Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 
 ### M1 Cut v0.11.0 (⛔ USER timing)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 1.1 | Run `scripts/pre-release-check.sh` — all green? | 10 |
@@ -78,6 +79,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 1.7 | Update FEATURES.md version header + README badge if version-pinned | 10 |
 
 ### M2 Post-release verification (after M1)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 2.1 | `scripts/post-release-verify.sh v0.11.0` — 9/9 checks | 10 |
@@ -87,6 +89,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 2.5 | Clean GOMODCACHE `go install …@v0.11.0` + smoke run | 12 |
 
 ### M3 Schema snapshot provenance
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 3.1 | Capture live golangci-lint JSON schema (`golangci-lint cache status`/docs source) | 10 |
@@ -97,6 +100,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 3.6 | `go test ./pkg/constants/...` ▸ green; commit generated+fixture+ci together | 10 |
 
 ### M4 e2e pin matrix
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 4.1 | Read ci.yml test job; design matrix (v2.10.1 / v2.13.2 / v2.14.0) | 10 |
@@ -106,6 +110,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 4.5 | PR + observe CI ▸ green; document matrix in README CI section | 10 |
 
 ### M5 README go-version section
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 5.1 | Draft section: major.minor form, cap at binary Go, rescue on broken configs | 10 |
@@ -113,6 +118,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 5.3 | Place after Requirements; markdownlint ▸ clean | 5 |
 
 ### M6 erraudit quarterly
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 6.1 | `erraudit ./...` full run — capture count | 8 |
@@ -122,6 +128,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 6.5 | Update AGENTS #26 counts + TODO_LIST row (next due date) | 8 |
 
 ### M7 Fleet sweep (⛔ USER auth)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 7.1 | Build list: sibling repos with patch-form run.go in .golangci.yml | 10 |
@@ -133,6 +140,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 7.7 | Record ledger story (repos touched, fixes applied) in TODO_LIST row removal | 8 |
 
 ### M8 Dogfood gate
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 8.1 | Add ci.yml step: build binary, `configure --check .golangci.yml` | 10 |
@@ -140,12 +148,14 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 8.3 | PR + CI ▸ green; README CI/CD section mention | 8 |
 
 ### M9 Scheduled gitleaks
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 9.1 | Write .github/workflows/gitleaks.yml (weekly cron, gitleaks/gitleaks-action@SHA) | 10 |
 | 9.2 | Pin action SHA; test run ▸ 0 leaks | 10 |
 
 ### M10 Coverage gate 65
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 10.1 | `go test -cover` per package — find weakest vs 65 target | 8 |
@@ -153,6 +163,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 10.3 | CI ▸ green | 5 |
 
 ### M11 goexperiment.jsonv2 cleanup
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 11.1 | Remove tag from .golangci.yml build-tags; run own lint ▸ 0 issues | 8 |
@@ -160,6 +171,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 11.3 | Update AGENTS gotcha 13/27 wording | 8 |
 
 ### M12 Dockerfile slim
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 12.1 | Decide (recommend: delete dead block — no consumer ask) | 5 |
@@ -167,6 +179,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 12.3 | `docker build` ▸ image runs fixture | 10 |
 
 ### M13 Dependabot vendorHash policy (⛔ USER choice)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 13.1 | Write 1-page memo: auto-commit bot vs continue-on-error vs vendorHash-less CI | 10 |
@@ -175,6 +188,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 13.4 | Document policy in .github/DEPENDABOT.md or README CI section | 8 |
 
 ### M14 GHCR hygiene (⛔ delete:packages scope)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 14.1 | Delete `:master` tag via gh api (needs scope) | 8 |
@@ -182,6 +196,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 14.3 | Delete scratch tag; record result in TODO row → close | 5 |
 
 ### M15 Buildflow posture (⛔ USER choice)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 15.1 | Memo: 44 erraudit advisory + 190 branching-flow — gate vs document | 10 |
@@ -189,6 +204,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 15.3 | Run buildflow e2e ▸ exit 0 (or documented-red per decision) | 12 |
 
 ### M16 Release dry-run on PRs
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 16.1 | Add path/job: goreleaser `release --snapshot --clean` on .goreleaser/go.mod changes | 12 |
@@ -196,6 +212,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 16.3 | Ensure job doesn't publish (skip_upload/PAT absent) ▸ verify | 8 |
 
 ### M17 nix flake check 0-checks
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 17.1 | `nix flake check` vs `nix eval` — enumerate checks each sees | 10 |
@@ -203,6 +220,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 17.3 | Fix or document with upstream link | 12 |
 
 ### M18 lychee + render-check
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 18.1 | Add lychee job (exclude archive/timestamped URLs config) | 12 |
@@ -210,6 +228,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 18.3 | Verify struck archive tables render (markdownlint table rule + manual spot) | 10 |
 
 ### M19 Metadata checklist script
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 19.1 | Write scripts/metadata-check.sh: description/topics/homepage/badges/workflows/release-page in one gh api pass | 12 |
@@ -217,6 +236,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 19.3 | Document in README dev-tools | 5 |
 
 ### M20 Detect() contract (⛔ API decision)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 20.1 | Memo: (ProjectType, error) vs nil-on-error; consumer impact | 10 |
@@ -225,6 +245,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 20.4 | Update TODO_LIST row + CHANGELOG | 8 |
 
 ### M21 run.go hardening I
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 21.1 | Spec: NormalizeGoMajorMinor("1.27.0") ≡ "1.27" no-op (no rewrite churn) | 8 |
@@ -233,6 +254,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 21.4 | `go test ./pkg/...` ▸ green; CHANGELOG entry | 10 |
 
 ### M22 run.go hardening II
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 22.1 | Design --fix affordance: analyze/report/validate suggest `configure` on run.go error | 10 |
@@ -241,6 +263,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 22.4 | Docs (README section from M5 cross-link) | 8 |
 
 ### M23 Fuzz targets
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 23.1 | FuzzNormalizeGoMajorMinor/CompareGoMajorMinor (invariants: idempotent, total order) | 12 |
@@ -249,6 +272,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 23.4 | Short fuzz run in CI (30s -fuzztime) ▸ green | 10 |
 
 ### M24 yaml.Node spike
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 24.1 | Spike: SaveConfig via yaml.Node on a fixture with comments | 12 |
@@ -256,6 +280,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 24.3 | ADR (adopt in v2 save path) or documented decline | 12 |
 
 ### M25 Exclusion-merge observability
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 25.1 | `--show-merged-rules` dry-run flag: print RuleKey merges + unioned linters | 12 |
@@ -264,6 +289,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 25.4 | README flags table + CHANGELOG | 8 |
 
 ### M26 Upstream data audits
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 26.1 | Fetch golangci-lint release notes; diff LinterMinVersions `since` values | 12 |
@@ -271,12 +297,14 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 26.3 | Fix drift + data-integrity ▸ green | 12 |
 
 ### M27 Schema-verify extension
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 27.1 | CI step: `golangci-lint config verify` over examples/*.yml + test.golangci.yml | 10 |
 | 27.2 | Fix any invalid example configs ▸ verify green | 12 |
 
 ### M28 Error-code registry
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 28.1 | Inventory ~40 codes (grep) → codes.go registry | 12 |
@@ -284,12 +312,14 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 28.3 | Fix stragglers ▸ tests green | 12 |
 
 ### M29 Test modernization
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 29.1 | b.N→b.Loop in 7 bench sites; gopls clean | 10 |
 | 29.2 | Profile cmd/ serial tail; parallelize or tag the 3 slowest | 12 |
 
 ### M30 ConfigReader/Writer adoption
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 30.1 | Grep remaining `*config.Loader` params; list call sites | 8 |
@@ -297,6 +327,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 30.3 | Convert remaining + tests ▸ green | 12 |
 
 ### M31 Decision memos (unblocks 6 gated rows)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 31.1 | Memo: history sanitization (names-only exposure; cost of filter-repo) | 10 |
@@ -307,6 +338,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 31.6 | Deliver memos; record answers in ROADMAP | 10 |
 
 ### M32 never-enable × replaceLinters (⛔ g1)
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 32.1 | Memo: is deprecated-replacement bypassing never-enable real? (trace) | 10 |
@@ -314,6 +346,7 @@ Legend: `▸` = verification gate (anti-Verschlimmbesser — never skip).
 | 32.3 | Composition test --pragmatic × never-enable | 10 |
 
 ### M33 Precision live-report strikes
+
 | # | Micro task | Min |
 |---|-----------|-----|
 | 33.1 | Strike DONE bare items in 09-09 + 06-38 + 08-33 (evidence per item) | 12 |
