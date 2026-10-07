@@ -1,6 +1,10 @@
 package constants_test
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -583,6 +587,7 @@ var _ = Describe("FEATURES deprecation migration map", func() {
 
 		lines := strings.Split(string(content), "\n")
 		start := -1
+
 		for i, line := range lines {
 			if strings.HasPrefix(line, "### Deprecated Linter Migration Map") {
 				start = i
@@ -590,10 +595,12 @@ var _ = Describe("FEATURES deprecation migration map", func() {
 				break
 			}
 		}
+
 		Expect(start).To(BeNumerically(">=", 0),
 			"FEATURES.md is missing the 'Deprecated Linter Migration Map' heading")
 
 		rows := map[string]string{}
+
 		for _, line := range lines[start+1:] {
 			if strings.HasPrefix(line, "## ") {
 				break
