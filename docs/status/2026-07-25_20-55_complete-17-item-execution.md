@@ -4,6 +4,15 @@
 **Session scope:** Execute ALL 17 remaining items from the quality debt backlog.
 **Result:** **17 of 17 items completed.** Build clean, lint 0 issues, 20/20 tests pass, all pushed to `origin/master`.
 
+> **RESOLVED + ARCHIVED (docs-health sweep 2026-10-07).** This report has no
+> forward-looking section — all 17 items shipped here (commit list below) and
+> the follow-on work was harvested into later reports the same day. Two claims
+> are inline-corrected below: the version bump landed as v0.6.0 (2026-07-27;
+> now through v0.10.0), and the CI retry logic added here was later removed as
+> marginal value (no retry step exists in any workflow as of 2026-10-07 —
+> `FEATURES.md` was corrected in the same sweep). Archive manifest:
+> `docs/status/README.md`.
+
 ---
 
 ## Final Verification
@@ -25,7 +34,7 @@
 | 2  | Consolidate status reports (#44)                | Docs           | Low      | Created `docs/status/README.md` index for 29 reports                  |
 | 3  | Coverage-check integration test (#13)           | Testing        | Low      | Integration tests for `run()` with real coverage profiles             |
 | 4  | HTML report CSS regression test (#12)           | Testing        | Low      | Golden-value tests for 9 colors + cross-format consistency            |
-| 5  | CI retry logic (#10)                            | CI/CD          | Low      | 3-attempt retry for nix build + continue-on-error for magic-nix-cache |
+| 5  | ~~CI retry logic (#10)~~ shipped then, later removed as marginal value — no retry in any workflow (2026-10-07) | CI/CD          | Low      | 3-attempt retry for nix build + continue-on-error for magic-nix-cache |
 | 6  | Format --detect mode (#35)                      | Feature        | Low      | `--preset format --detect` auto-enables swaggo                        |
 | 7  | Consolidate ValidationError + HealthIssue (#29) | Type safety    | Medium   | ToHealthIssue() conversion + Line field on HealthIssue                |
 | 8  | Extract typed linter constants (#25)            | Code quality   | Medium   | coreLinters + withCore() eliminates 6x duplication in patterns.go     |
@@ -63,7 +72,7 @@
 - **0 code duplication** (art-dupl audit clean)
 - **CSS regression tests** guard color constants
 - **Coverage-check integration tests** verify threshold logic end-to-end
-- **CI retry logic** for transient nix build failures
+- ~~**CI retry logic** for transient nix build failures~~ (removed again later as marginal value; `FEATURES.md` corrected 2026-10-07)
 - **Settings codegen** infrastructure (88 structs generated from schema)
 
 ---
