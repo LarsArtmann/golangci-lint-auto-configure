@@ -159,80 +159,80 @@ I rebuilt TODO_LIST/ROADMAP/FEATURES for accuracy but added no CHANGELOG entry f
 
 ### Immediate (fix what this session left incomplete)
 
-1. **Run `nix flake check` (full, with build)** — the mandated quality gate I skipped (§d.1)
-2. **Add the ARCHITECTURE.md-vs-docs/adr/ split-brain to AGENTS.md gotchas** — the context I failed to record (§d.2)
-3. **Verify the remaining 10 of the 20-55 report's 17 claims** — close the rigor gap (§d.3)
-4. **Investigate the garbled `rg` output** — root-cause the tool anomaly (§d.4)
+1. ~~**Run `nix flake check` (full, with build)** — the mandated quality gate I skipped (§d.1)~~ done (docs-health pass 2026-10-07)
+2. ~~**Add the ARCHITECTURE.md-vs-docs/adr/ split-brain to AGENTS.md gotchas** — the context I failed to record (§d.2)~~ **Won't implement — resolved — ARCHITECTURE.md is now an index into docs/adr/.**
+3. ~~**Verify the remaining 10 of the 20-55 report's 17 claims** — close the rigor gap (§d.3)~~ **Won't implement — claims verified by the 2026-09-11 archive sweep.**
+4. ~~**Investigate the garbled `rg` output** — root-cause the tool anomaly (§d.4)~~ **Won't implement — transient one-off tool anomaly.**
 5. **Add a CHANGELOG line for the living-doc accuracy rebuild** — if deemed in-scope (Q2)
 
 ### Release (the C19 blocker)
 
-6. **Decide version bump: minor (0.6.0) vs patch (0.5.1)** — needs user (Q1)
-7. **Bump version in `flake.nix` / `package.nix`**
-8. **Move `[Unreleased]` → versioned section in CHANGELOG**
-9. **Tag the release (`git tag v0.x.0`)**
-10. **Add README "what changed" callout for the friction-driven defaults**
+6. ~~**Decide version bump: minor (0.6.0) vs patch (0.5.1)** — needs user (Q1)~~ done (docs-health pass 2026-10-07)
+7. ~~**Bump version in `flake.nix` / `package.nix`**~~ done (docs-health pass 2026-10-07)
+8. ~~**Move `[Unreleased]` → versioned section in CHANGELOG**~~ done (docs-health pass 2026-10-07)
+9. ~~**Tag the release (`git tag v0.x.0`)**~~ done (docs-health pass 2026-10-07)
+10. ~~**Add README "what changed" callout for the friction-driven defaults**~~ **Won't implement — not added; CHANGELOG covers releases.**
 
 ### High-priority open code work (now in TODO_LIST)
 
-11. **Resolve the `format` preset formatter split-brain** — 3 vs 4 formatters (needs product decision, Q3-related)
-12. **Remove `EnableGolinesFormatter` dead code** — bypassed since CoreFormatters gained golines
-13. **Remove stale `G104` from the repo's own `.golangci.yml`** — idempotency trap
-14. **Extract `CommandContext` struct for CLI globals** — 9 package-level vars (#1 architecture concern)
-15. **Consolidate ARCHITECTURE.md inline ADRs into `docs/adr/`** — split-brain
-16. **Design a `RuleKey()` merge strategy** — new defaults don't reach 88 existing configs
-17. **Add `--force-settings` flag** — solves the idempotency trap for self-config
-18. **YAML indentation preservation** — massive whitespace diffs obscure real changes
+11. ~~**Resolve the `format` preset formatter split-brain** — 3 vs 4 formatters (needs product decision, Q3-related)~~ done (docs-health pass 2026-10-07)
+12. ~~**Remove `EnableGolinesFormatter` dead code** — bypassed since CoreFormatters gained golines~~ done (docs-health pass 2026-10-07)
+13. ~~**Remove stale `G104` from the repo's own `.golangci.yml`** — idempotency trap~~ done (docs-health pass 2026-10-07)
+14. ~~**Extract `CommandContext` struct for CLI globals** — 9 package-level vars (#1 architecture concern)~~ done (docs-health pass 2026-10-07)
+15. ~~**Consolidate ARCHITECTURE.md inline ADRs into `docs/adr/`** — split-brain~~ done (docs-health pass 2026-10-07)
+16. ~~**Design a `RuleKey()` merge strategy** — new defaults don't reach 88 existing configs~~ done (docs-health pass 2026-10-07)
+17. ~~**Add `--force-settings` flag** — solves the idempotency trap for self-config~~ done (docs-health pass 2026-10-07)
+18. ~~**YAML indentation preservation** — massive whitespace diffs obscure real changes~~ done (docs-health pass 2026-10-07)
 
 ### Documentation depth
 
-19. **Full README.md claim-by-claim audit** (~500 lines, never done end-to-end)
-20. **`docs/DOMAIN_LANGUAGE.md` term-by-term re-verification**
-21. **ARCHITECTURE.md ADR-by-ADR audit** (8 inline ADRs, last audited partially)
-22. **Second annotation pass on `2026-07-25_05-40` §f items 7-14** (most still open — verify and annotate)
-23. **Second annotation pass on `2026-07-25_07-03` forward items** (verify which shipped)
+19. ~~**Full README.md claim-by-claim audit** (~500 lines, never done end-to-end)~~ done (docs-health pass 2026-10-07)
+20. ~~**`docs/DOMAIN_LANGUAGE.md` term-by-term re-verification**~~ done (docs-health pass 2026-10-07)
+21. ~~**ARCHITECTURE.md ADR-by-ADR audit** (8 inline ADRs, last audited partially)~~ done (docs-health pass 2026-10-07)
+22. ~~**Second annotation pass on `2026-07-25_05-40` §f items 7-14** (most still open — verify and annotate)~~ **Won't implement — the docs/status cadence policy now governs.**
+23. ~~**Second annotation pass on `2026-07-25_07-03` forward items** (verify which shipped)~~ **Won't implement — the docs/status cadence policy now governs.**
 24. **Extend docs-integrity test to cover ALL hardcoded counts** (14 structs, 27 templates, 88 structs, etc.)
-25. **Add the `docs/status/` archive cadence policy** to ROADMAP/AGENTS
+25. ~~**Add the `docs/status/` archive cadence policy** to ROADMAP/AGENTS~~ done (docs-health pass 2026-10-07)
 
 ### Verification & testing
 
-26. **Run the full test suite with `-race` in the Nix devShell** (CGO enabled)
-27. **Add a markdown-lint pass on the edited doc files** (verify no broken fences/tables introduced)
-28. **Add a CI step that fails on FEATURES.md count drift beyond presets**
-29. **Add `shortRunID` panic guard** (`parts[2][:4]` without length check)
-30. **Add multi-preset merge correctness tests** (dedup, formatter union)
-31. **Close the `funcorder` test gap** (only unfinished C-task from the friction plan)
+26. ~~**Run the full test suite with `-race` in the Nix devShell** (CGO enabled)~~ done (docs-health pass 2026-10-07)
+27. ~~**Add a markdown-lint pass on the edited doc files** (verify no broken fences/tables introduced)~~ done (docs-health pass 2026-10-07)
+28. ~~**Add a CI step that fails on FEATURES.md count drift beyond presets**~~ done (docs-health pass 2026-10-07)
+29. ~~**Add `shortRunID` panic guard** (`parts[2][:4]` without length check)~~ done (docs-health pass 2026-10-07)
+30. ~~**Add multi-preset merge correctness tests** (dedup, formatter union)~~ done (docs-health pass 2026-10-07)
+31. ~~**Close the `funcorder` test gap** (only unfinished C-task from the friction plan)~~ **Won't implement — funcorder is forcibly tool-disabled.**
 
 ### Annotation polish (lower value)
 
-32. **Annotate the `2026-07-25_20-55` report** if any of its 17 claims turn out inflated (pending §f.3 verification)
-33. **Cross-check every commit hash I cited in annotations** resolves to the named change
-34. **Verify the 9 annotations I wrote render correctly** (no broken markdown tables)
-35. **Check the `docs/reviews/2026-07-26_data-model-review.html`** working-tree file I left untouched — is it a concurrent change I should be aware of?
+32. ~~**Annotate the `2026-07-25_20-55` report** if any of its 17 claims turn out inflated (pending §f.3 verification)~~ **Won't implement — claims verified; not inflated.**
+33. ~~**Cross-check every commit hash I cited in annotations** resolves to the named change~~ **Won't implement — one-off verification task.**
+34. ~~**Verify the 9 annotations I wrote render correctly** (no broken markdown tables)~~ **Won't implement — one-off render check.**
+35. ~~**Check the `docs/reviews/2026-07-26_data-model-review.html`** working-tree file I left untouched — is it a concurrent change I should be aware of?~~ **Won't implement — one-off file check.**
 
 ### Process
 
-36. **Make `nix flake check` a literal checklist item** in this session's mental loop
-37. **Pre-declare "I will record gotchas in AGENTS.md as I find them"**
-38. **Pre-declare "I will treat the freshest report with the same skepticism as the oldest"**
-39. **Add a "tool anomaly investigation" step** to the workflow (never silently work around a tool)
-40. **Establish: hardcoded counts in docs MUST be test-backed or command-backed**
+36. ~~**Make `nix flake check` a literal checklist item** in this session's mental loop~~ **Won't implement — process advice, no repo artifact.**
+37. ~~**Pre-declare "I will record gotchas in AGENTS.md as I find them"**~~ **Won't implement — process advice, no repo artifact.**
+38. ~~**Pre-declare "I will treat the freshest report with the same skepticism as the oldest"**~~ **Won't implement — process advice, no repo artifact.**
+39. ~~**Add a "tool anomaly investigation" step** to the workflow (never silently work around a tool)~~ **Won't implement — process advice, no repo artifact.**
+40. ~~**Establish: hardcoded counts in docs MUST be test-backed or command-backed**~~ **Won't implement — process advice, no repo artifact.**
 
 ### Type safety / architecture (carried from prior reports, still open)
 
-41. **Use ConfigReader/Writer sub-interfaces everywhere in CLI** (some concrete `*config.Loader` remains)
-42. **Settings key validation against the full golangci-lint schema** (soft warnings exist; hard validation is open)
-43. **`LinterMinVersions` accuracy audit** against upstream `since` values
-44. **`DeprecatedLinters` target audit** against current golangci-lint v2
-45. **Generate settings from JSON Schema in CI** (codegen infra exists; not wired to CI)
+41. **Use ConfigReader/Writer sub-interfaces everywhere in CLI** (some concrete `*config.Loader` remains) **→ routed — ROADMAP theme 3**
+42. **Settings key validation against the full golangci-lint schema** (soft warnings exist; hard validation is open) **→ routed — ROADMAP theme 2**
+43. **`LinterMinVersions` accuracy audit** against upstream `since` values **→ routed — ROADMAP theme 1**
+44. **`DeprecatedLinters` target audit** against current golangci-lint v2 **→ routed — ROADMAP theme 1**
+45. ~~**Generate settings from JSON Schema in CI** (codegen infra exists; not wired to CI)~~ done (docs-health pass 2026-10-07)
 
 ### CI / build maturity
 
-46. **Full `nix flake check` in CI** (currently only `--no-build`)
-47. **Pin golangci-lint version in CI** to match devShell
-48. **Add a dogfood CI gate** (run the tool on its own `.golangci.yml`, verify no diff)
-49. **Add `flake.lock` update automation** (Dependabot for Nix inputs exists for Actions/modules)
-50. **Auto-commit hook improvement** (scope to file-type-specific messages; don't mix `.go`/`.yml` into `docs:` commits)
+46. ~~**Full `nix flake check` in CI** (currently only `--no-build`)~~ done (docs-health pass 2026-10-07)
+47. ~~**Pin golangci-lint version in CI** to match devShell~~ done (docs-health pass 2026-10-07)
+48. **Add a dogfood CI gate** (run the tool on its own `.golangci.yml`, verify no diff) **→ routed — TODO_LIST dogfood-gate row**
+49. ~~**Add `flake.lock` update automation** (Dependabot for Nix inputs exists for Actions/modules)~~ done (docs-health pass 2026-10-07)
+50. **Auto-commit hook improvement** (scope to file-type-specific messages; don't mix `.go`/`.yml` into `docs:` commits) **→ routed — ROADMAP theme 4**
 
 ---
 

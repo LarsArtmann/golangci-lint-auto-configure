@@ -89,82 +89,82 @@ These were identified as potential work but I did NOT touch them:
 
 ### Immediate (fixes for issues introduced THIS session)
 
-1. **Remove `EnableGolinesFormatter` dead code** — it's bypassed now that golines is in CoreFormatters. Remove the method + the `fixer.go:253` call site. OR: remove golines from CoreFormatters and keep the conditional path.
-2. **Add golines to `PresetFormatters["format"]`** — resolve the new split-brain (3 vs 4 formatters)
-3. **Regenerate the repo's own `.golangci.yml`** to remove stale G104 — requires deleting the gosec settings block first, then running the tool
-4. **Run `nix build` and `nix flake check`** — verify the Nix build path works
-5. **Optimize the pragmatic acceptance test** — build binary once in `BeforeEach`, share across `It` blocks
+1. ~~**Remove `EnableGolinesFormatter` dead code** — it's bypassed now that golines is in CoreFormatters. Remove the method + the `fixer.go:253` call site. OR: remove golines from CoreFormatters and keep the conditional path.~~ done (docs-health pass 2026-10-07)
+2. ~~**Add golines to `PresetFormatters["format"]`** — resolve the new split-brain (3 vs 4 formatters)~~ done (docs-health pass 2026-10-07)
+3. ~~**Regenerate the repo's own `.golangci.yml`** to remove stale G104 — requires deleting the gosec settings block first, then running the tool~~ done (docs-health pass 2026-10-07)
+4. ~~**Run `nix build` and `nix flake check`** — verify the Nix build path works~~ done (docs-health pass 2026-10-07)
+5. ~~**Optimize the pragmatic acceptance test** — build binary once in `BeforeEach`, share across `It` blocks~~ done (docs-health pass 2026-10-07)
 
 ### Architecture (from previous session, still open)
 
-6. **RuleKey() merge problem** — adding linters to `DefaultExclusionRules` only helps new configs. 88 machine-generated sibling configs won't get the 7 new linters. Needs a migration or "rule merge" strategy.
-7. **YAML indentation preservation** — the tool reformats 2-space→4-space aggressively, creating massive diffs
-8. **`--force-settings` flag** — allow re-injecting defaults over existing settings (solves the idempotency trap)
+6. ~~**RuleKey() merge problem** — adding linters to `DefaultExclusionRules` only helps new configs. 88 machine-generated sibling configs won't get the 7 new linters. Needs a migration or "rule merge" strategy.~~ done (docs-health pass 2026-10-07)
+7. ~~**YAML indentation preservation** — the tool reformats 2-space→4-space aggressively, creating massive diffs~~ done (docs-health pass 2026-10-07)
+8. ~~**`--force-settings` flag** — allow re-injecting defaults over existing settings (solves the idempotency trap)~~ done (docs-health pass 2026-10-07)
 
 ### Test debt (C11-C17, all not started)
 
-9. Write `cmd_audit_test.go`: ledger read/filter/clear happy path (F52)
-10. Write audit error-path test: corrupt JSONL, missing file (F53)
-11. Write `fixer_enforce_test.go`: sidecar re-enable logic (F54)
-12. Write `newRunLedger` test: mutation recording + retention purge (F55)
-13. Add Infrastructure(69) exit-code integration test (F56)
-14. Add Corruption(65) exit-code integration test (F57)
-15. Identify 3 lowest-covered CLI funcs and add integration tests (F58-F59)
-16. Convert `scripts/coverage-check.sh` → Go test (F60-F61)
-17. Replace raw `slog.Error` calls with `HandleError` at CLI boundary (F62-F63)
-18. Close the `funcorder` test gap (F64)
-19. Register domain message templates with `errorfamily.New()` (F65)
+9. ~~Write `cmd_audit_test.go`: ledger read/filter/clear happy path (F52)~~ done (docs-health pass 2026-10-07)
+10. ~~Write audit error-path test: corrupt JSONL, missing file (F53)~~ done (docs-health pass 2026-10-07)
+11. ~~Write `fixer_enforce_test.go`: sidecar re-enable logic (F54)~~ done (docs-health pass 2026-10-07)
+12. ~~Write `newRunLedger` test: mutation recording + retention purge (F55)~~ done (docs-health pass 2026-10-07)
+13. ~~Add Infrastructure(69) exit-code integration test (F56)~~ done (docs-health pass 2026-10-07)
+14. ~~Add Corruption(65) exit-code integration test (F57)~~ done (docs-health pass 2026-10-07)
+15. ~~Identify 3 lowest-covered CLI funcs and add integration tests (F58-F59)~~ done (docs-health pass 2026-10-07)
+16. ~~Convert `scripts/coverage-check.sh` → Go test (F60-F61)~~ done (docs-health pass 2026-10-07)
+17. ~~Replace raw `slog.Error` calls with `HandleError` at CLI boundary (F62-F63)~~ done (docs-health pass 2026-10-07)
+18. ~~Close the `funcorder` test gap (F64)~~ **Won't implement — funcorder is forcibly tool-disabled (DisabledLinters).**
+19. ~~Register domain message templates with `errorfamily.New()` (F65)~~ done (docs-health pass 2026-10-07)
 
 ### Validation (close the loop properly)
 
-20. Regenerate 5 actual sibling configs with the new tool and re-run golangci-lint (F66-F67)
-21. Write a proper `validation-delta.md` with real before/after finding counts, not crude grep estimates
-22. Measure the actual nolint reduction in this repo's own codebase after `.golangci.yml` regeneration
-23. Audit whether any of the 16 errcheck `exclude-functions` are too aggressive
+20. ~~Regenerate 5 actual sibling configs with the new tool and re-run golangci-lint (F66-F67)~~ **Won't implement — superseded by the v0.8.1 key-normalization self-heal.**
+21. ~~Write a proper `validation-delta.md` with real before/after finding counts, not crude grep estimates~~ done (docs-health pass 2026-10-07)
+22. ~~Measure the actual nolint reduction in this repo's own codebase after `.golangci.yml` regeneration~~ done (docs-health pass 2026-10-07)
+23. ~~Audit whether any of the 16 errcheck `exclude-functions` are too aggressive~~ done (docs-health pass 2026-10-07)
 
 ### Rollout (C19)
 
-24. Bump version (decide patch vs minor) — **needs user decision**
-25. Update CHANGELOG.md release section with version
-26. Tag the release
-27. Add README "what changed" callout for friction-driven defaults
+24. ~~Bump version (decide patch vs minor) — **needs user decision**~~ done (docs-health pass 2026-10-07)
+25. ~~Update CHANGELOG.md release section with version~~ done (docs-health pass 2026-10-07)
+26. ~~Tag the release~~ done (docs-health pass 2026-10-07)
+27. ~~Add README "what changed" callout for friction-driven defaults~~ **Won't implement — not added; CHANGELOG covers releases.**
 
 ### Documentation
 
-28. Update the plan's DoD checklist to reflect actual results
-29. Annotate the ecosystem research report with "actions taken" (non-destructive, per update-old-docs skill)
-30. Add v1 deprecation banner to `docs/references/` migration docs (F49)
+28. ~~Update the plan's DoD checklist to reflect actual results~~ done (docs-health pass 2026-10-07)
+29. ~~Annotate the ecosystem research report with "actions taken" (non-destructive, per update-old-docs skill)~~ done (docs-health pass 2026-10-07)
+30. ~~Add v1 deprecation banner to `docs/references/` migration docs (F49)~~ **Won't implement — migration refs removed; v1 non-goal (ROADMAP).**
 
 ### Gosec/errcheck refinement
 
-31. Audit G304 (file-taint) exclude — is it too broad for a security linter?
-32. Audit G115 (integer overflow) exclude — does it hide real overflow bugs?
-33. Consider splitting errcheck `exclude-functions` into "Close family" (always safe) vs "fmt family" (opinionated)
-34. Add `check-type-assertions: true` and `check-blank: true` to ErrcheckSettings (verified keys, not added)
+31. ~~Audit G304 (file-taint) exclude — is it too broad for a security linter?~~ done (docs-health pass 2026-10-07)
+32. ~~Audit G115 (integer overflow) exclude — does it hide real overflow bugs?~~ done (docs-health pass 2026-10-07)
+33. ~~Consider splitting errcheck `exclude-functions` into "Close family" (always safe) vs "fmt family" (opinionated)~~ **Won't implement — single curated list kept; validated.**
+34. ~~Add `check-type-assertions: true` and `check-blank: true` to ErrcheckSettings (verified keys, not added)~~ done (docs-health pass 2026-10-07)
 
 ### exhaustruct strategy
 
-35. Consider a `--exhaustruct-project-types` flag for per-project struct exclusion
-36. Document the `--pragmatic` flag as the recommended exhaustruct friction solution
-37. Measure what % of exhaustruct nolints are in test files (already excluded) vs production
+35. ~~Consider a `--exhaustruct-project-types` flag for per-project struct exclusion~~ **Won't implement — --pragmatic chosen as the mechanism instead.**
+36. ~~Document the `--pragmatic` flag as the recommended exhaustruct friction solution~~ done (docs-health pass 2026-10-07)
+37. ~~Measure what % of exhaustruct nolints are in test files (already excluded) vs production~~ done (docs-health pass 2026-10-07)
 
 ### Preset ergonomics
 
-38. Consider `--pragmatic` integration with presets (`--preset house --pragmatic`)
-39. Add preset composition support (ROADMAP item)
-40. Consider a `pragmatic-reference` combo preset
+38. ~~Consider `--pragmatic` integration with presets (`--preset house --pragmatic`)~~ done (docs-health pass 2026-10-07)
+39. ~~Add preset composition support (ROADMAP item)~~ done (docs-health pass 2026-10-07)
+40. ~~Consider a `pragmatic-reference` combo preset~~ **Won't implement — flags compose natively; no combo preset.**
 
 ### CI/build
 
-41. Add a CI step that runs the tool on its own repo's `.golangci.yml` and verifies no diff (dogfood gate)
-42. Add `golangci-lint run` (no fix) as a `flake.nix` check output for local dev
-43. Verify `nix build` still passes after any future go.mod changes (vendorHash update procedure)
+41. Add a CI step that runs the tool on its own repo's `.golangci.yml` and verifies no diff (dogfood gate) **→ routed — TODO_LIST dogfood-gate row**
+42. Add `golangci-lint run` (no fix) as a `flake.nix` check output for local dev **→ routed — TODO_LIST flake-check-output row**
+43. ~~Verify `nix build` still passes after any future go.mod changes (vendorHash update procedure)~~ done (docs-health pass 2026-10-07)
 
 ### Code quality
 
-44. Remove the dead `EnableGolinesFormatter` code path OR restore conditional golines behavior
-45. Add a test that verifies `CoreFormatters` and all preset formatter sets are consistent
-46. Add a test that catches dead formatter-enabling code (calls after a superset-enabling call)
+44. ~~Remove the dead `EnableGolinesFormatter` code path OR restore conditional golines behavior~~ done (docs-health pass 2026-10-07)
+45. ~~Add a test that verifies `CoreFormatters` and all preset formatter sets are consistent~~ done (docs-health pass 2026-10-07)
+46. ~~Add a test that catches dead formatter-enabling code (calls after a superset-enabling call)~~ **Won't implement — dead code removed; the unused linter covers the class.**
 
 ### Process
 

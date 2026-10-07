@@ -94,51 +94,51 @@ The original `collectAnalysisFindings` ALWAYS called `report.AddFindings(recs)`,
 
 ### Critical / blocking
 
-1. **Fix `pkg/linter/fixer_config.go:218` compile error** — `newConfigUpdater` now requires a `GoVersionProvider` argument (from uncommitted `fixer.go` changes). This blocks `go test ./...`, `go build`, and `internal/cli`.
-2. **Run full test suite** after fixing #1 — verify all my refactoring changes pass.
-3. **Run `golangci-lint run`** on changed files after fixing #1.
+1. ~~**Fix `pkg/linter/fixer_config.go:218` compile error** — `newConfigUpdater` now requires a `GoVersionProvider` argument (from uncommitted `fixer.go` changes). This blocks `go test ./...`, `go build`, and `internal/cli`.~~ done (docs-health pass 2026-10-07)
+2. ~~**Run full test suite** after fixing #1 — verify all my refactoring changes pass.~~ done (docs-health pass 2026-10-07)
+3. ~~**Run `golangci-lint run`** on changed files after fixing #1.~~ done (docs-health pass 2026-10-07)
 
 ### High impact
 
 4. **Write tests for `appendFindingBatch`** — covers the error/no-error branches and verifies findings are added on success.
 5. **Write tests for `mustSettingsAction`** — verifies it panics on error and is nil-safe on success.
 6. **Write test for `printBytesToStdout`** — verifies output to stdout.
-7. **Run `nix build`** to verify reproducible build still works.
-8. **Run `nix flake check`** to verify format + build + tests pass.
-9. **Update vendorHash in flake.nix** if needed (probably not, since no new imports).
+7. ~~**Run `nix build`** to verify reproducible build still works.~~ done (docs-health pass 2026-10-07)
+8. ~~**Run `nix flake check`** to verify format + build + tests pass.~~ done (docs-health pass 2026-10-07)
+9. ~~**Update vendorHash in flake.nix** if needed (probably not, since no new imports).~~ **Won't implement — no import changes; the vendorHash guard automates it.**
 
 ### Documentation
 
 10. **Document `//art-dupl:accept` convention** in AGENTS.md or `docs/references/working-with-codebase.md` — explain what it is, when to use it, and that it requires art-dupl >= the commit that introduced directive suppression.
-11. **Document the new helpers** (`appendFindingBatch`, `mustSettingsAction`, `printBytesToStdout`) if they're non-obvious.
+11. ~~**Document the new helpers** (`appendFindingBatch`, `mustSettingsAction`, `printBytesToStdout`) if they're non-obvious.~~ done (docs-health pass 2026-10-07)
 12. **Note in AGENTS.md** that the Nix art-dupl binary may be outdated and accept-directives require a manual rebuild.
 
 ### Code quality follow-ups
 
 13. **Consider whether `printBytesToStdout` belongs in a shared `cli/output.go`** instead of `cmd_analyze.go` — it's used by 3 different command files.
-14. **Review whether `appendFindingBatch` should use a functional options pattern** if more finding-batch sources are added later.
-15. **Check if `mustSettingsAction` could return `error` instead of panicking** — panic-on-programming-error is the documented choice, but worth a second look.
-16. **Run `UPDATE_GOLDEN=1 go test ./pkg/report/...`** to verify HTML report golden test still passes (unrelated to my changes but worth checking).
+14. ~~**Review whether `appendFindingBatch` should use a functional options pattern** if more finding-batch sources are added later.~~ **Won't implement — declined — functional options for 3 call sites is overkill.**
+15. ~~**Check if `mustSettingsAction` could return `error` instead of panicking** — panic-on-programming-error is the documented choice, but worth a second look.~~ **Won't implement — declined — panic-on-programming-error is the documented choice.**
+16. ~~**Run `UPDATE_GOLDEN=1 go test ./pkg/report/...`** to verify HTML report golden test still passes (unrelated to my changes but worth checking).~~ done (docs-health pass 2026-10-07)
 
 ### Deduplication hardening
 
-17. **Add art-dupl to CI** (`check` mode with a baseline) so new duplication is caught in PRs.
-18. **Create a `.art-dupl-baseline.json`** if the team wants baseline-based CI enforcement instead of in-source directives.
-19. **Run `art-dupl --type-aware -t 5`** (higher threshold) to see if there are larger clones worth addressing that the `-t 1` threshold surfaces as noise.
-20. **Run `art-dupl --semantic -t 1`** (non-type-aware) to cross-check for clones that type-aware mode might miss.
-21. **Review the 3 extra test files** that got `//art-dupl:accept` directives via sed but weren't in the original clone group (`integration_test.go`, `scanner_test.go`, `policy/suite_test.go`) — verify the directives are appropriate.
+17. ~~**Add art-dupl to CI** (`check` mode with a baseline) so new duplication is caught in PRs.~~ done (docs-health pass 2026-10-07)
+18. ~~**Create a `.art-dupl-baseline.json`** if the team wants baseline-based CI enforcement instead of in-source directives.~~ **Won't implement — in-source art-dupl:accept directives chosen instead of a baseline file.**
+19. ~~**Run `art-dupl --type-aware -t 5`** (higher threshold) to see if there are larger clones worth addressing that the `-t 1` threshold surfaces as noise.~~ done (docs-health pass 2026-10-07)
+20. ~~**Run `art-dupl --semantic -t 1`** (non-type-aware) to cross-check for clones that type-aware mode might miss.~~ **Won't implement — semantic dedup verified zero since 2026-05-21.**
+21. ~~**Review the 3 extra test files** that got `//art-dupl:accept` directives via sed but weren't in the original clone group (`integration_test.go`, `scanner_test.go`, `policy/suite_test.go`) — verify the directives are appropriate.~~ **Won't implement — subsumed by item 29.**
 
 ### General project health (noticed during session)
 
-22. **16 `gopls stdversion` warnings** about `encoding/json/v2` requiring go1.27 — these are expected (GOEXPERIMENT=jsonv2) but could confuse contributors.
+22. ~~**16 `gopls stdversion` warnings** about `encoding/json/v2` requiring go1.27 — these are expected (GOEXPERIMENT=jsonv2) but could confuse contributors.~~ **Won't implement — moot — toolchain past the go1.27/jsonv2 need.**
 23. **6 `gopls bloop` warnings** about `b.N` → `b.Loop()` modernization in benchmark files.
-24. **The `os` import removal from `cmd_presets.go`** should be double-checked — confirm no other code in that file uses `os`.
-25. **Verify `go mod tidy`** doesn't change anything (no new imports added, but worth confirming).
-26. **Consider adding a pre-commit hook for art-dupl** to catch duplication before it lands.
-27. **Review whether the `printBytesToStdout` name is the best choice** — alternatives: `writeToStdout`, `emitJSON`, `printOutput`.
-28. **Check if `appendFindingBatch` could be generic** (`appendBatch[T any]`) to reduce boilerplate further — probably overkill for 3 call sites.
-29. **Audit all `//art-dupl:accept` directives for accuracy** — make sure each one has a defensible reason and isn't just silencing a real problem.
-30. **Consider a `.golangci.yml` exclude for `//art-dupl:accept` comments** if any linter complains about them (they're trailing inline comments).
+24. ~~**The `os` import removal from `cmd_presets.go`** should be double-checked — confirm no other code in that file uses `os`.~~ done (docs-health pass 2026-10-07)
+25. ~~**Verify `go mod tidy`** doesn't change anything (no new imports added, but worth confirming).~~ done (docs-health pass 2026-10-07)
+26. ~~**Consider adding a pre-commit hook for art-dupl** to catch duplication before it lands.~~ **Won't implement — dupl/jscpd buildflow gates chosen instead.**
+27. ~~**Review whether the `printBytesToStdout` name is the best choice** — alternatives: `writeToStdout`, `emitJSON`, `printOutput`.~~ **Won't implement — name kept as-is.**
+28. ~~**Check if `appendFindingBatch` could be generic** (`appendBatch[T any]`) to reduce boilerplate further — probably overkill for 3 call sites.~~ **Won't implement — declined for 3 call sites.**
+29. ~~**Audit all `//art-dupl:accept` directives for accuracy** — make sure each one has a defensible reason and isn't just silencing a real problem.~~ done (docs-health pass 2026-10-07)
+30. ~~**Consider a `.golangci.yml` exclude for `//art-dupl:accept` comments** if any linter complains about them (they're trailing inline comments).~~ **Won't implement — lint is clean; no linter complains about the directives.**
 
 ---
 

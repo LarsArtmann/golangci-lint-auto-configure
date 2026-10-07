@@ -90,83 +90,83 @@ These were in the v2 plan but I did NOT touch them:
 
 ### Friction reduction (direct follow-ups)
 
-1. Fix `CoreFormatters` to include `golines` (resolve the split-brain documented in AGENTS.md #20)
-2. Update `--preset` flag help string to include `house` preset
-3. Fix the `fullyPreparedConfig` test helper to use the current 14-linter exclusion list
-4. Reconsider G104 in gosec excludes — may be too broad; consider removing it
-5. Add a "rule merge" migration: when `DefaultExclusionRules[0]` gains new linters, merge them into existing configs that have the same `RuleKey`
-6. Write the CLI acceptance test for `--pragmatic` (F31 — never done)
-7. Update the plan's DoD checklist to reflect actual results (exhaustruct MISSED, not checked)
-8. Add `golines` to `CoreFormatters` and add an alignment test (F47 — never done)
+1. ~~Fix `CoreFormatters` to include `golines` (resolve the split-brain documented in AGENTS.md #20)~~ done (docs-health pass 2026-10-07)
+2. ~~Update `--preset` flag help string to include `house` preset~~ done (docs-health pass 2026-10-07)
+3. ~~Fix the `fullyPreparedConfig` test helper to use the current 14-linter exclusion list~~ done (docs-health pass 2026-10-07)
+4. ~~Reconsider G104 in gosec excludes — may be too broad; consider removing it~~ done (docs-health pass 2026-10-07)
+5. ~~Add a "rule merge" migration: when `DefaultExclusionRules[0]` gains new linters, merge them into existing configs that have the same `RuleKey`~~ done (docs-health pass 2026-10-07)
+6. ~~Write the CLI acceptance test for `--pragmatic` (F31 — never done)~~ done (docs-health pass 2026-10-07)
+7. ~~Update the plan's DoD checklist to reflect actual results (exhaustruct MISSED, not checked)~~ done (docs-health pass 2026-10-07)
+8. ~~Add `golines` to `CoreFormatters` and add an alignment test (F47 — never done)~~ done (docs-health pass 2026-10-07)
 
 ### Validation (close the loop properly)
 
-9. Regenerate 5 actual sibling configs with the new tool and re-run golangci-lint (F66-F67)
-10. Write a proper `validation-delta.md` with real before/after finding counts, not crude grep estimates
-11. Measure the actual nolint reduction in this repo's own codebase after the `.golangci.yml` regeneration
-12. Audit whether any of the 16 errcheck `exclude-functions` are too aggressive
+9. ~~Regenerate 5 actual sibling configs with the new tool and re-run golangci-lint (F66-F67)~~ **Won't implement — superseded by the v0.8.1 key-normalization self-heal.**
+10. ~~Write a proper `validation-delta.md` with real before/after finding counts, not crude grep estimates~~ done (docs-health pass 2026-10-07)
+11. ~~Measure the actual nolint reduction in this repo's own codebase after the `.golangci.yml` regeneration~~ done (docs-health pass 2026-10-07)
+12. ~~Audit whether any of the 16 errcheck `exclude-functions` are too aggressive~~ done (docs-health pass 2026-10-07)
 
 ### YAML/DX improvements
 
-13. Investigate preserving YAML indentation in the config loader's output (2-space vs 4-space)
+13. ~~Investigate preserving YAML indentation in the config loader's output (2-space vs 4-space)~~ done (docs-health pass 2026-10-07)
 14. Add a `--diff-only` mode that shows what would change without reformatting whitespace
 15. Consider a `--check-format` flag that fails if the tool would reformat the file
 
 ### Test debt (C11-C17, all not started)
 
-16. Write `cmd_audit_test.go`: ledger read/filter/clear happy path (F52)
-17. Write audit error-path test: corrupt JSONL, missing file (F53)
-18. Write `fixer_enforce_test.go`: sidecar re-enable logic (F54)
-19. Write `newRunLedger` test: mutation recording + retention purge (F55)
-20. Add Infrastructure(69) exit-code integration test (F56)
-21. Add Corruption(65) exit-code integration test (F57)
-22. Identify 3 lowest-covered CLI funcs and add integration tests (F58-F59)
-23. Convert `scripts/coverage-check.sh` → Go test (F60-F61)
-24. Replace raw `slog.Error` calls with `HandleError` at CLI boundary (F62-F63)
-25. Close the `funcorder` test gap (F64)
-26. Register domain message templates with `errorfamily.New()` (F65)
+16. ~~Write `cmd_audit_test.go`: ledger read/filter/clear happy path (F52)~~ done (docs-health pass 2026-10-07)
+17. ~~Write audit error-path test: corrupt JSONL, missing file (F53)~~ done (docs-health pass 2026-10-07)
+18. ~~Write `fixer_enforce_test.go`: sidecar re-enable logic (F54)~~ done (docs-health pass 2026-10-07)
+19. ~~Write `newRunLedger` test: mutation recording + retention purge (F55)~~ done (docs-health pass 2026-10-07)
+20. ~~Add Infrastructure(69) exit-code integration test (F56)~~ done (docs-health pass 2026-10-07)
+21. ~~Add Corruption(65) exit-code integration test (F57)~~ done (docs-health pass 2026-10-07)
+22. ~~Identify 3 lowest-covered CLI funcs and add integration tests (F58-F59)~~ done (docs-health pass 2026-10-07)
+23. ~~Convert `scripts/coverage-check.sh` → Go test (F60-F61)~~ done (docs-health pass 2026-10-07)
+24. ~~Replace raw `slog.Error` calls with `HandleError` at CLI boundary (F62-F63)~~ done (docs-health pass 2026-10-07)
+25. ~~Close the `funcorder` test gap (F64)~~ **Won't implement — funcorder is forcibly tool-disabled (DisabledLinters).**
+26. ~~Register domain message templates with `errorfamily.New()` (F65)~~ done (docs-health pass 2026-10-07)
 
 ### Documentation
 
-27. Update README.md sidecar section to note de-emphasis decision (cross-ref ROADMAP)
-28. Add "Friction-driven defaults" section to README.md for user-facing visibility
-29. Add v1 deprecation note to `docs/references/` migration docs (F49)
-30. Add "v1: maintenance-only, 0 live instances" line to AGENTS.md (F50)
-31. Update TODO_LIST.md: mark funlen reconciliation DONE, mark CI-no-fix DONE
-32. Annotate the ecosystem research report with "actions taken" (non-destructive, per update-old-docs skill)
+27. ~~Update README.md sidecar section to note de-emphasis decision (cross-ref ROADMAP)~~ done (docs-health pass 2026-10-07)
+28. ~~Add "Friction-driven defaults" section to README.md for user-facing visibility~~ **Won't implement — never added; CHANGELOG documents the defaults.**
+29. ~~Add v1 deprecation note to `docs/references/` migration docs (F49)~~ **Won't implement — v1 migration refs removed; non-goal (ROADMAP).**
+30. ~~Add "v1: maintenance-only, 0 live instances" line to AGENTS.md (F50)~~ done (docs-health pass 2026-10-07)
+31. ~~Update TODO_LIST.md: mark funlen reconciliation DONE, mark CI-no-fix DONE~~ done (docs-health pass 2026-10-07)
+32. ~~Annotate the ecosystem research report with "actions taken" (non-destructive, per update-old-docs skill)~~ done (docs-health pass 2026-10-07)
 
 ### Rollout
 
-33. Bump version (decide patch vs minor)
-34. Update CHANGELOG.md release section with version
-35. Tag the release
-36. Add README "what changed" callout for friction-driven defaults
+33. ~~Bump version (decide patch vs minor)~~ done (docs-health pass 2026-10-07)
+34. ~~Update CHANGELOG.md release section with version~~ done (docs-health pass 2026-10-07)
+35. ~~Tag the release~~ done (docs-health pass 2026-10-07)
+36. ~~Add README "what changed" callout for friction-driven defaults~~ **Won't implement — not added; CHANGELOG covers releases.**
 
 ### Gosec/errcheck refinement
 
-37. Audit G304 (file-taint) exclude — is it too broad for a security linter?
-38. Audit G115 (integer overflow) exclude — does it hide real overflow bugs?
-39. Consider splitting errcheck `exclude-functions` into "Close family" (always safe) vs "fmt family" (opinionated)
-40. Add `check-type-assertions: true` and `check-blank: true` to ErrcheckSettings (verified keys, not added)
+37. ~~Audit G304 (file-taint) exclude — is it too broad for a security linter?~~ done (docs-health pass 2026-10-07)
+38. ~~Audit G115 (integer overflow) exclude — does it hide real overflow bugs?~~ done (docs-health pass 2026-10-07)
+39. ~~Consider splitting errcheck `exclude-functions` into "Close family" (always safe) vs "fmt family" (opinionated)~~ **Won't implement — single curated list kept; validated 27.3% nolint reduction.**
+40. ~~Add `check-type-assertions: true` and `check-blank: true` to ErrcheckSettings (verified keys, not added)~~ done (docs-health pass 2026-10-07)
 
 ### exhaustruct strategy
 
-41. Consider a `--exhaustruct-project-types` flag for per-project struct exclusion
-42. Document the `--pragmatic` flag as the recommended exhaustruct friction solution
-43. Measure what % of exhaustruct nolints are in test files (already excluded) vs production
+41. ~~Consider a `--exhaustruct-project-types` flag for per-project struct exclusion~~ **Won't implement — --pragmatic chosen as the mechanism instead.**
+42. ~~Document the `--pragmatic` flag as the recommended exhaustruct friction solution~~ done (docs-health pass 2026-10-07)
+43. ~~Measure what % of exhaustruct nolints are in test files (already excluded) vs production~~ done (docs-health pass 2026-10-07)
 
 ### Preset ergonomics
 
-44. Add `--pragmatic` to the `reference` preset description or create a `pragmatic-reference` combo
-45. Consider `--preset house --pragmatic` as a documented quick-start recipe
-46. Add preset composition support (ROADMAP item #3)
+44. ~~Add `--pragmatic` to the `reference` preset description or create a `pragmatic-reference` combo~~ **Won't implement — flags compose natively; no combo preset.**
+45. ~~Consider `--preset house --pragmatic` as a documented quick-start recipe~~ **Won't implement — flags composable; recipe not tracked.**
+46. ~~Add preset composition support (ROADMAP item #3)~~ done (docs-health pass 2026-10-07)
 
 ### CI/build
 
-47. Verify `nix build` still passes (vendorHash may need update after go.mod changes from parallel agents)
-48. Run `nix flake check` end-to-end
-49. Add a CI step that runs the tool on its own repo's `.golangci.yml` and verifies no diff (dogfood gate)
-50. Add `golangci-lint run` (no fix) as a `flake.nix` check output for local dev
+47. ~~Verify `nix build` still passes (vendorHash may need update after go.mod changes from parallel agents)~~ done (docs-health pass 2026-10-07)
+48. ~~Run `nix flake check` end-to-end~~ done (docs-health pass 2026-10-07)
+49. Add a CI step that runs the tool on its own repo's `.golangci.yml` and verifies no diff (dogfood gate) **→ routed — TODO_LIST dogfood-gate row**
+50. Add `golangci-lint run` (no fix) as a `flake.nix` check output for local dev **→ routed — TODO_LIST flake-check-output row**
 
 ---
 

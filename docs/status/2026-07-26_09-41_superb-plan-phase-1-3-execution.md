@@ -101,65 +101,65 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 
 ### Immediate (Block everything)
 
-1. **Fix the broken build** — update `newConfigUpdater` call at `fixer_config.go:218`
-2. Wire `SetGoVersionProvider(config.GetLocalGoVersion)` in `pkg/client/client.go`
-3. Remove duplicate `DefaultMaxIssuesPerLinter`/`DefaultMaxSameIssues` from `pkg/config/loader.go`
-4. Check if `mapKeys` in `cmd_configure_config.go` is now dead code; remove if so
-5. Run full test suite to verify GATE 2 is restored
+1. ~~**Fix the broken build** — update `newConfigUpdater` call at `fixer_config.go:218`~~ done (docs-health pass 2026-10-07)
+2. ~~Wire `SetGoVersionProvider(config.GetLocalGoVersion)` in `pkg/client/client.go`~~ done (docs-health pass 2026-10-07)
+3. ~~Remove duplicate `DefaultMaxIssuesPerLinter`/`DefaultMaxSameIssues` from `pkg/config/loader.go`~~ done (docs-health pass 2026-10-07)
+4. ~~Check if `mapKeys` in `cmd_configure_config.go` is now dead code; remove if so~~ done (docs-health pass 2026-10-07)
+5. ~~Run full test suite to verify GATE 2 is restored~~ done (docs-health pass 2026-10-07)
 
 ### Phase 3 Completion
 
-6. **MT12:** Analyze `pkg/client` public API and callers
-7. **MT12:** Move client wiring to `internal/cli` or give focused facade
-8. **MT12:** Update `examples/api-usage/main.go` if it imports client
-9. **GATE 3:** `go build + go test -race + golangci-lint run`
-10. **GATE 3:** Verify `pkg/finding` no longer imports `pkg/linter`
-11. **GATE 3:** Verify `pkg/linter` no longer imports `pkg/config`
-12. **GATE 3:** `grep -r "config.Config\b" internal/ pkg/` returns zero alias hits
+6. ~~**MT12:** Analyze `pkg/client` public API and callers~~ done (docs-health pass 2026-10-07)
+7. ~~**MT12:** Move client wiring to `internal/cli` or give focused facade~~ done (docs-health pass 2026-10-07)
+8. ~~**MT12:** Update `examples/api-usage/main.go` if it imports client~~ done (docs-health pass 2026-10-07)
+9. ~~**GATE 3:** `go build + go test -race + golangci-lint run`~~ done (docs-health pass 2026-10-07)
+10. ~~**GATE 3:** Verify `pkg/finding` no longer imports `pkg/linter`~~ done (docs-health pass 2026-10-07)
+11. ~~**GATE 3:** Verify `pkg/linter` no longer imports `pkg/config`~~ done (docs-health pass 2026-10-07)
+12. ~~**GATE 3:** `grep -r "config.Config\b" internal/ pkg/` returns zero alias hits~~ done (docs-health pass 2026-10-07)
 
 ### Phase 4 — Deep Refactors
 
-13. **MT13:** Design `CommandContext` struct (flags + logger + analyzer refs)
-14. **MT13:** Replace 12 global `var` declarations in `commands.go`
-15. **MT13:** Update `newConfigureCommand` to use `CommandContext`
-16. **MT13:** Update `newAnalyzeCommand` + `newValidateCommand`
-17. **MT13:** Update `newReportCommand` + `newAuditCommand` + presets
-18. **MT13:** Update `cmd_configure_fixer.go` + `cmd_configure_preset.go`
-19. **MT13:** Run full build + test
-20. **MT14:** Diff `types.Config` vs `migration.Config` — list every field difference
-21. **MT14:** Design the v1→v2 normalizing shim
-22. **MT14:** Write ADR `docs/adr/ADR-006-Unify-Config-Type.md`
-23. **MT14:** Identify migration test coverage gaps
-24. **MT15:** Create `migration.ShimConfig` type wrapping `types.Config`
-25. **MT15:** Implement v1→v2 field normalization
-26. **MT15:** Update `migrator.go` to use shim
-27. **MT15:** Delete duplicate sub-structs from `migration/config_types.go`
-28. **MT15:** Fix all consumer compiler errors
-29. **MT15:** Run full migration test suite + golden files
-30. **MT16:** Design `SettingsMap` type with typed `GetString`/`GetSlice`/`GetMap`
-31. **MT16:** Implement `SettingsMap` with centralized type assertions
-32. **MT16:** Migrate `pkg/types/clone.go` to use `SettingsMap`
-33. **MT16:** Migrate `pkg/config/merger_helpers.go`
-34. **MT16:** Migrate `pkg/config/settings_validator.go`
-35. **MT16:** Migrate `pkg/linter/fixer_config.go` settings access
-36. **GATE 4:** `nix flake check` (full hermetic build + format + test)
+13. ~~**MT13:** Design `CommandContext` struct (flags + logger + analyzer refs)~~ done (docs-health pass 2026-10-07)
+14. ~~**MT13:** Replace 12 global `var` declarations in `commands.go`~~ done (docs-health pass 2026-10-07)
+15. ~~**MT13:** Update `newConfigureCommand` to use `CommandContext`~~ done (docs-health pass 2026-10-07)
+16. ~~**MT13:** Update `newAnalyzeCommand` + `newValidateCommand`~~ done (docs-health pass 2026-10-07)
+17. ~~**MT13:** Update `newReportCommand` + `newAuditCommand` + presets~~ done (docs-health pass 2026-10-07)
+18. ~~**MT13:** Update `cmd_configure_fixer.go` + `cmd_configure_preset.go`~~ done (docs-health pass 2026-10-07)
+19. ~~**MT13:** Run full build + test~~ done (docs-health pass 2026-10-07)
+20. ~~**MT14:** Diff `types.Config` vs `migration.Config` — list every field difference~~ done (docs-health pass 2026-10-07)
+21. ~~**MT14:** Design the v1→v2 normalizing shim~~ done (docs-health pass 2026-10-07)
+22. ~~**MT14:** Write ADR `docs/adr/ADR-006-Unify-Config-Type.md`~~ done (docs-health pass 2026-10-07)
+23. ~~**MT14:** Identify migration test coverage gaps~~ done (docs-health pass 2026-10-07)
+24. ~~**MT15:** Create `migration.ShimConfig` type wrapping `types.Config`~~ **Won't implement — superseded — ADR-006 decided to KEEP the config types separate.**
+25. ~~**MT15:** Implement v1→v2 field normalization~~ **Won't implement — superseded — ADR-006 decided to KEEP the config types separate.**
+26. ~~**MT15:** Update `migrator.go` to use shim~~ **Won't implement — superseded — ADR-006 decided to KEEP the config types separate.**
+27. ~~**MT15:** Delete duplicate sub-structs from `migration/config_types.go`~~ **Won't implement — superseded — ADR-006 decided to KEEP the config types separate.**
+28. ~~**MT15:** Fix all consumer compiler errors~~ **Won't implement — superseded — ADR-006 decided to KEEP the config types separate.**
+29. ~~**MT15:** Run full migration test suite + golden files~~ **Won't implement — superseded — ADR-006 decided to KEEP the config types separate.**
+30. ~~**MT16:** Design `SettingsMap` type with typed `GetString`/`GetSlice`/`GetMap`~~ done (docs-health pass 2026-10-07)
+31. ~~**MT16:** Implement `SettingsMap` with centralized type assertions~~ done (docs-health pass 2026-10-07)
+32. ~~**MT16:** Migrate `pkg/types/clone.go` to use `SettingsMap`~~ done (docs-health pass 2026-10-07)
+33. ~~**MT16:** Migrate `pkg/config/merger_helpers.go`~~ done (docs-health pass 2026-10-07)
+34. ~~**MT16:** Migrate `pkg/config/settings_validator.go`~~ done (docs-health pass 2026-10-07)
+35. ~~**MT16:** Migrate `pkg/linter/fixer_config.go` settings access~~ done (docs-health pass 2026-10-07)
+36. ~~**GATE 4:** `nix flake check` (full hermetic build + format + test)~~ done (docs-health pass 2026-10-07)
 
 ### Quality Follow-ups
 
 37. Write tests for `Version.Compare()` (semver ordering edge cases)
 38. Write tests for `TriState.UnmarshalYAML` (nil/true/false)
-39. Write tests for `NewConfig()` options (all `With*` functions)
-40. Run `golangci-lint run` on the repo's own config — verify zero issues
-41. Run `UPDATE_GOLDEN=1 go test ./pkg/report/...` — review HTML golden diff
+39. ~~Write tests for `NewConfig()` options (all `With*` functions)~~ done (docs-health pass 2026-10-07)
+40. ~~Run `golangci-lint run` on the repo's own config — verify zero issues~~ done (docs-health pass 2026-10-07)
+41. ~~Run `UPDATE_GOLDEN=1 go test ./pkg/report/...` — review HTML golden diff~~ done (docs-health pass 2026-10-07)
 42. Update `AGENTS.md` with the new type system (LinterName/FormatterName/Version/TriState)
-43. Update `docs/references/json-v2.md` with the `omitzero` vs `omitempty` status after branded types
-44. Update `TODO_LIST.md` — remove completed items (format preset, dead code, G104)
-45. Update `CHANGELOG.md` with all Phase 1-3 changes
-46. Run `go mod tidy` (semver dependency added by Version type)
-47. Update `vendorHash` in `flake.nix` after go.mod change
-48. Run `nix build` to verify hermetic build
-49. Cut release `v0.6.0` (additive type changes + format preset alignment = minor bump)
-50. Run full `nix flake check` as final GATE 4
+43. ~~Update `docs/references/json-v2.md` with the `omitzero` vs `omitempty` status after branded types~~ done (docs-health pass 2026-10-07)
+44. ~~Update `TODO_LIST.md` — remove completed items (format preset, dead code, G104)~~ done (docs-health pass 2026-10-07)
+45. ~~Update `CHANGELOG.md` with all Phase 1-3 changes~~ done (docs-health pass 2026-10-07)
+46. ~~Run `go mod tidy` (semver dependency added by Version type)~~ done (docs-health pass 2026-10-07)
+47. ~~Update `vendorHash` in `flake.nix` after go.mod change~~ done (docs-health pass 2026-10-07)
+48. ~~Run `nix build` to verify hermetic build~~ done (docs-health pass 2026-10-07)
+49. ~~Cut release `v0.6.0` (additive type changes + format preset alignment = minor bump)~~ done (docs-health pass 2026-10-07)
+50. ~~Run full `nix flake check` as final GATE 4~~ done (docs-health pass 2026-10-07)
 
 ---
 

@@ -178,77 +178,77 @@ I wrote `cmd/coverage-check/main.go` but added ZERO tests for it. The function `
 
 ### Immediate (fix what this session left incomplete)
 
-1. **Delete `scripts/coverage-check.sh`** — it's replaced by `cmd/coverage-check/main.go` and is now a ghost file
+1. ~~**Delete `scripts/coverage-check.sh`** — it's replaced by `cmd/coverage-check/main.go` and is now a ghost file~~ done (docs-health pass 2026-10-07)
 2. **Run `nix flake check` (FULL, no `--no-build`)** — the canonical quality gate was not fully run this session
-3. **Add a unit test for `parseTotalCoverage`** in `cmd/coverage-check/` — pure parsing logic, zero tests
-4. **Document the `UPDATE_GOLDEN=1` workflow** in AGENTS.md and working-with-codebase.md
-5. **Annotate `docs/research/` references to `coverage-check.sh`** as superseded
-6. **Audit remaining `scripts/` files** — `pre-commit-hook.sh`, `validate_linter_doc.sh`, `verify_linter_count.sh`, `validate_linter_data.go` may be stale
-7. **Fix CI summary cosmetic drift** — "Tests on Go 1.26" → just "Tests" since matrix was removed
+3. ~~**Add a unit test for `parseTotalCoverage`** in `cmd/coverage-check/` — pure parsing logic, zero tests~~ done (docs-health pass 2026-10-07)
+4. ~~**Document the `UPDATE_GOLDEN=1` workflow** in AGENTS.md and working-with-codebase.md~~ done (docs-health pass 2026-10-07)
+5. ~~**Annotate `docs/research/` references to `coverage-check.sh`** as superseded~~ done (docs-health pass 2026-10-07)
+6. ~~**Audit remaining `scripts/` files** — `pre-commit-hook.sh`, `validate_linter_doc.sh`, `verify_linter_count.sh`, `validate_linter_data.go` may be stale~~ done (docs-health pass 2026-10-07)
+7. ~~**Fix CI summary cosmetic drift** — "Tests on Go 1.26" → just "Tests" since matrix was removed~~ done (docs-health pass 2026-10-07)
 
 ### Testing gaps
 
-8. **Add `--no-color` flag** — enables accurate plain-text output for docs and CI
-9. **Add HTML report CSS regression test** — verify color values haven't changed unintentionally
-10. **Add integration test for coverage-check** — end-to-end: generate coverage.out, run the tool, verify exit code
-11. **Add test for markdownlint config** — verify `.markdownlint-cli2.jsonc` parses correctly
-12. **Add property-based test for `Config.Clone()`** — verify deep copy semantics
-13. **Add test verifying `DefaultLinterSettings` keys match `LinterPriorities` keys** — no orphaned settings
+8. ~~**Add `--no-color` flag** — enables accurate plain-text output for docs and CI~~ done (docs-health pass 2026-10-07)
+9. ~~**Add HTML report CSS regression test** — verify color values haven't changed unintentionally~~ done (docs-health pass 2026-10-07)
+10. ~~**Add integration test for coverage-check** — end-to-end: generate coverage.out, run the tool, verify exit code~~ done (docs-health pass 2026-10-07)
+11. ~~**Add test for markdownlint config** — verify `.markdownlint-cli2.jsonc` parses correctly~~ done (docs-health pass 2026-10-07)
+12. ~~**Add property-based test for `Config.Clone()`** — verify deep copy semantics~~ done (docs-health pass 2026-10-07)
+13. ~~**Add test verifying `DefaultLinterSettings` keys match `LinterPriorities` keys** — no orphaned settings~~ done (docs-health pass 2026-10-07)
 
 ### CI/Build maturity
 
-14. **Add `cmd/coverage-check` as a Nix package or app** — currently invisible to `nix build`
-15. **Add `nix flake check` (full, with build) to CI** — currently only `--no-build` runs in CI
-16. **Pin `markdownlint-cli2-action` to a specific SHA** — currently uses `@v18` (floating tag)
-17. **Add `flake.lock` update automation** — Dependabot or similar for Nix inputs
-18. **Add retry logic for flaky CI steps** — the golangci-lint cache step occasionally fails
-19. **Separate `golangci-lint run` (no `--fix`) CI step** — catches what `--fix` hides
+14. ~~**Add `cmd/coverage-check` as a Nix package or app** — currently invisible to `nix build`~~ done (docs-health pass 2026-10-07)
+15. **Add `nix flake check` (full, with build) to CI** — currently only `--no-build` runs in CI **→ routed — TODO_LIST nix-flake-checks row**
+16. ~~**Pin `markdownlint-cli2-action` to a specific SHA** — currently uses `@v18` (floating tag)~~ done (docs-health pass 2026-10-07)
+17. **Add `flake.lock` update automation** — Dependabot or similar for Nix inputs **→ routed — TODO_LIST Dependabot vendorHash row**
+18. ~~**Add retry logic for flaky CI steps** — the golangci-lint cache step occasionally fails~~ **Won't implement — declined as marginal value; the later-added retry was removed again.**
+19. ~~**Separate `golangci-lint run` (no `--fix`) CI step** — catches what `--fix` hides~~ done (docs-health pass 2026-10-07)
 
 ### Documentation depth
 
-20. **Full README.md line-by-line audit** — 386 lines remain unverified
-21. **Full DOMAIN_LANGUAGE.md term-by-term audit** — only 3 of ~30 terms verified
-22. **Full ARCHITECTURE.md ADR-by-ADR audit** — only 2 of 8+ ADRs verified
-23. **Add `CHANGELOG.md` entry for this session's changes** — coverage-check, golden tests, markdown lint, flake.lock drift, preset count fix
-24. **Update `docs/references/code-organization.md`** with new `cmd/coverage-check/` directory
-25. **Document the `cmd/coverage-check` tool** in README under a "Development Tools" section
-26. **Add `.markdownlint-cli2.jsonc` to AGENTS.md** as a known config file
+20. ~~**Full README.md line-by-line audit** — 386 lines remain unverified~~ done (docs-health pass 2026-10-07)
+21. ~~**Full DOMAIN_LANGUAGE.md term-by-term audit** — only 3 of ~30 terms verified~~ done (docs-health pass 2026-10-07)
+22. ~~**Full ARCHITECTURE.md ADR-by-ADR audit** — only 2 of 8+ ADRs verified~~ done (docs-health pass 2026-10-07)
+23. ~~**Add `CHANGELOG.md` entry for this session's changes** — coverage-check, golden tests, markdown lint, flake.lock drift, preset count fix~~ done (docs-health pass 2026-10-07)
+24. ~~**Update `docs/references/code-organization.md`** with new `cmd/coverage-check/` directory~~ done (docs-health pass 2026-10-07)
+25. ~~**Document the `cmd/coverage-check` tool** in README under a "Development Tools" section~~ done (docs-health pass 2026-10-07)
+26. ~~**Add `.markdownlint-cli2.jsonc` to AGENTS.md** as a known config file~~ done (docs-health pass 2026-10-07)
 
 ### Type safety & data-model
 
-27. **Split `cmd_configure.go`** (581 lines) — largest SRP violation, highest-impact refactor
-28. **Extract linter/formatter name strings as typed constants** — eliminates goconst class
-29. **Type `OutputConfig.Formats`** — replace `map[string]any` with typed struct
-30. **Add a `Result` type for CLI commands** — carry warnings/counts alongside error
-31. **Generate settings structs from golangci-lint's JSON Schema** — replace 13 hand-maintained structs
-32. **Add settings key validation** against golangci-lint schema at config load
-33. **Split the `ConfigLoader` God Object interface** (8 methods, 6 sub-interfaces)
-34. **Consolidate `ValidationError` + `HealthIssue`** — overlapping types
-35. **Add `wrapcheck` default settings** — last linter without defaults
+27. ~~**Split `cmd_configure.go`** (581 lines) — largest SRP violation, highest-impact refactor~~ done (docs-health pass 2026-10-07)
+28. ~~**Extract linter/formatter name strings as typed constants** — eliminates goconst class~~ done (docs-health pass 2026-10-07)
+29. ~~**Type `OutputConfig.Formats`** — replace `map[string]any` with typed struct~~ **Won't implement — explicit non-goal (ROADMAP).**
+30. ~~**Add a `Result` type for CLI commands** — carry warnings/counts alongside error~~ done (docs-health pass 2026-10-07)
+31. ~~**Generate settings structs from golangci-lint's JSON Schema** — replace 13 hand-maintained structs~~ done (docs-health pass 2026-10-07)
+32. ~~**Add settings key validation** against golangci-lint schema at config load~~ done (docs-health pass 2026-10-07)
+33. ~~**Split the `ConfigLoader` God Object interface** (8 methods, 6 sub-interfaces)~~ done (docs-health pass 2026-10-07)
+34. ~~**Consolidate `ValidationError` + `HealthIssue`** — overlapping types~~ done (docs-health pass 2026-10-07)
+35. ~~**Add `wrapcheck` default settings** — last linter without defaults~~ done (docs-health pass 2026-10-07)
 
 ### Preset & UX
 
-36. **Implement preset composition** (`format = minimal + formatters`)
-37. **Add `--preset a --preset b` multi-preset support**
-38. **Add `--detect` mode for format preset** (auto-enable swaggo)
-39. **Add `--list-presets` JSON output** for scripting
-40. **Add preset recommendation based on project analysis** — "Based on your project, we recommend `strict`"
+36. ~~**Implement preset composition** (`format = minimal + formatters`)~~ done (docs-health pass 2026-10-07)
+37. ~~**Add `--preset a --preset b` multi-preset support**~~ done (docs-health pass 2026-10-07)
+38. ~~**Add `--detect` mode for format preset** (auto-enable swaggo)~~ done (docs-health pass 2026-10-07)
+39. ~~**Add `--list-presets` JSON output** for scripting~~ done (docs-health pass 2026-10-07)
+40. ~~**Add preset recommendation based on project analysis** — "Based on your project, we recommend `strict`"~~ done (docs-health pass 2026-10-07)
 
 ### Error handling
 
-41. **Adopt `HandleError` at the CLI boundary** — replaces ad-hoc slog calls
-42. **Register domain message templates** for `errorfamily.New()` constructors
+41. ~~**Adopt `HandleError` at the CLI boundary** — replaces ad-hoc slog calls~~ done (docs-health pass 2026-10-07)
+42. ~~**Register domain message templates** for `errorfamily.New()` constructors~~ done (docs-health pass 2026-10-07)
 43. **Add `--json-errors` test for all exit codes** (0, 1, 65, 69, 75) — currently only 1, 65, 69 tested
-44. **Audit the `legacyerrors` nolint directives** — verify they're still needed with current linter version
+44. ~~**Audit the `legacyerrors` nolint directives** — verify they're still needed with current linter version~~ **Won't implement — zero legacyerrors directives remain.**
 
 ### Code quality
 
-45. **Run `deduplicate-code` skill** — check for duplication introduced across sessions
-46. **Run `brutal-self-review` skill** — comprehensive critique of current state
-47. **Run `architecture-review` skill** — verify modularity hasn't degraded
-48. **Add `golangci-lint` self-linting** — the tool should lint its own code with its own output
-49. **Consolidate July status reports** — 25 reports in `docs/status/` is still a lot; consider archiving pre-07-20
-50. **Conventional commits/changelog automation** — `git-cliff` or similar (needs user decision)
+45. ~~**Run `deduplicate-code` skill** — check for duplication introduced across sessions~~ done (docs-health pass 2026-10-07)
+46. ~~**Run `brutal-self-review` skill** — comprehensive critique of current state~~ done (docs-health pass 2026-10-07)
+47. ~~**Run `architecture-review` skill** — verify modularity hasn't degraded~~ done (docs-health pass 2026-10-07)
+48. ~~**Add `golangci-lint` self-linting** — the tool should lint its own code with its own output~~ done (docs-health pass 2026-10-07)
+49. ~~**Consolidate July status reports** — 25 reports in `docs/status/` is still a lot; consider archiving pre-07-20~~ done (docs-health pass 2026-10-07)
+50. ~~**Conventional commits/changelog automation** — `git-cliff` or similar (needs user decision)~~ done (docs-health pass 2026-10-07)
 
 ---
 
