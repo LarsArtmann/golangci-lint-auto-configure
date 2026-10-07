@@ -193,6 +193,45 @@ var _ = Describe("DeprecatedLinters", func() {
 				To(BeTrue(), "DeprecatedLinters[%q] replacement %q is missing from LinterPriorities", linter, replacement.Replacement)
 		}
 	})
+
+	// Empirically audited against the live golangci-lint v2.14.0 linter list
+	// (2026-10-07): the only deprecated linters upstream reports are wsl,
+	// gomodguard, and exhaustruct — all three must stay mapped here so the
+	// fixer migrates configs carrying them. A new upstream deprecation
+	// without a mapping leaves user configs with deprecation warnings.
+	It("maps every linter golangci-lint v2.14.0 reports as deprecated", func() {
+		for _, deprecatedInV2 := range []types.LinterName{"wsl", "gomodguard", "exhaustruct"} {
+			_, mapped := constants.DeprecatedLinters[deprecatedInV2]
+			Expect(mapped).To(BeTrue(), "%q is deprecated upstream but missing from DeprecatedLinters", deprecatedInV2)
+		}
+	})
+
+	// Cross-table consistency: when a replacement's availability is
+	// version-gated in LinterMinVersions, the deprecation entry must carry
+	// the SAME version, and it must be at or above the tool minimum (an
+	// older gate is unreachable dead data; a mismatch means the two tables
+	// disagree about when the replacement appeared).
+	It("agrees with LinterMinVersions on gated replacements", func() {
+		for linter, replacement := range constants.DeprecatedLinters {
+			if replacement.Replacement == "" {
+				continue
+			}
+
+			gate, gated := constants.LinterMinVersions[replacement.Replacement]
+
+			if !gated {
+				continue
+			}
+
+			Expect(replacement.MinVersion).
+				To(Equal(gate), "DeprecatedLinters[%q].MinVersion disagrees with LinterMinVersions[%q]", linter, replacement.Replacement)
+
+			comparison := semver.Compare(replacement.MinVersion, constants.MinGolangCILintVersion)
+			Expect(comparison).To(BeNumerically(">=", 0),
+				"DeprecatedLinters[%q].MinVersion %s is below the tool minimum %s — the gate is unreachable",
+				linter, replacement.MinVersion, constants.MinGolangCILintVersion)
+		}
+	})
 })
 
 var _ = Describe("FormatterPriorities and FormatterReasons consistency", func() {

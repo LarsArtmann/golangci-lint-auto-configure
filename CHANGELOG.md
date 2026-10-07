@@ -38,6 +38,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Fuzz targets pin the core string/version invariants.**
+  `NormalizeGoMajorMinor` (idempotence), `CompareGoMajorMinor`
+  (antisymmetry, reflexivity, patch-invariance), `detectYAMLIndent`
+  (range + determinism on arbitrary bytes), and `mergeExclusionLinters`
+  (exact union + fixed point) each carry a Go fuzz target with property
+  invariants; CI runs a 30s-per-target fuzz smoke job
+  (`scripts/fuzz-smoke.sh`).
 - **Minimum supported golangci-lint raised from v2.10.1 to v2.12.0.** The
   new e2e pin matrix proved the curated goconst default injects
   `ignore-tests`, a settings key that only exists since v2.12.0 — on older

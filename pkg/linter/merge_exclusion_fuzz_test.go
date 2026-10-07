@@ -39,7 +39,9 @@ func FuzzMergeExclusionLinters(f *testing.F) {
 		merged := mergeExclusionLinters(existing, defaults)
 
 		want := dedupInOrder(existing)
+
 		seen := make(map[string]bool, len(want))
+
 		for _, s := range want {
 			seen[s] = true
 		}
