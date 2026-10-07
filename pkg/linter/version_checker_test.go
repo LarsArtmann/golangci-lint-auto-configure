@@ -7,6 +7,7 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"golang.org/x/mod/semver"
 )
 
 var _ = Describe("validateVersion", func() {
@@ -35,11 +36,11 @@ var _ = Describe("validateVersion", func() {
 	Context("when version is older than expected but meets minimum", func() {
 		It("should warn about unexpected version", func() {
 			between := "v2.13.0"
-			// Lexical compare is safe for vX.Y.Z strings. Guards rot loudly:
-			// bump this spec constant together with MinGolangCILintVersion.
-			Expect(between > constants.MinGolangCILintVersion).
+			// Guards rot loudly: bump this spec constant together with the
+			// constants when the minimum or recommendation moves.
+			Expect(semver.Compare(between, constants.MinGolangCILintVersion) >= 0).
 				To(BeTrue(), "spec constant must be >= MinGolangCILintVersion — update it when the minimum bumps")
-			Expect(between < constants.ExpectedGolangCILintVersion).
+			Expect(semver.Compare(between, constants.ExpectedGolangCILintVersion) < 0).
 				To(BeTrue(), "spec constant must be < ExpectedGolangCILintVersion — update it when the recommendation bumps")
 
 			err := analyzer.validateVersion(between)
@@ -62,7 +63,7 @@ var _ = Describe("validateVersion", func() {
 	Context("when version is below minimum", func() {
 		It("should return an error without warning", func() {
 			below := "v2.9.0"
-			Expect(below < constants.MinGolangCILintVersion).
+			Expect(semver.Compare(below, constants.MinGolangCILintVersion) < 0).
 				To(BeTrue(), "spec constant must be < MinGolangCILintVersion — update it when the minimum bumps")
 
 			err := analyzer.validateVersion(below)
