@@ -134,28 +134,28 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 
 ### High Impact (coverage & safety)
 
-1. Add end-to-end policy enforcement test through `FixConfig` with a real sidecar file (verify wiring, not just isolated methods)
-2. Add white-box unit tests for `cmd_validate.go` (version verify, config verify flows)
-3. Add white-box unit tests for `cmd_analyze.go` (analysis output formatting, JSON/table)
-4. Add white-box unit tests for `cmd_migrate.go` (v1→v2 migration paths)
-5. Add white-box unit tests for `cmd_installhook.go` (hook creation, existing-hook conflict)
-6. Add white-box unit tests for `cmd_configure.go` helper functions (`prepareConfigFile`, `runPresetOrFixer`, `runFmtUnlessDry`)
-7. Fix `shortRunID` panic risk — guard `parts[2]` length before slicing
-8. Add Conflict (exit 1) exit code integration test (`ErrHookAlreadyExists` via installhook)
+1. ~~Add end-to-end policy enforcement test through `FixConfig` with a real sidecar file (verify wiring, not just isolated methods)~~ done (docs-health pass 2026-10-07)
+2. ~~Add white-box unit tests for `cmd_validate.go` (version verify, config verify flows)~~ done (docs-health pass 2026-10-07)
+3. ~~Add white-box unit tests for `cmd_analyze.go` (analysis output formatting, JSON/table)~~ done (docs-health pass 2026-10-07)
+4. ~~Add white-box unit tests for `cmd_migrate.go` (v1→v2 migration paths)~~ done (docs-health pass 2026-10-07)
+5. ~~Add white-box unit tests for `cmd_installhook.go` (hook creation, existing-hook conflict)~~ done (docs-health pass 2026-10-07)
+6. ~~Add white-box unit tests for `cmd_configure.go` helper functions (`prepareConfigFile`, `runPresetOrFixer`, `runFmtUnlessDry`)~~ done (docs-health pass 2026-10-07)
+7. ~~Fix `shortRunID` panic risk — guard `parts[2]` length before slicing~~ done (docs-health pass 2026-10-07)
+8. ~~Add Conflict (exit 1) exit code integration test (`ErrHookAlreadyExists` via installhook)~~ done (docs-health pass 2026-10-07)
 9. Add Transient (exit 75) exit code integration test if a trigger path exists
 10. Add audit subcommand binary integration tests (`audit --json`, `audit --since`, `audit --linter`, `audit --clear`)
 
 ### Test Quality
 
-11. Refactor `buildBinary()` into a `BeforeSuite`-cached build to cut CLI test suite from ~40s to ~5s
+11. ~~Refactor `buildBinary()` into a `BeforeSuite`-cached build to cut CLI test suite from ~40s to ~5s~~ done (docs-health pass 2026-10-07)
 12. Investigate wsl_v5 LSP vs CLI discrepancy — determine which is authoritative
 13. Consolidate `enforceRecorder` and `captureRecorder` into a shared test helper (possibly in a testutil package)
-14. Add table-driven test for `outputAuditTable` column formatting (verify all 5 columns render)
+14. ~~Add table-driven test for `outputAuditTable` column formatting (verify all 5 columns render)~~ done (docs-health pass 2026-10-07)
 15. Add test for `writeAuditRow` with empty reason (verify em-dash substitution)
 16. Add test for `filterAuditEntries` combining both `--since` and `--linter` filters simultaneously
 17. Add test for `parseSinceDuration` with `0d` (zero days — edge case)
 18. Add test for `newRunLedger` with empty `configFile` path
-19. Add test for `runAuditCommand` with `--json` flag (verify JSON output path through orchestrator)
+19. ~~Add test for `runAuditCommand` with `--json` flag (verify JSON output path through orchestrator)~~ done (docs-health pass 2026-10-07)
 20. Add test for `runAuditCommand` with `--since` filter (verify duration parsing through orchestrator)
 
 ### Policy & Enforcement
@@ -164,39 +164,39 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 22. Add test for sidecar with empty `disabled:` map (policy present, no justifications → all re-enabled)
 23. Add test for sidecar with invalid `category` value (graceful handling)
 24. Add test for policy with `Disabled: nil` map (no panic, all unjustified)
-25. Add test verifying enforcement respects tool-level disabled even when sidecar justifies them (anti-gaming: user can't justify tool-level disables)
+25. ~~Add test verifying enforcement respects tool-level disabled even when sidecar justifies them (anti-gaming: user can't justify tool-level disables)~~ done (docs-health pass 2026-10-07)
 
 ### Audit Ledger
 
-26. Add test for audit ledger integration with `FixConfig` — verify entries written on actual config mutation
+26. ~~Add test for audit ledger integration with `FixConfig` — verify entries written on actual config mutation~~ done (docs-health pass 2026-10-07)
 27. Add test for 90-day retention purge triggering correctly
 28. Add test for concurrent writes to the audit ledger (mutex correctness)
-29. Add test for malformed JSONL lines being skipped (crash resilience in `ReadAll`)
+29. ~~Add test for malformed JSONL lines being skipped (crash resilience in `ReadAll`)~~ done (docs-health pass 2026-10-07)
 30. Add test for `audit.Clear` on non-existent file (creates empty file)
 
 ### Error Handling
 
-31. Add test for `AnalysisError` cause-chain classification (binary-not-found → Infrastructure, version-too-old → Rejection)
-32. Add test for `--json-errors` output with Infrastructure and Corruption families (verify JSON schema)
-33. Add test for `WrapClassified` with nil error (typed-nil pitfall guard)
+31. ~~Add test for `AnalysisError` cause-chain classification (binary-not-found → Infrastructure, version-too-old → Rejection)~~ done (docs-health pass 2026-10-07)
+32. ~~Add test for `--json-errors` output with Infrastructure and Corruption families (verify JSON schema)~~ done (docs-health pass 2026-10-07)
+33. ~~Add test for `WrapClassified` with nil error (typed-nil pitfall guard)~~ done (docs-health pass 2026-10-07)
 34. Add test for `ConfigError` always classified as Rejection regardless of cause
 35. Add test for `MigrationError` always classified as Rejection regardless of cause
 
 ### Code Quality
 
-36. Run full test suite with `-race` in the Nix devShell (CGO enabled)
+36. ~~Run full test suite with `-race` in the Nix devShell (CGO enabled)~~ done (docs-health pass 2026-10-07)
 37. Add `nix flake check` run to verify Nix formatting and build
-38. Verify `vendorHash` is still correct after the session (no go.mod changes, but good practice)
-39. Consider extracting `pathWithoutGolangciLint` and PATH helpers into `test_helpers_test.go` for reuse
+38. ~~Verify `vendorHash` is still correct after the session (no go.mod changes, but good practice)~~ done (docs-health pass 2026-10-07)
+39. ~~Consider extracting `pathWithoutGolangciLint` and PATH helpers into `test_helpers_test.go` for reuse~~ done (docs-health pass 2026-10-07)
 40. Add benchmark tests for `filterAuditEntries` with large ledgers (1000+ entries)
 
 ### Documentation
 
-41. Update `FEATURES.md` to reflect test coverage improvements
-42. Update `TODO_LIST.md` — mark the three high-priority test tasks as done
+41. ~~Update `FEATURES.md` to reflect test coverage improvements~~ done (docs-health pass 2026-10-07)
+42. ~~Update `TODO_LIST.md` — mark the three high-priority test tasks as done~~ done (docs-health pass 2026-10-07)
 43. Add the `os.IsNotExist` gotcha to `docs/references/error-handling.md`
 44. Consider adding a testing coverage section to `docs/references/testing-style-and-patterns.md`
-45. Document the build-once test optimization opportunity in `TODO_LIST.md`
+45. ~~Document the build-once test optimization opportunity in `TODO_LIST.md`~~ **Won't implement — solved differently — suite parallelized 116s to 48s.**
 
 ### Future Hardening
 
@@ -204,7 +204,7 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 47. Add fuzzing tests for `shortRunID` (arbitrary run ID strings)
 48. Add fuzzing tests for `parseEntry` in `pkg/audit/ledger.go` (arbitrary JSONL lines)
 49. Add property-based test for `filterAuditEntries` (filtering is idempotent and order-preserving)
-50. Consider adding a `.golangci-lint-auto-configure.yml` schema validation test (validates all categories, required fields)
+50. ~~Consider adding a `.golangci-lint-auto-configure.yml` schema validation test (validates all categories, required fields)~~ **Won't implement — sidecar promotion is an explicit non-goal (ROADMAP).**
 
 ---
 

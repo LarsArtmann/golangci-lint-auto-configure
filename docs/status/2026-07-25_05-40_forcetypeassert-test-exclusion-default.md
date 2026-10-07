@@ -6,6 +6,19 @@
 
 ---
 
+> **PARTIALLY RESOLVED (docs-health sweep 2026-10-07).** Section-f items 1-6
+> are struck inline below (all shipped). Items 7-50 are inline runs inside
+> paragraph lines the strikethrough tooling cannot target; their fates,
+> verified this sweep: exclusion evaluations 8 (wrapcheck) and 10 (gosec)
+> adopted into `DefaultExclusionRules`; 7/9/11/12/13 evaluated, not adopted;
+> 14 (cyclop review) still open. Documentation checks 15-17 open; 18 done
+> (CHANGELOG); 19 obsolete (conditional). Integrity tests 21-23 done
+> (`data_integrity_test.go`); 33-34 done (CI counts + tool-on-own-config).
+> 29 done (typed settings coverage). 37 obsolete (sidecar non-goal). The
+> rest (20, 24-28, 30-32, 35-36, 38-50) remain open ideas — bare below.
+
+---
+
 ## What Was Done
 
 Added `forcetypeassert` to the default linters excluded from `_test.go` files, in two places:
@@ -120,12 +133,12 @@ The project benefits from richer test-file exclusions than it ships to users. `e
 
 **Immediate fixes from this session:**
 
-1. Update FEATURES.md:69 — change "6 linters" to "7 linters", add `forcetypeassert` to enumeration
-2. Run `golangci-lint run --config=.golangci.yml --timeout=5m` to validate the yaml change
-3. Run `nix fmt` to verify formatting
-4. Run `nix flake check` for full validation
-5. Add a BDD spec verifying `forcetypeassert` is in `DefaultExclusionRules` for `_test.go`
-6. Consider adding a data-integrity test that cross-checks `FEATURES.md` linter counts against `DefaultExclusionRules` (prevents future drift)
+1. ~~Update FEATURES.md:69 — change "6 linters" to "7 linters", add `forcetypeassert` to enumeration~~ done (docs-health pass 2026-10-07)
+2. ~~Run `golangci-lint run --config=.golangci.yml --timeout=5m` to validate the yaml change~~ done (docs-health pass 2026-10-07)
+3. ~~Run `nix fmt` to verify formatting~~ done (docs-health pass 2026-10-07)
+4. ~~Run `nix flake check` for full validation~~ done (docs-health pass 2026-10-07)
+5. ~~Add a BDD spec verifying `forcetypeassert` is in `DefaultExclusionRules` for `_test.go`~~ done (docs-health pass 2026-10-07)
+6. ~~Consider adding a data-integrity test that cross-checks `FEATURES.md` linter counts against `DefaultExclusionRules` (prevents future drift)~~ done (docs-health pass 2026-10-07)
 
 **Default exclusion alignment (from the gap analysis above):** 7. Evaluate adding `err113` to `DefaultExclusionRules` (error-wrapping noise in tests) 8. Evaluate adding `wrapcheck` to `DefaultExclusionRules` (wrapping in test helpers is noise) 9. Evaluate adding `varnamelen` to `DefaultExclusionRules` (short names are fine in tests) 10. Evaluate adding `gosec` to `DefaultExclusionRules` (test code uses hardcoded secrets/credentials intentionally) 11. Evaluate adding `paralleltest` to `DefaultExclusionRules` (not all tests need t.Parallel) 12. Evaluate adding `revive` to `DefaultExclusionRules` for test files (style rules are noise in tests) 13. Evaluate adding `musttag` to `DefaultExclusionRules` (test structs rarely need tags) 14. Review whether `cyclop` should be removed from defaults (it's in defaults but not in project yaml — inconsistency)
 

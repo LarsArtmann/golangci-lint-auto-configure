@@ -233,79 +233,79 @@ I skipped adding wrapcheck defaults. But there's no test that asserts "these lin
 ### Immediate (fix what this session left incomplete)
 
 1. Run `nix flake check` — the canonical quality gate (not run this session)
-2. Verify README `<details>` blocks render correctly on GitHub (push to a branch, view rendered)
-3. Fix README example output to be accurate (either pipe through `sed` to strip ANSI, or note that output is styled)
-4. Reconcile funlen defaults: should they match upstream (60/40) or project config (30/20)?
+2. ~~Verify README `<details>` blocks render correctly on GitHub (push to a branch, view rendered)~~ done (docs-health pass 2026-10-07)
+3. ~~Fix README example output to be accurate (either pipe through `sed` to strip ANSI, or note that output is styled)~~ done (docs-health pass 2026-10-07)
+4. ~~Reconcile funlen defaults: should they match upstream (60/40) or project config (30/20)?~~ done (docs-health pass 2026-10-07)
 5. Review mnd ignored-numbers against real-world Go code for noise level
 6. Extend docs-integrity test to cover ALL hardcoded counts in FEATURES.md (110 linters, 6 formatters, etc.)
-7. Add a test asserting which linters intentionally lack default settings (document the wrapcheck skip)
+7. ~~Add a test asserting which linters intentionally lack default settings (document the wrapcheck skip)~~ **Won't implement — wrapcheck now HAS curated defaults (linter_settings.go).**
 
 ### ARCHITECTURE.md structural fixes
 
-8. Move inline ADRs from ARCHITECTURE.md to individual files in `docs/adr/`
-9. Make ARCHITECTURE.md an index/summary pointing to `docs/adr/` files
-10. Verify `docs/adr/ADR-001-Set-Type-Decision.md` doesn't duplicate ARCHITECTURE.md's ADR-001
+8. ~~Move inline ADRs from ARCHITECTURE.md to individual files in `docs/adr/`~~ done (docs-health pass 2026-10-07)
+9. ~~Make ARCHITECTURE.md an index/summary pointing to `docs/adr/` files~~ done (docs-health pass 2026-10-07)
+10. ~~Verify `docs/adr/ADR-001-Set-Type-Decision.md` doesn't duplicate ARCHITECTURE.md's ADR-001~~ done (docs-health pass 2026-10-07)
 
 ### Testing gaps (the real engineering debt)
 
-11. Add property-based JSON round-trip tests for report types (Item 16)
-12. Add HTML report snapshot/golden tests (Item 17)
-13. Convert `scripts/coverage-check.sh` to a Go test (Item 18)
-14. Add a test verifying `LinterMinVersions` against upstream `since` values (Item 34)
-15. Audit remaining linter settings against golangci-lint v2.12.2 (Item 36)
-16. Check if `clickhouselint` belongs in `reference` preset (Item 38)
-17. Add integration test for multi-preset support once implemented
+11. ~~Add property-based JSON round-trip tests for report types (Item 16)~~ done (docs-health pass 2026-10-07)
+12. ~~Add HTML report snapshot/golden tests (Item 17)~~ done (docs-health pass 2026-10-07)
+13. ~~Convert `scripts/coverage-check.sh` to a Go test (Item 18)~~ done (docs-health pass 2026-10-07)
+14. ~~Add a test verifying `LinterMinVersions` against upstream `since` values (Item 34)~~ done (docs-health pass 2026-10-07)
+15. ~~Audit remaining linter settings against golangci-lint v2.12.2 (Item 36)~~ done (docs-health pass 2026-10-07)
+16. ~~Check if `clickhouselint` belongs in `reference` preset (Item 38)~~ done (docs-health pass 2026-10-07)
+17. ~~Add integration test for multi-preset support once implemented~~ done (docs-health pass 2026-10-07)
 18. Add test for `--detect` mode preset selection accuracy
 
 ### Documentation depth
 
-19. Full README.md claim-by-claim audit (all ~500 lines) (Item 19)
-20. Add `format` preset section with example output in README
-21. Consolidate/archive the 100+ July status reports (Item 25)
+19. ~~Full README.md claim-by-claim audit (all ~500 lines) (Item 19)~~ done (docs-health pass 2026-10-07)
+20. ~~Add `format` preset section with example output in README~~ done (docs-health pass 2026-10-07)
+21. ~~Consolidate/archive the 100+ July status reports (Item 25)~~ done (docs-health pass 2026-10-07)
 22. Add a CONTRIBUTING.md section on how to add a new linter (end-to-end guide)
-23. Document the `audit` command in README usage section (currently only in Features table)
+23. ~~Document the `audit` command in README usage section (currently only in Features table)~~ done (docs-health pass 2026-10-07)
 24. Add architecture diagram (D2 or mermaid) showing package dependencies
 
 ### Type safety & data-model
 
-25. Extract linter/formatter name strings as typed `const` values (Item 26)
-26. Type `OutputConfig.Formats` — only two known shapes (Item 27)
-27. Add a `Result` type for CLI commands carrying warnings/counts (Item 28)
-28. Generate settings structs from golangci-lint's JSON Schema (Item 29)
-29. Add settings key validation against schema at config load time (Item 30)
-30. Split `cmd_configure.go` (still 541+ lines, 8 concerns) (Item 31)
-31. Split the composite `ConfigLoader` God Object interface (Item 32)
-32. Consolidate `ValidationError` + `HealthIssue` overlapping types (Item 33)
+25. ~~Extract linter/formatter name strings as typed `const` values (Item 26)~~ done (docs-health pass 2026-10-07)
+26. ~~Type `OutputConfig.Formats` — only two known shapes (Item 27)~~ **Won't implement — explicit non-goal (ROADMAP).**
+27. ~~Add a `Result` type for CLI commands carrying warnings/counts (Item 28)~~ done (docs-health pass 2026-10-07)
+28. ~~Generate settings structs from golangci-lint's JSON Schema (Item 29)~~ done (docs-health pass 2026-10-07)
+29. ~~Add settings key validation against schema at config load time (Item 30)~~ done (docs-health pass 2026-10-07)
+30. ~~Split `cmd_configure.go` (still 541+ lines, 8 concerns) (Item 31)~~ done (docs-health pass 2026-10-07)
+31. ~~Split the composite `ConfigLoader` God Object interface (Item 32)~~ done (docs-health pass 2026-10-07)
+32. ~~Consolidate `ValidationError` + `HealthIssue` overlapping types (Item 33)~~ done (docs-health pass 2026-10-07)
 
 ### Preset & UX
 
-33. Implement preset composition (`format = minimal + formatters`) (Item 39)
-34. Add `--preset a --preset b` multi-preset support (Item 40)
-35. Add `--detect` mode for format preset (auto-enable swaggo) (Item 41)
-36. Add `--backup` flag decision (always-on vs opt-in) (Item 42)
-37. Add `--list-presets` output with descriptions (Item 43)
+33. ~~Implement preset composition (`format = minimal + formatters`) (Item 39)~~ done (docs-health pass 2026-10-07)
+34. ~~Add `--preset a --preset b` multi-preset support (Item 40)~~ done (docs-health pass 2026-10-07)
+35. ~~Add `--detect` mode for format preset (auto-enable swaggo) (Item 41)~~ done (docs-health pass 2026-10-07)
+36. ~~Add `--backup` flag decision (always-on vs opt-in) (Item 42)~~ done (docs-health pass 2026-10-07)
+37. ~~Add `--list-presets` output with descriptions (Item 43)~~ done (docs-health pass 2026-10-07)
 
 ### Error handling
 
-38. Audit 20+ swallowed-error sites from prior reports (Item 45)
-39. Adopt `HandleError` at the CLI boundary replacing slog (Item 46)
-40. Build an error-code governance registry (~40 ad-hoc codes, no test) (Item 47)
-41. Add `--no-color` flag for CI/scripting output (needed for accurate README examples)
+38. ~~Audit 20+ swallowed-error sites from prior reports (Item 45)~~ done (docs-health pass 2026-10-07)
+39. ~~Adopt `HandleError` at the CLI boundary replacing slog (Item 46)~~ done (docs-health pass 2026-10-07)
+40. Build an error-code governance registry (~40 ad-hoc codes, no test) (Item 47) **→ routed — ROADMAP theme 5 (error-code registry)**
+41. ~~Add `--no-color` flag for CI/scripting output (needed for accurate README examples)~~ done (docs-health pass 2026-10-07)
 
 ### CI/Build
 
-42. Pin golangci-lint version in CI to match devShell (Item 48)
-43. Add `flake.lock` drift detection to CI (Item 49)
-44. Consider `git-cliff` for auto-generated CHANGELOG at tag time (Item 50)
-45. Add markdown linter (`markdownlint-cli2`) to Nix devShell and CI (Item 7)
-46. Fix auto-commit hook to be file-type-scoped or generate accurate commit messages
+42. ~~Pin golangci-lint version in CI to match devShell (Item 48)~~ done (docs-health pass 2026-10-07)
+43. ~~Add `flake.lock` drift detection to CI (Item 49)~~ done (docs-health pass 2026-10-07)
+44. ~~Consider `git-cliff` for auto-generated CHANGELOG at tag time (Item 50)~~ done (docs-health pass 2026-10-07)
+45. ~~Add markdown linter (`markdownlint-cli2`) to Nix devShell and CI (Item 7)~~ done (docs-health pass 2026-10-07)
+46. Fix auto-commit hook to be file-type-scoped or generate accurate commit messages **→ routed — ROADMAP theme 4 (daemon quality)**
 
 ### Process
 
-47. Create a pre-merge checklist: run `nix flake check`, verify rendered output, check FEATURES.md counts
-48. Add a CI job that runs the docs-integrity test on every PR (already runs via `go test`, but make it visible)
-49. Establish a convention: every new linter addition must update FEATURES.md AND pass the integrity test
-50. Review and close or archive the 100+ status reports — they're accumulating technical debt
+47. ~~Create a pre-merge checklist: run `nix flake check`, verify rendered output, check FEATURES.md counts~~ done (docs-health pass 2026-10-07)
+48. ~~Add a CI job that runs the docs-integrity test on every PR (already runs via `go test`, but make it visible)~~ done (docs-health pass 2026-10-07)
+49. ~~Establish a convention: every new linter addition must update FEATURES.md AND pass the integrity test~~ done (docs-health pass 2026-10-07)
+50. ~~Review and close or archive the 100+ status reports — they're accumulating technical debt~~ done (docs-health pass 2026-10-07)
 
 ---
 
