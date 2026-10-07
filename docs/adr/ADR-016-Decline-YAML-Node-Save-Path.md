@@ -15,13 +15,13 @@ alternative (plan M24).
 
 Pure `yaml.Node` unmarshal → mutate one scalar → re-marshal:
 
-| Property                     | Result                                                        |
-| ---------------------------- | ------------------------------------------------------------- |
-| Head comments (section)      | **Preserved (4/4)**                                           |
-| Line comments (value suffix) | **Preserved** (`go: "1.27" # patched by tool`)                 |
-| Blank lines between sections | **Lost** — encoder compacts the document                       |
-| Indentation                  | Encoder default is 4-space; `SetIndent(2)` restores 2-space     |
-| Scalar mutation in place     | Works (value + tag + style updatable, comment retained)         |
+| Property                     | Result                                                             |
+| ---------------------------- | ------------------------------------------------------------------ |
+| Head comments (section)      | **Preserved (4/4)**                                                |
+| Line comments (value suffix) | **Preserved** (`go: "1.27" # patched by tool`)                     |
+| Blank lines between sections | **Lost** — encoder compacts the document                           |
+| Indentation                  | Encoder default is 4-space; `SetIndent(2)` restores 2-space        |
+| Scalar mutation in place     | Works (value + tag + style updatable, comment retained)            |
 | Sequence rendering           | Changes shape vs `SetIndent` settings; needs per-case verification |
 
 ## Why Declined

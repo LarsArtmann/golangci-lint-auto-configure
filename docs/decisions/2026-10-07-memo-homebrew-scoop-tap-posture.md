@@ -15,11 +15,11 @@ install methods, which is the one genuinely bad part of keeping the blocks.
 
 ## Options
 
-| Option                        | Cost                                                                                          | Benefit                                                        |
-| ----------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| **A. Delete blocks (rec.)**   | ~30 min: remove both blocks + PAT slot + footer rows; one release cycle to see the clean page | Honest install story (`go install`, release binaries, GHCR docker) |
-| B. Publish                    | Create + own `homebrew-tap` and `scoop-bucket` repos, flip `skip_upload`, supply PAT, test on real macOS/Windows, ongoing cask maintenance every release | `brew install` works                            |
-| C. Keep as-is                 | None                                                                                           | Release footer keeps advertising installs that fail             |
+| Option                      | Cost                                                                                                                                                     | Benefit                                                            |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **A. Delete blocks (rec.)** | ~30 min: remove both blocks + PAT slot + footer rows; one release cycle to see the clean page                                                            | Honest install story (`go install`, release binaries, GHCR docker) |
+| B. Publish                  | Create + own `homebrew-tap` and `scoop-bucket` repos, flip `skip_upload`, supply PAT, test on real macOS/Windows, ongoing cask maintenance every release | `brew install` works                                               |
+| C. Keep as-is               | None                                                                                                                                                     | Release footer keeps advertising installs that fail                |
 
 ## Why A
 

@@ -6,7 +6,7 @@ No code change.
 
 ## Context
 
-`gohumanize` is a golangci-lint v2 *module plugin*: stock golangci-lint cannot
+`gohumanize` is a golangci-lint v2 _module plugin_: stock golangci-lint cannot
 run it. A config that enables it requires a custom binary built via
 `golangci-lint custom` + `.custom-gcl.yml`. The tool currently recommends it
 ONLY when the project's `go.mod` imports `github.com/dustin/go-humanize`, and
@@ -16,11 +16,11 @@ Analysis: `docs/status/2026-08-05_04-14…md`. Blocked since 2026-08-05.
 
 ## Breakage matrix
 
-| Posture                          | Stock-binary user                                   | Custom-binary user            | Maintenance                          |
-| -------------------------------- | --------------------------------------------------- | ----------------------------- | ------------------------------------ |
-| **A. Dep-gated (current, rec.)** | No recommendation → no break                        | Gets recommendation, works    | One gate map entry + detector method |
-| B. Everywhere                    | Config enablement for a linter their binary can't load → `golangci-lint` **refuses to load the config** unless they build a custom binary | Works | Requires a documented custom-binary story + docs for every recommended project |
-| C. Drop recommendation entirely  | No break                                            | Loses curated H001–H007 rules | One-time removal                     |
+| Posture                          | Stock-binary user                                                                                                                         | Custom-binary user            | Maintenance                                                                    |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------ |
+| **A. Dep-gated (current, rec.)** | No recommendation → no break                                                                                                              | Gets recommendation, works    | One gate map entry + detector method                                           |
+| B. Everywhere                    | Config enablement for a linter their binary can't load → `golangci-lint` **refuses to load the config** unless they build a custom binary | Works                         | Requires a documented custom-binary story + docs for every recommended project |
+| C. Drop recommendation entirely  | No break                                                                                                                                  | Loses curated H001–H007 rules | One-time removal                                                               |
 
 ## Why A
 

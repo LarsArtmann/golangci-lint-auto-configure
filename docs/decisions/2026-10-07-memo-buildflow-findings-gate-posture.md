@@ -16,18 +16,18 @@ option (`step_options.go`), so e2e timing is bound by `go test -timeout=10m`.
 
 ## Options
 
-| Option                                    | Cost                                                                                          | Benefit                                                       |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| **A. No config, documented red (rec.)**   | None beyond this memo; AGENTS records "e2e advisory red = expected"                              | No config surface to maintain; no duplicate of AGENTS #26 policy |
-| B. Author `.buildflow.yml` with `fail_on:` pinned to build/test/lint/fmt | Must learn/maintain the schema; re-introduces a file that was removed on purpose; policy now lives in two places | Local runs exit 0 honestly instead of always-red-expected      |
-| C. Fix the 234 findings to green the gate | Already triaged: 0 real bugs (erraudit #26); branching-flow is advisory by design                  | Not available at any reasonable cost                            |
+| Option                                                                   | Cost                                                                                                             | Benefit                                                          |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **A. No config, documented red (rec.)**                                  | None beyond this memo; AGENTS records "e2e advisory red = expected"                                              | No config surface to maintain; no duplicate of AGENTS #26 policy |
+| B. Author `.buildflow.yml` with `fail_on:` pinned to build/test/lint/fmt | Must learn/maintain the schema; re-introduces a file that was removed on purpose; policy now lives in two places | Local runs exit 0 honestly instead of always-red-expected        |
+| C. Fix the 234 findings to green the gate                                | Already triaged: 0 real bugs (erraudit #26); branching-flow is advisory by design                                | Not available at any reasonable cost                             |
 
 ## Why A
 
 The gate that matters (CI) already encodes the real policy: tests, lint,
 coverage 65, dogfood, pin matrix. Buildflow is the local convenience loop;
 its e2e red is informative (the numbers moved) not gating (nothing blocks).
-B would make local green *by configuration* — the same result as ignoring
+B would make local green _by configuration_ — the same result as ignoring
 the red, with a new file to keep in sync with BuildFlow releases.
 
 ## Answer line

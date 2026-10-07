@@ -6,7 +6,7 @@ forever.** No action.
 
 ## Context
 
-Pre-cleanup history (before 2026-09-09) contains sibling-project *names*.
+Pre-cleanup history (before 2026-09-09) contains sibling-project _names_.
 The security dimension is closed: full-history gitleaks scans (2026-09-11 over
 1,117 commits; 2026-10-07 over 1,243 commits) found **zero secrets**. All
 referenced sibling repos are themselves public. The only remaining exposure is
@@ -15,10 +15,10 @@ what order.
 
 ## Options
 
-| Option                              | Cost                                                                                                                                                                                                                                  | Benefit                                                        |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **A. Close as acceptable (rec.)**   | None.                                                                                                                                                                                                                                 | No history rewrite; tags, cosign signatures, forks stay valid. |
-| B. `git filter-repo` name purge     | Every commit SHA changes → v0.x tags must be re-created and re-signed; cosign/SBOM attestations reference old digests and go stale; all clones/forks diverge; force-push required; open PRs must be rebased; ~1–2h careful work + verification. | Names gone from history.                                       |
+| Option                            | Cost                                                                                                                                                                                                                                            | Benefit                                                        |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **A. Close as acceptable (rec.)** | None.                                                                                                                                                                                                                                           | No history rewrite; tags, cosign signatures, forks stay valid. |
+| B. `git filter-repo` name purge   | Every commit SHA changes → v0.x tags must be re-created and re-signed; cosign/SBOM attestations reference old digests and go stale; all clones/forks diverge; force-push required; open PRs must be rebased; ~1–2h careful work + verification. | Names gone from history.                                       |
 
 ## Why A
 

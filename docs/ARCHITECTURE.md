@@ -4,8 +4,8 @@ This document captures key architectural decisions made during the development o
 
 The full decision records live in [`docs/adr/`](adr/) — one file per decision, named `ADR-NNN-<slug>.md`. The table below is the index.
 
-| ADR                                                | Decision                                                 |
-| -------------------------------------------------- | -------------------------------------------------------- |
+| ADR                                                    | Decision                                                 |
+| ------------------------------------------------------ | -------------------------------------------------------- |
 | [ADR-008](adr/ADR-008-Railway-Oriented-Programming.md) | Railway-Oriented Programming with Result Types           |
 | [ADR-009](adr/ADR-009-MigrationResult-Error-Field.md)  | MigrationResult Uses Error Field Instead of Success Bool |
 | [ADR-010](adr/ADR-010-Detector-Caching.md)             | Detector Caching for Project Type Analysis               |

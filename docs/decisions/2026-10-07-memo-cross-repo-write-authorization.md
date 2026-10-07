@@ -16,11 +16,11 @@ Fleet audit 2026-10-07 (157 sibling configs):
 
 ## Options
 
-| Option                          | Cost                                                                                                     | Risk                                        |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Option                                  | Cost                                                                                             | Risk                                        |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------- |
 | **A. Standing auth + rehearsal (rec.)** | One authorization now; each batch arrives as a report (repos touched, diff stat, verify results) | Mitigated by rehearsal + per-repo diff gate |
-| B. Per-batch explicit go        | ~16 interruptions (157 repos / 10 per batch); the work stalls repeatedly                                 | Lowest                                       |
-| C. Never (tool runs locally only) | Fleet stays broken; the tool's actual purpose (real-world configs) goes unexercised                     | Configs keep drifting                        |
+| B. Per-batch explicit go                | ~16 interruptions (157 repos / 10 per batch); the work stalls repeatedly                         | Lowest                                      |
+| C. Never (tool runs locally only)       | Fleet stays broken; the tool's actual purpose (real-world configs) goes unexercised              | Configs keep drifting                       |
 
 ## The non-negotiable protocol (guardrail 1, applies under every option)
 

@@ -23,10 +23,10 @@ heuristic that the user can override with an explicit `--preset` flag.
 
 ## Options
 
-| Option                        | Cost                                                                                              | Benefit                                                     |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| **A. Keep + document (rec.)** | One AGENTS/docs paragraph (below)                                                                    | Zero churn; callers stay simple; heuristic semantics stay honest |
-| B. `(ProjectType, error)`     | Signature break → 3 call sites + mocks + tests; every caller must handle errors it cannot act on (no retry, no user remedy beyond picking `--preset` themselves — which the flag already offers) | Errors visible in types. |
+| Option                        | Cost                                                                                                                                                                                             | Benefit                                                          |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| **A. Keep + document (rec.)** | One AGENTS/docs paragraph (below)                                                                                                                                                                | Zero churn; callers stay simple; heuristic semantics stay honest |
+| B. `(ProjectType, error)`     | Signature break → 3 call sites + mocks + tests; every caller must handle errors it cannot act on (no retry, no user remedy beyond picking `--preset` themselves — which the flag already offers) | Errors visible in types.                                         |
 
 ## Why A
 

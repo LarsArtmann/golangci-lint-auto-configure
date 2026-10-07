@@ -456,27 +456,27 @@ esac
 
 ## Flags
 
-| Flag               | Description                                                                                                |
-| ------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `-c, --config`     | Path to golangci-lint config file                                                                          |
-| `-d, --dry-run`    | Show what would be done without making changes                                                             |
-| `--check`          | CI mode: exit 1 if changes needed, 0 if optimal                                                            |
-| `--diff`           | Show diff of config changes before applying                                                                |
-| `--priority`       | Minimum priority level (critical, high, medium, optional)                                                  |
-| `--preset`         | Use a preset (minimal, standard, strict, security, performance, reference, format, house); can be repeated |
-| `--detect`         | Auto-detect project type and select appropriate preset                                                     |
-| `-v, --verbose`    | Enable verbose output                                                                                      |
-| `--format`         | Output format (html, json, sarif, finding)                                                                 |
-| `--output`         | Output path for report file                                                                                |
-| `--no-auto-merge`  | Disable automatic merging of multiple config files                                                         |
-| `--no-audit`       | Skip writing to the audit ledger                                                                           |
-| `--force-settings` | Overwrite existing linter/formatter settings with curated defaults                                         |
+| Flag                  | Description                                                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `-c, --config`        | Path to golangci-lint config file                                                                                                       |
+| `-d, --dry-run`       | Show what would be done without making changes                                                                                          |
+| `--check`             | CI mode: exit 1 if changes needed, 0 if optimal                                                                                         |
+| `--diff`              | Show diff of config changes before applying                                                                                             |
+| `--priority`          | Minimum priority level (critical, high, medium, optional)                                                                               |
+| `--preset`            | Use a preset (minimal, standard, strict, security, performance, reference, format, house); can be repeated                              |
+| `--detect`            | Auto-detect project type and select appropriate preset                                                                                  |
+| `-v, --verbose`       | Enable verbose output                                                                                                                   |
+| `--format`            | Output format (html, json, sarif, finding)                                                                                              |
+| `--output`            | Output path for report file                                                                                                             |
+| `--no-auto-merge`     | Disable automatic merging of multiple config files                                                                                      |
+| `--no-audit`          | Skip writing to the audit ledger                                                                                                        |
+| `--force-settings`    | Overwrite existing linter/formatter settings with curated defaults                                                                      |
 | `--show-merged-rules` | Log every default exclusion rule merged into an existing rule (RuleKey + added linters); merges are always recorded in the audit ledger |
-| `--pragmatic`      | Drop the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen)                            |
-| `--recommend`      | Analyze project and recommend multiple presets (implies `--detect`)                                        |
-| `--quiet`          | Suppress all output except errors (useful for CI)                                                          |
-| `--json-errors`    | Output errors as JSON to stderr for programmatic consumption                                               |
-| `--no-color`       | Disable colored output (also honored via NO_COLOR env var)                                                 |
+| `--pragmatic`         | Drop the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen)                                                         |
+| `--recommend`         | Analyze project and recommend multiple presets (implies `--detect`)                                                                     |
+| `--quiet`             | Suppress all output except errors (useful for CI)                                                                                       |
+| `--json-errors`       | Output errors as JSON to stderr for programmatic consumption                                                                            |
+| `--no-color`          | Disable colored output (also honored via NO_COLOR env var)                                                                              |
 
 ## Project-Specific Examples
 

@@ -37,7 +37,7 @@ outcome the sidecar promises cannot happen.
   replacement — the existing `logRemove` branch already implements exactly
   that shape.
 - **`NeverAutoEnableLinters` on the replacement → keep bypassing it.**
-  That list governs what the tool *auto-recommends*; a replacement of a
+  That list governs what the tool _auto-recommends_; a replacement of a
   linter the user manually enabled is a migration of their explicit choice,
   not an auto-enable. Documenting this distinction is part of the fix.
 

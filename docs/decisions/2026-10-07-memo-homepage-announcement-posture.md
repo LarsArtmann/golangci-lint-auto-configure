@@ -15,11 +15,11 @@ gohumanize strategy (see that memo).
 
 ## Options
 
-| Option                                    | What it commits you to                                                                                                   | Homepage field       | Announcement        |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------- | ------------------- |
-| **A. Portfolio-plus (rec.)**              | Issues welcome, best-effort triage (no SLA), PRs reviewed eventually. Templates already exist.                           | Stays empty          | None                |
-| B. Officially-maintained OSS              | Triaged issues with response expectations, release support promises, launch support, docs site upkeep                    | Docs-site URL        | r/golang + HN       |
-| C. Pure portfolio (archive-on-abandonment)| Nothing; repo is a code sample                                                                                            | Empty; stale-content risk if abandoned silently | None |
+| Option                                     | What it commits you to                                                                                | Homepage field                                  | Announcement  |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
+| **A. Portfolio-plus (rec.)**               | Issues welcome, best-effort triage (no SLA), PRs reviewed eventually. Templates already exist.        | Stays empty                                     | None          |
+| B. Officially-maintained OSS               | Triaged issues with response expectations, release support promises, launch support, docs site upkeep | Docs-site URL                                   | r/golang + HN |
+| C. Pure portfolio (archive-on-abandonment) | Nothing; repo is a code sample                                                                        | Empty; stale-content risk if abandoned silently | None          |
 
 ## Why A
 

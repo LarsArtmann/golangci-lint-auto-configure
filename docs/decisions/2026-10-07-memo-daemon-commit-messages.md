@@ -13,11 +13,11 @@ that CHANGELOG/docs don't cover.
 
 ## Options
 
-| Option                    | Cost                                                                                                  | Benefit                                |
-| ------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------- |
-| **A. Leave (rec.)**       | None.                                                                                                  | History stays immutable.               |
-| B. `git notes` annotations| Notes are local-only by default and do not push with normal flows; every clone needs `git fetch origin 'refs/notes/*:refs/notes/*'`; effort for near-zero readers. | In-place explanation without SHAs changing. |
-| C. Rebase/filter rewrite  | All descendant SHAs change → tags re-created/re-signed, cosign attestations stale, forks diverge, force-push. | Cosmetic fix nobody asked for.         |
+| Option                     | Cost                                                                                                                                                               | Benefit                                     |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| **A. Leave (rec.)**        | None.                                                                                                                                                              | History stays immutable.                    |
+| B. `git notes` annotations | Notes are local-only by default and do not push with normal flows; every clone needs `git fetch origin 'refs/notes/*:refs/notes/*'`; effort for near-zero readers. | In-place explanation without SHAs changing. |
+| C. Rebase/filter rewrite   | All descendant SHAs change → tags re-created/re-signed, cosign attestations stale, forks diverge, force-push.                                                      | Cosmetic fix nobody asked for.              |
 
 ## Why A
 
