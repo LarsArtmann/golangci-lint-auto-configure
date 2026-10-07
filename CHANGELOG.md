@@ -28,6 +28,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Minimum supported golangci-lint raised from v2.10.1 to v2.12.0.** The
+  new e2e pin matrix proved the curated goconst default injects
+  `ignore-tests`, a settings key that only exists since v2.12.0 — on older
+  binaries golangci-lint refuses to load the configured config at all.
+  Below-minimum installs now get a classified `version.too_old` refusal with
+  an upgrade path instead of a broken config. (`exhaustruct_v5` needs
+  v2.13.0 but is never auto-enabled, so it does not constrain the minimum.)
 - **Go 1.27 is now the minimum toolchain** (go.mod `go 1.27`).
   `encoding/json/v2` is non-experimental in Go 1.27, so `GOEXPERIMENT=jsonv2`
   is no longer required (still set in flake/CI, inert).
