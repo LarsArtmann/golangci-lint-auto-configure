@@ -38,6 +38,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Exclusion-merge observability (`--show-merged-rules`).** When a default
+  exclusion rule matches an existing rule by `RuleKey` and unions additional
+  linters into it, `configure --show-merged-rules` logs each merge (rule key
+  + added linters), and every non-dry run records an
+  `exclusion-rule-merged` entry in the audit ledger. Previously the merge
+  was a silent `changed` counter.
 - **Benchmarks modernized to `for b.Loop()`** (12 sites across pkg/types,
   pkg/config, pkg/constants) — the compiler keeps loop-carried values alive
   correctly and gopls modernize warnings are gone. CI now also runs the

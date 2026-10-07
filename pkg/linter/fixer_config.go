@@ -250,6 +250,7 @@ func (cu *configUpdater) updateExclusionRules(cfg *types.Config) int {
 		if idx, exists := existingByKey[key]; exists {
 			existingLinters := cfg.Linters.Exclusions.Rules[idx].Linters
 			merged := mergeExclusionLinters(existingLinters, defaultRule.Linters)
+
 			if len(merged) > len(existingLinters) {
 				cfg.Linters.Exclusions.Rules[idx].Linters = merged
 				changed++

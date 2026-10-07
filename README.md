@@ -471,6 +471,7 @@ esac
 | `--no-auto-merge`  | Disable automatic merging of multiple config files                                                         |
 | `--no-audit`       | Skip writing to the audit ledger                                                                           |
 | `--force-settings` | Overwrite existing linter/formatter settings with curated defaults                                         |
+| `--show-merged-rules` | Log every default exclusion rule merged into an existing rule (RuleKey + added linters); merges are always recorded in the audit ledger |
 | `--pragmatic`      | Drop the 4 highest-noise linters (gochecknoglobals, wrapcheck, ireturn, funlen)                            |
 | `--recommend`      | Analyze project and recommend multiple presets (implies `--detect`)                                        |
 | `--quiet`          | Suppress all output except errors (useful for CI)                                                          |

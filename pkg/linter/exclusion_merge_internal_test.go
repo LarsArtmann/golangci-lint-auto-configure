@@ -2,7 +2,7 @@ package linter
 
 import (
 	"bytes"
-	"os"
+	"context"
 	"strings"
 	"testing"
 
@@ -43,7 +43,7 @@ func partialExclusionConfig(t *testing.T) *types.Config {
 	}
 
 	cfg := &types.Config{}
-	cfg.Linters.Exclusions.Rules = []types.ExclusionRule{
+	cfg.Linters.Exclusions.Rules = []types.ExclusionRuleConfig{
 		{
 			Path:    defaultRule.Path,
 			Text:    defaultRule.Text,
@@ -130,5 +130,3 @@ func TestDrainExclusionMergesEmpty(t *testing.T) {
 		t.Fatalf("fresh updater must have no merges, got %d", len(merges))
 	}
 }
-
-var _ = os.Stdout
