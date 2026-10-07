@@ -4,6 +4,14 @@
 **Session scope:** Resolve the self-identified gaps from the second-sweep report (`docs/status/2026-07-25_14-01_50-item-todo-list-second-sweep.md`), specifically sections d (fucked up) and e (should improve).
 **Trigger:** User instructed execution of the immediate action items, with explicit git commits per change and a push at the end.
 
+> **RESOLVED + ARCHIVED (docs-health sweep 2026-10-07).** All 61 numbered
+> forward-looking items (sections c and f) are closed — every line carries an
+> inline verdict, re-verified against the current repo. Section-g questions
+> were all decided: scripts stay as documented manual utilities, funlen
+> defaults are 200/100 house style, and the SHA pinning shipped in the 18-15
+> session the same day. Nothing here is open; `CHANGELOG.md` holds the
+> outcomes and `docs/status/README.md` the archive manifest.
+
 ---
 
 ## a) FULLY DONE
@@ -96,17 +104,17 @@ The `flake.nix` build only builds `cmd/golangci-lint-auto-configure` (via `subPa
 
 These items from the prior session's section f (50 things) were not addressed this session — they are larger work items that belong in `TODO_LIST.md`:
 
-1. Split `cmd_configure.go` (581 lines) — largest SRP violation
-2. Extract linter/formatter name strings as typed constants
-3. Type `OutputConfig.Formats` (replace `map[string]any`)
-4. Split the `ConfigLoader` God Object interface (8 methods)
-5. Consolidate `ValidationError` + `HealthIssue`
-6. Add `--no-color` flag for CI/scripting
-7. Add `cmd/coverage-check` as a Nix package or app
-8. Add `nix flake check` (full, with build) to CI
-9. Pin all GitHub Actions to SHAs (21 `github-actions-pinned` findings)
-10. Full README.md line-by-line audit
-11. Conventional commits/changelog automation
+1. ~~Split `cmd_configure.go` (581 lines) — largest SRP violation~~ done — split into cmd_configure{_config,_fixer,_preset}.go (20-55 session, 9a41447)
+2. ~~Extract linter/formatter name strings as typed constants~~ done — types.LinterName/FormatterName branded types + coreLinters (pkg/detection/patterns.go, 9e0e702)
+3. ~~Type `OutputConfig.Formats` (replace `map[string]any`)~~ **Won't implement — investigated and decided against — round-trip flexibility is the feature (ROADMAP explicit non-goals).**
+4. ~~Split the `ConfigLoader` God Object interface (8 methods)~~ done — 6 focused sub-interfaces (20-55 session, 39cca87)
+5. ~~Consolidate `ValidationError` + `HealthIssue`~~ done — ToHealthIssue() conversion (pkg/types/types.go, 58fbe3c)
+6. ~~Add `--no-color` flag for CI/scripting~~ done — internal/cli --no-color flag sets NO_COLOR=1 (commands.go)
+7. ~~Add `cmd/coverage-check` as a Nix package or app~~ done — flake.nix subPackages + apps.coverage-check
+8. ~~Add `nix flake check` (full, with build) to CI~~ done — ci.yml runs nix flake check plus a full Build with Nix step
+9. ~~Pin all GitHub Actions to SHAs (21 `github-actions-pinned` findings)~~ done — all actions SHA-pinned across 5 workflows (18-15 session)
+10. ~~Full README.md line-by-line audit~~ done — pareto plan T22/T23 README claim audit (2026-09-13)
+11. ~~Conventional commits/changelog automation~~ done — cliff.toml at repo root
 
 ---
 
@@ -164,80 +172,80 @@ The manual utilities could either be promoted to Go subcommands (like coverage-c
 
 ### Immediate (high impact, low effort)
 
-1. **Pin all 21 GitHub Actions to commit SHAs** — supply-chain security, mechanical fix
-2. **Audit and fix the `legacyerrors` stale nolint directive** — 1 file, 5 minutes
-3. **Run the full `nix flake check` locally** — validates hermetic build path
-4. **Add `cmd/coverage-check` to Nix `subPackages` or as an app** — makes it a real artifact
-5. **Run `go mod tidy`** — BuildFlow reports `go.mod:23: direct and indirect requires are mixed`
-6. **Extract `vendorHash` to `vendorHash.nix`** — BuildFlow nix-checker recommendation for cleaner diffs
+1. ~~**Pin all 21 GitHub Actions to commit SHAs** — supply-chain security, mechanical fix~~ done — every action SHA-pinned across all 5 workflows (18-15 session)
+2. ~~**Audit and fix the `legacyerrors` stale nolint directive** — 1 file, 5 minutes~~ done — stale legacyerrors directives removed (18-15); zero remain
+3. ~~**Run the full `nix flake check` locally** — validates hermetic build path~~ done — CI now builds hermetically (Build with Nix step); residual "0 checks" puzzle tracked in TODO_LIST
+4. ~~**Add `cmd/coverage-check` to Nix `subPackages` or as an app** — makes it a real artifact~~ done — flake.nix subPackages + apps.coverage-check
+5. ~~**Run `go mod tidy`** — BuildFlow reports `go.mod:23: direct and indirect requires are mixed`~~ done — go.mod clean; Dependabot gomod active
+6. ~~**Extract `vendorHash` to `vendorHash.nix`** — BuildFlow nix-checker recommendation for cleaner diffs~~ done — vendorHash.nix + scripts/vendorhash-guard.sh + CI guard
 
 ### CI/Build maturity
 
-7. **Add `nix flake check` (full) to CI** — currently only `--no-build` runs
-8. **Add `golangci-lint run` (no `--fix`) as a separate CI step** — catches what `--fix` hides
-9. **Add `flake.lock` update automation** (Dependabot for Nix inputs)
-10. **Add retry logic for flaky CI steps** (golangci-lint cache)
-11. **Add `--no-color` flag** — enables accurate plain-text output for docs and CI
-12. **Add HTML report CSS regression test** — verify color values haven't changed
+7. ~~**Add `nix flake check` (full) to CI** — currently only `--no-build` runs~~ done — ci.yml runs nix flake check + full Nix build
+8. ~~**Add `golangci-lint run` (no `--fix`) as a separate CI step** — catches what `--fix` hides~~ done — dedicated lint job runs golangci-lint without --fix (ci.yml)
+9. ~~**Add `flake.lock` update automation** (Dependabot for Nix inputs)~~ done — flake.lock staleness gate in ci.yml (Dependabot does not cover Nix inputs)
+10. ~~**Add retry logic for flaky CI steps** (golangci-lint cache)~~ **Won't implement — declined — deemed marginal value; the retry logic added later was removed again (no retry in any workflow, verified 2026-10-07).**
+11. ~~**Add `--no-color` flag** — enables accurate plain-text output for docs and CI~~ done — internal/cli --no-color flag (commands.go)
+12. ~~**Add HTML report CSS regression test** — verify color values haven't changed~~ done — pkg/ui/colors_test.go golden color values
 
 ### Testing gaps
 
-13. **Add integration test for coverage-check** — end-to-end: generate coverage.out, run tool, verify exit code
-14. **Add property-based test for `Config.Clone()`** — verify deep copy semantics
-15. **Add test verifying `DefaultLinterSettings` keys match `LinterPriorities` keys** — no orphaned settings
-16. **Add `--json-errors` test for all exit codes** (0, 1, 65, 69, 75) — currently only 1, 65, 69 tested
-17. **Add test for markdownlint config** — verify `.markdownlint-cli2.jsonc` parses correctly
+13. ~~**Add integration test for coverage-check** — end-to-end: generate coverage.out, run tool, verify exit code~~ done — cmd/coverage-check/run_integration_test.go
+14. ~~**Add property-based test for `Config.Clone()`** — verify deep copy semantics~~ done — pkg/types/clone_test.go deep-copy specs
+15. ~~**Add test verifying `DefaultLinterSettings` keys match `LinterPriorities` keys** — no orphaned settings~~ done — pkg/constants/data_integrity_test.go settings-vs-priorities specs
+16. ~~**Add `--json-errors` test for all exit codes** (0, 1, 65, 69, 75) — currently only 1, 65, 69 tested~~ done — exit codes 0/1/65/69 tested (exit_code_test.go); 75 judged untriggerable
+17. ~~**Add test for markdownlint config** — verify `.markdownlint-cli2.jsonc` parses correctly~~ done — markdown-lint.yml runs .markdownlint-cli2.jsonc (AGENTS gotcha 23)
 
 ### Documentation depth
 
-18. **Full README.md line-by-line audit** — verify every claim against current code
-19. **Full DOMAIN_LANGUAGE.md term-by-term audit** — verify all ~30 terms
-20. **Full ARCHITECTURE.md ADR-by-ADR audit** — verify all 8+ ADRs
-21. **Add `CHANGELOG.md` entry for this session's changes**
-22. **Document the `cmd/coverage-check` tool in README** under "Development Tools"
-23. **Update `docs/references/code-organization.md`** with `pkg/audit/` and `pkg/policy/` (missing from tree)
+18. ~~**Full README.md line-by-line audit** — verify every claim against current code~~ done — pareto T22/T23 README claim audit (2026-09-13)
+19. ~~**Full DOMAIN_LANGUAGE.md term-by-term audit** — verify all ~30 terms~~ done — 07-35 term-by-term pass + 09-11 de-drift
+20. ~~**Full ARCHITECTURE.md ADR-by-ADR audit** — verify all 8+ ADRs~~ done — ADRs consolidated into docs/adr/ (2026-09-13); ARCHITECTURE.md is the index
+21. ~~**Add `CHANGELOG.md` entry for this session's changes**~~ done — CHANGELOG 0.6.0 section records the session
+22. ~~**Document the `cmd/coverage-check` tool in README** under "Development Tools"~~ done — README Development Tools section
+23. ~~**Update `docs/references/code-organization.md`** with `pkg/audit/` and `pkg/policy/` (missing from tree)~~ done — pkg/audit + pkg/policy documented (18-15 #14)
 
 ### Type safety & data-model (high impact)
 
-24. **Split `cmd_configure.go`** (581 lines, 8+ concerns) — largest SRP violation
-25. **Extract linter/formatter name strings as typed constants** — eliminates goconst class
-26. **Type `OutputConfig.Formats`** — replace `map[string]any` with typed struct
-27. **Add a `Result` type for CLI commands** — carry warnings/counts alongside error
-28. **Split the `ConfigLoader` God Object interface** (8 methods, 6 sub-interfaces)
-29. **Consolidate `ValidationError` + `HealthIssue`** — overlapping types
-30. **Generate settings structs from golangci-lint's JSON Schema** — replace 13 hand-maintained structs
-31. **Add settings key validation** against golangci-lint schema at config load
-32. **Add `wrapcheck` default settings** — last linter without defaults
+24. ~~**Split `cmd_configure.go`** (581 lines, 8+ concerns) — largest SRP violation~~ done — split into 4 focused files (9a41447)
+25. ~~**Extract linter/formatter name strings as typed constants** — eliminates goconst class~~ done — types.LinterName/FormatterName (9e0e702)
+26. ~~**Type `OutputConfig.Formats`** — replace `map[string]any` with typed struct~~ **Won't implement — investigated and decided against — map[string]any kept for round-trip safety (ROADMAP non-goals).**
+27. ~~**Add a `Result` type for CLI commands** — carry warnings/counts alongside error~~ done — internal/cli/result.go CommandResult (40eda4c)
+28. ~~**Split the `ConfigLoader` God Object interface** (8 methods, 6 sub-interfaces)~~ done — 6 focused sub-interfaces (39cca87)
+29. ~~**Consolidate `ValidationError` + `HealthIssue`** — overlapping types~~ done — ToHealthIssue() (58fbe3c)
+30. ~~**Generate settings structs from golangci-lint's JSON Schema** — replace 13 hand-maintained structs~~ done — cmd/generate-settings, 88 structs (3665d79)
+31. ~~**Add settings key validation** against golangci-lint schema at config load~~ done — pkg/config/settings_validator.go soft warnings (e8f30f0)
+32. ~~**Add `wrapcheck` default settings** — last linter without defaults~~ done — WrapcheckSettings in pkg/constants/linter_settings.go
 
 ### Preset & UX
 
-33. **Implement preset composition** (`format = minimal + formatters`)
-34. **Add `--preset a --preset b` multi-preset support**
-35. **Add `--detect` mode for format preset** (auto-enable swaggo)
-36. **Add `--list-presets` JSON output** for scripting
-37. **Add preset recommendation based on project analysis**
+33. ~~**Implement preset composition** (`format = minimal + formatters`)~~ done — format/house compose minimalLinters (pkg/constants/presets.go)
+34. ~~**Add `--preset a --preset b` multi-preset support**~~ done — preset a --preset b with merge tests (86ddc2d; tests 2026-09-13)
+35. ~~**Add `--detect` mode for format preset** (auto-enable swaggo)~~ done — preset format --detect auto-enables swaggo (ecb3fe0)
+36. ~~**Add `--list-presets` JSON output** for scripting~~ done — presets --json (cmd_presets.go)
+37. ~~**Add preset recommendation based on project analysis**~~ done — recommend flag (d97237c)
 
 ### Error handling
 
-38. **Adopt `HandleError` at the CLI boundary** — replaces ad-hoc slog calls
-39. **Register domain message templates** for `errorfamily.New()` constructors
-40. **Audit all `defer file.Close()` patterns** — only 2 sites, both benign, but verify
+38. ~~**Adopt `HandleError` at the CLI boundary** — replaces ad-hoc slog calls~~ done — HandleError at CLI boundary (commands.go)
+39. ~~**Register domain message templates** for `errorfamily.New()` constructors~~ done — pkg/errors/templates.go, 27 templates (03a0806)
+40. ~~**Audit all `defer file.Close()` patterns** — only 2 sites, both benign, but verify~~ done — erraudit full review 2026-07-26 + 194-finding triage 2026-07-30 (AGENTS gotcha 26)
 
 ### Code quality
 
-41. **Run `deduplicate-code` skill** — check for duplication across sessions
-42. **Run `architecture-review` skill** — verify modularity hasn't degraded
-43. **Add `golangci-lint` self-linting** — the tool should lint its own code
-44. **Consolidate July status reports** — 25+ reports in `docs/status/` is still a lot
-45. **Promote or deprecate `scripts/validate_linter_doc.sh` and `verify_linter_count.sh`**
-46. **Conventional commits/changelog automation** (`git-cliff` or similar)
+41. ~~**Run `deduplicate-code` skill** — check for duplication across sessions~~ done — 0 clone groups (2026-07-26 deduplication session)
+42. ~~**Run `architecture-review` skill** — verify modularity hasn't degraded~~ done — docs/architecture-understanding/ review (f39f7f7)
+43. ~~**Add `golangci-lint` self-linting** — the tool should lint its own code~~ done — CI lint job lints the tool own code
+44. ~~**Consolidate July status reports** — 25+ reports in `docs/status/` is still a lot~~ done — docs/status/README.md index + archive sweeps (2026-07-25, 2026-09-11, 2026-10-07)
+45. ~~**Promote or deprecate `scripts/validate_linter_doc.sh` and `verify_linter_count.sh`**~~ done — decided — keep as documented manual utilities (working-with-codebase.md Scripts section)
+46. ~~**Conventional commits/changelog automation** (`git-cliff` or similar)~~ done — cliff.toml at repo root
 
 ### Research & validation
 
-47. **Verify funlen defaults decision** (60/40 upstream vs 30/20 project config) — needs user input
-48. **Research whether `exhaustruct` default settings should be injected**
-49. **Audit all `//nolint` directives** — verify each is still needed
-50. **Review `go.mod` for banned/underutilized dependencies** (per how-to-golang skill)
+47. ~~**Verify funlen defaults decision** (60/40 upstream vs 30/20 project config) — needs user input~~ done — decided — 200/100 house style (linter_settings.go; validated across 160 siblings)
+48. ~~**Research whether `exhaustruct` default settings should be injected**~~ done — curated exhaustruct settings shipped; later migrated to exhaustruct_v5 (AGENTS gotcha 19)
+49. ~~**Audit all `//nolint` directives** — verify each is still needed~~ done — 23 directives verified (18-15); gohumanize nolint documented 2026-08-07
+50. ~~**Review `go.mod` for banned/underutilized dependencies** (per how-to-golang skill)~~ done — no banned dependencies (18-15 #32)
 
 ---
 

@@ -4,6 +4,14 @@
 **Session scope:** Resolve the 3 open questions and 5 self-identified gaps from the `2026-07-25_06-30_docs-health-and-old-docs-annotation-pass.md` report. Audit README.md, fix FEATURES.md drift, verify CHANGELOG precision, run `nix flake check`.
 **Trigger:** User asked to execute the 06-30 status report's recommendations and write a brutally honest follow-up.
 
+> **RESOLVED + ARCHIVED (docs-health sweep 2026-10-07).** All 50 section-f
+> items carry inline verdicts, re-verified against the current repo. The
+> section-g questions landed as: Q1 (hook scoping) still open by policy —
+> routed to ROADMAP theme 4 (auto-commit daemon quality); Q2 answered yes
+> (`docs_integrity_test.go`, CI-blocking); Q3 answered yes (`cliff.toml`).
+> The single routed survivor in section f is f47 (error-code registry →
+> ROADMAP theme 5). `docs/status/README.md` holds the manifest.
+
 ---
 
 ## a) FULLY DONE ✅
@@ -155,77 +163,77 @@ Every markdown edit should be followed by at least a mental rendering check. For
 
 ### Immediate (fix what this session left incomplete)
 
-1. Write a Ginkgo BDD data-integrity test that cross-checks FEATURES.md preset linter counts against `pkg/constants/presets.go` — fails CI on drift
-2. Audit README.md "Requirements" section: clarify `MinGolangCILintVersion` (v2.10.1) vs `ExpectedGolangCILintVersion` (v2.12.2) — users should know both
-3. Verify README.md example output (lines 78-89) matches current CLI output by running `golangci-lint-auto-configure analyze` on the project's own `.golangci.yml`
-4. Update README.md CI workflow example: `go-version: "1.26"` → `go-version: "1.26.5"` or `go-version-file: go.mod`
-5. Verify `universal-workflow` link in README Related Projects (line 470) — confirm repo exists and is relevant
-6. Verify `<details>` HTML renders correctly on GitHub (or run a markdown linter)
-7. Add a markdown linter (e.g., `markdownlint-cli2`) to the Nix devShell and CI gate
+1. ~~Write a Ginkgo BDD data-integrity test that cross-checks FEATURES.md preset linter counts against `pkg/constants/presets.go` — fails CI on drift~~ done — pkg/constants/docs_integrity_test.go (7 specs), CI-blocking
+2. ~~Audit README.md "Requirements" section: clarify `MinGolangCILintVersion` (v2.10.1) vs `ExpectedGolangCILintVersion` (v2.12.2) — users should know both~~ done — README Requirements section clarifies both versions (07-35)
+3. ~~Verify README.md example output (lines 78-89) matches current CLI output by running `golangci-lint-auto-configure analyze` on the project's own `.golangci.yml`~~ done — README example output replaced (07-35) and re-verified (14-01)
+4. ~~Update README.md CI workflow example: `go-version: "1.26"` → `go-version: "1.26.5"` or `go-version-file: go.mod`~~ done — go-version-file: go.mod in ci.yml
+5. ~~Verify `universal-workflow` link in README Related Projects (line 470) — confirm repo exists and is relevant~~ done — dead universal-workflow link removed (07-35)
+6. ~~Verify `<details>` HTML renders correctly on GitHub (or run a markdown linter)~~ done — markdownlint CI guards the details/summary HTML
+7. ~~Add a markdown linter (e.g., `markdownlint-cli2`) to the Nix devShell and CI gate~~ done — markdownlint-cli2 in devShell + markdown-lint.yml
 
 ### Testing gaps (the real engineering debt)
 
-8. Add tests for `internal/cli/cmd_audit.go` (currently ZERO tests — security-adjacent code)
-9. Add tests for `pkg/linter/fixer_enforce.go` (currently ZERO tests — anti-gaming enforcement)
-10. Add tests for `newRunLedger` (audit ledger write path — ZERO tests)
-11. Add exit-code integration test for Infrastructure (69) path (golangci-lint not in PATH)
-12. Add exit-code integration test for Corruption (65) path
-13. Add a BDD test verifying `DefaultExclusionRules` linter names are all valid golangci-lint linter names
-14. Add a BDD test verifying `DefaultExclusionRules` doesn't include `DisabledLinters`
-15. Add a BDD test verifying no duplicate linter names within a single `ExclusionRuleConfig`
-16. Add property-based JSON round-trip tests for report types
-17. Add HTML report snapshot/golden tests (guard against templ regressions)
-18. Convert `scripts/coverage-check.sh` to a Go test (portability)
+8. ~~Add tests for `internal/cli/cmd_audit.go` (currently ZERO tests — security-adjacent code)~~ done — internal/cli/cmd_audit_test.go (~20 specs)
+9. ~~Add tests for `pkg/linter/fixer_enforce.go` (currently ZERO tests — anti-gaming enforcement)~~ done — pkg/linter/fixer_enforce_test.go (14+ specs)
+10. ~~Add tests for `newRunLedger` (audit ledger write path — ZERO tests)~~ done — newRunLedger specs in cmd_audit_test.go
+11. ~~Add exit-code integration test for Infrastructure (69) path (golangci-lint not in PATH)~~ done — exit_code_test.go Infrastructure(69)
+12. ~~Add exit-code integration test for Corruption (65) path~~ done — exit_code_test.go Corruption(65)
+13. ~~Add a BDD test verifying `DefaultExclusionRules` linter names are all valid golangci-lint linter names~~ done — data_integrity_test.go: exclusion names all valid
+14. ~~Add a BDD test verifying `DefaultExclusionRules` doesn't include `DisabledLinters`~~ done — data_integrity_test.go: exclusions intersect DisabledLinters is empty
+15. ~~Add a BDD test verifying no duplicate linter names within a single `ExclusionRuleConfig`~~ done — no-duplicate-names spec added 07-35
+16. ~~Add property-based JSON round-trip tests for report types~~ done — pkg/types/json_roundtrip_test.go
+17. ~~Add HTML report snapshot/golden tests (guard against templ regressions)~~ done — pkg/report/golden_test.go (AGENTS gotcha 21)
+18. ~~Convert `scripts/coverage-check.sh` to a Go test (portability)~~ done — cmd/coverage-check Go program + tests; bash script deleted
 
 ### Documentation depth
 
-19. Full README.md claim-by-claim audit (all 471 lines)
-20. Re-verify `docs/DOMAIN_LANGUAGE.md` term-by-term against current code
-21. Re-verify `docs/ARCHITECTURE.md` against current module structure
-22. Add `format` preset to README.md usage examples (mentioned in FEATURES but not in README examples)
-23. Document the `SettingsConverter` pattern in `docs/references/code-organization.md`
-24. Document the `configChangeRecorder` pattern in `docs/references/working-with-codebase.md`
-25. Consolidate or archive the 27+ July status reports (open question from the 07-16 report)
+19. ~~Full README.md claim-by-claim audit (all 471 lines)~~ done — pareto T22/T23 README claim audit (2026-09-13)
+20. ~~Re-verify `docs/DOMAIN_LANGUAGE.md` term-by-term against current code~~ done — 07-35 term-by-term pass
+21. ~~Re-verify `docs/ARCHITECTURE.md` against current module structure~~ done — 07-35 fixes + ADR consolidation 2026-09-13
+22. ~~Add `format` preset to README.md usage examples (mentioned in FEATURES but not in README examples)~~ done — preset format present in README (verified 07-35)
+23. ~~Document the `SettingsConverter` pattern in `docs/references/code-organization.md`~~ done — code-organization.md SettingsConverter section
+24. ~~Document the `configChangeRecorder` pattern in `docs/references/working-with-codebase.md`~~ done — working-with-codebase.md configChangeRecorder section
+25. ~~Consolidate or archive the 27+ July status reports (open question from the 07-16 report)~~ done — archive sweeps 2026-07-25, 2026-09-11, 2026-10-07
 
 ### Type safety & data-model
 
-26. Extract linter/formatter name strings as typed `const` values (eliminates goconst class)
-27. Type `OutputConfig.Formats` (only two known shapes: `format: path`)
-28. Add a `Result` type for CLI commands (carry warnings/counts/findings alongside error)
-29. Generate settings structs from golangci-lint's JSON Schema (replace hand-maintained)
-30. Add settings key validation against golangci-lint schema at config load time
-31. Split `cmd_configure.go` (still 541+ lines, 8 concerns)
-32. Split the 8-method `ConfigLoader` God Object interface
-33. Consolidate `ValidationError` + `HealthIssue` (overlapping types)
+26. ~~Extract linter/formatter name strings as typed `const` values (eliminates goconst class)~~ done — types.LinterName/FormatterName
+27. ~~Type `OutputConfig.Formats` (only two known shapes: `format: path`)~~ **Won't implement — explicit non-goal — map[string]any kept for round-trip safety (ROADMAP).**
+28. ~~Add a `Result` type for CLI commands (carry warnings/counts/findings alongside error)~~ done — internal/cli/result.go CommandResult
+29. ~~Generate settings structs from golangci-lint's JSON Schema (replace hand-maintained)~~ done — cmd/generate-settings (88 structs)
+30. ~~Add settings key validation against golangci-lint schema at config load time~~ done — pkg/config/settings_validator.go
+31. ~~Split `cmd_configure.go` (still 541+ lines, 8 concerns)~~ done — split into 4 focused files (9a41447)
+32. ~~Split the 8-method `ConfigLoader` God Object interface~~ done — 6 sub-interfaces (39cca87)
+33. ~~Consolidate `ValidationError` + `HealthIssue` (overlapping types)~~ done — ToHealthIssue() (58fbe3c)
 
 ### Linter data accuracy
 
-34. Audit `LinterMinVersions` against upstream golangci-lint `since` values
-35. Verify all `DeprecatedLinters` replacements point to linters that exist in v2
-36. Audit remaining linter settings against golangci-lint v2.12.2 upstream docs
-37. Add missing default settings from review §5.2 (`wrapcheck`, `funlen`, `mnd`)
-38. Check if `clickhouselint` should be in the `reference` preset
+34. ~~Audit `LinterMinVersions` against upstream golangci-lint `since` values~~ done — verified 14-01; standing idea in ROADMAP theme 1
+35. ~~Verify all `DeprecatedLinters` replacements point to linters that exist in v2~~ done — verified 14-01
+36. ~~Audit remaining linter settings against golangci-lint v2.12.2 upstream docs~~ done — verified 14-01
+37. ~~Add missing default settings from review §5.2 (`wrapcheck`, `funlen`, `mnd`)~~ done — wrapcheck/funlen/mnd defaults in linter_settings.go
+38. ~~Check if `clickhouselint` should be in the `reference` preset~~ done — verified correctly absent (14-01)
 
 ### Preset & UX
 
-39. Implement preset composition (`format = minimal + formatters`)
-40. Add `--preset a --preset b` multi-preset support
-41. Add `--detect` mode for the format preset (auto-enable swaggo)
-42. Add `--backup` flag decision (always-on vs opt-in) — product decision
-43. Add `--list-presets` output with descriptions
+39. ~~Implement preset composition (`format = minimal + formatters`)~~ done — presets.go composition
+40. ~~Add `--preset a --preset b` multi-preset support~~ done — preset a --preset b + merge tests (86ddc2d)
+41. ~~Add `--detect` mode for the format preset (auto-enable swaggo)~~ done — preset format --detect (ecb3fe0)
+42. ~~Add `--backup` flag decision (always-on vs opt-in) — product decision~~ done — decided — always-on backup (backupConfigFile)
+43. ~~Add `--list-presets` output with descriptions~~ done — presets subcommand with descriptions
 
 ### Error handling
 
-44. Register `os.ErrNotExist` as Rejection (I/O errors default to Transient)
-45. Audit 20+ swallowed-error sites identified in prior reports
-46. Adopt `HandleError` at the CLI boundary (replaces slog)
-47. Build an error-code governance registry (~40 ad-hoc codes, no test)
+44. ~~Register `os.ErrNotExist` as Rejection (I/O errors default to Transient)~~ done — go-error-family RegisterStdlibDefaults + tests
+45. ~~Audit 20+ swallowed-error sites identified in prior reports~~ done — erraudit 2026-07-26 + 194-finding triage 2026-07-30 (AGENTS gotcha 26)
+46. ~~Adopt `HandleError` at the CLI boundary (replaces slog)~~ done — HandleError (commands.go)
+47. Build an error-code governance registry (~40 ad-hoc codes, no test) **→ open — routed to ROADMAP theme 5 (error-code registry, never prioritized)**
 
 ### CI/Build
 
-48. Pin golangci-lint version in CI to match devShell
-49. Add `flake.lock` drift detection to CI
-50. Consider conventional-commits-to-changelog automation (`git-cliff`) to auto-generate CHANGELOG at tag time
+48. ~~Pin golangci-lint version in CI to match devShell~~ done — ci.yml pins golangci-lint version
+49. ~~Add `flake.lock` drift detection to CI~~ done — flake.lock drift gate in ci.yml
+50. ~~Consider conventional-commits-to-changelog automation (`git-cliff`) to auto-generate CHANGELOG at tag time~~ done — cliff.toml at repo root
 
 ---
 

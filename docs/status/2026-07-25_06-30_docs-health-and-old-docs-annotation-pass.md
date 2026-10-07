@@ -4,6 +4,13 @@
 **Session scope:** Execute both the `update-old-docs` and `docs-health` skills across the project: annotate 27 historical `2026-07-*` files, then rebuild `TODO_LIST.md`, `FEATURES.md`, `CHANGELOG.md`, and create `ROADMAP.md`.
 **Skill trigger:** User requested "READ ALL *_/2026-07-_ files! Then do the update-old-docs, docs-health SKILLs! PROPERLY!"
 
+> **RESOLVED + ARCHIVED (docs-health sweep 2026-10-07).** All 56 numbered
+> items (sections e and f) carry inline verdicts, re-verified against the
+> current repo. The three section-g questions were resolved in-file by the
+> 06-52 follow-up (Q1 left-as-is, Q2 explained, Q3 verified per-tag-diff).
+> The single routed survivor is f38 (error-code registry → ROADMAP theme 5).
+> Nothing else here is open; `docs/status/README.md` holds the manifest.
+
 ---
 
 ## a) FULLY DONE ✅
@@ -94,17 +101,17 @@ I classified it as "too fresh to annotate." But it contains stale claims that ar
 
 ## e) WHAT WE SHOULD IMPROVE
 
-1. **Run the quality gate.** The docs-health skill explicitly mandates running `nix flake check` or the canonical equivalent. I skipped it. Even for doc-only changes, it catches malformed YAML frontmatter, broken fenced code blocks, and markdown structure issues. Next time: run it, even if it means entering `nix develop` first.
+1. ~~**Run the quality gate.** The docs-health skill explicitly mandates running `nix flake check` or the canonical equivalent. I skipped it. Even for doc-only changes, it catches malformed YAML frontmatter, broken fenced code blocks, and markdown structure issues. Next time: run it, even if it means entering `nix develop` first.~~ done — nix flake check ran 06-52 (all 6 checks); CI now gates it
 
-2. **Check for hooks before editing.** Before any multi-file editing session, check `git config --get core.hookspath`, `ls .git/hooks/`, and any `lefthook`/`husky`/`pre-commit` config. Knowing the commit behavior upfront prevents surprise.
+2. ~~**Check for hooks before editing.** Before any multi-file editing session, check `git config --get core.hookspath`, `ls .git/hooks/`, and any `lefthook`/`husky`/`pre-commit` config. Knowing the commit behavior upfront prevents surprise.~~ done — adopted — hook/daemon behavior is standing knowledge (ROADMAP theme 4 tracks the quality idea)
 
-3. **Annotate "today's" reports too.** The update-old-docs skill says "update all" means "no file that NEEDS updating is missed." I used freshness as a reason to skip the 07-25 report, but the skill's test is whether the annotation adds value, not whether the file is old. A same-day report with already-stale claims should still be corrected.
+3. ~~**Annotate "today's" reports too.** The update-old-docs skill says "update all" means "no file that NEEDS updating is missed." I used freshness as a reason to skip the 07-25 report, but the skill's test is whether the annotation adds value, not whether the file is old. A same-day report with already-stale claims should still be corrected.~~ done — adopted — the 05-40 report was corrected the same day by the 06-52 follow-up
 
-4. **The CHANGELOG v0.3.0/v0.4.0/v0.5.0 reconstructions are best-effort.** I reconstructed them from `git log` commit messages, not from release notes or PR descriptions. Some entries may be slightly imprecise about which change landed in which version (the auto-tagger may have cut a tag mid-sprint). If precision matters, cross-check each entry against the diff at the tag boundary.
+4. ~~**The CHANGELOG v0.3.0/v0.4.0/v0.5.0 reconstructions are best-effort.** I reconstructed them from `git log` commit messages, not from release notes or PR descriptions. Some entries may be slightly imprecise about which change landed in which version (the auto-tagger may have cut a tag mid-sprint). If precision matters, cross-check each entry against the diff at the tag boundary.~~ done — Q3 below verified per-tag-diff; 1 missing v0.5.0 entry added
 
-5. **FEATURES.md linter count claims should point at a command.** I hardcoded "7 linters" and "60+ linters" rather than pointing at `rg -c` commands that recompute them. The docs-health skill warns: "hardcoded counts rot the fastest."
+5. ~~**FEATURES.md linter count claims should point at a command.** I hardcoded "7 linters" and "60+ linters" rather than pointing at `rg -c` commands that recompute them. The docs-health skill warns: "hardcoded counts rot the fastest."~~ done — superseded by docs_integrity_test.go deriving counts from code (f46)
 
-6. **The auto-commit messages are bad.** "docs(docs): add comprehensive project documentation files" describes nothing. If the user wants clean history, these should be squashed or reworded — but only the user can decide that (it rewrites history).
+6. ~~**The auto-commit messages are bad.** "docs(docs): add comprehensive project documentation files" describes nothing. If the user wants clean history, these should be squashed or reworded — but only the user can decide that (it rewrites history).~~ **Won't implement — decided LEFT AS-IS (Q1 below); the durable policy idea lives in ROADMAP theme 4.**
 
 ---
 
@@ -112,77 +119,77 @@ I classified it as "too fresh to annotate." But it contains stale claims that ar
 
 ### Immediate (fix what this session left incomplete)
 
-1. Run `nix flake check` to satisfy the docs-health verification gate (even post-hoc)
-2. Inline-correct the FEATURES.md-linter-count claim in `docs/status/2026-07-25_05-40_forcetypeassert-test-exclusion-default.md` (now says "not updated" → false)
-3. Audit `README.md` for drift (version string, feature claims, command examples) — the 4th living doc, not touched this session
-4. Verify the auto-committed `go.mod` / `report_templ.go` changes are intentional (they appeared in the working tree, not from this session)
-5. Consider squashing/rewording the 5 generic auto-commit messages if clean history matters
+1. ~~Run `nix flake check` to satisfy the docs-health verification gate (even post-hoc)~~ done — ran 06-52 (all 6 checks)
+2. ~~Inline-correct the FEATURES.md-linter-count claim in `docs/status/2026-07-25_05-40_forcetypeassert-test-exclusion-default.md` (now says "not updated" → false)~~ done — 06-52 corrected the stale claim inline
+3. ~~Audit `README.md` for drift (version string, feature claims, command examples) — the 4th living doc, not touched this session~~ done — 06-52 priority fixes + 07-35 sections + pareto T22 claim audit (2026-09-13)
+4. ~~Verify the auto-committed `go.mod` / `report_templ.go` changes are intentional (they appeared in the working tree, not from this session)~~ done — investigated 06-52 Q2: expected dependency-bump sweep (e3a96c8)
+5. ~~Consider squashing/rewording the 5 generic auto-commit messages if clean history matters~~ **Won't implement — decided LEFT AS-IS (Q1); policy idea lives in ROADMAP theme 4.**
 
 ### Testing (the real gaps)
 
-6. Add tests for `internal/cli/cmd_audit.go` (currently ZERO tests — security-adjacent code)
-7. Add tests for `pkg/linter/fixer_enforce.go` (currently ZERO tests — anti-gaming enforcement)
-8. Add tests for `newRunLedger` (audit ledger write path — ZERO tests)
-9. Add exit-code integration test for Infrastructure (69) path (golangci-lint-not-in-PATH)
-10. Add exit-code integration test for Corruption (65) path
-11. Add a separate `golangci-lint run` (no `--fix`) CI step — catches unfixable issues BuildFlow swallows
-12. Convert `scripts/coverage-check.sh` to a Go test (portability)
-13. Add property-based JSON round-trip tests for report types
-14. Add HTML report snapshot/golden tests (guard against templ regressions)
-15. Enable CGO / `-race` in the canonical CI gate
+6. ~~Add tests for `internal/cli/cmd_audit.go` (currently ZERO tests — security-adjacent code)~~ done — internal/cli/cmd_audit_test.go (~20 specs, 07-25 test sprint)
+7. ~~Add tests for `pkg/linter/fixer_enforce.go` (currently ZERO tests — anti-gaming enforcement)~~ done — pkg/linter/fixer_enforce_test.go (14+ specs)
+8. ~~Add tests for `newRunLedger` (audit ledger write path — ZERO tests)~~ done — newRunLedger specs in cmd_audit_test.go
+9. ~~Add exit-code integration test for Infrastructure (69) path (golangci-lint-not-in-PATH)~~ done — exit_code_test.go Infrastructure(69) specs
+10. ~~Add exit-code integration test for Corruption (65) path~~ done — exit_code_test.go Corruption(65) specs
+11. ~~Add a separate `golangci-lint run` (no `--fix`) CI step — catches unfixable issues BuildFlow swallows~~ done — dedicated lint job (ci.yml)
+12. ~~Convert `scripts/coverage-check.sh` to a Go test (portability)~~ done — cmd/coverage-check + tests; bash script deleted
+13. ~~Add property-based JSON round-trip tests for report types~~ done — pkg/types/json_roundtrip_test.go (16 specs)
+14. ~~Add HTML report snapshot/golden tests (guard against templ regressions)~~ done — pkg/report/golden_test.go + committed golden file (AGENTS gotcha 21)
+15. ~~Enable CGO / `-race` in the canonical CI gate~~ done — CGO_ENABLED=1 + -race in ci.yml
 
 ### Type safety & data-model
 
-16. Extract linter/formatter name strings as typed `const` values (eliminates goconst class)
-17. Type `OutputConfig.Formats` (only two known shapes: `format: path`)
-18. Add a `Result` type for CLI commands (carry warnings/counts/findings alongside error)
-19. Generate settings structs from golangci-lint's JSON Schema (replace hand-maintained)
-20. Add settings key validation against golangci-lint schema at config load time
-21. Split `cmd_configure.go` (still 541+ lines, 8 concerns)
-22. Split the 8-method `ConfigLoader` God Object interface
-23. Consolidate `ValidationError` + `HealthIssue` (overlapping types)
+16. ~~Extract linter/formatter name strings as typed `const` values (eliminates goconst class)~~ done — types.LinterName/FormatterName branded types
+17. ~~Type `OutputConfig.Formats` (only two known shapes: `format: path`)~~ **Won't implement — explicit non-goal — map[string]any kept for round-trip safety (ROADMAP).**
+18. ~~Add a `Result` type for CLI commands (carry warnings/counts/findings alongside error)~~ done — internal/cli/result.go CommandResult
+19. ~~Generate settings structs from golangci-lint's JSON Schema (replace hand-maintained)~~ done — cmd/generate-settings (88 structs, 3665d79)
+20. ~~Add settings key validation against golangci-lint schema at config load time~~ done — pkg/config/settings_validator.go soft warnings at load
+21. ~~Split `cmd_configure.go` (still 541+ lines, 8 concerns)~~ done — split into 4 focused files (9a41447)
+22. ~~Split the 8-method `ConfigLoader` God Object interface~~ done — 6 sub-interfaces (39cca87); narrowing residue tracked ROADMAP theme 3
+23. ~~Consolidate `ValidationError` + `HealthIssue` (overlapping types)~~ done — ToHealthIssue() in pkg/types (58fbe3c)
 
 ### Linter data accuracy
 
-24. Audit `LinterMinVersions` against upstream golangci-lint `since` values
-25. Verify all `DeprecatedLinters` replacements point to linters that exist in v2
-26. Audit remaining linter settings against golangci-lint v2.12.2 upstream docs
-27. Add missing default settings from review §5.2 (`wrapcheck`, `funlen`, `mnd`)
-28. Check if `clickhouselint` should be in the `reference` preset
+24. ~~Audit `LinterMinVersions` against upstream golangci-lint `since` values~~ done — verified 14-01 sweep; standing re-check idea in ROADMAP theme 1
+25. ~~Verify all `DeprecatedLinters` replacements point to linters that exist in v2~~ done — verified 14-01 (all replacements exist in v2)
+26. ~~Audit remaining linter settings against golangci-lint v2.12.2 upstream docs~~ done — verified 14-01 against v2.12.2 docs
+27. ~~Add missing default settings from review §5.2 (`wrapcheck`, `funlen`, `mnd`)~~ done — wrapcheck/funlen/mnd defaults in linter_settings.go
+28. ~~Check if `clickhouselint` should be in the `reference` preset~~ done — verified correctly absent from reference preset (14-01)
 
 ### Preset & UX
 
-29. Implement preset composition (`format = minimal + formatters`)
-30. Add `--preset a --preset b` multi-preset support
-31. Add `--detect` mode for the format preset (auto-enable swaggo)
-32. Consider `reference+format` combined preset
-33. Add `--backup` flag decision (always-on vs opt-in) — product decision, see TODO_LIST
-34. Add `--list-presets` output with descriptions
+29. ~~Implement preset composition (`format = minimal + formatters`)~~ done — presets.go format/house compose minimalLinters
+30. ~~Add `--preset a --preset b` multi-preset support~~ done — preset a --preset b + merge tests (86ddc2d; tests 2026-09-13)
+31. ~~Add `--detect` mode for the format preset (auto-enable swaggo)~~ done — preset format --detect auto-enables swaggo (ecb3fe0)
+32. ~~Consider `reference+format` combined preset~~ **NOT-DO — superseded by multi-preset support (item 30) — flags compose natively.**
+33. ~~Add `--backup` flag decision (always-on vs opt-in) — product decision, see TODO_LIST~~ done — decided — always-on backup implemented (backupConfigFile)
+34. ~~Add `--list-presets` output with descriptions~~ done — presets subcommand with descriptions
 
 ### Error handling
 
-35. Register `os.ErrNotExist` as Rejection (I/O errors default to Transient)
-36. Audit 20+ swallowed-error sites identified in prior reports
-37. Adopt `HandleError` at the CLI boundary (replaces slog)
-38. Build an error-code governance registry (~40 ad-hoc codes, no test)
-39. Register domain message templates for `errorfamily.New()` constructors
+35. ~~Register `os.ErrNotExist` as Rejection (I/O errors default to Transient)~~ done — go-error-family RegisterStdlibDefaults + classification tests
+36. ~~Audit 20+ swallowed-error sites identified in prior reports~~ done — erraudit review 2026-07-26 + 194-finding triage 2026-07-30 (AGENTS gotcha 26)
+37. ~~Adopt `HandleError` at the CLI boundary (replaces slog)~~ done — HandleError at CLI boundary (commands.go)
+38. Build an error-code governance registry (~40 ad-hoc codes, no test) **→ open — routed to ROADMAP theme 5 (error-code registry, never prioritized)**
+39. ~~Register domain message templates for `errorfamily.New()` constructors~~ done — pkg/errors/templates.go, 27 templates (03a0806)
 
 ### CI/Build
 
-40. Pin golangci-lint version in CI to match devShell
-41. Add `flake.lock` drift detection to CI
-42. Add `examples/*.golangci.yml` tagliatelle alignment (evergreen TODO)
-43. Add CBOR support for report types (if ever needed — currently PLANNED/non-goal)
-44. Document `SettingsConverter` pattern in `docs/references/code-organization.md`
-45. Document `configChangeRecorder` pattern in `docs/references/working-with-codebase.md`
+40. ~~Pin golangci-lint version in CI to match devShell~~ done — ci.yml pins the golangci-lint version
+41. ~~Add `flake.lock` drift detection to CI~~ done — flake.lock drift gate in ci.yml
+42. ~~Add `examples/*.golangci.yml` tagliatelle alignment (evergreen TODO)~~ done — examples/ configs ship tagliatelle-clean shapes
+43. ~~Add CBOR support for report types (if ever needed — currently PLANNED/non-goal)~~ **Won't implement — explicit non-goal — CBOR is not a target (ROADMAP).**
+44. ~~Document `SettingsConverter` pattern in `docs/references/code-organization.md`~~ done — code-organization.md SettingsConverter section
+45. ~~Document `configChangeRecorder` pattern in `docs/references/working-with-codebase.md`~~ done — working-with-codebase.md configChangeRecorder section
 
 ### Documentation
 
-46. Replace hardcoded linter counts in FEATURES.md with `rg -c` commands
-47. Re-verify `docs/DOMAIN_LANGUAGE.md` term-by-term against current code
-48. Re-verify `docs/ARCHITECTURE.md` against current module structure
-49. Add `format` preset to README.md usage examples
-50. Consolidate or archive the 27 July status reports (open question from the 07-16 report)
+46. ~~Replace hardcoded linter counts in FEATURES.md with `rg -c` commands~~ done — pkg/constants/docs_integrity_test.go derives counts from code (better than rg commands)
+47. ~~Re-verify `docs/DOMAIN_LANGUAGE.md` term-by-term against current code~~ done — 07-35 term-by-term pass
+48. ~~Re-verify `docs/ARCHITECTURE.md` against current module structure~~ done — 07-35 fixes + ADR consolidation 2026-09-13
+49. ~~Add `format` preset to README.md usage examples~~ done — preset format in README usage
+50. ~~Consolidate or archive the 27 July status reports (open question from the 07-16 report)~~ done — archive sweeps 2026-07-25, 2026-09-11, 2026-10-07 + cadence policy in the index
 
 ---
 
