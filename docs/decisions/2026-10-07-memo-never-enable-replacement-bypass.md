@@ -7,8 +7,8 @@ min. Decline path documented below.)
 
 ## The trace (verified in code, 2026-10-07)
 
-The sidecar contract (`pkg/policy/policy.go`, AGENTS "Where to Find Detail"
-#2): linters under `never-enable` "are never added to `enable`, period …
+The sidecar contract (`pkg/policy/policy.go`, AGENTS "Where to Find Detail" item 2):
+linters under `never-enable` "are never added to `enable`, period …
 takes priority over all other mechanisms", enforced in both code paths:
 
 - recommendation: `enableRecommendedLinters` (`pkg/linter/fixer.go:391`)
