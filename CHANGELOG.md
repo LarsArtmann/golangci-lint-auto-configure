@@ -36,6 +36,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   directive onto every consumer).
 - Recommended golangci-lint version (`ExpectedGolangCILintVersion`) raised
   from v2.12.2 to v2.13.2 — the first line built with Go 1.27.
+- Recommended golangci-lint version raised from v2.13.2 to v2.14.0 — aligns
+  the warning with the CI pin and the dated schema snapshot (v2.14.0 release
+  binaries are built with Go 1.27.0, verified from the upstream release
+  workflow).
+- **Schema snapshot refreshed and dated.** The generated settings reference
+  (`linter_settings_generated.go`) is now regenerated from golangci-lint
+  v2.14.0's JSON schema (captured from `jsonschema/golangci.jsonschema.json`
+  at tag v2.14.0; committed snapshot verified byte-identical on 2026-10-07).
+  The generator's `-schema-version` flag stamps the provenance header, and
+  the CI schema-verify drift guard passes `-schema-version=v2.14.0` so the
+  regen stays byte-identical. The v2.13→v2.14 schema diff added
+  `canonicalheader` and `exhaustruct_v5` settings structs plus six new
+  settings keys; none affect curated defaults.
 - Docker image: builder base bumped `golang:1.26-alpine` → `golang:1.27-alpine`
   (required by the go.mod directive) and runtime golangci-lint
   `v2.1-alpine` → `v2.13.2-alpine` (the old runtime could not lint Go 1.27

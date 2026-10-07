@@ -90,7 +90,7 @@ cosign verify-blob \
 ### Without Nix
 
 - **Go**: 1.27+
-- **golangci-lint**: v2.10.1+ minimum (v2.13.2+ recommended; tool warns if below recommended)
+- **golangci-lint**: v2.10.1+ minimum (v2.14.0+ recommended; tool warns if below recommended)
 - **Git**: Must run inside a git repository (for version control)
 - **ginkgo**: For running tests (`go install github.com/onsi/ginkgo/v2/ginkgo@latest`)
 - **templ**: For report template generation (`go install github.com/a-h/templ/cmd/templ@latest`)

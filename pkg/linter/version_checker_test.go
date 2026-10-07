@@ -25,7 +25,7 @@ var _ = Describe("validateVersion", func() {
 
 	Context("when version equals expected", func() {
 		It("should not warn", func() {
-			err := analyzer.validateVersion("v2.13.2")
+			err := analyzer.validateVersion("v2.14.0")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(buf.String()).To(BeEmpty())
 		})
@@ -36,17 +36,17 @@ var _ = Describe("validateVersion", func() {
 			err := analyzer.validateVersion("v2.11.0")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(buf.String()).To(ContainSubstring("v2.11.0"))
-			Expect(buf.String()).To(ContainSubstring("v2.13.2"))
+			Expect(buf.String()).To(ContainSubstring("v2.14.0"))
 			Expect(buf.String()).To(ContainSubstring("recommended"))
 		})
 	})
 
 	Context("when version is newer than expected", func() {
 		It("should warn about unexpected version", func() {
-			err := analyzer.validateVersion("v2.14.0")
+			err := analyzer.validateVersion("v2.15.0")
 			Expect(err).ToNot(HaveOccurred())
+			Expect(buf.String()).To(ContainSubstring("v2.15.0"))
 			Expect(buf.String()).To(ContainSubstring("v2.14.0"))
-			Expect(buf.String()).To(ContainSubstring("v2.13.2"))
 		})
 	})
 
