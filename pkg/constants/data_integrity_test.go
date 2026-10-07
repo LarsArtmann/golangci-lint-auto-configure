@@ -569,3 +569,87 @@ var _ = Describe("CoreFormatters alignment", func() {
 				"house preset and CoreFormatters should have the same number of formatters")
 	})
 })
+
+// Docs-integrity derivation (M34): the "Deprecated Linter Migration Map"
+// table in FEATURES.md must stay in lockstep with constants.DeprecatedLinters
+// — one row per map entry, no extra rows, and the replacement column must
+// match the map ("—" for entries with no direct replacement). This is the
+// docs half; the cross-table half (DeprecatedLinters vs LinterMinVersions)
+// lives in the Describe block above.
+var _ = Describe("FEATURES deprecation migration map", func() {
+	parseMigrationTable := func() map[string]string {
+		content, err := os.ReadFile(filepath.Join("..", "..", "FEATURES.md"))
+		Expect(err).ToNot(HaveOccurred(), "FEATURES.md must be readable from pkg/constants")
+
+		lines := strings.Split(string(content), "\n")
+		start := -1
+		for i, line := range lines {
+			if strings.HasPrefix(line, "### Deprecated Linter Migration Map") {
+				start = i
+
+				break
+			}
+		}
+		Expect(start).To(BeNumerically(">=", 0),
+			"FEATURES.md is missing the 'Deprecated Linter Migration Map' heading")
+
+		rows := map[string]string{}
+		for _, line := range lines[start+1:] {
+			if strings.HasPrefix(line, "## ") {
+				break
+			}
+
+			if !strings.HasPrefix(line, "| ") {
+				continue
+			}
+
+			cells := strings.Split(strings.Trim(line, "| "), "|")
+			for i := range cells {
+				cells[i] = strings.TrimSpace(cells[i])
+			}
+
+			if cells[0] == "Deprecated" || strings.Contains(cells[0], "--") {
+				continue
+			}
+
+			replacement := cells[1]
+			if replacement == "—" {
+				replacement = ""
+			}
+
+			rows[cells[0]] = replacement
+		}
+
+		return rows
+	}
+
+	It("has exactly one row per DeprecatedLinters entry", func() {
+		rows := parseMigrationTable()
+
+		Expect(rows).To(HaveLen(len(constants.DeprecatedLinters)),
+			"FEATURES migration table and DeprecatedLinters must cover the same number of linters")
+	})
+
+	It("agrees with DeprecatedLinters on every replacement", func() {
+		rows := parseMigrationTable()
+
+		for linter, replacement := range constants.DeprecatedLinters {
+			rowReplacement, mapped := rows[string(linter)]
+			Expect(mapped).
+				To(BeTrue(), "DeprecatedLinters[%q] is missing a row in the FEATURES migration table", linter)
+			Expect(rowReplacement).
+				To(Equal(string(replacement.Replacement)),
+					"FEATURES migration table row %q disagrees with DeprecatedLinters replacement", linter)
+		}
+	})
+
+	It("has no rows outside DeprecatedLinters", func() {
+		rows := parseMigrationTable()
+
+		for deprecated := range rows {
+			_, mapped := constants.DeprecatedLinters[types.LinterName(deprecated)]
+			Expect(mapped).
+				To(BeTrue(), "FEATURES migration table row %q has no DeprecatedLinters entry", deprecated)
+		}
+	})
+})

@@ -155,6 +155,37 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Removed settings cleanup                        | FULLY_FUNCTIONAL | Removes deprecated linter settings |
 | `--skip-validation` flag                        | FULLY_FUNCTIONAL | Skips post-migration validation    |
 
+### Deprecated Linter Migration Map
+
+One row per `constants.DeprecatedLinters` entry; a lockstep spec in `pkg/constants/data_integrity_test.go` fails when this table and the map drift apart.
+
+| Deprecated | Replacement | Note |
+| --- | --- | --- |
+| wsl | wsl_v5 | Deprecated since golangci-lint v2.2.0 |
+| exhaustruct | exhaustruct_v5 | Deprecated since golangci-lint v2.13.0 (version-gated) |
+| gomodguard | gomodguard_v2 | Deprecated since golangci-lint v2.12.0 (version-gated) |
+| deadcode | staticcheck | Removed in v2 |
+| varcheck | staticcheck | Removed in v2 |
+| structcheck | staticcheck | Removed in v2 |
+| gosimple | staticcheck | Removed in v2 (merged into staticcheck) |
+| exhaustivestruct | exhaustive | Renamed in v2 |
+| interfacer | staticcheck | Removed in v2 |
+| maligned | govet | Removed in v2 (use govet fieldalignment) |
+| nosnakecase | revive | Removed in v2 |
+| exportloopref | copyloopvar | Removed in v2 (Go 1.22 fixed loop variable semantics) |
+| golint | revive | Removed in v2 |
+| scopelint | copyloopvar | Removed in v2 |
+| tenv | usetesting | Removed in v2 |
+| ifshort | — | Removed in v2, no direct replacement |
+| execinquery | — | Removed in v2, no direct replacement |
+| gas | gosec | Renamed before v2 |
+| goerr113 | err113 | Renamed before v2 |
+| gomnd | mnd | Renamed before v2 |
+| logrlint | loggercheck | Renamed before v2 |
+| megacheck | staticcheck | Renamed before v2 |
+| vet | govet | Renamed before v2 |
+| vetshadow | govet | Merged into govet before v2 |
+
 ## go-finding Integration
 
 | Feature                                           | Status           | Notes                                       |
