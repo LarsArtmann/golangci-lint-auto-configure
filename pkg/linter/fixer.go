@@ -326,7 +326,7 @@ func (f *Fixer) applyAndSave(
 	rec := configChangeRecorder{counts: counts}
 	rec.normalize(func() int { return updater.updateGoVersion(ctx, cfg) })
 	rec.normalize(func() int { return updater.updateRunnerSettings(cfg) })
-	rec.normalize(func() int { return updater.updateBuildTags(cfg) })
+	rec.normalize(func() int { return updater.updateBuildTags(ctx, cfg) })
 	rec.normalize(func() int { return updater.updateOutputFormats(cfg) })
 	rec.normalize(func() int {
 		return updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager, f.logger, f.forceSettings)
