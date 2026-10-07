@@ -114,6 +114,10 @@ The repo went public 2026-09-09 and got metadata + CI rehabilitation
 
 ## Open questions (user-gated, not tasks)
 
+Each open question below now has a one-page decision memo in
+`docs/decisions/` (2026-10-07) with options, costs, and a recommendation —
+answering is a 5-minute read per memo:
+
 - **Git history sanitization**: sibling-project references exist in pre-cleanup
   history (accepted 2026-09-09). Reopen as a `git filter-repo` purge, or close
   as "acceptable forever"? Everything downstream (gitleaks scope, announcement)

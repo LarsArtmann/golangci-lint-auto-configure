@@ -7,6 +7,7 @@ gated on a one-time rehearsal, in batches of ≤10, each batch reported.**
 ## Scope of the work waiting on this
 
 Fleet audit 2026-10-07 (157 sibling configs):
+
 - 148 carry patch-level `run.go` (pre-normalization; harmless today, breaks
   when golangci-lint tightens parsing, and is the tool's headline v0.11 fix)
 - 21 fail `golangci-lint v2.14 config verify` outright (highest urgency)
