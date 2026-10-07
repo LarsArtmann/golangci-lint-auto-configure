@@ -12,8 +12,7 @@ import (
 // applyReplacementInput builds a linter set + config carrying the deprecated
 // predecessor so the handler migrates it.
 func applyReplacementInput(
-	t *testing.T,
-	deprecated, replacement types.LinterName,
+	t *testing.T, deprecated types.LinterName,
 ) (types.Set[types.LinterName], *types.Config, []types.LinterName) {
 	t.Helper()
 
@@ -40,7 +39,7 @@ func TestReplacementRespectsNeverEnable(t *testing.T) {
 	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
-	linterSet, cfg, enabled := applyReplacementInput(t, deprecated, replacement)
+	linterSet, cfg, enabled := applyReplacementInput(t, deprecated)
 
 	handler := newDeprecatedLinterHandler(testQuietLogger(), "v2.14.0")
 	handler.neverEnable = func(name types.LinterName) bool { return name == replacement }
@@ -73,7 +72,7 @@ func TestReplacementProceedsWithoutNeverEnable(t *testing.T) {
 	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
-	linterSet, cfg, enabled := applyReplacementInput(t, deprecated, replacement)
+	linterSet, cfg, enabled := applyReplacementInput(t, deprecated)
 
 	handler := newDeprecatedLinterHandler(testQuietLogger(), "v2.14.0")
 
@@ -113,7 +112,7 @@ func TestPragmaticCompositionWithNeverEnable(t *testing.T) {
 	handler := newDeprecatedLinterHandler(testQuietLogger(), "v2.14.0")
 	handler.neverEnable = func(types.LinterName) bool { return true }
 
-	linterSet, cfg, enabled := applyReplacementInput(t, "exhaustruct", "exhaustruct_v5")
+	linterSet, cfg, enabled := applyReplacementInput(t, "exhaustruct")
 
 	for _, linter := range enabled {
 		handler.replaceOne(linterSet, linter, false, cfg)

@@ -90,14 +90,28 @@ func (h *deprecatedLinterHandler) applyReplacement(
 		return 1
 	}
 
-	h.logReplace(linter, replacement, dryRun)
-
-	if !dryRun {
-		linterSet.Add(replacement.Replacement)
-		h.migrateSettings(cfg, linter, replacement.Replacement)
-	}
+	h.addReplacement(linterSet, linter, replacement, dryRun, cfg)
 
 	return 1
+}
+
+// addReplacement logs the swap, then adds the replacement linter and migrates
+// its settings outside dry-run mode.
+func (h *deprecatedLinterHandler) addReplacement(
+	linterSet types.Set[types.LinterName],
+	linter types.LinterName,
+	replacement types.LinterReplacement,
+	dryRun bool,
+	cfg *types.Config,
+) {
+	h.logReplace(linter, replacement, dryRun)
+
+	if dryRun {
+		return
+	}
+
+	linterSet.Add(replacement.Replacement)
+	h.migrateSettings(cfg, linter, replacement.Replacement)
 }
 
 func (h *deprecatedLinterHandler) logSkip(linter types.LinterName, replacement types.LinterReplacement) {
