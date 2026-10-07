@@ -175,28 +175,28 @@ JSONL ledger has no file locking. Two parallel configure runs (e.g., BuildFlow r
 
 ### Critical (test gaps)
 
-1. Write BDD specs for `enforceDisableReasons` — no sidecar case
-2. Write BDD specs for `enforceDisableReasons` — justified disable respected
-3. Write BDD specs for `enforceDisableReasons` — unjustified disable re-enabled
-4. Write BDD specs for `enforceDisableReasons` — tool-level linter exempt
-5. Write BDD specs for `enforceDisableReasons` — dry-run does not enforce
-6. Write BDD specs for `tryReEnableLinter` — recording ActionReEnabled in ledger
-7. Write BDD specs for `loadPolicy` — missing file, malformed YAML, valid file
-8. Write unit tests for `parseSinceDuration` — empty, days, hours, invalid
-9. Write unit tests for `filterAuditEntries` — linter filter, time filter, combined
-10. Write unit tests for `shortRunID` — normal, short, edge cases
-11. Write unit tests for `auditDisabled` — flag, env var, both, neither
-12. Write integration test: configure run → ledger has entries → audit subcommand reads them
-13. Write test: `newRunLedger` creates a working ledger when path is available
-14. Write test: `newRunLedger` returns NoopRecorder when `--no-audit`
+1. ~~Write BDD specs for `enforceDisableReasons` — no sidecar case~~ done (docs-health pass 2026-10-07)
+2. ~~Write BDD specs for `enforceDisableReasons` — justified disable respected~~ done (docs-health pass 2026-10-07)
+3. ~~Write BDD specs for `enforceDisableReasons` — unjustified disable re-enabled~~ done (docs-health pass 2026-10-07)
+4. ~~Write BDD specs for `enforceDisableReasons` — tool-level linter exempt~~ done (docs-health pass 2026-10-07)
+5. ~~Write BDD specs for `enforceDisableReasons` — dry-run does not enforce~~ done (docs-health pass 2026-10-07)
+6. ~~Write BDD specs for `tryReEnableLinter` — recording ActionReEnabled in ledger~~ done (docs-health pass 2026-10-07)
+7. ~~Write BDD specs for `loadPolicy` — missing file, malformed YAML, valid file~~ done (docs-health pass 2026-10-07)
+8. ~~Write unit tests for `parseSinceDuration` — empty, days, hours, invalid~~ done (docs-health pass 2026-10-07)
+9. ~~Write unit tests for `filterAuditEntries` — linter filter, time filter, combined~~ done (docs-health pass 2026-10-07)
+10. ~~Write unit tests for `shortRunID` — normal, short, edge cases~~ done (docs-health pass 2026-10-07)
+11. ~~Write unit tests for `auditDisabled` — flag, env var, both, neither~~ done (docs-health pass 2026-10-07)
+12. ~~Write integration test: configure run → ledger has entries → audit subcommand reads them~~ done (docs-health pass 2026-10-07)
+13. ~~Write test: `newRunLedger` creates a working ledger when path is available~~ done (docs-health pass 2026-10-07)
+14. ~~Write test: `newRunLedger` returns NoopRecorder when `--no-audit`~~ done (docs-health pass 2026-10-07)
 
 ### Pillar C completion
 
-15. Implement runtime cost analysis — run each disabled linter, count findings
-16. Populate `FindingsHidden` in audit entries with real counts
-17. Add `--show-cost` flag to `configure` (or run always in `analyze`)
-18. Integrate go-finding for SARIF/JSON export of hidden findings
-19. Add `--output`/`--format` flags to emit hidden-finding report
+15. ~~Implement runtime cost analysis — run each disabled linter, count findings~~ **Won't implement — dropped with FindingsHidden removal.**
+16. ~~Populate `FindingsHidden` in audit entries with real counts~~ **Won't implement — FindingsHidden field removed (option b).**
+17. ~~Add `--show-cost` flag to `configure` (or run always in `analyze`)~~ **Won't implement — superseded by the FindingsHidden removal.**
+18. ~~Integrate go-finding for SARIF/JSON export of hidden findings~~ done (docs-health pass 2026-10-07)
+19. ~~Add `--output`/`--format` flags to emit hidden-finding report~~ done (docs-health pass 2026-10-07)
 
 ### Broader audit recording
 
@@ -211,7 +211,7 @@ JSONL ledger has no file locking. Two parallel configure runs (e.g., BuildFlow r
 
 26. Add file locking (`flock`) to ledger append
 27. Add file locking to `PurgeOlder` rewrite
-28. Consider SQLite backend for concurrent-write safety (BuildFlow pattern)
+28. ~~Consider SQLite backend for concurrent-write safety (BuildFlow pattern)~~ **Won't implement — SQLite backend not pursued; in-process mutex chosen.**
 29. Add ledger size cap or rotation (beyond 90-day purge)
 30. Add `--ledger-path` flag to override default location
 
@@ -225,27 +225,27 @@ JSONL ledger has no file locking. Two parallel configure runs (e.g., BuildFlow r
 
 ### Documentation
 
-36. Add example `.golangci-lint-auto-configure.yml` to `examples/`
-37. Update FEATURES.md with audit ledger + enforcement features
-38. Update TODO_LIST.md with remaining Pillar C work
-39. Update DOMAIN_LANGUAGE.md with new terms
-40. Add resolution note to the moved feedback doc
+36. ~~Add example `.golangci-lint-auto-configure.yml` to `examples/`~~ **Won't implement — sidecar promotion is an explicit non-goal (ROADMAP).**
+37. ~~Update FEATURES.md with audit ledger + enforcement features~~ done (docs-health pass 2026-10-07)
+38. ~~Update TODO_LIST.md with remaining Pillar C work~~ done (docs-health pass 2026-10-07)
+39. ~~Update DOMAIN_LANGUAGE.md with new terms~~ done (docs-health pass 2026-10-07)
+40. ~~Add resolution note to the moved feedback doc~~ done (docs-health pass 2026-10-07)
 41. Update `docs/references/working-with-codebase.md` with audit/policy sections
-42. Update prior status report (`docs/status/2026-07-20_12-28_*`) with cross-reference
+42. ~~Update prior status report (`docs/status/2026-07-20_12-28_*`) with cross-reference~~ done (docs-health pass 2026-10-07)
 
 ### Build verification
 
-43. Run `nix build` and fix any issues
+43. ~~Run `nix build` and fix any issues~~ done (docs-health pass 2026-10-07)
 44. Run `nix flake check` and fix any issues
-45. Update `vendorHash` in `flake.nix` if go.mod changed
+45. ~~Update `vendorHash` in `flake.nix` if go.mod changed~~ done (docs-health pass 2026-10-07)
 
 ### Policy features
 
-46. Add `policy init` subcommand to scaffold a sidecar from current disables
-47. Add `policy validate` subcommand to check sidecar syntax
-48. Add policy linting (category must match a known enum, reason must be non-empty)
-49. Add sidecar schema validation against actual disabled linters (warn on stale entries)
-50. Add `--strict-enforcement` flag to make re-enable a hard error (exit 1) instead of silent fix
+46. ~~Add `policy init` subcommand to scaffold a sidecar from current disables~~ **Won't implement — sidecar subcommands demoted with the sidecar non-goal.**
+47. ~~Add `policy validate` subcommand to check sidecar syntax~~ **Won't implement — sidecar subcommands demoted with the sidecar non-goal.**
+48. ~~Add policy linting (category must match a known enum, reason must be non-empty)~~ **Won't implement — sidecar subcommands demoted with the sidecar non-goal.**
+49. ~~Add sidecar schema validation against actual disabled linters (warn on stale entries)~~ **Won't implement — sidecar subcommands demoted with the sidecar non-goal.**
+50. ~~Add `--strict-enforcement` flag to make re-enable a hard error (exit 1) instead of silent fix~~ **Won't implement — sidecar subcommands demoted with the sidecar non-goal.**
 
 ---
 
