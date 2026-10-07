@@ -119,13 +119,20 @@ func (cu *configUpdater) updateOutputFormats(cfg *types.Config) int {
 	return 0
 }
 
-// updateBuildTags adds Go experiment tags to the config.
+// updateBuildTags adds Go experiment tags to the config, skipping
+// experiments that graduated at or before the local toolchain (their build
+// tags are inert there and would churn every config the tool touches).
 func (cu *configUpdater) updateBuildTags(cfg *types.Config) int {
 	existingTags := types.NewSet(cfg.Run.BuildTags...)
 
+	localGoVersion := ""
+	if cu.goVersionProvider != nil {
+		localGoVersion = cu.goVersionProvider(context.Background())
+	}
+
 	added := 0
 
-	for _, tag := range constants.GoExperimentTags() {
+	for _, tag := range constants.GoExperimentTagsFor(localGoVersion) {
 		if !existingTags.Contains(tag) {
 			cu.logger.Infof("Adding build tag: %s", tag)
 			cfg.Run.BuildTags = append(cfg.Run.BuildTags, tag)

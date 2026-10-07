@@ -26,6 +26,10 @@ var GoExperiments = []types.GoExperiment{
 		Tag:         "goexperiment.jsonv2",
 		Package:     "encoding/json/v2",
 		Description: "New JSON API with improved performance and correctness",
+		// Graduated in Go 1.27: encoding/json/v2 is on by default and the
+		// build tag is inert there. Kept for Go 1.26 toolchains, where the
+		// experiment gate still applies.
+		GraduatedIn: "1.27",
 	},
 	{
 		Tag:         "goexperiment.runtimesecret",
@@ -43,6 +47,26 @@ var GoExperiments = []types.GoExperiment{
 func GoExperimentTags() []string {
 	tags := make([]string, 0, len(GoExperiments))
 	for _, exp := range GoExperiments {
+		tags = append(tags, exp.Tag)
+	}
+
+	return tags
+}
+
+// GoExperimentTagsFor returns the build tags still relevant for the given
+// local Go major.minor version. Experiments that graduated at or before the
+// local toolchain are excluded (their build tags are inert there); an empty
+// or unparsable version returns all tags.
+func GoExperimentTagsFor(localGoMajorMinor string) []string {
+	tags := make([]string, 0, len(GoExperiments))
+
+	local, ok := types.NormalizeGoMajorMinor(localGoMajorMinor)
+
+	for _, exp := range GoExperiments {
+		if exp.GraduatedIn != "" && ok && types.CompareGoMajorMinor(local, exp.GraduatedIn) >= 0 {
+			continue
+		}
+
 		tags = append(tags, exp.Tag)
 	}
 

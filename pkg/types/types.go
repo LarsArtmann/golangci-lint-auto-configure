@@ -82,6 +82,11 @@ type GoExperiment struct {
 	Tag         string
 	Package     string
 	Description string
+	// GraduatedIn is the Go major.minor release in which the experiment
+	// graduated (on by default, build tag no longer needed). Empty means
+	// still experimental. Graduated experiments are not injected into
+	// build-tags when the local toolchain is at or past that release.
+	GraduatedIn string
 }
 
 // LinterInfo contains information about a golangci-lint linter.
