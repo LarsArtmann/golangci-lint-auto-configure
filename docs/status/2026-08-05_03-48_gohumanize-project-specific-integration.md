@@ -84,29 +84,29 @@ Nothing fundamentally broken. Two cosmetic concerns:
 ## f) UP TO 50 NEXT-STEPS (prioritized, pareto-style)
 
 40. [HIGH] **Add H008/H009 corpus sweep** to gohumanize-linter (lives in the OTHER repo, owned by user). Blocks adding gohumanize to the `reference` preset.
-41. [HIGH] **Update this repo's `FEATURES.md`** to list gohumanize as the 3rd project-specific linter, alongside clickhouselint/arangolint.
-42. [HIGH] **Update `TODO_LIST.md`** with: H008/H009 sweep dependency, sidecar policy doc update, FEATURES/CHANGELOG/README sweep.
+41. ~~[HIGH] **Update this repo's `FEATURES.md`** to list gohumanize as the 3rd project-specific linter, alongside clickhouselint/arangolint.~~ done (docs-health pass 2026-10-07)
+42. ~~[HIGH] **Update `TODO_LIST.md`** with: H008/H009 sweep dependency, sidecar policy doc update, FEATURES/CHANGELOG/README sweep.~~ done (docs-health pass 2026-10-07)
 43. [HIGH] **Verify with real `golangci-lint custom`** build + apply tool's output to a fixture project that depends on `dustin/go-humanize`. Confirm the produced YAML is valid for the custom binary.
 44. [MEDIUM] **Update `pkg/policy/policy.go` docs / sidecar examples** to mention that `gohumanize` requires a custom binary. The sidecar is the right place to communicate this durable constraint.
-45. [MEDIUM] **Add a `--explain-gohumanize` or report-level rationale** so the recommendation output explains _why_ it was surfaced (project uses dustin/go-humanize).
+45. [MEDIUM] **Add a `--explain-gohumanize` or report-level rationale** so the recommendation output explains _why_ it was surfaced (project uses dustin/go-humanize). **→ declined-for-now — explain flag is YAGNI**
 46. [MEDIUM] **Audit the fail-open asymmetry in `hasTechnology`** (see #37, #39). Either document the asymmetry explicitly with code-level invariants or unify the failure mode.
 47. [MEDIUM] **Move `SetProjectRoot` behind a test-only build tag** or rename to make it clear it's a test seam, not production API.
-48. [MEDIUM] **Update `CHANGELOG.md`** with a one-liner about the gohumanize integration.
+48. ~~[MEDIUM] **Update `CHANGELOG.md`** with a one-liner about the gohumanize integration.~~ done (docs-health pass 2026-10-07)
 49. [MEDIUM] **Cross-project sweep on 160 sibling repos** to count `github.com/dustin/go-humanize` references. Validates the value proposition.
-50. [MEDIUM] **Add gohumanize to the `reference` preset** once H008/H009 corpus sweep is done. Currently deferred because of partial validation.
-51. [MEDIUM] **Run `cmd/coverage-check`** to confirm test coverage didn't regress and the gate still passes.
-52. [LOW] **Add an audit-ledger event** `ActionRecommendedGohumanize` so users can query the audit subcommand for "did the tool ever recommend gohumanize to me?".
-53. [LOW] **Update gohumanize-linter's docs** (the OTHER repo) to mention auto-configure integration. Out of scope but user should know.
-54. [LOW] **Add `linters.settings.gohumanize: { enable: "H001,H002,H003,H007" }` block as a separate `DefaultLinterSettings` entry** for users who DO have a custom binary — but only emit when the user explicitly opts in via a flag (e.g. `--with-gohumanize-settings`). Today we don't touch settings at all. Could be a follow-up enhancement.
-55. [LOW] **Consider adding `--strict` / `--all-linters` flag** that overrides project-specific gating for power users who want to enable gohumanize anyway (with a warning that they need a custom binary).
+50. [MEDIUM] **Add gohumanize to the `reference` preset** once H008/H009 corpus sweep is done. Currently deferred because of partial validation. **→ open — USER-GATED on the gohumanize strategy question (ROADMAP)**
+51. ~~[MEDIUM] **Run `cmd/coverage-check`** to confirm test coverage didn't regress and the gate still passes.~~ done (docs-health pass 2026-10-07)
+52. [LOW] **Add an audit-ledger event** `ActionRecommendedGohumanize` so users can query the audit subcommand for "did the tool ever recommend gohumanize to me?". **→ declined-for-now — audit event adds little**
+53. [LOW] **Update gohumanize-linter's docs** (the OTHER repo) to mention auto-configure integration. Out of scope but user should know. **→ open — external repo (gohumanize-linter)**
+54. [LOW] **Add `linters.settings.gohumanize: { enable: "H001,H002,H003,H007" }` block as a separate `DefaultLinterSettings` entry** for users who DO have a custom binary — but only emit when the user explicitly opts in via a flag (e.g. `--with-gohumanize-settings`). Today we don't touch settings at all. Could be a follow-up enhancement. **→ open — USER-GATED (curated-settings question)**
+55. [LOW] **Consider adding `--strict` / `--all-linters` flag** that overrides project-specific gating for power users who want to enable gohumanize anyway (with a warning that they need a custom binary). **→ open — USER-GATED (override flag question)**
 56. [LOW] **Add a BDD spec for the fixer end-to-end path**: project with go-humanize dep → fixer runs → `linters.enable` contains `gohumanize`. Currently only the categorizer path is tested.
-57. [LOW] **Run `nix flake check`** to verify the flake build + check + lint all still pass. I bypassed it.
-58. [LOW] **Run `markdownlint-cli2`** on the AGENTS.md change.
+57. ~~[LOW] **Run `nix flake check`** to verify the flake build + check + lint all still pass. I bypassed it.~~ done (docs-health pass 2026-10-07)
+58. ~~[LOW] **Run `markdownlint-cli2`** on the AGENTS.md change.~~ done (docs-health pass 2026-10-07)
 59. [LOW] __Consider extracting `ProjectSpecificLinters` + `hasTechnology` + detector Has_ methods into a plugin pattern_* so adding a new project-specific linter is a one-line config change. Currently it's 4 file edits (config.go, patterns.go, detector.go, categorizer.go) — should be 1 or 2.
-60. [LOW] **Document the 3-tier linter management system** (DisabledLinters / NeverAutoEnableLinters / ProjectSpecificLinters) in `docs/references/` if not already. Currently scattered across comments.
-61. [LOW] **Add a `pkg/constants/linter_reasons.go` test** that verifies every `LinterReasons` entry is non-empty (similar to data_integrity_test.go for the priority/reason consistency).
+60. [LOW] **Document the 3-tier linter management system** (DisabledLinters / NeverAutoEnableLinters / ProjectSpecificLinters) in `docs/references/` if not already. Currently scattered across comments. **→ declined-for-now — 3-tier model lives in DOMAIN_LANGUAGE + rules.go**
+61. ~~[LOW] **Add a `pkg/constants/linter_reasons.go` test** that verifies every `LinterReasons` entry is non-empty (similar to data_integrity_test.go for the priority/reason consistency).~~ done (docs-health pass 2026-10-07)
 62. [LOW] **Add an integration test that exercises the full fixer pipeline** with gohumanize: stub the linter analyzer to report gohumanize as disabled in a project with go-humanize dep, then assert it ends up in `linters.enable`.
-63. [LOW] **Consider emitting a warning (not just an info log)** when the fixer adds gohumanize to enable but no `.custom-gcl.yml` exists. Today the user gets the same quiet info log as any other linter.
+63. [LOW] **Consider emitting a warning (not just an info log)** when the fixer adds gohumanize to enable but no `.custom-gcl.yml` exists. Today the user gets the same quiet info log as any other linter. **→ open — USER-GATED (warn-without-custom-binary question)**
 64. [LOW] **Add a `linter_min_versions` entry** if gohumanize requires a specific golangci-lint version (probably does — v2.12+ for module plugins). I did NOT add this and may be missing version gating.
 
 ---

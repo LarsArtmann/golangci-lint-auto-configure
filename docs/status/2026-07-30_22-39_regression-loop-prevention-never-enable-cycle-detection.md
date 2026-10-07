@@ -131,65 +131,65 @@ The daemon committed my work under the message `"fix(linter): ensure repair re-a
 
 ### Critical (fix bugs first)
 
-1. **Fix BUG 1:** Add `never-enable` check to `tryReEnableLinter` in `fixer_enforce.go`
-2. **Write test for BUG 1:** Linter in both `disabled` (unjustified) and `never-enable` → enforcement must NOT re-enable
-3. **Review the auto-committed error-family migrations** in `cmd_audit.go`, `cmd_configure_config.go`, `cmd_presets.go`, `migrator.go` — verify they're correct and intentional
-4. **Amend or follow-up the misleading commit messages** — at minimum document that the daemon's messages don't match the actual changes
+1. ~~**Fix BUG 1:** Add `never-enable` check to `tryReEnableLinter` in `fixer_enforce.go`~~ done (docs-health pass 2026-10-07)
+2. ~~**Write test for BUG 1:** Linter in both `disabled` (unjustified) and `never-enable` → enforcement must NOT re-enable~~ done (docs-health pass 2026-10-07)
+3. ~~**Review the auto-committed error-family migrations** in `cmd_audit.go`, `cmd_configure_config.go`, `cmd_presets.go`, `migrator.go` — verify they're correct and intentional~~ done (docs-health pass 2026-10-07)
+4. **Amend or follow-up the misleading commit messages** — at minimum document that the daemon's messages don't match the actual changes **→ routed — ROADMAP open question (daemon commit messages)**
 
 ### High priority (complete the feature)
 
-5. **Write integration test** — full `FixConfig` flow with sidecar + ledger, verifying never-enable prevents re-adding end-to-end
-6. **Update README.md** — add `never-enable:` section to the sidecar documentation with an example
-7. **Update FEATURES.md** — add never-enable to the sidecar enforcement feature row
-8. **Update DOMAIN_LANGUAGE.md** — add: never-enable, regression loop detection, suppressed re-enable, previously auto-enabled
-9. **Test `SetLedger` reader wiring** — verify type assertion detects `ledgerReader` implementations
-10. **Test `audit` subcommand display of `ActionSuppressedReEnable`** — text and JSON output
+5. ~~**Write integration test** — full `FixConfig` flow with sidecar + ledger, verifying never-enable prevents re-adding end-to-end~~ done (docs-health pass 2026-10-07)
+6. ~~**Update README.md** — add `never-enable:` section to the sidecar documentation with an example~~ done (docs-health pass 2026-10-07)
+7. ~~**Update FEATURES.md** — add never-enable to the sidecar enforcement feature row~~ done (docs-health pass 2026-10-07)
+8. ~~**Update DOMAIN_LANGUAGE.md** — add: never-enable, regression loop detection, suppressed re-enable, previously auto-enabled~~ done (docs-health pass 2026-10-07)
+9. ~~**Test `SetLedger` reader wiring** — verify type assertion detects `ledgerReader` implementations~~ done (docs-health pass 2026-10-07)
+10. **Test `audit` subcommand display of `ActionSuppressedReEnable`** — text and JSON output **→ open — no display test for the suppressed action**
 
 ### Medium priority (polish)
 
-11. **Prune settings for `never-enable` linters** in `pruneDisabledLinterSettings` (or a new `pruneNeverEnableLinterSettings`)
-12. **Log a debug warning when `SetLedger` detects a recorder that doesn't implement `ledgerReader`** — helps debugging when cycle detection silently disables
-13. **Add `never-enable` validation** — warn if a linter is in both `disabled` and `never-enable` (redundant; `disabled` already prevents adding)
-14. **Consider `audit init --never-enable` helper** — scaffold a sidecar from linters the tool has suppressed via cycle detection
-15. **Add CHANGELOG.md entry** for the never-enable feature + cycle detection
-16. **Update `docs/references/code-organization.md`** — mention never-enable in the policy package description
-17. **Update `docs/ARCHITECTURE.md`** — mention never-enable in the fixer_enforce.go description
-18. **Cross-reference gotcha #15 and #27** in AGENTS.md — they're related (sidecar enforcement + never-enable)
-19. **Consider whether `ireturn` in `PragmaticNoiseLinters` should move to `NeverAutoEnableLinters`** — the feedback says it's fundamentally incompatible with templ; `--pragmatic` drops it but users may not know to use that flag
-20. **Test cycle detection with actual ledger file I/O** — current test uses a fake `enforceRecorder`, not a real `*Ledger` reading from disk
+11. **Prune settings for `never-enable` linters** in `pruneDisabledLinterSettings` (or a new `pruneNeverEnableLinterSettings`) **→ open — never-enable settings are not pruned**
+12. **Log a debug warning when `SetLedger` detects a recorder that doesn't implement `ledgerReader`** — helps debugging when cycle detection silently disables **→ open — no debug warning on assertion failure**
+13. **Add `never-enable` validation** — warn if a linter is in both `disabled` and `never-enable` (redundant; `disabled` already prevents adding) **→ open — no redundancy warning**
+14. **Consider `audit init --never-enable` helper** — scaffold a sidecar from linters the tool has suppressed via cycle detection **→ declined-for-now — helper never built**
+15. ~~**Add CHANGELOG.md entry** for the never-enable feature + cycle detection~~ done (docs-health pass 2026-10-07)
+16. **Update `docs/references/code-organization.md`** — mention never-enable in the policy package description **→ open — code-organization.md not checked for never-enable**
+17. **Update `docs/ARCHITECTURE.md`** — mention never-enable in the fixer_enforce.go description **→ open — ARCHITECTURE.md not checked**
+18. ~~**Cross-reference gotcha #15 and #27** in AGENTS.md — they're related (sidecar enforcement + never-enable)~~ done (docs-health pass 2026-10-07)
+19. ~~**Consider whether `ireturn` in `PragmaticNoiseLinters` should move to `NeverAutoEnableLinters`** — the feedback says it's fundamentally incompatible with templ; `--pragmatic` drops it but users may not know to use that flag~~ **Won't implement — decided NO (23-22 session).**
+20. ~~**Test cycle detection with actual ledger file I/O** — current test uses a fake `enforceRecorder`, not a real `*Ledger` reading from disk~~ done (docs-health pass 2026-10-07)
 
 ### Lower priority (nice to have)
 
-21. **Add `--never-enable` CLI flag** — allow specifying never-enable linters without a sidecar file
-22. **Surface suppressed re-enables in the configure output** — currently only logged at warn level; could be in the `MigrationResult.NextSteps`
-23. **Track suppression count in the audit ledger** — how many times a linter has been suppressed (helps decide if it should be permanently disabled)
-24. **Add `never-enable` to the `audit` subcommand filter** — `audit --action suppressed-re-enable`
-25. **Consider a `configure --explain` mode** — show why each linter was/wasn't enabled, including never-enable and cycle detection reasons
-26. **Dogfood: add `.golangci-lint-auto-configure.yml` to this repo** — with any linters the tool itself suppresses
-27. **Document the interaction between `--pragmatic` and `never-enable`** — `--pragmatic` drops from the recommendation pipeline; `never-enable` is a hard block. What if a linter is in both?
-28. **Test never-enable with `dryRun=true`** — verify the skip is counted correctly in dry-run results
-29. **Consider whether `never-enable` should also prevent formatter enabling** — currently only affects linters, not formatters
-30. **Add a deprecation warning if a linter in `never-enable` is also in `DisabledLinters`** — redundant configuration
-31. **Test with concurrent configure runs** — two simultaneous runs could both read the ledger and both try to record
-32. **Consider adding `never-enable` reason to the audit ledger entry** — currently records "regression loop" but could include the user's reason from the sidecar
-33. **Update `docs/references/working-with-codebase.md`** — add a section on how to add a new sidecar section
-34. **Consider whether the `Policy` struct should validate category values** — currently `category` is a string, not validated against the enum
-35. **Add a test for empty `never-enable:` map** — sidecar present, never-enable section empty
-36. **Add a test for never-enable with a linter that has special characters in its name**
-37. **Consider whether `never-enable` entries should be sorted** in the sidecar for consistency
-38. **Test that `never-enable` survives config round-trip** (load → save → load)
-39. **Consider migrating the `disabled` key to `disable` for consistency with golangci-lint's `linters.disable`** — currently `disabled:` vs `disable:`, potential confusion
-40. **Add `never-enable` to the `presets` command output** if relevant
-41. **Consider whether `never-enable` should be project-type-aware** — e.g., suggest `godoclint` for templ projects automatically
-42. **Review whether the 90-day retention purge could lose cycle detection data prematurely** — if a developer doesn't commit for 90 days, the ledger entry is purged and the cycle restarts
-43. **Consider a `configure --reset-cycle-detection` flag** — clears the previously-auto-enabled set for a linter so the tool can try again
-44. **Test interaction between deprecated linter replacement and cycle detection** — if `wsl` is auto-enabled, replaced by `wsl_v5`, then removed, does the cycle detection fire for `wsl_v5`?
-45. **Document the `ledgerReader` interface in the audit package's package doc**
-46. **Consider whether `NoopRecorder.PreviouslyAutoEnabled()` should return an empty map instead of nil** — nil is correct but some callers might not check
-47. **Add a benchmark for `PreviouslyAutoEnabled`** — reads the entire ledger file on every configure run
-48. **Consider caching `PreviouslyAutoEnabled` results** — currently called once per `enableRecommendedLinters` call, which is fine, but if the ledger grows large, parsing could be slow
-49. **Test `PreviouslyAutoEnabled` with a corrupted ledger file** — malformed JSON lines are skipped, but verify no panic
-50. **Review whether the `reader` field should be on `Fixer` or passed as a parameter** — currently a struct field set via side-effect in `SetLedger`, which is a hidden coupling
+21. **Add `--never-enable` CLI flag** — allow specifying never-enable linters without a sidecar file **→ declined-for-now — sidecar section is the durable signal**
+22. **Surface suppressed re-enables in the configure output** — currently only logged at warn level; could be in the `MigrationResult.NextSteps` **→ open — warn-level log only**
+23. **Track suppression count in the audit ledger** — how many times a linter has been suppressed (helps decide if it should be permanently disabled) **→ declined-for-now — counts add little**
+24. **Add `never-enable` to the `audit` subcommand filter** — `audit --action suppressed-re-enable` **→ declined-for-now — audit filters stay minimal**
+25. **Consider a `configure --explain` mode** — show why each linter was/wasn't enabled, including never-enable and cycle detection reasons **→ declined-for-now — explain mode is YAGNI**
+26. **Dogfood: add `.golangci-lint-auto-configure.yml` to this repo** — with any linters the tool itself suppresses **→ open — no own-repo sidecar (dogfooding gap)**
+27. **Document the interaction between `--pragmatic` and `never-enable`** — `--pragmatic` drops from the recommendation pipeline; `never-enable` is a hard block. What if a linter is in both? **→ open — interaction undocumented in README**
+28. **Test never-enable with `dryRun=true`** — verify the skip is counted correctly in dry-run results **→ open — dry-run interaction untested**
+29. **Consider whether `never-enable` should also prevent formatter enabling** — currently only affects linters, not formatters **→ declined-for-now — formatters are out of never-enable scope**
+30. **Add a deprecation warning if a linter in `never-enable` is also in `DisabledLinters`** — redundant configuration **→ declined-for-now — redundant state is harmless**
+31. **Test with concurrent configure runs** — two simultaneous runs could both read the ledger and both try to record **→ declined-for-now — ledger writes are mutex-guarded in-process**
+32. **Consider adding `never-enable` reason to the audit ledger entry** — currently records "regression loop" but could include the user's reason from the sidecar **→ declined-for-now — reasons live in the sidecar**
+33. **Update `docs/references/working-with-codebase.md`** — add a section on how to add a new sidecar section **→ open — working-with-codebase has no sidecar section**
+34. **Consider whether the `Policy` struct should validate category values** — currently `category` is a string, not validated against the enum **→ declined-for-now — categories are free-form by design**
+35. **Add a test for empty `never-enable:` map** — sidecar present, never-enable section empty **→ open — untested**
+36. **Add a test for never-enable with a linter that has special characters in its name** **→ open — untested**
+37. **Consider whether `never-enable` entries should be sorted** in the sidecar for consistency **→ declined-for-now — cosmetic**
+38. **Test that `never-enable` survives config round-trip** (load → save → load) **→ open — round-trip untested**
+39. ~~**Consider migrating the `disabled` key to `disable` for consistency with golangci-lint's `linters.disable`** — currently `disabled:` vs `disable:`, potential confusion~~ **Won't implement — sidecar schema standardized kebab-case (AGENTS #15).**
+40. **Add `never-enable` to the `presets` command output** if relevant **→ declined-for-now — presets output stays minimal**
+41. **Consider whether `never-enable` should be project-type-aware** — e.g., suggest `godoclint` for templ projects automatically **→ declined-for-now — no project-type never-enable**
+42. ~~**Review whether the 90-day retention purge could lose cycle detection data prematurely** — if a developer doesn't commit for 90 days, the ledger entry is purged and the cycle restarts~~ done (docs-health pass 2026-10-07)
+43. **Consider a `configure --reset-cycle-detection` flag** — clears the previously-auto-enabled set for a linter so the tool can try again **→ declined-for-now — 90-day purge is documented best-effort**
+44. **Test interaction between deprecated linter replacement and cycle detection** — if `wsl` is auto-enabled, replaced by `wsl_v5`, then removed, does the cycle detection fire for `wsl_v5`? **→ open — interaction untested**
+45. **Document the `ledgerReader` interface in the audit package's package doc** **→ open — interface undocumented**
+46. ~~**Consider whether `NoopRecorder.PreviouslyAutoEnabled()` should return an empty map instead of nil** — nil is correct but some callers might not check~~ done (docs-health pass 2026-10-07)
+47. **Add a benchmark for `PreviouslyAutoEnabled`** — reads the entire ledger file on every configure run **→ declined-for-now — read path is not hot**
+48. **Consider caching `PreviouslyAutoEnabled` results** — currently called once per `enableRecommendedLinters` call, which is fine, but if the ledger grows large, parsing could be slow **→ declined-for-now — per-run read is fine**
+49. ~~**Test `PreviouslyAutoEnabled` with a corrupted ledger file** — malformed JSON lines are skipped, but verify no panic~~ done (docs-health pass 2026-10-07)
+50. **Review whether the `reader` field should be on `Fixer` or passed as a parameter** — currently a struct field set via side-effect in `SetLedger`, which is a hidden coupling **→ declined-for-now — SetLedger side-effect works and is tested**
 
 ---
 

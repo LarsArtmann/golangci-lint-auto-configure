@@ -120,65 +120,65 @@ I added the flag, updated CHANGELOG and TODO_LIST, but never added it to README.
 
 ### Critical (should do before next release)
 
-1. **Push the 1 unpushed daemon commit** (573ccd4)
-2. **Add AGENTS.md gotcha for YAML indent preservation** — `detectYAMLIndent` behavior, encoder vs marshal, default indent
-3. **Add AGENTS.md gotcha for --force-settings** — the `injectDefaultSettings` force parameter, when to use it
-4. **Add AGENTS.md gotcha for RuleKey merge** — same-key rules now merge linter lists, not skip
-5. **Update Pareto planning doc Definition of Done** — mark all items `[x]`
-6. **Document `--force-settings` in README.md** — add to flags section + usage examples
-7. **Fix the cognitive complexity finding** on `TestTryReEnableLinter` (complexity 30 > 25)
-8. **Add tab handling to `detectYAMLIndent`** — reject tabs, fall back to default
-9. **Add `mergeExclusionLinters` standalone unit test** — table-driven, edge cases
-10. **Fix `mergeLintersExclusionRules` in merger_linters.go** — add RuleKey dedup to the config-merge path (currently has none)
-11. **Run `nix flake check`** — hermetic build path unvalidated for 5+ sessions
+1. ~~**Push the 1 unpushed daemon commit** (573ccd4)~~ done (docs-health pass 2026-10-07)
+2. ~~**Add AGENTS.md gotcha for YAML indent preservation** — `detectYAMLIndent` behavior, encoder vs marshal, default indent~~ done (docs-health pass 2026-10-07)
+3. ~~**Add AGENTS.md gotcha for --force-settings** — the `injectDefaultSettings` force parameter, when to use it~~ done (docs-health pass 2026-10-07)
+4. ~~**Add AGENTS.md gotcha for RuleKey merge** — same-key rules now merge linter lists, not skip~~ done (docs-health pass 2026-10-07)
+5. ~~**Update Pareto planning doc Definition of Done** — mark all items `[x]`~~ done (docs-health pass 2026-10-07)
+6. ~~**Document `--force-settings` in README.md** — add to flags section + usage examples~~ done (docs-health pass 2026-10-07)
+7. ~~**Fix the cognitive complexity finding** on `TestTryReEnableLinter` (complexity 30 > 25)~~ done (docs-health pass 2026-10-07)
+8. ~~**Add tab handling to `detectYAMLIndent`** — reject tabs, fall back to default~~ done (docs-health pass 2026-10-07)
+9. ~~**Add `mergeExclusionLinters` standalone unit test** — table-driven, edge cases~~ done (docs-health pass 2026-10-07)
+10. ~~**Fix `mergeLintersExclusionRules` in merger_linters.go** — add RuleKey dedup to the config-merge path (currently has none)~~ done (docs-health pass 2026-10-07)
+11. ~~**Run `nix flake check`** — hermetic build path unvalidated for 5+ sessions~~ done (docs-health pass 2026-10-07)
 
 ### High value (should do soon)
 
-12. **Consolidate ARCHITECTURE.md inline ADRs** into `docs/adr/` — split-brain documentation
-13. **README.md claim-by-claim audit** — ~500 lines, never verified line-by-line
-14. **Extend docs-integrity test** to cover all FEATURES.md hardcoded counts, not just presets
-15. **Multi-preset merge correctness tests** — `--preset a --preset b` shipped without dedicated tests
-16. **Run the tool on its own `.golangci.yml`** with `--force-settings` to verify the idempotency trap is truly solved
-17. **Add a golden-file test** for YAML indent round-trip (2-space in → 2-space out)
-18. **Audit all commit messages from this session** — fix or annotate the daemon-mangled ones
-19. **Consider `--force-settings` for formatter settings too** — `injectDefaultFormatterSettings` has the same idempotency guard but no force parameter
+12. ~~**Consolidate ARCHITECTURE.md inline ADRs** into `docs/adr/` — split-brain documentation~~ done (docs-health pass 2026-10-07)
+13. ~~**README.md claim-by-claim audit** — ~500 lines, never verified line-by-line~~ done (docs-health pass 2026-10-07)
+14. ~~**Extend docs-integrity test** to cover all FEATURES.md hardcoded counts, not just presets~~ done (docs-health pass 2026-10-07)
+15. ~~**Multi-preset merge correctness tests** — `--preset a --preset b` shipped without dedicated tests~~ done (docs-health pass 2026-10-07)
+16. ~~**Run the tool on its own `.golangci.yml`** with `--force-settings` to verify the idempotency trap is truly solved~~ done (docs-health pass 2026-10-07)
+17. **Add a golden-file test** for YAML indent round-trip (2-space in → 2-space out) **→ open — only table tests exist for detectYAMLIndent**
+18. **Audit all commit messages from this session** — fix or annotate the daemon-mangled ones **→ routed — ROADMAP open question (daemon commit messages)**
+19. ~~**Consider `--force-settings` for formatter settings too** — `injectDefaultFormatterSettings` has the same idempotency guard but no force parameter~~ done (docs-health pass 2026-10-07)
 
 ### Medium value (should do when time permits)
 
-20. **Status report lifecycle policy** — define archive cadence, update docs/status/README.md
-21. **Swallowed-error governance audit** — re-run erraudit quarterly
-22. **`LinterMinVersions` accuracy audit** — verify against upstream release notes
-23. **`DeprecatedLinters` target audit** — verify each replacement exists in v2
-24. **Auto-commit hook improvement** — scope by file type, refuse unexpected types
-25. **Narrow interface adoption** — standardize on ConfigReader/ConfigWriter sub-interfaces
-26. **Document coverage-check standalone error strategy** in AGENTS.md
-27. **Add `--force-settings` to the `detect` and `recommend` command paths** — currently only on `configure`
-28. **Consider YAML indent detection caching** — avoid re-reading the file on every SaveConfig call during multi-config merges
-29. **Test YAML indent with 3-space and 6-space inputs** — edge cases not covered
-30. **Add integration test for RuleKey merge with real-world stale config** — config from v0.5.0 → tool updates linter list
+20. **Status report lifecycle policy** — define archive cadence, update docs/status/README.md **→ routed — ROADMAP theme 4 (status cadence)**
+21. **Swallowed-error governance audit** — re-run erraudit quarterly **→ routed — TODO_LIST erraudit row**
+22. **`LinterMinVersions` accuracy audit** — verify against upstream release notes **→ routed — ROADMAP theme 1**
+23. **`DeprecatedLinters` target audit** — verify each replacement exists in v2 **→ routed — ROADMAP theme 1**
+24. **Auto-commit hook improvement** — scope by file type, refuse unexpected types **→ routed — ROADMAP theme 4**
+25. **Narrow interface adoption** — standardize on ConfigReader/ConfigWriter sub-interfaces **→ routed — ROADMAP theme 3**
+26. **Document coverage-check standalone error strategy** in AGENTS.md **→ open — AGENTS #22 lacks the standalone-error strategy**
+27. **Add `--force-settings` to the `detect` and `recommend` command paths** — currently only on `configure` **→ routed — ROADMAP theme 2 (settings refresh scope)**
+28. **Consider YAML indent detection caching** — avoid re-reading the file on every SaveConfig call during multi-config merges **→ declined-for-now — detection is not hot**
+29. **Test YAML indent with 3-space and 6-space inputs** — edge cases not covered **→ open — 3/6-space inputs untested**
+30. **Add integration test for RuleKey merge with real-world stale config** — config from v0.5.0 → tool updates linter list **→ open — no stale-config integration test**
 
 ### Lower priority (backlog)
 
-31. **Consider exposing `detectYAMLIndent` as a public utility** — useful for other tools
-32. **Add `--indent` flag** to override detected indent (explicit user control)
-33. **Consider `yaml.Node`-based round-trip** for full comment/blank-line preservation (beyond just indent)
-34. **Profile `detectYAMLIndent` on large configs** — string.Split on every save could be slow for 1000+ line configs
-35. **Add fuzz test for `detectYAMLIndent`** — random YAML-like inputs should never panic
-36. **Add fuzz test for `mergeExclusionLinters`** — duplicate-heavy inputs
-37. **Consider a `--dry-run` diff format** that shows indent changes separately from content changes
-38. **Review whether `shortRunID` should use `strings.Builder`** for the concatenation (micro-optimization)
-39. **Add `ForceSettings` to the JSON error context** when it's true — aids debugging
-40. **Consider versioning the default exclusion rules** — so users can opt into "v1 defaults" vs "v2 defaults" instead of always merging to latest
-41. **Add a `configure --check` integration test** that verifies exit code 1 when force-settings would change something
-42. **Review the `fixerConfigLoader` interface** — does it need a `ForceSettings` method?
-43. **Consider a `--reset-exclusions` flag** — nuclear option to replace all exclusion rules with defaults
-44. **Add `--force-settings` to the help text** with examples
-45. **Consider whether `--force-settings` should also force formatter settings** — currently only linter settings
-46. **Review the `configChangeRecorder` counting** — does the RuleKey merge correctly increment the counter?
-47. **Test that RuleKey merge is idempotent** — running twice should produce no additional changes
-48. **Consider logging which specific linters were merged** into each exclusion rule (for audit visibility)
-49. **Review whether the audit ledger should record** exclusion-rule merges (currently only records enable/disable/settings)
-50. **Consider a `--show-merged-rules` flag** — dry-run that shows which rules would be merged and which linters added
+31. **Consider exposing `detectYAMLIndent` as a public utility** — useful for other tools **→ declined-for-now — internal helper stays internal**
+32. **Add `--indent` flag** to override detected indent (explicit user control) **→ routed — ROADMAP theme 2 (--indent flag idea)**
+33. **Consider `yaml.Node`-based round-trip** for full comment/blank-line preservation (beyond just indent) **→ routed — ROADMAP theme 2 (yaml.Node round-trip)**
+34. **Profile `detectYAMLIndent` on large configs** — string.Split on every save could be slow for 1000+ line configs **→ declined-for-now — not hot**
+35. **Add fuzz test for `detectYAMLIndent`** — random YAML-like inputs should never panic **→ routed — ROADMAP theme 2 (fuzz cluster)**
+36. **Add fuzz test for `mergeExclusionLinters`** — duplicate-heavy inputs **→ routed — ROADMAP theme 2 (fuzz cluster)**
+37. **Consider a `--dry-run` diff format** that shows indent changes separately from content changes **→ declined-for-now — cosmetic**
+38. **Review whether `shortRunID` should use `strings.Builder`** for the concatenation (micro-optimization) **→ declined-for-now — micro-opt**
+39. **Add `ForceSettings` to the JSON error context** when it's true — aids debugging **→ declined-for-now — error context stays minimal**
+40. **Consider versioning the default exclusion rules** — so users can opt into "v1 defaults" vs "v2 defaults" instead of always merging to latest **→ routed — ROADMAP theme 2 (versioned defaults)**
+41. ~~**Add a `configure --check` integration test** that verifies exit code 1 when force-settings would change something~~ done (docs-health pass 2026-10-07)
+42. **Review the `fixerConfigLoader` interface** — does it need a `ForceSettings` method? **→ declined-for-now — interface is adequate**
+43. **Consider a `--reset-exclusions` flag** — nuclear option to replace all exclusion rules with defaults **→ routed — ROADMAP theme 2 (--reset-exclusions idea)**
+44. ~~**Add `--force-settings` to the help text** with examples~~ done (docs-health pass 2026-10-07)
+45. ~~**Consider whether `--force-settings` should also force formatter settings** — currently only linter settings~~ done (docs-health pass 2026-10-07)
+46. **Review the `configChangeRecorder` counting** — does the RuleKey merge correctly increment the counter? **→ open — recorder counting not re-verified**
+47. **Test that RuleKey merge is idempotent** — running twice should produce no additional changes **→ open — idempotency untested**
+48. **Consider logging which specific linters were merged** into each exclusion rule (for audit visibility) **→ routed — ROADMAP theme 2 (merge observability)**
+49. **Review whether the audit ledger should record** exclusion-rule merges (currently only records enable/disable/settings) **→ routed — ROADMAP theme 2 (ledger exclusion records)**
+50. **Consider a `--show-merged-rules` flag** — dry-run that shows which rules would be merged and which linters added **→ routed — ROADMAP theme 2 (--show-merged-rules idea)**
 
 ---
 

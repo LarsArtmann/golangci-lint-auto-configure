@@ -97,68 +97,68 @@ Nothing in this session. The previous session left BUG 1 unfixed, but that's now
 
 ### Critical (blocks trust in the feature)
 
-1. **Write integration test through full `FixConfig` flow** — real sidecar file + config on disk, call `FixConfig`, assert never-enable linter absent from saved config
-2. **Test deprecated linter replacement respects never-enable** — if `wsl` → `wsl_v5` and `wsl_v5` is in never-enable, the replacement must not add it
-3. **Consider centralized `canAddToEnable(linter)` guard** — single chokepoint instead of scattered checks in `enableRecommendedLinters`, `tryReEnableLinter`, `replaceLinters`
+1. ~~**Write integration test through full `FixConfig` flow** — real sidecar file + config on disk, call `FixConfig`, assert never-enable linter absent from saved config~~ done (docs-health pass 2026-10-07)
+2. **Test deprecated linter replacement respects never-enable** — if `wsl` → `wsl_v5` and `wsl_v5` is in never-enable, the replacement must not add it **→ open — g1 undecided; fixer_deprecated.go has no never-enable check**
+3. **Consider centralized `canAddToEnable(linter)` guard** — single chokepoint instead of scattered checks in `enableRecommendedLinters`, `tryReEnableLinter`, `replaceLinters` **→ declined-for-now — call sites are few and reviewed**
 
 ### High value
 
-4. **Add warning for contradictory state** — linter in both `enable` and `never-enable`
-5. **Test `--pragmatic` + `never-enable` composition**
-6. **Update previous status report** (`2026-07-30_22-39_...md`) to mark BUG 1 as resolved
-7. **Check `docs/references/working-with-codebase.md`** for stale sidecar references
-8. **Add `never-enable` to the `audit` subcommand output** — show which linters are suppressed and why
-9. **Add `never-enable` validation to `validate` command** — warn if a never-enable linter has settings still in the config (orphaned settings)
+4. **Add warning for contradictory state** — linter in both `enable` and `never-enable` **→ declined-for-now — redundant state is harmless**
+5. **Test `--pragmatic` + `never-enable` composition** **→ open — no composition test**
+6. ~~**Update previous status report** (`2026-07-30_22-39_...md`) to mark BUG 1 as resolved~~ **Won't implement — superseded — archive sweeps annotate old reports instead.**
+7. ~~**Check `docs/references/working-with-codebase.md`** for stale sidecar references~~ done (docs-health pass 2026-10-07)
+8. **Add `never-enable` to the `audit` subcommand output** — show which linters are suppressed and why **→ declined-for-now — audit output stays generic**
+9. **Add `never-enable` validation to `validate` command** — warn if a never-enable linter has settings still in the config (orphaned settings) **→ declined-for-now — validate stays schema-focused**
 
 ### Medium value
 
-10. **Table-driven refactor of `tryReEnableLinter` tests** — reduce duplication
-11. **Test policy parsing of sidecar with both `disabled` and `never-enable`** — ensure both parse correctly
-12. **Add `never-enable` count to `configure` output summary** — "Skipped 2 never-enable linters"
-13. **Document the three-tier linter governance in README** — Disabled vs NeverAutoEnable vs PragmaticNoise vs never-enable (sidecar) — these are confusingly similar
-14. **Add `never-enable` to `--dry-run` output** — show which linters would be skipped
-15. **Consider `never-enable` glob/pattern support** — e.g., `go*` to block all go-prefixed linters (YAGNI? maybe)
-16. **Add integration test for cycle detection** — write to real ledger, run configure, verify suppression
-17. **Test cycle detection after 90-day purge** — ledger entries expire, cycle detection stops working (expected, but should be documented in tests)
-18. **Add `--list-never-enable` flag** — show current never-enable entries from sidecar
-19. **Consider machine-readable sidecar validation** — JSON schema for `.golangci-lint-auto-configure.yml`
-20. **Add never-enable to HTML report** — show suppressed linters in the report
+10. **Table-driven refactor of `tryReEnableLinter` tests** — reduce duplication **→ declined-for-now — table refactor is cosmetic**
+11. ~~**Test policy parsing of sidecar with both `disabled` and `never-enable`** — ensure both parse correctly~~ done (docs-health pass 2026-10-07)
+12. **Add `never-enable` count to `configure` output summary** — "Skipped 2 never-enable linters" **→ declined-for-now — configure summary stays minimal**
+13. **Document the three-tier linter governance in README** — Disabled vs NeverAutoEnable vs PragmaticNoise vs never-enable (sidecar) — these are confusingly similar **→ declined-for-now — README stays user-level**
+14. **Add `never-enable` to `--dry-run` output** — show which linters would be skipped **→ declined-for-now — dry-run stays minimal**
+15. **Consider `never-enable` glob/pattern support** — e.g., `go*` to block all go-prefixed linters (YAGNI? maybe) **→ declined-for-now — YAGNI**
+16. ~~**Add integration test for cycle detection** — write to real ledger, run configure, verify suppression~~ done (docs-health pass 2026-10-07)
+17. **Test cycle detection after 90-day purge** — ledger entries expire, cycle detection stops working (expected, but should be documented in tests) **→ open — post-purge behavior untested**
+18. **Add `--list-never-enable` flag** — show current never-enable entries from sidecar **→ declined-for-now — YAGNI**
+19. **Consider machine-readable sidecar validation** — JSON schema for `.golangci-lint-auto-configure.yml` **→ declined-for-now — schema is over-engineering**
+20. **Add never-enable to HTML report** — show suppressed linters in the report **→ declined-for-now — HTML report stays user-level**
 
 ### Low value / polish
 
-21. **Rename `DisableJustification` to `LinterJustification`** — it's reused for both `disabled` and `never-enable`, the name is misleading
-22. **Add `NeverEnableJustification` accessor to enforcement log** — when skipping, log the reason from the sidecar
-23. **Consistent log formatting** — enforcement uses `📋`, cycle detection uses `⚠️`, never-enable recommendation uses `Debugf`. Standardize.
-24. **Add `never-enable` to `presets` output** — show which preset linters are blocked by sidecar
-25. **Test sidecar with empty `never-enable:` section** — YAML parses to nil map, should be no-op
-26. **Test sidecar with unknown linter in `never-enable`** — should be silently ignored (not a recommendation anyway)
-27. **Add `--strict-never-enable` flag** — error if a never-enable linter is found in `enable` (current: silent)
-28. **Document never-enable in `docs/references/error-handling.md`** — if applicable
-29. **Consider `never-enable-formatters` section** — same concept for formatters
-30. **Add never-enable interaction test with `--check` mode** — does `--check` report never-enable linters as "missing"?
+21. **Rename `DisableJustification` to `LinterJustification`** — it's reused for both `disabled` and `never-enable`, the name is misleading **→ declined-for-now — rename is churn**
+22. **Add `NeverEnableJustification` accessor to enforcement log** — when skipping, log the reason from the sidecar **→ open — accessor exists; log usage unverified**
+23. **Consistent log formatting** — enforcement uses `📋`, cycle detection uses `⚠️`, never-enable recommendation uses `Debugf`. Standardize. **→ declined-for-now — cosmetic**
+24. **Add `never-enable` to `presets` output** — show which preset linters are blocked by sidecar **→ declined-for-now — presets output stays minimal**
+25. **Test sidecar with empty `never-enable:` section** — YAML parses to nil map, should be no-op **→ open — untested**
+26. **Test sidecar with unknown linter in `never-enable`** — should be silently ignored (not a recommendation anyway) **→ open — untested**
+27. **Add `--strict-never-enable` flag** — error if a never-enable linter is found in `enable` (current: silent) **→ declined-for-now — YAGNI**
+28. **Document never-enable in `docs/references/error-handling.md`** — if applicable **→ open — error-handling.md lacks never-enable**
+29. **Consider `never-enable-formatters` section** — same concept for formatters **→ declined-for-now — formatters out of scope**
+30. **Add never-enable interaction test with `--check` mode** — does `--check` report never-enable linters as "missing"? **→ open — no interaction test**
 
 ### Infrastructure / maintenance
 
-31. **Vendor hash update** — if go.mod changed, `nix build` will need new vendorHash
-32. **Run `nix flake check`** — full reproducibility verification
-33. **Run full `golangci-lint run` on entire project** — not just changed packages
-34. **Check `cmd/coverage-check` threshold** — confirm overall coverage didn't drop
-35. **Update CHANGELOG.md** with never-enable feature
-36. **Consider adding never-enable to the pre-commit hook** — warn if sidecar is missing never-enable for known-problematic linters
-37. **Add never-enable to TODO_LIST.md** as completed
-38. **Review if `ireturn` should move to `NeverAutoEnableLinters`** — decided NO this session, but worth a deeper analysis across 160 projects
-39. **Audit all code paths that mutate `cfg.Linters.Enable`** — ensure none bypass never-enable
-40. **Add fuzz test for policy parsing** — malformed YAML edge cases
-41. **Benchmark never-enable check** — `IsNeverEnable` is called per-linter; verify no perf impact on large configs
-42. **Consider caching policy parse result** — `loadPolicy` reads file every run; could cache by mtime
-43. **Add never-enable to SARIF report** — as informational findings
-44. **Test never-enable with relative config path** — `loadPolicy` uses `filepath.Dir(configPath)`
-45. **Document the priority order: tool-level > never-enable > justified > unjustified** — in code comments and docs
-46. **Add `--explain-never-enable <linter>` flag** — show why a linter is in never-enable (reads sidecar)
-47. **Consider never-enable expiry** — sidecar entries with optional `until:` date (YAGNI?)
-48. **Add never-enable statistics to audit ledger** — count of suppressed re-enables over time
-49. **Test concurrent configure runs** — ledger read/write race conditions
-50. **Add never-enable to `install-hook` generated pre-commit script** — document the sidecar in the hook output
+31. ~~**Vendor hash update** — if go.mod changed, `nix build` will need new vendorHash~~ **Won't implement — vendorHash guard automates this.**
+32. ~~**Run `nix flake check`** — full reproducibility verification~~ done (docs-health pass 2026-10-07)
+33. ~~**Run full `golangci-lint run` on entire project** — not just changed packages~~ done (docs-health pass 2026-10-07)
+34. ~~**Check `cmd/coverage-check` threshold** — confirm overall coverage didn't drop~~ done (docs-health pass 2026-10-07)
+35. ~~**Update CHANGELOG.md** with never-enable feature~~ done (docs-health pass 2026-10-07)
+36. **Consider adding never-enable to the pre-commit hook** — warn if sidecar is missing never-enable for known-problematic linters **→ declined-for-now — hook stays generic**
+37. ~~**Add never-enable to TODO_LIST.md** as completed~~ done (docs-health pass 2026-10-07)
+38. ~~**Review if `ireturn` should move to `NeverAutoEnableLinters`** — decided NO this session, but worth a deeper analysis across 160 projects~~ **Won't implement — decided NO — ireturn stays PragmaticNoise.**
+39. **Audit all code paths that mutate `cfg.Linters.Enable`** — ensure none bypass never-enable **→ open — replaceLinters still unaudited**
+40. **Add fuzz test for policy parsing** — malformed YAML edge cases **→ declined-for-now — policy parsing is simple YAML**
+41. **Benchmark never-enable check** — `IsNeverEnable` is called per-linter; verify no perf impact on large configs **→ declined-for-now — not hot**
+42. **Consider caching policy parse result** — `loadPolicy` reads file every run; could cache by mtime **→ declined-for-now — not hot**
+43. **Add never-enable to SARIF report** — as informational findings **→ declined-for-now — SARIF stays linter-focused**
+44. **Test never-enable with relative config path** — `loadPolicy` uses `filepath.Dir(configPath)` **→ open — untested**
+45. ~~**Document the priority order: tool-level > never-enable > justified > unjustified** — in code comments and docs~~ done (docs-health pass 2026-10-07)
+46. **Add `--explain-never-enable <linter>` flag** — show why a linter is in never-enable (reads sidecar) **→ declined-for-now — YAGNI**
+47. **Consider never-enable expiry** — sidecar entries with optional `until:` date (YAGNI?) **→ declined-for-now — YAGNI**
+48. **Add never-enable statistics to audit ledger** — count of suppressed re-enables over time **→ declined-for-now — counts add little**
+49. **Test concurrent configure runs** — ledger read/write race conditions **→ declined-for-now — mutex-guarded in-process**
+50. **Add never-enable to `install-hook` generated pre-commit script** — document the sidecar in the hook output **→ declined-for-now — hook stays generic**
 
 ---
 

@@ -98,28 +98,28 @@ User rejected the project-specific gating design and asked for gohumanize "EVERY
 
 ## f) UP TO 50 NEXT-STEPS (prioritized)
 
-55. **[BLOCKED — needs user answer]** Decide strategy: remove gating → everywhere (Medium, no curated subset); or → everywhere (Critical, with curated subset); or → opt-in flag; or → leave project-specific and document the architecture better.
-56. **[HIGH, after decision]** Implement chosen strategy. If "remove gating": strip the `ProjectSpecificLinters` entry + `HasGoHumanize()` + `hasTechnology("go-humanize")` case + the 3 categorizer specs + the 2 detection specs (or keep specs as positive coverage of the detector still working in isolation). If "opt-in flag": add `--with-gohumanize` to flags struct + categorizer path.
-57. **[HIGH, after decision]** Add `gohumanize` to the `reference` preset explicitly, so `--preset reference` users get it as part of the curated set.
-58. **[HIGH]** Update `FEATURES.md`, `TODO_LIST.md`, `CHANGELOG.md`, `README.md` to reflect the chosen strategy. The "project-specific" framing in `AGENTS.md` gotcha #30 will need rewriting if we go everywhere.
-59. **[HIGH]** Ship a `gocilint-template` or document the exact `golangci-lint custom` command + `.custom-gcl.yml` content needed so users can build the custom binary in one step.
-60. **[MEDIUM]** Add a `--plugin-linters=auto|none|all` meta-flag (per improvement #53) for forward-proofing future module plugin integrations.
+55. **[BLOCKED — needs user answer]** Decide strategy: remove gating → everywhere (Medium, no curated subset); or → everywhere (Critical, with curated subset); or → opt-in flag; or → leave project-specific and document the architecture better. **→ open — USER-GATED on the gohumanize strategy question (ROADMAP, blocked since 2026-08-05)**
+56. **[HIGH, after decision]** Implement chosen strategy. If "remove gating": strip the `ProjectSpecificLinters` entry + `HasGoHumanize()` + `hasTechnology("go-humanize")` case + the 3 categorizer specs + the 2 detection specs (or keep specs as positive coverage of the detector still working in isolation). If "opt-in flag": add `--with-gohumanize` to flags struct + categorizer path. **→ open — USER-GATED, blocked on item 55**
+57. **[HIGH, after decision]** Add `gohumanize` to the `reference` preset explicitly, so `--preset reference` users get it as part of the curated set. **→ open — USER-GATED, blocked on item 55**
+58. **[HIGH]** Update `FEATURES.md`, `TODO_LIST.md`, `CHANGELOG.md`, `README.md` to reflect the chosen strategy. The "project-specific" framing in `AGENTS.md` gotcha #30 will need rewriting if we go everywhere. **→ open — USER-GATED, blocked on item 55**
+59. **[HIGH]** Ship a `gocilint-template` or document the exact `golangci-lint custom` command + `.custom-gcl.yml` content needed so users can build the custom binary in one step. **→ declined-for-now — no custom-binary story for stock golangci-lint**
+60. **[MEDIUM]** Add a `--plugin-linters=auto|none|all` meta-flag (per improvement #53) for forward-proofing future module plugin integrations. **→ declined-for-now — YAGNI meta-flag**
 61. **[MEDIUM]** Audit and document the fail-open asymmetry (per improvement #52) — add explicit code comments per technology case explaining the correct failure mode.
 62. **[MEDIUM]** End-to-end fixer test: project with go-humanize dep → full fixer pipeline → assert `linters.enable` contains `gohumanize`. Currently only categorizer is unit-tested.
 63. **[MEDIUM]** Real-world sweep: count `dustin/go-humanize` imports across `~/projects/`. Validates "everywhere" value proposition empirically.
 64. **[MEDIUM]** Add `linters_min_versions` entry for gohumanize (requires golangci-lint v2.x for module plugin support) — protects against accidentally recommending for old golangci-lint versions.
-65. **[MEDIUM]** Add audit-ledger event `ActionRecommendedGohumanize` for telemetry.
-66. **[MEDIUM]** Document the 3-tier linter management system in `docs/references/` — currently scattered across comments.
+65. **[MEDIUM]** Add audit-ledger event `ActionRecommendedGohumanize` for telemetry. **→ declined-for-now — audit event adds little**
+66. **[MEDIUM]** Document the 3-tier linter management system in `docs/references/` — currently scattered across comments. **→ declined-for-now — 3-tier model lives in DOMAIN_LANGUAGE + rules.go**
 67. **[LOW]** Add integration test for `HasGoHumanize` edge cases: vendor dir, replace directives, transitive deps.
-68. **[LOW]** Run `nix flake check` end-to-end (formatting + build + lint + test).
-69. **[LOW]** Run `cmd/coverage-check` to verify test coverage gate.
-70. **[LOW]** Run `markdownlint-cli2` on the AGENTS.md change.
+68. ~~**[LOW]** Run `nix flake check` end-to-end (formatting + build + lint + test).~~ done (docs-health pass 2026-10-07)
+69. ~~**[LOW]** Run `cmd/coverage-check` to verify test coverage gate.~~ done (docs-health pass 2026-10-07)
+70. ~~**[LOW]** Run `markdownlint-cli2` on the AGENTS.md change.~~ done (docs-health pass 2026-10-07)
 71. **[LOW]** Consider extracting `ProjectSpecificLinters` + `hasTechnology` + detector `Has*` methods into a plugin pattern so adding a new project-specific linter is one config entry, not 4 file edits.
-72. **[LOW]** Add a BDD spec for the fixer's `linters.settings.gohumanize` block emission (if we decide to inject curated settings).
-73. **[LOW]** Consider whether `--pragmatic` should drop gohumanize (currently no — it's not in `PragmaticNoiseLinters`).
-74. **[LOW]** Cross-check `DisabledLinters` / `NeverAutoEnableLinters` / `PragmaticNoiseLinters` to confirm gohumanize is correctly absent from all three (currently correct, but no test asserts it).
+72. **[LOW]** Add a BDD spec for the fixer's `linters.settings.gohumanize` block emission (if we decide to inject curated settings). **→ open — no settings emitted today**
+73. **[LOW]** Consider whether `--pragmatic` should drop gohumanize (currently no — it's not in `PragmaticNoiseLinters`). **→ open — gohumanize not in PragmaticNoiseLinters; untested either way**
+74. **[LOW]** Cross-check `DisabledLinters` / `NeverAutoEnableLinters` / `PragmaticNoiseLinters` to confirm gohumanize is correctly absent from all three (currently correct, but no test asserts it). **→ open — no such assertion exists**
 75. **[LOW]** Verify `data_integrity_test.go` "gohumanize linter metadata" specs still apply after strategy change.
-76. **[LOW]** Consider whether `policy.go` sidecar should support a `module-plugins:` section that documents required custom-binary builds.
+76. **[LOW]** Consider whether `policy.go` sidecar should support a `module-plugins:` section that documents required custom-binary builds. **→ declined-for-now — sidecar module-plugins section is YAGNI**
 
 ---
 
