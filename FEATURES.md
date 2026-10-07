@@ -43,6 +43,9 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | Typecheck linter removal                               | FULLY_FUNCTIONAL | Removes from enable/disable lists                                                                                                           |
 | Invalid duration fix                                   | FULLY_FUNCTIONAL | Fixes empty/invalid timeout values                                                                                                          |
 | Multiple binary detection                              | FULLY_FUNCTIONAL | Warns if multiple golangci-lint binaries                                                                                                    |
+| go.mod-aware run.go rescue                             | FULLY_FUNCTIONAL | go.mod `go` directive newer than the binary warns in all modes; go.mod is never rewritten (M21)                                             |
+| `--show-merged-rules` flag                             | FULLY_FUNCTIONAL | Prints exclusion rules merged by RuleKey; every merge also lands in the audit ledger as `exclusion-rule-merged` (M25)                       |
+| never-enable replacement bypass                        | FULLY_FUNCTIONAL | Sidecar never-enable listing a deprecation REPLACEMENT skips the add + settings migration; predecessor still removed (M32)                  |
 
 ## Disable-Respect & Audit Policy
 
@@ -252,5 +255,10 @@ One row per `constants.DeprecatedLinters` entry; a lockstep spec in `pkg/constan
 | `git-cliff` changelog automation     | FULLY_FUNCTIONAL | `cliff.toml` config for changelog generation from commits                                                                                                      |
 | `--no-color` flag                    | FULLY_FUNCTIONAL | CI/scripting output (sets `NO_COLOR=1`)                                                                                                                        |
 | Fuzz + property tests                | FULLY_FUNCTIONAL | Set algebra invariants (commutative, idempotent, subset)                                                                                                       |
+| Fuzz smoke CI job                    | FULLY_FUNCTIONAL | ci.yml `fuzz` job: 30s/target real fuzz runs (version normalization, YAML indent, exclusion merge) (M23)                                                       |
+| Link checker (lychee)                | FULLY_FUNCTIONAL | `link-check.yml` + `.lychee.toml`; weekly schedule; history dirs excluded by design (M18)                                                                      |
+| Error-code registry                  | FULLY_FUNCTIONAL | `pkg/errors/codes.go` + convention tests: every used code registered and shaped, template lockstep (M28)                                                       |
+| Schema-verify covers example configs | FULLY_FUNCTIONAL | schema-verify job also validates `examples/*.golangci.yml` + `test.golangci.yml` (M27, caught 2 real drifts)                                                   |
+| CI covers ./cmd/... tests            | FULLY_FUNCTIONAL | test + coverage jobs include the cmd packages; benches use `b.Loop()` (M29)                                                                                    |
 | `--json-errors` flag                 | FULLY_FUNCTIONAL | JSON error output for CI/CD                                                                                                                                    |
 | `encoding/json/v2` migration         | FULLY_FUNCTIONAL | All files migrated; GOEXPERIMENT=jsonv2 in flake.nix + CI workflows                                                                                            |

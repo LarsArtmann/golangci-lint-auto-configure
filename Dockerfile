@@ -53,8 +53,10 @@ COPY examples/ /examples/
 # Set working directory
 WORKDIR /app
 
-# Default command
-CMD ["golangci-lint-auto-configure", "--help"]
+# Entrypoint so `docker run <image> --version` and friends pass args straight
+# to the binary; CMD supplies the default when the run omits arguments.
+ENTRYPOINT ["golangci-lint-auto-configure"]
+CMD ["--help"]
 
 # =============================================================================
 # Usage Examples

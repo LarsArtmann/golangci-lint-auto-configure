@@ -171,6 +171,8 @@ jobs:
           echo "✓ Build verification successful"
 
       - name: Dogfood gate (own config is optimal)
+        env:
+          GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT: "1" # --check writes no ledger entries; belt-and-suspenders so CI never accumulates audit state
         run: |
           go run ./cmd/golangci-lint-auto-configure configure --config .golangci.yml --check
           echo "✓ the tool accepts its own .golangci.yml unchanged"
