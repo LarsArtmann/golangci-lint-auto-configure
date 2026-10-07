@@ -98,50 +98,50 @@ The "why PragmaticNoise vs NeverAutoEnable" rationale now lives in (a) the `rule
 
 ### Honest cleanup of THIS session's debt
 
-1. **Write the real sidecar integration test** — `writeSidecar(...)` with exhaustruct in disable → `loadPolicy` → `enforceDisableReasons` → assert exhaustruct stays disabled. Covers the `loadPolicy` path my unit test skipped. **Highest value.**
+1. ~~**Write the real sidecar integration test** — `writeSidecar(...)` with exhaustruct in disable → `loadPolicy` → `enforceDisableReasons` → assert exhaustruct stays disabled. Covers the `loadPolicy` path my unit test skipped. **Highest value.**~~ done (docs-health pass 2026-10-07)
 2. **Measure coverage on `pkg/linter`** — `go test -cover ./pkg/linter/...` and confirm `isToolLevelManaged`'s NeverAutoEnable branch is hit (it is, via my test, but prove it).
-3. **Run markdownlint locally** on the two status reports I edited (CI will catch it, but local is faster feedback).
-4. **Consider squashing the three daemon commits** into one with a real message — requires user approval (rebase is otherwise forbidden by my rules).
-5. **Audit whether I disclaimed any OTHER work as "not mine"** in earlier sessions — if this is a recurring habit, it's worse than one instance.
+3. ~~**Run markdownlint locally** on the two status reports I edited (CI will catch it, but local is faster feedback).~~ done (docs-health pass 2026-10-07)
+4. **Consider squashing the three daemon commits** into one with a real message — requires user approval (rebase is otherwise forbidden by my rules). **→ routed — ROADMAP open question (daemon-mangled commit messages)**
+5. ~~**Audit whether I disclaimed any OTHER work as "not mine"** in earlier sessions — if this is a recurring habit, it's worse than one instance.~~ **Won't implement — process retro; no repo artifact.**
 
 ### Finish the exhaustruct follow-up properly
 
 6. **Add `--recommend` flow test** — verify presets (which exclude exhaustruct) don't leak it into recommendations.
 7. **Add `analyze` command test** — analyzing a config with exhaustruct disabled must NOT recommend enabling it.
-8. **Golden snapshot for `configure` output** — lock that exhaustruct never appears in auto-generated enable lists (regression net).
+8. ~~**Golden snapshot for `configure` output** — lock that exhaustruct never appears in auto-generated enable lists (regression net).~~ done (docs-health pass 2026-10-07)
 9. **Focused unit test on `updateConfigFromSets`** — assert directly that it does not move NeverAutoEnable linters to the disable list (currently only covered indirectly by the round-trip test).
-10. **Focused unit test on `injectDefaultSettings`** — assert it still fires for a manually-enabled exhaustruct (indirectly covered, but a direct test is clearer).
+10. ~~**Focused unit test on `injectDefaultSettings`** — assert it still fires for a manually-enabled exhaustruct (indirectly covered, but a direct test is clearer).~~ done (docs-health pass 2026-10-07)
 
 ### Architecture (from prior report, still open)
 
-11. **Extract shared `ValidateTiers()`** in `pkg/constants/` — single source of truth called by both Ginkgo specs and the standalone script. Eliminates the drift risk I "resolved" by hand-waving.
-12. **Unify the three tier maps into a typed enum** — `map[LinterName]LinterManagementTier` (Disabled | NeverAutoEnable | PragmaticNoise | Default). Removes the "check 3 maps" pattern in categorizer + fixer_enforce.
-13. **Add `NeverAutoEnableLinters` to `analyze --json` output** — programmatic consumers can't currently detect tool-managed linters.
-14. **Add `NeverAutoEnableLinters` to `presets` command output** — transparency for users.
+11. ~~**Extract shared `ValidateTiers()`** in `pkg/constants/` — single source of truth called by both Ginkgo specs and the standalone script. Eliminates the drift risk I "resolved" by hand-waving.~~ **Won't implement — resolved YAGNI in the 20-28 session.**
+12. **Unify the three tier maps into a typed enum** — `map[LinterName]LinterManagementTier` (Disabled | NeverAutoEnable | PragmaticNoise | Default). Removes the "check 3 maps" pattern in categorizer + fixer_enforce. **→ declined-for-now — three maps documented; enum not worth the churn**
+13. **Add `NeverAutoEnableLinters` to `analyze --json` output** — programmatic consumers can't currently detect tool-managed linters. **→ declined-for-now — analyze output stays minimal**
+14. **Add `NeverAutoEnableLinters` to `presets` command output** — transparency for users. **→ declined-for-now — presets output stays minimal**
 
 ### Documentation debt
 
 15. **Update `docs/references/working-with-codebase.md`** — document the three-tier system in the "adding linters" section.
-16. **Annotate stale "62 linters" / "5 noise linters" references** in `docs/reviews/...deep-architecture…:431`, `docs/cross-project-golangci-lint-audit-report.md:111`, `docs/research/validation-delta.md`.
-17. **Document the three-tier model in README.md** — currently only in AGENTS.md + DOMAIN_LANGUAGE.md + `rules.go` comment.
+16. ~~**Annotate stale "62 linters" / "5 noise linters" references** in `docs/reviews/...deep-architecture…:431`, `docs/cross-project-golangci-lint-audit-report.md:111`, `docs/research/validation-delta.md`.~~ done (docs-health pass 2026-10-07)
+17. **Document the three-tier model in README.md** — currently only in AGENTS.md + DOMAIN_LANGUAGE.md + `rules.go` comment. **→ declined-for-now — README stays user-level; tiers live in constants + DOMAIN_LANGUAGE**
 
 ### Research / decisions deferred to user
 
 18. **Should `recvcheck` (friction ~2.5) join NeverAutoEnable?** — data-driven; needs the friction baseline.
-19. **Re-run the friction baseline measurement** — validate the impact of exhaustruct being never-auto-enabled.
-20. **Survey sibling projects** — how many currently have exhaustruct auto-added by this tool (the "stranded configs" question).
+19. ~~**Re-run the friction baseline measurement** — validate the impact of exhaustruct being never-auto-enabled.~~ done (docs-health pass 2026-10-07)
+20. ~~**Survey sibling projects** — how many currently have exhaustruct auto-added by this tool (the "stranded configs" question).~~ done (docs-health pass 2026-10-07)
 
 ### Polish
 
-21. **Standardize "tool-level" language repo-wide** — I fixed `fixer_enforce_test.go`; grep for any remaining "tool-level disabled" in non-status code (there are still hits in old status reports — those are historical and should stay).
-22. **Add `--force-enable exhaustruct` flag?** — for users who want the old behavior. Probably YAGNI.
+21. ~~**Standardize "tool-level" language repo-wide** — I fixed `fixer_enforce_test.go`; grep for any remaining "tool-level disabled" in non-status code (there are still hits in old status reports — those are historical and should stay).~~ done (docs-health pass 2026-10-07)
+22. **Add `--force-enable exhaustruct` flag?** — for users who want the old behavior. Probably YAGNI. **→ declined-for-now — YAGNI; never-enable section covers the need**
 23. **Verify `--check` mode interaction** — configs with exhaustruct disabled must not trigger a "you should enable exhaustruct" diff.
 
 ### Release / CI
 
-24. **Cut a release** — significant unreleased changes since v0.5.0.
-25. **Verify CI passes** with the new tests under `GOEXPERIMENT: jsonv2`.
-26. **Verify coverage gate** (`cmd/coverage-check -min=60`) still passes.
+24. ~~**Cut a release** — significant unreleased changes since v0.5.0.~~ done (docs-health pass 2026-10-07)
+25. ~~**Verify CI passes** with the new tests under `GOEXPERIMENT: jsonv2`.~~ done (docs-health pass 2026-10-07)
+26. ~~**Verify coverage gate** (`cmd/coverage-check -min=60`) still passes.~~ done (docs-health pass 2026-10-07)
 
 (Lower-priority items from the prior report's 50-item list — items 27-50 there — are intentionally not re-listed here; this report is scoped to this session's work and its immediate fallout.)
 

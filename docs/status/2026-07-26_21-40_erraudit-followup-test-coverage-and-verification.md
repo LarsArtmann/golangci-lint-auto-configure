@@ -153,55 +153,55 @@ The auto-commit daemon committed my formatting fix as `b22e2ee "implementations"
 
 ### High impact — fix the incomplete work
 
-1. **Complete the `hasMainPackage` error propagation** — change signature to `(bool, error)`, propagate through `detect()`, or document why the current best-effort design is intentional with a `//nolint:erraudit` equivalent (a code comment, since `//nolint:erraudit` conflicts with golines).
-2. **Complete the `hasAPICodePatterns` error propagation** — same as above.
-3. **Decide on `detect()` error handling architecture** — should `Detect()` return `(ProjectType, error)`? This is the root decision that unblocks items 1-2. All callers currently treat detection as infallible.
-4. **Write the ledger.go test** — test `rewriteLedger` directly with a custom type that fails marshaling, verify the slog.Warn fires and compaction continues for remaining entries.
-5. **Verify the generator close-error path is actually exercised** — the `/dev/full` test may trigger the render error before the deferred close runs. Consider a test where `templ.Render` succeeds but `Close()` fails (harder to construct, but possible with a wrapper `io.Writer`).
+1. ~~**Complete the `hasMainPackage` error propagation** — change signature to `(bool, error)`, propagate through `detect()`, or document why the current best-effort design is intentional with a `//nolint:erraudit` equivalent (a code comment, since `//nolint:erraudit` conflicts with golines).~~ done (docs-health pass 2026-10-07)
+2. ~~**Complete the `hasAPICodePatterns` error propagation** — same as above.~~ done (docs-health pass 2026-10-07)
+3. **Decide on `detect()` error handling architecture** — should `Detect()` return `(ProjectType, error)`? This is the root decision that unblocks items 1-2. All callers currently treat detection as infallible. **→ routed — TODO_LIST Detect() error-contract row**
+4. ~~**Write the ledger.go test** — test `rewriteLedger` directly with a custom type that fails marshaling, verify the slog.Warn fires and compaction continues for remaining entries.~~ **Won't implement — justified skip — entries always marshalable (AGENTS #26a).**
+5. ~~**Verify the generator close-error path is actually exercised** — the `/dev/full` test may trigger the render error before the deferred close runs. Consider a test where `templ.Render` succeeds but `Close()` fails (harder to construct, but possible with a wrapper `io.Writer`).~~ done (docs-health pass 2026-10-07)
 
 ### Medium impact — quality and coverage
 
 6. **Run `go test -coverprofile` before/after changes** to measure actual coverage delta.
 7. **Add test for `closeFile` in detector.go** — even if it stays best-effort, the behavior should be documented in a test.
-8. **Answer the 3 open questions** from the previous self-assessment report.
-9. **Squash or fixup the poor commit messages** — `git rebase -i 3423dcb` to clean up "implementations", "across CLI and core packages", "actor(cli): ...".
-10. **Audit the remaining 19 `ignored` findings** — classify each as intentional vs. genuine bug.
-11. **Audit the 11 `generic_return` findings** — confirm they're all architectural false positives (functions returning `error` interface by design).
+8. ~~**Answer the 3 open questions** from the previous self-assessment report.~~ done (docs-health pass 2026-10-07)
+9. **Squash or fixup the poor commit messages** — `git rebase -i 3423dcb` to clean up "implementations", "across CLI and core packages", "actor(cli): ...". **→ routed — ROADMAP open question (daemon-mangled commits)**
+10. ~~**Audit the remaining 19 `ignored` findings** — classify each as intentional vs. genuine bug.~~ done (docs-health pass 2026-10-07)
+11. ~~**Audit the 11 `generic_return` findings** — confirm they're all architectural false positives (functions returning `error` interface by design).~~ done (docs-health pass 2026-10-07)
 12. **Add integration test for the full `configure` → audit ledger → `rewriteLedger` flow** — end-to-end test that verifies compaction works under realistic conditions.
-13. **Consider adding erraudit to CI** as a non-blocking report (separate from the lint gate) — track error-handling quality over time without blocking PRs.
-14. **Write a test for `GenerateReport` that verifies the output file is valid HTML** — not just that it contains "gosec" but that it's parseable.
+13. ~~**Consider adding erraudit to CI** as a non-blocking report (separate from the lint gate) — track error-handling quality over time without blocking PRs.~~ **Won't implement — erraudit decided NOT a CI gate (AGENTS #26).**
+14. ~~**Write a test for `GenerateReport` that verifies the output file is valid HTML** — not just that it contains "gosec" but that it's parseable.~~ done (docs-health pass 2026-10-07)
 15. **Add test for the `merger.go` silent_swallow sites** — verify that a corrupt secondary config doesn't prevent the merge from completing.
 16. **Add test for the `cmd_validate.go:251` silent_swallow** — verify that a malformed finding doesn't suppress all other findings.
 
 ### Lower impact — cleanup and polish
 
-17. **Convert `detector_test.go` to Ginkgo BDD style** for consistency with the rest of the codebase.
-18. **Document the detection pipeline's best-effort design** in `docs/references/` — explain why errors are intentionally swallowed and what the degradation behavior is.
-19. **Add a `//nolint:erraudit` equivalent** (code comment pattern) for the 5 sites that are intentionally best-effort, since inline `//nolint:erraudit` conflicts with golines line length.
-20. **Consider a custom `//detector:best-effort` linter directive** or a package-level documentation comment that suppresses erraudit for the detection package.
-21. **Review the `flake.nix` `vendorHash`** — ensure it's current after any go.mod changes.
-22. **Run `nix flake check`** to verify the full Nix build pipeline.
-23. **Update `FEATURES.md`** to reflect the error-handling improvements.
-24. **Update `TODO_LIST.md`** with the remaining erraudit follow-up items.
+17. **Convert `detector_test.go` to Ginkgo BDD style** for consistency with the rest of the codebase. **→ declined-for-now — standard testing style accepted for white-box specs**
+18. ~~**Document the detection pipeline's best-effort design** in `docs/references/` — explain why errors are intentionally swallowed and what the degradation behavior is.~~ done (docs-health pass 2026-10-07)
+19. ~~**Add a `//nolint:erraudit` equivalent** (code comment pattern) for the 5 sites that are intentionally best-effort, since inline `//nolint:erraudit` conflicts with golines line length.~~ done (docs-health pass 2026-10-07)
+20. ~~**Consider a custom `//detector:best-effort` linter directive** or a package-level documentation comment that suppresses erraudit for the detection package.~~ **Won't implement — do-not-suppress policy — no custom directives (AGENTS #26).**
+21. ~~**Review the `flake.nix` `vendorHash`** — ensure it's current after any go.mod changes.~~ done (docs-health pass 2026-10-07)
+22. ~~**Run `nix flake check`** to verify the full Nix build pipeline.~~ done (docs-health pass 2026-10-07)
+23. ~~**Update `FEATURES.md`** to reflect the error-handling improvements.~~ **Won't implement — internal concern, not a user-facing feature.**
+24. ~~**Update `TODO_LIST.md`** with the remaining erraudit follow-up items.~~ done (docs-health pass 2026-10-07)
 25. **Consider a `/dev/full` test helper** in a shared test utilities package — it's a useful pattern for testing write-error paths across the codebase.
 26. **Add benchmarks for `rewriteLedger`** with large ledgers — verify compaction performance doesn't degrade.
-27. **Review all `fmt.Errorf` wrapping in the codebase** for consistency with `errorfamily.Wrap*` pattern.
+27. ~~**Review all `fmt.Errorf` wrapping in the codebase** for consistency with `errorfamily.Wrap*` pattern.~~ done (docs-health pass 2026-10-07)
 28. **Add a test that verifies `PurgeRetention` actually removes old entries** — the existing test covers `PurgeOlder` but not the `Ledger.PurgeRetention` method that calls it.
 29. **Document the `/dev/full` test pattern** in `docs/references/testing-style-and-patterns.md`.
 30. **Consider adding `errcheck` exclusions** for the intentional `_ =` sites in detector.go if errcheck is not already excluding them.
 31. **Review whether `closeFile` should log close errors** — currently completely silent, which is a common Go pattern but may hide resource leaks.
 32. **Add a test for `hasSwaggoInCode` with a directory that has no .go files** — verify it returns `(false, nil)` not an error.
 33. **Add a test for `hasMainPackage` with an empty directory** — verify it returns `false` without error.
-34. **Verify the `golden_test.go` golden file is still current** after the generator changes.
-35. **Consider splitting `detector.go` into smaller files** — it's 462 lines with multiple concerns (project type detection, swaggo detection, database driver detection).
+34. ~~**Verify the `golden_test.go` golden file is still current** after the generator changes.~~ done (docs-health pass 2026-10-07)
+35. **Consider splitting `detector.go` into smaller files** — it's 462 lines with multiple concerns (project type detection, swaggo detection, database driver detection). **→ declined-for-now — split not worth the churn while the file is stable**
 36. **Add godoc comments to unexported functions** in detector.go that lack them (`hasMainPackage`, `hasAPICodePatterns`, etc.).
 37. **Review the `Merger.logAndContinue` pattern** — consider accumulating errors into the `MergeResult` instead of just logging.
 38. **Add a test for `SaveMergedConfig` with a read-only filesystem** — verify backup failure is logged but doesn't prevent the save.
 39. **Consider a `Debugf` vs `Warnf` audit** — some "best-effort" failures may warrant `Warnf` (user-visible) while others should be `Debugf` (developer-only).
-40. **Review the `cmd_audit.go` `log` import warnings** — gopls reports `undefined: log` at 5 sites, which may indicate a stale import or a build tag issue.
+40. ~~**Review the `cmd_audit.go` `log` import warnings** — gopls reports `undefined: log` at 5 sites, which may indicate a stale import or a build tag issue.~~ **Won't implement — stale gopls warning; import is used.**
 41. **Add a CI step that runs erraudit and uploads results as an artifact** — non-blocking, but visible.
-42. **Review whether `encoding/json/v2` migration is complete** — 27 gopls warnings about `go1.27 or later` suggest the experiment flag may not be fully understood by tooling.
-43. **Consider a Go 1.27 upgrade plan** — once released, `GOEXPERIMENT=jsonv2` becomes the default and the gopls warnings go away.
+42. ~~**Review whether `encoding/json/v2` migration is complete** — 27 gopls warnings about `go1.27 or later` suggest the experiment flag may not be fully understood by tooling.~~ **Won't implement — done — json/v2 migration complete (CHANGELOG).**
+43. ~~**Consider a Go 1.27 upgrade plan** — once released, `GOEXPERIMENT=jsonv2` becomes the default and the gopls warnings go away.~~ **Won't implement — done — Go 1.27 shipped 2026-09-28; jsonv2 non-experimental.**
 44. **Add a test that verifies the audit ledger handles concurrent `Record` calls** — the mutex should prevent interleaving.
 45. **Review the `Scanner` buffer sizes** in ledger.go (`scannerMinBuffer`, `scannerMaxBuffer`) — are they sufficient for large audit entries?
 46. **Add a test for `NewLedger` with an unwritable directory** — verify it degrades to disabled.

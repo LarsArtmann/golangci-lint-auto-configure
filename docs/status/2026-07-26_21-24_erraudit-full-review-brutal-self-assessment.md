@@ -90,52 +90,52 @@ The `hierarchical-errors` skill is specifically about `errors.As` → `errors.As
 
 ### High priority (correctness + coverage)
 
-1. Write a test for `generator.go GenerateReport` close-error capture (named-return path)
-2. Write a test for `ledger.go rewriteLedger` marshal-error logging path
-3. Write a test for `detector.go scanFileForSwaggo` scanner.Err propagation
-4. Re-examine `merger.go:112` silent_swallow — can it return the error instead of log+continue?
-5. Re-examine `merger.go:179` silent_swallow — backup failure: should it abort the merge?
-6. Re-examine `merger.go:203` silent_swallow — remove failure: should it abort?
-7. Re-examine `cmd_validate.go:251` silent_swallow — finding-build failure: return or continue?
-8. Re-examine `ledger.go:355` — the slog.Warn helps but erraudit still flags it; is there a better shape?
+1. ~~Write a test for `generator.go GenerateReport` close-error capture (named-return path)~~ done (docs-health pass 2026-10-07)
+2. ~~Write a test for `ledger.go rewriteLedger` marshal-error logging path~~ **Won't implement — justified skip — ledger entries are always marshalable (AGENTS #26a).**
+3. ~~Write a test for `detector.go scanFileForSwaggo` scanner.Err propagation~~ done (docs-health pass 2026-10-07)
+4. ~~Re-examine `merger.go:112` silent_swallow — can it return the error instead of log+continue?~~ done (docs-health pass 2026-10-07)
+5. ~~Re-examine `merger.go:179` silent_swallow — backup failure: should it abort the merge?~~ done (docs-health pass 2026-10-07)
+6. ~~Re-examine `merger.go:203` silent_swallow — remove failure: should it abort?~~ done (docs-health pass 2026-10-07)
+7. ~~Re-examine `cmd_validate.go:251` silent_swallow — finding-build failure: return or continue?~~ done (docs-health pass 2026-10-07)
+8. ~~Re-examine `ledger.go:355` — the slog.Warn helps but erraudit still flags it; is there a better shape?~~ done (docs-health pass 2026-10-07)
 
 ### erraudit integration & tooling
 
-9. Decide: should erraudit be a CI gate (advisory-only `|| true`, or `--type` filtered)?
-10. If yes: add a `.github/workflows/erraudit.yml` with `GOEXPERIMENT=jsonv2`
-11. Investigate erraudit `--exclude` for vendor/ , .direnv/, generated files
-12. Check if erraudit has a config file format (`.erraudit.yml`) for path exclusions
-13. Run erraudit with `--pipeline` flag (go-finding ecosystem standard) — does it change findings?
-14. Run erraudit SARIF output and see if GitHub can annotate PRs with it
-15. Document the erraudit `--type` values that are high-precision vs advisory in AGENTS.md
+9. ~~Decide: should erraudit be a CI gate (advisory-only `|| true`, or `--type` filtered)?~~ done (docs-health pass 2026-10-07)
+10. ~~If yes: add a `.github/workflows/erraudit.yml` with `GOEXPERIMENT=jsonv2`~~ **Won't implement — erraudit decided NOT a CI gate (AGENTS #26).**
+11. ~~Investigate erraudit `--exclude` for vendor/ , .direnv/, generated files~~ **Won't implement — do-not-suppress policy — no exclude list.**
+12. ~~Check if erraudit has a config file format (`.erraudit.yml`) for path exclusions~~ **Won't implement — do-not-suppress policy — no config file.**
+13. ~~Run erraudit with `--pipeline` flag (go-finding ecosystem standard) — does it change findings?~~ **Won't implement — superseded by the 2026-07-30 194-finding triage.**
+14. ~~Run erraudit SARIF output and see if GitHub can annotate PRs with it~~ **Won't implement — not a gate; SARIF annotations dropped.**
+15. ~~Document the erraudit `--type` values that are high-precision vs advisory in AGENTS.md~~ done (docs-health pass 2026-10-07)
 
 ### Remaining erraudit findings — systematic review
 
-16. Review the 19 `ignored` findings one-by-one and document each decision in a table
-17. Review the 11 `generic_return` findings — is the go-error-family boundary argument airtight for all?
+16. ~~Review the 19 `ignored` findings one-by-one and document each decision in a table~~ done (docs-health pass 2026-10-07)
+17. ~~Review the 11 `generic_return` findings — is the go-error-family boundary argument airtight for all?~~ done (docs-health pass 2026-10-07)
 18. For `crypto/rand.Read` (ledger.go:210) — document the platform-failure edge case
 19. For cobra flag getters (migrate.go) — verify all flags are actually registered (no typos)
-20. For completion.go cobra gen — should these return an error to the user if generation fails?
-21. For detector.go best-effort heuristics — should they log at debug level instead of silent ignore?
-22. For `os.Setenv("NO_COLOR")` (commands.go:196) — is there a reason it can't fail in practice?
+20. ~~For completion.go cobra gen — should these return an error to the user if generation fails?~~ **Won't implement — cobra-generated boilerplate; intentional (AGENTS #26).**
+21. ~~For detector.go best-effort heuristics — should they log at debug level instead of silent ignore?~~ done (docs-health pass 2026-10-07)
+22. ~~For `os.Setenv("NO_COLOR")` (commands.go:196) — is there a reason it can't fail in practice?~~ **Won't implement — intentional one-time NO_COLOR set (AGENTS #26).**
 
 ### Process & documentation
 
-23. Clean up the git history churn from this session (squash the suppress-revert commits if possible)
-24. Add "erraudit is NOT a CI gate" to the CI section of AGENTS.md (currently only in gotcha #26)
+23. Clean up the git history churn from this session (squash the suppress-revert commits if possible) **→ routed — ROADMAP open question (daemon-mangled commit messages)**
+24. ~~Add "erraudit is NOT a CI gate" to the CI section of AGENTS.md (currently only in gotcha #26)~~ done (docs-health pass 2026-10-07)
 25. Create `docs/references/error-handling.md` update with the 4 fix patterns as examples
 26. Update `docs/references/testing-style-and-patterns.md` with error-path testing guidance
-27. Add the erraudit review to `CHANGELOG.md` (4 bug fixes section)
+27. ~~Add the erraudit review to `CHANGELOG.md` (4 bug fixes section)~~ done (docs-health pass 2026-10-07)
 
 ### Broader error-handling improvements
 
-28. Audit all `defer file.Close()` patterns in the codebase for the named-return capture pattern
-29. Audit all `_ =` assignments in the codebase (erraudit found 23, there may be more in tests)
+28. ~~Audit all `defer file.Close()` patterns in the codebase for the named-return capture pattern~~ done (docs-health pass 2026-10-07)
+29. ~~Audit all `_ =` assignments in the codebase (erraudit found 23, there may be more in tests)~~ done (docs-health pass 2026-10-07)
 30. Check if any `_ =` patterns in test files hide real test failures
 31. Review `pkg/client/client.go` error handling (not flagged but worth a check)
-32. Review `pkg/utils/retry.go` error handling (uses errorfamily — verify correctness)
+32. ~~Review `pkg/utils/retry.go` error handling (uses errorfamily — verify correctness)~~ done (docs-health pass 2026-10-07)
 33. Check `internal/cli/commands.go:340` — `slog.Error` on marshal failure, does it exit correctly?
-34. Verify all `errorfamily.Wrap*` calls have correct family assignments (Rejection vs Transient vs Corruption)
+34. ~~Verify all `errorfamily.Wrap*` calls have correct family assignments (Rejection vs Transient vs Corruption)~~ done (docs-health pass 2026-10-07)
 
 ### Detection package specific
 
@@ -146,7 +146,7 @@ The `hierarchical-errors` skill is specifically about `errors.As` → `errors.As
 
 ### Generator / report specific
 
-39. Verify the golden snapshot test still passes after the named-return change (`UPDATE_GOLDEN` check)
+39. ~~Verify the golden snapshot test still passes after the named-return change (`UPDATE_GOLDEN` check)~~ done (docs-health pass 2026-10-07)
 40. Check if `generator.go` has other deferred close patterns on write paths
 
 ### Audit ledger specific
@@ -157,16 +157,16 @@ The `hierarchical-errors` skill is specifically about `errors.As` → `errors.As
 
 ### CI / build
 
-44. Run `nix flake check` to verify the full Nix build (format + build + tests) passes
-45. Run `nix build` to confirm the reproducible build works with the changes
-46. Check if `vendorHash` needs updating after any go.mod implications
-47. Verify `cmd/coverage-check` still works end-to-end
+44. ~~Run `nix flake check` to verify the full Nix build (format + build + tests) passes~~ done (docs-health pass 2026-10-07)
+45. ~~Run `nix build` to confirm the reproducible build works with the changes~~ done (docs-health pass 2026-10-07)
+46. ~~Check if `vendorHash` needs updating after any go.mod implications~~ done (docs-health pass 2026-10-07)
+47. ~~Verify `cmd/coverage-check` still works end-to-end~~ done (docs-health pass 2026-10-07)
 
 ### Skill feedback
 
-48. Update the `hierarchical-errors` skill's verification status — the `erraudit` binary (v0.3.0) DOES exist as a Nix package; the skill said it "could not be found publicly"
-49. Feed back to the skill: its `//nolint:legacyerrors` suppression name is WRONG for erraudit v0.3.0 — the correct directive is `//nolint:erraudit`
-50. Feed back to the skill: erraudit v0.3.0 has finding types beyond legacy_as/legacy_is (ignored, generic_return, silent_swallow, etc.) that the skill doesn't cover
+48. ~~Update the `hierarchical-errors` skill's verification status — the `erraudit` binary (v0.3.0) DOES exist as a Nix package; the skill said it "could not be found publicly"~~ **Won't implement — external skill metadata, outside this repo.**
+49. ~~Feed back to the skill: its `//nolint:legacyerrors` suppression name is WRONG for erraudit v0.3.0 — the correct directive is `//nolint:erraudit`~~ **Won't implement — external skill metadata, outside this repo.**
+50. ~~Feed back to the skill: erraudit v0.3.0 has finding types beyond legacy_as/legacy_is (ignored, generic_return, silent_swallow, etc.) that the skill doesn't cover~~ **Won't implement — external skill metadata, outside this repo.**
 
 ---
 

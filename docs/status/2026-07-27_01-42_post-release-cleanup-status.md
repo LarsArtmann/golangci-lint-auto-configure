@@ -120,65 +120,65 @@
 
 ### Critical (user-facing impact)
 
-1. **Push the 5 unpushed commits to origin/master** — changes are done but invisible
-2. **Cut v0.6.1 patch release** with the ldflags fix — give users a binary that shows the correct version
-3. **Run the pre-release checklist script against the current repo** — validate it actually works
-4. **Announce the v0.6.0 ldflags bug** to existing downloaders (release note edit, GitHub Discussion)
+1. ~~**Push the 5 unpushed commits to origin/master** — changes are done but invisible~~ done (docs-health pass 2026-10-07)
+2. ~~**Cut v0.6.1 patch release** with the ldflags fix — give users a binary that shows the correct version~~ **Won't implement — superseded — four later releases shipped with the fix.**
+3. ~~**Run the pre-release checklist script against the current repo** — validate it actually works~~ done (docs-health pass 2026-10-07)
+4. ~~**Announce the v0.6.0 ldflags bug** to existing downloaders (release note edit, GitHub Discussion)~~ **Won't implement — superseded — v0.6.0 long replaced.**
 
 ### High (release infrastructure)
 
-5. **Install `syft` in Nix devShell** — enables local SBOM generation
-6. **Install `cosign` in Nix devShell** — enables local artifact signing
-7. **Set up `homebrew-tap` repo** with `HOMEBREW_TAP_GITHUB_TOKEN` secret — enables Homebrew publishing
-8. **Set up `nur-packages` repo** with proper secrets — enables Nix publishing
-9. **Enable `skip_upload: false`** on homebrew_casks once tap repo exists
-10. **Enable Scoop publishing** — currently `skip_upload: true`
-11. **Validate `Dockerfile.goreleaser`** by running a local Docker build with `dockers_v2`
-12. **Validate `homebrew_casks` config** produces a working Cask (requires tap repo or manual test)
-13. **Add README release badges** (latest version, CI status if budget allows)
-14. **Fix the `release.yml` footer** — remove installation methods that don't work yet (Homebrew/Scoop without tap)
-15. **Determine GitHub Actions budget status** — temporary or permanent?
+5. ~~**Install `syft` in Nix devShell** — enables local SBOM generation~~ done (docs-health pass 2026-10-07)
+6. ~~**Install `cosign` in Nix devShell** — enables local artifact signing~~ done (docs-health pass 2026-10-07)
+7. **Set up `homebrew-tap` repo** with `HOMEBREW_TAP_GITHUB_TOKEN` secret — enables Homebrew publishing **→ routed — ROADMAP open question (homebrew-tap posture)**
+8. **Set up `nur-packages` repo** with proper secrets — enables Nix publishing **→ routed — ROADMAP open question (nur posture)**
+9. **Enable `skip_upload: false`** on homebrew_casks once tap repo exists **→ routed — ROADMAP open question (tap posture)**
+10. **Enable Scoop publishing** — currently `skip_upload: true` **→ routed — ROADMAP open question (tap posture)**
+11. ~~**Validate `Dockerfile.goreleaser`** by running a local Docker build with `dockers_v2`~~ done (docs-health pass 2026-10-07)
+12. **Validate `homebrew_casks` config** produces a working Cask (requires tap repo or manual test) **→ open — blocked until the tap posture decision**
+13. ~~**Add README release badges** (latest version, CI status if budget allows)~~ done (docs-health pass 2026-10-07)
+14. **Fix the `release.yml` footer** — remove installation methods that don't work yet (Homebrew/Scoop without tap) **→ routed — ROADMAP open question (tap posture footer cleanup)**
+15. ~~**Determine GitHub Actions budget status** — temporary or permanent?~~ **Won't implement — resolved de facto — CI green since 2026-09-11.**
 
 ### Medium (release quality)
 
-16. **Add release dry-run CI job** — `goreleaser release --snapshot --skip=publish` on PRs touching release config
-17. **Add version-consistency CI check** — CHANGELOG version == tag version == FEATURES.md version
-18. **Pin GoReleaser version in CI** — replace `~> v2` with exact version
-19. **Add `goreleaser check` to the main CI workflow** (not just release workflow)
-20. **Test pre-release script on a clean checkout** — verify no hidden assumptions
-21. **Add changelog lint step** — verify CHANGELOG has an entry for the tag being released
-22. **Add semver validation to auto-tag workflow** — prevent malformed version tags
-23. **Create CONTRIBUTING.md** with commit message conventions
-24. **Migrate `before.hooks: go mod tidy`** — it modifies files during release, which is fragile
-25. **Add a `--release-notes` template file** for GoReleaser to prevent commit dumps
-26. **Add release artifact checksum verification** to post-release script (verify checksums.txt matches actual files)
-27. **Add `CONTRIBUTING.md`** section linking to release-process.md
+16. **Add release dry-run CI job** — `goreleaser release --snapshot --skip=publish` on PRs touching release config **→ routed — TODO_LIST release dry-run row**
+17. ~~**Add version-consistency CI check** — CHANGELOG version == tag version == FEATURES.md version~~ done (docs-health pass 2026-10-07)
+18. **Pin GoReleaser version in CI** — replace `~> v2` with exact version **→ open — release.yml still floats ~> v2**
+19. **Add `goreleaser check` to the main CI workflow** (not just release workflow) **→ open — goreleaser check only in release.yml**
+20. **Test pre-release script on a clean checkout** — verify no hidden assumptions **→ open — no clean-checkout run recorded**
+21. ~~**Add changelog lint step** — verify CHANGELOG has an entry for the tag being released~~ done (docs-health pass 2026-10-07)
+22. ~~**Add semver validation to auto-tag workflow** — prevent malformed version tags~~ **Won't implement — auto-tag workflow deleted 2026-09-13.**
+23. **Create CONTRIBUTING.md** with commit message conventions **→ open — CONTRIBUTING lacks commit conventions**
+24. ~~**Migrate `before.hooks: go mod tidy`** — it modifies files during release, which is fragile~~ **Won't implement — still pending — go mod tidy hook unchanged.**
+25. ~~**Add a `--release-notes` template file** for GoReleaser to prevent commit dumps~~ done (docs-health pass 2026-10-07)
+26. **Add release artifact checksum verification** to post-release script (verify checksums.txt matches actual files) **→ open — post-release-verify checks existence, not checksum match**
+27. **Add `CONTRIBUTING.md`** section linking to release-process.md **→ open — no release-process link in CONTRIBUTING**
 
 ### Lower (polish & future-proofing)
 
-28. **Add `--check` mode** to the tool itself that validates its own `.golangci.yml` in CI
-29. **Fix auto-commit daemon commit messages** — they're verbose boilerplate, not useful signal
-30. **Audit the 207 v0.5.0→v0.6.0 commit messages** — many are useless (`implementations`, `tests`)
-31. **Add `.github/PULL_REQUEST_TEMPLATE.md`** with a release-notes section
-32. **Add signed git tags (GPG)** for release tags
-33. **Add provenance attestation (SLSA)** to release artifacts
-34. **Add release rollback procedure test** — verify the documented rollback actually works
-35. **Add a release channel concept** (stable, beta, dev)
-36. **Consider winget package support** (Windows package manager)
-37. **Consider Chocolatey package support** (Windows)
-38. **Consider AUR package support** (Arch Linux)
-39. **Add `SECURITY.md`** for vulnerability reporting
-40. **Add binary size tracking** across releases (regression detection)
-41. **Add dependency scanning** of release artifacts
-42. **Add license scan** of release artifacts
-43. **Consider migrating from GoReleaser** to a simpler release script (config is getting complex)
-44. **Add download analytics** tracking
-45. **Add user feedback mechanism** on release pages
-46. **Dogfood the tool** — run `golangci-lint-auto-configure configure` on its own repo in CI
-47. **Add a `.golangci-lint-auto-configure.yml` sidecar** for the tool's own repo (dogfooding)
-48. **Add release notes translation** support (if multi-language users emerge)
-49. **Add a release-drafter bot** for pre-release note accumulation from PRs
-50. **Create a GitHub Discussion category** for release announcements and feedback
+28. ~~**Add `--check` mode** to the tool itself that validates its own `.golangci.yml` in CI~~ done (docs-health pass 2026-10-07)
+29. **Fix auto-commit daemon commit messages** — they're verbose boilerplate, not useful signal **→ routed — ROADMAP open question (daemon commit messages)**
+30. **Audit the 207 v0.5.0→v0.6.0 commit messages** — many are useless (`implementations`, `tests`) **→ routed — ROADMAP open question (history policy)**
+31. **Add `.github/PULL_REQUEST_TEMPLATE.md`** with a release-notes section **→ open — posture-gated (community tier)**
+32. **Add signed git tags (GPG)** for release tags **→ open — cosign signs artifacts, not tags**
+33. **Add provenance attestation (SLSA)** to release artifacts **→ open — no SLSA generator**
+34. **Add release rollback procedure test** — verify the documented rollback actually works **→ open — rollback doc untested**
+35. ~~**Add a release channel concept** (stable, beta, dev)~~ **Won't implement — not pursued.**
+36. ~~**Consider winget package support** (Windows package manager)~~ **Won't implement — not pursued.**
+37. ~~**Consider Chocolatey package support** (Windows)~~ **Won't implement — not pursued.**
+38. ~~**Consider AUR package support** (Arch Linux)~~ **Won't implement — not pursued.**
+39. ~~**Add `SECURITY.md`** for vulnerability reporting~~ done (docs-health pass 2026-10-07)
+40. ~~**Add binary size tracking** across releases (regression detection)~~ **Won't implement — not pursued.**
+41. ~~**Add dependency scanning** of release artifacts~~ done (docs-health pass 2026-10-07)
+42. **Add license scan** of release artifacts **→ open — doc exists (release-process.md); test never run**
+43. ~~**Consider migrating from GoReleaser** to a simpler release script (config is getting complex)~~ **Won't implement — doubled down on GoReleaser.**
+44. ~~**Add download analytics** tracking~~ **Won't implement — not pursued.**
+45. ~~**Add user feedback mechanism** on release pages~~ **Won't implement — feedback decided against with Discussions.**
+46. **Dogfood the tool** — run `golangci-lint-auto-configure configure` on its own repo in CI **→ routed — TODO_LIST dogfood-gate row**
+47. **Add a `.golangci-lint-auto-configure.yml` sidecar** for the tool's own repo (dogfooding) **→ open — no own-repo sidecar (dogfooding gap)**
+48. ~~**Add release notes translation** support (if multi-language users emerge)~~ **Won't implement — not pursued.**
+49. ~~**Add a release-drafter bot** for pre-release note accumulation from PRs~~ **Won't implement — not pursued.**
+50. ~~**Create a GitHub Discussion category** for release announcements and feedback~~ **Won't implement — Discussions decided against (ROADMAP).**
 
 ---
 

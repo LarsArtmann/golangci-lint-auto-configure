@@ -149,80 +149,80 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 1. Log `analyzeGoModWithError` error in `detect()` (line 215) via `slog.Debug` for observability
 2. Log `closeFile` errors (line 27) via `slog.Debug` — currently bare `_ = c.Close()`
 3. Log `isMonorepo` walk errors (line 245) via `slog.Debug` for consistency
-4. Review the 4 `cmd/migrate.go` `ignored` findings (lines 51, 62, 72) — may be fixable
-5. Review the 4 `cmd/completion.go` `ignored` findings (lines 56-62) — likely cobra boilerplate
+4. ~~Review the 4 `cmd/migrate.go` `ignored` findings (lines 51, 62, 72) — may be fixable~~ **Won't implement — intentional; cmd/migrate is tested (AGENTS #26).**
+5. ~~Review the 4 `cmd/completion.go` `ignored` findings (lines 56-62) — likely cobra boilerplate~~ **Won't implement — cobra-generated boilerplate; intentional (AGENTS #26).**
 
 #### Test coverage (6)
 
-6. Add coverage delta measurement to CI — capture before/after on test PRs
-7. Test `generator.go` close-capture branch by refactoring to accept `io.Writer` (debatable value)
+6. Add coverage delta measurement to CI — capture before/after on test PRs **→ declined-for-now — CI gates the threshold; deltas add noise**
+7. ~~Test `generator.go` close-capture branch by refactoring to accept `io.Writer` (debatable value)~~ **Won't implement — decided against the io.Writer refactor (c2).**
 8. Add test for `Detect()` returning `ProjectTypeUnknown` when `analyzeGoModWithError` fails entirely
 9. Add test for `hasAPICodePatterns` finding patterns despite a bad sibling file (parallel to main package test)
 10. Add test for `isMonorepo` resilience when a subdirectory is unreadable
-11. The `pkg/linter` package takes 45+ seconds to test — investigate if tests can be parallelized or sped up
+11. ~~The `pkg/linter` package takes 45+ seconds to test — investigate if tests can be parallelized or sped up~~ done (docs-health pass 2026-10-07)
 
 #### Git hygiene (3)
 
-12. Clean up poor commit messages via `git rebase -i 3423dcb` (needs user approval)
-13. Push the 12 unpushed commits to origin/master (needs user approval)
-14. Consider squashing the erraudit-related commits into a coherent set
+12. Clean up poor commit messages via `git rebase -i 3423dcb` (needs user approval) **→ routed — ROADMAP open question (daemon-mangled commits)**
+13. ~~Push the 12 unpushed commits to origin/master (needs user approval)~~ **Won't implement — long since pushed; repo public.**
+14. Consider squashing the erraudit-related commits into a coherent set **→ routed — ROADMAP open question (daemon-mangled commits)**
 
 #### Documentation (5)
 
-15. Update `docs/status/2026-07-26_21-40_erraudit-followup-test-coverage-and-verification.md` to correct the "closures now propagate" inaccuracy
-16. Document the detection error-handling philosophy in `docs/references/error-handling.md` — best-effort detection with slog observability
-17. Add the detector resilience pattern to `docs/references/code-organization.md`
-18. Consider adding an ADR for the detection error-handling decision (public vs private helper strategy)
-19. Update `TODO_LIST.md` with any new findings from this session
+15. ~~Update `docs/status/2026-07-26_21-40_erraudit-followup-test-coverage-and-verification.md` to correct the "closures now propagate" inaccuracy~~ **Won't implement — old reports stay historical; corrected in AGENTS #26.**
+16. Document the detection error-handling philosophy in `docs/references/error-handling.md` — best-effort detection with slog observability **→ open — error-handling.md still lacks the philosophy section**
+17. Add the detector resilience pattern to `docs/references/code-organization.md` **→ open — code-organization.md lacks the resilience pattern**
+18. Consider adding an ADR for the detection error-handling decision (public vs private helper strategy) **→ open — no ADR written**
+19. ~~Update `TODO_LIST.md` with any new findings from this session~~ done (docs-health pass 2026-10-07)
 
 #### Architecture (4)
 
-20. Consider whether `Detect()` should return `(ProjectType, error)` in a future major version — would allow callers to distinguish "unknown because no go.mod" from "unknown because scan failed"
-21. Evaluate whether `walkGoFiles` should accept a logger interface instead of using package-level `slog`
-22. Consider extracting a `scanGoFile` helper that handles scanner setup + buffer sizing + error logging, reducing duplication across `hasMainPackage`, `hasAPICodePatterns`, `scanFileForSwaggo`
-23. The `bufio.Scanner` default buffer is 64KB — consider using `scannerMaxBuffer` (1MB, already defined in `pkg/audit/ledger.go`) to reduce false scanner errors on legit files with long lines
+20. Consider whether `Detect()` should return `(ProjectType, error)` in a future major version — would allow callers to distinguish "unknown because no go.mod" from "unknown because scan failed" **→ routed — TODO_LIST Detect() error-contract row**
+21. Evaluate whether `walkGoFiles` should accept a logger interface instead of using package-level `slog` **→ declined-for-now — package-level slog is adequate**
+22. Consider extracting a `scanGoFile` helper that handles scanner setup + buffer sizing + error logging, reducing duplication across `hasMainPackage`, `hasAPICodePatterns`, `scanFileForSwaggo` **→ declined-for-now — extraction not worth the churn**
+23. The `bufio.Scanner` default buffer is 64KB — consider using `scannerMaxBuffer` (1MB, already defined in `pkg/audit/ledger.go`) to reduce false scanner errors on legit files with long lines **→ open — no scanner.Buffer call exists**
 
 #### erraudit remaining findings triage (8)
 
-24. `pkg/errors/errors.go` has 4 `ignored` findings (lines 64, 89, 114, 139) — review if these are fixable
-25. `pkg/audit/ledger.go:211` `ignored` — review
-26. `internal/cli/commands.go:196` `ignored` — review
-27. `internal/cli/cmd_validate.go:340` `ignored` — review
-28. `pkg/config/merger.go` has 3 `silent_swallow` findings (lines 112, 179, 203) — confirmed intentional, consider documenting inline
-29. `internal/cli/cmd_validate.go:251` `silent_swallow` — confirmed intentional
-30. The 11 `generic_return` findings are architectural false positives — consider documenting why in a comment
-31. Consider adding a `.errauditignore` or config file if erraudit supports one (instead of inline nolint)
+24. ~~`pkg/errors/errors.go` has 4 `ignored` findings (lines 64, 89, 114, 139) — review if these are fixable~~ **Won't implement — intentional sentinel patterns (AGENTS #26).**
+25. ~~`pkg/audit/ledger.go:211` `ignored` — review~~ **Won't implement — intentional (AGENTS #26).**
+26. ~~`internal/cli/commands.go:196` `ignored` — review~~ **Won't implement — intentional (AGENTS #26).**
+27. ~~`internal/cli/cmd_validate.go:340` `ignored` — review~~ **Won't implement — intentional (AGENTS #26).**
+28. ~~`pkg/config/merger.go` has 3 `silent_swallow` findings (lines 112, 179, 203) — confirmed intentional, consider documenting inline~~ done (docs-health pass 2026-10-07)
+29. ~~`internal/cli/cmd_validate.go:251` `silent_swallow` — confirmed intentional~~ done (docs-health pass 2026-10-07)
+30. ~~The 11 `generic_return` findings are architectural false positives — consider documenting why in a comment~~ done (docs-health pass 2026-10-07)
+31. ~~Consider adding a `.errauditignore` or config file if erraudit supports one (instead of inline nolint)~~ **Won't implement — do-not-suppress policy (AGENTS #26).**
 
 #### CI/Build (4)
 
-32. Verify `nix flake check` passes (did not run this session — includes format check + build + tests)
-33. The gopls `undefined: log` false positives — investigate if gopls workspace config can be fixed
-34. The gopls `stdversion` warnings (json/v2 requires go1.27) — these are expected with GOEXPERIMENT=jsonv2 on go1.26, ignore
-35. Consider adding erraudit to CI as a non-blocking advisory step (report-only, not gate)
+32. ~~Verify `nix flake check` passes (did not run this session — includes format check + build + tests)~~ done (docs-health pass 2026-10-07)
+33. ~~The gopls `undefined: log` false positives — investigate if gopls workspace config can be fixed~~ **Won't implement — confirmed LSP false positive.**
+34. ~~The gopls `stdversion` warnings (json/v2 requires go1.27) — these are expected with GOEXPERIMENT=jsonv2 on go1.26, ignore~~ **Won't implement — moot — Go 1.27, json/v2 non-experimental.**
+35. ~~Consider adding erraudit to CI as a non-blocking advisory step (report-only, not gate)~~ **Won't implement — erraudit decided manual-only (AGENTS #26).**
 
 #### Code quality (5)
 
-36. `hasMainPackage` and `hasAPICodePatterns` share nearly identical structure — consider DRYing with a generic `scanGoFiles(patterns []string, matchFn func(string) bool) bool`
+36. `hasMainPackage` and `hasAPICodePatterns` share nearly identical structure — consider DRYing with a generic `scanGoFiles(patterns []string, matchFn func(string) bool) bool` **→ declined-for-now — duplication is small and stable**
 37. The `bufio.Scanner` in 3 detection functions doesn't set a custom buffer — legit files with long lines will silently trigger `ErrTooLong` and be skipped
-38. `scanFileForSwaggo` takes a `*bool` parameter — could return `(bool, error)` instead for clarity
-39. `hasSwaggoInCode` wraps the walk error but `hasMainPackage`/`hasAPICodePatterns` just log it — inconsistent error treatment across sibling functions
+38. ~~`scanFileForSwaggo` takes a `*bool` parameter — could return `(bool, error)` instead for clarity~~ done (docs-health pass 2026-10-07)
+39. ~~`hasSwaggoInCode` wraps the walk error but `hasMainPackage`/`hasAPICodePatterns` just log it — inconsistent error treatment across sibling functions~~ done (docs-health pass 2026-10-07)
 40. Consider adding debug logging to `analyzeGoModWithError` when it fails (currently silently caught at call site)
 
 #### Testing infrastructure (4)
 
-41. `internal/cli` test suite takes 112 seconds — investigate if integration tests can be marked as `//go:build integration` and run separately
+41. ~~`internal/cli` test suite takes 112 seconds — investigate if integration tests can be marked as `//go:build integration` and run separately~~ done (docs-health pass 2026-10-07)
 42. The `TestDetector_DetectResilientToScannerErrorsInSiblingFiles` test creates a 100KB file — consider using `t.TempDir()` cleanup verification
-43. Detection tests use standard `testing` style while the rest of the codebase uses Ginkgo BDD — consider migrating for consistency
-44. Add a test that verifies `slog.Debug` messages are actually emitted (capture slog output)
+43. Detection tests use standard `testing` style while the rest of the codebase uses Ginkgo BDD — consider migrating for consistency **→ declined-for-now — standard testing accepted for detection specs**
+44. Add a test that verifies `slog.Debug` messages are actually emitted (capture slog output) **→ open — no slog capture test**
 
 #### Future hardening (4)
 
-45. Consider fuzzing the detection scanner with random file contents to find edge cases
-46. Add benchmarks for `Detect()` on large projects (many .go files)
-47. Consider caching detection results across runs (the `Detector` already has a cache, but it's per-instance)
-48. Add a `--debug` flag that enables `slog.Debug` output so users can see detection scan errors
-49. Consider adding a health-check subcommand that validates detection on the current project
-50. Document the `GOEXPERIMENT=jsonv2` requirement more prominently in error messages when build fails
+45. Consider fuzzing the detection scanner with random file contents to find edge cases **→ open — no detection fuzz target**
+46. ~~Add benchmarks for `Detect()` on large projects (many .go files)~~ done (docs-health pass 2026-10-07)
+47. Consider caching detection results across runs (the `Detector` already has a cache, but it's per-instance) **→ declined-for-now — cross-run caching changes CLI semantics**
+48. Add a `--debug` flag that enables `slog.Debug` output so users can see detection scan errors **→ declined-for-now — verbose flag already surfaces debug logs**
+49. Consider adding a health-check subcommand that validates detection on the current project **→ declined-for-now — health checks live in validate**
+50. ~~Document the `GOEXPERIMENT=jsonv2` requirement more prominently in error messages when build fails~~ **Won't implement — moot — GOEXPERIMENT inert on Go 1.27.**
 
 ---
 
