@@ -6,7 +6,13 @@ import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 // MinGolangCILintVersion is the minimum required version of golangci-lint.
 // This is enforced by the version checker to ensure compatibility with
 // the linter configurations and JSON output formats we expect.
-const MinGolangCILintVersion = "v2.10.1"
+// Bumped from v2.10.1 to v2.12.0 (2026-10-07): the curated goconst default
+// injects `ignore-tests`, a settings key that only exists since v2.12.0.
+// On older binaries the tool would write a config golangci-lint refuses to
+// load at all — a classified refusal with an upgrade path is strictly safer.
+// (exhaustruct_v5 needs v2.13.0 but is never auto-enabled, so it does not
+// constrain the minimum.)
+const MinGolangCILintVersion = "v2.12.0"
 
 // ExpectedGolangCILintVersion is the recommended golangci-lint version.
 // A warning is emitted when the detected version differs from this value,

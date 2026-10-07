@@ -147,7 +147,7 @@ go test -race ./pkg/... ./internal/... && golangci-lint run --config=.golangci.y
 
 ### Linter Failures
 
-1. Check golangci-lint version: `golangci-lint version` (must be v2.10.1+)
+1. Check golangci-lint version: `golangci-lint version` (must be v2.12.0+)
 2. Run `nix fmt` (or `treefmt --ci`) to check formatting before linting
 3. Check for deprecated APIs (e.g., cobra.ExactValidArgs)
 

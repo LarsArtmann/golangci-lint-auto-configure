@@ -2,7 +2,7 @@
 //
 // Schema provenance:
 //   Schema snapshot: v2.14.0
-//   Tool minimum:   v2.10.1 (pkg/constants.MinGolangCILintVersion)
+//   Tool minimum:   v2.12.0 (pkg/constants.MinGolangCILintVersion)
 //
 // A schema snapshot NEWER than the tool minimum may contain keys that do
 // not exist in older golangci-lint. The curated structs in

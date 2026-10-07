@@ -17,7 +17,7 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
   `data_integrity_test.go`, but not against upstream accuracy.)
 - **Schema-version sync as a discipline** — the `min-length` incident
   (2026-09-11) showed the gap between the generator's schema snapshot (v2.13)
-  and the tool's advertised minimum (v2.10.1). The concrete CI gate lives in
+  and the tool's advertised minimum (v2.12.0 since 2026-10-07). The concrete CI gate lives in
   TODO_LIST; the durable idea is treating "every injected default must verify
   against the minimum supported golangci-lint" as an invariant, not a one-off fix.
 
