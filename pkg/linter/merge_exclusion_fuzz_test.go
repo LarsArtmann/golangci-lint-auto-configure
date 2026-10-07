@@ -1,6 +1,9 @@
 package linter
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func dedupInOrder(in []string) []string {
 	seen := make(map[string]bool, len(in))
@@ -22,13 +25,17 @@ func dedupInOrder(in []string) []string {
 // the result is dedup(existing) followed by the new defaults, carries no
 // duplicates, and re-merging is a fixed point.
 func FuzzMergeExclusionLinters(f *testing.F) {
-	f.Add([]string{"gosec", "gosec", "errcheck"}, []string{"govet", "gosec"})
-	f.Add([]string{}, []string{"govet"})
-	f.Add([]string{"errcheck"}, []string{})
-	f.Add([]string{"a", "a", "a"}, []string{"a", "a"})
-	f.Add([]string{"x", "", "y"}, []string{"", "z"})
+	f.Add("gosec,gosec,errcheck", "govet,gosec")
+	f.Add("", "govet")
+	f.Add("errcheck", "")
+	f.Add("a,a,a", "a,a")
+	f.Add("x,,y", ",z")
+	f.Add("linters with spaces , x", "x")
 
-	f.Fuzz(func(t *testing.T, existing, defaults []string) {
+	f.Fuzz(func(t *testing.T, existingRaw, defaultsRaw string) {
+		existing := splitLinterList(existingRaw)
+		defaults := splitLinterList(defaultsRaw)
+
 		merged := mergeExclusionLinters(existing, defaults)
 
 		want := dedupInOrder(existing)
@@ -59,4 +66,19 @@ func FuzzMergeExclusionLinters(f *testing.F) {
 			t.Fatalf("re-merge is not a fixed point: %v -> %v", merged, again)
 		}
 	})
+}
+
+func splitLinterList(raw string) []string {
+	if raw == "" {
+		return nil
+	}
+
+	parts := strings.Split(raw, ",")
+
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		out = append(out, strings.TrimSpace(p))
+	}
+
+	return out
 }

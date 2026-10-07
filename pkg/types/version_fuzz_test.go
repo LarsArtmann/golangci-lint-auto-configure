@@ -71,15 +71,9 @@ func FuzzCompareGoMajorMinor(f *testing.F) {
 
 		normalizedB, okB := types.NormalizeGoMajorMinor(b)
 		if okA && okB {
-			want := 0
-			if normalizedA < normalizedB {
-				want = -1
-			} else if normalizedA > normalizedB {
-				want = 1
-			}
-
-			if ab != want {
-				t.Fatalf("disagrees with normalization: Compare(%q,%q)=%d, want %d", a, b, ab, want)
+			if want := types.CompareGoMajorMinor(normalizedA, normalizedB); ab != want {
+				t.Fatalf("patch component changed the verdict: Compare(%q,%q)=%d, want %d",
+					a, b, ab, want)
 			}
 		}
 	})
