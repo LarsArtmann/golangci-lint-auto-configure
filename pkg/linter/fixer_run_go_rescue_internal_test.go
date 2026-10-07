@@ -73,10 +73,14 @@ func newRescueFixer(t *testing.T, binaryGoVersion string, loader *config.Loader)
 	t.Helper()
 
 	return &Fixer{
-		configLoader: loader,
-		analyzer:     stubRescueAnalyzer{golangciLintGoVersion: binaryGoVersion},
-		logger:       log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel}),
-		ledger:       &rescueRecorder{},
+		configLoader:      loader,
+		analyzer:          stubRescueAnalyzer{golangciLintGoVersion: binaryGoVersion},
+		logger:            log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel}),
+		ledger:            &rescueRecorder{},
+		goVersionProvider: func(context.Context) string { return "" },
+		formatterManager:  NewFormatterManager(log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})),
+		forceSettings:     false,
+		showMergedRules:   false,
 	}
 }
 

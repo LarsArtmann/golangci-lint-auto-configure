@@ -41,6 +41,8 @@ func newConfigUpdater(
 		logger:                logger,
 		goVersionProvider:     goVersionProvider,
 		golangciLintGoVersion: golangciLintGoVersion,
+		showMergedRules:       false,
+		exclusionMerges:       nil,
 	}
 }
 
