@@ -56,6 +56,25 @@ var ProjectSpecificFormatters = map[types.FormatterName]string{
 	"swaggo": "swaggo",
 }
 
+// IsAutoEnableable reports whether the fixer may enable the formatter:
+// the core stack unconditionally, project-specific formatters when their
+// technology is detected. The detector must only recommend auto-enableable
+// formatters — recommending anything else breaks the convergence contract
+// (the fixer refuses to enable it, so the finding can never clear).
+// gci is the motivating case: it left CoreFormatters on 2026-10-11 and is
+// now manual-only.
+func IsAutoEnableable(name types.FormatterName) bool {
+	for _, core := range CoreFormatters {
+		if core == name {
+			return true
+		}
+	}
+
+	_, isProjectSpecific := ProjectSpecificFormatters[name]
+
+	return isProjectSpecific
+}
+
 // ProjectSpecificLinters maps linters that should only be recommended
 // when the project actually uses the corresponding technology.
 // The value is the technology key used by the analyzer's hasTechnology check.

@@ -297,7 +297,7 @@ var _ = Describe("CategorizeFormatters", func() {
 
 		It("should recommend non-redundant formatters regardless", func() {
 			disabledFormatters := []types.FormatterInfo{
-				{Name: "gci"},
+				{Name: "golines"},
 				{Name: "goimports"},
 				{Name: "gofmt"},
 			}
@@ -309,9 +309,22 @@ var _ = Describe("CategorizeFormatters", func() {
 			recs := analyzer.CategorizeFormatters(disabledFormatters, enabledFormatters)
 
 			names := extractFormatterNames(recs)
-			Expect(names).To(ContainElement("gci"))
-			Expect(names).To(ContainElement("goimports"))
-			Expect(names).NotTo(ContainElement("gofmt"))
+			Expect(names).To(ContainElement(types.FormatterName("golines")))
+			Expect(names).To(ContainElement(types.FormatterName("goimports")))
+			Expect(names).NotTo(ContainElement(types.FormatterName("gofmt")))
+		})
+
+		It("should skip manual-only formatters the fixer will not auto-enable", func() {
+			disabledFormatters := []types.FormatterInfo{
+				{Name: "gci"},
+				{Name: "goimports"},
+			}
+
+			recs := analyzer.CategorizeFormatters(disabledFormatters, []types.FormatterInfo{})
+
+			names := extractFormatterNames(recs)
+			Expect(names).NotTo(ContainElement(types.FormatterName("gci")))
+			Expect(names).To(ContainElement(types.FormatterName("goimports")))
 		})
 	})
 
@@ -325,8 +338,8 @@ var _ = Describe("CategorizeFormatters", func() {
 			recs := analyzer.CategorizeFormatters(disabledFormatters, []types.FormatterInfo{})
 
 			names := extractFormatterNames(recs)
-			Expect(names).To(ContainElement("swaggo"))
-			Expect(names).To(ContainElement("gci"))
+			Expect(names).To(ContainElement(types.FormatterName("swaggo")))
+			Expect(names).NotTo(ContainElement(types.FormatterName("gci")))
 		})
 	})
 

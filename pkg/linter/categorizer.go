@@ -183,8 +183,9 @@ func (a *Analyzer) makeFormatterRecommendation(name types.FormatterName) types.F
 }
 
 // shouldSkipFormatter returns true if a disabled formatter should not be
-// recommended because it is redundant with an enabled formatter or because
-// the project does not use the formatter's target technology.
+// recommended because it is redundant with an enabled formatter, because
+// the project does not use the formatter's target technology, or because
+// the fixer will not auto-enable it (manual-only).
 func (a *Analyzer) shouldSkipFormatter(
 	name types.FormatterName,
 	enabledSet types.Set[types.FormatterName],
@@ -203,6 +204,12 @@ func (a *Analyzer) shouldSkipFormatter(
 
 			return true
 		}
+	}
+
+	if !constants.IsAutoEnableable(name) {
+		a.logger.Debugf("Skipping manual-only formatter: %s (fixer will not auto-enable it)", name)
+
+		return true
 	}
 
 	return false
