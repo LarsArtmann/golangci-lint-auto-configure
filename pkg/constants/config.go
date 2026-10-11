@@ -58,11 +58,8 @@ var ProjectSpecificFormatters = map[types.FormatterName]string{
 
 // IsAutoEnableable reports whether the fixer may enable the formatter:
 // the core stack unconditionally, project-specific formatters when their
-// technology is detected. The detector must only recommend auto-enableable
-// formatters — recommending anything else breaks the convergence contract
-// (the fixer refuses to enable it, so the finding can never clear).
-// gci is the motivating case: it left CoreFormatters on 2026-10-11 and is
-// now manual-only.
+// technology is detected. gci is the motivating non-case: it left
+// CoreFormatters on 2026-10-11 and is now manual-only.
 func IsAutoEnableable(name types.FormatterName) bool {
 	for _, core := range CoreFormatters {
 		if core == name {
@@ -73,6 +70,24 @@ func IsAutoEnableable(name types.FormatterName) bool {
 	_, isProjectSpecific := ProjectSpecificFormatters[name]
 
 	return isProjectSpecific
+}
+
+// IsRecommendable reports whether the detector may recommend the formatter:
+// either the fixer can auto-enable it (the fix clears the finding), or it
+// is redundant with an auto-enableable formatter (the fix enables the
+// superset and the redundancy rule clears the finding on re-detect).
+// Anything else is manual-only: recommending it would produce a finding
+// the fixer can never clear.
+func IsRecommendable(name types.FormatterName) bool {
+	if IsAutoEnableable(name) {
+		return true
+	}
+
+	if superset, isRedundant := RedundantFormatters[name]; isRedundant {
+		return IsAutoEnableable(superset)
+	}
+
+	return false
 }
 
 // ProjectSpecificLinters maps linters that should only be recommended

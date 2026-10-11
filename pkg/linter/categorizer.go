@@ -206,7 +206,7 @@ func (a *Analyzer) shouldSkipFormatter(
 		}
 	}
 
-	if !constants.IsAutoEnableable(name) {
+	if !constants.IsRecommendable(name) {
 		a.logger.Debugf("Skipping manual-only formatter: %s (fixer will not auto-enable it)", name)
 
 		return true
