@@ -119,8 +119,8 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 | `security` preset                                       | FULLY_FUNCTIONAL | Security-focused only                                                    |
 | `performance` preset                                    | FULLY_FUNCTIONAL | Performance optimization                                                 |
 | `reference` preset (61 linters)                         | FULLY_FUNCTIONAL | All critical + high priority                                             |
-| `format` preset (5 linters + 4 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters                                      |
-| `house` preset (5 linters + 4 formatters)               | FULLY_FUNCTIONAL | Winning stack across 128/160 projects (gci, goimports, gofumpt, golines) |
+| `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters                                      |
+| `house` preset (5 linters + 3 formatters)               | FULLY_FUNCTIONAL | House stack across 128/160 projects (goimports, gofumpt, golines)        |
 | Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo                                         |
 
 > Linter counts verified against `pkg/constants/presets.go` as of 2026-07-25.
@@ -129,7 +129,7 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 | Feature                                                   | Status           | Notes                                      |
 | --------------------------------------------------------- | ---------------- | ------------------------------------------ |
-| Core formatters (gci, gofumpt, goimports, golines)        | FULLY_FUNCTIONAL | Always enabled (4-formatter winning stack) |
+| Core formatters (gofumpt, goimports, golines)             | FULLY_FUNCTIONAL | Always enabled (3-formatter stack; gci dropped 2026-10-11) |
 | golines auto-enable (when lll detected)                   | FULLY_FUNCTIONAL | Replaces redundant linter                  |
 | swaggo auto-detection                                     | FULLY_FUNCTIONAL | Detects swag annotations                   |
 | Redundant formatter removal (gofmt when gofumpt)          | FULLY_FUNCTIONAL | Superset detection                         |

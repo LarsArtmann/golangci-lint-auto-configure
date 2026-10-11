@@ -64,10 +64,10 @@ var _ = Describe("multi-preset merge", func() {
 	It("unions formatters across presets and dedupes extras against preset formatters", func() {
 		cfg := &types.Config{}
 
-		// "format" and "house" both carry the validated formatter quadruple;
-		// the union must stay exactly 4 entries (no duplicates).
+		// "format" and "house" both carry the validated formatter stack;
+		// the union must stay exactly 3 entries (no duplicates).
 		applyPresetFormatters(logger, cfg, []string{"format", "house"}, nil)
-		Expect(cfg.Formatters.Enable).To(HaveLen(4))
+		Expect(cfg.Formatters.Enable).To(HaveLen(3))
 
 		expectedSet := types.NewSet[types.FormatterName]()
 		for _, f := range constants.PresetFormatters["format"] {
@@ -78,9 +78,9 @@ var _ = Describe("multi-preset merge", func() {
 
 		// A preset formatter repeated as an extra must NOT appear twice.
 		applyPresetFormatters(logger, cfg, []string{"format"},
-			[]types.FormatterName{"gci", "swaggo"})
+			[]types.FormatterName{"gofumpt", "swaggo"})
 		Expect(cfg.Formatters.Enable).To(ContainElements(
-			types.FormatterName("gci"), types.FormatterName("swaggo")))
-		Expect(cfg.Formatters.Enable).To(HaveLen(5))
+			types.FormatterName("gofumpt"), types.FormatterName("swaggo")))
+		Expect(cfg.Formatters.Enable).To(HaveLen(4))
 	})
 })

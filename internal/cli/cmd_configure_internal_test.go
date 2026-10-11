@@ -285,7 +285,7 @@ func TestApplyPreset_FormatEnablesFormatters(t *testing.T) {
 		t.Fatal("applyPreset(\"format\") did not save config")
 	}
 
-	expectedFormatters := []types.FormatterName{"gci", "gofumpt", "goimports", "golines"}
+	expectedFormatters := []types.FormatterName{"gofumpt", "goimports", "golines"}
 	if len(mock.savedCfg.Formatters.Enable) != len(expectedFormatters) {
 		t.Fatalf(
 			"expected %d formatters, got %d",
@@ -396,7 +396,7 @@ func TestApplyPreset_FormatYAMLIntegration(t *testing.T) {
 	}
 
 	yamlStr := string(data)
-	for _, expected := range []string{"gci", "goimports", "gofumpt"} {
+	for _, expected := range []string{"goimports", "gofumpt"} {
 		if !strings.Contains(yamlStr, expected) {
 			t.Errorf("YAML output missing formatter %q in:\n%s", expected, yamlStr)
 		}
