@@ -1,6 +1,10 @@
 package constants
 
-import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+import (
+	"slices"
+
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+)
 
 // DefaultTimeout is the default run timeout value for golangci-lint configurations.
 const DefaultTimeout = "5m"
@@ -61,10 +65,8 @@ var ProjectSpecificFormatters = map[types.FormatterName]string{
 // technology is detected. gci is the motivating non-case: it left
 // CoreFormatters on 2026-10-11 and is now manual-only.
 func IsAutoEnableable(name types.FormatterName) bool {
-	for _, core := range CoreFormatters {
-		if core == name {
-			return true
-		}
+	if slices.Contains(CoreFormatters, name) {
+		return true
 	}
 
 	_, isProjectSpecific := ProjectSpecificFormatters[name]
