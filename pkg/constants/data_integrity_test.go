@@ -3,6 +3,7 @@ package constants_test
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -313,9 +314,10 @@ var _ = Describe("Format preset", func() {
 	It("should exist in PresetFormatters with core formatters", func() {
 		formatters, ok := constants.PresetFormatters["format"]
 		Expect(ok).To(BeTrue(), "format preset missing from PresetFormatters")
-		Expect(formatters).To(ContainElement(types.FormatterName("gci")))
 		Expect(formatters).To(ContainElement(types.FormatterName("gofumpt")))
 		Expect(formatters).To(ContainElement(types.FormatterName("goimports")))
+		Expect(formatters).NotTo(ContainElement(types.FormatterName("gci")),
+			"gci was removed from the default stack 2026-10-11")
 	})
 
 	It("should exist in PresetDescriptions", func() {
@@ -330,13 +332,17 @@ var _ = Describe("Format preset", func() {
 
 	It("should have formatters in canonical order matching FormatterOrder", func() {
 		formatters := constants.PresetFormatters["format"]
-		Expect(formatters).To(HaveLen(4))
+		Expect(formatters).To(HaveLen(3))
 
-		for i, f := range formatters {
-			expected := constants.FormatterOrder[i]
-			Expect(f).To(Equal(expected),
-				"format preset formatter at index %d: got %s, want %s", i, f, expected)
+		positions := make([]int, 0, len(formatters))
+		for _, f := range formatters {
+			positions = append(positions, slices.Index(constants.FormatterOrder, f))
 		}
+
+		Expect(positions).ToNot(ContainElement(-1),
+			"format preset contains a formatter missing from FormatterOrder")
+		Expect(slices.IsSorted(positions)).To(BeTrue(),
+			"format preset formatters must appear in FormatterOrder-relative order")
 	})
 })
 
@@ -549,9 +555,9 @@ var _ = Describe("PragmaticNoiseLinters", func() {
 })
 
 var _ = Describe("CoreFormatters alignment", func() {
-	It("should contain exactly the validated formatter quadruple", func() {
+	It("should contain exactly the validated formatter stack", func() {
 		Expect(constants.CoreFormatters).
-			To(Equal([]types.FormatterName{"gci", "goimports", "gofumpt", "golines"}))
+			To(Equal([]types.FormatterName{"goimports", "gofumpt", "golines"}))
 	})
 
 	It("should match the house preset formatters", func() {

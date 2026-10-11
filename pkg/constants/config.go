@@ -33,9 +33,10 @@ var FormattersManagedByBuildFlow = []types.FormatterName{
 }
 
 // CoreFormatters are the formatters enabled by default for all projects.
-// This is the validated winning stack across 128/160 sibling projects.
-// Order matches FormatterOrder.
-var CoreFormatters = []types.FormatterName{"gci", "goimports", "gofumpt", "golines"}
+// gci was removed from the default stack (2026-10-11): too many projects
+// rejected its reordering of import groups. It remains a valid formatter
+// that users can enable manually (see FormatterOrder and FormatterData).
+var CoreFormatters = []types.FormatterName{"goimports", "gofumpt", "golines"}
 
 // FormatterOrder defines the canonical ordering of formatters in config output.
 var FormatterOrder = []types.FormatterName{"gci", "goimports", "gofumpt", "golines", "swaggo"}
