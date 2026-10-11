@@ -111,30 +111,30 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 ## Presets
 
-| Feature                                                 | Status           | Notes                                                                    |
-| ------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------ |
-| `minimal` preset (5 linters)                            | FULLY_FUNCTIONAL | Essential only, fastest                                                  |
-| `standard` preset (8 linters)                           | FULLY_FUNCTIONAL | Good balance for most projects                                           |
-| `strict` preset (20 linters)                            | FULLY_FUNCTIONAL | Maximum linting for CI/CD                                                |
-| `security` preset                                       | FULLY_FUNCTIONAL | Security-focused only                                                    |
-| `performance` preset                                    | FULLY_FUNCTIONAL | Performance optimization                                                 |
-| `reference` preset (61 linters)                         | FULLY_FUNCTIONAL | All critical + high priority                                             |
-| `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters                                      |
-| `house` preset (5 linters + 3 formatters)               | FULLY_FUNCTIONAL | House stack across 128/160 projects (goimports, gofumpt, golines)        |
-| Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo                                         |
+| Feature                                                 | Status           | Notes                                                             |
+| ------------------------------------------------------- | ---------------- | ----------------------------------------------------------------- |
+| `minimal` preset (5 linters)                            | FULLY_FUNCTIONAL | Essential only, fastest                                           |
+| `standard` preset (8 linters)                           | FULLY_FUNCTIONAL | Good balance for most projects                                    |
+| `strict` preset (20 linters)                            | FULLY_FUNCTIONAL | Maximum linting for CI/CD                                         |
+| `security` preset                                       | FULLY_FUNCTIONAL | Security-focused only                                             |
+| `performance` preset                                    | FULLY_FUNCTIONAL | Performance optimization                                          |
+| `reference` preset (61 linters)                         | FULLY_FUNCTIONAL | All critical + high priority                                      |
+| `format` preset (5 linters + 3 formatters)              | FULLY_FUNCTIONAL | Core formatters + essential linters                               |
+| `house` preset (5 linters + 3 formatters)               | FULLY_FUNCTIONAL | House stack across 128/160 projects (goimports, gofumpt, golines) |
+| Auto-detect project type and select preset (`--detect`) | FULLY_FUNCTIONAL | CLI, web, library, API, monorepo                                  |
 
 > Linter counts verified against `pkg/constants/presets.go` as of 2026-07-25.
 
 ## Formatter Management
 
-| Feature                                                   | Status           | Notes                                      |
-| --------------------------------------------------------- | ---------------- | ------------------------------------------ |
+| Feature                                                   | Status           | Notes                                                      |
+| --------------------------------------------------------- | ---------------- | ---------------------------------------------------------- |
 | Core formatters (gofumpt, goimports, golines)             | FULLY_FUNCTIONAL | Always enabled (3-formatter stack; gci dropped 2026-10-11) |
-| golines auto-enable (when lll detected)                   | FULLY_FUNCTIONAL | Replaces redundant linter                  |
-| swaggo auto-detection                                     | FULLY_FUNCTIONAL | Detects swag annotations                   |
-| Redundant formatter removal (gofmt when gofumpt)          | FULLY_FUNCTIONAL | Superset detection                         |
-| Redundant linter removal (lll when golines)               | FULLY_FUNCTIONAL | Formatter supersedes linter                |
-| Formatter ordering (gci→goimports→gofumpt→golines→swaggo) | FULLY_FUNCTIONAL | Canonical order                            |
+| golines auto-enable (when lll detected)                   | FULLY_FUNCTIONAL | Replaces redundant linter                                  |
+| swaggo auto-detection                                     | FULLY_FUNCTIONAL | Detects swag annotations                                   |
+| Redundant formatter removal (gofmt when gofumpt)          | FULLY_FUNCTIONAL | Superset detection                                         |
+| Redundant linter removal (lll when golines)               | FULLY_FUNCTIONAL | Formatter supersedes linter                                |
+| Formatter ordering (gci→goimports→gofumpt→golines→swaggo) | FULLY_FUNCTIONAL | Canonical order                                            |
 
 ## Build & Runner Settings
 
