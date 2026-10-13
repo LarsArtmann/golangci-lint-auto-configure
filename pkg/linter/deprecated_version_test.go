@@ -95,3 +95,32 @@ func TestHasDeprecatedLinters_VersionGated(t *testing.T) {
 		t.Error("expected gomodguard to NOT be deprecated for v2.10.1")
 	}
 }
+
+// TestCleanupExclusionLinters_VersionGated pins the version gate of the
+// exclusion-rule sweep: a name is only rewritten once its successor exists in
+// the installed golangci-lint (exhaustruct needs v2.13.0), while ungated
+// renames (wsl -> wsl_v5) apply at any version.
+func TestCleanupExclusionLinters_VersionGated(t *testing.T) {
+	cfg := &types.Config{}
+	cfg.Linters.Exclusions.Rules = []types.ExclusionRuleConfig{
+		{Linters: []string{"exhaustruct", "gosec"}, Text: "is missing fields"},
+		{Linters: []string{"wsl"}, Path: `_test\.go`},
+	}
+
+	handler := newDeprecatedLinterHandler(testQuietLogger(), "v2.12.0")
+	cleanup := handler.cleanupExclusionLinters(cfg, false)
+
+	if cleanup.rules != 1 {
+		t.Fatalf("expected exactly one rule to change (the wsl rule), got %d", cleanup.rules)
+	}
+
+	exhaustructRule := cfg.Linters.Exclusions.Rules[0]
+	if got := exhaustructRule.Linters; len(got) != 2 || got[0] != "exhaustruct" || got[1] != "gosec" {
+		t.Errorf("exhaustruct must stay untouched below its min version, got %v", got)
+	}
+
+	wslRule := cfg.Linters.Exclusions.Rules[1]
+	if got := wslRule.Linters; len(got) != 1 || got[0] != "wsl_v5" {
+		t.Errorf("ungated rename must apply at any version, got %v", got)
+	}
+}
