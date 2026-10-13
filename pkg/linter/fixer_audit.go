@@ -1,6 +1,8 @@
 package linter
 
 import (
+	"sort"
+
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -73,5 +75,33 @@ func (f *Fixer) recordFormatterChanges(before, after configSnapshot) {
 
 	for _, formatter := range types.ToSortedSlice(before.formatterEnable.Difference(after.formatterEnable)) {
 		f.ledger.Record(audit.ActionFormatterRemovedFromEnable, string(formatter), "")
+	}
+}
+
+// recordExclusionLintersCleanup writes one ledger entry per deprecated linter
+// name renamed or dropped inside exclusion rules (sorted for stable output).
+func (f *Fixer) recordExclusionLintersCleanup(cleanup exclusionCleanup) {
+	renamed := make([]string, 0, len(cleanup.renames))
+	for from := range cleanup.renames {
+		renamed = append(renamed, string(from))
+	}
+
+	sort.Strings(renamed)
+
+	for _, from := range renamed {
+		f.ledger.Record(audit.ActionExclusionLinterRenamed, from,
+			"renamed to "+string(cleanup.renames[types.LinterName(from)])+" in exclusion rule linter lists")
+	}
+
+	removed := make([]string, 0, len(cleanup.removed))
+	for from := range cleanup.removed {
+		removed = append(removed, string(from))
+	}
+
+	sort.Strings(removed)
+
+	for _, from := range removed {
+		f.ledger.Record(audit.ActionExclusionLinterRemoved, from,
+			"dropped from exclusion rule linter lists (linter removed from golangci-lint)")
 	}
 }

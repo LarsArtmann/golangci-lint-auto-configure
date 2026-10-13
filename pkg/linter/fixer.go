@@ -309,6 +309,13 @@ func (f *Fixer) applyAllFixes(
 
 		linterSet, count = handler.replaceLinters(linterSet, originalEnabled, dryRun, cfg)
 
+		cleanup := handler.cleanupExclusionLinters(cfg, dryRun)
+		count += cleanup.rules
+
+		if !dryRun {
+			f.recordExclusionLintersCleanup(cleanup)
+		}
+
 		return count
 	})
 	rec.formatter(func() int { return f.formatterManager.EnableCoreFormatters(formatterSet, dryRun) })
