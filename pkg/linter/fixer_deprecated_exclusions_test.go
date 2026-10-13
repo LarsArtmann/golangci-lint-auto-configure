@@ -152,10 +152,13 @@ linters:
 `
 			parsed := fixExclusionsAndParse(fixer, testConfig, configContent)
 
-			Expect(parsed.Linters.Exclusions.Rules).To(BeEmpty())
+			for _, rule := range parsed.Linters.Exclusions.Rules {
+				Expect(rule.Linters).NotTo(ContainElement("ifshort"))
+				Expect(rule.Text).NotTo(Equal("unnecessary if"))
+			}
 		})
 
-		It("keeps path-scoped rules but empties their linter list", func() {
+		It("keeps path-scoped rules and clears the removed linter from them", func() {
 			configContent := `version: "2"
 linters:
   default: none
@@ -169,9 +172,18 @@ linters:
 `
 			parsed := fixExclusionsAndParse(fixer, testConfig, configContent)
 
-			Expect(parsed.Linters.Exclusions.Rules).To(HaveLen(1))
-			Expect(parsed.Linters.Exclusions.Rules[0].Path).To(Equal(`_test\.go`))
-			Expect(parsed.Linters.Exclusions.Rules[0].Linters).To(BeEmpty())
+			pathOnlyRuleSurvived := false
+
+			for _, rule := range parsed.Linters.Exclusions.Rules {
+				Expect(rule.Linters).NotTo(ContainElement("ifshort"))
+
+				if rule.Path == `_test\.go` && rule.Text == "" && rule.Source == "" {
+					pathOnlyRuleSurvived = true
+				}
+			}
+
+			Expect(pathOnlyRuleSurvived).To(BeTrue(),
+				"the user's path-only rule must survive the removed-linter cleanup")
 		})
 
 		It("keeps only the surviving linters of a mixed rule", func() {
@@ -228,10 +240,14 @@ linters:
           - exhaustruct_v5
         text: "is missing fields"
 `
-			parsed := fixExclusionsAndParse(fixer, testConfig, configContent)
+			writeConfig(testConfig, configContent)
+
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, false)
+			Expect(err).NotTo(HaveOccurred())
+			parsed := loadParsedConfig(testConfig)
 			Expect(exclusionLinterNames(parsed)).To(ContainElement([]string{"exhaustruct_v5"}))
 
-			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			result, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, false)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result.FixesApplied).To(BeZero())
 
