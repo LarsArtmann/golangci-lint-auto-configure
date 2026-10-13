@@ -66,6 +66,13 @@ const (
 	// an existing rule by RuleKey and unioned additional linters into it —
 	// the observable trace of exclusion-merge dedup.
 	ActionExclusionRuleMerged Action = "exclusion-rule-merged"
+	// ActionExclusionLinterRenamed records that a deprecated linter name inside
+	// linters.exclusions.rules[].linters was rewritten to its replacement name.
+	ActionExclusionLinterRenamed Action = "exclusion-linter-renamed"
+	// ActionExclusionLinterRemoved records that a linter name removed from
+	// golangci-lint (deprecated with no replacement) was dropped from
+	// linters.exclusions.rules[].linters.
+	ActionExclusionLinterRemoved Action = "exclusion-linter-removed"
 )
 
 // Entry is a single audit record, serialized as one JSONL line.
