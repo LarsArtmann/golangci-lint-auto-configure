@@ -45,7 +45,10 @@ func main() {
 			fmt.Printf("      - %s\n", linter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: checked %s; all have reasons\n", noun(len(constants.LinterPriorities), "linter", "linters"))
+		fmt.Printf(
+			"   ✅ PASS: checked %s; all have reasons\n",
+			noun(len(constants.LinterPriorities), "linter", "linters"),
+		)
 	}
 	fmt.Println()
 
@@ -59,7 +62,10 @@ func main() {
 			fmt.Printf("      - %s\n", linter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: checked %s; all have corresponding priorities\n", noun(len(constants.LinterReasons), "reason", "reasons"))
+		fmt.Printf(
+			"   ✅ PASS: checked %s; all have corresponding priorities\n",
+			noun(len(constants.LinterReasons), "reason", "reasons"),
+		)
 	}
 	fmt.Println()
 
@@ -76,7 +82,10 @@ func main() {
 			fmt.Printf("      - %s\n", formatter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: checked %s; all have priorities\n", noun(len(constants.FormatterInfo), "formatter", "formatters"))
+		fmt.Printf(
+			"   ✅ PASS: checked %s; all have priorities\n",
+			noun(len(constants.FormatterInfo), "formatter", "formatters"),
+		)
 	}
 	fmt.Println()
 
@@ -93,7 +102,10 @@ func main() {
 			fmt.Printf("      - %s\n", formatter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: checked %s; all have info\n", noun(len(constants.FormatterPriorities), "formatter priority", "formatter priorities"))
+		fmt.Printf(
+			"   ✅ PASS: checked %s; all have info\n",
+			noun(len(constants.FormatterPriorities), "formatter priority", "formatter priorities"),
+		)
 	}
 	fmt.Println()
 
@@ -110,7 +122,10 @@ func main() {
 			fmt.Printf("      - %s\n", linter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: checked %s; all absent from priorities and reasons\n", noun(len(constants.DisabledLinters), "disabled linter", "disabled linters"))
+		fmt.Printf(
+			"   ✅ PASS: checked %s; all absent from priorities and reasons\n",
+			noun(len(constants.DisabledLinters), "disabled linter", "disabled linters"),
+		)
 	}
 	fmt.Println()
 
@@ -127,7 +142,10 @@ func main() {
 			fmt.Printf("      - %s\n", linter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: checked %s; all have non-empty reasons\n", noun(len(constants.DisabledLinters), "disabled linter", "disabled linters"))
+		fmt.Printf(
+			"   ✅ PASS: checked %s; all have non-empty reasons\n",
+			noun(len(constants.DisabledLinters), "disabled linter", "disabled linters"),
+		)
 	}
 	fmt.Println()
 
@@ -144,7 +162,10 @@ func main() {
 			fmt.Printf("      - %s\n", linter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: checked %s; all have priorities and reasons\n", noun(len(constants.NeverAutoEnableLinters), "never-auto-enable linter", "never-auto-enable linters"))
+		fmt.Printf(
+			"   ✅ PASS: checked %s; all have priorities and reasons\n",
+			noun(len(constants.NeverAutoEnableLinters), "never-auto-enable linter", "never-auto-enable linters"),
+		)
 	}
 	fmt.Println()
 
@@ -163,7 +184,10 @@ func main() {
 			fmt.Printf("      - %s\n", linter)
 		}
 	} else {
-		fmt.Printf("   ✅ PASS: checked %s; all have non-empty reasons and are disjoint from other tiers\n", noun(len(constants.NeverAutoEnableLinters), "never-auto-enable linter", "never-auto-enable linters"))
+		fmt.Printf(
+			"   ✅ PASS: checked %s; all have non-empty reasons and are disjoint from other tiers\n",
+			noun(len(constants.NeverAutoEnableLinters), "never-auto-enable linter", "never-auto-enable linters"),
+		)
 	}
 	fmt.Println()
 
