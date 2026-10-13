@@ -45,7 +45,8 @@ echo "==> e2e pin matrix cell: $EXPECTED_VERSION (min supported: $MIN_TOOL_VERSI
 
 # The tool's analyzer shells out to `golangci-lint`; make sure it finds the
 # pinned binary, not some other install.
-export PATH="$(dirname "$GOLANGCI_LINT_BIN"):$PATH"
+lint_bin_dir="$(dirname "$GOLANGCI_LINT_BIN")"
+export PATH="$lint_bin_dir:$PATH"
 export GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT=1
 export GOEXPERIMENT="${GOEXPERIMENT:-jsonv2}"
 

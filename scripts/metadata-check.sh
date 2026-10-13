@@ -10,12 +10,10 @@
 #   6. README badges point at live URLs
 #   7. branch protection / tag rulesets present
 #
-# Usage: scripts/metadata-check.sh [--fix]
-#   --fix  applies the safe fixes (topics via gh api) where possible
+# Usage: scripts/metadata-check.sh
 set -euo pipefail
 
 REPO="${GITHUB_REPOSITORY:-LarsArtmann/golangci-lint-auto-configure}"
-FIX="${1:-}"
 PASS=0
 FAIL=0
 
@@ -34,7 +32,6 @@ meta="$(gh api "repos/$REPO")"
 desc="$(echo "$meta" | jq -r .description)"
 homepage="$(echo "$meta" | jq -r .homepage)"
 topics="$(echo "$meta" | jq -r '.topics | join(",")')"
-archived="$(echo "$meta" | jq -r .archived)"
 
 echo "-- 1. Description"
 if [ -n "$desc" ] && [ "$desc" != "null" ]; then

@@ -116,6 +116,7 @@
           apps.coverage-check = {
             type = "app";
             program = "${config.packages.default}/bin/coverage-check";
+            meta.description = "Enforce minimum test coverage threshold from a Go coverage profile";
           };
         };
     };
