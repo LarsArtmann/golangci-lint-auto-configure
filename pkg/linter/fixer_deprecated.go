@@ -163,6 +163,24 @@ type exclusionCleanup struct {
 	rules   int
 }
 
+func newExclusionCleanup() exclusionCleanup {
+	return exclusionCleanup{
+		renames: make(map[types.LinterName]types.LinterName),
+		removed: make(map[types.LinterName]bool),
+		rules:   0,
+	}
+}
+
+func (c *exclusionCleanup) absorb(migrations []exclusionLinterMigration) {
+	for _, migration := range migrations {
+		if migration.To == "" {
+			c.removed[migration.From] = true
+		} else {
+			c.renames[migration.From] = migration.To
+		}
+	}
+}
+
 // cleanupExclusionLinters rewrites deprecated linter names inside
 // linters.exclusions.rules[].linters. The enable-set swap and the pre-flight
 // sweep never touch exclusion rules, so a migrated config keeps carrying the
@@ -179,27 +197,34 @@ type exclusionCleanup struct {
 // with an empty linter list, that pattern would suppress matching findings
 // from every linter.
 func (h *deprecatedLinterHandler) cleanupExclusionLinters(cfg *types.Config, dryRun bool) exclusionCleanup {
-	cleanup := exclusionCleanup{
-		renames: make(map[types.LinterName]types.LinterName),
-		removed: make(map[types.LinterName]bool),
-	}
+	cleanup := newExclusionCleanup()
 
 	if cfg == nil || len(cfg.Linters.Exclusions.Rules) == 0 {
 		return cleanup
 	}
 
-	kept := make([]types.ExclusionRuleConfig, 0, len(cfg.Linters.Exclusions.Rules))
+	kept := h.sweepExclusionRules(cfg.Linters.Exclusions.Rules, &cleanup)
 
-	for _, rule := range cfg.Linters.Exclusions.Rules {
+	if !dryRun {
+		cfg.Linters.Exclusions.Rules = kept
+	}
+
+	return cleanup
+}
+
+// sweepExclusionRules sweeps every exclusion rule, tracks the migrations in
+// cleanup, and returns the rules to keep (text-scoped rules whose linter list
+// the sweep emptied are dropped entirely).
+func (h *deprecatedLinterHandler) sweepExclusionRules(
+	rules []types.ExclusionRuleConfig,
+	cleanup *exclusionCleanup,
+) []types.ExclusionRuleConfig {
+	kept := make([]types.ExclusionRuleConfig, 0, len(rules))
+
+	for _, rule := range rules {
 		swept := h.sweepRuleLinters(rule)
 
-		for _, migration := range swept.migrations {
-			if migration.To == "" {
-				cleanup.removed[migration.From] = true
-			} else {
-				cleanup.renames[migration.From] = migration.To
-			}
-		}
+		cleanup.absorb(swept.migrations)
 
 		if !swept.changed {
 			kept = append(kept, rule)
@@ -217,11 +242,7 @@ func (h *deprecatedLinterHandler) cleanupExclusionLinters(cfg *types.Config, dry
 		kept = append(kept, rule)
 	}
 
-	if !dryRun {
-		cfg.Linters.Exclusions.Rules = kept
-	}
-
-	return cleanup
+	return kept
 }
 
 // exclusionRuleSweep is the per-rule result of sweeping one exclusion rule.
@@ -232,12 +253,39 @@ type exclusionRuleSweep struct {
 	dropRule   bool
 }
 
+func newExclusionRuleSweep(capacity int) exclusionRuleSweep {
+	return exclusionRuleSweep{
+		linters:    make([]string, 0, capacity),
+		migrations: nil,
+		changed:    false,
+		dropRule:   false,
+	}
+}
+
+func (s *exclusionRuleSweep) keep(name string, seen map[string]bool) {
+	if seen[name] {
+		return
+	}
+
+	seen[name] = true
+	s.linters = append(s.linters, name)
+}
+
+func (s *exclusionRuleSweep) drop(from types.LinterName) {
+	s.migrations = append(s.migrations, exclusionLinterMigration{From: from, To: ""})
+}
+
+func (s *exclusionRuleSweep) rename(from, to types.LinterName, seen map[string]bool) {
+	s.migrations = append(s.migrations, exclusionLinterMigration{From: from, To: to})
+	s.keep(string(to), seen)
+}
+
 // sweepRuleLinters rewrites one rule's linter list: deprecated names with an
 // available successor become that successor (deduped), removed names vanish,
 // and a rule whose Text/Source scope exists only for a removed linter is
 // dropped entirely.
 func (h *deprecatedLinterHandler) sweepRuleLinters(rule types.ExclusionRuleConfig) exclusionRuleSweep {
-	sweep := exclusionRuleSweep{linters: make([]string, 0, len(rule.Linters))}
+	sweep := newExclusionRuleSweep(len(rule.Linters))
 	seen := make(map[string]bool, len(rule.Linters))
 
 	for _, name := range rule.Linters {
@@ -245,10 +293,7 @@ func (h *deprecatedLinterHandler) sweepRuleLinters(rule types.ExclusionRuleConfi
 
 		replacement, isDeprecated := constants.DeprecatedLinters[linterName]
 		if !isDeprecated || !replacementAvailable(replacement, h.version) {
-			if !seen[name] {
-				seen[name] = true
-				sweep.linters = append(sweep.linters, name)
-			}
+			sweep.keep(name, seen)
 
 			continue
 		}
@@ -256,18 +301,12 @@ func (h *deprecatedLinterHandler) sweepRuleLinters(rule types.ExclusionRuleConfi
 		sweep.changed = true
 
 		if replacement.Replacement == "" {
-			sweep.migrations = append(sweep.migrations, exclusionLinterMigration{From: linterName})
+			sweep.drop(linterName)
 
 			continue
 		}
 
-		sweep.migrations = append(sweep.migrations,
-			exclusionLinterMigration{From: linterName, To: replacement.Replacement})
-
-		if !seen[string(replacement.Replacement)] {
-			seen[string(replacement.Replacement)] = true
-			sweep.linters = append(sweep.linters, string(replacement.Replacement))
-		}
+		sweep.rename(linterName, replacement.Replacement, seen)
 	}
 
 	sweep.dropRule = sweep.changed && len(sweep.linters) == 0 && (rule.Text != "" || rule.Source != "")

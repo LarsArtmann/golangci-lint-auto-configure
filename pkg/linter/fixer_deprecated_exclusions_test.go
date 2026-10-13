@@ -55,7 +55,7 @@ func loadParsedConfig(configPath string) *types.Config {
 
 // exclusionLinterNames flattens the linter lists of all exclusion rules.
 func exclusionLinterNames(cfg *types.Config) [][]string {
-	var names [][]string
+	names := make([][]string, 0, len(cfg.Linters.Exclusions.Rules))
 
 	for _, rule := range cfg.Linters.Exclusions.Rules {
 		names = append(names, rule.Linters)
@@ -91,6 +91,7 @@ linters:
 			parsed := fixExclusionsAndParse(fixer, testConfig, configContent)
 
 			Expect(exclusionLinterNames(parsed)).To(ContainElement([]string{"exhaustruct_v5"}))
+
 			for _, names := range exclusionLinterNames(parsed) {
 				Expect(names).NotTo(ContainElement("exhaustruct"))
 			}
@@ -244,6 +245,7 @@ linters:
 
 			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityHigh, false)
 			Expect(err).NotTo(HaveOccurred())
+
 			parsed := loadParsedConfig(testConfig)
 			Expect(exclusionLinterNames(parsed)).To(ContainElement([]string{"exhaustruct_v5"}))
 
