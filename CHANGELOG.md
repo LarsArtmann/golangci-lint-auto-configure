@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Deprecated linter names are now cleaned out of exclusion rules.** The
+  deprecation migration (enable-list swap, settings migration) and the
+  pre-flight sweep both left `linters.exclusions.rules[].linters` untouched,
+  so a migrated config kept carrying the dead predecessor there — producing a
+  deprecation warning on every lint run today and a config-load failure once
+  upstream deletes the name. A fleet audit (2026-10-07) found 86 of 157
+  sibling configs in that state.
+  - The fixer now sweeps exclusion rules on every `configure` run, rewriting
+    the deprecated name to its replacement (deduplicated when a rule listed
+    both) — independent of the enable-list state, so already-migrated configs
+    heal too.
+  - Version-gated like the enable-set swap: a name is only rewritten once its
+    successor exists in the installed golangci-lint.
+  - Linters removed without a replacement (e.g. `ifshort`) are dropped from
+    exclusion lists; a rule whose Text/Source pattern was scoped purely to
+    such a linter is dropped with it (an unscoped pattern would suppress
+    matching findings from every linter), while path-scoped rules survive.
+  - Every rename/removal is audited in the ledger as
+    `exclusion-linter-renamed` / `exclusion-linter-removed`; `--check` and
+    `--dry-run` report the pending cleanup without touching the file.
+
 ## [0.11.0] - 2026-10-07
 
 ### Added
