@@ -1,5 +1,8 @@
 # Binaries
 bin/
+/golangci-lint-auto-configure
+/generate-settings
+/generate-schema-fixture
 *.exe
 *.exe~
 *.dll
@@ -39,7 +42,6 @@ docs/public/
 
 # Dependencies
 node_modules/
-/golangci-lint-auto-configure
 
 # Test coverage
 /coverage
