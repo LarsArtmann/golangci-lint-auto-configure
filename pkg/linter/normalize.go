@@ -394,14 +394,25 @@ func PruneOrphanSettings(observed *types.Config) (*types.Config, []Change) {
 }
 
 // RemoveRedundancies drops linters and formatters superseded by an enabled
-// counterpart: lll dies with golines, gofmt dies with gofumpt. Pure.
+// counterpart (the RedundancyRelations table: lll dies with golines, gofmt
+// dies with gofumpt). Pure.
 func RemoveRedundancies(observed *types.Config, desiredFormatters []types.FormatterName) (*types.Config, []Change) {
 	normalized := observed.Clone()
 
 	changes := make([]Change, 0, 2)
 
-	changes = append(changes, removeRedundantLinters(normalized, desiredFormatters)...)
-	changes = append(changes, removeRedundantFormatters(normalized, desiredFormatters)...)
+	formatters := types.NewSet(desiredFormatters...)
+	for _, name := range normalized.Formatters.Enable {
+		formatters.Add(name)
+	}
+
+	for _, relation := range constants.RedundancyRelations {
+		if !formatters.Contains(relation.Superseder) {
+			continue
+		}
+
+		changes = append(changes, removeRedundantEntry(normalized, relation)...)
+	}
 
 	if len(changes) == 0 {
 		return observed, nil
@@ -410,46 +421,45 @@ func RemoveRedundancies(observed *types.Config, desiredFormatters []types.Format
 	return normalized, changes
 }
 
-// removeRedundantLinters drops lll when the golines formatter is (or will
-// be) enabled: golines fixes long lines, lll only reports them.
-func removeRedundantLinters(normalized *types.Config, desiredFormatters []types.FormatterName) []Change {
-	formatters := types.NewSet(desiredFormatters...)
-	for _, name := range normalized.Formatters.Enable {
-		formatters.Add(name)
+// removeRedundantEntry drops one superseded entry from the list its relation
+// kind names, reporting the removal as a change.
+func removeRedundantEntry(normalized *types.Config, relation constants.RedundancyRelation) []Change {
+	if relation.Kind == constants.RedundancyLinter {
+		if !containsLinterName(toStrings(normalized.Linters.Enable), relation.Superseded) {
+			return nil
+		}
+
+		normalized.Linters.Enable = removeName(normalized.Linters.Enable, relation.Superseded)
+
+		return []Change{{
+			Path: PathLintersEnable, Element: string(relation.Superseded), Kind: ChangeRemove,
+			From:   string(relation.Superseded),
+			Reason: relation.Reason,
+		}}
 	}
 
-	if !formatters.Contains("golines") || !containsLinterName(toStrings(normalized.Linters.Enable), "lll") {
+	superseded := types.FormatterName(relation.Superseded)
+	if !containsFormatterName(normalized.Formatters.Enable, superseded) {
 		return nil
 	}
 
-	normalized.Linters.Enable = removeName(normalized.Linters.Enable, "lll")
+	normalized.Formatters.Enable = removeFormatterName(normalized.Formatters.Enable, superseded)
 
 	return []Change{{
-		Path: PathLintersEnable, Element: "lll", Kind: ChangeRemove,
-		From:   "lll",
-		Reason: "redundant when golines formatter is enabled (golines fixes long lines, lll only reports them)",
+		Path: PathFormattersEnable, Element: string(superseded), Kind: ChangeRemove,
+		From:   string(superseded),
+		Reason: relation.Reason,
 	}}
 }
 
-// removeRedundantFormatters drops gofmt when gofumpt is (or will be)
-// enabled: gofumpt is the stricter superset.
-func removeRedundantFormatters(normalized *types.Config, desiredFormatters []types.FormatterName) []Change {
-	formatters := types.NewSet(desiredFormatters...)
-	for _, name := range normalized.Formatters.Enable {
-		formatters.Add(name)
+func containsFormatterName(names []types.FormatterName, want types.FormatterName) bool {
+	for _, name := range names {
+		if name == want {
+			return true
+		}
 	}
 
-	if !formatters.Contains("gofumpt") || !formatters.Contains("gofmt") {
-		return nil
-	}
-
-	normalized.Formatters.Enable = removeFormatterName(normalized.Formatters.Enable, "gofmt")
-
-	return []Change{{
-		Path: PathFormattersEnable, Element: "gofmt", Kind: ChangeRemove,
-		From:   "gofmt",
-		Reason: "redundant when gofumpt is enabled (gofumpt is the stricter superset)",
-	}}
+	return false
 }
 
 func removeFormatterName(names []types.FormatterName, name types.FormatterName) []types.FormatterName {

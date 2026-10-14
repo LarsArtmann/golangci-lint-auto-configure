@@ -27,11 +27,11 @@ func ValidateSettingsKeys(config *types.Config) []string {
 }
 
 func validateSingleLinterSettings(linterName string, rawSettings any) []string {
-	_, isKnown := constants.LinterPriorities[types.LinterName(linterName)]
+	record, isKnown := constants.PolicyRecord(types.LinterName(linterName))
 	if !isKnown {
 		return []string{
 			fmt.Sprintf(
-				"settings for %q: linter not in known priorities (may be a new linter)",
+				"settings for %q: linter not in the policy table (may be a new linter)",
 				linterName,
 			),
 		}
@@ -42,12 +42,11 @@ func validateSingleLinterSettings(linterName string, rawSettings any) []string {
 		return nil
 	}
 
-	defaultSettings, hasDefaults := constants.DefaultLinterSettings[types.LinterName(linterName)]
-	if !hasDefaults {
+	if len(record.Settings) == 0 {
 		return nil
 	}
 
-	return findUnknownSettingsKeys(linterName, settingsMap, defaultSettings.ToMap())
+	return findUnknownSettingsKeys(linterName, settingsMap, record.Settings[0].Settings.ToMap())
 }
 
 func findUnknownSettingsKeys(linterName string, userKeys, expectedKeys map[string]any) []string {

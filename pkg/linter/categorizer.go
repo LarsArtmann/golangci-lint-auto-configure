@@ -43,91 +43,76 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 		return true
 	}
 
-	if reason, ok := constants.DisabledLinters[linter.Name]; ok {
-		a.logger.Debugf("Skipping disabled linter in analysis: %s (%s)", linter.Name, reason)
+	record, known := constants.PolicyRecord(linter.Name)
 
-		return true
+	if known {
+		switch record.Tier.Kind {
+		case types.TierDisabled:
+			a.logger.Debugf("Skipping disabled linter in analysis: %s (%s)", linter.Name, record.Tier.Rationale)
+
+			return true
+		case types.TierNeverAutoEnable:
+			a.logger.Debugf("Skipping never-auto-enable linter: %s (%s)", linter.Name, record.Tier.Rationale)
+
+			return true
+		case types.TierPragmaticNoise:
+			if a.pragmatic {
+				a.logger.Debugf("Skipping noise linter (--pragmatic): %s (%s)", linter.Name, record.Tier.Rationale)
+
+				return true
+			}
+		}
+
+		if a.isBelowMinVersion(record) {
+			return true
+		}
+
+		if a.isTechGated(record) {
+			return true
+		}
 	}
 
-	if a.isNeverAutoEnable(linter) {
-		return true
-	}
-
-	if a.isPragmaticNoise(linter) || a.isLinterBelowMinVersion(linter) {
-		return true
-	}
-
-	if a.isLinterRedundant(linter, formatterSet) || a.isLinterProjectSpecific(linter) {
+	if a.isLinterRedundant(linter, formatterSet) {
 		return true
 	}
 
 	return false
 }
 
-func (a *Analyzer) isNeverAutoEnable(linter types.LinterInfo) bool {
-	if reason, ok := constants.NeverAutoEnableLinters[linter.Name]; ok {
-		a.logger.Debugf("Skipping never-auto-enable linter: %s (%s)", linter.Name, reason)
-
-		return true
-	}
-
-	return false
-}
-
-func (a *Analyzer) isPragmaticNoise(linter types.LinterInfo) bool {
-	if !a.pragmatic {
+// isBelowMinVersion reports whether the installed golangci-lint predates the
+// record's ValidTool lower bound (the linter does not exist there yet).
+func (a *Analyzer) isBelowMinVersion(record types.LinterPolicy) bool {
+	if record.ValidTool.Min.IsZero() || a.detectedVersion.IsZero() || a.detectedVersion.AtLeast(record.ValidTool.Min) {
 		return false
 	}
 
-	if reason, ok := constants.PragmaticNoiseLinters[linter.Name]; ok {
-		a.logger.Debugf("Skipping noise linter (--pragmatic): %s (%s)", linter.Name, reason)
+	a.logger.Debugf(
+		"Skipping linter %s: requires golangci-lint %s (have %s)",
+		record.Name, record.ValidTool.Min, a.detectedVersion,
+	)
 
-		return true
+	return true
+}
+
+// isTechGated reports whether the record requires a technology the project
+// does not use.
+func (a *Analyzer) isTechGated(record types.LinterPolicy) bool {
+	if record.Gate.Kind != types.GateRequiresTech || a.hasTechnology(record.Gate.Tech) {
+		return false
 	}
 
-	return false
+	a.logger.Debugf("Skipping project-specific linter: %s (project does not use %s)", record.Name, record.Gate.Tech)
+
+	return true
 }
 
 func (a *Analyzer) isLinterRedundant(linter types.LinterInfo, formatterSet types.Set[types.FormatterName]) bool {
-	mapping, isRedundant := constants.RedundantLinters[linter.Name]
-	if !isRedundant || !formatterSet.Contains(mapping.Formatter) {
-		return false
-	}
+	for _, relation := range constants.RedundanciesFor(linter.Name) {
+		if !formatterSet.Contains(relation.Superseder) {
+			continue
+		}
 
-	a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, mapping.Reason)
-
-	return true
-}
-
-func (a *Analyzer) isLinterProjectSpecific(linter types.LinterInfo) bool {
-	tech, isSpecific := constants.ProjectSpecificLinters[linter.Name]
-	if !isSpecific || a.hasTechnology(tech) {
-		return false
-	}
-
-	a.logger.Debugf("Skipping project-specific linter: %s (project does not use %s)", linter.Name, tech)
-
-	return true
-}
-
-func (a *Analyzer) isLinterBelowMinVersion(linter types.LinterInfo) bool {
-	minVerRaw, hasMin := constants.LinterMinVersions[linter.Name]
-	if !hasMin {
-		return false
-	}
-
-	minVer, err := types.ParseGolangciVersion(minVerRaw)
-	if err != nil {
-		a.logger.Debugf("Skipping min-version gate for %s: curated minimum %q is invalid", linter.Name, minVerRaw)
-
-		return false
-	}
-
-	if !a.detectedVersion.IsZero() && !a.detectedVersion.AtLeast(minVer) {
-		a.logger.Debugf(
-			"Skipping linter %s: requires golangci-lint %s (have %s)",
-			linter.Name, minVer, a.detectedVersion,
-		)
+		a.logger.Debugf("Skipping redundant linter in analysis: %s (%s)", linter.Name, relation.Reason)
 
 		return true
 	}
@@ -141,10 +126,9 @@ func (a *Analyzer) makeLinterRecommendation(linter types.LinterInfo) types.Linte
 		Reason: a.getLinterReason(linter.Name),
 	}
 
-	if priority, ok := constants.LinterPriorities[linter.Name]; ok {
-		rec.Priority = priority
-	} else {
-		rec.Priority = types.LinterPriorityOptional
+	rec.Priority = types.LinterPriorityOptional
+	if record, known := constants.PolicyRecord(linter.Name); known && record.Priority != types.LinterPriorityOptional {
+		rec.Priority = record.Priority
 	}
 
 	return rec
@@ -179,10 +163,9 @@ func (a *Analyzer) makeFormatterRecommendation(name types.FormatterName) types.F
 		Reason: a.getFormatterReason(name),
 	}
 
-	if priority, ok := constants.FormatterPriorities[name]; ok {
-		rec.Priority = priority
-	} else {
-		rec.Priority = types.FormatterPriorityLow
+	rec.Priority = types.FormatterPriorityLow
+	if record, known := constants.FormatterPolicyRecord(name); known {
+		rec.Priority = record.Priority
 	}
 
 	return rec
@@ -196,20 +179,21 @@ func (a *Analyzer) shouldSkipFormatter(
 	name types.FormatterName,
 	enabledSet types.Set[types.FormatterName],
 ) bool {
-	if superset, isRedundant := constants.RedundantFormatters[name]; isRedundant {
-		if enabledSet.Contains(superset) {
-			a.logger.Debugf("Skipping redundant formatter: %s (superseded by %s)", name, superset)
-
-			return true
-		}
+	record, known := constants.FormatterPolicyRecord(name)
+	if !known {
+		return !constants.IsRecommendable(name)
 	}
 
-	if tech, isSpecific := constants.ProjectSpecificFormatters[name]; isSpecific {
-		if !a.hasTechnology(tech) {
-			a.logger.Debugf("Skipping project-specific formatter: %s (project does not use %s)", name, tech)
+	if record.SupersededBy != "" && enabledSet.Contains(record.SupersededBy) {
+		a.logger.Debugf("Skipping redundant formatter: %s (superseded by %s)", name, record.SupersededBy)
 
-			return true
-		}
+		return true
+	}
+
+	if record.Gate.Kind == types.GateRequiresTech && !a.hasTechnology(record.Gate.Tech) {
+		a.logger.Debugf("Skipping project-specific formatter: %s (project does not use %s)", name, record.Gate.Tech)
+
+		return true
 	}
 
 	if !constants.IsRecommendable(name) {
@@ -253,8 +237,8 @@ func (a *Analyzer) hasTechnology(tech string) bool {
 
 // getFormatterReason returns the human-readable reason for a formatter recommendation.
 func (a *Analyzer) getFormatterReason(name types.FormatterName) string {
-	if reason, ok := constants.FormatterReasons[name]; ok {
-		return reason
+	if record, known := constants.FormatterPolicyRecord(name); known && record.Rationale != "" {
+		return record.Rationale
 	}
 
 	return "Formatter is disabled but may be useful"
@@ -262,8 +246,8 @@ func (a *Analyzer) getFormatterReason(name types.FormatterName) string {
 
 // getLinterReason returns the human-readable reason for a linter recommendation.
 func (a *Analyzer) getLinterReason(name types.LinterName) string {
-	if reason, ok := constants.LinterReasons[name]; ok {
-		return reason
+	if record, known := constants.PolicyRecord(name); known && record.Rationale != "" {
+		return record.Rationale
 	}
 
 	return "Linter is disabled but may be useful"

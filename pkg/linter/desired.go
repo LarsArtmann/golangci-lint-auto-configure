@@ -245,7 +245,7 @@ func projectGoOf(request desiredRequest) types.GoVersion {
 }
 
 func renderFormatterSet(request desiredRequest) []types.FormatterName {
-	ordered := make([]types.FormatterName, 0, len(constants.CoreFormatters))
+	ordered := make([]types.FormatterName, 0, len(constants.FormatterOrder))
 
 	for _, name := range constants.FormatterOrder {
 		record, known := constants.FormatterPolicyRecord(name)

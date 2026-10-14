@@ -136,8 +136,8 @@ func DeprecatedLintersToFindings(
 func deprecatedLinterFinding(linter types.LinterInfo, configPath string) (finding.Finding, error) {
 	replacement := "no replacement specified"
 
-	if repl, ok := constants.DeprecatedLinters[linter.Name]; ok {
-		replacement = fmt.Sprintf("use %s instead (%s)", repl.Replacement, repl.Reason)
+	if record, known := constants.PolicyRecord(linter.Name); known && record.SupersessionReason != "" {
+		replacement = fmt.Sprintf("use %s instead (%s)", record.SupersededBy, record.SupersessionReason)
 	}
 
 	return configFinding(configFindingParams{

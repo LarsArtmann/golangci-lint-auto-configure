@@ -528,5 +528,3 @@ func exclusionMergeReason(change Change) string {
 
 	return reason + " (added: " + strings.Join(added, ", ") + ")"
 }
-
-var _ = constants.MinGolangCILintVersion
