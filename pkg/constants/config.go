@@ -39,8 +39,9 @@ var FormattersManagedByBuildFlow = []types.FormatterName{
 // CoreFormatters are the formatters enabled by default for all projects.
 // gci was removed from the default stack (2026-10-11): too many projects
 // rejected its reordering of import groups. It remains a valid formatter
-// that users can enable manually (see FormatterOrder and FormatterData).
-var CoreFormatters = []types.FormatterName{"goimports", "gofumpt", "golines"}
+// that users can enable manually (see FormatterOrder and FormatterPolicies).
+// Derived from the formatter policy table.
+var CoreFormatters = coreFormattersView()
 
 // FormatterOrder defines the canonical ordering of formatters in config output.
 var FormatterOrder = []types.FormatterName{"gci", "goimports", "gofumpt", "golines", "swaggo"}
@@ -49,16 +50,14 @@ var FormatterOrder = []types.FormatterName{"gci", "goimports", "gofumpt", "golin
 // The key is the redundant formatter, the value is its superset.
 // When the superset is enabled, the redundant formatter is not recommended.
 // This mirrors the RedundantLinters pattern for linters.
-var RedundantFormatters = map[types.FormatterName]types.FormatterName{
-	"gofmt": "gofumpt",
-}
+// Derived from the formatter policy table.
+var RedundantFormatters = redundantFormattersView()
 
 // ProjectSpecificFormatters maps formatters that should only be recommended
 // when the project actually uses the corresponding technology.
 // The value is the technology key used by the analyzer's hasTechnology check.
-var ProjectSpecificFormatters = map[types.FormatterName]string{
-	"swaggo": "swaggo",
-}
+// Derived from the formatter policy table.
+var ProjectSpecificFormatters = projectSpecificFormattersView()
 
 // IsAutoEnableable reports whether the fixer may enable the formatter:
 // the core stack unconditionally, project-specific formatters when their
@@ -95,16 +94,8 @@ func IsRecommendable(name types.FormatterName) bool {
 // ProjectSpecificLinters maps linters that should only be recommended
 // when the project actually uses the corresponding technology.
 // The value is the technology key used by the analyzer's hasTechnology check.
-var ProjectSpecificLinters = map[types.LinterName]string{
-	"clickhouselint": "clickhouse",
-	"arangolint":     "arangodb",
-	// gohumanize is a golangci-lint v2 module plugin (requires a custom binary
-	// built with `golangci-lint custom`). Only recommend when the project
-	// already depends on dustin/go-humanize, indicating intent to use the
-	// library and tolerance for plugin build complexity. Without this gating,
-	// stock golangci-lint would report "unknown linters: gohumanize".
-	"gohumanize": "go-humanize",
-}
+// Derived from the policy table's Gate payloads.
+var ProjectSpecificLinters = projectSpecificLintersView()
 
 // KnownBadSettingsKeys maps linter names to settings keys that are schema-invalid
 // for that linter and must be renamed to the valid key. Sources of bad keys:
