@@ -1,9 +1,13 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
+
+// ErrInvalidInterval wraps every interval parse failure.
+var ErrInvalidInterval = errors.New("types: invalid interval")
 
 // Ordered is the constraint every type ordered by Interval must satisfy.
 // comparable enables the zero-value (unbounded) check inside Interval without
@@ -12,7 +16,7 @@ import (
 // it; comparing intervals or values across the two axes is a compile error.
 type Ordered[V any] interface {
 	comparable
-	Compare(V) int
+	Compare(other V) int
 	String() string
 }
 
@@ -25,12 +29,12 @@ type Interval[V Ordered[V]] struct {
 	Max V
 }
 
-// NewInterval returns the closed interval [min, max]. It panics when both
-// bounds are set and min > max: an inverted interval is always a programming
+// NewInterval returns the closed interval [lower, upper]. It panics when both
+// bounds are set and lower > upper: an inverted interval is always a programming
 // error in curated data, never a runtime condition. Use the struct literal for
 // intentionally unbounded ranges.
-func NewInterval[V Ordered[V]](min, max V) Interval[V] {
-	i := Interval[V]{Min: min, Max: max}
+func NewInterval[V Ordered[V]](lower, upper V) Interval[V] {
+	i := Interval[V]{Min: lower, Max: upper}
 	if i.IsEmpty() {
 		panic("types: inverted interval (min > max)")
 	}
@@ -75,7 +79,9 @@ func (i Interval[V]) IsUnbounded() bool {
 	return isZeroBound(i.Min) && isZeroBound(i.Max)
 }
 
-// LowerBound returns the interval's lower bound, or "" when unbounded below.
+// String renders the interval in its canonical display form: "any" when
+// unbounded, ">=min" / "<=max" for one-sided intervals, and
+// ">=min,<=max" when both bounds are set.
 func (i Interval[V]) String() string {
 	switch {
 	case i.IsUnbounded():
@@ -92,31 +98,31 @@ func (i Interval[V]) String() string {
 // ParseInterval parses the format Interval.String produces, using parse to
 // turn each bound back into V. Round-trips: ParseInterval[V](i.String(), parse)
 // equals i for non-empty intervals.
-func ParseInterval[V Ordered[V]](s string, parse func(string) (V, error)) (Interval[V], error) {
-	if s == "any" {
+func ParseInterval[V Ordered[V]](encoded string, parse func(string) (V, error)) (Interval[V], error) {
+	if encoded == "any" {
 		return Interval[V]{}, nil
 	}
 
 	var interval Interval[V]
 
-	for _, part := range splitIntervalBounds(s) {
-		op, value, found := strings.Cut(part, "=")
+	for _, bound := range splitIntervalBounds(encoded) {
+		operator, value, found := strings.Cut(bound, "=")
 		if !found {
-			return Interval[V]{}, fmt.Errorf("types: invalid interval bound %q in %q", part, s)
+			return Interval[V]{}, fmt.Errorf("%w: bound %q in %q", ErrInvalidInterval, bound, encoded)
 		}
 
-		bound, err := parse(value)
+		parsed, err := parse(value)
 		if err != nil {
-			return Interval[V]{}, fmt.Errorf("types: invalid interval %q: %w", s, err)
+			return Interval[V]{}, fmt.Errorf("%w: %q: %w", ErrInvalidInterval, encoded, err)
 		}
 
-		switch op {
+		switch operator {
 		case ">":
-			interval.Min = bound
+			interval.Min = parsed
 		case "<":
-			interval.Max = bound
+			interval.Max = parsed
 		default:
-			return Interval[V]{}, fmt.Errorf("types: invalid interval operator %q in %q", op, s)
+			return Interval[V]{}, fmt.Errorf("%w: operator %q in %q", ErrInvalidInterval, operator, encoded)
 		}
 	}
 
@@ -132,6 +138,6 @@ func (i Interval[V]) MustValidate() {
 	}
 }
 
-func splitIntervalBounds(s string) []string {
-	return strings.Split(s, ",")
+func splitIntervalBounds(encoded string) []string {
+	return strings.Split(encoded, ",")
 }

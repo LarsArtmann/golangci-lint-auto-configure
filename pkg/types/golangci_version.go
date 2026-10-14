@@ -1,10 +1,17 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"golang.org/x/mod/semver"
+)
+
+// Parse-error sentinels for the golangci-lint tool-version axis.
+var (
+	ErrEmptyGolangciVersion    = errors.New("types: empty golangci-lint version")
+	ErrInvalidGolangciVersion  = errors.New("types: invalid golangci-lint version")
 )
 
 // GolangciVersion is a golangci-lint tool version (semantic version,
@@ -25,13 +32,13 @@ type GolangciVersion struct {
 func ParseGolangciVersion(raw string) (GolangciVersion, error) {
 	trimmed := strings.TrimSpace(raw)
 	if trimmed == "" {
-		return GolangciVersion{}, fmt.Errorf("types: empty golangci-lint version")
+		return GolangciVersion{}, ErrEmptyGolangciVersion
 	}
 
 	canonical := "v" + strings.TrimPrefix(trimmed, "v")
 
 	if !semver.IsValid(canonical) || !hasFullSemverCore(canonical) {
-		return GolangciVersion{}, fmt.Errorf("types: invalid golangci-lint version %q", raw)
+		return GolangciVersion{}, fmt.Errorf("%w: %q", ErrInvalidGolangciVersion, raw)
 	}
 
 	return GolangciVersion{canonical: canonical}, nil

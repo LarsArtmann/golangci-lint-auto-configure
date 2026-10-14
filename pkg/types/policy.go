@@ -1,9 +1,14 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
+
+// ErrInvalidPolicy is the sentinel wrapped by every LinterPolicy and
+// FormatterPolicy validation failure.
+var ErrInvalidPolicy = errors.New("types: invalid policy record")
 
 // TierKind is the closed union of linter-management decisions. A linter lives
 // in exactly one tier; the zero value (Recommendable) is the default for
@@ -169,46 +174,23 @@ type LinterPolicy struct {
 // data and panics there.
 func (p LinterPolicy) Validate() error {
 	if p.Name == "" {
-		return errPolicy("policy record without a name")
+		return p.fail("record without a name")
 	}
 
-	if p.Tier.Kind != TierRecommendable && p.Tier.Rationale == "" {
-		return errPolicy("linter %s: tier %s requires a rationale", p.Name, p.Tier.Kind)
+	if err := p.validateTier(); err != nil {
+		return err
 	}
 
-	if p.SupersededBy != "" && p.SupersessionReason == "" {
-		return errPolicy("linter %s: superseded by %s requires a reason", p.Name, p.SupersededBy)
+	if err := p.validateSupersession(); err != nil {
+		return err
 	}
 
-	// SupersessionReason without SupersededBy is valid: it marks a linter
-	// removed with no direct replacement.
-
-	if p.Gate.Kind == GateRequiresTech && p.Gate.Tech == "" {
-		return errPolicy("linter %s: RequiresTech gate requires a technology key", p.Name)
+	if err := p.validateRecommendation(); err != nil {
+		return err
 	}
 
-	if p.Tier.Kind == TierDisabled {
-		if p.Priority != LinterPriorityOptional {
-			return errPolicy("linter %s: disabled tier must not carry a recommendation priority", p.Name)
-		}
-
-		if p.Rationale != "" {
-			return errPolicy("linter %s: disabled tier must not carry a recommendation rationale", p.Name)
-		}
-	}
-
-	// Recommendation callouts are all-or-nothing: a priority without a
-	// rationale (or vice versa) would desynchronize the priority and reason
-	// views. The zero-value hazard (Critical == 0) makes the explicit pair
-	// mandatory on every non-disabled record.
-	if p.Tier.Kind != TierDisabled {
-		if p.Priority != LinterPriorityOptional && p.Rationale == "" {
-			return errPolicy("linter %s: recommendation priority without a rationale", p.Name)
-		}
-
-		if p.Priority == LinterPriorityOptional && p.Rationale != "" {
-			return errPolicy("linter %s: rationale without a recommendation priority", p.Name)
-		}
+	if err := p.validateGate(); err != nil {
+		return err
 	}
 
 	if !p.ValidTool.IsEmpty() {
@@ -220,6 +202,69 @@ func (p LinterPolicy) Validate() error {
 	}
 
 	return nil
+}
+
+func (p LinterPolicy) validateTier() error {
+	if p.Tier.Kind != TierRecommendable && p.Tier.Rationale == "" {
+		return p.fail("tier %s requires a rationale", p.Tier.Kind)
+	}
+
+	if p.Tier.Kind != TierDisabled {
+		return nil
+	}
+
+	if p.Priority != LinterPriorityOptional {
+		return p.fail("disabled tier must not carry a recommendation priority")
+	}
+
+	if p.Rationale != "" {
+		return p.fail("disabled tier must not carry a recommendation rationale")
+	}
+
+	return nil
+}
+
+func (p LinterPolicy) validateSupersession() error {
+	if p.SupersededBy != "" && p.SupersessionReason == "" {
+		return p.fail("superseded by %s requires a reason", p.SupersededBy)
+	}
+
+	// SupersessionReason without SupersededBy is valid: it marks a linter
+	// removed with no direct replacement.
+
+	return nil
+}
+
+func (p LinterPolicy) validateRecommendation() error {
+	if p.Tier.Kind == TierDisabled {
+		return nil
+	}
+
+	// Recommendation callouts are all-or-nothing: a priority without a
+	// rationale (or vice versa) would desynchronize the priority and reason
+	// views. The zero-value hazard (Critical == 0) makes the explicit pair
+	// mandatory on every non-disabled record.
+	if p.Priority != LinterPriorityOptional && p.Rationale == "" {
+		return p.fail("recommendation priority without a rationale")
+	}
+
+	if p.Priority == LinterPriorityOptional && p.Rationale != "" {
+		return p.fail("rationale without a recommendation priority")
+	}
+
+	return nil
+}
+
+func (p LinterPolicy) validateGate() error {
+	if p.Gate.Kind == GateRequiresTech && p.Gate.Tech == "" {
+		return p.fail("RequiresTech gate requires a technology key")
+	}
+
+	return nil
+}
+
+func (p LinterPolicy) fail(format string, args ...any) error {
+	return fmt.Errorf("%w: linter %s: %s", ErrInvalidPolicy, p.Name, fmt.Sprintf(format, args...))
 }
 
 // FormatterPolicy is the single source of truth about one formatter: its
@@ -253,14 +298,15 @@ type FormatterPolicy struct {
 // Validate checks the record's structural invariants.
 func (p FormatterPolicy) Validate() error {
 	if p.Name == "" {
-		return errPolicy("formatter policy record without a name")
+		return errPolicy("formatter record without a name")
 	}
 
 	if p.Gate.Kind == GateRequiresTech && p.Gate.Tech == "" {
-		return errPolicy("formatter %s: RequiresTech gate requires a technology key", p.Name)
+		return fmt.Errorf("%w: formatter %s: RequiresTech gate requires a technology key",
+			ErrInvalidPolicy, p.Name)
 	}
 
 	return nil
 }
 
-func errPolicy(format string, args ...any) error { return fmt.Errorf(format, args...) }
+func errPolicy(message string) error { return fmt.Errorf("%w: %s", ErrInvalidPolicy, message) }

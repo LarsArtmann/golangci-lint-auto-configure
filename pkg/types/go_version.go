@@ -2,9 +2,14 @@ package types
 
 import (
 	"cmp"
+	"errors"
 	"fmt"
 	"strconv"
 )
+
+// Parse-error sentinels for the Go version axis. Parse failures wrap one of
+// these so callers can classify without string matching.
+var ErrInvalidGoVersion = errors.New("types: invalid Go version")
 
 // GoVersion is a Go language version at major.minor granularity. The patch
 // component is unrepresentable by design: language semantics change per
@@ -26,7 +31,7 @@ type GoVersion struct {
 func ParseGoVersion(raw string) (GoVersion, error) {
 	major, minor, ok := parseGoMajorMinor(raw)
 	if !ok || major == 0 {
-		return GoVersion{}, fmt.Errorf("types: invalid Go version %q (want go1.N, 1.N, or 1.N.P)", raw)
+		return GoVersion{}, fmt.Errorf("%w: %q (want go1.N, 1.N, or 1.N.P)", ErrInvalidGoVersion, raw)
 	}
 
 	return GoVersion{major: major, minor: minor}, nil
