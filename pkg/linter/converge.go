@@ -106,7 +106,7 @@ func Converge(
 	strategies := StrategiesFor(MergeOptions{ForceSettings: options.ForceSettings})
 
 	plan := PlanDesired(working, desired, strategies)
-	plan = append(plan, planDisableOverlay(working, sidecar)...)
+	plan = append(plan, planDisableOverlay(working, sidecar, env)...)
 	sortChanges(plan)
 
 	if err := ValidatePlan(plan); err != nil {
@@ -140,9 +140,11 @@ type sidecarOverlay struct {
 }
 
 // planDisableOverlay converts the sidecar's anti-gaming enforcement into
-// changes: every unjustified disable is re-enabled and removed from the
-// disable list. Without a sidecar, disables are respected.
-func planDisableOverlay(observed *types.Config, overlay *sidecarOverlay) []Change {
+// changes: every unjustified disable is removed from the disable list and
+// re-enabled UNLESS the binary already enables it by default (writing a
+// default-enabled linter would churn every config). Without a sidecar,
+// disables are respected.
+func planDisableOverlay(observed *types.Config, overlay *sidecarOverlay, env Env) []Change {
 	if overlay == nil || !overlay.hasSidecarDoc || len(observed.Linters.Disable) == 0 {
 		return nil
 	}
@@ -160,17 +162,18 @@ func planDisableOverlay(observed *types.Config, overlay *sidecarOverlay) []Chang
 			continue
 		}
 
-		changes = append(changes,
-			Change{
+		if !env.AnalyzerEnabled[name] {
+			changes = append(changes, Change{
 				Path: "linters.enable", Element: string(name), Kind: ChangeAdd,
 				To:     string(name),
 				Reason: "unjustified disable (no entry in sidecar)",
-			},
-			Change{
-				Path: "linters.disable", Element: string(name), Kind: ChangeRemove,
-				From: string(name), Reason: "unjustified disable re-enabled",
-			},
-		)
+			})
+		}
+
+		changes = append(changes, Change{
+			Path: "linters.disable", Element: string(name), Kind: ChangeRemove,
+			From: string(name), Reason: "unjustified disable re-enabled",
+		})
 	}
 
 	return changes

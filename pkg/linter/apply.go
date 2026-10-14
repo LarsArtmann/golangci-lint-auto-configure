@@ -32,8 +32,13 @@ func applyChange(cfg *types.Config, change Change) {
 func applyLinterChanges(cfg *types.Config, change Change) {
 	switch change.Path {
 	case "linters.enable":
-		if change.Kind == ChangeAdd {
-			cfg.Linters.Enable = append(cfg.Linters.Enable, types.LinterName(change.Element))
+		switch change.Kind {
+		case ChangeAdd:
+			if !containsLinterName(toStrings(cfg.Linters.Enable), change.Element) {
+				cfg.Linters.Enable = append(cfg.Linters.Enable, types.LinterName(change.Element))
+			}
+		case ChangeRemove:
+			cfg.Linters.Enable = removeLinterName(cfg.Linters.Enable, types.LinterName(change.Element))
 		}
 	case "linters.disable":
 		if change.Kind == ChangeRemove {
@@ -55,8 +60,14 @@ func applyLinterChanges(cfg *types.Config, change Change) {
 func applyFormatterChanges(cfg *types.Config, change Change) {
 	switch change.Path {
 	case "formatters.enable":
-		if change.Kind == ChangeAdd {
-			cfg.Formatters.Enable = append(cfg.Formatters.Enable, types.FormatterName(change.Element))
+		switch change.Kind {
+		case ChangeAdd:
+			if !containsLinterName(toStrings(cfg.Linters.Enable), change.Element) &&
+				!containsFormatterName(cfg.Formatters.Enable, types.FormatterName(change.Element)) {
+				cfg.Formatters.Enable = append(cfg.Formatters.Enable, types.FormatterName(change.Element))
+			}
+		case ChangeRemove:
+			cfg.Formatters.Enable = removeFormatterEntry(cfg.Formatters.Enable, types.FormatterName(change.Element))
 		}
 	case "formatters.settings":
 		applySettingsChange(&cfg.Formatters.Settings, change)
@@ -167,6 +178,28 @@ func applyExclusionRule(rules *[]types.ExclusionRuleConfig, change Change) {
 			}
 		}
 	}
+}
+
+func containsFormatterName(names []types.FormatterName, want types.FormatterName) bool {
+	for _, name := range names {
+		if name == want {
+			return true
+		}
+	}
+
+	return false
+}
+
+func removeFormatterEntry(names []types.FormatterName, name types.FormatterName) []types.FormatterName {
+	out := names[:0:0]
+
+	for _, candidate := range names {
+		if candidate != name {
+			out = append(out, candidate)
+		}
+	}
+
+	return out
 }
 
 func removeLinterName(names []types.LinterName, name types.LinterName) []types.LinterName {
