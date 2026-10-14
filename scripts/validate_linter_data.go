@@ -1,17 +1,20 @@
 //go:build ignore
 // +build ignore
 
-// This script validates the integrity of linter data in the constants package.
-// It checks:
-//   - No duplicate keys in LinterPriorities
-//   - All priorities have corresponding reasons
-//   - All enabled linters in .golangci.yml exist in priorities
-//   - All formatters are consistent
-//   - DisabledLinters entries must not appear in priorities or reasons
-//   - DisabledLinters entries must have non-empty reason strings
-//   - NeverAutoEnableLinters entries must appear in priorities and reasons
-//   - NeverAutoEnableLinters entries must have non-empty reason strings
-//   - NeverAutoEnableLinters must not overlap with DisabledLinters or PragmaticNoiseLinters
+// This script validates the integrity of the linter policy data.
+//
+// Since the declarative policy table (pkg/constants/linter_policy_table.go)
+// landed, most former checks are enforced at package init: one record per
+// linter (no duplicate keys), per-record validation (tier payloads, disabled
+// linters carrying neither priority nor rationale, priority/rationale
+// coupling, supersession referential integrity), and formatter order
+// references. A violation panics on import — importing the package here IS
+// the check.
+//
+// What remains script-level is the cross-artifact check the package cannot
+// do: every linter this repo's own .golangci.yml enables must exist in the
+// policy table (or be a known deprecated alias), and the view-level
+// composition facts must hold.
 //
 // Run with: go run scripts/validate_linter_data.go
 package main
@@ -19,314 +22,107 @@ package main
 import (
 	"fmt"
 	"os"
-	"slices"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	"go.yaml.in/yaml/v3"
 )
-
-func sortSlice[T types.LinterName | types.FormatterName](slice []T) {
-	slices.Sort(slice)
-}
 
 func main() {
 	exitCode := 0
 
-	fmt.Println("🔍 Validating linter data integrity...")
-	fmt.Println()
+	fmt.Println("🔍 Validating linter policy integrity...")
 
-	// Check 1: All linters in priorities have reasons
-	fmt.Println("📋 Check 1: All linters in LinterPriorities have reasons in LinterReasons")
-	missingReasons := checkMissingReasons()
-	if len(missingReasons) > 0 {
-		exitCode = 1
-		fmt.Printf("   ❌ FAIL: %s missing reasons:\n", noun(len(missingReasons), "linter", "linters"))
-		for _, linter := range missingReasons {
-			fmt.Printf("      - %s\n", linter)
+	// Importing constants runs the init() table validation: one record per
+	// linter/formatter, per-record Validate, referential integrity, and
+	// formatter-order references. Reaching this line means the table is
+	// structurally sound.
+	fmt.Printf("   ✅ PASS: policy table (%d linters) and formatter table (%d formatters) structurally valid\n",
+		len(constants.LinterPolicies), len(constants.FormatterPolicies))
+
+	fmt.Println("📋 Check: min-version and project-specific views reference recommendable linters")
+
+	for linter := range constants.LinterMinVersions {
+		if !recommendable(linter) {
+			exitCode = 1
+			fmt.Printf("   ❌ FAIL: LinterMinVersions references non-recommendable linter %q\n", linter)
 		}
-	} else {
-		fmt.Printf(
-			"   ✅ PASS: checked %s; all have reasons\n",
-			noun(len(constants.LinterPriorities), "linter", "linters"),
-		)
 	}
-	fmt.Println()
 
-	// Check 2: All linters with reasons exist in priorities
-	fmt.Println("📋 Check 2: All linters in LinterReasons exist in LinterPriorities")
-	orphanReasons := checkOrphanReasons()
-	if len(orphanReasons) > 0 {
-		exitCode = 1
-		fmt.Printf("   ❌ FAIL: %s with reasons but no priority:\n", noun(len(orphanReasons), "linter", "linters"))
-		for _, linter := range orphanReasons {
-			fmt.Printf("      - %s\n", linter)
+	for linter := range constants.ProjectSpecificLinters {
+		if !recommendable(linter) {
+			exitCode = 1
+			fmt.Printf("   ❌ FAIL: ProjectSpecificLinters references non-recommendable linter %q\n", linter)
 		}
-	} else {
-		fmt.Printf(
-			"   ✅ PASS: checked %s; all have corresponding priorities\n",
-			noun(len(constants.LinterReasons), "reason", "reasons"),
-		)
 	}
-	fmt.Println()
 
-	// Check 3: All formatters have priorities
-	fmt.Println("📋 Check 3: All formatters in FormatterInfo have priorities")
-	formattersWithoutPriorities := checkFormatterPriorities()
-	if len(formattersWithoutPriorities) > 0 {
-		exitCode = 1
-		fmt.Printf(
-			"   ❌ FAIL: %s missing priorities:\n",
-			noun(len(formattersWithoutPriorities), "formatter", "formatters"),
-		)
-		for _, formatter := range formattersWithoutPriorities {
-			fmt.Printf("      - %s\n", formatter)
-		}
-	} else {
-		fmt.Printf(
-			"   ✅ PASS: checked %s; all have priorities\n",
-			noun(len(constants.FormatterInfo), "formatter", "formatters"),
-		)
-	}
-	fmt.Println()
-
-	// Check 4: All formatters with priorities have info
-	fmt.Println("📋 Check 4: All formatters in FormatterPriorities exist in FormatterInfo")
-	orphanFormatterPriorities := checkOrphanFormatterPriorities()
-	if len(orphanFormatterPriorities) > 0 {
-		exitCode = 1
-		fmt.Printf(
-			"   ❌ FAIL: %s without info:\n",
-			noun(len(orphanFormatterPriorities), "formatter priority", "formatter priorities"),
-		)
-		for _, formatter := range orphanFormatterPriorities {
-			fmt.Printf("      - %s\n", formatter)
-		}
-	} else {
-		fmt.Printf(
-			"   ✅ PASS: checked %s; all have info\n",
-			noun(len(constants.FormatterPriorities), "formatter priority", "formatter priorities"),
-		)
-	}
-	fmt.Println()
-
-	// Check 5: DisabledLinters must not appear in priorities or reasons
-	fmt.Println("📋 Check 5: DisabledLinters must not appear in LinterPriorities or LinterReasons")
-	disabledInPrioritiesOrReasons := checkDisabledLintersConsistency()
-	if len(disabledInPrioritiesOrReasons) > 0 {
-		exitCode = 1
-		fmt.Printf(
-			"   ❌ FAIL: %s found in priorities or reasons:\n",
-			noun(len(disabledInPrioritiesOrReasons), "disabled linter", "disabled linters"),
-		)
-		for _, linter := range disabledInPrioritiesOrReasons {
-			fmt.Printf("      - %s\n", linter)
-		}
-	} else {
-		fmt.Printf(
-			"   ✅ PASS: checked %s; all absent from priorities and reasons\n",
-			noun(len(constants.DisabledLinters), "disabled linter", "disabled linters"),
-		)
-	}
-	fmt.Println()
-
-	// Check 6: DisabledLinters must have non-empty reason strings
-	fmt.Println("📋 Check 6: DisabledLinters must have non-empty reason strings")
-	emptyReasons := checkDisabledLinterReasons()
-	if len(emptyReasons) > 0 {
-		exitCode = 1
-		fmt.Printf(
-			"   ❌ FAIL: %s with empty reasons:\n",
-			noun(len(emptyReasons), "disabled linter", "disabled linters"),
-		)
-		for _, linter := range emptyReasons {
-			fmt.Printf("      - %s\n", linter)
-		}
-	} else {
-		fmt.Printf(
-			"   ✅ PASS: checked %s; all have non-empty reasons\n",
-			noun(len(constants.DisabledLinters), "disabled linter", "disabled linters"),
-		)
-	}
-	fmt.Println()
-
-	// Check 7: NeverAutoEnableLinters must appear in priorities and reasons
-	fmt.Println("📋 Check 7: NeverAutoEnableLinters must appear in LinterPriorities and LinterReasons")
-	neverAutoEnableMissing := checkNeverAutoEnableLintersConsistency()
-	if len(neverAutoEnableMissing) > 0 {
-		exitCode = 1
-		fmt.Printf(
-			"   ❌ FAIL: %s missing from priorities or reasons:\n",
-			noun(len(neverAutoEnableMissing), "never-auto-enable linter", "never-auto-enable linters"),
-		)
-		for _, linter := range neverAutoEnableMissing {
-			fmt.Printf("      - %s\n", linter)
-		}
-	} else {
-		fmt.Printf(
-			"   ✅ PASS: checked %s; all have priorities and reasons\n",
-			noun(len(constants.NeverAutoEnableLinters), "never-auto-enable linter", "never-auto-enable linters"),
-		)
-	}
-	fmt.Println()
-
-	// Check 8: NeverAutoEnableLinters must have non-empty reasons and not overlap
-	fmt.Println(
-		"📋 Check 8: NeverAutoEnableLinters must have non-empty reasons and be disjoint from DisabledLinters and PragmaticNoiseLinters",
-	)
-	neverAutoEnableBad := checkNeverAutoEnableLinterReasons()
-	if len(neverAutoEnableBad) > 0 {
-		exitCode = 1
-		fmt.Printf(
-			"   ❌ FAIL: %s with empty reasons or tier overlap:\n",
-			noun(len(neverAutoEnableBad), "never-auto-enable linter", "never-auto-enable linters"),
-		)
-		for _, linter := range neverAutoEnableBad {
-			fmt.Printf("      - %s\n", linter)
-		}
-	} else {
-		fmt.Printf(
-			"   ✅ PASS: checked %s; all have non-empty reasons and are disjoint from other tiers\n",
-			noun(len(constants.NeverAutoEnableLinters), "never-auto-enable linter", "never-auto-enable linters"),
-		)
-	}
-	fmt.Println()
-
-	// Summary
-	fmt.Println("═══════════════════════════════════════════════════════════")
 	if exitCode == 0 {
-		fmt.Println("✅ ALL CHECKS PASSED")
+		fmt.Printf("   ✅ PASS: checked %d min-version and %d tech-gate entries\n",
+			len(constants.LinterMinVersions), len(constants.ProjectSpecificLinters))
+	}
+
+	fmt.Println("📋 Check: this repo's own .golangci.yml enables known linters only")
+
+	unknown := checkOwnConfig()
+	if len(unknown) > 0 {
+		exitCode = 1
+		fmt.Printf("   ❌ FAIL: %d unknown linters enabled:\n", len(unknown))
+		for _, linter := range unknown {
+			fmt.Printf("      - %s\n", linter)
+		}
 	} else {
-		fmt.Println("❌ SOME CHECKS FAILED")
-	}
-	fmt.Println("═══════════════════════════════════════════════════════════")
-
-	os.Exit(exitCode)
-}
-
-func sorted[T types.LinterName | types.FormatterName](items []T) []T {
-	sortSlice(items)
-
-	return items
-}
-
-// noun renders a count with the correct singular or plural noun form, e.g.
-// noun(1, "linter", "linters") -> "1 linter", noun(2, "linter", "linters") -> "2 linters".
-//
-// gohumanize H004 is suppressed here: this //go:build ignore script cannot
-// import dustin/go-humanize (go mod tidy strips deps from ignored files), and
-// adding it to the main module would trigger HasGoHumanize() self-detection,
-// causing the tool to recommend its own gohumanize module-plugin linter for
-// its own config (breaks stock golangci-lint).
-//
-//nolint:gohumanize
-func noun(n int, singular, pluralNoun string) string {
-	if n == 1 {
-		return fmt.Sprintf("%d %s", n, singular)
+		fmt.Println("   ✅ PASS: all enabled linters are known to the policy table")
 	}
 
-	return fmt.Sprintf("%d %s", n, pluralNoun)
-}
+	if exitCode != 0 {
+		fmt.Println("\n❌ Linter data integrity check FAILED")
 
-func checkMissingReasons() []types.LinterName {
-	var missing []types.LinterName
-	for linter := range constants.LinterPriorities {
-		if _, ok := constants.LinterReasons[linter]; !ok {
-			missing = append(missing, linter)
-		}
+		os.Exit(exitCode)
 	}
 
-	return sorted(missing)
+	fmt.Println("\n✨ Linter data integrity check passed!")
 }
 
-func checkOrphanReasons() []types.LinterName {
-	var orphan []types.LinterName
-	for linter := range constants.LinterReasons {
-		if _, ok := constants.LinterPriorities[linter]; !ok {
-			orphan = append(orphan, linter)
-		}
+func recommendable(linter types.LinterName) bool {
+	if _, disabled := constants.DisabledLinters[linter]; disabled {
+		return false
 	}
 
-	return sorted(orphan)
+	record, known := constants.PolicyRecord(linter)
+
+	return known && record.Tier.Kind != types.TierDisabled
 }
 
-func checkFormatterPriorities() []types.FormatterName {
-	var missing []types.FormatterName
-	for formatter := range constants.FormatterInfo {
-		if _, ok := constants.FormatterPriorities[formatter]; !ok {
-			missing = append(missing, formatter)
+type ownConfig struct {
+	Linters struct {
+		Enable []types.LinterName `yaml:"enable"`
+	} `yaml:"linters"`
+}
+
+func checkOwnConfig() []string {
+	data, err := os.ReadFile(".golangci.yml")
+	if err != nil {
+		fmt.Printf("   ⚠️  SKIP: cannot read .golangci.yml: %v\n", err)
+
+		return nil
+	}
+
+	var cfg ownConfig
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		fmt.Printf("   ⚠️  SKIP: cannot parse .golangci.yml: %v\n", err)
+
+		return nil
+	}
+
+	known := constants.LinterPolicyView()
+
+	var unknown []string
+
+	for _, linter := range cfg.Linters.Enable {
+		if _, ok := known[linter]; !ok {
+			unknown = append(unknown, string(linter))
 		}
 	}
 
-	return sorted(missing)
-}
-
-func checkOrphanFormatterPriorities() []types.FormatterName {
-	var orphan []types.FormatterName
-	for formatter := range constants.FormatterPriorities {
-		if _, ok := constants.FormatterInfo[formatter]; !ok {
-			orphan = append(orphan, formatter)
-		}
-	}
-
-	return sorted(orphan)
-}
-
-func checkDisabledLintersConsistency() []types.LinterName {
-	var violations []types.LinterName
-	for linter := range constants.DisabledLinters {
-		if _, ok := constants.LinterPriorities[linter]; ok {
-			violations = append(violations, linter)
-			continue
-		}
-		if _, ok := constants.LinterReasons[linter]; ok {
-			violations = append(violations, linter)
-		}
-	}
-
-	return sorted(violations)
-}
-
-func checkNeverAutoEnableLintersConsistency() []types.LinterName {
-	var violations []types.LinterName
-	for linter := range constants.NeverAutoEnableLinters {
-		if _, ok := constants.LinterPriorities[linter]; !ok {
-			violations = append(violations, linter)
-			continue
-		}
-		if _, ok := constants.LinterReasons[linter]; !ok {
-			violations = append(violations, linter)
-		}
-	}
-
-	return sorted(violations)
-}
-
-func checkNeverAutoEnableLinterReasons() []types.LinterName {
-	var violations []types.LinterName
-	for linter, reason := range constants.NeverAutoEnableLinters {
-		if reason == "" {
-			violations = append(violations, linter)
-			continue
-		}
-		if _, ok := constants.DisabledLinters[linter]; ok {
-			violations = append(violations, linter)
-			continue
-		}
-		if _, ok := constants.PragmaticNoiseLinters[linter]; ok {
-			violations = append(violations, linter)
-		}
-	}
-
-	return sorted(violations)
-}
-
-func checkDisabledLinterReasons() []types.LinterName {
-	var empty []types.LinterName
-	for linter, reason := range constants.DisabledLinters {
-		if reason == "" {
-			empty = append(empty, linter)
-		}
-	}
-
-	return sorted(empty)
+	return unknown
 }
