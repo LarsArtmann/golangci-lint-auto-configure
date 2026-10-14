@@ -10,8 +10,8 @@ import (
 
 // Parse-error sentinels for the golangci-lint tool-version axis.
 var (
-	ErrEmptyGolangciVersion    = errors.New("types: empty golangci-lint version")
-	ErrInvalidGolangciVersion  = errors.New("types: invalid golangci-lint version")
+	ErrEmptyGolangciVersion   = errors.New("types: empty golangci-lint version")
+	ErrInvalidGolangciVersion = errors.New("types: invalid golangci-lint version")
 )
 
 // GolangciVersion is a golangci-lint tool version (semantic version,

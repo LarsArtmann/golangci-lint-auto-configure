@@ -7,13 +7,7 @@ import (
 )
 
 var _ = Describe("Interval", func() {
-	var tool func(string) types.GolangciVersion
-
-	BeforeEach(func() {
-		tool = func(s string) types.GolangciVersion {
-			return types.MustParseGolangciVersion(s)
-		}
-	})
+	tool := types.MustParseGolangciVersion
 
 	Describe("unbounded zero-value semantics", func() {
 		It("matches everything when both bounds are zero", func() {
@@ -91,15 +85,9 @@ var _ = Describe("Interval", func() {
 	})
 
 	Describe("ParseInterval round-trip", func() {
-		var parse func(string) (types.GolangciVersion, error)
-
-		BeforeEach(func() {
-			parse = types.ParseGolangciVersion
-		})
-
 		DescribeTable("ParseInterval(String()) equals the original",
 			func(original types.Interval[types.GolangciVersion]) {
-				parsed, err := types.ParseInterval(original.String(), parse)
+				parsed, err := types.ParseInterval(original.String(), types.ParseGolangciVersion)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(parsed).To(Equal(original))
 			},
@@ -111,7 +99,7 @@ var _ = Describe("Interval", func() {
 
 		DescribeTable("rejecting invalid forms",
 			func(input string) {
-				_, err := types.ParseInterval[types.GolangciVersion](input, parse)
+				_, err := types.ParseInterval[types.GolangciVersion](input, types.ParseGolangciVersion)
 				Expect(err).To(HaveOccurred(), "input %q should not parse", input)
 			},
 			Entry("empty", ""),

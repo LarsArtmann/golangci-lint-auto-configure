@@ -124,4 +124,3 @@ func formatterSettingsToMap(t *testing.T, m map[types.FormatterName]constants.Se
 
 	return out
 }
-

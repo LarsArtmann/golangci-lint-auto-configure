@@ -16,6 +16,7 @@ import (
 	"os"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,46 +26,62 @@ import (
 
 const outputPath = "pkg/constants/linter_policy_table.go"
 
+// curatedData holds the hand-curated facts that live only in this generator:
+// stated deprecation versions, measured friction ratios, and language
+// relevance bounds.
+type curatedData struct {
+	validToolMax    map[string]string
+	friction        map[string]float64
+	exhaustructAsOf time.Time
+	langMin         map[string]string
+}
+
+// loadCurated returns the curated facts.
+//
 // validToolMax encodes the deprecation version where it is a stated fact in
 // the legacy reasons ("deprecated since golangci-lint vX"). Linters removed
 // in v2 have no precise last-good version in the data; their interval stays
 // unbounded and supersession drives behavior.
-var validToolMax = map[string]string{
-	"wsl":         "v2.2.0",
-	"gomodguard":  "v2.12.0",
-	"exhaustruct": "v2.13.0",
-}
-
-// friction encodes the measured ratios documented in the tier comments
-// (cross-project nolint audit). AsOf is unknown for all but exhaustruct;
-// the zero time means "measurement date not recorded".
-var friction = map[string]float64{
-	"exhaustruct_v5":   6.5,
-	"gochecknoglobals": 5.1,
-	"wrapcheck":        1.8,
-	"ireturn":          1.3,
-	"funlen":           0.83,
-}
-
-// exhaustructEvidence is the one measurement whose raw counts survive in the
-// curated docs: 954 nolints across 146 configs.
-var exhaustructAsOf = time.Date(2026, 9, 11, 0, 0, 0, 0, time.UTC)
-
-// langMin encodes linguistic-relevance lower bounds that are language facts.
-var langMin = map[string]string{
-	"copyloopvar": "1.22",
+//
+// friction encodes the measured ratios from the cross-project nolint audit.
+// AsOf is unknown for all but exhaustruct; the zero time means "measurement
+// date not recorded". exhaustruct is the one measurement whose raw counts
+// survive in the curated docs: 954 nolints across 146 configs.
+func loadCurated() curatedData {
+	return curatedData{
+		validToolMax: map[string]string{
+			"wsl":         "v2.2.0",
+			"gomodguard":  "v2.12.0",
+			"exhaustruct": "v2.13.0",
+		},
+		friction: map[string]float64{
+			"exhaustruct_v5":   6.5,  //nolint:mnd // measured friction ratio (curated audit data)
+			"gochecknoglobals": 5.1,  //nolint:mnd // measured friction ratio (curated audit data)
+			"wrapcheck":        1.8,  //nolint:mnd // measured friction ratio (curated audit data)
+			"ireturn":          1.3,  //nolint:mnd // measured friction ratio (curated audit data)
+			"funlen":           0.83, //nolint:mnd // measured friction ratio (curated audit data)
+		},
+		exhaustructAsOf: time.Date(2026, 9, 11, 0, 0, 0, 0, time.UTC),
+		langMin: map[string]string{
+			"copyloopvar": "1.22",
+		},
+	}
 }
 
 func main() {
 	records := collect()
 
-	src := render(records)
+	write(render(records))
 
-	formatted, err := format.Source([]byte(src))
+	fmt.Fprintln(os.Stdout, "wrote", outputPath, "with", len(records), "policy records")
+}
+
+func write(source string) {
+	formatted, err := format.Source([]byte(source))
 	if err != nil {
 		const debugPath = "/tmp/linter_policy_table.go.raw"
 
-		if writeErr := os.WriteFile(debugPath, []byte(src), 0o644); writeErr != nil {
+		if writeErr := os.WriteFile(debugPath, []byte(source), 0o600); writeErr != nil {
 			fmt.Fprintln(os.Stderr, "write raw debug source:", writeErr)
 		}
 
@@ -72,69 +89,63 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := os.WriteFile(outputPath, formatted, 0o644); err != nil {
+	if err := os.WriteFile(outputPath, formatted, 0o600); err != nil {
 		fmt.Fprintln(os.Stderr, "write:", err)
 		os.Exit(1)
 	}
-
-	fmt.Printf("wrote %s with %d policy records\n", outputPath, len(records))
 }
 
 func collect() []types.LinterPolicy {
 	legacy := readGoldenMaps()
+	curated := loadCurated()
 
-	names := map[types.LinterName]bool{}
-
-	for name := range legacy.priorities {
-		names[types.LinterName(name)] = true
-	}
-
-	for name := range legacy.reasons {
-		names[types.LinterName(name)] = true
-	}
-
-	for name := range legacy.deprecated {
-		names[types.LinterName(name)] = true
-	}
-
-	for name := range legacy.disabled {
-		names[types.LinterName(name)] = true
-	}
-
-	for name := range legacy.neverAutoEnable {
-		names[types.LinterName(name)] = true
-	}
-
-	for name := range legacy.pragmaticNoise {
-		names[types.LinterName(name)] = true
-	}
-
-	for name := range legacy.minVersions {
-		names[types.LinterName(name)] = true
-	}
-
-	for name := range legacy.projectSpecific {
-		names[types.LinterName(name)] = true
-	}
-
-	for name := range constants.DefaultLinterSettings {
-		names[name] = true
-	}
-
-	sorted := make([]string, 0, len(names))
-	for name := range names {
-		sorted = append(sorted, string(name))
-	}
-
-	sort.Strings(sorted)
+	sorted := collectNames(legacy)
 
 	records := make([]types.LinterPolicy, 0, len(sorted))
 
 	for _, name := range sorted {
-		records = append(records, build(types.LinterName(name), legacy))
+		records = append(records, build(types.LinterName(name), legacy, curated))
 	}
 
 	return records
+}
+
+func collectNames(legacy goldenMaps) []string {
+	names := map[string]bool{}
+
+	for _, source := range []map[string]string{
+		legacy.reasons,
+		legacy.disabled,
+		legacy.neverAutoEnable,
+		legacy.pragmaticNoise,
+		legacy.minVersions,
+		legacy.projectSpecific,
+	} {
+		for name := range source {
+			names[name] = true
+		}
+	}
+
+	for name := range legacy.priorities {
+		names[name] = true
+	}
+
+	for name := range legacy.deprecated {
+		names[name] = true
+	}
+
+	for name := range constants.DefaultLinterSettings {
+		names[string(name)] = true
+	}
+
+	sorted := make([]string, 0, len(names))
+	for name := range names {
+		sorted = append(sorted, name)
+	}
+
+	sort.Strings(sorted)
+
+	return sorted
 }
 
 type goldenMaps struct {
@@ -185,7 +196,17 @@ func readGoldenMaps() goldenMaps {
 	return legacy
 }
 
-func build(name types.LinterName, legacy goldenMaps) types.LinterPolicy {
+func build(name types.LinterName, legacy goldenMaps, curated curatedData) types.LinterPolicy {
+	record := buildIdentity(name, legacy)
+	buildValidity(&record, legacy, curated)
+	buildTier(&record, legacy)
+	buildEvidence(&record, curated)
+	buildSettings(&record)
+
+	return record
+}
+
+func buildIdentity(name types.LinterName, legacy goldenMaps) types.LinterPolicy {
 	record := types.LinterPolicy{Name: name}
 
 	// Priorities come from the frozen golden JSON (the pre-table truth), NOT
@@ -201,67 +222,94 @@ func build(name types.LinterName, legacy goldenMaps) types.LinterPolicy {
 
 	record.Rationale = legacy.reasons[string(name)]
 
-	if replacement, deprecated := legacy.deprecated[string(name)]; deprecated {
+	return record
+}
+
+func buildValidity(record *types.LinterPolicy, legacy goldenMaps, curated curatedData) {
+	if replacement, deprecated := legacy.deprecated[string(record.Name)]; deprecated {
 		record.SupersededBy = types.LinterName(replacement.Replacement)
 		record.SupersessionReason = replacement.Reason
 		record.SupersessionSince = parseVersion(replacement.MinVersion)
 
-		if maxVer, hasMax := validToolMax[string(name)]; hasMax {
+		if maxVer, hasMax := curated.validToolMax[string(record.Name)]; hasMax {
 			record.ValidTool = types.Interval[types.GolangciVersion]{
 				Max: types.MustParseGolangciVersion(maxVer),
 			}
 		}
 	}
 
-	if minVer, hasMin := legacy.minVersions[string(name)]; hasMin {
+	if minVer, hasMin := legacy.minVersions[string(record.Name)]; hasMin {
 		record.ValidTool.Min = parseVersion(minVer)
 	}
 
-	if lang, hasLang := langMin[string(name)]; hasLang {
+	if lang, hasLang := curated.langMin[string(record.Name)]; hasLang {
 		record.Lang = types.Interval[types.GoVersion]{
 			Min: types.MustParseGoVersion(lang),
 		}
 	}
 
-	if tech, isSpecific := legacy.projectSpecific[string(name)]; isSpecific {
+	if tech, isSpecific := legacy.projectSpecific[string(record.Name)]; isSpecific {
 		record.Gate = types.RequiresTech(tech)
 	}
+}
 
-	if reason, disabled := legacy.disabled[string(name)]; disabled {
+func buildTier(record *types.LinterPolicy, legacy goldenMaps) {
+	if reason, disabled := legacy.disabled[string(record.Name)]; disabled {
 		record.Tier = types.Tier{Kind: types.TierDisabled, Rationale: reason}
 		record.Priority = types.LinterPriorityOptional
 		record.Rationale = ""
-	} else if reason, never := legacy.neverAutoEnable[string(name)]; never {
+
+		return
+	}
+
+	if reason, never := legacy.neverAutoEnable[string(record.Name)]; never {
 		record.Tier = types.Tier{Kind: types.TierNeverAutoEnable, Rationale: reason}
-	} else if reason, noise := legacy.pragmaticNoise[string(name)]; noise {
+
+		return
+	}
+
+	if reason, noise := legacy.pragmaticNoise[string(record.Name)]; noise {
 		record.Tier = types.Tier{Kind: types.TierPragmaticNoise, Rationale: reason}
 	}
+}
 
-	if ratio, measured := friction[string(name)]; measured {
-		evidence := &types.Evidence{Ratio: ratio}
-		if name == "exhaustruct_v5" {
-			evidence.Nolints = 954
-			evidence.Configs = 146
-			evidence.AsOf = exhaustructAsOf
-		}
-
-		record.Friction = evidence
+func buildEvidence(record *types.LinterPolicy, curated curatedData) {
+	ratio, measured := curated.friction[string(record.Name)]
+	if !measured {
+		return
 	}
 
-	if settings, hasSettings := constants.DefaultLinterSettings[name]; hasSettings {
-		since := types.GolangciVersion{}
-		if name == "goconst" {
-			since = types.MustParseGolangciVersion("v2.12.0")
-		}
+	evidence := &types.Evidence{Ratio: ratio}
 
-		if name == "exhaustruct_v5" {
-			since = types.MustParseGolangciVersion("v2.13.0")
-		}
-
-		record.Settings = []types.VersionedSettings{{Settings: settings, Since: since}}
+	if record.Name == "exhaustruct_v5" {
+		evidence.Nolints = 954
+		evidence.Configs = 146
+		evidence.AsOf = curated.exhaustructAsOf
 	}
 
-	return record
+	record.Friction = evidence
+}
+
+func buildSettings(record *types.LinterPolicy) {
+	settings, hasSettings := constants.DefaultLinterSettings[record.Name]
+	if !hasSettings {
+		return
+	}
+
+	since := settingsSince(record.Name)
+
+	record.Settings = []types.VersionedSettings{{Settings: settings, Since: since}}
+}
+
+func settingsSince(name types.LinterName) types.GolangciVersion {
+	switch name {
+	case "goconst":
+		return types.MustParseGolangciVersion("v2.12.0")
+	case "exhaustruct_v5":
+		return types.MustParseGolangciVersion("v2.13.0")
+	default:
+		return types.GolangciVersion{}
+	}
 }
 
 func parseVersion(raw string) types.GolangciVersion {
@@ -278,60 +326,74 @@ func render(records []types.LinterPolicy) string {
 	b.WriteString(header)
 
 	for _, record := range records {
-		b.WriteString("\t{\n")
-
-		fmt.Fprintf(&b, "\t\tName: %q,\n", string(record.Name))
-
-		b.WriteString(intervalField(&record))
-		b.WriteString(langField(&record))
-
-		if record.SupersededBy != "" {
-			fmt.Fprintf(&b, "\t\tSupersededBy: %q,\n", string(record.SupersededBy))
-		}
-
-		if record.SupersessionReason != "" {
-			fmt.Fprintf(&b, "\t\tSupersessionReason: %q,\n", record.SupersessionReason)
-		}
-
-		if record.SupersessionSince.String() != "" {
-			fmt.Fprintf(&b, "\t\tSupersessionSince: types.MustParseGolangciVersion(%q),\n", record.SupersessionSince.String())
-		}
-
-		if record.Priority == types.LinterPriorityOptional {
-			fmt.Fprintf(&b, "\t\tPriority: types.LinterPriorityOptional,\n")
-		} else {
-			fmt.Fprintf(&b, "\t\tPriority: %s,\n", priorityIdent(record.Priority))
-		}
-
-		if record.Rationale != "" {
-			fmt.Fprintf(&b, "\t\tRationale: %q,\n", record.Rationale)
-		}
-
-		if record.Friction != nil {
-			fmt.Fprintf(&b, "\t\tFriction: &types.Evidence{Ratio: %s, Nolints: %d, Configs: %d, AsOf: %s},\n",
-				floatLit(record.Friction.Ratio), record.Friction.Nolints, record.Friction.Configs, timeLit(record.Friction.AsOf))
-		}
-
-		for _, entry := range record.Settings {
-			fmt.Fprintf(&b, "\t\tSettings: []types.VersionedSettings{{Settings: %s, Since: %s}},\n",
-				structLiteral(reflect.ValueOf(entry.Settings), 3), sinceLit(entry.Since))
-		}
-
-		if record.Tier.Kind != types.TierRecommendable {
-			fmt.Fprintf(&b, "\t\tTier: types.Tier{Kind: types.%s, Rationale: %q},\n",
-				tierIdent(record.Tier.Kind), record.Tier.Rationale)
-		}
-
-		if record.Gate.Kind == types.GateRequiresTech {
-			fmt.Fprintf(&b, "\t\tGate: types.RequiresTech(%q),\n", record.Gate.Tech)
-		}
-
-		b.WriteString("\t},\n")
+		renderRecord(&b, record)
 	}
 
 	b.WriteString("}\n")
 
 	return b.String()
+}
+
+func renderRecord(b *strings.Builder, record types.LinterPolicy) {
+	b.WriteString("\t{\n")
+
+	fmt.Fprintf(b, "\t\tName: %q,\n", string(record.Name))
+
+	b.WriteString(intervalField(&record))
+	b.WriteString(langField(&record))
+	b.WriteString(supersessionFields(&record))
+	b.WriteString(priorityField(&record))
+
+	if record.Rationale != "" {
+		fmt.Fprintf(b, "\t\tRationale: %q,\n", record.Rationale)
+	}
+
+	if record.Friction != nil {
+		fmt.Fprintf(b, "\t\tFriction: &types.Evidence{Ratio: %#v, Nolints: %d, Configs: %d, AsOf: %s},\n",
+			record.Friction.Ratio, record.Friction.Nolints, record.Friction.Configs, timeLit(record.Friction.AsOf))
+	}
+
+	for _, entry := range record.Settings {
+		fmt.Fprintf(b, "\t\tSettings: []types.VersionedSettings{{Settings: %s, Since: %s}},\n",
+			structLiteral(reflect.ValueOf(entry.Settings)), sinceLit(entry.Since))
+	}
+
+	if record.Tier.Kind != types.TierRecommendable {
+		fmt.Fprintf(b, "\t\tTier: types.Tier{Kind: types.%s, Rationale: %q},\n",
+			tierIdent(record.Tier.Kind), record.Tier.Rationale)
+	}
+
+	if record.Gate.Kind == types.GateRequiresTech {
+		fmt.Fprintf(b, "\t\tGate: types.RequiresTech(%q),\n", record.Gate.Tech)
+	}
+
+	b.WriteString("\t},\n")
+}
+
+func supersessionFields(record *types.LinterPolicy) string {
+	var b strings.Builder
+
+	if record.SupersededBy != "" {
+		fmt.Fprintf(&b, "\t\tSupersededBy: %q,\n", string(record.SupersededBy))
+	}
+
+	if record.SupersessionReason != "" {
+		fmt.Fprintf(&b, "\t\tSupersessionReason: %q,\n", record.SupersessionReason)
+	}
+
+	if record.SupersessionSince.String() != "" {
+		fmt.Fprintf(&b, "\t\tSupersessionSince: types.MustParseGolangciVersion(%q),\n", record.SupersessionSince.String())
+	}
+
+	return b.String()
+}
+
+func priorityField(record *types.LinterPolicy) string {
+	if record.Priority == types.LinterPriorityOptional {
+		return "\t\tPriority: types.LinterPriorityOptional,\n"
+	}
+
+	return fmt.Sprintf("\t\tPriority: %s,\n", priorityIdent(record.Priority))
 }
 
 func intervalField(record *types.LinterPolicy) string {
@@ -359,87 +421,85 @@ func langField(record *types.LinterPolicy) string {
 	return fmt.Sprintf("\t\tLang: types.Interval[types.GoVersion]{Min: types.MustParseGoVersion(%q)},\n", record.Lang.Min.String())
 }
 
-func priorityIdent(p types.LinterPriority) string {
-	return map[types.LinterPriority]string{
+func priorityIdent(priority types.LinterPriority) string {
+	identifiers := map[types.LinterPriority]string{
 		types.LinterPriorityCritical: "types.LinterPriorityCritical",
 		types.LinterPriorityHigh:     "types.LinterPriorityHigh",
 		types.LinterPriorityMedium:   "types.LinterPriorityMedium",
 		types.LinterPriorityOptional: "types.LinterPriorityOptional",
-	}[p]
+	}
+
+	return identifiers[priority]
 }
 
-func tierIdent(k types.TierKind) string {
-	return map[types.TierKind]string{
+func tierIdent(kind types.TierKind) string {
+	identifiers := map[types.TierKind]string{
 		types.TierRecommendable:   "TierRecommendable",
 		types.TierDisabled:        "TierDisabled",
 		types.TierNeverAutoEnable: "TierNeverAutoEnable",
 		types.TierPragmaticNoise:  "TierPragmaticNoise",
-	}[k]
+	}
+
+	return identifiers[kind]
 }
 
-func floatLit(f float64) string {
-	return fmt.Sprintf("%#v", f)
-}
-
-func sinceLit(v types.GolangciVersion) string {
-	if v.IsZero() {
+func sinceLit(version types.GolangciVersion) string {
+	if version.IsZero() {
 		return "types.GolangciVersion{}"
 	}
 
-	return fmt.Sprintf("types.MustParseGolangciVersion(%q)", v.String())
+	return fmt.Sprintf("types.MustParseGolangciVersion(%q)", version.String())
 }
 
-func timeLit(t time.Time) string {
-	if t.IsZero() {
+func timeLit(moment time.Time) string {
+	if moment.IsZero() {
 		return "time.Time{}"
 	}
 
-	return fmt.Sprintf("time.Date(%d, %d, %d, 0, 0, 0, 0, time.UTC)", t.Year(), t.Month(), t.Day())
+	return fmt.Sprintf("time.Date(%d, %d, %d, 0, 0, 0, 0, time.UTC)", moment.Year(), moment.Month(), moment.Day())
 }
 
 // structLiteral renders a settings struct value as a composite literal.
-func structLiteral(value reflect.Value, depth int) string {
-	t := value.Type()
-
-	switch t.Kind() {
+func structLiteral(value reflect.Value) string {
+	switch value.Kind() {
 	case reflect.String:
 		return fmt.Sprintf("%q", value.String())
 	case reflect.Int:
-		return fmt.Sprintf("%d", value.Int())
+		return strconv.FormatInt(value.Int(), 10)
 	case reflect.Bool:
-		return fmt.Sprintf("%v", value.Bool())
+		return strconv.FormatBool(value.Bool())
 	case reflect.Slice:
-		if t.Elem().Kind() == reflect.Struct {
-			parts := make([]string, 0, value.Len())
-			for i := 0; i < value.Len(); i++ {
-				parts = append(parts, structLiteral(value.Index(i), depth+1))
-			}
-
-			return fmt.Sprintf("[]%s{%s}", typeName(t.Elem()), strings.Join(parts, ", "))
-		}
-
-		parts := make([]string, 0, value.Len())
-		for i := 0; i < value.Len(); i++ {
-			parts = append(parts, structLiteral(value.Index(i), depth+1))
-		}
-
-		return fmt.Sprintf("[]%s{%s}", typeName(t.Elem()), strings.Join(parts, ", "))
+		return sliceLiteral(value)
 	case reflect.Struct:
-		fields := make([]string, 0, t.NumField())
+		return structFields(value)
+	default:
+		panic(fmt.Sprintf("gen-policy-table: unsupported settings field kind %s", value.Kind()))
+	}
+}
 
-		for i := 0; i < t.NumField(); i++ {
-			field := t.Field(i)
-			if !ast.IsExported(field.Name) {
-				continue
-			}
+func sliceLiteral(value reflect.Value) string {
+	elements := make([]string, 0, value.Len())
 
-			fields = append(fields, fmt.Sprintf("%s: %s", field.Name, structLiteral(value.Field(i), depth+1)))
+	for i := range value.Len() {
+		elements = append(elements, structLiteral(value.Index(i)))
+	}
+
+	return fmt.Sprintf("[]%s{%s}", typeName(value.Type().Elem()), strings.Join(elements, ", "))
+}
+
+func structFields(value reflect.Value) string {
+	fields := make([]string, 0, value.Type().NumField())
+
+	for i := range value.Type().NumField() {
+		field := value.Type().Field(i)
+		if !ast.IsExported(field.Name) {
+			continue
 		}
 
-		return fmt.Sprintf("%s{%s}", typeName(t), strings.Join(fields, ", "))
-	default:
-		panic(fmt.Sprintf("gen-policy-table: unsupported settings field kind %s", t.Kind()))
+		fields = append(fields, fmt.Sprintf("%s: %s", field.Name, structLiteral(value.Field(i))))
 	}
+
+	return fmt.Sprintf("%s{%s}", typeName(value.Type()), strings.Join(fields, ", "))
 }
 
 func typeName(t reflect.Type) string {
