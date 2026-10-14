@@ -69,11 +69,6 @@ var _ = Describe("JSON Tag Serialization", func() {
 					ConfigPath:       ".golangci.yml",
 					EnabledLinters:   []types.LinterInfo{{Name: "govet"}},
 					DisabledLinters:  []types.LinterInfo{{Name: "gosec"}},
-					CriticalCount:    2,
-					HighValueCount:   3,
-					MediumValueCount: 1,
-					OptionalCount:    0,
-					DeprecatedCount:  0,
 				}
 
 				data, err := json.Marshal(analysis, json.Deterministic(true))
@@ -85,11 +80,9 @@ var _ = Describe("JSON Tag Serialization", func() {
 				Expect(raw).To(HaveKey("ConfigPath"))
 				Expect(raw).To(HaveKey("EnabledLinters"))
 				Expect(raw).To(HaveKey("DisabledLinters"))
-				Expect(raw).To(HaveKey("CriticalCount"))
-				Expect(raw).To(HaveKey("HighValueCount"))
-				Expect(raw).To(HaveKey("MediumValueCount"))
-				Expect(raw).To(HaveKey("OptionalCount"))
-				Expect(raw).To(HaveKey("DeprecatedCount"))
+				// Priority counts are derived methods, not serialized fields.
+				Expect(raw).NotTo(HaveKey("CriticalCount"))
+				Expect(raw).NotTo(HaveKey("DeprecatedCount"))
 
 				Expect(raw).NotTo(HaveKey("config_path"))
 				Expect(raw).NotTo(HaveKey("enabled_linters"))

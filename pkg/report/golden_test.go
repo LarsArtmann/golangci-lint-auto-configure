@@ -57,11 +57,6 @@ var _ = Describe("HTML Report Golden Snapshot", func() {
 				{Name: "gosec", Priority: types.LinterPriorityCritical, Reason: "Security"},
 				{Name: "funlen", Priority: types.LinterPriorityHigh, Reason: "Long functions"},
 			},
-			CriticalCount:    1,
-			HighValueCount:   1,
-			MediumValueCount: 0,
-			OptionalCount:    0,
-			DeprecatedCount:  0,
 		}
 	})
 
@@ -110,10 +105,6 @@ var _ = Describe("HTML Report Golden Snapshot", func() {
 			noRecs := &types.ConfigAnalysis{
 				ConfigPath:       "clean.yml",
 				EnabledLinters:   []types.LinterInfo{{Name: "govet"}},
-				CriticalCount:    0,
-				HighValueCount:   0,
-				MediumValueCount: 0,
-				OptionalCount:    0,
 			}
 			html := renderAnalysisToHTML(noRecs)
 			Expect(html).To(ContainSubstring("Perfect Configuration"))

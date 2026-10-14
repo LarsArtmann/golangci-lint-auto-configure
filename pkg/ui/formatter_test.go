@@ -92,10 +92,6 @@ func TestFormatRecommendations_WithEnabledLinter(t *testing.T) {
 
 func TestFormatSummary(t *testing.T) {
 	analysis := &types.ConfigAnalysis{
-		CriticalCount:    2,
-		HighValueCount:   3,
-		MediumValueCount: 4,
-		OptionalCount:    1,
 		EnabledLinters:   []types.LinterInfo{{Name: "lint1"}, {Name: "lint2"}},
 		DisabledLinters:  []types.LinterInfo{{Name: "lint3"}},
 	}

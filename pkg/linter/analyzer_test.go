@@ -66,7 +66,6 @@ var _ = Describe("Analyzer", func() {
 	Context("Summary Generation", func() {
 		It("should return summary for critical linters", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount: 3,
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "gosec"},
 					{Name: "errcheck"},
@@ -82,8 +81,6 @@ var _ = Describe("Analyzer", func() {
 
 		It("should return summary for mixed priorities", func() {
 			analysis := &types.ConfigAnalysis{
-				CriticalCount:  1,
-				HighValueCount: 2,
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "gosec"},
 					{Name: "wrapcheck"},

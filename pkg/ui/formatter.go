@@ -86,10 +86,10 @@ func FormatSummary(analysis *types.ConfigAnalysis) string {
 
 	output += "\n" + SectionHeader("Summary") + "\n\n"
 
-	output += formatSummaryLine("Critical:", PriorityBadge(priorityCritical), analysis.CriticalCount)
-	output += formatSummaryLine("High Priority:", PriorityBadge(priorityHigh), analysis.HighValueCount)
-	output += formatSummaryLine("Medium Priority:", PriorityBadge(priorityMedium), analysis.MediumValueCount)
-	output += formatSummaryLine("Optional:", PriorityBadge(priorityOptional), analysis.OptionalCount)
+	output += formatSummaryLine("Critical:", PriorityBadge(priorityCritical), analysis.CriticalCount())
+	output += formatSummaryLine("High Priority:", PriorityBadge(priorityHigh), analysis.HighValueCount())
+	output += formatSummaryLine("Medium Priority:", PriorityBadge(priorityMedium), analysis.MediumValueCount())
+	output += formatSummaryLine("Optional:", PriorityBadge(priorityOptional), analysis.OptionalCount())
 	output += fmt.Sprintf("  %-20s %s\n", "Enabled:", SuccessMsg(strconv.Itoa(len(analysis.EnabledLinters))))
 	output += fmt.Sprintf("  %-20s %s\n", "Disabled:", ErrorMsg(strconv.Itoa(len(analysis.DisabledLinters))))
 

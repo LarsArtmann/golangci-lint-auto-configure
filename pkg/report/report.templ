@@ -155,10 +155,10 @@ templ Report(data ReportData) {
 					<p>Analysis of { data.Analysis.ConfigPath }</p>
 				</div>
 				<div class="summary-grid">
-					@SummaryCard("critical", data.Analysis.CriticalCount, "Critical")
-					@SummaryCard("high", data.Analysis.HighValueCount, "High Priority")
-					@SummaryCard("medium", data.Analysis.MediumValueCount, "Medium Priority")
-					@SummaryCard("optional", data.Analysis.OptionalCount, "Optional")
+					@SummaryCard("critical", data.Analysis.CriticalCount(), "Critical")
+					@SummaryCard("high", data.Analysis.HighValueCount(), "High Priority")
+					@SummaryCard("medium", data.Analysis.MediumValueCount(), "Medium Priority")
+					@SummaryCard("optional", data.Analysis.OptionalCount(), "Optional")
 					@SummaryCard("enabled", len(data.Analysis.EnabledLinters), "Enabled")
 					@SummaryCard("disabled", len(data.Analysis.DisabledLinters), "Disabled")
 				</div>
@@ -172,10 +172,10 @@ templ Report(data ReportData) {
 					</div>
 				</div>
 				if len(data.Analysis.LinterRecommendations) > 0 {
-					@LinterPrioritySection(data.Analysis, "Critical Linters", data.Analysis.CriticalCount, types.LinterPriorityCritical, "🚨", "critical", "CRITICAL")
-					@LinterPrioritySection(data.Analysis, "High Priority Linters", data.Analysis.HighValueCount, types.LinterPriorityHigh, "⚠️", "high", "HIGH")
-					@LinterPrioritySection(data.Analysis, "Medium Priority Linters", data.Analysis.MediumValueCount, types.LinterPriorityMedium, "ℹ️", "medium", "MEDIUM")
-					@LinterPrioritySection(data.Analysis, "Optional Linters", data.Analysis.OptionalCount, types.LinterPriorityOptional, "💡", "optional", "OPTIONAL")
+					@LinterPrioritySection(data.Analysis, "Critical Linters", data.Analysis.CriticalCount(), types.LinterPriorityCritical, "🚨", "critical", "CRITICAL")
+					@LinterPrioritySection(data.Analysis, "High Priority Linters", data.Analysis.HighValueCount(), types.LinterPriorityHigh, "⚠️", "high", "HIGH")
+					@LinterPrioritySection(data.Analysis, "Medium Priority Linters", data.Analysis.MediumValueCount(), types.LinterPriorityMedium, "ℹ️", "medium", "MEDIUM")
+					@LinterPrioritySection(data.Analysis, "Optional Linters", data.Analysis.OptionalCount(), types.LinterPriorityOptional, "💡", "optional", "OPTIONAL")
 				} else {
 					<div class="success-message">
 						<h2>✅ Perfect Configuration</h2>
@@ -194,10 +194,10 @@ templ Report(data ReportData) {
 }
 
 func getCoveragePercent(a *types.ConfigAnalysis) int {
-	total := a.CriticalCount + a.HighValueCount + a.MediumValueCount + a.OptionalCount
+	total := a.CriticalCount() + a.HighValueCount() + a.MediumValueCount() + a.OptionalCount()
 	if total == 0 {
 		return 100
 	}
-	recommended := a.CriticalCount + a.HighValueCount
+	recommended := a.CriticalCount() + a.HighValueCount()
 	return (recommended * 100) / total
 }

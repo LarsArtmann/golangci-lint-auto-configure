@@ -81,8 +81,8 @@ var RegisteredCodes = map[string]bool{
 	"converter.sarif":              true,
 	"converter.validation_finding": true,
 	// detector
-	"detector.analyze":            true,
-	"detector.convert_validation": true,
+	"detector.plan":               true,
+	"deviation.finding":           true,
 	"detector.open_file":          true,
 	"detector.open_gomod":         true,
 	"detector.scan_gomod":         true,

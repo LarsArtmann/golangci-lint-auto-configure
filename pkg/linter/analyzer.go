@@ -243,7 +243,6 @@ func (a *Analyzer) buildAnalysis(
 	}
 
 	a.calculateDeprecatedLinters(analysis)
-	a.calculateRecommendationCounts(analysis)
 
 	return analysis
 }
@@ -302,11 +301,11 @@ func summaryParts(analysis *types.ConfigAnalysis) []string {
 		n int
 		l string
 	}{
-		{analysis.DeprecatedCount, "DEPRECATED"},
-		{analysis.CriticalCount, "CRITICAL"},
-		{analysis.HighValueCount, "HIGH"},
-		{analysis.MediumValueCount, "MEDIUM"},
-		{analysis.OptionalCount, "OPTIONAL"},
+		{analysis.DeprecatedCount(), "DEPRECATED"},
+		{analysis.CriticalCount(), "CRITICAL"},
+		{analysis.HighValueCount(), "HIGH"},
+		{analysis.MediumValueCount(), "MEDIUM"},
+		{analysis.OptionalCount(), "OPTIONAL"},
 	}
 
 	var parts []string

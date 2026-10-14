@@ -150,6 +150,8 @@ type FormatterRecommendation struct {
 }
 
 // ConfigAnalysis represents the analysis results of a golangci-lint configuration.
+// Priority and deprecation counts are DERIVED (see the count methods): they
+// are always in sync with the recommendation slices by construction.
 type ConfigAnalysis struct {
 	ConfigPath               string
 	EnabledLinters           []LinterInfo
@@ -159,11 +161,44 @@ type ConfigAnalysis struct {
 	LinterRecommendations    []LinterRecommendation
 	FormatterRecommendations []FormatterRecommendation
 	DeprecatedLinters        []LinterInfo
-	CriticalCount            int
-	HighValueCount           int
-	MediumValueCount         int
-	OptionalCount            int
-	DeprecatedCount          int
+}
+
+// CountByPriority returns how many linter recommendations sit at the given
+// priority.
+func (a *ConfigAnalysis) CountByPriority(priority LinterPriority) int {
+	count := 0
+	for _, rec := range a.LinterRecommendations {
+		if rec.Priority == priority {
+			count++
+		}
+	}
+
+	return count
+}
+
+// CriticalCount returns the number of critical-priority recommendations.
+func (a *ConfigAnalysis) CriticalCount() int {
+	return a.CountByPriority(LinterPriorityCritical)
+}
+
+// HighValueCount returns the number of high-priority recommendations.
+func (a *ConfigAnalysis) HighValueCount() int {
+	return a.CountByPriority(LinterPriorityHigh)
+}
+
+// MediumValueCount returns the number of medium-priority recommendations.
+func (a *ConfigAnalysis) MediumValueCount() int {
+	return a.CountByPriority(LinterPriorityMedium)
+}
+
+// OptionalCount returns the number of optional recommendations.
+func (a *ConfigAnalysis) OptionalCount() int {
+	return a.CountByPriority(LinterPriorityOptional)
+}
+
+// DeprecatedCount returns the number of deprecated linters still enabled.
+func (a *ConfigAnalysis) DeprecatedCount() int {
+	return len(a.DeprecatedLinters)
 }
 
 // TotalRecommendations returns the total number of linter + formatter recommendations.

@@ -168,11 +168,6 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 				LinterRecommendations: []types.LinterRecommendation{
 					{Name: "gosec", Priority: types.LinterPriorityCritical, Reason: "Security"},
 				},
-				CriticalCount:    1,
-				HighValueCount:   2,
-				MediumValueCount: 3,
-				OptionalCount:    4,
-				DeprecatedCount:  0,
 			}
 			data, err := json.Marshal(original, json.Deterministic(true))
 			Expect(err).NotTo(HaveOccurred())
@@ -183,10 +178,8 @@ var _ = Describe("JSON Round-Trip Serialization", func() {
 			Expect(rt.EnabledLinters).To(Equal(original.EnabledLinters))
 			Expect(rt.DisabledLinters).To(Equal(original.DisabledLinters))
 			Expect(rt.LinterRecommendations).To(Equal(original.LinterRecommendations))
-			Expect(rt.CriticalCount).To(Equal(1))
-			Expect(rt.HighValueCount).To(Equal(2))
-			Expect(rt.MediumValueCount).To(Equal(3))
-			Expect(rt.OptionalCount).To(Equal(4))
+			// Counts derive from the recommendation slice, not the wire.
+			Expect(rt.CriticalCount()).To(Equal(1))
 		})
 	})
 

@@ -309,11 +309,6 @@ func TestAnalysisToReport(t *testing.T) {
 		DeprecatedLinters: []types.LinterInfo{
 			{Name: "wsl", Description: "Deprecated"},
 		},
-		CriticalCount:    1,
-		HighValueCount:   0,
-		MediumValueCount: 0,
-		OptionalCount:    0,
-		DeprecatedCount:  1,
 	}
 
 	report, err := AnalysisToReport(analysis, "v0.5.0")

@@ -41,8 +41,6 @@ var _ = Describe("Report Generator", func() {
 			LinterRecommendations: []types.LinterRecommendation{
 				{Name: "funlen", Priority: types.LinterPriorityHigh, Reason: "Detects long functions"},
 			},
-			CriticalCount:  0,
-			HighValueCount: 1,
 		}
 	})
 

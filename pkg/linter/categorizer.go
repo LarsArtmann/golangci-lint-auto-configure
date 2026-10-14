@@ -274,23 +274,7 @@ func (a *Analyzer) calculateDeprecatedLinters(analysis *types.ConfigAnalysis) {
 	for _, linter := range analysis.EnabledLinters {
 		if linter.Deprecated {
 			analysis.DeprecatedLinters = append(analysis.DeprecatedLinters, linter)
-			analysis.DeprecatedCount++
 		}
 	}
 }
 
-// calculateRecommendationCounts calculates counts by priority level.
-func (a *Analyzer) calculateRecommendationCounts(analysis *types.ConfigAnalysis) {
-	for _, rec := range analysis.LinterRecommendations {
-		switch rec.Priority {
-		case types.LinterPriorityCritical:
-			analysis.CriticalCount++
-		case types.LinterPriorityHigh:
-			analysis.HighValueCount++
-		case types.LinterPriorityMedium:
-			analysis.MediumValueCount++
-		case types.LinterPriorityOptional:
-			analysis.OptionalCount++
-		}
-	}
-}

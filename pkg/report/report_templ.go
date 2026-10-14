@@ -5,11 +5,12 @@ package report
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
+
 import (
 	"fmt"
 
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
@@ -41,7 +42,7 @@ func SummaryCard(class string, count int, label string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var2 := []any{"summary-card", class}
+		var templ_7745c5c3_Var2 = []any{"summary-card", class}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -146,7 +147,7 @@ func LinterListSection(title string, icon string, class string, linters []types.
 			return templ_7745c5c3_Err
 		}
 		for _, linter := range linters {
-			templ_7745c5c3_Var9 := []any{"linter-tag", class}
+			var templ_7745c5c3_Var9 = []any{"linter-tag", class}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -256,7 +257,7 @@ func LinterPrioritySection(analysis *types.ConfigAnalysis, title string, count i
 		}
 		for _, rec := range analysis.LinterRecommendations {
 			if rec.Priority == priority {
-				templ_7745c5c3_Var16 := []any{"linter-card", class}
+				var templ_7745c5c3_Var16 = []any{"linter-card", class}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var16...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -365,19 +366,19 @@ func Report(data ReportData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = SummaryCard("critical", data.Analysis.CriticalCount, "Critical").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = SummaryCard("critical", data.Analysis.CriticalCount(), "Critical").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = SummaryCard("high", data.Analysis.HighValueCount, "High Priority").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = SummaryCard("high", data.Analysis.HighValueCount(), "High Priority").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = SummaryCard("medium", data.Analysis.MediumValueCount, "Medium Priority").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = SummaryCard("medium", data.Analysis.MediumValueCount(), "Medium Priority").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = SummaryCard("optional", data.Analysis.OptionalCount, "Optional").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = SummaryCard("optional", data.Analysis.OptionalCount(), "Optional").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -420,7 +421,7 @@ func Report(data ReportData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(data.Analysis.LinterRecommendations) > 0 {
-			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Critical Linters", data.Analysis.CriticalCount, types.LinterPriorityCritical, "🚨", "critical", "CRITICAL").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Critical Linters", data.Analysis.CriticalCount(), types.LinterPriorityCritical, "🚨", "critical", "CRITICAL").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -428,7 +429,7 @@ func Report(data ReportData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "High Priority Linters", data.Analysis.HighValueCount, types.LinterPriorityHigh, "⚠️", "high", "HIGH").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "High Priority Linters", data.Analysis.HighValueCount(), types.LinterPriorityHigh, "⚠️", "high", "HIGH").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -436,7 +437,7 @@ func Report(data ReportData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Medium Priority Linters", data.Analysis.MediumValueCount, types.LinterPriorityMedium, "ℹ️", "medium", "MEDIUM").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Medium Priority Linters", data.Analysis.MediumValueCount(), types.LinterPriorityMedium, "ℹ️", "medium", "MEDIUM").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -444,7 +445,7 @@ func Report(data ReportData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Optional Linters", data.Analysis.OptionalCount, types.LinterPriorityOptional, "💡", "optional", "OPTIONAL").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Optional Linters", data.Analysis.OptionalCount(), types.LinterPriorityOptional, "💡", "optional", "OPTIONAL").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -475,11 +476,11 @@ func Report(data ReportData) templ.Component {
 }
 
 func getCoveragePercent(a *types.ConfigAnalysis) int {
-	total := a.CriticalCount + a.HighValueCount + a.MediumValueCount + a.OptionalCount
+	total := a.CriticalCount() + a.HighValueCount() + a.MediumValueCount() + a.OptionalCount()
 	if total == 0 {
 		return 100
 	}
-	recommended := a.CriticalCount + a.HighValueCount
+	recommended := a.CriticalCount() + a.HighValueCount()
 	return (recommended * 100) / total
 }
 
