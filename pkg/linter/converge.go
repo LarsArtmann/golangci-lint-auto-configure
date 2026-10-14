@@ -9,20 +9,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-// Engine names the configuration strategy the fixer drives.
-type Engine string
-
-const (
-	// EngineConverge is the declarative reconciler (collect → normalize →
-	// render → plan → apply) and the DEFAULT engine since the corpus flip:
-	// TestParityCorpusConverge proves byte-identical output across the
-	// parity corpus.
-	EngineConverge Engine = "converge"
-	// EngineLegacy is the historical imperative mutator pipeline, kept as an
-	// explicit opt-out during the migration window.
-	EngineLegacy Engine = "legacy"
-)
-
 // ConvergeOptions carries the user intent for one convergence run.
 type ConvergeOptions struct {
 	Priority      types.LinterPriority

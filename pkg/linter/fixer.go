@@ -2,11 +2,9 @@ package linter
 
 import (
 	"context"
-	"strings"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/policy"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -18,26 +16,17 @@ type fixerConfigLoader interface {
 	types.ConfigInspector
 }
 
-// ledgerReader queries the audit ledger for past auto-enable decisions.
-// Both *audit.Ledger and audit.NoopRecorder satisfy this interface (duck-typed).
-// When the recorder does not implement it, cycle detection is silently disabled.
-type ledgerReader interface {
-	PreviouslyAutoEnabled() map[string]bool
-}
-
-// Fixer provides functionality to fix golangci-lint configurations.
+// Fixer fixes golangci-lint configurations by converging the observed config
+// onto the declarative desired state (ADR-017).
 type Fixer struct {
 	configLoader      fixerConfigLoader
 	analyzer          types.LinterAnalyzer
 	logger            *log.Logger
-	formatterManager  *FormatterManager
 	ledger            audit.Recorder
-	reader            ledgerReader
 	pol               *policy.Policy
 	goVersionProvider GoVersionProvider
 	forceSettings     bool
 	showMergedRules   bool
-	engine            Engine
 	pragmatic         bool
 }
 
@@ -48,33 +37,22 @@ func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader fi
 		analyzer:          analyzer,
 		logger:            logger,
 		goVersionProvider: func(context.Context) string { return "" },
-		formatterManager:  NewFormatterManager(logger),
 		ledger:            audit.NoopRecorder{},
-		reader:            nil,
 		pol:               nil,
 		forceSettings:     false,
 		showMergedRules:   false,
-		engine:            EngineConverge,
 		pragmatic:         false,
 	}
 }
 
 // SetLedger sets the audit recorder used to log every config change the fixer makes.
 // If recorder is nil, the fixer falls back to a NoopRecorder (no recording).
-// If the recorder also implements ledgerReader, it is used for cycle detection
-// (preventing re-adding linters the user previously removed after auto-enable).
 func (f *Fixer) SetLedger(recorder audit.Recorder) {
 	if recorder == nil {
 		recorder = audit.NoopRecorder{}
 	}
 
 	f.ledger = recorder
-
-	if r, ok := recorder.(ledgerReader); ok {
-		f.reader = r
-	} else {
-		f.reader = nil
-	}
 }
 
 // SetGoVersionProvider sets the function used to detect the local Go version.
@@ -100,12 +78,6 @@ func (f *Fixer) SetShowMergedRules(show bool) {
 	f.showMergedRules = show
 }
 
-// SetEngine selects the configuration strategy (EngineLegacy default,
-// EngineConverge opt-in until the corpus flip).
-func (f *Fixer) SetEngine(engine Engine) {
-	f.engine = engine
-}
-
 // SetPragmatic drops the pragmatic-noise linters from the converge render.
 func (f *Fixer) SetPragmatic(enabled bool) {
 	f.pragmatic = enabled
@@ -129,7 +101,7 @@ func (f *Fixer) PlanDeviations(
 	return evaluation.Deviations, nil
 }
 
-// FixConfig fixes the golangci-lint configuration by enabling recommended linters.
+// FixConfig converges the golangci-lint configuration onto the desired state.
 func (f *Fixer) FixConfig(
 	ctx context.Context,
 	configPath string,
@@ -143,35 +115,7 @@ func (f *Fixer) FixConfig(
 		return migrationError("load config", priority, dryRun, configPath, "", err)
 	}
 
-	// The declarative reconciler is the DEFAULT engine (corpus-proven
-	// byte-identical in TestParityCorpusConverge); the imperative pipeline
-	// remains available as an explicit opt-out during the migration window.
-	if f.engine != EngineLegacy {
-		return f.convergeFixConfig(ctx, cfg, configPath, priority, dryRun)
-	}
-
-	originalEnabled := f.configLoader.GetLintersEnabled(cfg)
-
-	version := f.detectVersion(ctx)
-
-	hasInvalid, err := f.runPreFlightChecks(cfg, configPath, priority, dryRun, version)
-	if err != nil {
-		return migrationError("pre-flight checks", priority, dryRun, configPath, version, err)
-	}
-
-	if err := f.rescueOverspecifiedRunGo(cfg, configPath, dryRun); err != nil {
-		return migrationError("rescue run.go", priority, dryRun, configPath, version, err)
-	}
-
-	if dryRun {
-		if result, shouldReturn := f.checkDryRunEarlyReturns(
-			cfg, hasInvalid, hasDeprecatedLinters(originalEnabled, version),
-		); shouldReturn {
-			return result, nil
-		}
-	}
-
-	return f.analyzeAndFix(ctx, cfg, configPath, priority, dryRun, originalEnabled, version)
+	return f.convergeFixConfig(ctx, cfg, configPath, priority, dryRun)
 }
 
 // detectVersion tries to detect the golangci-lint version early for version-gated replacements.
@@ -199,304 +143,4 @@ func (f *Fixer) detectVersion(ctx context.Context) string {
 	}
 
 	return f.analyzer.GetDetectedVersion()
-}
-
-func (f *Fixer) analyzeAndFix(
-	ctx context.Context,
-	cfg *types.Config,
-	configPath string,
-	priority types.LinterPriority,
-	dryRun bool,
-	originalEnabled []types.LinterName,
-	version string,
-) (*types.MigrationResult, error) {
-	f.logger.Infof("Analyzing configuration...")
-
-	analysis, err := f.analyzer.AnalyzeConfig(ctx, configPath)
-	if err != nil {
-		return migrationError("analyze config", priority, dryRun, configPath, version, err)
-	}
-
-	return f.applyLintersFix(ctx, cfg, analysis, configPath, priority, dryRun, originalEnabled, version)
-}
-
-// checkDryRunEarlyReturns checks if we should early-return in dry-run mode.
-func (f *Fixer) checkDryRunEarlyReturns(
-	cfg *types.Config,
-	hasInvalidDurations bool,
-	deprecatedPresent bool,
-) (*types.MigrationResult, bool) {
-	if hasInvalidDurations {
-		result := f.calculateDryRunResultWithInvalidDurations(cfg)
-
-		return result, true
-	}
-
-	if deprecatedPresent {
-		f.logger.Infof("Dry-run with deprecated linters - skipping analysis (run without --dry-run to fix)")
-
-		result := f.calculateDryRunResultWithDeprecated(cfg)
-
-		return result, true
-	}
-
-	return nil, false
-}
-
-// runPreFlightChecks runs all pre-flight fixes and returns whether invalid durations were found.
-func (f *Fixer) runPreFlightChecks(
-	cfg *types.Config,
-	configPath string,
-	priority types.LinterPriority,
-	dryRun bool,
-	version string,
-) (bool, error) {
-	hasInvalid, err := f.preFixInvalidDurations(cfg, configPath, dryRun)
-	if err != nil {
-		return hasInvalid, analysisError("pre-fix invalid durations", priority, dryRun, configPath, version, err)
-	}
-
-	if err := f.preFixVersion(cfg, configPath, dryRun); err != nil {
-		return hasInvalid, analysisError("pre-fix version field", priority, dryRun, configPath, version, err)
-	}
-
-	if err := f.preFixDeprecatedLinters(cfg, configPath, dryRun, version); err != nil {
-		return hasInvalid, analysisError("pre-fix deprecated linters", priority, dryRun, configPath, version, err)
-	}
-
-	if _, err := f.preFixTypecheck(cfg, configPath, dryRun); err != nil {
-		return hasInvalid, analysisError("pre-fix typecheck", priority, dryRun, configPath, version, err)
-	}
-
-	return hasInvalid, nil
-}
-
-// fixCounts tracks the number of fixes applied by category.
-type fixCounts struct {
-	deprecation   int
-	enable        int
-	formatter     int
-	generated     int
-	redundant     int
-	normalization int // config-level normalizations: go version, runners, build tags, settings, issues
-}
-
-func (c fixCounts) total() int {
-	return c.deprecation + c.enable + c.formatter + c.generated + c.redundant + c.normalization
-}
-
-// applyLintersFix processes linter recommendations, applies fixes, and saves the config.
-func (f *Fixer) applyLintersFix(
-	ctx context.Context,
-	cfg *types.Config,
-	analysis *types.ConfigAnalysis,
-	configPath string,
-	priority types.LinterPriority,
-	dryRun bool,
-	originalEnabled []types.LinterName,
-	version string,
-) (*types.MigrationResult, error) {
-	before := snapshotLinterState(cfg)
-
-	f.loadPolicy(configPath)
-
-	linterSet := types.NewSet(cfg.Linters.Enable...)
-	formatterSet := types.NewSet(cfg.Formatters.Enable...)
-	counts := f.applyAllFixes(
-		linterSet,
-		formatterSet,
-		cfg,
-		analysis,
-		configPath,
-		priority,
-		dryRun,
-		originalEnabled,
-		version,
-	)
-
-	result, err := f.applyAndSave(ctx, cfg, linterSet, formatterSet, configPath, priority, dryRun, version, counts)
-	if err != nil {
-		return result, err
-	}
-
-	// Only record changes that were actually persisted to disk (skip dry-runs and no-op runs).
-	if !dryRun && result.IsSuccess() {
-		f.recordConfigChanges(before, cfg)
-	}
-
-	return result, nil
-}
-
-func (f *Fixer) applyAllFixes(
-	linterSet types.Set[types.LinterName], formatterSet types.Set[types.FormatterName],
-	cfg *types.Config,
-	analysis *types.ConfigAnalysis,
-	configPath string,
-	priority types.LinterPriority,
-	dryRun bool,
-	originalEnabled []types.LinterName,
-	version string,
-) fixCounts {
-	var rec configChangeRecorder
-
-	handler := newDeprecatedLinterHandler(f.logger, version)
-	if f.pol != nil {
-		handler.neverEnable = f.pol.IsNeverEnable
-	}
-
-	rec.deprecation(func() int {
-		var count int
-
-		linterSet, count = handler.replaceLinters(linterSet, originalEnabled, dryRun, cfg)
-
-		cleanup := handler.cleanupExclusionLinters(cfg, dryRun)
-		count += cleanup.rules
-
-		if !dryRun {
-			f.recordExclusionLintersCleanup(cleanup)
-		}
-
-		return count
-	})
-	rec.formatter(func() int { return f.formatterManager.EnableCoreFormatters(formatterSet, dryRun) })
-	rec.formatter(func() int { return f.formatterManager.EnableSwaggoFormatter(formatterSet, configPath, dryRun) })
-	rec.redundant(func() int { return f.formatterManager.RemoveRedundantLinters(linterSet, formatterSet, dryRun) })
-	rec.redundant(func() int { return f.formatterManager.RemoveRedundantGofmt(formatterSet, dryRun) })
-	rec.enable(func() int {
-		return f.enableRecommendedLinters(
-			linterSet, f.configLoader.GetLintersDisabled(cfg), analysis, priority, dryRun,
-		)
-	})
-
-	return rec.counts
-}
-
-func (f *Fixer) applyAndSave(
-	ctx context.Context,
-	cfg *types.Config,
-	linterSet types.Set[types.LinterName], formatterSet types.Set[types.FormatterName],
-	configPath string,
-	priority types.LinterPriority,
-	dryRun bool,
-	version string,
-	counts fixCounts,
-) (*types.MigrationResult, error) {
-	updater := newConfigUpdater(f.logger, f.goVersionProvider, f.analyzer.DetectedBuildGoVersion())
-	updater.setShowMergedRules(f.showMergedRules)
-
-	rec := configChangeRecorder{counts: counts}
-	rec.normalize(func() int { return updater.updateGoVersion(ctx, cfg) })
-	rec.normalize(func() int { return updater.updateRunnerSettings(cfg) })
-	rec.normalize(func() int { return updater.updateBuildTags(ctx, cfg) })
-	rec.normalize(func() int { return updater.updateOutputFormats(cfg) })
-	rec.normalize(func() int {
-		return updateConfigFromSets(cfg, linterSet, formatterSet, f.formatterManager, f.logger, f.forceSettings)
-	})
-
-	if f.pol != nil && !dryRun {
-		rec.normalize(func() int { return f.enforceDisableReasons(cfg) })
-	}
-
-	rec.generated(func() int { return updater.updateGeneratedExclusions(cfg, configPath) })
-	rec.generated(func() int { return updater.updateExclusionRules(cfg) })
-
-	if !dryRun {
-		for _, merge := range updater.drainExclusionMerges() {
-			f.ledger.Record(audit.ActionExclusionRuleMerged, merge.RuleKey,
-				"merged default linters into existing rule: "+strings.Join(merge.AddedLinters, ", "))
-		}
-	}
-
-	rec.normalize(func() int { return updater.updateIssuesSettings(cfg) })
-
-	counts = rec.counts
-
-	if counts.total() == 0 {
-		return noFixesResult()
-	}
-
-	if dryRun {
-		return dryRunResult(counts)
-	}
-
-	f.logger.Infof("Applying %d fixes...", counts.total())
-
-	f.logger.Infof("Saving configuration...")
-
-	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
-		return migrationError("save config", priority, dryRun, configPath, version, err)
-	}
-
-	return successResult(counts)
-}
-
-// enableRecommendedLinters enables recommended linters that aren't already
-// enabled, explicitly disabled, listed in the sidecar neverEnable section, or
-// detected as a regression-loop target (previously auto-enabled then removed).
-func (f *Fixer) enableRecommendedLinters(
-	linterSet types.Set[types.LinterName],
-	disabledLinters []types.LinterName,
-	analysis *types.ConfigAnalysis,
-	priority types.LinterPriority,
-	dryRun bool,
-) int {
-	count := 0
-
-	disabledSet := types.NewSet(disabledLinters...)
-	previouslyAutoEnabled := f.previouslyAutoEnabledLinters()
-
-	for _, rec := range analysis.LinterRecommendations {
-		if rec.Priority > priority {
-			continue
-		}
-
-		lintName := resolveLinterName(rec.Name)
-
-		if linterSet.Contains(lintName) || disabledSet.Contains(lintName) {
-			continue
-		}
-
-		if f.pol != nil && f.pol.IsNeverEnable(lintName) {
-			f.logger.Debugf("Skipping never-enable linter (sidecar): %s", lintName)
-
-			continue
-		}
-
-		if previouslyAutoEnabled[string(lintName)] {
-			f.logger.Warnf(
-				"⚠️  Skipping %s: was auto-enabled in a previous run and subsequently removed. "+
-					"To make this permanent, add it to linters.disable or %s under never-enable.",
-				lintName, policy.SidecarFileName,
-			)
-
-			if !dryRun {
-				f.ledger.Record(audit.ActionSuppressedReEnable, string(lintName),
-					"regression loop: previously auto-enabled, then removed by user")
-			}
-
-			continue
-		}
-
-		count++
-
-		if dryRun {
-			f.logger.Debugf("[DRY-RUN] Would enable: %s (%s)", lintName, rec.Reason)
-		} else {
-			f.logger.Debugf("Enabling: %s (%s)", lintName, rec.Reason)
-			linterSet.Add(lintName)
-		}
-	}
-
-	return count
-}
-
-// previouslyAutoEnabledLinters queries the audit ledger for linters the tool
-// has auto-enabled in past runs for this repo. Returns nil when the ledger
-// reader is unavailable (noop recorder, audit disabled, or read failure).
-func (f *Fixer) previouslyAutoEnabledLinters() map[string]bool {
-	if f.reader == nil {
-		return nil
-	}
-
-	return f.reader.PreviouslyAutoEnabled()
 }
