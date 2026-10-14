@@ -111,6 +111,54 @@ func (f *Fixer) SetPragmatic(enabled bool) {
 	f.pragmatic = enabled
 }
 
+// PlanDeviations returns the full change set (normalizer repairs + plan) the
+// converge engine would apply to the config. Report-only: nothing is
+// persisted and no audit entries are written. This is the single source both
+// lint mode and apply mode derive from, so findings can never drift from
+// what apply actually does.
+func (f *Fixer) PlanDeviations(
+	ctx context.Context,
+	configPath string,
+	priority types.LinterPriority,
+) ([]Change, error) {
+	cfg, err := f.configLoader.LoadConfig(configPath)
+	if err != nil {
+		return nil, analysisError("load config", priority, true, configPath, "", err)
+	}
+
+	version := f.detectVersion(ctx)
+
+	if f.analyzer != nil {
+		if err := f.verifyAnalyzerContract(ctx); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := f.rescueOverspecifiedRunGo(cfg, configPath, true); err != nil {
+		return nil, analysisError("rescue run.go", priority, true, configPath, version, err)
+	}
+
+	f.loadPolicy(configPath)
+
+	overlay := f.sidecarOverlay(cfg)
+
+	env, envErr := CollectEnv(ctx, f.analyzer, f.goVersionProvider, configPath)
+	if envErr != nil {
+		return nil, analysisError("collect environment", priority, true, configPath, version, envErr)
+	}
+
+	result, err := Converge(ctx, cfg, env, overlay, f.convergeOptions(priority, true))
+	if err != nil {
+		return nil, analysisError("converge config", priority, true, configPath, version, err)
+	}
+
+	changes := make([]Change, 0, len(result.NormalizerChanges)+len(result.Plan))
+	changes = append(changes, result.NormalizerChanges...)
+	changes = append(changes, result.Plan...)
+
+	return changes, nil
+}
+
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
 func (f *Fixer) FixConfig(
 	ctx context.Context,

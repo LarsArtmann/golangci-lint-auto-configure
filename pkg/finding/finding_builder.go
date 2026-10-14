@@ -36,6 +36,8 @@ type configFindingParams struct {
 	Category   finding.Category
 	Tags       []finding.Tag
 	Suggestion string
+	BeforeCode string
+	AfterCode  string
 }
 
 func configFinding(params configFindingParams) (finding.Finding, error) {
@@ -59,6 +61,14 @@ func configFinding(params configFindingParams) (finding.Finding, error) {
 
 	if params.Suggestion != "" {
 		builder = builder.WithSuggestion(params.Suggestion)
+	}
+
+	if params.BeforeCode != "" {
+		builder = builder.WithBeforeCode(params.BeforeCode)
+	}
+
+	if params.AfterCode != "" {
+		builder = builder.WithAfterCode(params.AfterCode)
 	}
 
 	found, err := builder.Build()
