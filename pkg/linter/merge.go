@@ -134,6 +134,8 @@ const (
 
 // DefaultMergeStrategies is the path-keyed strategy table for the converge
 // engine. One row per config path the engine touches.
+//
+//nolint:gochecknoglobals // immutable strategy table, read-only after init
 var DefaultMergeStrategies = map[string]MergeStrategy{
 	"linters.enable":                  StrategyEnsurePresent,
 	"linters.settings":                StrategyPreferUser,
@@ -297,41 +299,63 @@ func planSettingsSection(
 	var changes []Change
 
 	for _, name := range sortedKeys(desired) {
-		desiredBlock := desired[name]
-
-		observedRaw, exists := observed[name]
-		if !exists || types.SettingsMap(nil).IsEmpty() && observedRaw == nil {
-			changes = append(changes, Change{
-				Path: path, Element: name, Kind: ChangeAdd,
-				From: nil, To: desiredBlock, Reason: "safe default settings",
-			})
-
-			continue
-		}
-
-		observedBlock, isMap := types.AsSettingsMap(observedRaw)
-		if !isMap || observedBlock.IsEmpty() {
-			changes = append(changes, Change{
-				Path: path, Element: name, Kind: ChangeAdd,
-				From: observedRaw, To: desiredBlock, Reason: "safe default settings",
-			})
-
-			continue
-		}
-
-		if strategy == StrategyPreferUser {
-			continue // existing non-empty settings are never touched
-		}
-
-		if strategy == StrategyPreferDesired && !settingsEqual(observedBlock, desiredBlock) {
-			changes = append(changes, Change{
-				Path: path, Element: name, Kind: ChangeUpdate,
-				From: observedBlock.Clone(), To: desiredBlock, Reason: "force-settings",
-			})
+		if change, planned := planSettingsBlock(path, name, observed[name], desired[name], strategy); planned {
+			changes = append(changes, change)
 		}
 	}
 
 	return changes
+}
+
+func planSettingsBlock(
+	path, name string,
+	observedRaw any,
+	desiredBlock map[string]any,
+	strategy MergeStrategy,
+) (Change, bool) {
+	if !exists(observedRaw) {
+		return missingBlock(path, name, desiredBlock), true
+	}
+
+	observedBlock, isMap := types.AsSettingsMap(observedRaw)
+	if !isMap || observedBlock.IsEmpty() {
+		return Change{
+			Path: path, Element: name, Kind: ChangeAdd,
+			From: observedRaw, To: desiredBlock, Reason: reasonForStrategy(strategy),
+		}, true
+	}
+
+	if strategy == StrategyPreferUser {
+		return Change{}, false // existing non-empty settings are never touched
+	}
+
+	if strategy == StrategyPreferDesired && !settingsEqual(observedBlock, desiredBlock) {
+		return Change{
+			Path: path, Element: name, Kind: ChangeUpdate,
+			From: observedBlock.Clone(), To: desiredBlock, Reason: "force-settings",
+		}, true
+	}
+
+	return Change{}, false
+}
+
+func exists(v any) bool {
+	return !(v == nil)
+}
+
+func missingBlock(path, name string, desiredBlock map[string]any) Change {
+	return Change{
+		Path: path, Element: name, Kind: ChangeAdd,
+		From: nil, To: desiredBlock, Reason: "safe default settings",
+	}
+}
+
+func reasonForStrategy(strategy MergeStrategy) string {
+	if strategy == StrategyPreferDesired {
+		return "force-settings"
+	}
+
+	return "safe default settings"
 }
 
 func settingsEqual(a types.SettingsMap, b map[string]any) bool {
@@ -404,6 +428,17 @@ func planRun(observed *types.Config, desired DesiredConfig, strategies map[strin
 		})
 	}
 
+	changes = append(changes, planRunnerFlags(observed)...)
+
+	tagChanges := planPathList("run.build-tags", observed.Run.BuildTags, desired.RunDefaults.BuildTags, strategies)
+	changes = append(changes, tagChanges...)
+
+	return changes
+}
+
+func planRunnerFlags(observed *types.Config) []Change {
+	var changes []Change
+
 	if !observed.Run.AllowParallelRunners {
 		changes = append(changes, Change{
 			Path: "run.allow-parallel-runners", Kind: ChangeUpdate,
@@ -417,9 +452,6 @@ func planRun(observed *types.Config, desired DesiredConfig, strategies map[strin
 			From: false, To: true, Reason: "serial runners",
 		})
 	}
-
-	tagChanges := planPathList("run.build-tags", observed.Run.BuildTags, desired.RunDefaults.BuildTags, strategies)
-	changes = append(changes, tagChanges...)
 
 	return changes
 }
@@ -464,6 +496,14 @@ func planIssues(observed *types.Config, desired DesiredConfig, strategies map[st
 			To: desired.IssuesDefaults.MaxSameIssues, Reason: "prevent silent truncation",
 		})
 	}
+
+	changes = append(changes, planGeneratedDefaults(observed)...)
+
+	return changes
+}
+
+func planGeneratedDefaults(observed *types.Config) []Change {
+	var changes []Change
 
 	if observed.Linters.Exclusions.Generated == "" {
 		changes = append(changes, Change{

@@ -91,21 +91,13 @@ func WithLocalGo(version types.GoVersion) DesiredOption {
 // pure heart of the reconciler: policy (the table) + environment (facts) in,
 // desired state out. No I/O, no mutation of package data, fully deterministic.
 func Desired(env Env, options ...DesiredOption) DesiredConfig {
-	request := desiredRequest{
-		pragmatic:         false,
-		minPriority:       types.LinterPriorityOptional,
-		tool:              env.Tool,
-		localGo:           env.LocalGo,
-		projectGo:         env.ProjectGo,
-		envTech:           env.UsesTech,
-		enabledFormatters: []types.FormatterName{},
-	}
+	request := newDesiredRequest(env)
 
 	for _, apply := range options {
 		apply(&request)
 	}
 
-	desired := DesiredConfig{
+	return DesiredConfig{
 		EnableLinters:           renderEnableSet(request),
 		EnableFormatters:        renderFormatterSet(request),
 		LinterSettings:          renderLinterSettings(request),
@@ -120,8 +112,18 @@ func Desired(env Env, options ...DesiredOption) DesiredConfig {
 			MaxSameIssues:      constants.DefaultMaxSameIssues,
 		},
 	}
+}
 
-	return desired
+func newDesiredRequest(env Env) desiredRequest {
+	return desiredRequest{
+		pragmatic:         false,
+		minPriority:       types.LinterPriorityOptional,
+		tool:              env.Tool,
+		localGo:           env.LocalGo,
+		projectGo:         env.ProjectGo,
+		envTech:           env.UsesTech,
+		enabledFormatters: []types.FormatterName{},
+	}
 }
 
 // renderEnableSet computes the desired linters.enable: every recommendable
@@ -148,16 +150,8 @@ func renderEnableSet(request desiredRequest) []types.LinterName {
 // version fails validity checks open (an unknown tool gates nothing) — the
 // same conservative behavior the categorizer applies today.
 func shouldRender(record types.LinterPolicy, request desiredRequest) bool {
-	switch record.Tier.Kind {
-	case types.TierDisabled:
+	if !tierAdmits(record, request) {
 		return false
-	case types.TierNeverAutoEnable:
-		return false
-	case types.TierPragmaticNoise:
-		if request.pragmatic {
-			return false
-		}
-	case types.TierRecommendable:
 	}
 
 	if record.Priority > request.minPriority {
@@ -172,13 +166,28 @@ func shouldRender(record types.LinterPolicy, request desiredRequest) bool {
 		return false
 	}
 
-	if record.Gate.Kind == types.GateRequiresTech {
-		if !techAvailable(request, record.Gate.Tech) {
-			return false
-		}
+	return gateOpens(record.Gate, request)
+}
+
+func tierAdmits(record types.LinterPolicy, request desiredRequest) bool {
+	switch record.Tier.Kind {
+	case types.TierDisabled, types.TierNeverAutoEnable:
+		return false
+	case types.TierPragmaticNoise:
+		return !request.pragmatic
+	case types.TierRecommendable:
+		return true
+	default:
+		return false
+	}
+}
+
+func gateOpens(gate types.Gate, request desiredRequest) bool {
+	if gate.Kind != types.GateRequiresTech {
+		return true
 	}
 
-	return true
+	return techAvailable(request, gate.Tech)
 }
 
 func techAvailable(request desiredRequest, tech string) bool {

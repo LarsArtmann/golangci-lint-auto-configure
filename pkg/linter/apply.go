@@ -23,25 +23,48 @@ func ApplyPlan(observed *types.Config, changes []Change) *types.Config {
 }
 
 func applyChange(cfg *types.Config, change Change) {
+	applyLinterChanges(cfg, change)
+	applyFormatterChanges(cfg, change)
+	applyRunChanges(cfg, change)
+	applyIssueChanges(cfg, change)
+}
+
+func applyLinterChanges(cfg *types.Config, change Change) {
 	switch change.Path {
 	case "linters.enable":
 		if change.Kind == ChangeAdd {
 			cfg.Linters.Enable = append(cfg.Linters.Enable, types.LinterName(change.Element))
 		}
+	case "linters.settings":
+		applySettingsChange(&cfg.Linters.Settings, change)
+	case "linters.exclusions.paths":
+		applyStringList(&cfg.Linters.Exclusions.Paths, change)
+	case "linters.exclusions.generated":
+		if change.Kind == ChangeAdd {
+			cfg.Linters.Exclusions.Generated = toString(change.To)
+		}
+	}
+}
+
+func applyFormatterChanges(cfg *types.Config, change Change) {
+	switch change.Path {
 	case "formatters.enable":
 		if change.Kind == ChangeAdd {
 			cfg.Formatters.Enable = append(cfg.Formatters.Enable, types.FormatterName(change.Element))
 		}
-	case "linters.settings":
-		applySettingsChange(&cfg.Linters.Settings, change)
 	case "formatters.settings":
 		applySettingsChange(&cfg.Formatters.Settings, change)
-	case "linters.exclusions.paths":
-		applyStringList(&cfg.Linters.Exclusions.Paths, change)
 	case "formatters.exclusions.paths":
 		applyStringList(&cfg.Formatters.Exclusions.Paths, change)
-	case "run.build-tags":
-		applyStringList(&cfg.Run.BuildTags, change)
+	case "formatters.exclusions.generated":
+		if change.Kind == ChangeAdd {
+			cfg.Formatters.Exclusions.Generated = toString(change.To)
+		}
+	}
+}
+
+func applyRunChanges(cfg *types.Config, change Change) {
+	switch change.Path {
 	case "run.go":
 		if change.Kind == ChangeUpdate {
 			cfg.Run.Go = toString(change.To)
@@ -62,6 +85,13 @@ func applyChange(cfg *types.Config, change Change) {
 		if change.Kind == ChangeAdd {
 			cfg.Run.IssuesExitCode = toInt(change.To)
 		}
+	case "run.build-tags":
+		applyStringList(&cfg.Run.BuildTags, change)
+	}
+}
+
+func applyIssueChanges(cfg *types.Config, change Change) {
+	switch change.Path {
 	case "issues.max-issues-per-linter":
 		if change.Kind == ChangeAdd {
 			cfg.Issues.MaxIssuesPerLinter = toInt(change.To)
@@ -70,42 +100,7 @@ func applyChange(cfg *types.Config, change Change) {
 		if change.Kind == ChangeAdd {
 			cfg.Issues.MaxSameIssues = toInt(change.To)
 		}
-	case "linters.exclusions.generated":
-		if change.Kind == ChangeAdd {
-			cfg.Linters.Exclusions.Generated = toString(change.To)
-		}
-	case "formatters.exclusions.generated":
-		if change.Kind == ChangeAdd {
-			cfg.Formatters.Exclusions.Generated = toString(change.To)
-		}
 	}
-}
-
-func applySettingsChange(section *map[string]any, change Change) {
-	if *section == nil {
-		*section = map[string]any{}
-	}
-
-	switch change.Kind {
-	case ChangeAdd:
-		(*section)[change.Element] = change.To
-	case ChangeUpdate:
-		(*section)[change.Element] = change.To
-	case ChangeRemove:
-		delete(*section, change.Element)
-	}
-}
-
-func applyStringList(target *[]string, change Change) {
-	if change.Kind != ChangeAdd {
-		return
-	}
-
-	if slices.Contains(*target, change.Element) {
-		return
-	}
-
-	*target = append(*target, change.Element)
 }
 
 func sortEnableLists(cfg *types.Config) {
@@ -140,4 +135,33 @@ func toInt(v any) int {
 	}
 
 	return 0
+}
+
+func applySettingsChange(section *map[string]any, change Change) {
+	if *section == nil {
+		*section = map[string]any{}
+	}
+
+	switch change.Kind {
+	case ChangeAdd:
+		(*section)[change.Element] = change.To
+	case ChangeUpdate:
+		(*section)[change.Element] = change.To
+	case ChangeRemove:
+		delete(*section, change.Element)
+	}
+}
+
+func applyStringList(target *[]string, change Change) {
+	if change.Kind != ChangeAdd {
+		return
+	}
+
+	for _, existing := range *target {
+		if existing == change.Element {
+			return
+		}
+	}
+
+	*target = append(*target, change.Element)
 }
