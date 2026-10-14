@@ -12,9 +12,11 @@ import (
 // SettingsConverter converts typed settings to map[string]any for config injection.
 // Implemented by both linter and formatter settings structs to provide
 // compile-time safety for default setting keys and value types.
-type SettingsConverter interface {
-	ToMap() map[string]any
-}
+//
+// Deprecated: the interface moved to types.SettingsConverter so the policy
+// table can own VersionedSettings; this alias keeps existing references
+// compiling.
+type SettingsConverter = types.SettingsConverter
 
 // mustSettingsToMap converts a struct to map[string]any using YAML serialization.
 // YAML tags on the struct control the key names (kebab-case).

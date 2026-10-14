@@ -1,0 +1,8 @@
+{
+  "gci": 1,
+  "gofmt": 1,
+  "gofumpt": 0,
+  "goimports": 1,
+  "golines": 0,
+  "swaggo": 2
+}

@@ -91,6 +91,14 @@ type VersionedSettings struct {
 	Since GolangciVersion
 }
 
+// SettingsConverter converts typed settings to map[string]any for config
+// injection. Implemented by the curated linter and formatter settings structs
+// (constants package) to provide compile-time safety for default setting keys
+// and value types.
+type SettingsConverter interface {
+	ToMap() map[string]any
+}
+
 // Evidence is the measured friction data behind tier decisions. Tiers DERIVE
 // from this (a linter's tier payload cites the measurement, and --pragmatic
 // becomes a threshold over Ratio), replacing opinions with numbers.

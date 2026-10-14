@@ -1,0 +1,4 @@
+{
+  "funcorder": "provides minimal value and can be confusing for users",
+  "noinlineerr": "conflicts with formatters (gofumpt, goimports) that reformat error handling expressions, causing noisy churn and contradictory findings"
+}

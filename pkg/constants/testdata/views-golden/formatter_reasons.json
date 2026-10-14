@@ -1,0 +1,8 @@
+{
+  "gci": "Organizes import statements with custom section rules",
+  "gofmt": "Standard Go code formatting (consider gofumpt for stricter formatting)",
+  "gofumpt": "Enhanced Go formatting with stricter rules than gofmt",
+  "goimports": "Formats code and automatically manages import statements",
+  "golines": "Formats code and fixes long lines by breaking them",
+  "swaggo": "Formats Swagger/OpenAPI documentation comments"
+}

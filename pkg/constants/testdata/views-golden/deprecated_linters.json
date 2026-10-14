@@ -1,0 +1,100 @@
+{
+  "deadcode": {
+    "Reason": "deadcode was removed in golangci-lint v2, use staticcheck instead",
+    "Replacement": "staticcheck"
+  },
+  "execinquery": {
+    "Reason": "execinquery was removed in golangci-lint v2 with no direct replacement",
+    "Replacement": ""
+  },
+  "exhaustivestruct": {
+    "Reason": "exhaustivestruct was renamed to exhaustive in golangci-lint v2",
+    "Replacement": "exhaustive"
+  },
+  "exhaustruct": {
+    "MinVersion": "v2.13.0",
+    "Reason": "exhaustruct is deprecated since golangci-lint v2.13.0, use exhaustruct_v5 instead",
+    "Replacement": "exhaustruct_v5"
+  },
+  "exportloopref": {
+    "Reason": "exportloopref was removed in golangci-lint v2 (Go 1.22 fixed loop variable semantics), use copyloopvar instead",
+    "Replacement": "copyloopvar"
+  },
+  "gas": {
+    "Reason": "gas was renamed to gosec",
+    "Replacement": "gosec"
+  },
+  "goerr113": {
+    "Reason": "goerr113 was renamed to err113",
+    "Replacement": "err113"
+  },
+  "golint": {
+    "Reason": "golint was removed in golangci-lint v2, use revive instead",
+    "Replacement": "revive"
+  },
+  "gomnd": {
+    "Reason": "gomnd was renamed to mnd",
+    "Replacement": "mnd"
+  },
+  "gomodguard": {
+    "MinVersion": "v2.12.0",
+    "Reason": "gomodguard is deprecated since golangci-lint v2.12.0, use gomodguard_v2 instead",
+    "Replacement": "gomodguard_v2"
+  },
+  "gosimple": {
+    "Reason": "gosimple was removed in golangci-lint v2, use staticcheck instead",
+    "Replacement": "staticcheck"
+  },
+  "ifshort": {
+    "Reason": "ifshort was removed in golangci-lint v2 with no direct replacement",
+    "Replacement": ""
+  },
+  "interfacer": {
+    "Reason": "interfacer was removed in golangci-lint v2, use staticcheck instead",
+    "Replacement": "staticcheck"
+  },
+  "logrlint": {
+    "Reason": "logrlint was renamed to loggercheck",
+    "Replacement": "loggercheck"
+  },
+  "maligned": {
+    "Reason": "maligned was removed in golangci-lint v2, use govet with fieldalignment instead",
+    "Replacement": "govet"
+  },
+  "megacheck": {
+    "Reason": "megacheck was renamed to staticcheck",
+    "Replacement": "staticcheck"
+  },
+  "nosnakecase": {
+    "Reason": "nosnakecase was removed in golangci-lint v2, use revive instead",
+    "Replacement": "revive"
+  },
+  "scopelint": {
+    "Reason": "scopelint was removed in golangci-lint v2, use copyloopvar instead",
+    "Replacement": "copyloopvar"
+  },
+  "structcheck": {
+    "Reason": "structcheck was removed in golangci-lint v2, use staticcheck instead",
+    "Replacement": "staticcheck"
+  },
+  "tenv": {
+    "Reason": "tenv was removed in golangci-lint v2, use usetesting instead",
+    "Replacement": "usetesting"
+  },
+  "varcheck": {
+    "Reason": "varcheck was removed in golangci-lint v2, use staticcheck instead",
+    "Replacement": "staticcheck"
+  },
+  "vet": {
+    "Reason": "vet was renamed to govet",
+    "Replacement": "govet"
+  },
+  "vetshadow": {
+    "Reason": "vetshadow was merged into govet",
+    "Replacement": "govet"
+  },
+  "wsl": {
+    "Reason": "wsl is deprecated since golangci-lint v2.2.0, use wsl_v5 instead",
+    "Replacement": "wsl_v5"
+  }
+}
