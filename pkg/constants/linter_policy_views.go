@@ -14,6 +14,29 @@ import (
 func init() {
 	validateLinterPolicyTable()
 	validateFormatterPolicyTable()
+	validateRedundancyRelations()
+}
+
+// validateRedundancyRelations pins the relation table's referential
+// integrity: relations may never dangle (a superseded entry or a superseder
+// missing from its policy table is a curated-data bug, not a runtime
+// condition).
+func validateRedundancyRelations() {
+	linters := make(map[types.LinterName]bool, len(LinterPolicies))
+	for _, record := range LinterPolicies {
+		linters[record.Name] = true
+	}
+
+	formatters := make(map[types.FormatterName]bool, len(FormatterPolicies))
+	for _, record := range FormatterPolicies {
+		formatters[record.Name] = true
+	}
+
+	for _, relation := range RedundancyRelations {
+		if err := relation.Validate(linters, formatters); err != nil {
+			panic(fmt.Sprintf("constants: %v", err))
+		}
+	}
 }
 
 // deriveLinterTiers rewrites every unmanaged Recommendable record whose

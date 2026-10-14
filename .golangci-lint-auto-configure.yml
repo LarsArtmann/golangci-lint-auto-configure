@@ -1,0 +1,22 @@
+# Divergence overlay for this repository's own .golangci.yml.
+#
+# Self-hosting: this tool configures its own lint setup. The sidecar
+# documents every intentional divergence from the rendered desired state so
+# the anti-gaming enforcement (re-enable of unjustified disables) and the
+# never-enable protection apply to us exactly as to any consumer project.
+#
+# Re-verify any edit with:
+#
+#	bin/golangci-lint-auto-configure configure --config .golangci.yml --check
+disabled:
+  depguard:
+    reason: >-
+      architectural import enforcement is configured manually with a curated
+      package list; the tool must never touch it
+    category: architecture
+never-enable:
+  depguard:
+    reason: >-
+      import restrictions are a human-owned architectural decision; the tool
+      adding a default allow-list would silently weaken the policy
+    category: architecture

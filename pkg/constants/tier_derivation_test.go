@@ -15,7 +15,7 @@ func TestPragmaticNoiseDerivation(t *testing.T) {
 	derived := constants.PragmaticNoiseLinters
 
 	expected := map[string]string{
-		"funlen":          derived["funlen"],
+		"funlen":           derived["funlen"],
 		"gochecknoglobals": derived["gochecknoglobals"],
 		"ireturn":          derived["ireturn"],
 		"wrapcheck":        derived["wrapcheck"],
@@ -26,11 +26,13 @@ func TestPragmaticNoiseDerivation(t *testing.T) {
 	}
 
 	for name := range expected {
-		if _, known := derived[name]; !known {
+		linterName := types.LinterName(name)
+
+		if _, known := derived[linterName]; !known {
 			t.Errorf("expected %q in the derived noise set, got %v", name, derived)
 		}
 
-		record, known := constants.PolicyRecord(types.LinterName(name))
+		record, known := constants.PolicyRecord(linterName)
 		if !known {
 			t.Fatalf("noise linter %q missing from the policy table", name)
 		}
@@ -53,10 +55,10 @@ func TestDeriveTierThresholds(t *testing.T) {
 	cold := &types.Evidence{Ratio: 0.79}
 
 	cases := []struct {
-		name  string
+		name   string
 		stored types.Tier
-		fric  *types.Evidence
-		want  types.TierKind
+		fric   *types.Evidence
+		want   types.TierKind
 	}{
 		{"unmanaged below threshold stays recommendable", types.Tier{}, cold, types.TierRecommendable},
 		{"unmanaged at threshold derives to noise", types.Tier{}, hot, types.TierPragmaticNoise},
