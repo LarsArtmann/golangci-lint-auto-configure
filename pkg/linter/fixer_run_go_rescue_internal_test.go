@@ -35,6 +35,15 @@ func (s stubRescueAnalyzer) GetDetectedVersion() string { return "v2.13.2" }
 
 func (s stubRescueAnalyzer) GetDetectedGoVersion() string { return s.golangciLintGoVersion }
 
+func (s stubRescueAnalyzer) DetectedBuildGoVersion() types.GoVersion {
+	parsed, err := types.ParseGoVersion(s.golangciLintGoVersion)
+	if err != nil {
+		return types.GoVersion{}
+	}
+
+	return parsed
+}
+
 func (s stubRescueAnalyzer) GetSummary(_ *types.ConfigAnalysis) string { return "" }
 
 func (s stubRescueAnalyzer) GetLintersByPriority(

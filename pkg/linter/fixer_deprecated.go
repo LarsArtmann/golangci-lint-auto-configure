@@ -4,7 +4,6 @@ import (
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-	"golang.org/x/mod/semver"
 )
 
 // deprecatedLinterHandler handles deprecated linter replacements.

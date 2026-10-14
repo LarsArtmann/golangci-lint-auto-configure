@@ -298,6 +298,9 @@ type LinterAnalyzer interface {
 	CheckVersion(ctx context.Context) error
 	GetDetectedVersion() string
 	GetDetectedGoVersion() string
+	// DetectedBuildGoVersion returns the Go version golangci-lint was built
+	// with as a branded type; the zero value means unknown (run.go cap off).
+	DetectedBuildGoVersion() GoVersion
 	GetSummary(analysis *ConfigAnalysis) string
 	GetLintersByPriority(recommendations []LinterRecommendation, priority LinterPriority) []LinterRecommendation
 }

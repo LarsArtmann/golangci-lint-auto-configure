@@ -10,7 +10,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-	"golang.org/x/mod/semver"
 )
 
 // golangciLintVersion represents JSON output from `golangci-lint version --json`.

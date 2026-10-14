@@ -88,7 +88,7 @@ func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config)
 		cu.logger.Warnf(
 			"Local Go %s is newer than the Go used to build golangci-lint (%s); "+
 				"capping run.go at %s — upgrade golangci-lint to lint with %s semantics",
-				target, cu.golangciLintGoVersion, cu.golangciLintGoVersion, target,
+			target, cu.golangciLintGoVersion, cu.golangciLintGoVersion, target,
 		)
 
 		target = cu.golangciLintGoVersion
@@ -330,7 +330,7 @@ func (cu *configUpdater) updateIssuesSettings(cfg *types.Config) int {
 // and injects exclusion paths into the config. This is the public entry point
 // used by both the fixer flow and the preset flow.
 func ApplyGeneratedExclusions(logger *log.Logger, cfg *types.Config, configPath string) int {
-	updater := newConfigUpdater(logger, nil, "")
+	updater := newConfigUpdater(logger, nil, types.GoVersion{})
 
 	return updater.updateGeneratedExclusions(cfg, configPath)
 }

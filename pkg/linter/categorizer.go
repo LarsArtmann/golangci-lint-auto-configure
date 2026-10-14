@@ -4,7 +4,6 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-	"golang.org/x/mod/semver"
 )
 
 func formatterNameSet(formatters []types.FormatterInfo) types.Set[types.FormatterName] {

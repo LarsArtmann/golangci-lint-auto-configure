@@ -114,7 +114,7 @@ func TestUpdateGoVersion(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			updater := newConfigUpdater(logger, func(context.Context) string {
 				return test.localGoVersion
-			}, test.golangciLintGo)
+			}, mustParseGoVersionForTest(t, test.golangciLintGo))
 
 			cfg := &types.Config{}
 			cfg.Run.Go = test.currentRunGo
@@ -129,4 +129,21 @@ func TestUpdateGoVersion(t *testing.T) {
 			}
 		})
 	}
+}
+
+// mustParseGoVersionForTest converts a test fixture version string to the
+// branded type; "" maps to the zero value (unknown, cap disabled).
+func mustParseGoVersionForTest(t *testing.T, raw string) types.GoVersion {
+	t.Helper()
+
+	if raw == "" {
+		return types.GoVersion{}
+	}
+
+	parsed, err := types.ParseGoVersion(raw)
+	if err != nil {
+		t.Fatalf("parse test Go version %q: %v", raw, err)
+	}
+
+	return parsed
 }

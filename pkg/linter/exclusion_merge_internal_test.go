@@ -22,7 +22,7 @@ func newTestUpdater(showMergedRules bool) (*configUpdater, *bytes.Buffer) {
 
 	logger := log.NewWithOptions(buf, log.Options{Level: level})
 
-	updater := newConfigUpdater(logger, func(context.Context) string { return "" }, "")
+	updater := newConfigUpdater(logger, func(context.Context) string { return "" }, types.GoVersion{})
 	updater.setShowMergedRules(showMergedRules)
 
 	return updater, buf
