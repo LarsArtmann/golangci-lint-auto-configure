@@ -1,8 +1,10 @@
 package linter
 
 import (
+	"fmt"
 	"slices"
 	"sort"
+	"time"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -237,6 +239,21 @@ func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
 	}
 
 	return normalized, changes
+}
+
+// needsDurationFix checks if the timeout value needs to be fixed.
+// Returns true and a reason if fixing is needed, false otherwise.
+func needsDurationFix(timeout string) (bool, string) {
+	if timeout == "" {
+		return true, "run.timeout is empty"
+	}
+
+	_, err := time.ParseDuration(timeout)
+	if err != nil {
+		return true, fmt.Sprintf("run.timeout %q is invalid", timeout)
+	}
+
+	return false, ""
 }
 
 // repairConfigScalars fixes the scalar fields golangci-lint refuses to load:

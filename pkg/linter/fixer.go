@@ -5,6 +5,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/policy"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
