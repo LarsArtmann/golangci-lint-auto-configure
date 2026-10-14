@@ -48,7 +48,7 @@ func applyLinterChanges(cfg *types.Config, change Change) {
 		}
 	case PathLintersSettings:
 		applySettingsChange(&cfg.Linters.Settings, change)
-	case "linters.exclusions.paths", PathLintersExclusionRules, "linters.exclusions.generated":
+	case "linters.exclusions.paths", PathLintersExclusionRules, PathLintersExclusionGenerated:
 		applyLinterExclusionChanges(cfg, change)
 	}
 }
@@ -61,7 +61,7 @@ func applyLinterExclusionChanges(cfg *types.Config, change Change) {
 		applyStringList(&cfg.Linters.Exclusions.Paths, change)
 	case PathLintersExclusionRules:
 		applyExclusionRule(&cfg.Linters.Exclusions.Rules, change)
-	case "linters.exclusions.generated":
+	case PathLintersExclusionGenerated:
 		if change.Kind == ChangeAdd {
 			cfg.Linters.Exclusions.Generated = toString(change.To)
 		}
@@ -85,7 +85,7 @@ func applyFormatterChanges(cfg *types.Config, change Change) {
 		applySettingsChange(&cfg.Formatters.Settings, change)
 	case "formatters.exclusions.paths":
 		applyStringList(&cfg.Formatters.Exclusions.Paths, change)
-	case "formatters.exclusions.generated":
+	case PathFormattersExclusionGenerated:
 		if change.Kind == ChangeAdd {
 			cfg.Formatters.Exclusions.Generated = toString(change.To)
 		}

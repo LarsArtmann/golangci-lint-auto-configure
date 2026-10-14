@@ -117,12 +117,7 @@ func (f *Fixer) convergePhaseTwo(
 		return migrationError("collect environment", priority, dryRun, configPath, version, envErr)
 	}
 
-	result, err := Converge(ctx, cfg, env, overlay, ConvergeOptions{
-		Priority:      priority,
-		DryRun:        dryRun,
-		ForceSettings: f.forceSettings,
-		Pragmatic:     f.pragmatic,
-	})
+	result, err := Converge(ctx, cfg, env, overlay, f.convergeOptions(priority, dryRun))
 	if err != nil {
 		return migrationError("converge config", priority, dryRun, configPath, version, err)
 	}
@@ -137,6 +132,19 @@ func (f *Fixer) convergePhaseTwo(
 		return outcome, nil
 	}
 
+	return f.persistConvergence(configPath, result, total, priority, dryRun, version)
+}
+
+// persistConvergence saves the merged config and records the audit trail;
+// it is the only non-dry-run path past the no-op outcome.
+func (f *Fixer) persistConvergence(
+	configPath string,
+	result *ConvergeResult,
+	total int,
+	priority types.LinterPriority,
+	dryRun bool,
+	version string,
+) (*types.MigrationResult, error) {
 	if err := f.configLoader.SaveConfig(result.Merged, configPath); err != nil {
 		return migrationError("save converged config", priority, dryRun, configPath, version, err)
 	}
@@ -147,6 +155,16 @@ func (f *Fixer) convergePhaseTwo(
 		FixesApplied: total,
 		Message:      convergeMessage(total, result),
 	}, nil
+}
+
+// convergeOptions bundles the fixer's user-intent flips for one run.
+func (f *Fixer) convergeOptions(priority types.LinterPriority, dryRun bool) ConvergeOptions {
+	return ConvergeOptions{
+		Priority:      priority,
+		DryRun:        dryRun,
+		ForceSettings: f.forceSettings,
+		Pragmatic:     f.pragmatic,
+	}
 }
 
 // convergenceOutcome returns the early MigrationResult for dry runs and

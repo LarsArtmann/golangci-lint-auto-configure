@@ -14,6 +14,10 @@ import (
 // disappears: the returned changes ARE the count, the audit trail, and the
 // dry-run report at once.
 
+// typicalReplacementChanges caps the plan of one deprecated-linter swap:
+// enable removal, successor add, settings migration, exclusion sweep.
+const typicalReplacementChanges = 4
+
 // NormalizeBadSettingsKeys renames schema-invalid settings keys this tool
 // once emitted (constants.KnownBadSettingsKeys). Pure: returns a normalized
 // CLONE and the changes; the input is never mutated. When both the bad and
@@ -53,7 +57,7 @@ func NormalizeBadSettingsKeys(observed *types.Config) (*types.Config, []Change) 
 func renameBadSettingsKeys(settings types.SettingsMap, linterName string) []Change {
 	keyMap := constants.KnownBadSettingsKeys[linterName]
 
-	var changes []Change
+	changes := make([]Change, 0, len(keyMap))
 
 	for _, badKey := range sortedKeys(keyMap) {
 		badValue, hasBad := settings[badKey]
@@ -62,29 +66,34 @@ func renameBadSettingsKeys(settings types.SettingsMap, linterName string) []Chan
 		}
 
 		delete(settings, badKey)
+		changes = append(changes, badKeyChange(settings, linterName, badKey, keyMap[badKey], badValue))
+	}
 
-		change := Change{
+	return changes
+}
+
+// badKeyChange rewrites one schema-invalid key: renamed to the good key
+// when absent, dropped when the good key is already present.
+func badKeyChange(
+	settings types.SettingsMap,
+	linterName, badKey, goodKey string,
+	badValue any,
+) Change {
+	if _, hasGood := settings[goodKey]; hasGood {
+		return Change{
 			Path: PathLintersSettings + "." + linterName, Element: badKey,
 			Kind: ChangeRemove, From: badValue,
 			Reason: "schema-invalid key",
 		}
-
-		goodKey := keyMap[badKey]
-
-		if _, hasGood := settings[goodKey]; !hasGood {
-			settings[goodKey] = badValue
-
-			change = Change{
-				Path: PathLintersSettings + "." + linterName, Element: badKey + "->" + goodKey,
-				Kind: ChangeUpdate, From: badValue, To: badValue,
-				Reason: "schema-invalid key renamed",
-			}
-		}
-
-		changes = append(changes, change)
 	}
 
-	return changes
+	settings[goodKey] = badValue
+
+	return Change{
+		Path: PathLintersSettings + "." + linterName, Element: badKey + "->" + goodKey,
+		Kind: ChangeUpdate, From: badValue, To: badValue,
+		Reason: "schema-invalid key renamed",
+	}
 }
 
 func sortedSettingNames[V any](m map[string]V) []string {
@@ -154,36 +163,60 @@ func replaceDeprecatedLinter(
 		return []Change{removeChange}
 	}
 
-	if neverEnable != nil && neverEnable(record.SupersededBy) {
+	if suffix := blockedReplacementSuffix(record, tool, neverEnable); suffix != "" {
 		normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
-		removeChange.Reason += " (replacement under never-enable, NOT added)"
-
-		return []Change{removeChange}
-	}
-
-	if !tool.IsZero() && !record.SupersessionSince.IsZero() && !tool.AtLeast(record.SupersessionSince) {
-		// Replacement does not exist in the installed version: drop the
-		// deprecated linter without adding its successor.
-		normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
-		removeChange.Reason += " (replacement needs " + record.SupersessionSince.String() + ")"
+		removeChange.Reason += suffix
 
 		return []Change{removeChange}
 	}
 
 	normalized.Linters.Enable = replaceName(normalized.Linters.Enable, name, record.SupersededBy)
 
-	changes := []Change{
+	return swapDeprecatedLinter(normalized, name, record, removeChange)
+}
+
+// swapDeprecatedLinter rewrites the enable entry to the successor and
+// migrates its settings block and exclusion-rule memberships.
+func swapDeprecatedLinter(
+	normalized *types.Config,
+	name types.LinterName,
+	record types.LinterPolicy,
+	removeChange Change,
+) []Change {
+	normalized.Linters.Enable = replaceName(normalized.Linters.Enable, name, record.SupersededBy)
+
+	changes := make([]Change, 0, typicalReplacementChanges)
+	changes = append(changes,
 		removeChange,
-		{
+		Change{
 			Path: PathLintersEnable, Element: string(record.SupersededBy), Kind: ChangeAdd,
 			To: string(record.SupersededBy), Reason: record.SupersessionReason,
 		},
-	}
+	)
 
 	changes = append(changes, migrateDeprecatedSettings(normalized, name, record.SupersededBy)...)
 	changes = append(changes, replaceExclusionLinters(normalized, name, record.SupersededBy)...)
 
 	return changes
+}
+
+// blockedReplacementSuffix reports why the deprecated linter must be dropped
+// WITHOUT its successor (never-enable policy, or the successor does not
+// exist in the installed tool version); empty means the swap may proceed.
+func blockedReplacementSuffix(
+	record types.LinterPolicy,
+	tool types.GolangciVersion,
+	neverEnable func(types.LinterName) bool,
+) string {
+	if neverEnable != nil && neverEnable(record.SupersededBy) {
+		return " (replacement under never-enable, NOT added)"
+	}
+
+	if !tool.IsZero() && !record.SupersessionSince.IsZero() && !tool.AtLeast(record.SupersessionSince) {
+		return " (replacement needs " + record.SupersessionSince.String() + ")"
+	}
+
+	return ""
 }
 
 // NormalizeConfigShape repairs the structural facts golangci-lint refuses to
@@ -192,6 +225,23 @@ func replaceDeprecatedLinter(
 func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
 	normalized := observed.Clone()
 
+	changes := repairConfigScalars(normalized)
+	changes = append(changes, removeTypecheckEntries(normalized)...)
+
+	// Tool-level disabled linters (funcorder, noinlineerr): forcibly moved to
+	// the disable list and removed from enable on every run.
+	changes = append(changes, moveToolDisabledLinters(normalized)...)
+
+	if len(changes) == 0 {
+		return observed, nil
+	}
+
+	return normalized, changes
+}
+
+// repairConfigScalars fixes the scalar fields golangci-lint refuses to load:
+// a missing/wrong config version and an invalid run timeout.
+func repairConfigScalars(normalized *types.Config) []Change {
 	var changes []Change
 
 	if normalized.Version != "2" {
@@ -218,6 +268,14 @@ func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
 		normalized.Run.Timeout = constants.DefaultTimeout
 	}
 
+	return changes
+}
+
+// removeTypecheckEntries strips the removed typecheck meta-linter from both
+// membership lists (govet covers it).
+func removeTypecheckEntries(normalized *types.Config) []Change {
+	var changes []Change
+
 	for _, list := range []struct {
 		path  string
 		field *[]types.LinterName
@@ -236,15 +294,7 @@ func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
 		}
 	}
 
-	// Tool-level disabled linters (funcorder, noinlineerr): forcibly moved to
-	// the disable list and removed from enable on every run.
-	changes = append(changes, moveToolDisabledLinters(normalized)...)
-
-	if len(changes) == 0 {
-		return observed, nil
-	}
-
-	return normalized, changes
+	return changes
 }
 
 // moveToolDisabledLinters relocates every tool-level disabled linter from
@@ -258,27 +308,35 @@ func moveToolDisabledLinters(normalized *types.Config) []Change {
 			continue
 		}
 
-		normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
+		changes = append(changes, moveToolDisabledLinter(normalized, name)...)
+	}
 
-		reason := "tool-level disabled"
-		if record, known := constants.PolicyRecord(name); known && record.Tier.Rationale != "" {
-			reason = record.Tier.Rationale
-		}
+	return changes
+}
 
-		changes = append(changes,
-			Change{
-				Path: PathLintersEnable, Element: string(name), Kind: ChangeRemove,
-				From: string(name), Reason: reason,
-			},
-			Change{
-				Path: PathLintersDisable, Element: string(name), Kind: ChangeAdd,
-				To: string(name), Reason: reason,
-			},
-		)
+// moveToolDisabledLinter relocates one tool-level disabled linter: out of
+// the enable list, into the disable list (idempotent).
+func moveToolDisabledLinter(normalized *types.Config, name types.LinterName) []Change {
+	normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
 
-		if !containsLinterName(toStrings(normalized.Linters.Disable), string(name)) {
-			normalized.Linters.Disable = append(normalized.Linters.Disable, name)
-		}
+	reason := "tool-level disabled"
+	if record, known := constants.PolicyRecord(name); known && record.Tier.Rationale != "" {
+		reason = record.Tier.Rationale
+	}
+
+	changes := []Change{
+		{
+			Path: PathLintersEnable, Element: string(name), Kind: ChangeRemove,
+			From: string(name), Reason: reason,
+		},
+		{
+			Path: PathLintersDisable, Element: string(name), Kind: ChangeAdd,
+			To: string(name), Reason: reason,
+		},
+	}
+
+	if !containsLinterName(toStrings(normalized.Linters.Disable), string(name)) {
+		normalized.Linters.Disable = append(normalized.Linters.Disable, name)
 	}
 
 	return changes
@@ -294,7 +352,7 @@ func PruneOrphanSettings(observed *types.Config) (*types.Config, []Change) {
 	enabled := types.NewSet(observed.Linters.Enable...)
 	disabled := types.NewSet(observed.Linters.Disable...)
 
-	var changes []Change
+	changes := make([]Change, 0, len(observed.Linters.Settings))
 
 	normalized := observed.Clone()
 
@@ -323,7 +381,7 @@ func PruneOrphanSettings(observed *types.Config) (*types.Config, []Change) {
 func RemoveRedundancies(observed *types.Config, desiredFormatters []types.FormatterName) (*types.Config, []Change) {
 	normalized := observed.Clone()
 
-	var changes []Change
+	changes := make([]Change, 0, 2)
 
 	changes = append(changes, removeRedundantLinters(normalized, desiredFormatters)...)
 	changes = append(changes, removeRedundantFormatters(normalized, desiredFormatters)...)
@@ -468,10 +526,7 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, 
 	for _, entry := range rule.Linters {
 		record, known := constants.PolicyRecord(types.LinterName(entry))
 		if !known || record.SupersessionReason == "" {
-			if !seen[entry] {
-				seen[entry] = true
-				kept = append(kept, entry)
-			}
+			kept = keepSweptEntry(entry, kept, seen)
 
 			continue
 		}
@@ -479,11 +534,7 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, 
 		changed = true
 
 		if record.SupersededBy == "" {
-			changes = append(changes, Change{
-				Path: PathLintersExclusionRules, Element: entry, Kind: ChangeRemove,
-				From:   entry,
-				Reason: record.SupersessionReason,
-			})
+			changes = append(changes, sweptDropChange(entry, record))
 
 			continue
 		}
@@ -495,6 +546,27 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, 
 	}
 
 	return kept, changed, changes
+}
+
+// keepSweptEntry keeps a non-deprecated entry, deduped against what the
+// rule already lists.
+func keepSweptEntry(entry string, kept []string, seen map[string]bool) []string {
+	if !seen[entry] {
+		seen[entry] = true
+		kept = append(kept, entry)
+	}
+
+	return kept
+}
+
+// sweptDropChange plans the removal of a deprecated name without a
+// successor from one rule's linter list.
+func sweptDropChange(entry string, record types.LinterPolicy) Change {
+	return Change{
+		Path: PathLintersExclusionRules, Element: entry, Kind: ChangeRemove,
+		From:   entry,
+		Reason: record.SupersessionReason,
+	}
 }
 
 // sweepRename plans one rename to the successor, deduped against what the

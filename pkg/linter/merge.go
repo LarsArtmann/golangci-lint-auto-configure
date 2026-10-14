@@ -112,12 +112,14 @@ type MergeStrategy string
 // Config path keys shared by the strategy table, the planners, the applier,
 // and the audit projection. One constant per path the engine touches.
 const (
-	PathLintersEnable         = "linters.enable"
-	PathLintersDisable        = "linters.disable"
-	PathLintersSettings       = "linters.settings"
-	PathLintersExclusionRules = "linters.exclusions.rules"
-	PathFormattersEnable      = "formatters.enable"
-	PathRunTimeout            = "run.timeout"
+	PathLintersEnable                = "linters.enable"
+	PathLintersDisable               = "linters.disable"
+	PathLintersSettings              = "linters.settings"
+	PathLintersExclusionRules        = "linters.exclusions.rules"
+	PathLintersExclusionGenerated    = "linters.exclusions.generated"
+	PathFormattersEnable             = "formatters.enable"
+	PathFormattersExclusionGenerated = "formatters.exclusions.generated"
+	PathRunTimeout                   = "run.timeout"
 )
 
 const (
@@ -155,23 +157,23 @@ const (
 //
 //nolint:gochecknoglobals // immutable strategy table, read-only after init
 var DefaultMergeStrategies = map[string]MergeStrategy{
-	PathLintersEnable:                 StrategyEnsurePresent,
-	PathLintersSettings:               StrategyPreferUser,
-	PathFormattersEnable:              StrategyEnsurePresent,
-	"formatters.settings":             StrategyPreferUser,
-	"linters.exclusions.paths":        StrategyUnion,
-	"formatters.exclusions.paths":     StrategyUnion,
-	PathLintersExclusionRules:         StrategyUnion,
-	"run.go":                          StrategyCapGoVersion,
-	PathRunTimeout:                    StrategyEnsureDefault,
-	"run.allow-parallel-runners":      StrategyEnsureDefault,
-	"run.allow-serial-runners":        StrategyEnsureDefault,
-	"run.issues-exit-code":            StrategyEnsureDefault,
-	"run.build-tags":                  StrategyUnion,
-	"issues.max-issues-per-linter":    StrategyEnsureDefault,
-	"issues.max-same-issues":          StrategyEnsureDefault,
-	"linters.exclusions.generated":    StrategyEnsureDefault,
-	"formatters.exclusions.generated": StrategyEnsureDefault,
+	PathLintersEnable:                StrategyEnsurePresent,
+	PathLintersSettings:              StrategyPreferUser,
+	PathFormattersEnable:             StrategyEnsurePresent,
+	"formatters.settings":            StrategyPreferUser,
+	"linters.exclusions.paths":       StrategyUnion,
+	"formatters.exclusions.paths":    StrategyUnion,
+	PathLintersExclusionRules:        StrategyUnion,
+	"run.go":                         StrategyCapGoVersion,
+	PathRunTimeout:                   StrategyEnsureDefault,
+	"run.allow-parallel-runners":     StrategyEnsureDefault,
+	"run.allow-serial-runners":       StrategyEnsureDefault,
+	"run.issues-exit-code":           StrategyEnsureDefault,
+	"run.build-tags":                 StrategyUnion,
+	"issues.max-issues-per-linter":   StrategyEnsureDefault,
+	"issues.max-same-issues":         StrategyEnsureDefault,
+	PathLintersExclusionGenerated:    StrategyEnsureDefault,
+	PathFormattersExclusionGenerated: StrategyEnsureDefault,
 }
 
 // MergeOptions carries the user-intent flips for one convergence run.
@@ -230,12 +232,12 @@ func buildPlanPathRank() map[string]int {
 		PathLintersEnable,
 		PathLintersDisable,
 		PathLintersSettings,
-		"linters.exclusions.generated",
+		PathLintersExclusionGenerated,
 		"linters.exclusions.paths",
 		PathLintersExclusionRules,
 		PathFormattersEnable,
 		"formatters.settings",
-		"formatters.exclusions.generated",
+		PathFormattersExclusionGenerated,
 		"formatters.exclusions.paths",
 		"run.go",
 		PathRunTimeout,
@@ -451,7 +453,7 @@ func planExclusions(
 // declarative twin of the legacy exclusion merge (plan T05 / gotcha on
 // exclusion-rule dedup).
 func planDefaultExclusionRules(observed *types.Config, desired DesiredConfig) []Change {
-	var changes []Change
+	changes := make([]Change, 0, len(desired.ExclusionRules))
 
 	// Legacy-exact matching: later rules with the same RuleKey shadow earlier
 	// ones (the legacy merge builds a map while iterating forward).
@@ -654,14 +656,14 @@ func planGeneratedDefaults(observed *types.Config) []Change {
 
 	if observed.Linters.Exclusions.Generated == "" {
 		changes = append(changes, Change{
-			Path: "linters.exclusions.generated", Kind: ChangeAdd,
+			Path: PathLintersExclusionGenerated, Kind: ChangeAdd,
 			To: "lax", Reason: "generated-file exclusions",
 		})
 	}
 
 	if observed.Formatters.Exclusions.Generated == "" {
 		changes = append(changes, Change{
-			Path: "formatters.exclusions.generated", Kind: ChangeAdd,
+			Path: PathFormattersExclusionGenerated, Kind: ChangeAdd,
 			To: "lax", Reason: "generated-file exclusions",
 		})
 	}
