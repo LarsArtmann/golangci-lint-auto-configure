@@ -92,8 +92,8 @@ func TestFormatRecommendations_WithEnabledLinter(t *testing.T) {
 
 func TestFormatSummary(t *testing.T) {
 	analysis := &types.ConfigAnalysis{
-		EnabledLinters:   []types.LinterInfo{{Name: "lint1"}, {Name: "lint2"}},
-		DisabledLinters:  []types.LinterInfo{{Name: "lint3"}},
+		EnabledLinters:  []types.LinterInfo{{Name: "lint1"}, {Name: "lint2"}},
+		DisabledLinters: []types.LinterInfo{{Name: "lint3"}},
 	}
 
 	result := uipkg.FormatSummary(analysis)

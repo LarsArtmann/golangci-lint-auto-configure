@@ -38,46 +38,83 @@ func (f *Fixer) Evaluate(
 	configPath string,
 	priority types.LinterPriority,
 ) (*Evaluation, error) {
-	cfg, err := f.configLoader.LoadConfig(configPath)
+	cfg, env, result, err := f.evaluateConvergence(ctx, configPath, priority)
 	if err != nil {
-		return nil, analysisError("load config", priority, true, configPath, "", err)
-	}
-
-	version := f.detectVersion(ctx)
-
-	if f.analyzer != nil {
-		if err := f.verifyAnalyzerContract(ctx); err != nil {
-			return nil, err
-		}
-	}
-
-	if err := f.rescueOverspecifiedRunGo(cfg, configPath, true); err != nil {
-		return nil, analysisError("rescue run.go", priority, true, configPath, version, err)
-	}
-
-	f.loadPolicy(configPath)
-
-	overlay := f.sidecarOverlay(cfg)
-
-	env, envErr := CollectEnv(ctx, f.analyzer, f.goVersionProvider, configPath)
-	if envErr != nil {
-		return nil, analysisError("collect environment", priority, true, configPath, version, envErr)
-	}
-
-	result, err := Converge(ctx, cfg, env, overlay, f.convergeOptions(priority, true))
-	if err != nil {
-		return nil, analysisError("converge config", priority, true, configPath, version, err)
+		return nil, err
 	}
 
 	userDisabled := disableMinusEnable(cfg)
+	options := f.convergeOptions(priority, true)
 
 	return &Evaluation{
 		ConfigPath: configPath,
 		Env:        env,
-		Desired:    renderDesired(env, f.convergeOptions(priority, true), cfg, userDisabled),
+		Desired:    renderDesired(env, options, cfg, userDisabled),
 		Observed:   cfg,
 		Deviations: append(append([]Change{}, result.NormalizerChanges...), result.Plan...),
 		Suppressed: result.Suppressed,
 		Converged:  result.Converged,
 	}, nil
+}
+
+// evaluateConvergence runs the report-only pipeline: load, verify, rescue,
+// collect, converge. Returns the working config, the environment, and the
+// convergence result.
+func (f *Fixer) evaluateConvergence(
+	ctx context.Context,
+	configPath string,
+	priority types.LinterPriority,
+) (*types.Config, Env, *ConvergeResult, error) {
+	cfg, err := f.configLoader.LoadConfig(configPath)
+	if err != nil {
+		return nil, Env{}, nil, analysisError("load config", priority, true, configPath, "", err)
+	}
+
+	if err := f.prepareEvaluation(ctx, cfg, configPath, priority); err != nil {
+		return nil, Env{}, nil, err
+	}
+
+	env, envErr := CollectEnv(ctx, f.analyzer, f.goVersionProvider, configPath)
+	if envErr != nil {
+		return nil, Env{}, nil, analysisError(
+			"collect environment",
+			priority,
+			true,
+			configPath,
+			f.detectVersion(ctx),
+			envErr,
+		)
+	}
+
+	result, err := Converge(ctx, cfg, env, f.sidecarOverlay(cfg), f.convergeOptions(priority, true))
+	if err != nil {
+		return nil, Env{}, nil, analysisError("converge config", priority, true, configPath, "", err)
+	}
+
+	return cfg, env, result, nil
+}
+
+// prepareEvaluation runs the analyzer contract and the run.go rescue; a
+// config the binary cannot load fails here instead of degrading silently.
+func (f *Fixer) prepareEvaluation(
+	ctx context.Context,
+	cfg *types.Config,
+	configPath string,
+	priority types.LinterPriority,
+) error {
+	version := f.detectVersion(ctx)
+
+	if f.analyzer != nil {
+		if err := f.verifyAnalyzerContract(ctx); err != nil {
+			return err
+		}
+	}
+
+	if err := f.rescueOverspecifiedRunGo(cfg, configPath, true); err != nil {
+		return analysisError("rescue run.go", priority, true, configPath, version, err)
+	}
+
+	f.loadPolicy(configPath)
+
+	return nil
 }

@@ -277,4 +277,3 @@ func (a *Analyzer) calculateDeprecatedLinters(analysis *types.ConfigAnalysis) {
 		}
 	}
 }
-

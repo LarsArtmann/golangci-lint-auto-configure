@@ -167,6 +167,7 @@ type ConfigAnalysis struct {
 // priority.
 func (a *ConfigAnalysis) CountByPriority(priority LinterPriority) int {
 	count := 0
+
 	for _, rec := range a.LinterRecommendations {
 		if rec.Priority == priority {
 			count++

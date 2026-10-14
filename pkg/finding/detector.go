@@ -28,7 +28,11 @@ type DeviationDetector struct {
 
 // NewDeviationDetector creates a detector that reports config deviations for
 // the given file at the given recommendation threshold.
-func NewDeviationDetector(planner DeviationPlanner, configPath string, priority types.LinterPriority) *DeviationDetector {
+func NewDeviationDetector(
+	planner DeviationPlanner,
+	configPath string,
+	priority types.LinterPriority,
+) *DeviationDetector {
 	return &DeviationDetector{
 		planner:    planner,
 		configPath: configPath,

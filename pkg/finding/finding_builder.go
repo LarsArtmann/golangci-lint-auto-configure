@@ -41,14 +41,28 @@ type configFindingParams struct {
 }
 
 func configFinding(params configFindingParams) (finding.Finding, error) {
-	builder := finding.NewBuilder(
+	builder := decorateBuilder(finding.NewBuilder(
 		finding.RuleName(params.RuleID),
 		finding.ToolName(constants.ToolName),
 		params.Message,
 		params.Severity,
 		params.Position,
-	)
+	), params)
 
+	found, err := builder.Build()
+	if err != nil {
+		return finding.Finding{}, errorfamily.WrapCorruptionf(err, "finding.build",
+			"build finding for %s", params.RuleID)
+	}
+
+	return found, nil
+}
+
+// decorateBuilder applies every optional configFindingParams field.
+func decorateBuilder(
+	builder *finding.Builder,
+	params configFindingParams,
+) *finding.Builder {
 	if len(params.Tags) > 0 {
 		builder = builder.WithTags(params.Tags...)
 	}
@@ -71,11 +85,5 @@ func configFinding(params configFindingParams) (finding.Finding, error) {
 		builder = builder.WithAfterCode(params.AfterCode)
 	}
 
-	found, err := builder.Build()
-	if err != nil {
-		return finding.Finding{}, errorfamily.WrapCorruptionf(err, "finding.build",
-			"build finding for %s", params.RuleID)
-	}
-
-	return found, nil
+	return builder
 }

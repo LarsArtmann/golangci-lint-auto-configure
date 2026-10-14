@@ -66,9 +66,9 @@ var _ = Describe("JSON Tag Serialization", func() {
 		Context("ConfigAnalysis", func() {
 			It("marshals all fields as PascalCase", func() {
 				analysis := types.ConfigAnalysis{
-					ConfigPath:       ".golangci.yml",
-					EnabledLinters:   []types.LinterInfo{{Name: "govet"}},
-					DisabledLinters:  []types.LinterInfo{{Name: "gosec"}},
+					ConfigPath:      ".golangci.yml",
+					EnabledLinters:  []types.LinterInfo{{Name: "govet"}},
+					DisabledLinters: []types.LinterInfo{{Name: "gosec"}},
 				}
 
 				data, err := json.Marshal(analysis, json.Deterministic(true))
