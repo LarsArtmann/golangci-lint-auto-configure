@@ -427,42 +427,37 @@ func planExclusions(
 func planDefaultExclusionRules(observed *types.Config, desired DesiredConfig) []Change {
 	var changes []Change
 
+	// Legacy-exact matching: later rules with the same RuleKey shadow earlier
+	// ones (the legacy merge builds a map while iterating forward).
+	existingByKey := make(map[string]int, len(observed.Linters.Exclusions.Rules))
+	for i := range observed.Linters.Exclusions.Rules {
+		existingByKey[observed.Linters.Exclusions.Rules[i].RuleKey()] = i
+	}
+
 	for _, defaultRule := range desired.ExclusionRules {
 		key := defaultRule.RuleKey()
 
-		merged := false
-
-		for i := range observed.Linters.Exclusions.Rules {
-			observedRule := &observed.Linters.Exclusions.Rules[i]
-			if observedRule.RuleKey() != key {
-				continue
-			}
-
-			union, added := unionStrings(observedRule.Linters, defaultRule.Linters)
-			if !added {
-				merged = true
-
-				break
-			}
-
+		idx, exists := existingByKey[key]
+		if !exists {
 			changes = append(changes, Change{
-				Path: "linters.exclusions.rules", Element: key, Kind: ChangeUpdate,
-				From: append([]string{}, observedRule.Linters...), To: union,
-				Reason: "default exclusion rule unioned with user rule",
+				Path: "linters.exclusions.rules", Element: key, Kind: ChangeAdd,
+				To: cloneRule(defaultRule), Reason: "default exclusion rule",
 			})
 
-			merged = true
-
-			break
+			continue
 		}
 
-		if merged {
+		existingLinters := observed.Linters.Exclusions.Rules[idx].Linters
+
+		union, added := unionStrings(existingLinters, defaultRule.Linters)
+		if !added {
 			continue
 		}
 
 		changes = append(changes, Change{
-			Path: "linters.exclusions.rules", Element: key, Kind: ChangeAdd,
-			To: cloneRule(defaultRule), Reason: "default exclusion rule",
+			Path: "linters.exclusions.rules", Element: key, Kind: ChangeUpdate,
+			From: append([]string{}, existingLinters...), To: union,
+			Reason: "default exclusion rule unioned with user rule",
 		})
 	}
 

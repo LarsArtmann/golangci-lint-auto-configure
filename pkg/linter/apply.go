@@ -163,9 +163,13 @@ func applyExclusionRule(rules *[]types.ExclusionRuleConfig, change Change) {
 		}
 	case ChangeUpdate:
 		if union, ok := change.To.([]string); ok {
-			for i := range *rules {
+			// Legacy-exact: the union lands on the LAST rule with the key
+			// (later rules shadow earlier ones).
+			for i := len(*rules) - 1; i >= 0; i-- {
 				if (*rules)[i].RuleKey() == change.Element {
 					(*rules)[i].Linters = union
+
+					break
 				}
 			}
 		}
