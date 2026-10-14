@@ -42,12 +42,12 @@ type Env struct {
 // for unknown keys (an undetectable technology must not suppress
 // recommendations).
 func (e Env) UsesTech(tech string) bool {
-	known, detected := e.Tech[tech]
+	result, known := e.Tech[tech]
 	if !known {
 		return true
 	}
 
-	return detected
+	return result
 }
 
 // techKeys returns every technology key the policy tables gate on.
