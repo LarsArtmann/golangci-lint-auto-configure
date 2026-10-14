@@ -123,7 +123,10 @@ func (f *Fixer) FixConfig(
 		return migrationError("load config", priority, dryRun, configPath, "", err)
 	}
 
-	if f.engine == EngineConverge {
+	// The declarative reconciler is the DEFAULT engine (corpus-proven
+	// byte-identical in TestParityCorpusConverge); the imperative pipeline
+	// remains available as an explicit opt-out during the migration window.
+	if f.engine != EngineLegacy {
 		return f.convergeFixConfig(ctx, cfg, configPath, priority, dryRun)
 	}
 

@@ -11,12 +11,14 @@ import (
 type Engine string
 
 const (
-	// EngineLegacy is the historical imperative mutator pipeline.
-	EngineLegacy Engine = "legacy"
-	// EngineConverge is the declarative reconciler: collect → normalize →
-	// render → plan → apply. Opt-in until the parity corpus proves byte
-	// equivalence (plan phase P5, flip in T20).
+	// EngineConverge is the declarative reconciler (collect → normalize →
+	// render → plan → apply) and the DEFAULT engine since the corpus flip:
+	// TestParityCorpusConverge proves byte-identical output across the
+	// parity corpus.
 	EngineConverge Engine = "converge"
+	// EngineLegacy is the historical imperative mutator pipeline, kept as an
+	// explicit opt-out during the migration window.
+	EngineLegacy Engine = "legacy"
 )
 
 // ConvergeOptions carries the user intent for one convergence run.
