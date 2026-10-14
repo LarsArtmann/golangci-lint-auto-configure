@@ -52,6 +52,12 @@ func (s stubRescueAnalyzer) GetLintersByPriority(
 	return recommendations
 }
 
+type recordedEnforceAction struct {
+	action audit.Action
+	linter string
+	reason string
+}
+
 type rescueRecorder struct {
 	actions []recordedEnforceAction
 }
@@ -87,7 +93,6 @@ func newRescueFixer(t *testing.T, binaryGoVersion string, loader *config.Loader)
 		logger:            log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel}),
 		ledger:            &rescueRecorder{},
 		goVersionProvider: func(context.Context) string { return "" },
-		formatterManager:  NewFormatterManager(log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})),
 		forceSettings:     false,
 		showMergedRules:   false,
 	}

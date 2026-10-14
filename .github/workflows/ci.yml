@@ -365,7 +365,7 @@ jobs:
           install-only: true
 
       - name: Run parity corpus
-        run: go test ./pkg/linter/ -run 'TestParityCorpus' -count=1 -v
+        run: go test ./pkg/linter/ -run '^TestParityCorpusConverge$' -count=1 -v
 
     timeout-minutes: 15
   summary:

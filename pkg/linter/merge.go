@@ -501,23 +501,37 @@ func planDefaultExclusionRule(
 	}}
 }
 
+// unionStrings merges two linter lists the way the legacy exclusion merge
+// did: dedup(existing) in order, followed by the not-yet-present additions.
+// The bool reports whether the union differs from the existing list (either a
+// duplicate was removed or an addition was appended) — the caller's signal
+// that a change must be planned.
 func unionStrings(existing, additions []string) ([]string, bool) {
-	set := make(map[string]bool, len(existing))
+	set := make(map[string]bool, len(existing)+len(additions))
+
+	union := make([]string, 0, len(existing)+len(additions))
+
 	for _, entry := range existing {
-		set[entry] = true
-	}
-
-	union := append([]string{}, existing...)
-	added := false
-
-	for _, entry := range additions {
 		if !set[entry] {
+			set[entry] = true
+
 			union = append(union, entry)
-			added = true
 		}
 	}
 
-	return union, added
+	changed := len(union) != len(existing)
+
+	for _, entry := range additions {
+		if !set[entry] {
+			set[entry] = true
+
+			union = append(union, entry)
+
+			changed = true
+		}
+	}
+
+	return union, changed
 }
 
 func cloneRule(rule types.ExclusionRuleConfig) types.ExclusionRuleConfig {
