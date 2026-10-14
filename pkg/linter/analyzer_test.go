@@ -82,9 +82,9 @@ var _ = Describe("Analyzer", func() {
 		It("should return summary for mixed priorities", func() {
 			analysis := &types.ConfigAnalysis{
 				LinterRecommendations: []types.LinterRecommendation{
-					{Name: "gosec"},
-					{Name: "wrapcheck"},
-					{Name: "errorlint"},
+					{Name: "gosec", Priority: types.LinterPriorityCritical},
+					{Name: "wrapcheck", Priority: types.LinterPriorityHigh},
+					{Name: "errorlint", Priority: types.LinterPriorityHigh},
 				},
 			}
 
