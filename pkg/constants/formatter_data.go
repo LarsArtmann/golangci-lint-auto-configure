@@ -1,7 +1,5 @@
 package constants
 
-import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-
 // FormatterInfo provides metadata about formatters.
 // Derived from the formatter policy table (formatter_policy_table.go).
 var FormatterInfo = formatterInfoView()
