@@ -216,17 +216,6 @@ func render(records []types.LinterPolicy) string {
 
 		fmt.Fprintf(&b, "\t\tName: %q,\n", string(record.Name))
 
-		if record.ValidTool.Min.String() != "" {
-			fmt.Fprintf(&b, "\t\tValidTool: types.Interval[types.GolangciVersion]{Max: %s, Min: types.MustParseGolangciVersion(%q)},\n",
-				"", record.ValidTool.Min.String())
-		}
-
-		if record.ValidTool.Max.String() != "" {
-			if record.ValidTool.Min.String() != "" {
-				// handled below by merging both bounds
-			}
-		}
-
 		b.WriteString(intervalField(&record))
 		b.WriteString(langField(&record))
 

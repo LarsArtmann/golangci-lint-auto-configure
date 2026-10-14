@@ -203,4 +203,45 @@ func (p LinterPolicy) Validate() error {
 	return nil
 }
 
+// FormatterPolicy is the single source of truth about one formatter: its
+// recommendation priority, rationale, display metadata, core-stack
+// membership, redundancy relation, tech gate, and safe-default settings.
+// The formatter ORDER is a separate sequence (constants.FormatterOrder)
+// because ordering is a property of the rendering, not of one formatter.
+type FormatterPolicy struct {
+	// Name is the golangci-lint formatter identifier.
+	Name FormatterName
+	// Priority is the recommendation priority (zero = Low).
+	Priority FormatterPriority
+	// Rationale is the human-readable reason for recommending the formatter.
+	Rationale string
+	// Description is the neutral display description (report metadata).
+	Description string
+	// AutoFix reports whether the formatter rewrites files.
+	AutoFix bool
+	// Core marks the validated default stack every project gets (the old
+	// CoreFormatters list).
+	Core bool
+	// SupersededBy names a formatter that makes this one redundant when
+	// enabled (gofmt -> gofumpt). Zero means none.
+	SupersededBy FormatterName
+	// Gate is the recommendation gate; zero = RecommendAlways.
+	Gate Gate
+	// Settings are the safe-default settings blocks.
+	Settings []VersionedSettings
+}
+
+// Validate checks the record's structural invariants.
+func (p FormatterPolicy) Validate() error {
+	if p.Name == "" {
+		return errPolicy("formatter policy record without a name")
+	}
+
+	if p.Gate.Kind == GateRequiresTech && p.Gate.Tech == "" {
+		return errPolicy("formatter %s: RequiresTech gate requires a technology key", p.Name)
+	}
+
+	return nil
+}
+
 func errPolicy(format string, args ...any) error { return fmt.Errorf(format, args...) }
