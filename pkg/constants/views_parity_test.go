@@ -37,11 +37,17 @@ func TestLegacyViewsGolden(t *testing.T) {
 		{"pragmatic_noise_linters", func() any { return canonicalJSONMap(t, constants.PragmaticNoiseLinters) }},
 		{"linter_min_versions", func() any { return canonicalJSONMap(t, constants.LinterMinVersions) }},
 		{"project_specific_linters", func() any { return canonicalJSONMap(t, constants.ProjectSpecificLinters) }},
-		{"default_linter_settings", func() any { return canonicalJSONMap(t, linterSettingsToMap(t, constants.DefaultLinterSettings)) }},
+		{
+			"default_linter_settings",
+			func() any { return canonicalJSONMap(t, linterSettingsToMap(t, constants.DefaultLinterSettings)) },
+		},
 		{"formatter_priorities", func() any { return canonicalJSONMap(t, constants.FormatterPriorities) }},
 		{"formatter_reasons", func() any { return canonicalJSONMap(t, constants.FormatterReasons) }},
 		{"formatter_info", func() any { return canonicalJSONMap(t, constants.FormatterInfo) }},
-		{"default_formatter_settings", func() any { return canonicalJSONMap(t, formatterSettingsToMap(t, constants.DefaultFormatterSettings)) }},
+		{
+			"default_formatter_settings",
+			func() any { return canonicalJSONMap(t, formatterSettingsToMap(t, constants.DefaultFormatterSettings)) },
+		},
 	}
 
 	for _, view := range all {

@@ -24,7 +24,13 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-const outputPath = "pkg/constants/linter_policy_table.go"
+const (
+	outputPath         = "pkg/constants/linter_policy_table.go"
+	tableFilePerm      = 0o600
+	debugFilePerm      = 0o600
+	exhaustructNolint  = 954
+	exhaustructConfigs = 146
+)
 
 // curatedData holds the hand-curated facts that live only in this generator:
 // stated deprecation versions, measured friction ratios, and language
@@ -81,7 +87,7 @@ func write(source string) {
 	if err != nil {
 		const debugPath = "/tmp/linter_policy_table.go.raw"
 
-		if writeErr := os.WriteFile(debugPath, []byte(source), 0o600); writeErr != nil {
+		if writeErr := os.WriteFile(debugPath, []byte(source), debugFilePerm); writeErr != nil {
 			fmt.Fprintln(os.Stderr, "write raw debug source:", writeErr)
 		}
 
@@ -89,7 +95,7 @@ func write(source string) {
 		os.Exit(1)
 	}
 
-	if err := os.WriteFile(outputPath, formatted, 0o600); err != nil {
+	if err := os.WriteFile(outputPath, formatted, tableFilePerm); err != nil {
 		fmt.Fprintln(os.Stderr, "write:", err)
 		os.Exit(1)
 	}
@@ -113,14 +119,7 @@ func collect() []types.LinterPolicy {
 func collectNames(legacy goldenMaps) []string {
 	names := map[string]bool{}
 
-	for _, source := range []map[string]string{
-		legacy.reasons,
-		legacy.disabled,
-		legacy.neverAutoEnable,
-		legacy.pragmaticNoise,
-		legacy.minVersions,
-		legacy.projectSpecific,
-	} {
+	for _, source := range stringNameSources(legacy) {
 		for name := range source {
 			names[name] = true
 		}
@@ -194,6 +193,17 @@ func readGoldenMaps() goldenMaps {
 	read("project_specific_linters.json", &legacy.projectSpecific)
 
 	return legacy
+}
+
+func stringNameSources(legacy goldenMaps) []map[string]string {
+	return []map[string]string{
+		legacy.reasons,
+		legacy.disabled,
+		legacy.neverAutoEnable,
+		legacy.pragmaticNoise,
+		legacy.minVersions,
+		legacy.projectSpecific,
+	}
 }
 
 func build(name types.LinterName, legacy goldenMaps, curated curatedData) types.LinterPolicy {
@@ -282,8 +292,8 @@ func buildEvidence(record *types.LinterPolicy, curated curatedData) {
 	evidence := &types.Evidence{Ratio: ratio}
 
 	if record.Name == "exhaustruct_v5" {
-		evidence.Nolints = 954
-		evidence.Configs = 146
+		evidence.Nolints = exhaustructNolint
+		evidence.Configs = exhaustructConfigs
 		evidence.AsOf = curated.exhaustructAsOf
 	}
 
@@ -358,16 +368,26 @@ func renderRecord(b *strings.Builder, record types.LinterPolicy) {
 			structLiteral(reflect.ValueOf(entry.Settings)), sinceLit(entry.Since))
 	}
 
-	if record.Tier.Kind != types.TierRecommendable {
-		fmt.Fprintf(b, "\t\tTier: types.Tier{Kind: types.%s, Rationale: %q},\n",
-			tierIdent(record.Tier.Kind), record.Tier.Rationale)
-	}
-
-	if record.Gate.Kind == types.GateRequiresTech {
-		fmt.Fprintf(b, "\t\tGate: types.RequiresTech(%q),\n", record.Gate.Tech)
-	}
-
+	b.WriteString(tierField(&record))
+	b.WriteString(gateField(&record))
 	b.WriteString("\t},\n")
+}
+
+func tierField(record *types.LinterPolicy) string {
+	if record.Tier.Kind == types.TierRecommendable {
+		return ""
+	}
+
+	return fmt.Sprintf("\t\tTier: types.Tier{Kind: types.%s, Rationale: %q},\n",
+		tierIdent(record.Tier.Kind), record.Tier.Rationale)
+}
+
+func gateField(record *types.LinterPolicy) string {
+	if record.Gate.Kind != types.GateRequiresTech {
+		return ""
+	}
+
+	return fmt.Sprintf("\t\tGate: types.RequiresTech(%q),\n", record.Gate.Tech)
 }
 
 func supersessionFields(record *types.LinterPolicy) string {
@@ -382,7 +402,11 @@ func supersessionFields(record *types.LinterPolicy) string {
 	}
 
 	if record.SupersessionSince.String() != "" {
-		fmt.Fprintf(&b, "\t\tSupersessionSince: types.MustParseGolangciVersion(%q),\n", record.SupersessionSince.String())
+		fmt.Fprintf(
+			&b,
+			"\t\tSupersessionSince: types.MustParseGolangciVersion(%q),\n",
+			record.SupersessionSince.String(),
+		)
 	}
 
 	return b.String()
@@ -402,12 +426,21 @@ func intervalField(record *types.LinterPolicy) string {
 
 	switch {
 	case minStr != "" && maxStr != "":
-		return fmt.Sprintf("\t\tValidTool: types.NewInterval(types.MustParseGolangciVersion(%q), types.MustParseGolangciVersion(%q)),\n",
-			minStr, maxStr)
+		return fmt.Sprintf(
+			"\t\tValidTool: types.NewInterval(types.MustParseGolangciVersion(%q), types.MustParseGolangciVersion(%q)),\n",
+			minStr,
+			maxStr,
+		)
 	case minStr != "":
-		return fmt.Sprintf("\t\tValidTool: types.Interval[types.GolangciVersion]{Min: types.MustParseGolangciVersion(%q)},\n", minStr)
+		return fmt.Sprintf(
+			"\t\tValidTool: types.Interval[types.GolangciVersion]{Min: types.MustParseGolangciVersion(%q)},\n",
+			minStr,
+		)
 	case maxStr != "":
-		return fmt.Sprintf("\t\tValidTool: types.Interval[types.GolangciVersion]{Max: types.MustParseGolangciVersion(%q)},\n", maxStr)
+		return fmt.Sprintf(
+			"\t\tValidTool: types.Interval[types.GolangciVersion]{Max: types.MustParseGolangciVersion(%q)},\n",
+			maxStr,
+		)
 	default:
 		return ""
 	}
@@ -418,7 +451,10 @@ func langField(record *types.LinterPolicy) string {
 		return ""
 	}
 
-	return fmt.Sprintf("\t\tLang: types.Interval[types.GoVersion]{Min: types.MustParseGoVersion(%q)},\n", record.Lang.Min.String())
+	return fmt.Sprintf(
+		"\t\tLang: types.Interval[types.GoVersion]{Min: types.MustParseGoVersion(%q)},\n",
+		record.Lang.Min.String(),
+	)
 }
 
 func priorityIdent(priority types.LinterPriority) string {
@@ -461,7 +497,7 @@ func timeLit(moment time.Time) string {
 
 // structLiteral renders a settings struct value as a composite literal.
 func structLiteral(value reflect.Value) string {
-	switch value.Kind() {
+	switch value.Kind() { //nolint:exhaustive // settings structs only contain the handled kinds; default panics loudly
 	case reflect.String:
 		return fmt.Sprintf("%q", value.String())
 	case reflect.Int:

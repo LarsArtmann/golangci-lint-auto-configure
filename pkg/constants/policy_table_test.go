@@ -55,6 +55,7 @@ var _ = Describe("Policy table", func() {
 
 	It("keeps supersession targets inside the table (referential integrity)", func() {
 		known := constants.LinterPolicyView()
+
 		for _, record := range constants.LinterPolicies {
 			if record.SupersededBy == "" {
 				continue
@@ -68,6 +69,7 @@ var _ = Describe("Policy table", func() {
 
 	It("agrees with itself on gated replacements (deprecation since == replacement min version)", func() {
 		known := constants.LinterPolicyView()
+
 		for _, record := range constants.LinterPolicies {
 			if record.SupersededBy == "" || record.SupersessionSince.IsZero() {
 				continue

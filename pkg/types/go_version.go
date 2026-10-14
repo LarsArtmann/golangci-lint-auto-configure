@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-// Parse-error sentinels for the Go version axis. Parse failures wrap one of
-// these so callers can classify without string matching.
+// ErrInvalidGoVersion is wrapped by every Go-version parse failure so callers
+// can classify without string matching.
 var ErrInvalidGoVersion = errors.New("types: invalid Go version")
 
 // GoVersion is a Go language version at major.minor granularity. The patch

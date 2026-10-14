@@ -53,7 +53,7 @@ var FormatterPolicies = []types.FormatterPolicy{
 		AutoFix:     true,
 		Core:        true,
 		Settings: []types.VersionedSettings{
-			{Settings: GolinesFormatterSettings{MaxLen: 120}},
+			{Settings: GolinesFormatterSettings{MaxLen: 120}}, //nolint:mnd // intentional default line length
 		},
 	},
 	{
@@ -108,6 +108,7 @@ func formatterPrioritiesView() map[types.FormatterName]types.FormatterPriority {
 // formatterReasonsView reconstructs the legacy rationale map.
 func formatterReasonsView() map[types.FormatterName]string {
 	view := make(map[types.FormatterName]string)
+
 	for _, record := range FormatterPolicies {
 		if record.Rationale != "" {
 			view[record.Name] = record.Rationale
@@ -133,6 +134,7 @@ func coreFormattersView() []types.FormatterName {
 // redundantFormattersView reconstructs the legacy redundancy map.
 func redundantFormattersView() map[types.FormatterName]types.FormatterName {
 	view := make(map[types.FormatterName]types.FormatterName)
+
 	for _, record := range FormatterPolicies {
 		if record.SupersededBy != "" {
 			view[record.Name] = record.SupersededBy
@@ -145,6 +147,7 @@ func redundantFormattersView() map[types.FormatterName]types.FormatterName {
 // projectSpecificFormattersView reconstructs the legacy tech-gate map.
 func projectSpecificFormattersView() map[types.FormatterName]string {
 	view := make(map[types.FormatterName]string)
+
 	for _, record := range FormatterPolicies {
 		if record.Gate.Kind == types.GateRequiresTech {
 			view[record.Name] = record.Gate.Tech
@@ -157,6 +160,7 @@ func projectSpecificFormattersView() map[types.FormatterName]string {
 // defaultFormatterSettingsView reconstructs the legacy curated-settings map.
 func defaultFormatterSettingsView() map[types.FormatterName]types.SettingsConverter {
 	view := make(map[types.FormatterName]types.SettingsConverter)
+
 	for _, record := range FormatterPolicies {
 		if len(record.Settings) > 0 {
 			view[record.Name] = record.Settings[0].Settings

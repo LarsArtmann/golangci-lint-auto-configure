@@ -57,8 +57,12 @@ func TestParityCorpusIdempotent(t *testing.T) {
 			second := RunParityFixture(t, fixture)
 
 			if string(first.ConfigBytes) != string(second.ConfigBytes) {
-				t.Errorf("fixture %s not idempotent: second run changed config bytes\n--- first ---\n%s\n--- second ---\n%s",
-					fixture.Name, first.ConfigBytes, second.ConfigBytes)
+				t.Errorf(
+					"fixture %s not idempotent: second run changed config bytes\n--- first ---\n%s\n--- second ---\n%s",
+					fixture.Name,
+					first.ConfigBytes,
+					second.ConfigBytes,
+				)
 			}
 		})
 	}
@@ -76,13 +80,20 @@ func guardToolVersion(t *testing.T, fixture ParityFixture) {
 	detected := detectCorpusToolVersion(t)
 
 	if detected == "" {
-		t.Fatalf("fixture %s requires golangci-lint >= %s but no version could be detected (is golangci-lint installed?)",
-			fixture.Name, fixture.Manifest.RequiresToolAtLeast)
+		t.Fatalf(
+			"fixture %s requires golangci-lint >= %s but no version could be detected (is golangci-lint installed?)",
+			fixture.Name,
+			fixture.Manifest.RequiresToolAtLeast,
+		)
 	}
 
 	if semver.Compare(detected, fixture.Manifest.RequiresToolAtLeast) < 0 {
-		t.Fatalf("fixture %s requires golangci-lint >= %s, found %s — run on a compatible binary or consciously regenerate goldens",
-			fixture.Name, fixture.Manifest.RequiresToolAtLeast, detected)
+		t.Fatalf(
+			"fixture %s requires golangci-lint >= %s, found %s — run on a compatible binary or consciously regenerate goldens",
+			fixture.Name,
+			fixture.Manifest.RequiresToolAtLeast,
+			detected,
+		)
 	}
 }
 

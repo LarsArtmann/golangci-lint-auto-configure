@@ -7,41 +7,42 @@ import (
 )
 
 var _ = Describe("Interval", func() {
-	tool := types.MustParseGolangciVersion
-
 	Describe("unbounded zero-value semantics", func() {
 		It("matches everything when both bounds are zero", func() {
 			var anyVersion types.Interval[types.GolangciVersion]
 			Expect(anyVersion.IsUnbounded()).To(BeTrue())
-			Expect(anyVersion.Contains(tool("v0.1.0"))).To(BeTrue())
-			Expect(anyVersion.Contains(tool("v99.0.0"))).To(BeTrue())
+			Expect(anyVersion.Contains(types.MustParseGolangciVersion("v0.1.0"))).To(BeTrue())
+			Expect(anyVersion.Contains(types.MustParseGolangciVersion("v99.0.0"))).To(BeTrue())
 			Expect(anyVersion.String()).To(Equal("any"))
 		})
 
 		It("treats a zero Min as no lower bound", func() {
-			interval := types.Interval[types.GolangciVersion]{Max: tool("v2.12.0")}
-			Expect(interval.Contains(tool("v1.0.0"))).To(BeTrue())
-			Expect(interval.Contains(tool("v2.12.0"))).To(BeTrue())
-			Expect(interval.Contains(tool("v2.12.1"))).To(BeFalse())
+			interval := types.Interval[types.GolangciVersion]{Max: types.MustParseGolangciVersion("v2.12.0")}
+			Expect(interval.Contains(types.MustParseGolangciVersion("v1.0.0"))).To(BeTrue())
+			Expect(interval.Contains(types.MustParseGolangciVersion("v2.12.0"))).To(BeTrue())
+			Expect(interval.Contains(types.MustParseGolangciVersion("v2.12.1"))).To(BeFalse())
 			Expect(interval.String()).To(Equal("<=v2.12.0"))
 		})
 
 		It("treats a zero Max as no upper bound", func() {
-			interval := types.Interval[types.GolangciVersion]{Min: tool("v2.12.0")}
-			Expect(interval.Contains(tool("v2.11.9"))).To(BeFalse())
-			Expect(interval.Contains(tool("v2.12.0"))).To(BeTrue())
-			Expect(interval.Contains(tool("v99.0.0"))).To(BeTrue())
+			interval := types.Interval[types.GolangciVersion]{Min: types.MustParseGolangciVersion("v2.12.0")}
+			Expect(interval.Contains(types.MustParseGolangciVersion("v2.11.9"))).To(BeFalse())
+			Expect(interval.Contains(types.MustParseGolangciVersion("v2.12.0"))).To(BeTrue())
+			Expect(interval.Contains(types.MustParseGolangciVersion("v99.0.0"))).To(BeTrue())
 			Expect(interval.String()).To(Equal(">=v2.12.0"))
 		})
 	})
 
 	Describe("closed bounds", func() {
 		It("contains the bounds themselves", func() {
-			interval := types.NewInterval(tool("v2.12.0"), tool("v2.13.2"))
-			Expect(interval.Contains(tool("v2.11.9"))).To(BeFalse())
-			Expect(interval.Contains(tool("v2.12.0"))).To(BeTrue())
-			Expect(interval.Contains(tool("v2.13.2"))).To(BeTrue())
-			Expect(interval.Contains(tool("v2.13.3"))).To(BeFalse())
+			interval := types.NewInterval(
+				types.MustParseGolangciVersion("v2.12.0"),
+				types.MustParseGolangciVersion("v2.13.2"),
+			)
+			Expect(interval.Contains(types.MustParseGolangciVersion("v2.11.9"))).To(BeFalse())
+			Expect(interval.Contains(types.MustParseGolangciVersion("v2.12.0"))).To(BeTrue())
+			Expect(interval.Contains(types.MustParseGolangciVersion("v2.13.2"))).To(BeTrue())
+			Expect(interval.Contains(types.MustParseGolangciVersion("v2.13.3"))).To(BeFalse())
 			Expect(interval.String()).To(Equal(">=v2.12.0,<=v2.13.2"))
 		})
 	})
@@ -49,14 +50,17 @@ var _ = Describe("Interval", func() {
 	Describe("inversion", func() {
 		It("NewInterval panics on min > max", func() {
 			Expect(func() {
-				types.NewInterval(tool("v2.14.0"), tool("v2.12.0"))
+				types.NewInterval(types.MustParseGolangciVersion("v2.14.0"), types.MustParseGolangciVersion("v2.12.0"))
 			}).To(Panic())
 		})
 
 		It("IsEmpty detects a struct-literal inversion", func() {
-			inverted := types.Interval[types.GolangciVersion]{Min: tool("v2.14.0"), Max: tool("v2.12.0")}
+			inverted := types.Interval[types.GolangciVersion]{
+				Min: types.MustParseGolangciVersion("v2.14.0"),
+				Max: types.MustParseGolangciVersion("v2.12.0"),
+			}
 			Expect(inverted.IsEmpty()).To(BeTrue())
-			Expect(inverted.Contains(tool("v2.13.0"))).To(BeFalse())
+			Expect(inverted.Contains(types.MustParseGolangciVersion("v2.13.0"))).To(BeFalse())
 		})
 	})
 
@@ -85,16 +89,20 @@ var _ = Describe("Interval", func() {
 	})
 
 	Describe("ParseInterval round-trip", func() {
-		DescribeTable("ParseInterval(String()) equals the original",
+		DescribeTable(
+			"ParseInterval(String()) equals the original",
 			func(original types.Interval[types.GolangciVersion]) {
 				parsed, err := types.ParseInterval(original.String(), types.ParseGolangciVersion)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(parsed).To(Equal(original))
 			},
 			Entry("unbounded", types.Interval[types.GolangciVersion]{}),
-			Entry("max only", types.Interval[types.GolangciVersion]{Max: tool("v2.12.0")}),
-			Entry("min only", types.Interval[types.GolangciVersion]{Min: tool("v2.12.0")}),
-			Entry("both bounds", types.NewInterval(tool("v2.12.0"), tool("v2.14.0"))),
+			Entry("max only", types.Interval[types.GolangciVersion]{Max: types.MustParseGolangciVersion("v2.12.0")}),
+			Entry("min only", types.Interval[types.GolangciVersion]{Min: types.MustParseGolangciVersion("v2.12.0")}),
+			Entry(
+				"both bounds",
+				types.NewInterval(types.MustParseGolangciVersion("v2.12.0"), types.MustParseGolangciVersion("v2.14.0")),
+			),
 		)
 
 		DescribeTable("rejecting invalid forms",
@@ -111,13 +119,17 @@ var _ = Describe("Interval", func() {
 
 	Describe("MustValidate", func() {
 		It("panics on inverted struct literals", func() {
-			inverted := types.Interval[types.GolangciVersion]{Min: tool("v2.14.0"), Max: tool("v2.12.0")}
+			inverted := types.Interval[types.GolangciVersion]{
+				Min: types.MustParseGolangciVersion("v2.14.0"),
+				Max: types.MustParseGolangciVersion("v2.12.0"),
+			}
 			Expect(inverted.MustValidate).To(Panic())
 		})
 
 		It("accepts valid and unbounded intervals", func() {
 			Expect(func() {
-				types.NewInterval(tool("v2.12.0"), tool("v2.14.0")).MustValidate()
+				types.NewInterval(types.MustParseGolangciVersion("v2.12.0"), types.MustParseGolangciVersion("v2.14.0")).
+					MustValidate()
 
 				var unbounded types.Interval[types.GolangciVersion]
 				unbounded.MustValidate()

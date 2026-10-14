@@ -79,7 +79,10 @@ func names(want []types.LinterName) func(map[types.LinterName]types.LinterPolicy
 }
 
 // compose builds names(first, rest...) — the minimal set plus additions.
-func compose(first []types.LinterName, rest ...types.LinterName) func(map[types.LinterName]types.LinterPolicy) []types.LinterName {
+func compose(
+	first []types.LinterName,
+	rest ...types.LinterName,
+) func(map[types.LinterName]types.LinterPolicy) []types.LinterName {
 	return names(append(append([]types.LinterName{}, first...), rest...))
 }
 
@@ -120,12 +123,31 @@ var PresetFormatters = map[string][]types.FormatterName{
 // PresetDescriptions explains what each preset is for, with counts derived
 // from the resolved linter sets so the prose can never disagree with the data.
 var PresetDescriptions = map[string]string{
-	"minimal":     fmt.Sprintf("Essential linters only (%d linters) - Fastest, minimal false positives", len(PresetLinters["minimal"])),
-	"standard":    fmt.Sprintf("Recommended for most projects (%d linters) - Good balance", len(PresetLinters["standard"])),
-	"strict":      fmt.Sprintf("Maximum linting (%d linters) - CI/CD, strict code quality", len(PresetLinters["strict"])),
+	"minimal": fmt.Sprintf(
+		"Essential linters only (%d linters) - Fastest, minimal false positives",
+		len(PresetLinters["minimal"]),
+	),
+	"standard": fmt.Sprintf(
+		"Recommended for most projects (%d linters) - Good balance",
+		len(PresetLinters["standard"]),
+	),
+	"strict": fmt.Sprintf(
+		"Maximum linting (%d linters) - CI/CD, strict code quality",
+		len(PresetLinters["strict"]),
+	),
 	"security":    "Security-focused linters only",
 	"performance": "Performance optimization linters",
-	"reference":   fmt.Sprintf("All critical + high priority linters (%d linters, derived from the policy table) (recommended starting point)", len(PresetLinters["reference"])),
-	"format":      fmt.Sprintf("Core formatters + essential linters (%d linters, %d formatters) - Code formatting setup", len(PresetLinters["format"]), len(PresetFormatters["format"])),
-	"house":       fmt.Sprintf("House formatter stack (%d formatters: goimports, gofumpt, golines) + essential linters - gci dropped from the stack 2026-10-11", len(PresetFormatters["house"])),
+	"reference": fmt.Sprintf(
+		"All critical + high priority linters (%d linters, derived from the policy table) (recommended starting point)",
+		len(PresetLinters["reference"]),
+	),
+	"format": fmt.Sprintf(
+		"Core formatters + essential linters (%d linters, %d formatters) - Code formatting setup",
+		len(PresetLinters["format"]),
+		len(PresetFormatters["format"]),
+	),
+	"house": fmt.Sprintf(
+		"House formatter stack (%d formatters: goimports, gofumpt, golines) + essential linters - gci dropped from the stack 2026-10-11",
+		len(PresetFormatters["house"]),
+	),
 }

@@ -9,6 +9,8 @@ import (
 // Table invariants are enforced at init: a violation is a programming error
 // in curated data and must fail fast (at test time and at first use), not
 // surface as a corrupted view later.
+//
+//nolint:gochecknoinits // curated-data validation must fail fast at package init
 func init() {
 	validateLinterPolicyTable()
 	validateFormatterPolicyTable()
@@ -59,13 +61,26 @@ func validateFormatterPolicyTable() {
 		seen[record.Name] = true
 	}
 
+	validateFormatterReferences(seen)
+	validateFormatterOrder(seen)
+}
+
+func validateFormatterReferences(seen map[types.FormatterName]bool) {
 	// Referential integrity, second pass (forward references are normal).
 	for _, record := range FormatterPolicies {
 		if record.SupersededBy != "" && !seen[record.SupersededBy] {
-			panic(fmt.Sprintf("constants: formatter %q superseded by unknown formatter %q", record.Name, record.SupersededBy))
+			panic(
+				fmt.Sprintf(
+					"constants: formatter %q superseded by unknown formatter %q",
+					record.Name,
+					record.SupersededBy,
+				),
+			)
 		}
 	}
+}
 
+func validateFormatterOrder(seen map[types.FormatterName]bool) {
 	// FormatterOrder references known records; the converse does not hold —
 	// gofmt is a known (redundant) formatter that is not part of the
 	// canonical render order.
@@ -112,6 +127,7 @@ func LinterPolicyView() map[types.LinterName]types.LinterPolicy {
 // default and stays absent, matching the old literal).
 func linterPrioritiesView() map[types.LinterName]types.LinterPriority {
 	view := make(map[types.LinterName]types.LinterPriority)
+
 	for _, record := range LinterPolicies {
 		if record.Priority != types.LinterPriorityOptional {
 			view[record.Name] = record.Priority
@@ -124,6 +140,7 @@ func linterPrioritiesView() map[types.LinterName]types.LinterPriority {
 // linterReasonsView reconstructs the legacy rationale map.
 func linterReasonsView() map[types.LinterName]string {
 	view := make(map[types.LinterName]string)
+
 	for _, record := range LinterPolicies {
 		if record.Rationale != "" {
 			view[record.Name] = record.Rationale
@@ -138,6 +155,7 @@ func linterReasonsView() map[types.LinterName]string {
 // linter removed with no direct successor.
 func deprecatedLintersView() map[types.LinterName]types.LinterReplacement {
 	view := make(map[types.LinterName]types.LinterReplacement)
+
 	for _, record := range LinterPolicies {
 		if record.SupersessionReason == "" {
 			continue
@@ -156,6 +174,7 @@ func deprecatedLintersView() map[types.LinterName]types.LinterReplacement {
 // tierView returns the linters of one tier keyed by their tier rationale.
 func tierView(kind types.TierKind) map[types.LinterName]string {
 	view := make(map[types.LinterName]string)
+
 	for _, record := range LinterPolicies {
 		if record.Tier.Kind == kind {
 			view[record.Name] = record.Tier.Rationale
@@ -169,6 +188,7 @@ func tierView(kind types.TierKind) map[types.LinterName]string {
 // ValidTool lower bounds.
 func linterMinVersionsView() map[types.LinterName]string {
 	view := make(map[types.LinterName]string)
+
 	for _, record := range LinterPolicies {
 		if !record.ValidTool.Min.IsZero() {
 			view[record.Name] = record.ValidTool.Min.String()
@@ -182,6 +202,7 @@ func linterMinVersionsView() map[types.LinterName]string {
 // Gate payloads.
 func projectSpecificLintersView() map[types.LinterName]string {
 	view := make(map[types.LinterName]string)
+
 	for _, record := range LinterPolicies {
 		if record.Gate.Kind == types.GateRequiresTech {
 			view[record.Name] = record.Gate.Tech
@@ -195,6 +216,7 @@ func projectSpecificLintersView() map[types.LinterName]string {
 // (one settings block per linter; the table carries versioned blocks).
 func defaultLinterSettingsView() map[types.LinterName]types.SettingsConverter {
 	view := make(map[types.LinterName]types.SettingsConverter)
+
 	for _, record := range LinterPolicies {
 		if len(record.Settings) > 0 {
 			view[record.Name] = record.Settings[0].Settings
