@@ -5,12 +5,11 @@ package report
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import "github.com/a-h/templ"
-import templruntime "github.com/a-h/templ/runtime"
-
 import (
 	"fmt"
 
+	"github.com/a-h/templ"
+	templruntime "github.com/a-h/templ/runtime"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
@@ -42,7 +41,7 @@ func SummaryCard(class string, count int, label string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var2 = []any{"summary-card", class}
+		templ_7745c5c3_Var2 := []any{"summary-card", class}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -147,7 +146,7 @@ func LinterListSection(title string, icon string, class string, linters []types.
 			return templ_7745c5c3_Err
 		}
 		for _, name := range linters {
-			var templ_7745c5c3_Var9 = []any{"linter-tag", class}
+			templ_7745c5c3_Var9 := []any{"linter-tag", class}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -217,7 +216,7 @@ func DeviationRow(change linter.Change) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 = []any{"kind-badge", string(change.Kind)}
+		templ_7745c5c3_Var13 := []any{"kind-badge", string(change.Kind)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

@@ -1,6 +1,6 @@
 # golangci-lint-auto-configure — TODO List
 
-**Last Updated:** 2026-10-13
+**Last Updated:** 2026-10-14
 
 Short- and mid-term actionable work. Completed items live in `CHANGELOG.md`;
 long-term ideas live in `ROADMAP.md`. **This file contains OPEN work only** —
@@ -18,7 +18,10 @@ output, gitleaks cadence).
 
 ## High Priority
 
-(none)
+| Task                                                                                                                                                                                                                                                                                  | Impact                                                                                                                                                                                                        | Effort | Evidence                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Delete the legacy imperative engine (`SetEngine(EngineLegacy)` path): `applyAllFixes`/`applyAndSave`/`runPreFlightChecks`/`configChangeRecorder`/`fixer_enforce.go`/`fixer_audit.go` snapshot diffing, the `Engine` field itself, and the legacy-only specs (`fixer_enforce_test.go` legacy suites, `TestParityCorpus` + `TestParityCorpusIdempotent`; keep `TestParityCorpusConverge`, repoint the CI parity job) | High — DoD of the reconciler migration (ADR-017): one engine, no migration window, `WithPriority`/cycle-detection reader (`Fixer.reader`, `audit.PreviouslyAutoEnabled`) die with it; ~1.7k lines plus test debris | L      | `docs/planning/2026-10-13_17-45_SUPERB-declarative-reconciler.md` T20.2/T27.1-T27.2; corpus + pin matrix already green on the new engine; do it as ONE commit so the tree never splits |
+| Delete the compat views over the policy table after the engine deletion (`LinterPriorities`, `LinterReasons`, `DeprecatedLinters`, `DisabledLinters`, `NeverAutoEnableLinters`, `PragmaticNoiseLinters`, `LinterMinVersions`, `ProjectSpecificLinters`, settings/formatter maps in `linter_policy_views.go` + `rules.go` + `config.go`) and port the remaining ~40 consumers to `PolicyRecord`/table queries | High — removes the table↔views dual representation (views-parity goldens become obsolete); presets are already table queries                                                                                   | L      | plan T08/T27.1; views are pinned by `views_parity_test.go` — delete the goldens with them                                                                                              |
 
 ## Medium Priority
 
