@@ -302,19 +302,11 @@ func settingsApply(record types.LinterPolicy, request desiredRequest) bool {
 		return false
 	}
 
-	if record.Priority > request.minPriority {
-		return false
-	}
-
-	if !record.ValidTool.IsUnbounded() && !record.ValidTool.Contains(request.tool) {
-		return false
-	}
-
-	if !record.Lang.IsUnbounded() && !projectGoOf(request).IsZero() && !record.Lang.Contains(projectGoOf(request)) {
-		return false
-	}
-
-	return gateOpens(record.Gate, request)
+	// Settings ride with the fixer-managed set: user enables ALWAYS get
+	// their settings (the legacy injection contract — the priority threshold
+	// gates recommendations, not injection), and every linter the renderer
+	// adds comes pre-filtered through shouldRender.
+	return request.userEnabled[record.Name] || shouldRender(record, request)
 }
 
 func renderFormatterSettings(request desiredRequest) map[types.FormatterName][]types.VersionedSettings {
