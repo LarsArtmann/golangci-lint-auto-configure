@@ -62,11 +62,12 @@ func linterReasonsView() map[types.LinterName]string {
 }
 
 // deprecatedLintersView reconstructs the legacy deprecation map from the
-// supersession fields.
+// supersession fields. A supersession reason without a replacement names a
+// linter removed with no direct successor.
 func deprecatedLintersView() map[types.LinterName]types.LinterReplacement {
 	view := make(map[types.LinterName]types.LinterReplacement)
 	for _, record := range LinterPolicies {
-		if record.SupersededBy == "" {
+		if record.SupersessionReason == "" {
 			continue
 		}
 

@@ -131,6 +131,10 @@ func build(name types.LinterName) types.LinterPolicy {
 
 	if priority, ok := constants.LinterPriorities[name]; ok && priority != types.LinterPriorityOptional {
 		record.Priority = priority
+	} else {
+		// Explicit Optional: the zero value of LinterPriority is Critical, so
+		// "no recommendation callout" must be stated, never defaulted.
+		record.Priority = types.LinterPriorityOptional
 	}
 
 	record.Rationale = constants.LinterReasons[name]

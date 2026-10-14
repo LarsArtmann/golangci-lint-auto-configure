@@ -92,14 +92,14 @@ func formatterInfoView() map[types.FormatterName]types.FormatterInfo {
 	return view
 }
 
-// formatterPrioritiesView reconstructs the legacy priority map (zero-priority
-// records stay absent, matching the old literal).
+// formatterPrioritiesView reconstructs the legacy priority map. Every table
+// record carries an explicit priority (FormatterPriorityHigh is the zero
+// value, so absence cannot be inferred), and the legacy map covered exactly
+// the table's formatter set.
 func formatterPrioritiesView() map[types.FormatterName]types.FormatterPriority {
-	view := make(map[types.FormatterName]types.FormatterPriority)
+	view := make(map[types.FormatterName]types.FormatterPriority, len(FormatterPolicies))
 	for _, record := range FormatterPolicies {
-		if record.Priority != 0 {
-			view[record.Name] = record.Priority
-		}
+		view[record.Name] = record.Priority
 	}
 
 	return view

@@ -180,9 +180,8 @@ func (p LinterPolicy) Validate() error {
 		return errPolicy("linter %s: superseded by %s requires a reason", p.Name, p.SupersededBy)
 	}
 
-	if p.SupersededBy == "" && p.SupersessionReason != "" {
-		return errPolicy("linter %s: supersession reason without SupersededBy", p.Name)
-	}
+	// SupersessionReason without SupersededBy is valid: it marks a linter
+	// removed with no direct replacement.
 
 	if p.Gate.Kind == GateRequiresTech && p.Gate.Tech == "" {
 		return errPolicy("linter %s: RequiresTech gate requires a technology key", p.Name)
