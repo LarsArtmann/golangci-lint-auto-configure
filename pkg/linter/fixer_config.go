@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"slices"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -15,190 +14,22 @@ import (
 // GoVersionProvider returns the locally installed Go version.
 type GoVersionProvider func(ctx context.Context) string
 
-// configUpdater handles updating config fields.
-type configUpdater struct {
-	logger                *log.Logger
-	goVersionProvider     GoVersionProvider
-	golangciLintGoVersion types.GoVersion
-	showMergedRules       bool
-	exclusionMerges       []ExclusionMerge
-}
-
-// ExclusionMerge describes linters that a default exclusion rule contributed
-// to an existing rule during updateExclusionRules (RuleKey match + union).
-type ExclusionMerge struct {
-	RuleKey      string
-	AddedLinters []string
-}
-
-// newConfigUpdater creates a new config updater. golangciLintGoVersion is the
-// Go version golangci-lint was built with (major.minor); the zero value means
-// unknown, which disables the run.go cap.
-func newConfigUpdater(
-	logger *log.Logger, goVersionProvider GoVersionProvider, golangciLintGoVersion types.GoVersion,
-) *configUpdater {
-	return &configUpdater{
-		logger:                logger,
-		goVersionProvider:     goVersionProvider,
-		golangciLintGoVersion: golangciLintGoVersion,
-		showMergedRules:       false,
-		exclusionMerges:       nil,
-	}
-}
-
-// setShowMergedRules controls whether exclusion-rule merges are logged at
-// info level (the --show-merged-rules affordance). Merges are always
-// collected for the audit ledger regardless.
-func (cu *configUpdater) setShowMergedRules(show bool) {
-	cu.showMergedRules = show
-}
-
-// drainExclusionMerges returns and clears the exclusion-rule merges collected
-// during updateExclusionRules.
-func (cu *configUpdater) drainExclusionMerges() []ExclusionMerge {
-	merges := cu.exclusionMerges
-	cu.exclusionMerges = nil
-
-	return merges
-}
-
-// updateGoVersion sets the Go version in the config to the local Go version,
-// reduced to major.minor (patch releases do not change language semantics,
-// and dropping the patch avoids rewriting every config on each toolchain bump).
-// The value is capped at the Go version golangci-lint was built with: a run.go
-// newer than the binary's build Go version makes golangci-lint refuse to load
-// the config at all.
-func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config) int {
-	localGoVersion := cu.goVersionProvider(ctx)
-	if localGoVersion == "" {
-		return 0
-	}
-
-	target, err := types.ParseGoVersion(localGoVersion)
-	if err != nil {
-		cu.logger.Debugf(
-			"Local Go version %q is not parsable; leaving run.go unchanged (%q)",
-			localGoVersion, cfg.Run.Go,
-		)
-
-		return 0
-	}
-
-	if !cu.golangciLintGoVersion.IsZero() && target.Compare(cu.golangciLintGoVersion) > 0 {
-		cu.logger.Warnf(
-			"Local Go %s is newer than the Go used to build golangci-lint (%s); "+
-				"capping run.go at %s — upgrade golangci-lint to lint with %s semantics",
-			target, cu.golangciLintGoVersion, cu.golangciLintGoVersion, target,
-		)
-
-		target = cu.golangciLintGoVersion
-	}
-
-	if cfg.Run.Go != target.String() {
-		cu.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, target)
-		cfg.Run.Go = target.String()
-
-		return 1
-	}
-
-	return 0
-}
-
-// updateRunnerSettings enables parallel and serial runners if not already enabled,
-// and ensures issues-exit-code is non-zero so lint failures break CI.
-func (cu *configUpdater) updateRunnerSettings(cfg *types.Config) int {
-	added := 0
-
-	if !cfg.Run.AllowParallelRunners {
-		cu.logger.Infof("Enabling allow-parallel-runners: %v -> true", cfg.Run.AllowParallelRunners)
-		cfg.Run.AllowParallelRunners = true
-		added++
-	}
-
-	if !cfg.Run.AllowSerialRunners {
-		cu.logger.Infof("Enabling allow-serial-runners: %v -> true", cfg.Run.AllowSerialRunners)
-		cfg.Run.AllowSerialRunners = true
-		added++
-	}
-
-	if cfg.Run.IssuesExitCode == 0 {
-		cu.logger.Infof("Setting run.issues-exit-code to 1 (was 0 — lint failures would not break CI)")
-
-		cfg.Run.IssuesExitCode = 1
-		added++
-	}
-
-	return added
-}
-
-// updateOutputFormats ensures output.formats is initialized to an empty map,
-// matching the house standard. Without this, the YAML serialization omits the
-// formats key entirely, which is valid but inconsistent across the ecosystem.
-func (cu *configUpdater) updateOutputFormats(cfg *types.Config) int {
-	if cfg.Output.Formats == nil {
-		cu.logger.Infof("Setting output.formats to empty map")
-
-		cfg.Output.Formats = map[string]any{}
-
-		return 1
-	}
-
-	return 0
-}
-
-// updateBuildTags adds Go experiment tags to the config, skipping
-// experiments that graduated at or before the local toolchain (their build
-// tags are inert there and would churn every config the tool touches).
-func (cu *configUpdater) updateBuildTags(ctx context.Context, cfg *types.Config) int {
-	existingTags := types.NewSet(cfg.Run.BuildTags...)
-
-	localGoVersion := ""
-	if cu.goVersionProvider != nil {
-		localGoVersion = cu.goVersionProvider(ctx)
-	}
-
-	added := 0
-
-	for _, tag := range constants.GoExperimentTagsFor(localGoVersion) {
-		if !existingTags.Contains(tag) {
-			cu.logger.Infof("Adding build tag: %s", tag)
-			cfg.Run.BuildTags = append(cfg.Run.BuildTags, tag)
-			existingTags.Add(tag)
-
-			added++
-		}
-	}
-
-	cfg.Run.BuildTags = sortAndDeduplicate(cfg.Run.BuildTags)
-
-	return added
-}
-
-// sortAndDeduplicate sorts and deduplicates a slice of strings.
-func sortAndDeduplicate(tags []string) []string {
-	if len(tags) <= 1 {
-		return tags
-	}
-
-	slices.Sort(tags)
-
-	return slices.Compact(tags)
-}
-
-// updateGeneratedExclusions injects default exclusion paths (templ, vendor) and scans
-// the project for auto-generated Go files to add additional exclusion patterns.
-// Uses gogenfilter for two-phase detection (filename first, content second).
-func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath string) int {
+// ApplyGeneratedExclusions injects default exclusion paths (templ, vendor) and
+// scans the project for auto-generated Go files to add additional exclusion
+// patterns. This is the public entry point used by both the fixer flow and the
+// preset flow. Uses gogenfilter for two-phase detection (filename first,
+// content second).
+func ApplyGeneratedExclusions(logger *log.Logger, cfg *types.Config, configPath string) int {
 	projectDir := filepath.Dir(configPath)
 
 	if cfg.Linters.Exclusions.Generated == "" {
-		cu.logger.Infof("Setting linters.exclusions.generated to \"lax\"")
+		logger.Infof("Setting linters.exclusions.generated to \"lax\"")
 
 		cfg.Linters.Exclusions.Generated = "lax"
 	}
 
 	if cfg.Formatters.Exclusions.Generated == "" {
-		cu.logger.Infof("Setting formatters.exclusions.generated to \"lax\"")
+		logger.Infof("Setting formatters.exclusions.generated to \"lax\"")
 
 		cfg.Formatters.Exclusions.Generated = "lax"
 	}
@@ -206,133 +37,33 @@ func (cu *configUpdater) updateGeneratedExclusions(cfg *types.Config, configPath
 	totalAdded := 0
 
 	linterDefaults := mergeExclusionPaths(
-		&cfg.Linters.Exclusions.Paths, constants.DefaultLinterExclusionPaths, cu.logger, "linters",
+		&cfg.Linters.Exclusions.Paths, constants.DefaultLinterExclusionPaths, logger, "linters",
 	)
 	formatterDefaults := mergeExclusionPaths(
-		&cfg.Formatters.Exclusions.Paths, constants.DefaultFormatterExclusionPaths, cu.logger, "formatters",
+		&cfg.Formatters.Exclusions.Paths, constants.DefaultFormatterExclusionPaths, logger, "formatters",
 	)
 	totalAdded += linterDefaults + formatterDefaults
 
 	result, err := gogenfilter.ScanProject(os.DirFS(projectDir))
 	if err != nil {
-		cu.logger.Debugf("Generated file scan skipped: %v", err)
+		logger.Debugf("Generated file scan skipped: %v", err)
 
 		return totalAdded
 	}
 
 	if len(result.Exclusions) > 0 {
-		cu.logger.Infof(
+		logger.Infof(
 			"Found %d generated file types (%d files scanned, %d generated): %v",
 			len(result.Generators), result.ScannedFiles, result.GeneratedFiles, result.Generators,
 		)
 
 		newPaths := gogenfilter.ExclusionPaths(result.Exclusions)
 
-		totalAdded += mergeExclusionPaths(&cfg.Linters.Exclusions.Paths, newPaths, cu.logger, "linters")
-		totalAdded += mergeExclusionPaths(&cfg.Formatters.Exclusions.Paths, newPaths, cu.logger, "formatters")
+		totalAdded += mergeExclusionPaths(&cfg.Linters.Exclusions.Paths, newPaths, logger, "linters")
+		totalAdded += mergeExclusionPaths(&cfg.Formatters.Exclusions.Paths, newPaths, logger, "formatters")
 	}
 
 	return totalAdded
-}
-
-// updateExclusionRules injects default exclusion rules for test files and
-// propagates new linters into existing rules with the same Path|Text|Source key.
-// When a default rule matches an existing rule by key, their linter lists are
-// merged (union) so that stale configs receive newly added default linters.
-func (cu *configUpdater) updateExclusionRules(cfg *types.Config) int {
-	existingByKey := make(map[string]int, len(cfg.Linters.Exclusions.Rules))
-	for i := range cfg.Linters.Exclusions.Rules {
-		existingByKey[cfg.Linters.Exclusions.Rules[i].RuleKey()] = i
-	}
-
-	changed := 0
-
-	for _, defaultRule := range constants.DefaultExclusionRules {
-		key := defaultRule.RuleKey()
-		if idx, exists := existingByKey[key]; exists {
-			existingLinters := cfg.Linters.Exclusions.Rules[idx].Linters
-			merged := mergeExclusionLinters(existingLinters, defaultRule.Linters)
-
-			if len(merged) > len(existingLinters) {
-				cfg.Linters.Exclusions.Rules[idx].Linters = merged
-				changed++
-
-				added := merged[len(existingLinters):]
-				cu.exclusionMerges = append(cu.exclusionMerges, ExclusionMerge{
-					RuleKey:      key,
-					AddedLinters: slices.Clone(added),
-				})
-
-				if cu.showMergedRules {
-					cu.logger.Infof("\U0001f500 merged default exclusion rule %s: added linters %v", key, added)
-				}
-			}
-
-			continue
-		}
-
-		cfg.Linters.Exclusions.Rules = append(cfg.Linters.Exclusions.Rules, defaultRule)
-		changed++
-	}
-
-	if changed > 0 {
-		cu.logger.Infof("Added/updated %d default exclusion rules for test files", changed)
-	}
-
-	return changed
-}
-
-// mergeExclusionLinters returns the union of two linter lists, preserving the
-// order of the existing list and appending new linters from defaults.
-func mergeExclusionLinters(existing, defaults []string) []string {
-	seen := make(map[string]bool, len(existing)+len(defaults))
-	merged := make([]string, 0, len(existing)+len(defaults))
-
-	for _, l := range existing {
-		if !seen[l] {
-			seen[l] = true
-			merged = append(merged, l)
-		}
-	}
-
-	for _, l := range defaults {
-		if !seen[l] {
-			seen[l] = true
-			merged = append(merged, l)
-		}
-	}
-
-	return merged
-}
-
-// updateIssuesSettings injects default issue limits when they are missing.
-// Without these, golangci-lint defaults to max-same-issues:3, which hides
-// duplicate problems in CI output.
-func (cu *configUpdater) updateIssuesSettings(cfg *types.Config) int {
-	added := 0
-
-	if cfg.Issues.MaxIssuesPerLinter == 0 {
-		cu.logger.Infof("Setting issues.max-issues-per-linter to %d", constants.DefaultMaxIssuesPerLinter)
-		cfg.Issues.MaxIssuesPerLinter = constants.DefaultMaxIssuesPerLinter
-		added++
-	}
-
-	if cfg.Issues.MaxSameIssues == 0 {
-		cu.logger.Infof("Setting issues.max-same-issues to %d", constants.DefaultMaxSameIssues)
-		cfg.Issues.MaxSameIssues = constants.DefaultMaxSameIssues
-		added++
-	}
-
-	return added
-}
-
-// ApplyGeneratedExclusions scans a project config for auto-generated Go files
-// and injects exclusion paths into the config. This is the public entry point
-// used by both the fixer flow and the preset flow.
-func ApplyGeneratedExclusions(logger *log.Logger, cfg *types.Config, configPath string) int {
-	updater := newConfigUpdater(logger, nil, types.GoVersion{})
-
-	return updater.updateGeneratedExclusions(cfg, configPath)
 }
 
 func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logger, section string) int {
@@ -350,252 +81,4 @@ func mergeExclusionPaths(existing *[]string, newPaths []string, logger *log.Logg
 	}
 
 	return added
-}
-
-// normalizeKnownBadSettingsKeys renames settings keys that older versions of this
-// tool emitted under a schema-invalid name (see constants.KnownBadSettingsKeys).
-// This is the ONLY pass allowed to modify existing user settings: it bypasses the
-// idempotency guard for the exact mapped bad key, so a config this tool previously
-// broke becomes self-healing on the next configure run. When both the bad and the
-// good key exist, the good key wins and the bad key is dropped (golangci-lint
-// hard-fails on unknown keys). Returns the number of keys renamed or dropped.
-func normalizeKnownBadSettingsKeys(cfg *types.Config, logger *log.Logger) int {
-	if len(cfg.Linters.Settings) == 0 || len(constants.KnownBadSettingsKeys) == 0 {
-		return 0
-	}
-
-	changed := 0
-
-	for linterName, keyMap := range constants.KnownBadSettingsKeys {
-		raw, exists := cfg.Linters.Settings[linterName]
-		if !exists {
-			continue
-		}
-
-		settings, ok := types.AsSettingsMap(raw)
-		if !ok {
-			continue
-		}
-
-		for badKey, goodKey := range keyMap {
-			badValue, hasBad := settings[badKey]
-			if !hasBad {
-				continue
-			}
-
-			delete(settings, badKey)
-
-			changed++
-
-			if _, hasGood := settings[goodKey]; hasGood {
-				logger.Infof(
-					"Dropped invalid settings key for %s: %q (valid key %q already set)",
-					linterName, badKey, goodKey,
-				)
-
-				continue
-			}
-
-			settings[goodKey] = badValue
-			logger.Infof(
-				"Normalized invalid settings key for %s: %q -> %q (schema-invalid key emitted by older tool versions)",
-				linterName, badKey, goodKey,
-			)
-		}
-	}
-
-	return changed
-}
-
-// updateConfigFromSets applies the linter and formatter sets back to the config struct.
-// Returns the count of default settings injected.
-func updateConfigFromSets(
-	cfg *types.Config,
-	linterSet types.Set[types.LinterName],
-	formatterSet types.Set[types.FormatterName],
-	formatterManager *FormatterManager,
-	logger *log.Logger,
-	forceSettings bool,
-) int {
-	enabledLinters := types.ToSortedSlice(linterSet)
-
-	settingsChanges := 0
-	settingsChanges += normalizeKnownBadSettingsKeys(cfg, logger)
-
-	// Preserve the user's disable list. Previously this was rebuilt from scratch,
-	// silently dropping every linter the user had committed to linters.disable and
-	// making the disabledSet guard in enableRecommendedLinters useless on the next run.
-	disabledSet := types.NewSet(cfg.Linters.Disable...)
-
-	enabledLinters = slices.DeleteFunc(enabledLinters, func(linter types.LinterName) bool {
-		if reason, ok := constants.DisabledLinters[linter]; ok {
-			disabledSet.Add(linter)
-			logger.Debugf("Moving disabled linter to disable list: %s (%s)", linter, reason)
-
-			return true
-		}
-
-		return false
-	})
-
-	// Remove contradictions: a linter that ends up enabled must not also be disabled.
-	for _, linter := range enabledLinters {
-		disabledSet.Delete(linter)
-	}
-
-	disabledLintersList := types.ToSortedSlice(disabledSet)
-
-	cfg.Linters.Enable = enabledLinters
-	cfg.Linters.Disable = disabledLintersList
-
-	if formatterSet.Len() > 0 {
-		cfg.Formatters.Enable = formatterManager.ToOrderedSlice(formatterSet)
-	}
-
-	settingsChanges += injectDefaultSettings(cfg, enabledLinters, forceSettings)
-	settingsChanges += pruneDisabledLinterSettings(cfg, disabledLintersList, logger)
-	settingsChanges += pruneUnenabledLinterSettings(cfg, enabledLinters, logger)
-
-	if formatterSet.Len() > 0 {
-		settingsChanges += injectDefaultFormatterSettings(cfg, cfg.Formatters.Enable, forceSettings)
-	}
-
-	return settingsChanges
-}
-
-// pruneDisabledLinterSettings removes settings blocks for linters that are in the
-// disable list. These blocks are orphaned (the linter is disabled, so its settings
-// have no effect) and previously caused confusion by implying the linter was active.
-func pruneDisabledLinterSettings(cfg *types.Config, disabledLinters []types.LinterName, logger *log.Logger) int {
-	if len(cfg.Linters.Settings) == 0 || len(disabledLinters) == 0 {
-		return 0
-	}
-
-	pruned := 0
-
-	for _, linter := range disabledLinters {
-		key := string(linter)
-		if _, exists := cfg.Linters.Settings[key]; exists {
-			delete(cfg.Linters.Settings, key)
-			logger.Debugf("Pruned orphaned settings for disabled linter: %s", linter)
-
-			pruned++
-		}
-	}
-
-	return pruned
-}
-
-// pruneUnenabledLinterSettings removes settings blocks for linters that are neither
-// enabled nor explicitly disabled. With `default: none` (which the tool injects),
-// linters absent from the enable list do not run — their settings are dead weight
-// that bloats the config and confuses readers. Settings for linters in the disable
-// list are already handled by pruneDisabledLinterSettings.
-func pruneUnenabledLinterSettings(cfg *types.Config, enabledLinters []types.LinterName, logger *log.Logger) int {
-	if len(cfg.Linters.Settings) == 0 {
-		return 0
-	}
-
-	enabledSet := make(map[types.LinterName]bool, len(enabledLinters))
-	for _, l := range enabledLinters {
-		enabledSet[l] = true
-	}
-
-	pruned := 0
-
-	for key := range cfg.Linters.Settings {
-		linter := types.LinterName(key)
-
-		if enabledSet[linter] {
-			continue
-		}
-
-		if _, disabled := constants.DisabledLinters[linter]; disabled {
-			continue
-		}
-
-		delete(cfg.Linters.Settings, key)
-		logger.Debugf("Pruned orphaned settings for unenabled linter: %s", linter)
-
-		pruned++
-	}
-
-	return pruned
-}
-
-// injectDefaultSettings injects safe default settings for linters that require
-// configuration. When force is false (default), settings are only injected if the
-// config doesn't already have meaningful settings for the linter. When force is true
-// (--force-settings), existing settings are overwritten with the curated defaults.
-// Empty or nil values are always treated as missing and overwritten.
-// Returns the number of settings injected.
-func injectDefaultSettings(cfg *types.Config, enabledLinters []types.LinterName, force bool) int {
-	injected := 0
-
-	for _, linterName := range enabledLinters {
-		defaults, hasDefaults := constants.DefaultLinterSettings[linterName]
-		if !hasDefaults {
-			continue
-		}
-
-		types.InitLintersSettings(&cfg.Linters)
-
-		key := string(linterName)
-		if !force {
-			if existing, exists := cfg.Linters.Settings[key]; exists && !isEmptySettingsValue(existing) {
-				continue
-			}
-		}
-
-		cfg.Linters.Settings[key] = defaults.ToMap()
-		injected++
-	}
-
-	return injected
-}
-
-// isEmptySettingsValue reports whether a settings value is nil or an empty map,
-// meaning it carries no actual configuration and should be treated as missing.
-func isEmptySettingsValue(v any) bool {
-	if v == nil {
-		return true
-	}
-
-	m, ok := types.AsSettingsMap(v)
-
-	return ok && m.IsEmpty()
-}
-
-// injectDefaultFormatterSettings injects safe default settings for formatters that require
-// configuration. When force is false (default), settings are only injected if the config
-// doesn't already have meaningful settings for the formatter. When force is true
-// (--force-settings), existing settings are overwritten with the curated defaults.
-// Empty or nil values are always treated as missing and overwritten.
-// Returns the number of settings injected.
-func injectDefaultFormatterSettings(cfg *types.Config, enabledFormatters []types.FormatterName, force bool) int {
-	injected := 0
-
-	for _, formatterName := range enabledFormatters {
-		defaults, hasDefaults := constants.DefaultFormatterSettings[formatterName]
-		if !hasDefaults {
-			continue
-		}
-
-		if cfg.Formatters.Settings == nil {
-			cfg.Formatters.Settings = make(map[string]any)
-		}
-
-		key := string(formatterName)
-		if !force {
-			if existing, exists := cfg.Formatters.Settings[key]; exists &&
-				!isEmptySettingsValue(existing) {
-				continue
-			}
-		}
-
-		cfg.Formatters.Settings[key] = defaults.ToMap()
-		injected++
-	}
-
-	return injected
 }

@@ -2,12 +2,39 @@ package linter
 
 import (
 	"context"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/policy"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
+
+// loadPolicy reads the disable-reason sidecar file (if it exists) alongside the
+// config file. When the sidecar is present, the fixer projects it into the
+// plan overlay: unjustified disables are re-enabled and never-enable linters
+// are never added to enable. When the sidecar is absent, all disables are
+// respected as before.
+func (f *Fixer) loadPolicy(configPath string) {
+	sidecarPath := filepath.Join(filepath.Dir(configPath), policy.SidecarFileName)
+
+	pol, err := policy.Load(sidecarPath)
+	if err != nil {
+		f.logger.Warnf("⚠️  Failed to load policy file %s: %v", sidecarPath, err)
+
+		f.pol = nil
+
+		return
+	}
+
+	if pol != nil {
+		f.logger.Infof("📋 Loaded policy from %s (%d justified disables, %d never-enable)",
+			sidecarPath, len(pol.Disabled), len(pol.NeverEnable))
+	}
+
+	f.pol = pol
+}
 
 // convergeFixConfig drives the declarative reconciler end to end:
 // rescue (unloadable run.go) -> converge (collect -> normalize -> render ->
@@ -122,6 +149,8 @@ func (f *Fixer) convergePhaseTwo(
 		return migrationError("converge config", priority, dryRun, configPath, version, err)
 	}
 
+	f.logMergedExclusionRules(result)
+
 	// Normalizations already persisted in phase one must not be
 	// double-counted.
 	result.NormalizerChanges = normalizeChanges
@@ -231,6 +260,52 @@ func (f *Fixer) sidecarOverlay(cfg *types.Config) *sidecarOverlay {
 	}
 
 	return overlay
+}
+
+// logMergedExclusionRules surfaces the exclusion-rule unions at info level
+// when --show-merged-rules is set. The audit ledger records the merges
+// regardless of this flag.
+func (f *Fixer) logMergedExclusionRules(result *ConvergeResult) {
+	if !f.showMergedRules {
+		return
+	}
+
+	for _, change := range result.Plan {
+		if change.Path != PathLintersExclusionRules || change.Kind != ChangeUpdate {
+			continue
+		}
+
+		from, fromOK := change.From.([]string)
+		to, toOK := change.To.([]string)
+		if !fromOK || !toOK {
+			continue
+		}
+
+		added := addedStrings(from, to)
+		if len(added) == 0 {
+			continue
+		}
+
+		f.logger.Infof("\U0001f500 merged default exclusion rule %s: added linters %v", change.Element, added)
+	}
+}
+
+// addedStrings returns the entries of to that are not in from, preserving order.
+func addedStrings(from, to []string) []string {
+	set := make(map[string]bool, len(from))
+	for _, entry := range from {
+		set[entry] = true
+	}
+
+	added := make([]string, 0, len(to))
+
+	for _, entry := range to {
+		if !set[entry] {
+			added = append(added, entry)
+		}
+	}
+
+	return added
 }
 
 // recordConvergeAudit emits one audit entry per applied change. Audit = diff.
