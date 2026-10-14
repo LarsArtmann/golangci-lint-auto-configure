@@ -1,11 +1,11 @@
 {
-  "name": "redundant-formatters",
-  "description": "gofmt alongside its superset goimports (redundancy removal), lll redundant with golines, a deprecated linter name inside exclusion rules (exclusion-linter-renamed), and an existing formatter exclusion path (merge dedup).",
-  "source": "authored for the corpus (T01)",
-  "priority": "high",
-  "dryRun": false,
-  "forceSettings": false,
-  "pragmatic": false,
-  "localGoVersion": "1.27.1",
-  "requiresToolAtLeast": "v2.12.0"
+  "Name": "redundant-formatters",
+  "Description": "gofmt alongside its superset goimports (redundancy removal), lll redundant with golines, a deprecated linter name inside exclusion rules (exclusion-linter-renamed), and an existing formatter exclusion path (merge dedup).",
+  "Source": "authored for the corpus (T01)",
+  "Priority": "high",
+  "DryRun": false,
+  "ForceSettings": false,
+  "Pragmatic": false,
+  "LocalGoVersion": "1.27.1",
+  "RequiresToolAtLeast": "v2.12.0"
 }

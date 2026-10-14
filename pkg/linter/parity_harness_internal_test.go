@@ -20,16 +20,17 @@ var ParityCorpusDir = filepath.Join("testdata", "parity-corpus")
 // ParityManifest carries the environment assumptions and fixer flags for one
 // corpus fixture. Every field is part of the parity contract: changing one is
 // a behavior change and must regenerate the fixture's goldens.
+// Field names are the JSON keys (PascalCase, report-type family).
 type ParityManifest struct {
-	Name                string `json:"name"`
-	Description         string `json:"description"`
-	Source              string `json:"source"`
-	Priority            string `json:"priority"`
-	DryRun              bool   `json:"dryRun"`
-	ForceSettings       bool   `json:"forceSettings"`
-	Pragmatic           bool   `json:"pragmatic"`
-	LocalGoVersion      string `json:"localGoVersion"`
-	RequiresToolAtLeast string `json:"requiresToolAtLeast"`
+	Name                string
+	Description         string
+	Source              string
+	Priority            string
+	DryRun              bool
+	ForceSettings       bool
+	Pragmatic           bool
+	LocalGoVersion      string
+	RequiresToolAtLeast string
 }
 
 // ParityFixture is one corpus entry: inputs plus the parsed manifest.
@@ -193,7 +194,7 @@ func scrubAuditLedger(t *testing.T, fixtureName, ledgerPath string) []byte {
 
 	var scrubbed strings.Builder
 
-	for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+	for line := range strings.SplitSeq(strings.TrimSpace(string(data)), "\n") {
 		var entry audit.Entry
 		if err := json.Unmarshal([]byte(line), &entry); err != nil {
 			t.Fatalf("fixture %s: parse audit entry: %v", fixtureName, err)

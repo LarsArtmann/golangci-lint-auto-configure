@@ -1,11 +1,11 @@
 {
-  "name": "enforced-sidecar",
-  "description": "Two unjustified disables plus an empty sidecar: anti-gaming enforcement re-enables godot and misspell and records re-enabled audit entries.",
-  "source": "authored for the corpus (T01)",
-  "priority": "high",
-  "dryRun": false,
-  "forceSettings": false,
-  "pragmatic": false,
-  "localGoVersion": "1.27.1",
-  "requiresToolAtLeast": "v2.12.0"
+  "Name": "enforced-sidecar",
+  "Description": "Two unjustified disables plus an empty sidecar: anti-gaming enforcement re-enables godot and misspell and records re-enabled audit entries.",
+  "Source": "authored for the corpus (T01)",
+  "Priority": "high",
+  "DryRun": false,
+  "ForceSettings": false,
+  "Pragmatic": false,
+  "LocalGoVersion": "1.27.1",
+  "RequiresToolAtLeast": "v2.12.0"
 }

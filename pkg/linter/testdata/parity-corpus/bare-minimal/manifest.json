@@ -1,11 +1,11 @@
 {
-  "name": "bare-minimal",
-  "description": "Version and run only: exercises default enable-set rendering, formatter stack injection, and run/issues/output defaults on a nearly empty config.",
-  "source": "authored for the corpus (T01)",
-  "priority": "high",
-  "dryRun": false,
-  "forceSettings": false,
-  "pragmatic": false,
-  "localGoVersion": "1.27.1",
-  "requiresToolAtLeast": "v2.12.0"
+  "Name": "bare-minimal",
+  "Description": "Version and run only: exercises default enable-set rendering, formatter stack injection, and run/issues/output defaults on a nearly empty config.",
+  "Source": "authored for the corpus (T01)",
+  "Priority": "high",
+  "DryRun": false,
+  "ForceSettings": false,
+  "Pragmatic": false,
+  "LocalGoVersion": "1.27.1",
+  "RequiresToolAtLeast": "v2.12.0"
 }

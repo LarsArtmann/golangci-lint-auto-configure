@@ -1,11 +1,11 @@
 {
-  "name": "tool-own",
-  "description": "Snapshot of this repository's own .golangci.yml at corpus creation (2026-10-13): a large, fully-converged config. The primary idempotency witness: a converged config must re-converge to byte-identical output.",
-  "source": "repo .golangci.yml at commit d3f9ab3",
-  "priority": "high",
-  "dryRun": false,
-  "forceSettings": false,
-  "pragmatic": false,
-  "localGoVersion": "1.27.1",
-  "requiresToolAtLeast": "v2.12.0"
+  "Name": "tool-own",
+  "Description": "Snapshot of this repository's own .golangci.yml at corpus creation (2026-10-13): a large, fully-converged config. The primary idempotency witness: a converged config must re-converge to byte-identical output.",
+  "Source": "repo .golangci.yml at commit d3f9ab3",
+  "Priority": "high",
+  "DryRun": false,
+  "ForceSettings": false,
+  "Pragmatic": false,
+  "LocalGoVersion": "1.27.1",
+  "RequiresToolAtLeast": "v2.12.0"
 }

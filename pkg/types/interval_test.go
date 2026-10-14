@@ -7,9 +7,13 @@ import (
 )
 
 var _ = Describe("Interval", func() {
-	tool := func(s string) types.GolangciVersion {
-		return types.MustParseGolangciVersion(s)
-	}
+	var tool func(string) types.GolangciVersion
+
+	BeforeEach(func() {
+		tool = func(s string) types.GolangciVersion {
+			return types.MustParseGolangciVersion(s)
+		}
+	})
 
 	Describe("unbounded zero-value semantics", func() {
 		It("matches everything when both bounds are zero", func() {
@@ -87,7 +91,11 @@ var _ = Describe("Interval", func() {
 	})
 
 	Describe("ParseInterval round-trip", func() {
-		parse := types.ParseGolangciVersion
+		var parse func(string) (types.GolangciVersion, error)
+
+		BeforeEach(func() {
+			parse = types.ParseGolangciVersion
+		})
 
 		DescribeTable("ParseInterval(String()) equals the original",
 			func(original types.Interval[types.GolangciVersion]) {
@@ -122,6 +130,7 @@ var _ = Describe("Interval", func() {
 		It("accepts valid and unbounded intervals", func() {
 			Expect(func() {
 				types.NewInterval(tool("v2.12.0"), tool("v2.14.0")).MustValidate()
+
 				var unbounded types.Interval[types.GolangciVersion]
 				unbounded.MustValidate()
 			}).NotTo(Panic())

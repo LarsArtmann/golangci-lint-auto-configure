@@ -14,7 +14,10 @@ import (
 // legitimately changes, change the legacy expectation CONSCIOUSLY in this
 // file and in FEATURES.md in the same commit.
 var _ = Describe("Preset queries parity", func() {
-	legacyPresetLinters := map[string][]types.LinterName{
+	var legacyPresetLinters map[string][]types.LinterName
+
+	BeforeEach(func() {
+		legacyPresetLinters = map[string][]types.LinterName{
 		"minimal": {
 			"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
 		},
@@ -55,7 +58,8 @@ var _ = Describe("Preset queries parity", func() {
 		"house": {
 			"errcheck", "gosec", "govet", "staticcheck", "ineffassign",
 		},
-	}
+		}
+	})
 
 	It("derives every preset exactly as the old hardcoded lists", func() {
 		Expect(constants.PresetLinters).To(HaveLen(len(legacyPresetLinters)))

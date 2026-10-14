@@ -10,6 +10,11 @@ import (
 // in curated data and must fail fast (at test time and at first use), not
 // surface as a corrupted view later.
 func init() {
+	validateLinterPolicyTable()
+	validateFormatterPolicyTable()
+}
+
+func validateLinterPolicyTable() {
 	seen := make(map[types.LinterName]bool, len(LinterPolicies))
 
 	for _, record := range LinterPolicies {
@@ -30,39 +35,43 @@ func init() {
 		}
 	}
 
-	fseen := make(map[types.FormatterName]bool, len(FormatterPolicies))
+	// Referential integrity in a second pass: supersession targets may be
+	// declared anywhere in the table (forward references are normal).
+	for _, record := range LinterPolicies {
+		if record.SupersededBy != "" && !seen[record.SupersededBy] {
+			panic(fmt.Sprintf("constants: linter %q supersedes unknown linter %q", record.Name, record.SupersededBy))
+		}
+	}
+}
+
+func validateFormatterPolicyTable() {
+	seen := make(map[types.FormatterName]bool, len(FormatterPolicies))
 
 	for _, record := range FormatterPolicies {
 		if err := record.Validate(); err != nil {
 			panic(fmt.Sprintf("constants: invalid formatter policy table: %v", err))
 		}
 
-		if fseen[record.Name] {
+		if seen[record.Name] {
 			panic(fmt.Sprintf("constants: duplicate formatter policy record for %q", record.Name))
 		}
 
-		fseen[record.Name] = true
+		seen[record.Name] = true
+	}
+
+	// Referential integrity, second pass (forward references are normal).
+	for _, record := range FormatterPolicies {
+		if record.SupersededBy != "" && !seen[record.SupersededBy] {
+			panic(fmt.Sprintf("constants: formatter %q superseded by unknown formatter %q", record.Name, record.SupersededBy))
+		}
 	}
 
 	// FormatterOrder references known records; the converse does not hold —
 	// gofmt is a known (redundant) formatter that is not part of the
 	// canonical render order.
 	for _, name := range FormatterOrder {
-		if !fseen[name] {
+		if !seen[name] {
 			panic(fmt.Sprintf("constants: FormatterOrder references unknown formatter %q", name))
-		}
-	}
-
-	// Referential integrity: supersession and redundancy targets must exist.
-	for _, record := range LinterPolicies {
-		if record.SupersededBy != "" && !seen[record.SupersededBy] {
-			panic(fmt.Sprintf("constants: linter %q supersedes unknown linter %q", record.Name, record.SupersededBy))
-		}
-	}
-
-	for _, record := range FormatterPolicies {
-		if record.SupersededBy != "" && !fseen[record.SupersededBy] {
-			panic(fmt.Sprintf("constants: formatter %q superseded by unknown formatter %q", record.Name, record.SupersededBy))
 		}
 	}
 }

@@ -147,8 +147,13 @@ func FuzzParseGolangciVersion(f *testing.F) {
 			t.Fatalf("round-trip broken: %q -> %q -> (%q, %v)", version, parsed.String(), again.String(), errAgain)
 		}
 
-		if c := parsed.Compare(parsed); c != 0 {
-			t.Fatalf("reflexivity violated: Compare(%q,%q)=%d", parsed.String(), parsed.String(), c)
+		other, otherErr := types.ParseGolangciVersion(parsed.String())
+		if otherErr != nil {
+			t.Fatalf("re-parse failed: %v", otherErr)
+		}
+
+		if c := parsed.Compare(other); c != 0 {
+			t.Fatalf("reflexivity violated: Compare(%q,%q)=%d", parsed.String(), other.String(), c)
 		}
 	})
 }
