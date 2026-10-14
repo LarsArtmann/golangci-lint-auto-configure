@@ -157,10 +157,8 @@ func applyStringList(target *[]string, change Change) {
 		return
 	}
 
-	for _, existing := range *target {
-		if existing == change.Element {
-			return
-		}
+	if slices.Contains(*target, change.Element) {
+		return
 	}
 
 	*target = append(*target, change.Element)

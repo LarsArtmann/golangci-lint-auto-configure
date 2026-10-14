@@ -132,6 +132,13 @@ const (
 	StrategyReplace MergeStrategy = "replace"
 )
 
+// Plan capacity hints: a full default render plans roughly 60-80 changes on
+// an empty config; section-level planners are an order of magnitude smaller.
+const (
+	typicalPlanSize    = 64
+	typicalSectionSize = 8
+)
+
 // DefaultMergeStrategies is the path-keyed strategy table for the converge
 // engine. One row per config path the engine touches.
 //
@@ -184,14 +191,14 @@ func StrategiesFor(options MergeOptions) map[string]MergeStrategy {
 // PlanDesired computes the changes that move observed toward desired. Pure:
 // no mutation of either input, deterministic order (paths sorted, then keys).
 func PlanDesired(observed *types.Config, desired DesiredConfig, strategies map[string]MergeStrategy) []Change {
-	var changes []Change
+	changes := make([]Change, 0, typicalPlanSize)
 
 	changes = append(changes, planEnableList(observed, desired)...)
 	changes = append(changes, planFormatters(observed, desired)...)
 	changes = append(changes, planSettings(observed, desired, strategies)...)
 	changes = append(changes, planExclusions(observed, desired, strategies)...)
 	changes = append(changes, planRun(observed, desired, strategies)...)
-	changes = append(changes, planIssues(observed, desired, strategies)...)
+	changes = append(changes, planIssues(observed, desired)...)
 
 	sortChanges(changes)
 
@@ -257,7 +264,7 @@ func planSettings(
 	desired DesiredConfig,
 	strategies map[string]MergeStrategy,
 ) []Change {
-	var changes []Change
+	changes := make([]Change, 0, typicalSectionSize)
 
 	changes = append(changes, planSettingsSection(
 		"linters.settings", observed.Linters.Settings, desiredSettingsToMaps(desired.LinterSettings), strategies,
@@ -296,7 +303,7 @@ func planSettingsSection(
 		strategy = StrategyPreferUser
 	}
 
-	var changes []Change
+	changes := make([]Change, 0, len(desired))
 
 	for _, name := range sortedKeys(desired) {
 		if change, planned := planSettingsBlock(path, name, observed[name], desired[name], strategy); planned {
@@ -340,7 +347,7 @@ func planSettingsBlock(
 }
 
 func exists(v any) bool {
-	return !(v == nil)
+	return v != nil
 }
 
 func missingBlock(path, name string, desiredBlock map[string]any) Change {
@@ -367,7 +374,7 @@ func planExclusions(
 	desired DesiredConfig,
 	strategies map[string]MergeStrategy,
 ) []Change {
-	var changes []Change
+	changes := make([]Change, 0, typicalSectionSize)
 
 	changes = append(changes, planPathList(
 		"linters.exclusions.paths", observed.Linters.Exclusions.Paths, desired.LinterExclusionPaths, strategies,
@@ -396,7 +403,7 @@ func planPathList(path string, observed []string, desired []string, strategies m
 
 	existing := types.NewSet(observed...)
 
-	var changes []Change
+	changes := make([]Change, 0, len(desired))
 
 	for _, entry := range desired {
 		if existing.Contains(entry) {
@@ -413,7 +420,7 @@ func planPathList(path string, observed []string, desired []string, strategies m
 }
 
 func planRun(observed *types.Config, desired DesiredConfig, strategies map[string]MergeStrategy) []Change {
-	var changes []Change
+	changes := make([]Change, 0, typicalSectionSize)
 
 	if strategies["run.go"] == StrategyCapGoVersion {
 		if change, changed := capRunGo(observed.Run.Go, desired.RunDefaults.Go); changed {
@@ -480,7 +487,7 @@ func capRunGo(observed, desired string) (Change, bool) {
 	}, true
 }
 
-func planIssues(observed *types.Config, desired DesiredConfig, strategies map[string]MergeStrategy) []Change {
+func planIssues(observed *types.Config, desired DesiredConfig) []Change {
 	var changes []Change
 
 	if observed.Issues.MaxIssuesPerLinter == 0 && desired.IssuesDefaults.MaxIssuesPerLinter != 0 {

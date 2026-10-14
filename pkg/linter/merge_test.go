@@ -228,6 +228,7 @@ var _ = Describe("PlanDesired", func() {
 
 func asConflict(err error, target **ConflictError) bool {
 	conflict := &ConflictError{}
+
 	ok := errors.As(err, &conflict)
 	if ok {
 		*target = conflict
