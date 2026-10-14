@@ -340,10 +340,38 @@ jobs:
         run: bash scripts/fuzz-smoke.sh 30
 
     timeout-minutes: 15
+  parity:
+    name: Parity corpus (byte-level engine gate)
+    runs-on: ubuntu-latest
+    env:
+      GOEXPERIMENT: jsonv2
+      CGO_ENABLED: 1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Install pinned golangci-lint
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: v2.14.0
+          install-only: true
+
+      - name: Run parity corpus
+        run: go test ./pkg/linter/ -run 'TestParityCorpus' -count=1 -v
+
+    timeout-minutes: 15
   summary:
     name: Workflow Summary
     runs-on: ubuntu-latest
-    needs: [test-and-build, lint, nix, govulncheck, fuzz]
+    needs: [test-and-build, lint, nix, govulncheck, fuzz, parity]
     if: always()
 
     steps:

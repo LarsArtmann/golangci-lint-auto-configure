@@ -1,0 +1,78 @@
+package types
+
+import (
+	"fmt"
+	"strings"
+
+	"golang.org/x/mod/semver"
+)
+
+// GolangciVersion is a golangci-lint tool version (semantic version,
+// canonical form "vX.Y.Z"). Parse-only construction: the zero value means
+// "no version" and is only ever produced by a zero literal — Parse rejects
+// empty and unparsable input. Comparison against GoVersion is a compile
+// error: the two axes answer different questions (tool existence/schema
+// facts vs language semantics).
+type GolangciVersion struct {
+	canonical string
+}
+
+// ParseGolangciVersion parses a golangci-lint version string. Accepted forms:
+// "v2.14.0", "2.14.0", "v2.14.0-rc1" (any semver-valid string with optional
+// leading "v"). The stored form is always the canonical "v"-prefixed string.
+func ParseGolangciVersion(raw string) (GolangciVersion, error) {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
+		return GolangciVersion{}, fmt.Errorf("types: empty golangci-lint version")
+	}
+
+	canonical := "v" + strings.TrimPrefix(trimmed, "v")
+
+	if !semver.IsValid(canonical) {
+		return GolangciVersion{}, fmt.Errorf("types: invalid golangci-lint version %q", raw)
+	}
+
+	return GolangciVersion{canonical: canonical}, nil
+}
+
+// MustParseGolangciVersion is ParseGolangciVersion for curated data where a
+// parse failure is a programming error (compile-time constants, tests).
+func MustParseGolangciVersion(raw string) GolangciVersion {
+	v, err := ParseGolangciVersion(raw)
+	if err != nil {
+		panic(err)
+	}
+
+	return v
+}
+
+// IsZero reports whether the version is the zero value ("no version").
+func (v GolangciVersion) IsZero() bool { return v.canonical == "" }
+
+// String returns the canonical "vX.Y.Z" form, "" for the zero value.
+func (v GolangciVersion) String() string { return v.canonical }
+
+// Compare orders two versions semantically. The zero value sorts before every
+// parsed version, giving the type a total order (zero = "no version yet").
+func (v GolangciVersion) Compare(other GolangciVersion) int {
+	switch {
+	case v.IsZero() && other.IsZero():
+		return 0
+	case v.IsZero():
+		return -1
+	case other.IsZero():
+		return 1
+	default:
+		return semver.Compare(v.canonical, other.canonical)
+	}
+}
+
+// AtLeast reports whether v is >= other. A zero receiver is never at least
+// anything (unknown versions satisfy no minimum).
+func (v GolangciVersion) AtLeast(other GolangciVersion) bool {
+	if v.IsZero() {
+		return false
+	}
+
+	return v.Compare(other) >= 0
+}

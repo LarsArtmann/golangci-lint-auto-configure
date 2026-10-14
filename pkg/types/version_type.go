@@ -1,7 +1,6 @@
 package types
 
 import (
-	"cmp"
 	"strconv"
 	"strings"
 
@@ -38,32 +37,38 @@ func (v Version) String() string {
 // and language semantics only change per minor release, so the patch component
 // carries no meaning for linting. ok is false when the string does not look
 // like a Go version (e.g. "devel", "1.x", "").
+//
+// Deprecated: use ParseGoVersion, which returns the GoVersion branded type
+// with the same normalization semantics. This shim forwards to it and exists
+// only until the call sites are migrated.
 func NormalizeGoMajorMinor(version string) (string, bool) {
-	major, minor, ok := parseGoMajorMinor(version)
-	if !ok {
+	parsed, err := ParseGoVersion(version)
+	if err != nil {
 		return "", false
 	}
 
-	return strconv.Itoa(major) + "." + strconv.Itoa(minor), true
+	return parsed.String(), true
 }
 
 // CompareGoMajorMinor compares two Go versions at major.minor granularity.
 // Accepts both raw ("go1.27.1", "1.27") and already-normalized ("1.27") forms.
 // Returns -1 when a is older, 0 when equal or either side is unparsable,
 // and 1 when a is newer.
+//
+// Deprecated: use ParseGoVersion plus GoVersion.Compare, which makes the
+// "unparsable means equal" hazard explicit at the call site. This shim
+// forwards to the branded types and exists only until the call sites are
+// migrated.
 func CompareGoMajorMinor(a, b string) int {
-	aMajor, aMinor, aOK := parseGoMajorMinor(a)
-	bMajor, bMinor, bOK := parseGoMajorMinor(b)
+	aParsed, aErr := ParseGoVersion(a)
 
-	if !aOK || !bOK {
+	bParsed, bErr := ParseGoVersion(b)
+
+	if aErr != nil || bErr != nil {
 		return 0
 	}
 
-	if c := cmp.Compare(aMajor, bMajor); c != 0 {
-		return c
-	}
-
-	return cmp.Compare(aMinor, bMinor)
+	return aParsed.Compare(bParsed)
 }
 
 func parseGoMajorMinor(version string) (int, int, bool) {
