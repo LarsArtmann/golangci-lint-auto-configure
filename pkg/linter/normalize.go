@@ -425,7 +425,7 @@ func RemoveRedundancies(observed *types.Config, desiredFormatters []types.Format
 // kind names, reporting the removal as a change.
 func removeRedundantEntry(normalized *types.Config, relation constants.RedundancyRelation) []Change {
 	if relation.Kind == constants.RedundancyLinter {
-		if !containsLinterName(toStrings(normalized.Linters.Enable), relation.Superseded) {
+		if !containsLinterName(toStrings(normalized.Linters.Enable), string(relation.Superseded)) {
 			return nil
 		}
 
@@ -450,16 +450,6 @@ func removeRedundantEntry(normalized *types.Config, relation constants.Redundanc
 		From:   string(superseded),
 		Reason: relation.Reason,
 	}}
-}
-
-func containsFormatterName(names []types.FormatterName, want types.FormatterName) bool {
-	for _, name := range names {
-		if name == want {
-			return true
-		}
-	}
-
-	return false
 }
 
 func removeFormatterName(names []types.FormatterName, name types.FormatterName) []types.FormatterName {

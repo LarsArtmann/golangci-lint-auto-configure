@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 

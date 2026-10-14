@@ -1,8 +1,6 @@
 package constants
 
 import (
-	"slices"
-
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -30,12 +28,6 @@ var DefaultConfigFileNames = []string{
 	".golangci.json",
 }
 
-// FormattersManagedByBuildFlow are formatters that should be run by buildflow, not golangci-lint.
-var FormattersManagedByBuildFlow = []types.FormatterName{
-	"goimports",
-	"gofumpt",
-}
-
 // CoreFormatters are the formatters enabled by default for all projects.
 // gci was removed from the default stack (2026-10-11): too many projects
 // rejected its reordering of import groups. It remains a valid formatter
@@ -61,16 +53,15 @@ var ProjectSpecificFormatters = projectSpecificFormattersView()
 
 // IsAutoEnableable reports whether the fixer may enable the formatter:
 // the core stack unconditionally, project-specific formatters when their
-// technology is detected. gci is the motivating non-case: it left
-// CoreFormatters on 2026-10-11 and is now manual-only.
+// technology is detected. gci is the motivating non-case: it left the core
+// stack on 2026-10-11 and is now manual-only.
 func IsAutoEnableable(name types.FormatterName) bool {
-	if slices.Contains(CoreFormatters, name) {
-		return true
+	record, known := FormatterPolicyRecord(name)
+	if !known {
+		return false
 	}
 
-	_, isProjectSpecific := ProjectSpecificFormatters[name]
-
-	return isProjectSpecific
+	return record.Core || record.Gate.Kind == types.GateRequiresTech
 }
 
 // IsRecommendable reports whether the detector may recommend the formatter:
@@ -84,11 +75,9 @@ func IsRecommendable(name types.FormatterName) bool {
 		return true
 	}
 
-	if superset, isRedundant := RedundantFormatters[name]; isRedundant {
-		return IsAutoEnableable(superset)
-	}
+	record, known := FormatterPolicyRecord(name)
 
-	return false
+	return known && record.SupersededBy != "" && IsAutoEnableable(record.SupersededBy)
 }
 
 // ProjectSpecificLinters maps linters that should only be recommended

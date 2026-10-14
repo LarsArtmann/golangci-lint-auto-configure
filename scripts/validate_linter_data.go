@@ -40,25 +40,32 @@ func main() {
 	fmt.Printf("   ✅ PASS: policy table (%d linters) and formatter table (%d formatters) structurally valid\n",
 		len(constants.LinterPolicies), len(constants.FormatterPolicies))
 
-	fmt.Println("📋 Check: min-version and project-specific views reference recommendable linters")
+	fmt.Println("📋 Check: version gates and tech gates reference recommendable linters")
 
-	for linter := range constants.LinterMinVersions {
-		if !recommendable(linter) {
-			exitCode = 1
-			fmt.Printf("   ❌ FAIL: LinterMinVersions references non-recommendable linter %q\n", linter)
+	minGated, techGated := 0, 0
+
+	for _, record := range constants.LinterPolicies {
+		if !record.ValidTool.Min.IsZero() {
+			minGated++
+
+			if !recommendable(record.Name) {
+				exitCode = 1
+				fmt.Printf("   ❌ FAIL: version gate on non-recommendable linter %q\n", record.Name)
+			}
 		}
-	}
 
-	for linter := range constants.ProjectSpecificLinters {
-		if !recommendable(linter) {
-			exitCode = 1
-			fmt.Printf("   ❌ FAIL: ProjectSpecificLinters references non-recommendable linter %q\n", linter)
+		if record.Gate.Kind == types.GateRequiresTech {
+			techGated++
+
+			if !recommendable(record.Name) {
+				exitCode = 1
+				fmt.Printf("   ❌ FAIL: tech gate on non-recommendable linter %q\n", record.Name)
+			}
 		}
 	}
 
 	if exitCode == 0 {
-		fmt.Printf("   ✅ PASS: checked %d min-version and %d tech-gate entries\n",
-			len(constants.LinterMinVersions), len(constants.ProjectSpecificLinters))
+		fmt.Printf("   ✅ PASS: checked %d version-gated and %d tech-gated records\n", minGated, techGated)
 	}
 
 	fmt.Println("📋 Check: this repo's own .golangci.yml enables known linters only")
@@ -84,10 +91,6 @@ func main() {
 }
 
 func recommendable(linter types.LinterName) bool {
-	if _, disabled := constants.DisabledLinters[linter]; disabled {
-		return false
-	}
-
 	record, known := constants.PolicyRecord(linter)
 
 	return known && record.Tier.Kind != types.TierDisabled
@@ -114,12 +117,10 @@ func checkOwnConfig() []string {
 		return nil
 	}
 
-	known := constants.LinterPolicyView()
-
 	var unknown []string
 
 	for _, linter := range cfg.Linters.Enable {
-		if _, ok := known[linter]; !ok {
+		if _, ok := constants.PolicyRecord(linter); !ok {
 			unknown = append(unknown, string(linter))
 		}
 	}
