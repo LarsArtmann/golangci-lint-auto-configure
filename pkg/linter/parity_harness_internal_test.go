@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"

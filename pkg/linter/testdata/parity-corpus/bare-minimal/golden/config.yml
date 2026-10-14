@@ -1,0 +1,178 @@
+version: "2"
+run:
+  timeout: 5m
+  go: "1.27"
+  build-tags:
+    - goexperiment.arenas
+    - goexperiment.goroutineleakprofile
+    - goexperiment.runtimesecret
+    - goexperiment.simd
+  allow-parallel-runners: true
+  allow-serial-runners: true
+  issues-exit-code: 1
+output:
+  formats: {}
+linters:
+  enable:
+    - bodyclose
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - dupl
+    - durationcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - forcetypeassert
+    - funlen
+    - ginkgolinter
+    - gochecknoglobals
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - gosec
+    - gosmopolitan
+    - interfacebloat
+    - intrange
+    - loggercheck
+    - maintidx
+    - mirror
+    - misspell
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - noctx
+    - nolintlint
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - predeclared
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - sqlclosecheck
+    - testifylint
+    - thelper
+    - unconvert
+    - unparam
+    - usetesting
+    - wastedassign
+    - wrapcheck
+    - zerologlint
+  settings:
+    cyclop:
+      max-complexity: 12
+    funlen:
+      lines: 200
+      statements: 100
+    ginkgolinter:
+      forbid-focus-container: true
+      forbid-spec-pollution: true
+    gocognit:
+      min-complexity: 25
+    goconst:
+      ignore-tests: true
+      min-len: 4
+      min-occurrences: 5
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+    gocyclo:
+      min-complexity: 20
+    gosec:
+      excludes:
+        - G304
+        - G115
+    nestif:
+      min-complexity: 6
+    revive:
+      rules:
+        - disabled: true
+          name: exported
+        - disabled: true
+          name: package-comments
+    testifylint:
+      disable:
+        - go-require
+      enable-all: true
+    wrapcheck:
+      ignore-sig-regexps:
+        - encoding/json
+        - fmt\.
+        - errors\.
+        - slices\.
+        - maps\.
+        - sort\.
+        - time\.
+        - net/http
+        - os\.
+        - io\.
+        - strings\.
+        - strconv\.
+        - path\.
+        - filepath\.
+        - compress/gzip
+        - \(context\.Context\)\.Err
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
+  exclusions:
+    generated: lax
+    rules:
+      - path: _test\.go
+        linters:
+          - exhaustruct_v5
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - goconst
+          - forcetypeassert
+          - gosec
+          - errcheck
+          - wrapcheck
+          - ireturn
+          - recvcheck
+          - contextcheck
+          - exhaustive
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - \.gen\.go$
+      - _templ\.go$
+      - vendor/
+formatters:
+  enable:
+    - goimports
+    - gofumpt
+    - golines
+  settings:
+    golines:
+      max-len: 120
+  exclusions:
+    generated: lax
+    paths:
+      - _templ\.go$
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10

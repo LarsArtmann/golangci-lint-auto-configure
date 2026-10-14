@@ -1,0 +1,5 @@
+{
+  "FixesApplied": 88,
+  "Message": "Successfully applied 88 fixes (53 linters, 3 formatters, 6 generated, 0 deprecated, 0 redundant, 26 normalization)",
+  "DryRun": false
+}

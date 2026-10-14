@@ -5,7 +5,6 @@ linters:
   enable:
     - errcheck
     - govet
-    - gofmt
     - lll
   exclusions:
     rules:
