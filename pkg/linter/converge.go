@@ -140,7 +140,7 @@ func Converge(
 		finalEnable.Add(name)
 	}
 	for _, change := range overlayChanges {
-		if change.Path == "linters.enable" && change.Kind == ChangeAdd {
+		if change.Path == PathLintersEnable && change.Kind == ChangeAdd {
 			finalEnable.Add(types.LinterName(change.Element))
 		}
 	}
@@ -214,14 +214,14 @@ func planDisableOverlay(
 
 		if !env.AnalyzerEnabled[name] {
 			changes = append(changes, Change{
-				Path: "linters.enable", Element: string(name), Kind: ChangeAdd,
+				Path: PathLintersEnable, Element: string(name), Kind: ChangeAdd,
 				To:     string(name),
 				Reason: "unjustified disable (no entry in sidecar)",
 			})
 		}
 
 		changes = append(changes, Change{
-			Path: "linters.disable", Element: string(name), Kind: ChangeRemove,
+			Path: PathLintersDisable, Element: string(name), Kind: ChangeRemove,
 			From: string(name), Reason: "unjustified disable re-enabled",
 		})
 	}
@@ -257,7 +257,7 @@ func planEnableDisableConflicts(
 	alreadyRemoved := make(map[types.LinterName]bool, len(overlayChanges))
 
 	for _, change := range overlayChanges {
-		if change.Path == "linters.disable" && change.Kind == ChangeRemove {
+		if change.Path == PathLintersDisable && change.Kind == ChangeRemove {
 			alreadyRemoved[types.LinterName(change.Element)] = true
 		}
 	}
@@ -270,7 +270,7 @@ func planEnableDisableConflicts(
 		}
 
 		changes = append(changes, Change{
-			Path: "linters.disable", Element: string(name), Kind: ChangeRemove,
+			Path: PathLintersDisable, Element: string(name), Kind: ChangeRemove,
 			From:   string(name),
 			Reason: "linter is enabled; a linter cannot be both enabled and disabled",
 		})
@@ -295,7 +295,7 @@ func planOrphanSettings(observed *types.Config, finalEnable types.Set[types.Lint
 		}
 
 		changes = append(changes, Change{
-			Path: "linters.settings", Element: name, Kind: ChangeRemove,
+			Path: PathLintersSettings, Element: name, Kind: ChangeRemove,
 			Reason: "orphaned settings (linter not in the enable set)",
 		})
 	}
@@ -370,7 +370,7 @@ func auditActionFromChange(change Change) auditAction {
 	action := "updated"
 
 	switch {
-	case change.Path == "linters.enable" && change.Kind == ChangeAdd:
+	case change.Path == PathLintersEnable && change.Kind == ChangeAdd:
 		action = "added-to-enable"
 
 		// The anti-gaming overlay's adds are re-enables of user-disabled
@@ -379,25 +379,25 @@ func auditActionFromChange(change Change) auditAction {
 		if strings.HasPrefix(change.Reason, "unjustified") {
 			action = "re-enabled"
 		}
-	case change.Path == "linters.enable" && change.Kind == ChangeRemove:
+	case change.Path == PathLintersEnable && change.Kind == ChangeRemove:
 		action = "removed-from-enable"
-	case change.Path == "linters.disable" && change.Kind == ChangeAdd:
+	case change.Path == PathLintersDisable && change.Kind == ChangeAdd:
 		action = "moved-to-disable"
-	case change.Path == "linters.disable" && change.Kind == ChangeRemove:
+	case change.Path == PathLintersDisable && change.Kind == ChangeRemove:
 		action = "removed-from-disable"
-	case change.Path == "formatters.enable" && change.Kind == ChangeAdd:
+	case change.Path == PathFormattersEnable && change.Kind == ChangeAdd:
 		action = "formatter-added-to-enable"
-	case change.Path == "formatters.enable" && change.Kind == ChangeRemove:
+	case change.Path == PathFormattersEnable && change.Kind == ChangeRemove:
 		action = "formatter-removed-from-enable"
-	case change.Path == "linters.settings" && change.Kind == ChangeRemove:
+	case change.Path == PathLintersSettings && change.Kind == ChangeRemove:
 		action = "pruned-settings"
-	case change.Path == "linters.exclusions.rules" && change.Kind == ChangeUpdate:
+	case change.Path == PathLintersExclusionRules && change.Kind == ChangeUpdate:
 		if _, _, isRename := strings.Cut(change.Element, "->"); isRename {
 			action = "exclusion-linter-renamed"
 		} else {
 			action = "exclusion-rule-merged"
 		}
-	case change.Path == "linters.exclusions.rules" && change.Kind == ChangeRemove:
+	case change.Path == PathLintersExclusionRules && change.Kind == ChangeRemove:
 		action = "exclusion-linter-removed"
 	}
 

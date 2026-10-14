@@ -32,7 +32,7 @@ func applyChange(cfg *types.Config, change Change) {
 
 func applyLinterChanges(cfg *types.Config, change Change) {
 	switch change.Path {
-	case "linters.enable":
+	case PathLintersEnable:
 		switch change.Kind {
 		case ChangeAdd:
 			if !containsLinterName(toStrings(cfg.Linters.Enable), change.Element) {
@@ -41,15 +41,15 @@ func applyLinterChanges(cfg *types.Config, change Change) {
 		case ChangeRemove:
 			cfg.Linters.Enable = removeLinterName(cfg.Linters.Enable, types.LinterName(change.Element))
 		}
-	case "linters.disable":
+	case PathLintersDisable:
 		if change.Kind == ChangeRemove {
 			cfg.Linters.Disable = removeLinterName(cfg.Linters.Disable, types.LinterName(change.Element))
 		}
-	case "linters.settings":
+	case PathLintersSettings:
 		applySettingsChange(&cfg.Linters.Settings, change)
 	case "linters.exclusions.paths":
 		applyStringList(&cfg.Linters.Exclusions.Paths, change)
-	case "linters.exclusions.rules":
+	case PathLintersExclusionRules:
 		applyExclusionRule(&cfg.Linters.Exclusions.Rules, change)
 	case "linters.exclusions.generated":
 		if change.Kind == ChangeAdd {
@@ -60,7 +60,7 @@ func applyLinterChanges(cfg *types.Config, change Change) {
 
 func applyFormatterChanges(cfg *types.Config, change Change) {
 	switch change.Path {
-	case "formatters.enable":
+	case PathFormattersEnable:
 		switch change.Kind {
 		case ChangeAdd:
 			if !containsLinterName(toStrings(cfg.Linters.Enable), change.Element) &&
@@ -87,7 +87,7 @@ func applyRunChanges(cfg *types.Config, change Change) {
 		if change.Kind == ChangeUpdate {
 			cfg.Run.Go = toString(change.To)
 		}
-	case "run.timeout":
+	case PathRunTimeout:
 		if change.Kind == ChangeAdd {
 			cfg.Run.Timeout = toString(change.To)
 		}

@@ -113,7 +113,7 @@ func ReplaceDeprecatedLinters(
 		}
 
 		removeChange := Change{
-			Path: "linters.enable", Element: string(name), Kind: ChangeRemove,
+			Path: PathLintersEnable, Element: string(name), Kind: ChangeRemove,
 			From: string(name), Reason: record.SupersessionReason,
 		}
 
@@ -139,7 +139,7 @@ func ReplaceDeprecatedLinters(
 
 			changes = append(changes, removeChange)
 			changes = append(changes, Change{
-				Path: "linters.enable", Element: string(record.SupersededBy), Kind: ChangeAdd,
+				Path: PathLintersEnable, Element: string(record.SupersededBy), Kind: ChangeAdd,
 				To: string(record.SupersededBy), Reason: record.SupersessionReason,
 			})
 
@@ -186,7 +186,7 @@ func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
 	); durationInvalid &&
 		normalized.Run.Timeout != "" {
 		changes = append(changes, Change{
-			Path: "run.timeout", Kind: ChangeUpdate,
+			Path: PathRunTimeout, Kind: ChangeUpdate,
 			From:   normalized.Run.Timeout,
 			To:     constants.DefaultTimeout,
 			Reason: durationReason,
@@ -199,8 +199,8 @@ func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
 		path  string
 		field *[]types.LinterName
 	}{
-		{"linters.enable", &normalized.Linters.Enable},
-		{"linters.disable", &normalized.Linters.Disable},
+		{PathLintersEnable, &normalized.Linters.Enable},
+		{PathLintersDisable, &normalized.Linters.Disable},
 	} {
 		if containsLinterName(toStrings(*list.field), "typecheck") {
 			*list.field = removeName(*list.field, "typecheck")
@@ -229,11 +229,11 @@ func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
 
 		changes = append(changes,
 			Change{
-				Path: "linters.enable", Element: string(name), Kind: ChangeRemove,
+				Path: PathLintersEnable, Element: string(name), Kind: ChangeRemove,
 				From: string(name), Reason: reason,
 			},
 			Change{
-				Path: "linters.disable", Element: string(name), Kind: ChangeAdd,
+				Path: PathLintersDisable, Element: string(name), Kind: ChangeAdd,
 				To: string(name), Reason: reason,
 			},
 		)
@@ -272,7 +272,7 @@ func PruneOrphanSettings(observed *types.Config) (*types.Config, []Change) {
 		delete(normalized.Linters.Settings, name)
 
 		changes = append(changes, Change{
-			Path: "linters.settings", Element: name, Kind: ChangeRemove,
+			Path: PathLintersSettings, Element: name, Kind: ChangeRemove,
 			Reason: "orphaned settings block (linter neither enabled nor disabled)",
 		})
 	}
@@ -300,7 +300,7 @@ func RemoveRedundancies(observed *types.Config, desiredFormatters []types.Format
 		normalized.Linters.Enable = removeName(normalized.Linters.Enable, "lll")
 
 		changes = append(changes, Change{
-			Path: "linters.enable", Element: "lll", Kind: ChangeRemove,
+			Path: PathLintersEnable, Element: "lll", Kind: ChangeRemove,
 			From:   "lll",
 			Reason: "redundant when golines formatter is enabled (golines fixes long lines, lll only reports them)",
 		})
@@ -310,7 +310,7 @@ func RemoveRedundancies(observed *types.Config, desiredFormatters []types.Format
 		normalized.Formatters.Enable = removeFormatterName(normalized.Formatters.Enable, "gofmt")
 
 		changes = append(changes, Change{
-			Path: "formatters.enable", Element: "gofmt", Kind: ChangeRemove,
+			Path: PathFormattersEnable, Element: "gofmt", Kind: ChangeRemove,
 			From:   "gofmt",
 			Reason: "redundant when gofumpt is enabled (gofumpt is the stricter superset)",
 		})
@@ -412,7 +412,7 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, 
 
 		if record.SupersededBy == "" {
 			changes = append(changes, Change{
-				Path: "linters.exclusions.rules", Element: entry, Kind: ChangeRemove,
+				Path: PathLintersExclusionRules, Element: entry, Kind: ChangeRemove,
 				From:   entry,
 				Reason: record.SupersessionReason,
 			})
@@ -423,7 +423,7 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, 
 		successor := string(record.SupersededBy)
 
 		changes = append(changes, Change{
-			Path:    "linters.exclusions.rules",
+			Path:    PathLintersExclusionRules,
 			Element: entry + "->" + successor,
 			Kind:    ChangeUpdate,
 			Reason:  record.SupersessionReason,
@@ -507,7 +507,7 @@ func migrateDeprecatedSettings(cfg *types.Config, from, to types.LinterName) []C
 	}
 
 	return []Change{{
-		Path: "linters.settings", Element: string(from) + "->" + string(to),
+		Path: PathLintersSettings, Element: string(from) + "->" + string(to),
 		Kind: ChangeUpdate, From: settings.Clone(), To: settings.Clone(),
 		Reason: "settings block migrated to successor",
 	}}
@@ -528,7 +528,7 @@ func replaceExclusionLinters(cfg *types.Config, from, to types.LinterName) []Cha
 		rule.Linters = replaceStringEntry(rule.Linters, string(from), string(to))
 
 		changes = append(changes, Change{
-			Path: "linters.exclusions.rules", Element: string(from) + "->" + string(to),
+			Path: PathLintersExclusionRules, Element: string(from) + "->" + string(to),
 			Kind: ChangeUpdate, Reason: "exclusion rule follows the replacement",
 		})
 	}

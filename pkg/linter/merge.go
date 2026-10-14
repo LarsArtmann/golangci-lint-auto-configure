@@ -27,7 +27,7 @@ const (
 // lint mode reports changes, apply mode applies them, and both speak about
 // the SAME objects — detect/repair drift is structurally impossible.
 type Change struct {
-	// Path is the config location ("linters.enable", "run.go",
+	// Path is the config location (PathLintersEnable, "run.go",
 	// "linters.settings.goconst").
 	Path string
 	// Element identifies the entry within the path ("goconst" for list
@@ -109,6 +109,17 @@ func fmtEqual(a, b any) bool {
 // through mutator passes — flipping --force-settings is a table rewrite.
 type MergeStrategy string
 
+// Config path keys shared by the strategy table, the planners, the applier,
+// and the audit projection. One constant per path the engine touches.
+const (
+	PathLintersEnable         = "linters.enable"
+	PathLintersDisable        = "linters.disable"
+	PathLintersSettings       = "linters.settings"
+	PathLintersExclusionRules = "linters.exclusions.rules"
+	PathFormattersEnable      = "formatters.enable"
+	PathRunTimeout            = "run.timeout"
+)
+
 const (
 	// StrategyEnsurePresent adds desired entries to a list, keeping every
 	// user entry (the enable-list semantics: recommend, never strip).
@@ -144,15 +155,15 @@ const (
 //
 //nolint:gochecknoglobals // immutable strategy table, read-only after init
 var DefaultMergeStrategies = map[string]MergeStrategy{
-	"linters.enable":                  StrategyEnsurePresent,
-	"linters.settings":                StrategyPreferUser,
-	"formatters.enable":               StrategyEnsurePresent,
-	"formatters.settings":             StrategyPreferUser,
-	"linters.exclusions.paths":        StrategyUnion,
-	"formatters.exclusions.paths":     StrategyUnion,
-	"linters.exclusions.rules":        StrategyUnion,
+	PathLintersEnable:          StrategyEnsurePresent,
+	PathLintersSettings:        StrategyPreferUser,
+	PathFormattersEnable:       StrategyEnsurePresent,
+	"formatters.settings":      StrategyPreferUser,
+	"linters.exclusions.paths": StrategyUnion,
+	"formatters.exclusions.paths": StrategyUnion,
+	PathLintersExclusionRules:  StrategyUnion,
 	"run.go":                          StrategyCapGoVersion,
-	"run.timeout":                     StrategyEnsureDefault,
+	PathRunTimeout:                     StrategyEnsureDefault,
 	"run.allow-parallel-runners":      StrategyEnsureDefault,
 	"run.allow-serial-runners":        StrategyEnsureDefault,
 	"run.issues-exit-code":            StrategyEnsureDefault,
@@ -181,7 +192,7 @@ func StrategiesFor(options MergeOptions) map[string]MergeStrategy {
 	maps.Copy(strategies, DefaultMergeStrategies)
 
 	if options.ForceSettings {
-		strategies["linters.settings"] = StrategyPreferDesired
+		strategies[PathLintersSettings] = StrategyPreferDesired
 		strategies["formatters.settings"] = StrategyPreferDesired
 	}
 
@@ -205,28 +216,43 @@ func PlanDesired(observed *types.Config, desired DesiredConfig, strategies map[s
 	return changes
 }
 
-// planPathRank is the canonical section order of a plan (stable across runs;
-// generation order within a section is preserved — element order inside a
-// section is part of the byte contract, e.g. default exclusion rules).
-var planPathRank = map[string]int{
-	"linters.enable":                  0,
-	"linters.disable":                 1,
-	"linters.settings":                2,
-	"linters.exclusions.generated":    3,
-	"linters.exclusions.paths":        4,
-	"linters.exclusions.rules":        5,
-	"formatters.enable":               6,
-	"formatters.settings":             7,
-	"formatters.exclusions.generated": 8,
-	"formatters.exclusions.paths":     9,
-	"run.go":                          10,
-	"run.timeout":                     11,
-	"run.allow-parallel-runners":      12,
-	"run.allow-serial-runners":        13,
-	"run.issues-exit-code":            14,
-	"run.build-tags":                  15,
-	"issues.max-issues-per-linter":    16,
-	"issues.max-same-issues":          17,
+// planPathOrder is the canonical section order of a plan (stable across
+// runs; generation order within a section is preserved — element order
+// inside a section is part of the byte contract, e.g. default exclusion
+// rules). The rank map is derived so the order reads as data, not as magic
+// indexes.
+//
+//nolint:gochecknoglobals // derived once at init, read-only afterwards
+var planPathRank = buildPlanPathRank()
+
+func buildPlanPathRank() map[string]int {
+	order := []string{
+		PathLintersEnable,
+		PathLintersDisable,
+		PathLintersSettings,
+		"linters.exclusions.generated",
+		"linters.exclusions.paths",
+		PathLintersExclusionRules,
+		PathFormattersEnable,
+		"formatters.settings",
+		"formatters.exclusions.generated",
+		"formatters.exclusions.paths",
+		"run.go",
+		PathRunTimeout,
+		"run.allow-parallel-runners",
+		"run.allow-serial-runners",
+		"run.issues-exit-code",
+		"run.build-tags",
+		"issues.max-issues-per-linter",
+		"issues.max-same-issues",
+	}
+
+	rank := make(map[string]int, len(order))
+	for index, path := range order {
+		rank[path] = index
+	}
+
+	return rank
 }
 
 func sortChanges(changes []Change) {
@@ -253,7 +279,7 @@ func planEnableList(observed *types.Config, desired DesiredConfig) []Change {
 		}
 
 		changes = append(changes, Change{
-			Path: "linters.enable", Element: string(name),
+			Path: PathLintersEnable, Element: string(name),
 			Kind: ChangeAdd, To: string(name), Reason: reason,
 		})
 	}
@@ -277,7 +303,7 @@ func planFormatters(observed *types.Config, desired DesiredConfig) []Change {
 		}
 
 		changes = append(changes, Change{
-			Path: "formatters.enable", Element: string(name),
+			Path: PathFormattersEnable, Element: string(name),
 			Kind: ChangeAdd, To: string(name), Reason: reason,
 		})
 	}
@@ -293,7 +319,7 @@ func planSettings(
 	changes := make([]Change, 0, typicalSectionSize)
 
 	changes = append(changes, planSettingsSection(
-		"linters.settings", observed.Linters.Settings, desiredSettingsToMaps(desired.LinterSettings), strategies,
+		PathLintersSettings, observed.Linters.Settings, desiredSettingsToMaps(desired.LinterSettings), strategies,
 	)...)
 	changes = append(changes, planSettingsSection(
 		"formatters.settings",
@@ -440,7 +466,7 @@ func planDefaultExclusionRules(observed *types.Config, desired DesiredConfig) []
 		idx, exists := existingByKey[key]
 		if !exists {
 			changes = append(changes, Change{
-				Path: "linters.exclusions.rules", Element: key, Kind: ChangeAdd,
+				Path: PathLintersExclusionRules, Element: key, Kind: ChangeAdd,
 				To: cloneRule(defaultRule), Reason: "default exclusion rule",
 			})
 
@@ -455,7 +481,7 @@ func planDefaultExclusionRules(observed *types.Config, desired DesiredConfig) []
 		}
 
 		changes = append(changes, Change{
-			Path: "linters.exclusions.rules", Element: key, Kind: ChangeUpdate,
+			Path: PathLintersExclusionRules, Element: key, Kind: ChangeUpdate,
 			From: append([]string{}, existingLinters...), To: union,
 			Reason: "default exclusion rule unioned with user rule",
 		})
@@ -528,7 +554,7 @@ func planRun(observed *types.Config, desired DesiredConfig, strategies map[strin
 
 	if observed.Run.Timeout == "" || observed.Run.Timeout == "0s" {
 		changes = append(changes, Change{
-			Path: "run.timeout", Kind: ChangeAdd,
+			Path: PathRunTimeout, Kind: ChangeAdd,
 			To: desired.RunDefaults.Timeout, Reason: "default timeout",
 		})
 	}
