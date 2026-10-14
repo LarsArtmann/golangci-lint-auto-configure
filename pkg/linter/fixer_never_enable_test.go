@@ -20,10 +20,13 @@ func newQuietFixer() *Fixer {
 	}
 }
 
-// replacementInput builds a config carrying the deprecated predecessor (with a
-// settings block) so the replacement normalizer has something to migrate.
-func replacementInput(t *testing.T, deprecated types.LinterName) *types.Config {
+// exhaustructReplacementInput builds a config carrying the deprecated
+// exhaustruct predecessor (with a settings block) so the replacement
+// normalizer has something to migrate.
+func exhaustructReplacementInput(t *testing.T) *types.Config {
 	t.Helper()
+
+	deprecated := types.LinterName("exhaustruct")
 
 	record, known := constants.PolicyRecord(deprecated)
 	if !known || record.SupersessionReason == "" {
@@ -47,7 +50,7 @@ func TestReplacementRespectsNeverEnable(t *testing.T) {
 	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
-	cfg := replacementInput(t, deprecated)
+	cfg := exhaustructReplacementInput(t)
 
 	normalized, changes := ReplaceDeprecatedLinters(
 		cfg, types.GolangciVersion{}, func(name types.LinterName) bool { return name == replacement },
@@ -79,7 +82,7 @@ func TestReplacementProceedsWithoutNeverEnable(t *testing.T) {
 	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
-	cfg := replacementInput(t, deprecated)
+	cfg := exhaustructReplacementInput(t)
 
 	normalized, changes := ReplaceDeprecatedLinters(cfg, types.GolangciVersion{}, nil)
 
@@ -115,7 +118,7 @@ func TestReplacementVersionGate(t *testing.T) {
 	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
-	cfg := replacementInput(t, deprecated)
+	cfg := exhaustructReplacementInput(t)
 
 	tool := types.MustParseGolangciVersion("v2.12.0")
 
@@ -157,7 +160,7 @@ func TestPragmaticCompositionWithNeverEnable(t *testing.T) {
 	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
-	cfg := replacementInput(t, deprecated)
+	cfg := exhaustructReplacementInput(t)
 
 	normalized, _ := ReplaceDeprecatedLinters(
 		cfg, types.GolangciVersion{}, func(types.LinterName) bool { return true },

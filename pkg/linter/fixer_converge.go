@@ -276,8 +276,12 @@ func (f *Fixer) logMergedExclusionRules(result *ConvergeResult) {
 		}
 
 		from, fromOK := change.From.([]string)
+		if !fromOK {
+			continue
+		}
+
 		to, toOK := change.To.([]string)
-		if !fromOK || !toOK {
+		if !toOK {
 			continue
 		}
 
@@ -290,16 +294,16 @@ func (f *Fixer) logMergedExclusionRules(result *ConvergeResult) {
 	}
 }
 
-// addedStrings returns the entries of to that are not in from, preserving order.
-func addedStrings(from, to []string) []string {
-	set := make(map[string]bool, len(from))
-	for _, entry := range from {
+// addedStrings returns the entries of after that are not in before, preserving order.
+func addedStrings(before, after []string) []string {
+	set := make(map[string]bool, len(before))
+	for _, entry := range before {
 		set[entry] = true
 	}
 
-	added := make([]string, 0, len(to))
+	added := make([]string, 0, len(after))
 
-	for _, entry := range to {
+	for _, entry := range after {
 		if !set[entry] {
 			added = append(added, entry)
 		}
