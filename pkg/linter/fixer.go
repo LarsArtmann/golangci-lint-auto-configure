@@ -341,7 +341,7 @@ func (f *Fixer) applyAndSave(
 	version string,
 	counts fixCounts,
 ) (*types.MigrationResult, error) {
-	updater := newConfigUpdater(f.logger, f.goVersionProvider, f.analyzer.GetDetectedGoVersion())
+	updater := newConfigUpdater(f.logger, f.goVersionProvider, f.analyzer.DetectedBuildGoVersion())
 	updater.setShowMergedRules(f.showMergedRules)
 
 	rec := configChangeRecorder{counts: counts}

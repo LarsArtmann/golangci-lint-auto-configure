@@ -24,10 +24,8 @@ type golangciLintVersion struct {
 // validateVersion checks if the version meets minimum requirements.
 // Returns error if version is too old, nil if valid.
 func (a *Analyzer) validateVersion(version string) error {
-	version = strings.TrimPrefix(version, "v")
-	version = "v" + version
-
-	if !semver.IsValid(version) {
+	parsed, err := types.ParseGolangciVersion(version)
+	if err != nil {
 		return apperrors.NewAnalysisError(
 			"invalid golangci-lint version format",
 			"",
@@ -36,10 +34,10 @@ func (a *Analyzer) validateVersion(version string) error {
 		)
 	}
 
-	minVersion := constants.MinGolangCILintVersion
-	if semver.Compare(version, minVersion) < 0 {
+	minVersion := types.MustParseGolangciVersion(constants.MinGolangCILintVersion)
+	if !parsed.AtLeast(minVersion) {
 		return apperrors.NewAnalysisError(
-			fmt.Sprintf("golangci-lint version %s is too old", version),
+			fmt.Sprintf("golangci-lint version %s is too old", parsed),
 			"",
 			errorfamily.WrapRejectionf(apperrors.ErrVersionTooOld, "version.too_old",
 				"minimum required version is %s. Please upgrade: https://golangci-lint.run/usage/install/",
@@ -47,16 +45,16 @@ func (a *Analyzer) validateVersion(version string) error {
 		)
 	}
 
-	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", version, minVersion)
-	a.detectedVersion = version
-	a.warnUnexpectedVersion(version)
+	a.logger.Debugf("golangci-lint version %s (>= %s) ✓", parsed, minVersion)
+	a.detectedVersion = parsed
+	a.warnUnexpectedVersion(parsed)
 
 	return nil
 }
 
 // warnUnexpectedVersion warns when the detected version differs from the tested version.
-func (a *Analyzer) warnUnexpectedVersion(version string) {
-	if version == constants.ExpectedGolangCILintVersion {
+func (a *Analyzer) warnUnexpectedVersion(version types.GolangciVersion) {
+	if version.String() == constants.ExpectedGolangCILintVersion {
 		return
 	}
 
@@ -158,14 +156,14 @@ func (a *Analyzer) parseVersionText(output string) string {
 // normalized to major.minor. Unknown or unparsable values clear the field
 // so the fixer skips its run.go cap instead of capping against garbage.
 func (a *Analyzer) setDetectedGoVersion(raw string) {
-	majorMinor, ok := types.NormalizeGoMajorMinor(raw)
-	if !ok {
-		a.detectedGoVersion = ""
+	parsed, err := types.ParseGoVersion(raw)
+	if err != nil {
+		a.detectedGoVersion = types.GoVersion{}
 
 		return
 	}
 
-	a.detectedGoVersion = majorMinor
+	a.detectedGoVersion = parsed
 }
 
 // parseBuiltWithGoVersion extracts the Go build version from

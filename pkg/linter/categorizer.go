@@ -112,12 +112,19 @@ func (a *Analyzer) isLinterProjectSpecific(linter types.LinterInfo) bool {
 }
 
 func (a *Analyzer) isLinterBelowMinVersion(linter types.LinterInfo) bool {
-	minVer, hasMin := constants.LinterMinVersions[linter.Name]
+	minVerRaw, hasMin := constants.LinterMinVersions[linter.Name]
 	if !hasMin {
 		return false
 	}
 
-	if a.detectedVersion != "" && semver.Compare(a.detectedVersion, minVer) < 0 {
+	minVer, err := types.ParseGolangciVersion(minVerRaw)
+	if err != nil {
+		a.logger.Debugf("Skipping min-version gate for %s: curated minimum %q is invalid", linter.Name, minVerRaw)
+
+		return false
+	}
+
+	if !a.detectedVersion.IsZero() && !a.detectedVersion.AtLeast(minVer) {
 		a.logger.Debugf(
 			"Skipping linter %s: requires golangci-lint %s (have %s)",
 			linter.Name, minVer, a.detectedVersion,

@@ -9,6 +9,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 func TestReadGoModGoDirective(t *testing.T) {
@@ -72,7 +73,7 @@ func TestReadGoModGoDirective(t *testing.T) {
 
 			configPath := filepath.Join(dir, ".golangci.yml")
 
-			if got := readGoModGoDirective(configPath); got != test.want {
+			if got := readGoModGoDirective(configPath); got.String() != test.want {
 				t.Fatalf("readGoModGoDirective(%q) = %q, want %q", configPath, got, test.want)
 			}
 		})
@@ -94,8 +95,18 @@ func TestGoModExceedsBinary(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.directive+" vs "+test.binary, func(t *testing.T) {
-			if got := goModExceedsBinary(test.directive, test.binary); got != test.want {
-				t.Fatalf("goModExceedsBinary(%q, %q) = %v, want %v", test.directive, test.binary, got, test.want)
+			directive, err := types.ParseGoVersion(test.directive)
+			if err != nil {
+				t.Fatalf("parse directive %q: %v", test.directive, err)
+			}
+
+			binary, err := types.ParseGoVersion(test.binary)
+			if err != nil {
+				t.Fatalf("parse binary %q: %v", test.binary, err)
+			}
+
+			if got := directive.Compare(binary) > 0; got != test.want {
+				t.Fatalf("Compare(%q, %q) > 0 = %v, want %v", test.directive, test.binary, got, test.want)
 			}
 		})
 	}

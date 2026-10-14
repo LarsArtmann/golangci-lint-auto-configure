@@ -380,7 +380,17 @@ func isReplacementAvailable(replacement types.LinterReplacement, version string)
 		return true
 	}
 
-	return semver.Compare(version, replacement.MinVersion) >= 0
+	detected, err := types.ParseGolangciVersion(version)
+	if err != nil {
+		return true
+	}
+
+	minVer, err := types.ParseGolangciVersion(replacement.MinVersion)
+	if err != nil {
+		return true
+	}
+
+	return detected.AtLeast(minVer)
 }
 
 // resolveLinterName resolves a linter name, replacing deprecated linters with their successors.

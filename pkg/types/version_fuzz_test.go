@@ -78,3 +78,77 @@ func FuzzCompareGoMajorMinor(f *testing.F) {
 		}
 	})
 }
+
+// FuzzParseGoVersion pins the branded-type parse contract: parse-or-error is
+// total, a parsed version re-parses from its own String form (round-trip),
+// and patch input collapses to the same major.minor value.
+func FuzzParseGoVersion(f *testing.F) {
+	f.Add("go1.27.1")
+	f.Add("1.27")
+	f.Add("1.27.0")
+	f.Add("devel")
+	f.Add("go1.28-0f9a9bc")
+	f.Add("1")
+	f.Add("")
+	f.Add("1.x")
+	f.Add("go")
+	f.Add("0.42")
+	f.Add("2.0.0")
+
+	f.Fuzz(func(t *testing.T, version string) {
+		parsed, err := types.ParseGoVersion(version)
+		if err != nil {
+			if !parsed.IsZero() {
+				t.Fatalf("unparsable %q must return the zero value, got %q", version, parsed.String())
+			}
+
+			return
+		}
+
+		if parsed.String() == "" {
+			t.Fatalf("parsable %q must not stringify to empty", version)
+		}
+
+		again, errAgain := types.ParseGoVersion(parsed.String())
+		if errAgain != nil || again != parsed {
+			t.Fatalf("round-trip broken: %q -> %q -> (%q, %v)", version, parsed.String(), again.String(), errAgain)
+		}
+
+		if !parsed.AtLeast(parsed) {
+			t.Fatalf("AtLeast violated for reflexive case: %q", parsed.String())
+		}
+	})
+}
+
+// FuzzParseGolangciVersion pins the tool-version parse contract: parse-or-error
+// is total, canonical strings are fixed points, and Compare is antisymmetric.
+func FuzzParseGolangciVersion(f *testing.F) {
+	f.Add("v2.14.0")
+	f.Add("2.12.0")
+	f.Add("v2.14.0-rc1")
+	f.Add("v2")
+	f.Add("2.14")
+	f.Add("")
+	f.Add("abc")
+	f.Add("v2.x.0")
+
+	f.Fuzz(func(t *testing.T, version string) {
+		parsed, err := types.ParseGolangciVersion(version)
+		if err != nil {
+			if !parsed.IsZero() {
+				t.Fatalf("unparsable %q must return the zero value, got %q", version, parsed.String())
+			}
+
+			return
+		}
+
+		again, errAgain := types.ParseGolangciVersion(parsed.String())
+		if errAgain != nil || again != parsed {
+			t.Fatalf("round-trip broken: %q -> %q -> (%q, %v)", version, parsed.String(), again.String(), errAgain)
+		}
+
+		if c := parsed.Compare(parsed); c != 0 {
+			t.Fatalf("reflexivity violated: Compare(%q,%q)=%d", parsed.String(), parsed.String(), c)
+		}
+	})
+}

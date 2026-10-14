@@ -24,11 +24,13 @@ import (
 )
 
 // Analyzer analyzes golangci-lint configurations and provides recommendations.
+// Detected versions are stored as branded types internally and surfaced as
+// strings through the LinterAnalyzer interface.
 type Analyzer struct {
 	golangciLintPath  string
 	logger            *log.Logger
-	detectedVersion   string
-	detectedGoVersion string
+	detectedVersion   types.GolangciVersion
+	detectedGoVersion types.GoVersion
 	projectRoot       string
 	pragmatic         bool
 }
@@ -38,8 +40,8 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 	return &Analyzer{
 		golangciLintPath:  "",
 		logger:            logger,
-		detectedVersion:   "",
-		detectedGoVersion: "",
+		detectedVersion:   types.GolangciVersion{},
+		detectedGoVersion: types.GoVersion{},
 		projectRoot:       "",
 		pragmatic:         false,
 	}
@@ -62,13 +64,26 @@ func (a *Analyzer) SetProjectRoot(root string) {
 
 // GetDetectedVersion returns the detected golangci-lint version, or empty string if not yet checked.
 func (a *Analyzer) GetDetectedVersion() string {
-	return a.detectedVersion
+	return a.detectedVersion.String()
 }
 
 // GetDetectedGoVersion returns the Go version golangci-lint was built with,
 // normalized to major.minor (e.g. "1.27"), or empty string when unknown.
 // golangci-lint refuses to load configs whose run.go is newer than this.
 func (a *Analyzer) GetDetectedGoVersion() string {
+	return a.detectedGoVersion.String()
+}
+
+// DetectedGolangciVersion returns the detected tool version as a branded
+// type. The zero value means "not detected yet".
+func (a *Analyzer) DetectedGolangciVersion() types.GolangciVersion {
+	return a.detectedVersion
+}
+
+// DetectedBuildGoVersion returns the Go version golangci-lint was built with
+// as a branded type. The zero value means "unknown", which disables the
+// run.go cap.
+func (a *Analyzer) DetectedBuildGoVersion() types.GoVersion {
 	return a.detectedGoVersion
 }
 

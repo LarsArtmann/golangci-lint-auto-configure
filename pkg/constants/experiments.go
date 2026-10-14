@@ -29,7 +29,7 @@ var GoExperiments = []types.GoExperiment{
 		// Graduated in Go 1.27: encoding/json/v2 is on by default and the
 		// build tag is inert there. Kept for Go 1.26 toolchains, where the
 		// experiment gate still applies.
-		GraduatedIn: "1.27",
+		GraduatedIn: types.MustParseGoVersion("1.27"),
 	},
 	{
 		Tag:         "goexperiment.runtimesecret",
@@ -60,10 +60,10 @@ func GoExperimentTags() []string {
 func GoExperimentTagsFor(localGoMajorMinor string) []string {
 	tags := make([]string, 0, len(GoExperiments))
 
-	local, ok := types.NormalizeGoMajorMinor(localGoMajorMinor)
+	local, localErr := types.ParseGoVersion(localGoMajorMinor)
 
 	for _, exp := range GoExperiments {
-		if exp.GraduatedIn != "" && ok && types.CompareGoMajorMinor(local, exp.GraduatedIn) >= 0 {
+		if !exp.GraduatedIn.IsZero() && localErr == nil && local.AtLeast(exp.GraduatedIn) {
 			continue
 		}
 

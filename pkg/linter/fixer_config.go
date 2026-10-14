@@ -19,7 +19,7 @@ type GoVersionProvider func(ctx context.Context) string
 type configUpdater struct {
 	logger                *log.Logger
 	goVersionProvider     GoVersionProvider
-	golangciLintGoVersion string
+	golangciLintGoVersion types.GoVersion
 	showMergedRules       bool
 	exclusionMerges       []ExclusionMerge
 }
@@ -32,10 +32,10 @@ type ExclusionMerge struct {
 }
 
 // newConfigUpdater creates a new config updater. golangciLintGoVersion is the
-// Go version golangci-lint was built with (major.minor, e.g. "1.27"); empty
-// means unknown, which disables the run.go cap.
+// Go version golangci-lint was built with (major.minor); the zero value means
+// unknown, which disables the run.go cap.
 func newConfigUpdater(
-	logger *log.Logger, goVersionProvider GoVersionProvider, golangciLintGoVersion string,
+	logger *log.Logger, goVersionProvider GoVersionProvider, golangciLintGoVersion types.GoVersion,
 ) *configUpdater {
 	return &configUpdater{
 		logger:                logger,
@@ -74,8 +74,8 @@ func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config)
 		return 0
 	}
 
-	target, ok := types.NormalizeGoMajorMinor(localGoVersion)
-	if !ok {
+	target, err := types.ParseGoVersion(localGoVersion)
+	if err != nil {
 		cu.logger.Debugf(
 			"Local Go version %q is not parsable; leaving run.go unchanged (%q)",
 			localGoVersion, cfg.Run.Go,
@@ -84,19 +84,19 @@ func (cu *configUpdater) updateGoVersion(ctx context.Context, cfg *types.Config)
 		return 0
 	}
 
-	if cu.golangciLintGoVersion != "" && types.CompareGoMajorMinor(target, cu.golangciLintGoVersion) > 0 {
+	if !cu.golangciLintGoVersion.IsZero() && target.Compare(cu.golangciLintGoVersion) > 0 {
 		cu.logger.Warnf(
 			"Local Go %s is newer than the Go used to build golangci-lint (%s); "+
 				"capping run.go at %s — upgrade golangci-lint to lint with %s semantics",
-			target, cu.golangciLintGoVersion, cu.golangciLintGoVersion, target,
+				target, cu.golangciLintGoVersion, cu.golangciLintGoVersion, target,
 		)
 
 		target = cu.golangciLintGoVersion
 	}
 
-	if cfg.Run.Go != target {
+	if cfg.Run.Go != target.String() {
 		cu.logger.Infof("Setting run.go to local version: %q -> %q", cfg.Run.Go, target)
-		cfg.Run.Go = target
+		cfg.Run.Go = target.String()
 
 		return 1
 	}

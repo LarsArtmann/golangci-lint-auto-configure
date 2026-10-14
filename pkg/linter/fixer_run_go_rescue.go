@@ -26,7 +26,7 @@ func (f *Fixer) rescueOverspecifiedRunGo(cfg *types.Config, configPath string, d
 		return nil
 	}
 
-	golangciLintGoVersion := f.analyzer.GetDetectedGoVersion()
+	golangciLintGoVersion := f.analyzer.DetectedBuildGoVersion()
 
 	f.warnIfGoModExceedsBinary(configPath, golangciLintGoVersion)
 
@@ -34,7 +34,7 @@ func (f *Fixer) rescueOverspecifiedRunGo(cfg *types.Config, configPath string, d
 		return nil
 	}
 
-	configGoVersion, _ := types.NormalizeGoMajorMinor(cfg.Run.Go)
+	configGoVersion, _ := types.ParseGoVersion(cfg.Run.Go)
 
 	if dryRun {
 		return dryRunRescueError(configGoVersion, golangciLintGoVersion, configPath)
@@ -46,14 +46,17 @@ func (f *Fixer) rescueOverspecifiedRunGo(cfg *types.Config, configPath string, d
 // runGoExceedsBinary reports whether the config's run.go is a parsable Go
 // version strictly newer than the version golangci-lint was built with.
 // Empty or unparsable values never exceed (golangci-lint owns those errors).
-func runGoExceedsBinary(runGo, golangciLintGoVersion string) bool {
-	if runGo == "" || golangciLintGoVersion == "" {
+func runGoExceedsBinary(runGo string, golangciLintGoVersion types.GoVersion) bool {
+	if runGo == "" || golangciLintGoVersion.IsZero() {
 		return false
 	}
 
-	configGoVersion, ok := types.NormalizeGoMajorMinor(runGo)
+	configGoVersion, err := types.ParseGoVersion(runGo)
+	if err != nil {
+		return false
+	}
 
-	return ok && types.CompareGoMajorMinor(configGoVersion, golangciLintGoVersion) > 0
+	return configGoVersion.Compare(golangciLintGoVersion) > 0
 }
 
 // warnIfGoModExceedsBinary warns when the project's go.mod go-directive targets
@@ -62,13 +65,13 @@ func runGoExceedsBinary(runGo, golangciLintGoVersion string) bool {
 // fix is upgrading golangci-lint — so this stays a warning in every mode
 // (including --check/--dry-run), never an error and never a mutation.
 // Best-effort: a missing or unparsable go.mod is silent.
-func (f *Fixer) warnIfGoModExceedsBinary(configPath, golangciLintGoVersion string) {
+func (f *Fixer) warnIfGoModExceedsBinary(configPath string, golangciLintGoVersion types.GoVersion) {
 	directive := readGoModGoDirective(configPath)
-	if directive == "" || golangciLintGoVersion == "" {
+	if directive.IsZero() || golangciLintGoVersion.IsZero() {
 		return
 	}
 
-	if !goModExceedsBinary(directive, golangciLintGoVersion) {
+	if directive.Compare(golangciLintGoVersion) <= 0 {
 		return
 	}
 
@@ -80,23 +83,17 @@ func (f *Fixer) warnIfGoModExceedsBinary(configPath, golangciLintGoVersion strin
 	)
 }
 
-// goModExceedsBinary reports whether a normalized go-directive version is
-// strictly newer than the Go version golangci-lint was built with.
-func goModExceedsBinary(directive, golangciLintGoVersion string) bool {
-	return types.CompareGoMajorMinor(directive, golangciLintGoVersion) > 0
-}
-
 // readGoModGoDirective returns the go-directive version from the go.mod next to
-// the config, normalized to major.minor (e.g. "1.27"), or "" when the file is
+// the config, normalized to major.minor, or the zero value when the file is
 // absent, unreadable, or carries no parsable directive. Directives inside
 // parenthesized blocks (require/exclude/replace) are ignored — the go directive
 // is a top-level statement.
-func readGoModGoDirective(configPath string) string {
+func readGoModGoDirective(configPath string) types.GoVersion {
 	goModPath := filepath.Join(filepath.Dir(configPath), "go.mod")
 
 	file, err := os.Open(goModPath)
 	if err != nil {
-		return ""
+		return types.GoVersion{}
 	}
 
 	defer func() { _ = file.Close() }()
@@ -104,7 +101,7 @@ func readGoModGoDirective(configPath string) string {
 	return scanGoDirective(bufio.NewScanner(file))
 }
 
-func scanGoDirective(scanner *bufio.Scanner) string {
+func scanGoDirective(scanner *bufio.Scanner) types.GoVersion {
 	inBlock := false
 
 	for scanner.Scan() {
@@ -120,19 +117,19 @@ func scanGoDirective(scanner *bufio.Scanner) string {
 			inBlock = false
 		case "go":
 			if !inBlock && len(fields) >= 2 {
-				if normalized, ok := types.NormalizeGoMajorMinor(fields[1]); ok {
-					return normalized
+				if parsed, err := types.ParseGoVersion(fields[1]); err == nil {
+					return parsed
 				}
 			}
 		}
 	}
 
-	return ""
+	return types.GoVersion{}
 }
 
 // dryRunRescueError explains, without touching the file, why the config is
 // unloadable and how to proceed.
-func dryRunRescueError(configGoVersion, golangciLintGoVersion, configPath string) error {
+func dryRunRescueError(configGoVersion, golangciLintGoVersion types.GoVersion, configPath string) error {
 	return apperrors.NewAnalysisError(
 		fmt.Sprintf("run.go %s is newer than the Go used to build golangci-lint (%s)",
 			configGoVersion, golangciLintGoVersion),
@@ -145,7 +142,7 @@ func dryRunRescueError(configGoVersion, golangciLintGoVersion, configPath string
 
 // applyRunGoRescue rewrites run.go to the binary's build Go version, persists
 // the config, and records the mutation in the audit ledger.
-func (f *Fixer) applyRunGoRescue(cfg *types.Config, configPath, golangciLintGoVersion string) error {
+func (f *Fixer) applyRunGoRescue(cfg *types.Config, configPath string, golangciLintGoVersion types.GoVersion) error {
 	f.logger.Warnf(
 		"run.go %s is newer than the Go used to build golangci-lint (%s); "+
 			"golangci-lint cannot load this config at all — repairing run.go to %s",
@@ -153,7 +150,7 @@ func (f *Fixer) applyRunGoRescue(cfg *types.Config, configPath, golangciLintGoVe
 	)
 
 	previous := cfg.Run.Go
-	cfg.Run.Go = golangciLintGoVersion
+	cfg.Run.Go = golangciLintGoVersion.String()
 
 	if err := f.configLoader.SaveConfig(cfg, configPath); err != nil {
 		return apperrors.WrapClassifiedf(err, "configure.rescue_run_go",
