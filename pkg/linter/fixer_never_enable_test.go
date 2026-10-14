@@ -5,100 +5,146 @@ import (
 	"testing"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-// applyReplacementInput builds a linter set + config carrying the deprecated
-// predecessor so the handler migrates it.
-func applyReplacementInput(
-	t *testing.T, deprecated types.LinterName,
-) (types.Set[types.LinterName], *types.Config, []types.LinterName) {
+// newQuietFixer builds a Fixer whose logs stay out of test output. Only the
+// logger matters: loadPolicy and the pure replacement normalizers never touch
+// the loader/analyzer.
+func newQuietFixer() *Fixer {
+	return &Fixer{
+		logger: log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel}),
+		ledger: audit.NoopRecorder{},
+	}
+}
+
+// replacementInput builds a config carrying the deprecated predecessor (with a
+// settings block) so the replacement normalizer has something to migrate.
+func replacementInput(t *testing.T, deprecated types.LinterName) *types.Config {
 	t.Helper()
 
-	if _, isDeprecated := constants.DeprecatedLinters[deprecated]; !isDeprecated {
-		t.Fatalf("%q is not in DeprecatedLinters; pick a real predecessor", deprecated)
+	record, known := constants.PolicyRecord(deprecated)
+	if !known || record.SupersessionReason == "" {
+		t.Fatalf("%q has no supersession record; pick a real predecessor", deprecated)
 	}
 
-	linterSet := types.NewSet(deprecated)
-	enabled := []types.LinterName{deprecated}
-
 	cfg := &types.Config{}
+	cfg.Linters.Enable = []types.LinterName{deprecated}
 	cfg.Linters.Settings = map[string]any{
 		string(deprecated): map[string]any{"custom": true},
 	}
 
-	return linterSet, cfg, enabled
+	return cfg
 }
 
-// TestReplacementRespectsNeverEnable pins the M32 guard: when the sidecar
-// never-enable section lists the REPLACEMENT, the deprecated predecessor is
-// still removed but the replacement is NOT added and its settings are NOT
-// migrated.
+// TestReplacementRespectsNeverEnable pins the M32 guard on the reconciler:
+// when the sidecar never-enable section lists the REPLACEMENT, the deprecated
+// predecessor is still removed but the replacement is NOT added and its
+// settings are NOT migrated.
 func TestReplacementRespectsNeverEnable(t *testing.T) {
 	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
-	linterSet, cfg, enabled := applyReplacementInput(t, deprecated)
+	cfg := replacementInput(t, deprecated)
 
-	handler := newDeprecatedLinterHandler(testQuietLogger(), "v2.14.0")
-	handler.neverEnable = func(name types.LinterName) bool { return name == replacement }
+	normalized, changes := ReplaceDeprecatedLinters(
+		cfg, types.GolangciVersion{}, func(name types.LinterName) bool { return name == replacement },
+	)
 
-	count := 0
-	for _, linter := range enabled {
-		count += handler.replaceOne(linterSet, linter, false, cfg)
+	if len(changes) == 0 {
+		t.Fatal("the predecessor removal must be reported as a change")
 	}
 
-	if count != 1 {
-		t.Fatalf("replacement must count as one action, got %d", count)
+	for _, name := range normalized.Linters.Enable {
+		if name == replacement {
+			t.Fatal("replacement was added despite never-enable — documented contract violated")
+		}
+
+		if name == deprecated {
+			t.Fatal("deprecated predecessor must still be removed")
+		}
 	}
 
-	if linterSet.Contains(replacement) {
-		t.Fatal("replacement was added despite never-enable — documented contract violated")
-	}
-
-	if linterSet.Contains(deprecated) {
-		t.Fatal("deprecated predecessor must still be removed")
-	}
-
-	if _, migrated := cfg.Linters.Settings[string(replacement)]; migrated {
+	if _, migrated := normalized.Linters.Settings[string(replacement)]; migrated {
 		t.Fatal("settings must not be migrated to a never-enabled replacement")
 	}
 }
 
 // TestReplacementProceedsWithoutNeverEnable pins the baseline: with no
-// never-enable predicate, the replacement path works exactly as before.
+// never-enable predicate, the replacement path swaps the predecessor for its
+// successor and migrates the settings block.
 func TestReplacementProceedsWithoutNeverEnable(t *testing.T) {
 	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
-	linterSet, cfg, enabled := applyReplacementInput(t, deprecated)
+	cfg := replacementInput(t, deprecated)
 
-	handler := newDeprecatedLinterHandler(testQuietLogger(), "v2.14.0")
+	normalized, changes := ReplaceDeprecatedLinters(cfg, types.GolangciVersion{}, nil)
 
-	for _, linter := range enabled {
-		handler.replaceOne(linterSet, linter, false, cfg)
+	found := false
+
+	for _, name := range normalized.Linters.Enable {
+		if name == replacement {
+			found = true
+		}
+
+		if name == deprecated {
+			t.Fatal("deprecated predecessor must be removed on swap")
+		}
 	}
 
-	if !linterSet.Contains(replacement) {
+	if !found {
 		t.Fatal("replacement must be added when not never-enabled")
 	}
 
-	if _, migrated := cfg.Linters.Settings[string(replacement)]; !migrated {
+	if _, migrated := normalized.Linters.Settings[string(replacement)]; !migrated {
 		t.Fatal("settings must migrate to the replacement")
+	}
+
+	if len(changes) == 0 {
+		t.Fatal("the swap must be reported as changes")
+	}
+}
+
+// TestReplacementVersionGate pins the version gate: when the installed tool
+// predates the supersession version, the predecessor is dropped WITHOUT the
+// successor and the change reason says why.
+func TestReplacementVersionGate(t *testing.T) {
+	deprecated := types.LinterName("exhaustruct")
+	replacement := types.LinterName("exhaustruct_v5")
+
+	cfg := replacementInput(t, deprecated)
+
+	tool := types.MustParseGolangciVersion("v2.12.0")
+
+	normalized, changes := ReplaceDeprecatedLinters(cfg, tool, nil)
+
+	for _, name := range normalized.Linters.Enable {
+		if name == replacement {
+			t.Fatal("replacement must not be added when the tool predates the supersession")
+		}
+	}
+
+	gated := false
+
+	for _, change := range changes {
+		if change.Element == string(deprecated) && change.Kind == ChangeRemove {
+			gated = true
+		}
+	}
+
+	if !gated {
+		t.Fatalf("expected a removal change for %s, got %+v", deprecated, changes)
 	}
 }
 
 // TestPragmaticCompositionWithNeverEnable pins the --pragmatic × never-enable
-// composition: shouldSkipLinter (pragmatic) and never-enable are independent
-// gates — a pragmatic-skipped linter's absence must not be overridden by
-// replacement logic, and a never-enabled replacement stays blocked regardless
-// of pragmatic mode.
+// composition: the pragmatic-noise set and NeverAutoEnableLinters must stay
+// disjoint, and the never-enable predicate fires purely on the sidecar —
+// independent of pragmatic filtering.
 func TestPragmaticCompositionWithNeverEnable(t *testing.T) {
-	// exhaustruct_v5 is the replacement target AND in NeverAutoEnableLinters;
-	// pragmatic drops gochecknoglobals etc. from recommendations, but the
-	// never-enable predicate applies at the replacement layer independent of
-	// pragmatic filtering.
 	for pragmaticName := range constants.PragmaticNoiseLinters {
 		if _, alsoNeverAuto := constants.NeverAutoEnableLinters[pragmaticName]; alsoNeverAuto {
 			t.Fatalf(
@@ -108,22 +154,18 @@ func TestPragmaticCompositionWithNeverEnable(t *testing.T) {
 		}
 	}
 
-	// The guard predicate is orthogonal: it fires purely on the sidecar.
-	handler := newDeprecatedLinterHandler(testQuietLogger(), "v2.14.0")
-	handler.neverEnable = func(types.LinterName) bool { return true }
+	deprecated := types.LinterName("exhaustruct")
+	replacement := types.LinterName("exhaustruct_v5")
 
-	linterSet, cfg, enabled := applyReplacementInput(t, "exhaustruct")
+	cfg := replacementInput(t, deprecated)
 
-	for _, linter := range enabled {
-		handler.replaceOne(linterSet, linter, false, cfg)
+	normalized, _ := ReplaceDeprecatedLinters(
+		cfg, types.GolangciVersion{}, func(types.LinterName) bool { return true },
+	)
+
+	for _, name := range normalized.Linters.Enable {
+		if name == replacement {
+			t.Fatal("never-enable must hold under pragmatic composition too")
+		}
 	}
-
-	if linterSet.Contains("exhaustruct_v5") {
-		t.Fatal("never-enable must hold in pragmatic composition too")
-	}
-}
-
-// testQuietLogger discards output.
-func testQuietLogger() *log.Logger {
-	return log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
 }
