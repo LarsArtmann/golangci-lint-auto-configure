@@ -11,13 +11,13 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-// ReportData contains analysis data for the report.
+// ReportData contains evaluation data for the report.
 type ReportData struct {
-	Analysis *types.ConfigAnalysis
+	Evaluation *linter.Evaluation
 }
 
 // SummaryCard renders a summary card with number and label.
@@ -95,7 +95,7 @@ func SummaryCard(class string, count int, label string) templ.Component {
 }
 
 // LinterListSection renders a section with a list of linter tags.
-func LinterListSection(title string, icon string, class string, linters []types.LinterInfo) templ.Component {
+func LinterListSection(title string, icon string, class string, linters []types.LinterName) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -146,7 +146,7 @@ func LinterListSection(title string, icon string, class string, linters []types.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, linter := range linters {
+		for _, name := range linters {
 			var templ_7745c5c3_Var9 = []any{"linter-tag", class}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
 			if templ_7745c5c3_Err != nil {
@@ -170,9 +170,9 @@ func LinterListSection(title string, icon string, class string, linters []types.
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(linter.Name.String())
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(name.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 29, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 29, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -191,7 +191,8 @@ func LinterListSection(title string, icon string, class string, linters []types.
 	})
 }
 
-func LinterPrioritySection(analysis *types.ConfigAnalysis, title string, count int, priority types.LinterPriority, emoji string, class string, badge string) templ.Component {
+// DeviationRow renders one planned change as a table row.
+func DeviationRow(change linter.Change) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -212,120 +213,200 @@ func LinterPrioritySection(analysis *types.ConfigAnalysis, title string, count i
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"section\"><h2>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<tr><td>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(emoji)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 37, Col: 13}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		var templ_7745c5c3_Var13 = []any{"kind-badge", string(change.Kind)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var13).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 37, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <span class=\"count\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", count))
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(string(change.Kind))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 37, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 38, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span></h2><div class=\"linter-grid\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span></td><td class=\"path\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, rec := range analysis.LinterRecommendations {
-			if rec.Priority == priority {
-				var templ_7745c5c3_Var16 = []any{"linter-card", class}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var16...)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var17 string
-				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var16).String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 1, Col: 0}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><span class=\"badge\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var18 string
-				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(badge)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 42, Col: 33}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span><h4>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var19 string
-				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(rec.Name.String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 43, Col: 29}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</h4><p>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var20 string
-				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(constants.LinterReasons[rec.Name])
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 44, Col: 44}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</p></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
+		var templ_7745c5c3_Var16 string
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(change.Path)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 39, Col: 32}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</td><td class=\"element\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var17 string
+		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(change.Element)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 40, Col: 38}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td class=\"reason\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var18 string
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(change.Reason)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 41, Col: 36}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
+}
+
+// DeviationSection renders the deviation table for one drift kind.
+func DeviationSection(title string, icon string, deviations []linter.Change) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var19 == nil {
+			templ_7745c5c3_Var19 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"section\"><h2>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var20 string
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(icon)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 48, Col: 12}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var21 string
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 48, Col: 22}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " <span class=\"count\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var22 string
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(deviations)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 48, Col: 81}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span></h2><table class=\"deviation-table\"><thead><tr><th>Kind</th><th>Path</th><th>Element</th><th>Reason</th></tr></thead> <tbody>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, change := range deviations {
+			templ_7745c5c3_Err = DeviationRow(change).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</tbody></table></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+// deviationGroup is one report section: a titled slice of the deviation set.
+type deviationGroup struct {
+	Title string
+	Icon  string
+	Keep  func(linter.Change) bool
+}
+
+// deviationGroups is the report's section order — the same story the finding
+// reports tell via rule IDs.
+func deviationGroups() []deviationGroup {
+	return []deviationGroup{
+		{"Missing Linters", "➕", func(c linter.Change) bool {
+			return c.Path == linter.PathLintersEnable && c.Kind == linter.ChangeAdd
+		}},
+		{"Stale Entries", "➖", func(c linter.Change) bool {
+			return c.Kind == linter.ChangeRemove
+		}},
+		{"Value Updates", "✏️", func(c linter.Change) bool {
+			return c.Kind == linter.ChangeUpdate
+		}},
+	}
+}
+
+// filterDeviations returns the deviations a section keeps.
+func filterDeviations(deviations []linter.Change, keep func(linter.Change) bool) []linter.Change {
+	filtered := make([]linter.Change, 0, len(deviations))
+	for _, change := range deviations {
+		if keep(change) {
+			filtered = append(filtered, change)
+		}
+	}
+
+	return filtered
 }
 
 func Report(data ReportData) templ.Component {
@@ -344,144 +425,80 @@ func Report(data ReportData) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var21 == nil {
-			templ_7745c5c3_Var21 = templ.NopComponent
+		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var23 == nil {
+			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>golangci-lint Configuration Report</title><style>\n\t\t\t\t* { margin: 0; padding: 0; box-sizing: border-box; }\n\t\t\t\tbody { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }\n\t\t\t\t.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }\n\t\t\t\t\n\t\t\t\t/* Header */\n\t\t\t\t.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }\n\t\t\t\t.header h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }\n\t\t\t\t.header p { opacity: 0.9; font-size: 0.95rem; }\n\t\t\t\t\n\t\t\t\t/* Summary Grid */\n\t\t\t\t.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }\n\t\t\t\t.summary-card { background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; transition: transform 0.2s; }\n\t\t\t\t.summary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }\n\t\t\t\t.summary-card .number { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }\n\t\t\t\t.summary-card .label { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }\n\t\t\t\t.summary-card.critical .number { color: #dc3545; }\n\t\t\t\t.summary-card.high .number { color: #fd7e14; }\n\t\t\t\t.summary-card.medium .number { color: #ffc107; }\n\t\t\t\t.summary-card.optional .number { color: #17a2b8; }\n\t\t\t\t.summary-card.enabled .number { color: #28a745; }\n\t\t\t\t.summary-card.disabled .number { color: #6c757d; }\n\t\t\t\t\n\t\t\t\t/* Progress Bars */\n\t\t\t\t.progress-container { margin-bottom: 2rem; }\n\t\t\t\t.progress-item { display: flex; align-items: center; margin-bottom: 1rem; }\n\t\t\t\t.progress-label { width: 120px; font-size: 0.85rem; color: #666; }\n\t\t\t\t.progress-bar { flex: 1; height: 24px; background: #e9ecef; border-radius: 12px; overflow: hidden; margin: 0 1rem; }\n\t\t\t\t.progress-fill { height: 100%; border-radius: 12px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 0.75rem; color: white; font-weight: 600; }\n\t\t\t\t.progress-fill.critical { background: linear-gradient(90deg, #dc3545, #ff6b7a); }\n\t\t\t\t.progress-fill.high { background: linear-gradient(90deg, #fd7e14, #ffb366); }\n\t\t\t\t.progress-fill.medium { background: linear-gradient(90deg, #ffc107, #ffe066); color: #333; }\n\t\t\t\t.progress-fill.optional { background: linear-gradient(90deg, #17a2b8, #4dd0e8); }\n\t\t\t\t.progress-value { width: 50px; text-align: right; font-weight: 600; }\n\t\t\t\t\n\t\t\t\t/* Sections */\n\t\t\t\t.section { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }\n\t\t\t\t.section h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }\n\t\t\t\t.section h2 .count { background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.85rem; }\n\t\t\t\t\n\t\t\t\t/* Linter Grid */\n\t\t\t\t.linter-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }\n\t\t\t\t.linter-card { padding: 1rem; border-radius: 8px; border-left: 4px solid; background: #f8f9fa; }\n\t\t\t\t.linter-card.critical { border-left-color: #dc3545; background: #fff5f5; }\n\t\t\t\t.linter-card.high { border-left-color: #fd7e14; background: #fff8f0; }\n\t\t\t\t.linter-card.medium { border-left-color: #ffc107; background: #fffbf0; }\n\t\t\t\t.linter-card.optional { border-left-color: #17a2b8; background: #f0fbfd; }\n\t\t\t\t.linter-card .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.5rem; }\n\t\t\t\t.linter-card.critical .badge { background: #dc3545; color: white; }\n\t\t\t\t.linter-card.high .badge { background: #fd7e14; color: white; }\n\t\t\t\t.linter-card.medium .badge { background: #ffc107; color: #212529; }\n\t\t\t\t.linter-card.optional .badge { background: #17a2b8; color: white; }\n\t\t\t\t.linter-card h4 { color: #333; margin-bottom: 0.5rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.95rem; }\n\t\t\t\t.linter-card p { color: #666; font-size: 0.85rem; line-height: 1.4; }\n\t\t\t\t\n\t\t\t\t/* Linter Lists */\n\t\t\t\t.linter-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }\n\t\t\t\t.linter-tag { padding: 0.3rem 0.75rem; border-radius: 16px; font-size: 0.8rem; font-family: 'Monaco', 'Menlo', monospace; }\n\t\t\t\t.linter-tag.enabled { background: #d4edda; color: #155724; }\n\t\t\t\t.linter-tag.disabled { background: #f8d7da; color: #721c24; }\n\t\t\t\t\n\t\t\t\t/* Success Message */\n\t\t\t\t.success-message { background: linear-gradient(135deg, #28a745, #34ce57); color: white; padding: 2rem; border-radius: 12px; text-align: center; }\n\t\t\t\t.success-message h2 { color: white; border: none; margin-bottom: 0.5rem; }\n\t\t\t\t.success-message p { opacity: 0.9; }\n\t\t\t\t\n\t\t\t\t/* Dark mode support */\n\t\t\t\t@media (prefers-color-scheme: dark) {\n\t\t\t\t\tbody { background: #1a1a2e; color: #eaeaea; }\n\t\t\t\t\t.summary-card { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }\n\t\t\t\t\t.summary-card .label { color: #a0a0a0; }\n\t\t\t\t\t.section { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }\n\t\t\t\t\t.section h2 { color: #eaeaea; }\n\t\t\t\t\t.progress-bar { background: #2d2d44; }\n\t\t\t\t\t.linter-card { background: #1a1a2e; }\n\t\t\t\t\t.linter-card h4 { color: #eaeaea; }\n\t\t\t\t\t.linter-card p { color: #a0a0a0; }\n\t\t\t\t\t.linter-card.critical { background: #3d1f1f; }\n\t\t\t\t\t.linter-card.high { background: #3d2814; }\n\t\t\t\t\t.linter-card.medium { background: #3d3414; }\n\t\t\t\t\t.linter-card.optional { background: #142d33; }\n\t\t\t\t\t.linter-tag.enabled { background: #1e4620; color: #a8daa8; }\n\t\t\t\t\t.linter-tag.disabled { background: #4a1c1c; color: #f5a8a8; }\n\t\t\t\t}\n\t\t\t\t\n\t\t\t\t/* Responsive */\n\t\t\t\t@media (max-width: 600px) {\n\t\t\t\t\t.summary-grid { grid-template-columns: repeat(2, 1fr); }\n\t\t\t\t\t.linter-grid { grid-template-columns: 1fr; }\n\t\t\t\t}\n\t\t\t</style></head><body><div class=\"container\"><div class=\"header\"><h1>🔍 golangci-lint Configuration Report</h1><p>Analysis of ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Analysis.ConfigPath)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 155, Col: 46}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</p></div><div class=\"summary-grid\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = SummaryCard("critical", data.Analysis.CriticalCount(), "Critical").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = SummaryCard("high", data.Analysis.HighValueCount(), "High Priority").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = SummaryCard("medium", data.Analysis.MediumValueCount(), "Medium Priority").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = SummaryCard("optional", data.Analysis.OptionalCount(), "Optional").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = SummaryCard("enabled", len(data.Analysis.EnabledLinters), "Enabled").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = SummaryCard("disabled", len(data.Analysis.DisabledLinters), "Disabled").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"progress-container\"><div class=\"progress-item\"><span class=\"progress-label\">Coverage</span><div class=\"progress-bar\"><div class=\"progress-fill critical\" style=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var23 string
-		templ_7745c5c3_Var23, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width:%d%%", getCoveragePercent(data.Analysis)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 169, Col: 111}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>golangci-lint Configuration Report</title><style>\n\t\t\t\t* { margin: 0; padding: 0; box-sizing: border-box; }\n\t\t\t\tbody { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }\n\t\t\t\t.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }\n\n\t\t\t\t.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }\n\t\t\t\t.header h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }\n\t\t\t\t.header p { opacity: 0.9; font-size: 0.95rem; }\n\n\t\t\t\t.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }\n\t\t\t\t.summary-card { background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; transition: transform 0.2s; }\n\t\t\t\t.summary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }\n\t\t\t\t.summary-card .number { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }\n\t\t\t\t.summary-card .label { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }\n\t\t\t\t.summary-card.enabled .number { color: #28a745; }\n\t\t\t\t.summary-card.disabled .number { color: #6c757d; }\n\t\t\t\t.summary-card.deviations .number { color: #fd7e14; }\n\t\t\t\t.summary-card.suppressed .number { color: #17a2b8; }\n\n\t\t\t\t.section { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }\n\t\t\t\t.section h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }\n\t\t\t\t.section h2 .count { background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.85rem; }\n\n\t\t\t\t.deviation-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }\n\t\t\t\t.deviation-table th { text-align: left; padding: 0.5rem 0.75rem; background: #f0f2ff; color: #444; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }\n\t\t\t\t.deviation-table td { padding: 0.5rem 0.75rem; border-top: 1px solid #eee; vertical-align: top; }\n\t\t\t\t.deviation-table td.path { font-family: 'Monaco', 'Menlo', monospace; font-size: 0.8rem; }\n\t\t\t\t.deviation-table td.element { font-family: 'Monaco', 'Menlo', monospace; font-size: 0.8rem; font-weight: 600; }\n\t\t\t\t.deviation-table td.reason { color: #666; }\n\n\t\t\t\t.kind-badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 10px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }\n\t\t\t\t.kind-badge.add { background: #d4edda; color: #155724; }\n\t\t\t\t.kind-badge.remove { background: #f8d7da; color: #721c24; }\n\t\t\t\t.kind-badge.update { background: #fff3cd; color: #664d03; }\n\n\t\t\t\t.linter-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }\n\t\t\t\t.linter-tag { padding: 0.3rem 0.75rem; border-radius: 16px; font-size: 0.8rem; font-family: 'Monaco', 'Menlo', monospace; }\n\t\t\t\t.linter-tag.enabled { background: #d4edda; color: #155724; }\n\t\t\t\t.linter-tag.disabled { background: #f8d7da; color: #721c24; }\n\n\t\t\t\t.success-message { background: linear-gradient(135deg, #28a745, #34ce57); color: white; padding: 2rem; border-radius: 12px; text-align: center; }\n\t\t\t\t.success-message h2 { color: white; border: none; margin-bottom: 0.5rem; }\n\t\t\t\t.success-message p { opacity: 0.9; }\n\n\t\t\t\t@media (prefers-color-scheme: dark) {\n\t\t\t\t\tbody { background: #1a1a2e; color: #eaeaea; }\n\t\t\t\t\t.summary-card { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }\n\t\t\t\t\t.summary-card .label { color: #a0a0a0; }\n\t\t\t\t\t.section { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }\n\t\t\t\t\t.section h2 { color: #eaeaea; }\n\t\t\t\t\t.linter-tag.enabled { background: #1e4620; color: #a8daa8; }\n\t\t\t\t\t.linter-tag.disabled { background: #4a1c1c; color: #f5a8a8; }\n\t\t\t\t\t.deviation-table th { background: #1f2a48; color: #a0a0a0; }\n\t\t\t\t\t.deviation-table td { border-top-color: #2d2d44; }\n\t\t\t\t\t.deviation-table td.reason { color: #a0a0a0; }\n\t\t\t\t}\n\n\t\t\t\t@media (max-width: 600px) {\n\t\t\t\t\t.summary-grid { grid-template-columns: repeat(2, 1fr); }\n\t\t\t\t\t.deviation-table { font-size: 0.75rem; }\n\t\t\t\t}\n\t\t\t</style></head><body><div class=\"container\"><div class=\"header\"><h1>🔍 golangci-lint Configuration Report</h1><p>Desired-state evaluation of ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
-		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(getCoveragePercent(data.Analysis))
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(data.Evaluation.ConfigPath)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 169, Col: 149}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/report/report.templ`, Line: 176, Col: 64}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "%</div></div><span class=\"progress-value\"></span></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p></div><div class=\"summary-grid\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if len(data.Analysis.LinterRecommendations) > 0 {
-			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Critical Linters", data.Analysis.CriticalCount(), types.LinterPriorityCritical, "🚨", "critical", "CRITICAL").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "High Priority Linters", data.Analysis.HighValueCount(), types.LinterPriorityHigh, "⚠️", "high", "HIGH").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, " ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Medium Priority Linters", data.Analysis.MediumValueCount(), types.LinterPriorityMedium, "ℹ️", "medium", "MEDIUM").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = LinterPrioritySection(data.Analysis, "Optional Linters", data.Analysis.OptionalCount(), types.LinterPriorityOptional, "💡", "optional", "OPTIONAL").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"success-message\"><h2>✅ Perfect Configuration</h2><p>All recommended linters are already enabled!</p></div>")
+		templ_7745c5c3_Err = SummaryCard("enabled", len(data.Evaluation.Observed.Linters.Enable), "Enabled").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = SummaryCard("disabled", len(data.Evaluation.Observed.Linters.Disable), "Disabled").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = SummaryCard("deviations", len(data.Evaluation.Deviations), "Deviations").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = SummaryCard("suppressed", len(data.Evaluation.Suppressed), "Suppressed").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.Evaluation.Converged {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"success-message\"><h2>✅ Converged Configuration</h2><p>The observed config already matches the desired state.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		if len(data.Analysis.EnabledLinters) > 0 {
-			templ_7745c5c3_Err = LinterListSection("Enabled Linters", "✓", "enabled", data.Analysis.EnabledLinters).Render(ctx, templ_7745c5c3_Buffer)
+		for _, group := range deviationGroups() {
+			if filtered := filterDeviations(data.Evaluation.Deviations, group.Keep); len(filtered) > 0 {
+				templ_7745c5c3_Err = DeviationSection(group.Title, group.Icon, filtered).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+		}
+		if len(data.Evaluation.Observed.Linters.Enable) > 0 {
+			templ_7745c5c3_Err = LinterListSection("Enabled Linters", "✓", "enabled", data.Evaluation.Observed.Linters.Enable).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		if len(data.Analysis.DisabledLinters) > 0 {
-			templ_7745c5c3_Err = LinterListSection("Disabled Linters", "✗", "disabled", data.Analysis.DisabledLinters).Render(ctx, templ_7745c5c3_Buffer)
+		if len(data.Evaluation.Observed.Linters.Disable) > 0 {
+			templ_7745c5c3_Err = LinterListSection("Disabled Linters", "✗", "disabled", data.Evaluation.Observed.Linters.Disable).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
-}
-
-func getCoveragePercent(a *types.ConfigAnalysis) int {
-	total := a.CriticalCount() + a.HighValueCount() + a.MediumValueCount() + a.OptionalCount()
-	if total == 0 {
-		return 100
-	}
-	recommended := a.CriticalCount() + a.HighValueCount()
-	return (recommended * 100) / total
 }
 
 var _ = templruntime.GeneratedTemplate

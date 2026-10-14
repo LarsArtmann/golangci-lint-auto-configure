@@ -8,6 +8,7 @@ import (
 	"charm.land/log/v2"
 	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 // JSONGenerator generates JSON reports for configuration analysis.

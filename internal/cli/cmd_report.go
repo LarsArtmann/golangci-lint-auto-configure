@@ -24,7 +24,7 @@ func newReportCommand(builder *CommandBuilder) *cobra.Command {
 			return runReport(
 				cmd,
 				builder.Logger(),
-				builder.Analyzer(),
+				builder.Fixer(),
 				builder.ConfigLoader(),
 				builder.Flags(),
 			)
@@ -35,7 +35,7 @@ func newReportCommand(builder *CommandBuilder) *cobra.Command {
 func runReport(
 	cmd *cobra.Command,
 	logger *log.Logger,
-	analyzer *linter.Analyzer,
+	fixer *linter.Fixer,
 	configLoader *config.Loader,
 	flags *Flags,
 ) error {
@@ -46,12 +46,14 @@ func runReport(
 		return apperrors.WrapClassified(err, "report.resolve_config", "resolve config")
 	}
 
-	analysis, err := analyzeConfig(logger, cmd, analyzer, configFile, flags.ReportFormat)
+	logger.Infof("Generating %s report for: %s", flags.ReportFormat, configFile)
+
+	evaluation, err := fixer.Evaluate(cmd.Context(), configFile, types.LinterPriorityOptional)
 	if err != nil {
-		return apperrors.WrapClassified(err, "report.analyze", "analyze config")
+		return apperrors.WrapClassified(err, "report.evaluate", "evaluate config")
 	}
 
-	return writeReport(cmd.Context(), analysis, logger, configFile,
+	return writeReport(cmd.Context(), evaluation, logger, configFile,
 		determineOutputPath(flags.OutputReport, flags.ReportFormat), flags.ReportFormat)
 }
 
@@ -66,20 +68,20 @@ func resolveReportConfig(
 
 func writeReport(
 	ctx context.Context,
-	analysis *types.ConfigAnalysis,
+	evaluation *linter.Evaluation,
 	logger *log.Logger,
 	configFile string,
 	outputPath, format string,
 ) error {
 	switch format {
 	case "json":
-		return writeJSONReport(logger, analysis, outputPath, configFile)
+		return writeJSONReport(logger, evaluation, outputPath, configFile)
 	case formatSARIF:
-		return writeSARIFReport(analysis, outputPath, configFile)
+		return writeSARIFReport(evaluation, outputPath, configFile)
 	case formatFinding:
-		return writeFindingJSONReport(analysis, outputPath, configFile)
+		return writeFindingJSONReport(evaluation, outputPath, configFile)
 	default:
-		return writeHTMLReport(ctx, logger, analysis, outputPath, configFile)
+		return writeHTMLReport(ctx, logger, evaluation, outputPath, configFile)
 	}
 }
 
@@ -87,25 +89,6 @@ func setLogLevel(logger *log.Logger, verbose bool) {
 	if verbose {
 		logger.SetLevel(log.DebugLevel)
 	}
-}
-
-func analyzeConfig(
-	logger *log.Logger,
-	cmd *cobra.Command,
-	analyzer *linter.Analyzer,
-	configFile string,
-	reportFormat string,
-) (*types.ConfigAnalysis, error) {
-	logger.Infof("Generating %s report for: %s", reportFormat, configFile)
-
-	analysis, err := analyzer.AnalyzeConfig(cmd.Context(), configFile)
-	if err != nil {
-		return nil, apperrors.WrapClassifiedf(err, "report.analyze_config",
-			"failed to analyze config (configPath=%s, reportFormat=%s)",
-			configFile, reportFormat)
-	}
-
-	return analysis, nil
 }
 
 func determineOutputPath(outputPath, format string) string {
@@ -125,12 +108,12 @@ func determineOutputPath(outputPath, format string) string {
 
 func writeJSONReport(
 	logger *log.Logger,
-	analysis *types.ConfigAnalysis,
+	evaluation *linter.Evaluation,
 	outputPath, configFile string,
 ) error {
 	gen := report.NewJSONGenerator(logger)
 
-	err := gen.GenerateJSONReport(analysis, outputPath)
+	err := gen.GenerateJSONReport(evaluation, outputPath)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "report.json",
 			"failed to generate JSON report (configPath=%s, outputPath=%s)",
@@ -152,10 +135,10 @@ func writeReportFile(outputPath, configFile, label string, data []byte) error {
 }
 
 func writeSARIFReport(
-	analysis *types.ConfigAnalysis,
+	evaluation *linter.Evaluation,
 	outputPath, configFile string,
 ) error {
-	sarif, err := appfinding.AnalysisToSARIF(analysis, Version)
+	sarif, err := appfinding.EvaluationToSARIF(evaluation, Version)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "report.sarif",
 			"failed to generate SARIF report (configPath=%s, outputPath=%s)",
@@ -166,10 +149,10 @@ func writeSARIFReport(
 }
 
 func writeFindingJSONReport(
-	analysis *types.ConfigAnalysis,
+	evaluation *linter.Evaluation,
 	outputPath, configFile string,
 ) error {
-	report, err := appfinding.AnalysisToReport(analysis, Version)
+	report, err := appfinding.EvaluationToReport(evaluation, Version)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "report.finding",
 			"failed to generate finding report (configPath=%s)", configFile)
@@ -187,12 +170,12 @@ func writeFindingJSONReport(
 func writeHTMLReport(
 	ctx context.Context,
 	logger *log.Logger,
-	analysis *types.ConfigAnalysis,
+	evaluation *linter.Evaluation,
 	outputPath, configFile string,
 ) error {
 	gen := report.NewGenerator(logger)
 
-	err := gen.GenerateReport(ctx, analysis, outputPath)
+	err := gen.GenerateReport(ctx, evaluation, outputPath)
 	if err != nil {
 		return apperrors.WrapClassifiedf(err, "report.html",
 			"failed to generate HTML report (configPath=%s, outputPath=%s)",

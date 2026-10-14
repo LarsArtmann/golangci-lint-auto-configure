@@ -67,6 +67,12 @@ func (b *CommandBuilder) Analyzer() *linter.Analyzer {
 	return b.analyzer
 }
 
+// Fixer returns a fixer wired to the builder's dependencies. Commands that
+// drive the reconciler (report, configure) share this instance.
+func (b *CommandBuilder) Fixer() *linter.Fixer {
+	return linter.NewFixer(b.logger, b.analyzer, b.configLoader)
+}
+
 // ConfigLoader returns the builder's config loader.
 func (b *CommandBuilder) ConfigLoader() *config.Loader {
 	return b.configLoader

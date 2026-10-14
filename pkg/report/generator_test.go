@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/report"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -19,29 +20,38 @@ func TestReport(t *testing.T) {
 	RunSpecs(t, "Report Suite")
 }
 
+// evaluationFixture builds the shared report-test evaluation: one missing
+// linter deviation, one enabled, one disabled.
+func evaluationFixture() *linter.Evaluation {
+	return &linter.Evaluation{
+		ConfigPath: ".golangci.yml",
+		Observed: &types.Config{
+			Linters: types.LintersConfig{
+				Enable:  []types.LinterName{"gosec"},
+				Disable: []types.LinterName{"funlen"},
+			},
+		},
+		Deviations: []linter.Change{
+			{
+				Path: linter.PathLintersEnable, Element: "funlen", Kind: linter.ChangeAdd,
+				To:     "funlen",
+				Reason: "Detects long functions",
+			},
+		},
+	}
+}
+
 var _ = Describe("Report Generator", func() {
 	var (
-		logger   *log.Logger
-		tmpDir   string
-		analysis *types.ConfigAnalysis
+		logger     *log.Logger
+		tmpDir     string
+		evaluation *linter.Evaluation
 	)
 
 	BeforeEach(func() {
 		logger = log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
 		tmpDir = GinkgoT().TempDir()
-
-		analysis = &types.ConfigAnalysis{
-			ConfigPath: ".golangci.yml",
-			EnabledLinters: []types.LinterInfo{
-				{Name: "gosec", Description: "Security"},
-			},
-			DisabledLinters: []types.LinterInfo{
-				{Name: "funlen", Description: "Function length"},
-			},
-			LinterRecommendations: []types.LinterRecommendation{
-				{Name: "funlen", Priority: types.LinterPriorityHigh, Reason: "Detects long functions"},
-			},
-		}
+		evaluation = evaluationFixture()
 	})
 
 	Context("HTML Report", func() {
@@ -49,7 +59,7 @@ var _ = Describe("Report Generator", func() {
 			gen := report.NewGenerator(logger)
 			outputPath := filepath.Join(tmpDir, "report.html")
 
-			err := gen.GenerateReport(context.Background(), analysis, outputPath)
+			err := gen.GenerateReport(context.Background(), evaluation, outputPath)
 			Expect(err).NotTo(HaveOccurred())
 
 			content, readErr := os.ReadFile(outputPath)
@@ -60,7 +70,7 @@ var _ = Describe("Report Generator", func() {
 		It("returns error for invalid output path", func() {
 			gen := report.NewGenerator(logger)
 
-			err := gen.GenerateReport(context.Background(), analysis, "/nonexistent/dir/report.html")
+			err := gen.GenerateReport(context.Background(), evaluation, "/nonexistent/dir/report.html")
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -70,7 +80,7 @@ var _ = Describe("Report Generator", func() {
 			}
 
 			gen := report.NewGenerator(logger)
-			err := gen.GenerateReport(context.Background(), analysis, "/dev/full")
+			err := gen.GenerateReport(context.Background(), evaluation, "/dev/full")
 			Expect(err).To(HaveOccurred())
 		})
 	})
@@ -80,7 +90,7 @@ var _ = Describe("Report Generator", func() {
 			gen := report.NewJSONGenerator(logger)
 			outputPath := filepath.Join(tmpDir, "report.json")
 
-			err := gen.GenerateJSONReport(analysis, outputPath)
+			err := gen.GenerateJSONReport(evaluation, outputPath)
 			Expect(err).NotTo(HaveOccurred())
 
 			data, readErr := os.ReadFile(outputPath)
@@ -91,13 +101,13 @@ var _ = Describe("Report Generator", func() {
 			Expect(jsonReport.ConfigPath).To(Equal(".golangci.yml"))
 			Expect(jsonReport.Summary.EnabledCount).To(Equal(1))
 			Expect(jsonReport.Summary.DisabledCount).To(Equal(1))
-			Expect(jsonReport.Summary.RecommendationsCount).To(Equal(1))
+			Expect(jsonReport.Summary.DeviationsCount).To(Equal(1))
 		})
 
 		It("returns error for invalid output path", func() {
 			gen := report.NewJSONGenerator(logger)
 
-			err := gen.GenerateJSONReport(analysis, "/nonexistent/dir/report.json")
+			err := gen.GenerateJSONReport(evaluation, "/nonexistent/dir/report.json")
 			Expect(err).To(HaveOccurred())
 		})
 	})
