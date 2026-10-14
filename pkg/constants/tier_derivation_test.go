@@ -13,6 +13,7 @@ import (
 // new Evidence row silently reclassifying a linter fails here first.
 func TestPragmaticNoiseDerivation(t *testing.T) {
 	derived := map[types.LinterName]string{}
+
 	for _, name := range constants.LintersInTier(types.TierPragmaticNoise) {
 		record, _ := constants.PolicyRecord(name)
 		derived[name] = record.Tier.Rationale

@@ -138,26 +138,26 @@ func PolicyRecord(name types.LinterName) (types.LinterPolicy, bool) {
 	return types.LinterPolicy{}, false
 }
 
-// LinterSettings returns the base curated settings block of a linter (the
-// table's first versioned block) and whether the table carries one.
-func LinterSettings(name types.LinterName) (types.SettingsConverter, bool) {
+// LinterSettings returns the base curated settings of a linter (the table's
+// first versioned block, already mapped) and whether the table carries one.
+func LinterSettings(name types.LinterName) (map[string]any, bool) {
 	record, known := PolicyRecord(name)
 	if !known || len(record.Settings) == 0 {
 		return nil, false
 	}
 
-	return record.Settings[0].Settings, true
+	return record.Settings[0].Settings.ToMap(), true
 }
 
-// FormatterSettings returns the base curated settings block of a formatter
-// (the table's first versioned block) and whether the table carries one.
-func FormatterSettings(name types.FormatterName) (types.SettingsConverter, bool) {
+// FormatterSettings returns the base curated settings of a formatter (the
+// table's first versioned block, already mapped) and whether the table has one.
+func FormatterSettings(name types.FormatterName) (map[string]any, bool) {
 	record, known := FormatterPolicyRecord(name)
 	if !known || len(record.Settings) == 0 {
 		return nil, false
 	}
 
-	return record.Settings[0].Settings, true
+	return record.Settings[0].Settings.ToMap(), true
 }
 
 // LintersInTier returns the linter names of one management tier, in table

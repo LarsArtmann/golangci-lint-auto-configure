@@ -16,7 +16,8 @@ import (
 // stays a valid manual choice, so it keeps its table record and its
 // FormatterOrder slot.
 //
-//nolint:goconst // curated table literals, names repeat by design The canonical render order lives in FormatterOrder (a property
+// The canonical render order lives in FormatterOrder (a property of the
+// rendering, not of a single record).
 var FormatterPolicies = []types.FormatterPolicy{
 	{
 		Name:        "gci",

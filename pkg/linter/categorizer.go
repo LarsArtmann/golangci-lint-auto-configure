@@ -45,34 +45,36 @@ func (a *Analyzer) shouldSkipLinter(linter types.LinterInfo, formatterSet types.
 
 	record, known := constants.PolicyRecord(linter.Name)
 
-	if known {
-		switch record.Tier.Kind {
-		case types.TierDisabled:
-			a.logger.Debugf("Skipping disabled linter in analysis: %s (%s)", linter.Name, record.Tier.Rationale)
-
-			return true
-		case types.TierNeverAutoEnable:
-			a.logger.Debugf("Skipping never-auto-enable linter: %s (%s)", linter.Name, record.Tier.Rationale)
-
-			return true
-		case types.TierPragmaticNoise:
-			if a.pragmatic {
-				a.logger.Debugf("Skipping noise linter (--pragmatic): %s (%s)", linter.Name, record.Tier.Rationale)
-
-				return true
-			}
-		}
-
-		if a.isBelowMinVersion(record) {
-			return true
-		}
-
-		if a.isTechGated(record) {
-			return true
-		}
+	if known && a.skipByPolicy(record) {
+		return true
 	}
 
 	if a.isLinterRedundant(linter, formatterSet) {
+		return true
+	}
+
+	return false
+}
+
+// skipByPolicy applies the table-driven gates of one known record: management
+// tiers, the tool-version gate, and the tech gate.
+func (a *Analyzer) skipByPolicy(record types.LinterPolicy) bool {
+	switch {
+	case record.Tier.Kind == types.TierDisabled:
+		a.logger.Debugf("Skipping disabled linter in analysis: %s (%s)", record.Name, record.Tier.Rationale)
+
+		return true
+	case record.Tier.Kind == types.TierNeverAutoEnable:
+		a.logger.Debugf("Skipping never-auto-enable linter: %s (%s)", record.Name, record.Tier.Rationale)
+
+		return true
+	case record.Tier.Kind == types.TierPragmaticNoise && a.pragmatic:
+		a.logger.Debugf("Skipping noise linter (--pragmatic): %s (%s)", record.Name, record.Tier.Rationale)
+
+		return true
+	case a.isBelowMinVersion(record):
+		return true
+	case a.isTechGated(record):
 		return true
 	}
 

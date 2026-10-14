@@ -169,7 +169,9 @@ var _ = Describe("FEATURES.md documentation integrity", func() {
 
 		documented, err := strconv.Atoi(match[1])
 		Expect(err).ToNot(HaveOccurred())
+
 		noiseLinters := constants.LintersInTier(types.TierPragmaticNoise)
+
 		Expect(documented).To(Equal(len(noiseLinters)),
 			"FEATURES.md documents %d pragmatic noise linters, but constants have %d",
 			documented, len(noiseLinters))

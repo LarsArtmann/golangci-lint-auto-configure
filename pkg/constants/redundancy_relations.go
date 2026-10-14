@@ -46,8 +46,6 @@ type RedundancyRelation struct {
 
 // RedundancyRelations is the curated relation table. The names repeat the
 // policy tables' literals by design (they are the relation's subject).
-//
-//nolint:goconst // curated name literals, duplicates across tables are intentional
 var RedundancyRelations = []RedundancyRelation{
 	{
 		Superseded: "lll",

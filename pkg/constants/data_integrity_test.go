@@ -18,7 +18,7 @@ func linterSettingsMap(name types.LinterName) map[string]any {
 	settings, ok := constants.LinterSettings(name)
 	Expect(ok).To(BeTrue(), "linter %q has no curated settings block in the policy table", name)
 
-	return settings.ToMap()
+	return settings
 }
 
 // formatterSettingsMap returns the base curated settings of a formatter as a
@@ -27,7 +27,7 @@ func formatterSettingsMap(name types.FormatterName) map[string]any {
 	settings, ok := constants.FormatterSettings(name)
 	Expect(ok).To(BeTrue(), "formatter %q has no curated settings block in the policy table", name)
 
-	return settings.ToMap()
+	return settings
 }
 
 // settingsBearingLinterPolicies returns every linter record with a curated
@@ -407,6 +407,7 @@ var _ = Describe("Core formatter stack alignment", func() {
 		houseFormatters := constants.PresetFormatters["house"]
 
 		coreFormatters := constants.CoreFormattersInOrder()
+
 		coreSet := make(map[types.FormatterName]struct{}, len(coreFormatters))
 		for _, f := range coreFormatters {
 			coreSet[f] = struct{}{}
