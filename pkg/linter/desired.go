@@ -63,6 +63,7 @@ type desiredRequest struct {
 	localGo           types.GoVersion
 	projectGo         types.GoVersion
 	envTech           func(string) bool
+	analyzerEnabled   map[types.LinterName]bool
 	enabledFormatters []types.FormatterName
 }
 
@@ -122,6 +123,7 @@ func newDesiredRequest(env Env) desiredRequest {
 		localGo:           env.LocalGo,
 		projectGo:         env.ProjectGo,
 		envTech:           env.UsesTech,
+		analyzerEnabled:   env.AnalyzerEnabled,
 		enabledFormatters: []types.FormatterName{},
 	}
 }
@@ -158,11 +160,19 @@ func shouldRender(record types.LinterPolicy, request desiredRequest) bool {
 		return false
 	}
 
+	// Linters the binary already enables are never re-rendered: writing them
+	// would churn every config for no behavioral change.
+	if request.analyzerEnabled[record.Name] {
+		return false
+	}
+
 	if !record.ValidTool.IsUnbounded() && !record.ValidTool.Contains(request.tool) {
 		return false
 	}
 
-	if !record.Lang.IsUnbounded() && !record.Lang.Contains(projectGoOf(request)) {
+	// An unknown project Go fails the language gate open: language relevance
+	// must not suppress recommendations the tool cannot assess.
+	if !record.Lang.IsUnbounded() && !projectGoOf(request).IsZero() && !record.Lang.Contains(projectGoOf(request)) {
 		return false
 	}
 

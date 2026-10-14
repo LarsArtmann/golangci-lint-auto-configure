@@ -437,6 +437,13 @@ func planRun(observed *types.Config, desired DesiredConfig, strategies map[strin
 
 	changes = append(changes, planRunnerFlags(observed)...)
 
+	if observed.Run.IssuesExitCode == 0 && desired.RunDefaults.IssuesExitCode != 0 {
+		changes = append(changes, Change{
+			Path: "run.issues-exit-code", Kind: ChangeAdd,
+			To: desired.RunDefaults.IssuesExitCode, Reason: "lint failures must break CI",
+		})
+	}
+
 	tagChanges := planPathList("run.build-tags", observed.Run.BuildTags, desired.RunDefaults.BuildTags, strategies)
 	changes = append(changes, tagChanges...)
 

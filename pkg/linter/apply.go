@@ -110,7 +110,8 @@ func applyIssueChanges(cfg *types.Config, change Change) {
 func sortEnableLists(cfg *types.Config) {
 	slices.Sort(cfg.Linters.Enable)
 
-	slices.Sort(cfg.Formatters.Enable)
+	// Formatters keep the renderer's canonical order (FormatterOrder):
+	// alphabetical order is not the contract.
 
 	if cfg.Run.BuildTags != nil {
 		sort.Strings(cfg.Run.BuildTags)

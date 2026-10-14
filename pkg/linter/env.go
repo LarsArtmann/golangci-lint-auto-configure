@@ -36,6 +36,11 @@ type Env struct {
 	// Generated holds the auto-detected generated-file exclusion patterns
 	// (gogenfilter results).
 	Generated []string
+	// AnalyzerEnabled lists the linters golangci-lint reports as enabled for
+	// this config (config enables plus the binary's default set). The
+	// renderer skips these: re-enabling an already-enabled linter would
+	// churn every config.
+	AnalyzerEnabled map[types.LinterName]bool
 }
 
 // UsesTech reports the project's technology detection result, failing open
@@ -103,8 +108,30 @@ func CollectEnv(
 	env.ProjectGo = readGoModGoDirective(configPath)
 	env.Tech = collectTech(configPath)
 	env.Generated = collectGeneratedExclusions(configPath)
+	env.AnalyzerEnabled = collectAnalyzerEnabled(ctx, analyzer, configPath)
 
 	return env, nil
+}
+
+// collectAnalyzerEnabled records which linters the binary reports as enabled
+// (config enables plus its default set). Best-effort: on failure the set
+// stays empty and the renderer cannot skip defaults.
+func collectAnalyzerEnabled(ctx context.Context, analyzer types.LinterAnalyzer, configPath string) map[types.LinterName]bool {
+	if analyzer == nil {
+		return nil
+	}
+
+	analysis, err := analyzer.AnalyzeConfig(ctx, configPath)
+	if err != nil || analysis == nil {
+		return nil
+	}
+
+	enabled := make(map[types.LinterName]bool, len(analysis.EnabledLinters))
+	for _, info := range analysis.EnabledLinters {
+		enabled[info.Name] = true
+	}
+
+	return enabled
 }
 
 func detectedToolVersion(analyzer types.LinterAnalyzer) types.GolangciVersion {
