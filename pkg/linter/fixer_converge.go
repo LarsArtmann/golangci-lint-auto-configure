@@ -172,10 +172,24 @@ func ledgerActionFor(action string) audit.Action {
 		return audit.ActionAddedToEnable
 	case "formatter-added-to-enable":
 		return audit.ActionFormatterAddedToEnable
+	case "formatter-removed-from-enable":
+		return audit.ActionFormatterRemovedFromEnable
+	case "removed-from-enable":
+		return audit.ActionRemovedFromEnable
+	case "moved-to-disable":
+		return audit.ActionMovedToDisable
 	case "removed-from-disable":
 		return audit.ActionRemovedFromDisable
+	case "pruned-settings":
+		return audit.ActionPrunedSettings
 	case "re-enabled":
 		return audit.ActionReEnabled
+	case "suppressed-re-enable":
+		return audit.ActionSuppressedReEnable
+	case "exclusion-linter-renamed":
+		return audit.ActionExclusionLinterRenamed
+	case "exclusion-linter-removed":
+		return audit.ActionExclusionLinterRemoved
 	default:
 		return audit.Action("updated")
 	}

@@ -346,47 +346,96 @@ func toStrings(names []types.LinterName) []string {
 
 // RenameDeprecatedInExclusionRules rewrites EVERY deprecated linter name in
 // exclusion rules (not only enabled ones): names with a successor are
-// renamed, names without one are dropped. Pure.
+// renamed (a successor already listed dedupes the predecessor entry away),
+// names without one are dropped. Rules scoped by Text or Source whose linter
+// list the sweep emptied are dropped entirely — left behind, the pattern
+// would suppress matching findings from every linter (the legacy removal
+// contract; path-scoped rules survive with an emptied list). Pure.
 func RenameDeprecatedInExclusionRules(observed *types.Config) (*types.Config, []Change) {
-	var changes []Change
-
 	normalized := observed.Clone()
 
-	for i := range normalized.Linters.Exclusions.Rules {
-		rule := &normalized.Linters.Exclusions.Rules[i]
+	var changes []Change
 
-		for _, entry := range append([]string{}, rule.Linters...) {
-			record, known := constants.PolicyRecord(types.LinterName(entry))
-			if !known || record.SupersessionReason == "" {
-				continue
-			}
+	rules := normalized.Linters.Exclusions.Rules
+	kept := make([]types.ExclusionRuleConfig, 0, len(rules))
 
-			if record.SupersededBy != "" {
-				rule.Linters = replaceStringEntry(rule.Linters, entry, string(record.SupersededBy))
+	for _, rule := range rules {
+		swept, ruleChanged, ruleChanges := sweepExclusionRuleLinters(rule)
+		changes = append(changes, ruleChanges...)
 
-				changes = append(changes, Change{
-					Path:    "linters.exclusions.rules",
-					Element: entry + "->" + string(record.SupersededBy),
-					Kind:    ChangeUpdate,
-					Reason:  record.SupersessionReason,
-				})
-			} else {
-				rule.Linters = replaceStringEntry(rule.Linters, entry, "")
+		if !ruleChanged {
+			kept = append(kept, rule)
 
-				changes = append(changes, Change{
-					Path: "linters.exclusions.rules", Element: entry, Kind: ChangeRemove,
-					From:   entry,
-					Reason: record.SupersessionReason,
-				})
-			}
+			continue
 		}
+
+		if len(swept) == 0 && (rule.Text != "" || rule.Source != "") {
+			continue
+		}
+
+		rule.Linters = swept
+		kept = append(kept, rule)
 	}
 
 	if len(changes) == 0 {
 		return observed, nil
 	}
 
+	normalized.Linters.Exclusions.Rules = kept
+
 	return normalized, changes
+}
+
+// sweepExclusionRuleLinters rewrites one rule's linter list: deprecated names
+// with a successor become that successor (deduped against what the rule
+// already lists), names without one vanish. The returned list is the swept
+// linters; ruleChanged reports whether any deprecated name was touched.
+func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, []Change) {
+	kept := make([]string, 0, len(rule.Linters))
+	seen := make(map[string]bool, len(rule.Linters))
+
+	var changes []Change
+	changed := false
+
+	for _, entry := range rule.Linters {
+		record, known := constants.PolicyRecord(types.LinterName(entry))
+		if !known || record.SupersessionReason == "" {
+			if !seen[entry] {
+				seen[entry] = true
+				kept = append(kept, entry)
+			}
+
+			continue
+		}
+
+		changed = true
+
+		if record.SupersededBy == "" {
+			changes = append(changes, Change{
+				Path: "linters.exclusions.rules", Element: entry, Kind: ChangeRemove,
+				From:   entry,
+				Reason: record.SupersessionReason,
+			})
+
+			continue
+		}
+
+		successor := string(record.SupersededBy)
+
+		changes = append(changes, Change{
+			Path:    "linters.exclusions.rules",
+			Element: entry + "->" + successor,
+			Kind:    ChangeUpdate,
+			Reason:  record.SupersessionReason,
+		})
+
+		if !seen[successor] {
+			seen[successor] = true
+			kept = append(kept, successor)
+		}
+	}
+
+	return kept, changed, changes
 }
 
 func deprecatedIn(enabled []types.LinterName) []types.LinterName {

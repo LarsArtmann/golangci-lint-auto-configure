@@ -2,6 +2,7 @@ package linter
 
 import (
 	"context"
+	"strings"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -38,6 +39,10 @@ type ConvergeResult struct {
 	// NormalizerChanges are repairs applied before planning (bad keys,
 	// deprecation replacement).
 	NormalizerChanges []Change
+	// Suppressed lists linters the anti-gaming overlay would have
+	// re-enabled but the sidecar's never-enable section protected. They are
+	// audit-only events: no config change accompanies them.
+	Suppressed []types.LinterName
 	// Merged is the converged configuration (nil for dry runs).
 	Merged *types.Config
 	// Converged reports whether the observed config already matched.
@@ -97,12 +102,18 @@ func Converge(
 	working, ruleRenameChanges := RenameDeprecatedInExclusionRules(working)
 	normalizerChanges = append(normalizerChanges, ruleRenameChanges...)
 
+	// The disable list minus the enable list is user intent; the renderer
+	// must not recommend those linters back (enable/disable conflicts are
+	// resolved by the plan below instead).
+	userDisabled := disableMinusEnable(working)
+
 	// Redundancy removal needs the desired formatter stack, which needs the
 	// normalized world; run it just before rendering.
 	preDesired := Desired(env,
 		WithPragmatic(options.Pragmatic),
 		WithMinPriority(options.Priority),
-		WithUserEnabled(observed.Linters.Enable),
+		WithUserEnabled(working.Linters.Enable),
+		WithUserDisabled(userDisabled),
 	)
 	working, redundancyChanges := RemoveRedundancies(working, preDesired.EnableFormatters)
 	normalizerChanges = append(normalizerChanges, redundancyChanges...)
@@ -110,13 +121,32 @@ func Converge(
 	desired := Desired(env,
 		WithPragmatic(options.Pragmatic),
 		WithMinPriority(options.Priority),
-		WithUserEnabled(observed.Linters.Enable),
+		WithUserEnabled(working.Linters.Enable),
+		WithUserDisabled(userDisabled),
 	)
 
 	strategies := StrategiesFor(MergeOptions{ForceSettings: options.ForceSettings})
 
 	plan := PlanDesired(working, desired, strategies)
-	plan = append(plan, planDisableOverlay(working, sidecar, env)...)
+
+	overlayChanges, suppressed := planDisableOverlay(working, sidecar, env)
+	plan = append(plan, overlayChanges...)
+
+	// The final enable set decides the two closing plans: enable/disable
+	// conflict resolution and orphaned-settings pruning. Overlay adds count
+	// as enabled (the enforcement result).
+	finalEnable := types.NewSet(working.Linters.Enable...)
+	for _, name := range desired.EnableLinters {
+		finalEnable.Add(name)
+	}
+	for _, change := range overlayChanges {
+		if change.Path == "linters.enable" && change.Kind == ChangeAdd {
+			finalEnable.Add(types.LinterName(change.Element))
+		}
+	}
+
+	plan = append(plan, planEnableDisableConflicts(working, finalEnable, overlayChanges)...)
+	plan = append(plan, planOrphanSettings(working, finalEnable)...)
 	sortChanges(plan)
 
 	if err := ValidatePlan(plan); err != nil {
@@ -129,6 +159,7 @@ func Converge(
 		Env:               env,
 		Plan:              plan,
 		NormalizerChanges: normalizerChanges,
+		Suppressed:        suppressed,
 		Converged:         converged,
 	}
 
@@ -152,14 +183,21 @@ type sidecarOverlay struct {
 // planDisableOverlay converts the sidecar's anti-gaming enforcement into
 // changes: every unjustified disable is removed from the disable list and
 // re-enabled UNLESS the binary already enables it by default (writing a
-// default-enabled linter would churn every config). Without a sidecar,
-// disables are respected.
-func planDisableOverlay(observed *types.Config, overlay *sidecarOverlay, env Env) []Change {
+// default-enabled linter would churn every config). The never-enable section
+// blocks the re-enable outright and reports the linter as suppressed (an
+// audit-only event, mirroring the legacy enforcement ledger entry). Without
+// a sidecar, disables are respected.
+func planDisableOverlay(
+	observed *types.Config,
+	overlay *sidecarOverlay,
+	env Env,
+) ([]Change, []types.LinterName) {
 	if overlay == nil || !overlay.hasSidecarDoc || len(observed.Linters.Disable) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	var changes []Change
+	var suppressed []types.LinterName
 
 	disable := append([]types.LinterName{}, observed.Linters.Disable...)
 
@@ -169,6 +207,8 @@ func planDisableOverlay(observed *types.Config, overlay *sidecarOverlay, env Env
 		}
 
 		if overlay.neverEnable != nil && overlay.neverEnable(name) {
+			suppressed = append(suppressed, name)
+
 			continue
 		}
 
@@ -183,6 +223,80 @@ func planDisableOverlay(observed *types.Config, overlay *sidecarOverlay, env Env
 		changes = append(changes, Change{
 			Path: "linters.disable", Element: string(name), Kind: ChangeRemove,
 			From: string(name), Reason: "unjustified disable re-enabled",
+		})
+	}
+
+	return changes, suppressed
+}
+
+// disableMinusEnable returns the config's disable list minus its enable
+// list: a linter in both is a conflict the plan resolves (enable wins), not
+// a user disable.
+func disableMinusEnable(cfg *types.Config) []types.LinterName {
+	enabled := types.NewSet(cfg.Linters.Enable...)
+
+	var disabled []types.LinterName
+
+	for _, name := range cfg.Linters.Disable {
+		if !enabled.Contains(name) {
+			disabled = append(disabled, name)
+		}
+	}
+
+	return disabled
+}
+
+// planEnableDisableConflicts removes every disable entry whose linter ends
+// up enabled: a linter cannot be both enabled and disabled, and the legacy
+// engine resolved the contradiction in favor of enable.
+func planEnableDisableConflicts(
+	observed *types.Config,
+	finalEnable types.Set[types.LinterName],
+	overlayChanges []Change,
+) []Change {
+	alreadyRemoved := make(map[types.LinterName]bool, len(overlayChanges))
+
+	for _, change := range overlayChanges {
+		if change.Path == "linters.disable" && change.Kind == ChangeRemove {
+			alreadyRemoved[types.LinterName(change.Element)] = true
+		}
+	}
+
+	var changes []Change
+
+	for _, name := range observed.Linters.Disable {
+		if alreadyRemoved[name] || !finalEnable.Contains(name) {
+			continue
+		}
+
+		changes = append(changes, Change{
+			Path: "linters.disable", Element: string(name), Kind: ChangeRemove,
+			From:   string(name),
+			Reason: "linter is enabled; a linter cannot be both enabled and disabled",
+		})
+	}
+
+	return changes
+}
+
+// planOrphanSettings removes settings blocks for linters outside the final
+// enable set: disabled and unenabled linters carry dead weight settings that
+// imply activity where there is none (the legacy prune passes, as one plan).
+func planOrphanSettings(observed *types.Config, finalEnable types.Set[types.LinterName]) []Change {
+	if len(observed.Linters.Settings) == 0 {
+		return nil
+	}
+
+	var changes []Change
+
+	for _, name := range sortedSettingNames(observed.Linters.Settings) {
+		if finalEnable.Contains(types.LinterName(name)) {
+			continue
+		}
+
+		changes = append(changes, Change{
+			Path: "linters.settings", Element: name, Kind: ChangeRemove,
+			Reason: "orphaned settings (linter not in the enable set)",
 		})
 	}
 
@@ -217,16 +331,26 @@ func itoa(n int) string {
 }
 
 // AuditActionsFor converts a convergence result into audit ledger actions.
-// Audit = diff, always truthful: every mutation lands as the Change it is.
+// Audit = diff, always truthful: every mutation lands as the Change it is,
+// and the suppressed re-enables (never-enable blocks) land as the events
+// they are.
 func AuditActionsFor(result *ConvergeResult) []auditAction {
 	var actions []auditAction
 
 	for _, change := range result.NormalizerChanges {
-		actions = append(actions, auditActionFromChange(change, true))
+		actions = append(actions, auditActionFromChange(change))
 	}
 
 	for _, change := range result.Plan {
-		actions = append(actions, auditActionFromChange(change, false))
+		actions = append(actions, auditActionFromChange(change))
+	}
+
+	for _, name := range result.Suppressed {
+		actions = append(actions, auditAction{
+			Linter: string(name),
+			Action: "suppressed-re-enable",
+			Reason: "never-enable sidecar entry blocks enforcement re-enable",
+		})
 	}
 
 	return actions
@@ -239,26 +363,50 @@ type auditAction struct {
 	Reason string
 }
 
-func auditActionFromChange(change Change, normalized bool) auditAction {
-	action := map[ChangeKind]string{
-		ChangeAdd:    "added-to-enable",
-		ChangeUpdate: "updated",
-		ChangeRemove: "removed",
-	}[change.Kind]
+// auditActionFromChange maps one planned change to its audit vocabulary. The
+// linter name for exclusion-rule renames is the predecessor (the "from" side
+// of the "pred->succ" element).
+func auditActionFromChange(change Change) auditAction {
+	action := "updated"
 
-	switch change.Path {
-	case "formatters.enable":
-		action = "formatter-added-to-enable"
-	case "linters.enable":
-		if normalized {
+	switch {
+	case change.Path == "linters.enable" && change.Kind == ChangeAdd:
+		action = "added-to-enable"
+
+		// The anti-gaming overlay's adds are re-enables of user-disabled
+		// linters, not recommendations; the reason prefix distinguishes them
+		// from ordinary renderer adds.
+		if strings.HasPrefix(change.Reason, "unjustified") {
 			action = "re-enabled"
 		}
-	case "linters.disable":
+	case change.Path == "linters.enable" && change.Kind == ChangeRemove:
+		action = "removed-from-enable"
+	case change.Path == "linters.disable" && change.Kind == ChangeAdd:
+		action = "moved-to-disable"
+	case change.Path == "linters.disable" && change.Kind == ChangeRemove:
 		action = "removed-from-disable"
+	case change.Path == "formatters.enable" && change.Kind == ChangeAdd:
+		action = "formatter-added-to-enable"
+	case change.Path == "formatters.enable" && change.Kind == ChangeRemove:
+		action = "formatter-removed-from-enable"
+	case change.Path == "linters.settings" && change.Kind == ChangeRemove:
+		action = "pruned-settings"
+	case change.Path == "linters.exclusions.rules" && change.Kind == ChangeUpdate:
+		action = "exclusion-linter-renamed"
+	case change.Path == "linters.exclusions.rules" && change.Kind == ChangeRemove:
+		action = "exclusion-linter-removed"
+	}
+
+	linter := change.Element
+
+	if action == "exclusion-linter-renamed" {
+		if from, _, found := strings.Cut(change.Element, "->"); found {
+			linter = from
+		}
 	}
 
 	return auditAction{
-		Linter: change.Element,
+		Linter: linter,
 		Action: action,
 		Reason: change.Reason,
 	}
