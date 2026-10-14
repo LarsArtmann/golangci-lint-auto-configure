@@ -54,6 +54,8 @@ func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader fi
 		pol:               nil,
 		forceSettings:     false,
 		showMergedRules:   false,
+		engine:            EngineConverge,
+		pragmatic:         false,
 	}
 }
 

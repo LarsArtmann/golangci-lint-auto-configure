@@ -44,29 +44,61 @@ func (f *Fixer) convergeFixConfig(
 
 	overlay := f.sidecarOverlay(cfg)
 
+	working, normalizeChanges, phaseOneErr := f.convergePhaseOne(ctx, cfg, configPath, overlay, priority, dryRun, version)
+	if phaseOneErr != nil {
+		return nil, phaseOneErr
+	}
+
+	return f.convergePhaseTwo(ctx, working, configPath, overlay, priority, dryRun, version, normalizeChanges)
+}
+
+// convergePhaseOne normalizes WITHOUT analysis (golangci-lint cannot list
+// linters for a config still naming removed ones) and persists the
+// normalized state so phase two analyzes reality. Returns the working
+// config for phase two.
+func (f *Fixer) convergePhaseOne(
+	ctx context.Context,
+	cfg *types.Config,
+	configPath string,
+	overlay *sidecarOverlay,
+	priority types.LinterPriority,
+	dryRun bool,
+	version string,
+) (*types.Config, []Change, error) {
 	var neverEnable func(types.LinterName) bool
 	if overlay != nil {
 		neverEnable = overlay.neverEnable
 	}
 
-	// Phase 1: normalize WITHOUT analysis (golangci-lint cannot list linters
-	// for a config still naming removed ones), persisting the normalized
-	// state so phase 2 analyzes reality.
 	baseEnv, envErr := CollectEnvBase(ctx, f.analyzer, f.goVersionProvider, configPath)
 	if envErr != nil {
-		return migrationError("collect environment", priority, dryRun, configPath, version, envErr)
+		return nil, nil, analysisError("collect environment", priority, dryRun, configPath, version, envErr)
 	}
 
 	normalized, normalizeChanges := NormalizeConfig(cfg, baseEnv.Tool, neverEnable)
 	if len(normalizeChanges) > 0 && !dryRun {
 		if err := f.configLoader.SaveConfig(normalized, configPath); err != nil {
-			return migrationError("save normalized config", priority, dryRun, configPath, version, err)
+			return nil, nil, analysisError("save normalized config", priority, dryRun, configPath, version, err)
 		}
 
-		cfg = normalized
+		return normalized, normalizeChanges, nil
 	}
 
-	// Phase 2: full environment (with the analyzer run) and the plan.
+	return cfg, normalizeChanges, nil
+}
+
+// convergePhaseTwo collects the full environment (with the analyzer run),
+// converges, persists the result, and records the audit trail.
+func (f *Fixer) convergePhaseTwo(
+	ctx context.Context,
+	cfg *types.Config,
+	configPath string,
+	overlay *sidecarOverlay,
+	priority types.LinterPriority,
+	dryRun bool,
+	version string,
+	normalizeChanges []Change,
+) (*types.MigrationResult, error) {
 	env, envErr := CollectEnv(ctx, f.analyzer, f.goVersionProvider, configPath)
 	if envErr != nil {
 		return migrationError("collect environment", priority, dryRun, configPath, version, envErr)
@@ -82,7 +114,8 @@ func (f *Fixer) convergeFixConfig(
 		return migrationError("converge config", priority, dryRun, configPath, version, err)
 	}
 
-	// Normalizations already persisted in phase 1 must not be double-counted.
+	// Normalizations already persisted in phase one must not be
+	// double-counted.
 	result.NormalizerChanges = normalizeChanges
 
 	total := len(result.NormalizerChanges) + len(result.Plan)
@@ -166,33 +199,29 @@ func (f *Fixer) recordConvergeAudit(result *ConvergeResult) {
 	}
 }
 
+// ledgerActionMap maps the engine's audit-action vocabulary onto the
+// ledger's Action union. Unknown actions fall back to "updated".
+//
+//nolint:gochecknoglobals // immutable vocabulary table
+var ledgerActionMap = map[string]audit.Action{
+	"added-to-enable":              audit.ActionAddedToEnable,
+	"formatter-added-to-enable":    audit.ActionFormatterAddedToEnable,
+	"formatter-removed-from-enable": audit.ActionFormatterRemovedFromEnable,
+	"removed-from-enable":          audit.ActionRemovedFromEnable,
+	"moved-to-disable":             audit.ActionMovedToDisable,
+	"removed-from-disable":         audit.ActionRemovedFromDisable,
+	"pruned-settings":              audit.ActionPrunedSettings,
+	"re-enabled":                   audit.ActionReEnabled,
+	"suppressed-re-enable":         audit.ActionSuppressedReEnable,
+	"exclusion-linter-renamed":     audit.ActionExclusionLinterRenamed,
+	"exclusion-linter-removed":     audit.ActionExclusionLinterRemoved,
+	"exclusion-rule-merged":        audit.ActionExclusionRuleMerged,
+}
+
 func ledgerActionFor(action string) audit.Action {
-	switch action {
-	case "added-to-enable":
-		return audit.ActionAddedToEnable
-	case "formatter-added-to-enable":
-		return audit.ActionFormatterAddedToEnable
-	case "formatter-removed-from-enable":
-		return audit.ActionFormatterRemovedFromEnable
-	case "removed-from-enable":
-		return audit.ActionRemovedFromEnable
-	case "moved-to-disable":
-		return audit.ActionMovedToDisable
-	case "removed-from-disable":
-		return audit.ActionRemovedFromDisable
-	case "pruned-settings":
-		return audit.ActionPrunedSettings
-	case "re-enabled":
-		return audit.ActionReEnabled
-	case "suppressed-re-enable":
-		return audit.ActionSuppressedReEnable
-	case "exclusion-linter-renamed":
-		return audit.ActionExclusionLinterRenamed
-	case "exclusion-linter-removed":
-		return audit.ActionExclusionLinterRemoved
-	case "exclusion-rule-merged":
-		return audit.ActionExclusionRuleMerged
-	default:
-		return audit.Action("updated")
+	if mapped, known := ledgerActionMap[action]; known {
+		return mapped
 	}
+
+	return audit.Action("updated")
 }

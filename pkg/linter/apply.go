@@ -38,6 +38,7 @@ func applyLinterChanges(cfg *types.Config, change Change) {
 			if !containsLinterName(toStrings(cfg.Linters.Enable), change.Element) {
 				cfg.Linters.Enable = append(cfg.Linters.Enable, types.LinterName(change.Element))
 			}
+		case ChangeUpdate:
 		case ChangeRemove:
 			cfg.Linters.Enable = removeLinterName(cfg.Linters.Enable, types.LinterName(change.Element))
 		}
@@ -67,6 +68,7 @@ func applyFormatterChanges(cfg *types.Config, change Change) {
 				!containsFormatterName(cfg.Formatters.Enable, types.FormatterName(change.Element)) {
 				cfg.Formatters.Enable = append(cfg.Formatters.Enable, types.FormatterName(change.Element))
 			}
+		case ChangeUpdate:
 		case ChangeRemove:
 			cfg.Formatters.Enable = removeFormatterEntry(cfg.Formatters.Enable, types.FormatterName(change.Element))
 		}
@@ -146,7 +148,8 @@ func sortEnableLists(cfg *types.Config) {
 
 	slices.Sort(remaining)
 
-	cfg.Formatters.Enable = append(ordered, remaining...)
+	ordered = append(ordered, remaining...)
+	cfg.Formatters.Enable = ordered
 
 	if cfg.Run.BuildTags != nil {
 		sort.Strings(cfg.Run.BuildTags)

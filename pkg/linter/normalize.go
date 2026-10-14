@@ -325,36 +325,56 @@ func RemoveRedundancies(observed *types.Config, desiredFormatters []types.Format
 
 	var changes []Change
 
-	formatters := types.NewSet(desiredFormatters...)
-	for _, name := range normalized.Formatters.Enable {
-		formatters.Add(name)
-	}
-
-	if formatters.Contains("golines") && containsLinterName(toStrings(normalized.Linters.Enable), "lll") {
-		normalized.Linters.Enable = removeName(normalized.Linters.Enable, "lll")
-
-		changes = append(changes, Change{
-			Path: PathLintersEnable, Element: "lll", Kind: ChangeRemove,
-			From:   "lll",
-			Reason: "redundant when golines formatter is enabled (golines fixes long lines, lll only reports them)",
-		})
-	}
-
-	if formatters.Contains("gofumpt") && formatters.Contains("gofmt") {
-		normalized.Formatters.Enable = removeFormatterName(normalized.Formatters.Enable, "gofmt")
-
-		changes = append(changes, Change{
-			Path: PathFormattersEnable, Element: "gofmt", Kind: ChangeRemove,
-			From:   "gofmt",
-			Reason: "redundant when gofumpt is enabled (gofumpt is the stricter superset)",
-		})
-	}
+	changes = append(changes, removeRedundantLinters(normalized, desiredFormatters)...)
+	changes = append(changes, removeRedundantFormatters(normalized, desiredFormatters)...)
 
 	if len(changes) == 0 {
 		return observed, nil
 	}
 
 	return normalized, changes
+}
+
+// removeRedundantLinters drops lll when the golines formatter is (or will
+// be) enabled: golines fixes long lines, lll only reports them.
+func removeRedundantLinters(normalized *types.Config, desiredFormatters []types.FormatterName) []Change {
+	formatters := types.NewSet(desiredFormatters...)
+	for _, name := range normalized.Formatters.Enable {
+		formatters.Add(name)
+	}
+
+	if !formatters.Contains("golines") || !containsLinterName(toStrings(normalized.Linters.Enable), "lll") {
+		return nil
+	}
+
+	normalized.Linters.Enable = removeName(normalized.Linters.Enable, "lll")
+
+	return []Change{{
+		Path: PathLintersEnable, Element: "lll", Kind: ChangeRemove,
+		From:   "lll",
+		Reason: "redundant when golines formatter is enabled (golines fixes long lines, lll only reports them)",
+	}}
+}
+
+// removeRedundantFormatters drops gofmt when gofumpt is (or will be)
+// enabled: gofumpt is the stricter superset.
+func removeRedundantFormatters(normalized *types.Config, desiredFormatters []types.FormatterName) []Change {
+	formatters := types.NewSet(desiredFormatters...)
+	for _, name := range normalized.Formatters.Enable {
+		formatters.Add(name)
+	}
+
+	if !formatters.Contains("gofumpt") || !formatters.Contains("gofmt") {
+		return nil
+	}
+
+	normalized.Formatters.Enable = removeFormatterName(normalized.Formatters.Enable, "gofmt")
+
+	return []Change{{
+		Path: PathFormattersEnable, Element: "gofmt", Kind: ChangeRemove,
+		From:   "gofmt",
+		Reason: "redundant when gofumpt is enabled (gofumpt is the stricter superset)",
+	}}
 }
 
 func removeFormatterName(names []types.FormatterName, name types.FormatterName) []types.FormatterName {
@@ -468,7 +488,9 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, 
 			continue
 		}
 
-		kept, rename := sweepRename(entry, record, kept, seen)
+		var rename Change
+
+		kept, rename = sweepRename(entry, record, kept, seen)
 		changes = append(changes, rename)
 	}
 
@@ -542,7 +564,7 @@ func replaceName(names []types.LinterName, from, to types.LinterName) []types.Li
 
 // migrateDeprecatedSettings moves a deprecated linter's settings block to
 // its successor and renames KnownBadSettingsKeys entries for the successor.
-func migrateDeprecatedSettings(cfg *types.Config, from, to types.LinterName) []Change {
+func migrateDeprecatedSettings(cfg *types.Config, from, successor types.LinterName) []Change {
 	raw, exists := cfg.Linters.Settings[string(from)]
 	if !exists {
 		return nil
@@ -560,14 +582,14 @@ func migrateDeprecatedSettings(cfg *types.Config, from, to types.LinterName) []C
 
 	delete(cfg.Linters.Settings, string(from))
 
-	if _, hasSuccessor := cfg.Linters.Settings[string(to)]; !hasSuccessor {
+	if _, hasSuccessor := cfg.Linters.Settings[string(successor)]; !hasSuccessor {
 		// Store the RAW map type: SettingsMap is a defined type and would
 		// fail every map[string]any assertion downstream.
-		cfg.Linters.Settings[string(to)] = map[string]any(settings.Clone())
+		cfg.Linters.Settings[string(successor)] = map[string]any(settings.Clone())
 	}
 
 	return []Change{{
-		Path: PathLintersSettings, Element: string(from) + "->" + string(to),
+		Path: PathLintersSettings, Element: string(from) + "->" + string(successor),
 		Kind: ChangeUpdate, From: settings.Clone(), To: settings.Clone(),
 		Reason: "settings block migrated to successor",
 	}}
@@ -575,7 +597,7 @@ func migrateDeprecatedSettings(cfg *types.Config, from, to types.LinterName) []C
 
 // replaceExclusionLinters rewrites a deprecated linter name inside
 // linters.exclusions.rules[].linters; names without a successor are dropped.
-func replaceExclusionLinters(cfg *types.Config, from, to types.LinterName) []Change {
+func replaceExclusionLinters(cfg *types.Config, from, successor types.LinterName) []Change {
 	var changes []Change
 
 	for i := range cfg.Linters.Exclusions.Rules {
@@ -585,10 +607,10 @@ func replaceExclusionLinters(cfg *types.Config, from, to types.LinterName) []Cha
 			continue
 		}
 
-		rule.Linters = replaceStringEntry(rule.Linters, string(from), string(to))
+		rule.Linters = replaceStringEntry(rule.Linters, string(from), string(successor))
 
 		changes = append(changes, Change{
-			Path: PathLintersExclusionRules, Element: string(from) + "->" + string(to),
+			Path: PathLintersExclusionRules, Element: string(from) + "->" + string(successor),
 			Kind: ChangeUpdate, Reason: "exclusion rule follows the replacement",
 		})
 	}
@@ -600,13 +622,13 @@ func containsLinterName(names []string, want string) bool {
 	return slices.Contains(names, want)
 }
 
-func replaceStringEntry(names []string, from, to string) []string {
+func replaceStringEntry(names []string, from, target string) []string {
 	out := names[:0:0]
 
 	for _, name := range names {
 		if name == from {
-			if to != "" {
-				out = append(out, to)
+			if target != "" {
+				out = append(out, target)
 			}
 
 			continue
