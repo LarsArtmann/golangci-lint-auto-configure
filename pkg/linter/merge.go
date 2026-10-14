@@ -155,15 +155,15 @@ const (
 //
 //nolint:gochecknoglobals // immutable strategy table, read-only after init
 var DefaultMergeStrategies = map[string]MergeStrategy{
-	PathLintersEnable:          StrategyEnsurePresent,
-	PathLintersSettings:        StrategyPreferUser,
-	PathFormattersEnable:       StrategyEnsurePresent,
-	"formatters.settings":      StrategyPreferUser,
-	"linters.exclusions.paths": StrategyUnion,
-	"formatters.exclusions.paths": StrategyUnion,
-	PathLintersExclusionRules:  StrategyUnion,
+	PathLintersEnable:                 StrategyEnsurePresent,
+	PathLintersSettings:               StrategyPreferUser,
+	PathFormattersEnable:              StrategyEnsurePresent,
+	"formatters.settings":             StrategyPreferUser,
+	"linters.exclusions.paths":        StrategyUnion,
+	"formatters.exclusions.paths":     StrategyUnion,
+	PathLintersExclusionRules:         StrategyUnion,
 	"run.go":                          StrategyCapGoVersion,
-	PathRunTimeout:                     StrategyEnsureDefault,
+	PathRunTimeout:                    StrategyEnsureDefault,
 	"run.allow-parallel-runners":      StrategyEnsureDefault,
 	"run.allow-serial-runners":        StrategyEnsureDefault,
 	"run.issues-exit-code":            StrategyEnsureDefault,
