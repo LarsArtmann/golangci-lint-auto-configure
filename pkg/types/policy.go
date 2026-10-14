@@ -142,6 +142,10 @@ type LinterPolicy struct {
 	// SupersessionReason explains the replacement (verbatim from the old
 	// deprecation map).
 	SupersessionReason string
+	// SupersessionSince is the golangci-lint version where the replacement
+	// became available. Zero means "no stated availability bound" (the
+	// replacement is treated as available whenever the tool runs).
+	SupersessionSince GolangciVersion
 	// Priority is the recommendation priority. Optional priority is the zero
 	// value — records omit it unless the linter is worth calling out.
 	Priority LinterPriority
