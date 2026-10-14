@@ -121,42 +121,12 @@ func (f *Fixer) PlanDeviations(
 	configPath string,
 	priority types.LinterPriority,
 ) ([]Change, error) {
-	cfg, err := f.configLoader.LoadConfig(configPath)
+	evaluation, err := f.Evaluate(ctx, configPath, priority)
 	if err != nil {
-		return nil, analysisError("load config", priority, true, configPath, "", err)
+		return nil, err
 	}
 
-	version := f.detectVersion(ctx)
-
-	if f.analyzer != nil {
-		if err := f.verifyAnalyzerContract(ctx); err != nil {
-			return nil, err
-		}
-	}
-
-	if err := f.rescueOverspecifiedRunGo(cfg, configPath, true); err != nil {
-		return nil, analysisError("rescue run.go", priority, true, configPath, version, err)
-	}
-
-	f.loadPolicy(configPath)
-
-	overlay := f.sidecarOverlay(cfg)
-
-	env, envErr := CollectEnv(ctx, f.analyzer, f.goVersionProvider, configPath)
-	if envErr != nil {
-		return nil, analysisError("collect environment", priority, true, configPath, version, envErr)
-	}
-
-	result, err := Converge(ctx, cfg, env, overlay, f.convergeOptions(priority, true))
-	if err != nil {
-		return nil, analysisError("converge config", priority, true, configPath, version, err)
-	}
-
-	changes := make([]Change, 0, len(result.NormalizerChanges)+len(result.Plan))
-	changes = append(changes, result.NormalizerChanges...)
-	changes = append(changes, result.Plan...)
-
-	return changes, nil
+	return evaluation.Deviations, nil
 }
 
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
