@@ -93,6 +93,26 @@ func CollectEnv(
 	goVersionProvider GoVersionProvider,
 	configPath string,
 ) (Env, error) {
+	env, err := CollectEnvBase(ctx, analyzer, goVersionProvider, configPath)
+	if err != nil {
+		return env, err
+	}
+
+	env.AnalyzerEnabled = collectAnalyzerEnabled(ctx, analyzer, configPath)
+
+	return env, nil
+}
+
+// CollectEnvBase gathers every environment fact EXCEPT the analyzer's
+// linter-list run. The converge driver uses it to normalize a config BEFORE
+// analysis (the analyzer cannot list linters for a config that still names
+// removed ones) and attaches the analysis afterwards.
+func CollectEnvBase(
+	ctx context.Context,
+	analyzer types.LinterAnalyzer,
+	goVersionProvider GoVersionProvider,
+	configPath string,
+) (Env, error) {
 	env := Env{Tech: map[string]bool{}}
 
 	if analyzer != nil {
@@ -108,7 +128,6 @@ func CollectEnv(
 	env.ProjectGo = readGoModGoDirective(configPath)
 	env.Tech = collectTech(configPath)
 	env.Generated = collectGeneratedExclusions(configPath)
-	env.AnalyzerEnabled = collectAnalyzerEnabled(ctx, analyzer, configPath)
 
 	return env, nil
 }

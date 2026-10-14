@@ -42,23 +42,38 @@ type ConvergeResult struct {
 	Converged bool
 }
 
+// NormalizeConfig runs every pre-analysis normalizer: bad settings keys,
+// deprecation replacement (version-gated, never-enable aware), and exclusion
+// rule renames. Pure: clone in, changes out. The result must be PERSISTED
+// before golangci-lint can list linters for it.
+func NormalizeConfig(observed *types.Config, tool types.GolangciVersion, neverEnable func(types.LinterName) bool) (*types.Config, []Change) {
+	working, changes := NormalizeBadSettingsKeys(observed)
+
+	working, replacementChanges := ReplaceDeprecatedLinters(working, tool, neverEnable)
+	changes = append(changes, replacementChanges...)
+
+	working, ruleRenameChanges := RenameDeprecatedInExclusionRules(working)
+	changes = append(changes, ruleRenameChanges...)
+
+	if len(changes) == 0 {
+		return observed, nil
+	}
+
+	return working, changes
+}
+
 // Converge computes the desired state for env, plans the move from observed,
 // and returns the merged config. Pure with respect to disk: nothing here
-// reads or writes files — the fixer owns I/O and audit emission.
+// reads or writes files — the fixer owns I/O and audit emission. env must
+// already carry the analyzer's enabled-linter set for the (normalized)
+// config on disk.
 func Converge(
 	ctx context.Context,
 	observed *types.Config,
-	analyzer types.LinterAnalyzer,
-	goVersionProvider GoVersionProvider,
-	configPath string,
+	env Env,
 	sidecar *sidecarOverlay,
 	options ConvergeOptions,
 ) (*ConvergeResult, error) {
-	env, err := CollectEnv(ctx, analyzer, goVersionProvider, configPath)
-	if err != nil {
-		return nil, err
-	}
-
 	working, normalizerChanges := NormalizeBadSettingsKeys(observed)
 
 	var neverEnable func(types.LinterName) bool

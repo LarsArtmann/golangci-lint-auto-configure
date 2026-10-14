@@ -30,7 +30,35 @@ func (f *Fixer) convergeFixConfig(
 
 	overlay := f.sidecarOverlay(cfg)
 
-	result, err := Converge(ctx, cfg, f.analyzer, f.goVersionProvider, configPath, overlay, ConvergeOptions{
+	var neverEnable func(types.LinterName) bool
+	if overlay != nil {
+		neverEnable = overlay.neverEnable
+	}
+
+	// Phase 1: normalize WITHOUT analysis (golangci-lint cannot list linters
+	// for a config still naming removed ones), persisting the normalized
+	// state so phase 2 analyzes reality.
+	baseEnv, envErr := CollectEnvBase(ctx, f.analyzer, f.goVersionProvider, configPath)
+	if envErr != nil {
+		return migrationError("collect environment", priority, dryRun, configPath, version, envErr)
+	}
+
+	normalized, normalizeChanges := NormalizeConfig(cfg, baseEnv.Tool, neverEnable)
+	if len(normalizeChanges) > 0 && !dryRun {
+		if err := f.configLoader.SaveConfig(normalized, configPath); err != nil {
+			return migrationError("save normalized config", priority, dryRun, configPath, version, err)
+		}
+
+		cfg = normalized
+	}
+
+	// Phase 2: full environment (with the analyzer run) and the plan.
+	env, envErr := CollectEnv(ctx, f.analyzer, f.goVersionProvider, configPath)
+	if envErr != nil {
+		return migrationError("collect environment", priority, dryRun, configPath, version, envErr)
+	}
+
+	result, err := Converge(ctx, cfg, env, overlay, ConvergeOptions{
 		Priority:      priority,
 		DryRun:        dryRun,
 		ForceSettings: f.forceSettings,
@@ -39,6 +67,9 @@ func (f *Fixer) convergeFixConfig(
 	if err != nil {
 		return migrationError("converge config", priority, dryRun, configPath, version, err)
 	}
+
+	// Normalizations already persisted in phase 1 must not be double-counted.
+	result.NormalizerChanges = normalizeChanges
 
 	total := len(result.NormalizerChanges) + len(result.Plan)
 
