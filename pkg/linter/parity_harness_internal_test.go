@@ -121,8 +121,9 @@ type ParityOutcome struct {
 
 // RunParityFixture materializes the fixture in a fresh temp directory, runs
 // the full FixConfig pipeline with a real analyzer and a real (temp) audit
-// ledger, and returns the byte-level outcome.
-func RunParityFixture(t *testing.T, fixture ParityFixture) ParityOutcome {
+// ledger, and returns the byte-level outcome. engine selects the strategy
+// (EngineLegacy default, EngineConverge for the flip gate).
+func RunParityFixtureWithEngine(t *testing.T, fixture ParityFixture, engine Engine) ParityOutcome {
 	t.Helper()
 
 	dir := t.TempDir()
@@ -155,6 +156,8 @@ func RunParityFixture(t *testing.T, fixture ParityFixture) ParityOutcome {
 	fixer.SetLedger(ledger)
 	fixer.SetGoVersionProvider(func(context.Context) string { return fixture.Manifest.LocalGoVersion })
 	fixer.SetForceSettings(fixture.Manifest.ForceSettings)
+	fixer.SetEngine(engine)
+	fixer.SetPragmatic(fixture.Manifest.Pragmatic)
 
 	result, err := fixer.FixConfig(context.Background(), configPath, priority, fixture.Manifest.DryRun)
 	if err != nil {
@@ -171,6 +174,13 @@ func RunParityFixture(t *testing.T, fixture ParityFixture) ParityOutcome {
 		AuditJSONL:  scrubAuditLedger(t, fixture.Name, ledgerPath),
 		Result:      result,
 	}
+}
+
+// RunParityFixture runs the fixture on the legacy engine (the original gate).
+func RunParityFixture(t *testing.T, fixture ParityFixture) ParityOutcome {
+	t.Helper()
+
+	return RunParityFixtureWithEngine(t, fixture, EngineLegacy)
 }
 
 // scrubAuditLedger normalizes the volatile per-run fields of the audit JSONL

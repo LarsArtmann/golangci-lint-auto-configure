@@ -61,7 +61,12 @@ func Converge(
 
 	working, normalizerChanges := NormalizeBadSettingsKeys(observed)
 
-	working, replacementChanges := ReplaceDeprecatedLinters(working, env.Tool, sidecar.neverEnable)
+	var neverEnable func(types.LinterName) bool
+	if sidecar != nil {
+		neverEnable = sidecar.neverEnable
+	}
+
+	working, replacementChanges := ReplaceDeprecatedLinters(working, env.Tool, neverEnable)
 	normalizerChanges = append(normalizerChanges, replacementChanges...)
 
 	desired := Desired(env,

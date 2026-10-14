@@ -68,6 +68,40 @@ func TestParityCorpusIdempotent(t *testing.T) {
 	}
 }
 
+// TestParityCorpusConverge is the flip gate (plan T20): the converge engine
+// must reproduce the SAME config bytes as the committed goldens (captured
+// from the legacy engine). Result/audit summaries are engine-shaped and are
+// NOT compared here — the config bytes are the contract 160 consumer
+// projects depend on.
+func TestParityCorpusConverge(t *testing.T) {
+	for _, fixture := range LoadParityCorpus(t) {
+		t.Run(fixture.Name, func(t *testing.T) {
+			guardToolVersion(t, fixture)
+
+			outcome := RunParityFixtureWithEngine(t, fixture, EngineConverge)
+
+			goldenPath := filepath.Join(fixture.Dir, "golden", "config.yml")
+
+			want, err := os.ReadFile(goldenPath)
+			if err != nil {
+				t.Fatalf("read golden config (regenerate with UPDATE_PARITY=1): %v", err)
+			}
+
+			if string(want) != string(outcome.ConfigBytes) {
+				if dump := os.Getenv("CONVERGE_DUMP"); dump != "" {
+					dumpDir := filepath.Join(os.TempDir(), "converge-dump", fixture.Name)
+					_ = os.MkdirAll(dumpDir, 0o755)
+					_ = os.WriteFile(filepath.Join(dumpDir, "want.yml"), want, 0o644)
+					_ = os.WriteFile(filepath.Join(dumpDir, "got.yml"), outcome.ConfigBytes, 0o644)
+				}
+
+				t.Errorf("converge engine drifted from golden for %s (%d want bytes, %d got bytes)",
+					fixture.Name, len(want), len(outcome.ConfigBytes))
+			}
+		})
+	}
+}
+
 // guardToolVersion refuses to run the fixture when the environment's
 // golangci-lint binary is older than the manifest's floor.
 func guardToolVersion(t *testing.T, fixture ParityFixture) {
