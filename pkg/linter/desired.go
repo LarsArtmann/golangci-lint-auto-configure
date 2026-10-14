@@ -290,7 +290,7 @@ func settingsApply(record types.LinterPolicy, request desiredRequest) bool {
 	case types.TierNeverAutoEnable:
 		return request.userEnabled[record.Name]
 	case types.TierPragmaticNoise:
-		if request.pragmatic {
+		if request.pragmatic && !request.userEnabled[record.Name] {
 			return false
 		}
 	case types.TierRecommendable:

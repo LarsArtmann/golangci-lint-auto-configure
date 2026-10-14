@@ -4,6 +4,8 @@ import (
 	"slices"
 	"sort"
 
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -123,19 +125,32 @@ func applyIssueChanges(cfg *types.Config, change Change) {
 func sortEnableLists(cfg *types.Config) {
 	slices.Sort(cfg.Linters.Enable)
 
-	// Formatters keep the renderer's canonical order (FormatterOrder):
-	// alphabetical order is not the contract.
+	// Formatters render in the canonical FormatterOrder (unknown names
+	// follow, sorted) — the legacy ToOrderedSlice contract. Exclusion paths
+	// are NOT sorted here: they keep the user's order unless the merge added
+	// entries (applyStringList sorts on add, matching the legacy merge).
+	ordered := make([]types.FormatterName, 0, len(cfg.Formatters.Enable))
+
+	for _, name := range constants.FormatterOrder {
+		if slices.Contains(cfg.Formatters.Enable, name) {
+			ordered = append(ordered, name)
+		}
+	}
+
+	remaining := make([]types.FormatterName, 0)
+
+	for _, name := range cfg.Formatters.Enable {
+		if !slices.Contains(constants.FormatterOrder, name) {
+			remaining = append(remaining, name)
+		}
+	}
+
+	slices.Sort(remaining)
+
+	cfg.Formatters.Enable = append(ordered, remaining...)
 
 	if cfg.Run.BuildTags != nil {
 		sort.Strings(cfg.Run.BuildTags)
-	}
-
-	if cfg.Linters.Exclusions.Paths != nil {
-		sort.Strings(cfg.Linters.Exclusions.Paths)
-	}
-
-	if cfg.Formatters.Exclusions.Paths != nil {
-		sort.Strings(cfg.Formatters.Exclusions.Paths)
 	}
 }
 
@@ -242,5 +257,9 @@ func applyStringList(target *[]string, change Change) {
 		return
 	}
 
+	// Legacy merge semantics (gogenfilter.MergeExclusionPaths): the merged
+	// list is sorted whenever anything was added; untouched lists keep the
+	// user's order.
 	*target = append(*target, change.Element)
+	slices.Sort(*target)
 }
