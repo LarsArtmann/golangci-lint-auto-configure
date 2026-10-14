@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"slices"
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -138,7 +139,7 @@ func renderEnableSet(request desiredRequest) []types.LinterName {
 		enabled = append(enabled, record.Name)
 	}
 
-	sort.Slice(enabled, func(i, j int) bool { return enabled[i] < enabled[j] })
+	slices.Sort(enabled)
 
 	return enabled
 }

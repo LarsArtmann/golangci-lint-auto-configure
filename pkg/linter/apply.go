@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"slices"
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -100,21 +101,17 @@ func applyStringList(target *[]string, change Change) {
 		return
 	}
 
-	for _, existing := range *target {
-		if existing == change.Element {
-			return
-		}
+	if slices.Contains(*target, change.Element) {
+		return
 	}
 
 	*target = append(*target, change.Element)
 }
 
 func sortEnableLists(cfg *types.Config) {
-	sort.Slice(cfg.Linters.Enable, func(i, j int) bool { return cfg.Linters.Enable[i] < cfg.Linters.Enable[j] })
+	slices.Sort(cfg.Linters.Enable)
 
-	sort.Slice(cfg.Formatters.Enable, func(i, j int) bool {
-		return cfg.Formatters.Enable[i] < cfg.Formatters.Enable[j]
-	})
+	slices.Sort(cfg.Formatters.Enable)
 
 	if cfg.Run.BuildTags != nil {
 		sort.Strings(cfg.Run.BuildTags)

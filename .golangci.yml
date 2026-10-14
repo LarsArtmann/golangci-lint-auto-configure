@@ -156,6 +156,9 @@ linters:
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/constants.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/audit.*
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/policy.*
+        - github.com/larsartmann/golangci-lint-auto-configure/pkg/linter.Env
+        - github.com/larsartmann/golangci-lint-auto-configure/pkg/linter.Change
+        - github.com/larsartmann/golangci-lint-auto-configure/pkg/linter.DesiredConfig
         - github.com/larsartmann/golangci-lint-auto-configure/pkg/migration.*
         - github.com/larsartmann/go-finding.Position
         - github.com/larsartmann/go-finding.ToolInfo

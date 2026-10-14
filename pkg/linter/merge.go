@@ -2,6 +2,7 @@ package linter
 
 import (
 	"fmt"
+	"maps"
 	"sort"
 	"strings"
 
@@ -68,9 +69,9 @@ func (c Change) String() string {
 // ConflictError reports a plan that contains two different outcomes for the
 // same stable key — a writer bug, never a user-facing condition.
 type ConflictError struct {
-	Key     string
-	First   Change
-	Second  Change
+	Key    string
+	First  Change
+	Second Change
 }
 
 func (e *ConflictError) Error() string {
@@ -134,22 +135,22 @@ const (
 // DefaultMergeStrategies is the path-keyed strategy table for the converge
 // engine. One row per config path the engine touches.
 var DefaultMergeStrategies = map[string]MergeStrategy{
-	"linters.enable":                StrategyEnsurePresent,
-	"linters.settings":              StrategyPreferUser,
-	"formatters.enable":             StrategyEnsurePresent,
-	"formatters.settings":           StrategyPreferUser,
-	"linters.exclusions.paths":      StrategyUnion,
-	"formatters.exclusions.paths":   StrategyUnion,
-	"linters.exclusions.rules":      StrategyUnion,
-	"run.go":                        StrategyCapGoVersion,
-	"run.timeout":                   StrategyEnsureDefault,
-	"run.allow-parallel-runners":    StrategyEnsureDefault,
-	"run.allow-serial-runners":      StrategyEnsureDefault,
-	"run.issues-exit-code":          StrategyEnsureDefault,
-	"run.build-tags":                StrategyUnion,
-	"issues.max-issues-per-linter":  StrategyEnsureDefault,
-	"issues.max-same-issues":        StrategyEnsureDefault,
-	"linters.exclusions.generated":  StrategyEnsureDefault,
+	"linters.enable":                  StrategyEnsurePresent,
+	"linters.settings":                StrategyPreferUser,
+	"formatters.enable":               StrategyEnsurePresent,
+	"formatters.settings":             StrategyPreferUser,
+	"linters.exclusions.paths":        StrategyUnion,
+	"formatters.exclusions.paths":     StrategyUnion,
+	"linters.exclusions.rules":        StrategyUnion,
+	"run.go":                          StrategyCapGoVersion,
+	"run.timeout":                     StrategyEnsureDefault,
+	"run.allow-parallel-runners":      StrategyEnsureDefault,
+	"run.allow-serial-runners":        StrategyEnsureDefault,
+	"run.issues-exit-code":            StrategyEnsureDefault,
+	"run.build-tags":                  StrategyUnion,
+	"issues.max-issues-per-linter":    StrategyEnsureDefault,
+	"issues.max-same-issues":          StrategyEnsureDefault,
+	"linters.exclusions.generated":    StrategyEnsureDefault,
 	"formatters.exclusions.generated": StrategyEnsureDefault,
 }
 
@@ -168,9 +169,7 @@ type MergeOptions struct {
 // threaded through twelve mutators.
 func StrategiesFor(options MergeOptions) map[string]MergeStrategy {
 	strategies := make(map[string]MergeStrategy, len(DefaultMergeStrategies))
-	for path, strategy := range DefaultMergeStrategies {
-		strategies[path] = strategy
-	}
+	maps.Copy(strategies, DefaultMergeStrategies)
 
 	if options.ForceSettings {
 		strategies["linters.settings"] = StrategyPreferDesired
@@ -262,7 +261,10 @@ func planSettings(
 		"linters.settings", observed.Linters.Settings, desiredSettingsToMaps(desired.LinterSettings), strategies,
 	)...)
 	changes = append(changes, planSettingsSection(
-		"formatters.settings", observed.Formatters.Settings, desiredSettingsToMaps(desired.FormatterSettings), strategies,
+		"formatters.settings",
+		observed.Formatters.Settings,
+		desiredSettingsToMaps(desired.FormatterSettings),
+		strategies,
 	)...)
 
 	return changes
@@ -347,7 +349,10 @@ func planExclusions(
 		"linters.exclusions.paths", observed.Linters.Exclusions.Paths, desired.LinterExclusionPaths, strategies,
 	)...)
 	changes = append(changes, planPathList(
-		"formatters.exclusions.paths", observed.Formatters.Exclusions.Paths, desired.FormatterExclusionPaths, strategies,
+		"formatters.exclusions.paths",
+		observed.Formatters.Exclusions.Paths,
+		desired.FormatterExclusionPaths,
+		strategies,
 	)...)
 	changes = append(changes, planPathList(
 		"generated.exclusions", observed.Linters.Exclusions.Paths, desired.GeneratedExclusionPaths, strategies,
@@ -424,29 +429,22 @@ func capRunGo(observed, desired string) (Change, bool) {
 		return Change{}, false
 	}
 
+	reason := "track local Go (capped at binary build Go)"
+
 	if observed != "" {
-		observedParsed, observedErr := types.ParseGoVersion(observed)
-		desiredParsed, desiredErr := types.ParseGoVersion(desired)
-
-		if observedErr == nil && desiredErr == nil && observedParsed.Compare(desiredParsed) >= 0 {
-			// Observed run.go is already at or below the cap. Equal values
-			// need no change; older values are the user's choice (the cap is
-			// an upper bound, not a floor) — except we DO normalize patch
-			// forms of the same minor.
-			if observedParsed.Compare(desiredParsed) == 0 && observed != desired {
-				return Change{
-					Path: "run.go", Kind: ChangeUpdate,
-					From: observed, To: desired, Reason: "normalize to major.minor",
-				}, true
+		if observedParsed, observedErr := types.ParseGoVersion(observed); observedErr == nil {
+			if desiredParsed, desiredErr := types.ParseGoVersion(
+				desired,
+			); desiredErr == nil &&
+				observedParsed.Compare(desiredParsed) == 0 {
+				reason = "normalize to major.minor"
 			}
-
-			return Change{}, false
 		}
 	}
 
 	return Change{
 		Path: "run.go", Kind: ChangeUpdate,
-		From: observed, To: desired, Reason: "set to local Go (capped at binary build Go)",
+		From: observed, To: desired, Reason: reason,
 	}, true
 }
 

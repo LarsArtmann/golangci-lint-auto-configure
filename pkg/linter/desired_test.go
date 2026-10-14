@@ -68,7 +68,7 @@ var _ = Describe("Desired renderer", func() {
 	It("respects the priority threshold", func() {
 		highOnly := Desired(basicEnv(), WithMinPriority(types.LinterPriorityHigh))
 
-		Expect(contains(highOnly.EnableLinters, "errcheck")).To(BeTrue()) // Critical
+		Expect(contains(highOnly.EnableLinters, "errcheck")).To(BeTrue())  // Critical
 		Expect(contains(highOnly.EnableLinters, "wrapcheck")).To(BeTrue()) // High
 		Expect(contains(highOnly.EnableLinters, "godot")).To(BeFalse())    // Medium
 	})
