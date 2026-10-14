@@ -325,7 +325,9 @@ func migrateDeprecatedSettings(cfg *types.Config, from, to types.LinterName) []C
 	delete(cfg.Linters.Settings, string(from))
 
 	if _, hasSuccessor := cfg.Linters.Settings[string(to)]; !hasSuccessor {
-		cfg.Linters.Settings[string(to)] = settings.Clone()
+		// Store the RAW map type: SettingsMap is a defined type and would
+		// fail every map[string]any assertion downstream.
+		cfg.Linters.Settings[string(to)] = map[string]any(settings.Clone())
 	}
 
 	return []Change{{
