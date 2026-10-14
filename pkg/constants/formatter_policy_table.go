@@ -5,7 +5,9 @@ import (
 )
 
 // FormatterPolicies is the formatter policy table: one record per known
-// formatter. The canonical render order lives in FormatterOrder (a property
+// formatter. Name repetition across records (supersession + redundancy
+// references) is curated data, not extractable strings.
+//
 // of rendering, not of a single formatter); core-stack membership, priority,
 // redundancy, tech gates, and settings live here.
 //
@@ -13,6 +15,8 @@ import (
 // 2026-10-11 (too many projects rejected its import-group reordering) but
 // stays a valid manual choice, so it keeps its table record and its
 // FormatterOrder slot.
+//
+//nolint:goconst // curated table literals, names repeat by design The canonical render order lives in FormatterOrder (a property
 var FormatterPolicies = []types.FormatterPolicy{
 	{
 		Name:        "gci",

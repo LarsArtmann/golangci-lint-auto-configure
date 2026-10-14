@@ -63,7 +63,10 @@ func TestDeriveTierThresholds(t *testing.T) {
 		{"unmanaged below threshold stays recommendable", types.Tier{}, cold, types.TierRecommendable},
 		{"unmanaged at threshold derives to noise", types.Tier{}, hot, types.TierPragmaticNoise},
 		{"unmanaged without evidence stays recommendable", types.Tier{}, nil, types.TierRecommendable},
-		{"explicit disabled wins over measurement", types.Tier{Kind: types.TierDisabled, Rationale: "x"}, hot, types.TierDisabled},
+		{
+			"explicit disabled wins over measurement",
+			types.Tier{Kind: types.TierDisabled, Rationale: "x"}, hot, types.TierDisabled,
+		},
 		{
 			"explicit never-auto-enable wins over measurement",
 			types.Tier{Kind: types.TierNeverAutoEnable, Rationale: "x"},

@@ -33,8 +33,8 @@ func validateRedundancyRelations() {
 	}
 
 	for _, relation := range RedundancyRelations {
-		if err := relation.Validate(linters, formatters); err != nil {
-			panic(fmt.Sprintf("constants: %v", err))
+		if problem := relation.ValidateProblem(linters, formatters); problem != "" {
+			panic("constants: " + problem)
 		}
 	}
 }

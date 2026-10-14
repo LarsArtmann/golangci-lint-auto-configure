@@ -44,9 +44,10 @@ type RedundancyRelation struct {
 	Reason string
 }
 
-// RedundancyRelations is the curated relation table.
+// RedundancyRelations is the curated relation table. The names repeat the
+// policy tables' literals by design (they are the relation's subject).
 //
-//nolint:gochecknoglobals // curated relation table, read-only after init
+//nolint:goconst // curated name literals, duplicates across tables are intentional
 var RedundancyRelations = []RedundancyRelation{
 	{
 		Superseded: "lll",
@@ -75,26 +76,31 @@ func RedundanciesFor(superseded types.LinterName) []RedundancyRelation {
 	return found
 }
 
-// Validate checks the relation table's referential integrity: superseded
-// entries must exist in the linter table (except formatter-on-formatter
-// relations, which must exist in the formatter table), and superseders must
-// exist in the formatter table.
-func (r RedundancyRelation) Validate(linters map[types.LinterName]bool, formatters map[types.FormatterName]bool) error {
+// ValidateProblem returns a human-readable integrity violation, or "" when
+// the relation is sound. Superseded entries must exist in the linter table
+// (except formatter-on-formatter relations, which must exist in the
+// formatter table), and superseders must exist in the formatter table. The
+// init-time check panics on any problem — curated data, not a runtime
+// condition.
+func (r RedundancyRelation) ValidateProblem(
+	linters map[types.LinterName]bool,
+	formatters map[types.FormatterName]bool,
+) string {
 	if !formatters[r.Superseder] {
-		return fmt.Errorf("redundancy relation %q superseded by unknown formatter %q", r.Superseded, r.Superseder)
+		return fmt.Sprintf("redundancy relation %q superseded by unknown formatter %q", r.Superseded, r.Superseder)
 	}
 
 	if r.Kind == RedundancyFormatter {
 		if !formatters[types.FormatterName(r.Superseded)] {
-			return fmt.Errorf("formatter redundancy %q not in the formatter table", r.Superseded)
+			return fmt.Sprintf("formatter redundancy %q not in the formatter table", r.Superseded)
 		}
 
-		return nil
+		return ""
 	}
 
 	if !linters[r.Superseded] {
-		return fmt.Errorf("linter redundancy %q not in the linter table", r.Superseded)
+		return fmt.Sprintf("linter redundancy %q not in the linter table", r.Superseded)
 	}
 
-	return nil
+	return ""
 }

@@ -58,32 +58,20 @@ func (f *Fixer) Evaluate(
 }
 
 // evaluateConvergence runs the report-only pipeline: load, verify, rescue,
-// collect, converge. Returns the working config, the environment, and the
-// convergence result.
+// collect, converge — returning config, env, and convergence result.
 func (f *Fixer) evaluateConvergence(
 	ctx context.Context,
 	configPath string,
 	priority types.LinterPriority,
 ) (*types.Config, Env, *ConvergeResult, error) {
-	cfg, err := f.configLoader.LoadConfig(configPath)
+	cfg, err := f.loadForEvaluation(ctx, configPath, priority)
 	if err != nil {
-		return nil, Env{}, nil, analysisError("load config", priority, true, configPath, "", err)
-	}
-
-	if err := f.prepareEvaluation(ctx, cfg, configPath, priority); err != nil {
 		return nil, Env{}, nil, err
 	}
 
-	env, envErr := CollectEnv(ctx, f.analyzer, f.goVersionProvider, configPath)
-	if envErr != nil {
-		return nil, Env{}, nil, analysisError(
-			"collect environment",
-			priority,
-			true,
-			configPath,
-			f.detectVersion(ctx),
-			envErr,
-		)
+	env, err := f.collectEvaluationEnv(ctx, configPath, priority)
+	if err != nil {
+		return nil, Env{}, nil, err
 	}
 
 	result, err := Converge(ctx, cfg, env, f.sidecarOverlay(cfg), f.convergeOptions(priority, true))
@@ -92,6 +80,38 @@ func (f *Fixer) evaluateConvergence(
 	}
 
 	return cfg, env, result, nil
+}
+
+// loadForEvaluation loads the config and runs the pre-analysis preparation.
+func (f *Fixer) loadForEvaluation(
+	ctx context.Context,
+	configPath string,
+	priority types.LinterPriority,
+) (*types.Config, error) {
+	cfg, err := f.configLoader.LoadConfig(configPath)
+	if err != nil {
+		return nil, analysisError("load config", priority, true, configPath, "", err)
+	}
+
+	if err := f.prepareEvaluation(ctx, cfg, configPath, priority); err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
+
+// collectEvaluationEnv gathers the full environment for the report-only run.
+func (f *Fixer) collectEvaluationEnv(
+	ctx context.Context,
+	configPath string,
+	priority types.LinterPriority,
+) (Env, error) {
+	env, envErr := CollectEnv(ctx, f.analyzer, f.goVersionProvider, configPath)
+	if envErr != nil {
+		return Env{}, analysisError("collect environment", priority, true, configPath, f.detectVersion(ctx), envErr)
+	}
+
+	return env, nil
 }
 
 // prepareEvaluation runs the analyzer contract and the run.go rescue; a
