@@ -1,13 +1,19 @@
 package types
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Ordered is the constraint every type ordered by Interval must satisfy.
 // comparable enables the zero-value (unbounded) check inside Interval without
-// reflection; Compare provides the total order. Both version axes
-// (GolangciVersion, GoVersion) implement it; comparing intervals or values
-// across the two axes is a compile error.
+// reflection; Compare provides the total order; String renders the value for
+// Interval display. Both version axes (GolangciVersion, GoVersion) implement
+// it; comparing intervals or values across the two axes is a compile error.
 type Ordered[V any] interface {
 	comparable
 	Compare(V) int
+	String() string
 }
 
 // Interval is a closed range [Min, Max] over an ordered type. The zero value

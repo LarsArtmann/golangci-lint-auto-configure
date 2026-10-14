@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // GoVersion is a Go language version at major.minor granularity. The patch

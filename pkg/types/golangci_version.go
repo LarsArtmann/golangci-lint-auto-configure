@@ -18,8 +18,10 @@ type GolangciVersion struct {
 }
 
 // ParseGolangciVersion parses a golangci-lint version string. Accepted forms:
-// "v2.14.0", "2.14.0", "v2.14.0-rc1" (any semver-valid string with optional
-// leading "v"). The stored form is always the canonical "v"-prefixed string.
+// "v2.14.0", "2.14.0", "v2.14.0-rc1" — semver-valid with all three
+// major.minor.patch components (golangci-lint always reports full versions;
+// "v2" or "v2.14" are rejected as ambiguous). The stored form is always the
+// canonical "v"-prefixed string.
 func ParseGolangciVersion(raw string) (GolangciVersion, error) {
 	trimmed := strings.TrimSpace(raw)
 	if trimmed == "" {
@@ -28,11 +30,23 @@ func ParseGolangciVersion(raw string) (GolangciVersion, error) {
 
 	canonical := "v" + strings.TrimPrefix(trimmed, "v")
 
-	if !semver.IsValid(canonical) {
+	if !semver.IsValid(canonical) || !hasFullSemverCore(canonical) {
 		return GolangciVersion{}, fmt.Errorf("types: invalid golangci-lint version %q", raw)
 	}
 
 	return GolangciVersion{canonical: canonical}, nil
+}
+
+// hasFullSemverCore reports whether the canonical semver has all three
+// major.minor.patch components before any prerelease suffix.
+func hasFullSemverCore(canonical string) bool {
+	core := canonical[1:]
+
+	if idx := strings.IndexAny(core, "-+"); idx >= 0 {
+		core = core[:idx]
+	}
+
+	return strings.Count(core, ".") == 2
 }
 
 // MustParseGolangciVersion is ParseGolangciVersion for curated data where a
