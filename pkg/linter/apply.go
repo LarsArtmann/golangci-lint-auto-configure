@@ -43,6 +43,8 @@ func applyLinterChanges(cfg *types.Config, change Change) {
 		applySettingsChange(&cfg.Linters.Settings, change)
 	case "linters.exclusions.paths":
 		applyStringList(&cfg.Linters.Exclusions.Paths, change)
+	case "linters.exclusions.rules":
+		applyExclusionRule(&cfg.Linters.Exclusions.Rules, change)
 	case "linters.exclusions.generated":
 		if change.Kind == ChangeAdd {
 			cfg.Linters.Exclusions.Generated = toString(change.To)
@@ -140,6 +142,31 @@ func toInt(v any) int {
 	}
 
 	return 0
+}
+
+func applyExclusionRule(rules *[]types.ExclusionRuleConfig, change Change) {
+	switch change.Kind {
+	case ChangeAdd:
+		if rule, ok := change.To.(types.ExclusionRuleConfig); ok {
+			*rules = append(*rules, rule)
+		}
+	case ChangeUpdate:
+		if union, ok := change.To.([]string); ok {
+			for i := range *rules {
+				if (*rules)[i].RuleKey() == change.Element {
+					(*rules)[i].Linters = union
+				}
+			}
+		}
+	case ChangeRemove:
+		for i := range *rules {
+			if (*rules)[i].RuleKey() == change.Element {
+				*rules = append((*rules)[:i], (*rules)[i+1:]...)
+
+				return
+			}
+		}
+	}
 }
 
 func removeLinterName(names []types.LinterName, name types.LinterName) []types.LinterName {

@@ -64,7 +64,20 @@ type desiredRequest struct {
 	projectGo         types.GoVersion
 	envTech           func(string) bool
 	analyzerEnabled   map[types.LinterName]bool
+	userEnabled       map[types.LinterName]bool
 	enabledFormatters []types.FormatterName
+}
+
+// WithUserEnabled seeds the observed config's own enable list (the
+// never-auto-enable tier renders settings only for manually enabled
+// linters).
+func WithUserEnabled(names []types.LinterName) DesiredOption {
+	return func(r *desiredRequest) {
+		r.userEnabled = make(map[types.LinterName]bool, len(names))
+		for _, name := range names {
+			r.userEnabled[name] = true
+		}
+	}
 }
 
 // WithPragmatic drops the pragmatic-noise tier from the enable set.
@@ -124,6 +137,7 @@ func newDesiredRequest(env Env) desiredRequest {
 		projectGo:         env.ProjectGo,
 		envTech:           env.UsesTech,
 		analyzerEnabled:   env.AnalyzerEnabled,
+		userEnabled:       map[types.LinterName]bool{},
 		enabledFormatters: []types.FormatterName{},
 	}
 }
@@ -237,9 +251,8 @@ func renderFormatterSet(request desiredRequest) []types.FormatterName {
 func renderLinterSettings(request desiredRequest) map[types.LinterName][]types.VersionedSettings {
 	settings := make(map[types.LinterName][]types.VersionedSettings)
 
-	for _, name := range renderEnableSet(request) {
-		record, known := constants.PolicyRecord(name)
-		if !known || len(record.Settings) == 0 {
+	for _, record := range constants.LinterPolicies {
+		if !settingsApply(record, request) {
 			continue
 		}
 
@@ -254,11 +267,54 @@ func renderLinterSettings(request desiredRequest) map[types.LinterName][]types.V
 		}
 
 		if len(valid) > 0 {
-			settings[name] = valid
+			settings[record.Name] = valid
 		}
 	}
 
 	return settings
+}
+
+// settingsApply decides whether a record's curated settings render. Settings
+// ride with the linters the FIXER manages: the user's own enables and the
+// renderer's additions. Linters the binary enables by default (without a
+// config entry) keep stock behavior, and never-auto-enable linters receive
+// settings only when the USER enabled them manually.
+func settingsApply(record types.LinterPolicy, request desiredRequest) bool {
+	if len(record.Settings) == 0 {
+		return false
+	}
+
+	switch record.Tier.Kind {
+	case types.TierDisabled:
+		return false
+	case types.TierNeverAutoEnable:
+		return request.userEnabled[record.Name]
+	case types.TierPragmaticNoise:
+		if request.pragmatic {
+			return false
+		}
+	case types.TierRecommendable:
+	}
+
+	// Only fixer-managed linters receive settings: user-enables plus the
+	// renderer's additions. Binary-default linters keep stock behavior.
+	if !request.userEnabled[record.Name] && request.analyzerEnabled[record.Name] {
+		return false
+	}
+
+	if record.Priority > request.minPriority {
+		return false
+	}
+
+	if !record.ValidTool.IsUnbounded() && !record.ValidTool.Contains(request.tool) {
+		return false
+	}
+
+	if !record.Lang.IsUnbounded() && !projectGoOf(request).IsZero() && !record.Lang.Contains(projectGoOf(request)) {
+		return false
+	}
+
+	return gateOpens(record.Gate, request)
 }
 
 func renderFormatterSettings(request desiredRequest) map[types.FormatterName][]types.VersionedSettings {

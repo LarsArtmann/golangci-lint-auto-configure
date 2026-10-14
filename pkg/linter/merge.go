@@ -388,8 +388,85 @@ func planExclusions(
 	changes = append(changes, planPathList(
 		"generated.exclusions", observed.Linters.Exclusions.Paths, desired.GeneratedExclusionPaths, strategies,
 	)...)
+	changes = append(changes, planDefaultExclusionRules(observed, desired)...)
 
 	return changes
+}
+
+// planDefaultExclusionRules merges the default test-file exclusion rules into
+// the observed config by RuleKey: a matching observed rule absorbs the
+// default's linters (union), a non-matching default is appended. This is the
+// declarative twin of the legacy exclusion merge (plan T05 / gotcha on
+// exclusion-rule dedup).
+func planDefaultExclusionRules(observed *types.Config, desired DesiredConfig) []Change {
+	var changes []Change
+
+	for _, defaultRule := range desired.ExclusionRules {
+		key := defaultRule.RuleKey()
+
+		merged := false
+
+		for i := range observed.Linters.Exclusions.Rules {
+			observedRule := &observed.Linters.Exclusions.Rules[i]
+			if observedRule.RuleKey() != key {
+				continue
+			}
+
+			union, added := unionStrings(observedRule.Linters, defaultRule.Linters)
+			if !added {
+				merged = true
+
+				break
+			}
+
+			changes = append(changes, Change{
+				Path: "linters.exclusions.rules", Element: key, Kind: ChangeUpdate,
+				From: append([]string{}, observedRule.Linters...), To: union,
+				Reason: "default exclusion rule unioned with user rule",
+			})
+
+			merged = true
+
+			break
+		}
+
+		if merged {
+			continue
+		}
+
+		changes = append(changes, Change{
+			Path: "linters.exclusions.rules", Element: key, Kind: ChangeAdd,
+			To: cloneRule(defaultRule), Reason: "default exclusion rule",
+		})
+	}
+
+	return changes
+}
+
+func unionStrings(existing, additions []string) ([]string, bool) {
+	set := make(map[string]bool, len(existing))
+	for _, entry := range existing {
+		set[entry] = true
+	}
+
+	union := append([]string{}, existing...)
+	added := false
+
+	for _, entry := range additions {
+		if !set[entry] {
+			union = append(union, entry)
+			added = true
+		}
+	}
+
+	return union, added
+}
+
+func cloneRule(rule types.ExclusionRuleConfig) types.ExclusionRuleConfig {
+	clone := rule
+	clone.Linters = append([]string{}, rule.Linters...)
+
+	return clone
 }
 
 func planPathList(path string, observed []string, desired []string, strategies map[string]MergeStrategy) []Change {

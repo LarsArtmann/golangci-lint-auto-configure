@@ -72,6 +72,7 @@ func Converge(
 	desired := Desired(env,
 		WithPragmatic(options.Pragmatic),
 		WithMinPriority(options.Priority),
+		WithUserEnabled(observed.Linters.Enable),
 	)
 
 	strategies := StrategiesFor(MergeOptions{ForceSettings: options.ForceSettings})
