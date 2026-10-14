@@ -65,6 +65,7 @@ type desiredRequest struct {
 	envTech           func(string) bool
 	analyzerEnabled   map[types.LinterName]bool
 	userEnabled       map[types.LinterName]bool
+	userDisabled      map[types.LinterName]bool
 	enabledFormatters []types.FormatterName
 }
 
@@ -76,6 +77,19 @@ func WithUserEnabled(names []types.LinterName) DesiredOption {
 		r.userEnabled = make(map[types.LinterName]bool, len(names))
 		for _, name := range names {
 			r.userEnabled[name] = true
+		}
+	}
+}
+
+// WithUserDisabled seeds the observed config's disable list MINUS its enable
+// list (a linter present in both is an enable-wins conflict resolved by the
+// plan, not a user disable). The renderer never recommends a linter the user
+// explicitly disabled.
+func WithUserDisabled(names []types.LinterName) DesiredOption {
+	return func(r *desiredRequest) {
+		r.userDisabled = make(map[types.LinterName]bool, len(names))
+		for _, name := range names {
+			r.userDisabled[name] = true
 		}
 	}
 }
@@ -138,6 +152,7 @@ func newDesiredRequest(env Env) desiredRequest {
 		envTech:           env.UsesTech,
 		analyzerEnabled:   env.AnalyzerEnabled,
 		userEnabled:       map[types.LinterName]bool{},
+		userDisabled:      map[types.LinterName]bool{},
 		enabledFormatters: []types.FormatterName{},
 	}
 }
@@ -167,6 +182,13 @@ func renderEnableSet(request desiredRequest) []types.LinterName {
 // same conservative behavior the categorizer applies today.
 func shouldRender(record types.LinterPolicy, request desiredRequest) bool {
 	if !tierAdmits(record, request) {
+		return false
+	}
+
+	// A linter the user explicitly disabled is never recommended back — the
+	// disable list is user intent, not an omission (legacy user-disable
+	// filter; enable/disable conflicts are resolved by the plan instead).
+	if request.userDisabled[record.Name] {
 		return false
 	}
 
