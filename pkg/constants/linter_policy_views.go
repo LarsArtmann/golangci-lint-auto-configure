@@ -16,6 +16,18 @@ func init() {
 	validateFormatterPolicyTable()
 }
 
+// deriveLinterTiers rewrites every unmanaged Recommendable record whose
+// friction reaches the threshold into pragmatic noise. Explicit management
+// tiers (Disabled, NeverAutoEnable) win over measurement; the hand-maintained
+// noise map is gone — the measurement IS the decision.
+func deriveLinterTiers(records []types.LinterPolicy) []types.LinterPolicy {
+	for i := range records {
+		records[i].Tier = types.DeriveTier(records[i].Tier, records[i].Friction)
+	}
+
+	return records
+}
+
 func validateLinterPolicyTable() {
 	seen := make(map[types.LinterName]bool, len(LinterPolicies))
 

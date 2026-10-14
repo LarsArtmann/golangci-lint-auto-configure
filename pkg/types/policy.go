@@ -118,6 +118,35 @@ type Evidence struct {
 	AsOf time.Time
 }
 
+// PragmaticNoiseFrictionThreshold is the friction ratio at or above which an
+// unmanaged linter derives into the pragmatic-noise tier (--pragmatic drops
+// it from the enable set). The measured noise linters sit at 0.83-5.1
+// nolints/config; every unmeasured linter sits at zero.
+const PragmaticNoiseFrictionThreshold = 0.8
+
+// DeriveTier resolves a record's effective tier: explicit management tiers
+// (Disabled, NeverAutoEnable) are decisions and win over measurement; an
+// unmanaged Recommendable record whose friction reaches the threshold
+// derives into pragmatic noise. This is the whole derivation — tiers come
+// from measurements, not opinions.
+func DeriveTier(stored Tier, friction *Evidence) Tier {
+	if stored.Kind != TierRecommendable {
+		return stored
+	}
+
+	if friction == nil || friction.Ratio < PragmaticNoiseFrictionThreshold {
+		return stored
+	}
+
+	return Tier{
+		Kind: TierPragmaticNoise,
+		Rationale: fmt.Sprintf(
+			"measured friction %.2f nolints/config >= %.1f threshold (--pragmatic drops it)",
+			friction.Ratio, PragmaticNoiseFrictionThreshold,
+		),
+	}
+}
+
 // LinterPolicy is the single source of truth about one linter. Every fact the
 // tool acts on lives here: why it is recommended (Rationale), when it exists
 // (ValidTool), which language it speaks about (Lang), what replaced it

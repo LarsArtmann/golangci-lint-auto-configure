@@ -12,7 +12,11 @@ import (
 )
 
 // LinterPolicies is the policy table: one record per known linter.
-var LinterPolicies = []types.LinterPolicy{
+// linterPolicyRecords is the raw curated table; tiers are derived from
+// friction evidence on the exported view below.
+//
+//nolint:gochecknoglobals // curated policy table, read-only after init
+var linterPolicyRecords = []types.LinterPolicy{
 	{
 		Name:      "arangolint",
 		Priority:  types.LinterPriorityMedium,
@@ -211,7 +215,6 @@ var LinterPolicies = []types.LinterPolicy{
 		Rationale: "Detect long functions",
 		Friction:  &types.Evidence{Ratio: 0.83, Nolints: 0, Configs: 0, AsOf: time.Time{}},
 		Settings:  []types.VersionedSettings{{Settings: FunlenSettings{Lines: 200, Statements: 100}, Since: types.GolangciVersion{}}},
-		Tier:      types.Tier{Kind: types.TierPragmaticNoise, Rationale: "default thresholds too strict vs. house style (friction 0.83)"},
 	},
 	{
 		Name:               "gas",
@@ -235,7 +238,6 @@ var LinterPolicies = []types.LinterPolicy{
 		Priority:  types.LinterPriorityHigh,
 		Rationale: "Check that no global variables exist",
 		Friction:  &types.Evidence{Ratio: 5.1, Nolints: 0, Configs: 0, AsOf: time.Time{}},
-		Tier:      types.Tier{Kind: types.TierPragmaticNoise, Rationale: "fights standard Go patterns like registries and sentinels (friction 5.1, no config knobs)"},
 	},
 	{
 		Name:      "gochecknoinits",
@@ -420,7 +422,6 @@ var LinterPolicies = []types.LinterPolicy{
 		Rationale: "Accept Interfaces, Return Concrete Types",
 		Friction:  &types.Evidence{Ratio: 1.3, Nolints: 0, Configs: 0, AsOf: time.Time{}},
 		Settings:  []types.VersionedSettings{{Settings: IreturnSettings{Allow: []string{"error", "empty", "anon", "stdlib", "generic"}}, Since: types.GolangciVersion{}}},
-		Tier:      types.Tier{Kind: types.TierPragmaticNoise, Rationale: "conflicts with common interface-returning APIs (friction 1.3)"},
 	},
 	{
 		Name:      "lll",
@@ -745,7 +746,6 @@ var LinterPolicies = []types.LinterPolicy{
 		Rationale: "Checks that errors returned from external packages are wrapped",
 		Friction:  &types.Evidence{Ratio: 1.8, Nolints: 0, Configs: 0, AsOf: time.Time{}},
 		Settings:  []types.VersionedSettings{{Settings: WrapcheckSettings{IgnoreSigs: []string{".Errorf(", "errors.New(", "errors.Unwrap(", "errors.Join(", ".Wrap(", ".Wrapf(", ".WithMessage(", ".WithMessagef(", ".WithStack("}, IgnoreSigRegexps: []string{"encoding/json", "fmt\\.", "errors\\.", "slices\\.", "maps\\.", "sort\\.", "time\\.", "net/http", "os\\.", "io\\.", "strings\\.", "strconv\\.", "path\\.", "filepath\\.", "compress/gzip", "\\(context\\.Context\\)\\.Err"}}, Since: types.GolangciVersion{}}},
-		Tier:      types.Tier{Kind: types.TierPragmaticNoise, Rationale: "demands every error be wrapped (friction 1.8)"},
 	},
 	{
 		Name:               "wsl",
@@ -765,3 +765,8 @@ var LinterPolicies = []types.LinterPolicy{
 		Rationale: "Detects wrong usage of zerolog that forgets to dispatch with Send or Msg",
 	},
 }
+
+// LinterPolicies is the policy table with friction-derived tiers applied
+// (types.DeriveTier): the pragmatic-noise tier is a measurement, not a
+// hand-maintained stanza.
+var LinterPolicies = deriveLinterTiers(linterPolicyRecords)

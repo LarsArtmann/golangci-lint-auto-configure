@@ -1,6 +1,6 @@
 {
-  "funlen": "default thresholds too strict vs. house style (friction 0.83)",
-  "gochecknoglobals": "fights standard Go patterns like registries and sentinels (friction 5.1, no config knobs)",
-  "ireturn": "conflicts with common interface-returning APIs (friction 1.3)",
-  "wrapcheck": "demands every error be wrapped (friction 1.8)"
+  "funlen": "measured friction 0.83 nolints/config \u003e= 0.8 threshold (--pragmatic drops it)",
+  "gochecknoglobals": "measured friction 5.10 nolints/config \u003e= 0.8 threshold (--pragmatic drops it)",
+  "ireturn": "measured friction 1.30 nolints/config \u003e= 0.8 threshold (--pragmatic drops it)",
+  "wrapcheck": "measured friction 1.80 nolints/config \u003e= 0.8 threshold (--pragmatic drops it)"
 }

@@ -153,7 +153,6 @@ type goldenMaps struct {
 	deprecated      map[string]goldenReplacement
 	disabled        map[string]string
 	neverAutoEnable map[string]string
-	pragmaticNoise  map[string]string
 	minVersions     map[string]string
 	projectSpecific map[string]string
 }
@@ -188,7 +187,6 @@ func readGoldenMaps() goldenMaps {
 	read("deprecated_linters.json", &legacy.deprecated)
 	read("disabled_linters.json", &legacy.disabled)
 	read("never_auto_enable_linters.json", &legacy.neverAutoEnable)
-	read("pragmatic_noise_linters.json", &legacy.pragmaticNoise)
 	read("linter_min_versions.json", &legacy.minVersions)
 	read("project_specific_linters.json", &legacy.projectSpecific)
 
@@ -200,7 +198,6 @@ func stringNameSources(legacy goldenMaps) []map[string]string {
 		legacy.reasons,
 		legacy.disabled,
 		legacy.neverAutoEnable,
-		legacy.pragmaticNoise,
 		legacy.minVersions,
 		legacy.projectSpecific,
 	}
@@ -278,9 +275,8 @@ func buildTier(record *types.LinterPolicy, legacy goldenMaps) {
 		return
 	}
 
-	if reason, noise := legacy.pragmaticNoise[string(record.Name)]; noise {
-		record.Tier = types.Tier{Kind: types.TierPragmaticNoise, Rationale: reason}
-	}
+	// Pragmatic-noise tiers are DERIVED at runtime from Friction evidence
+	// (types.DeriveTier) — never emitted into the table.
 }
 
 func buildEvidence(record *types.LinterPolicy, curated curatedData) {
@@ -560,5 +556,5 @@ import (
 )
 
 // LinterPolicies is the policy table: one record per known linter.
-var LinterPolicies = []types.LinterPolicy{
+var linterPolicyRecords = []types.LinterPolicy{
 `
