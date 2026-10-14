@@ -6,7 +6,7 @@ import (
 
 	"charm.land/log/v2"
 	errorfamily "github.com/larsartmann/go-error-family"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 )
 
 // Generator generates HTML reports for golangci-lint configurations.
@@ -21,12 +21,12 @@ func NewGenerator(logger *log.Logger) *Generator {
 	}
 }
 
-// GenerateReport generates an HTML report for given analysis.
-func (g *Generator) GenerateReport(ctx context.Context, analysis *types.ConfigAnalysis, outputPath string) (err error) {
+// GenerateReport generates an HTML report for one desired-state evaluation.
+func (g *Generator) GenerateReport(ctx context.Context, evaluation *linter.Evaluation, outputPath string) (err error) {
 	g.logger.Infof("Generating HTML report: %s", outputPath)
 
 	data := ReportData{
-		Analysis: analysis,
+		Evaluation: evaluation,
 	}
 
 	outputFile, err := os.Create(outputPath)
