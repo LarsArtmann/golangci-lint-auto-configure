@@ -205,8 +205,34 @@ func PlanDesired(observed *types.Config, desired DesiredConfig, strategies map[s
 	return changes
 }
 
+// planPathRank is the canonical section order of a plan (stable across runs;
+// generation order within a section is preserved — element order inside a
+// section is part of the byte contract, e.g. default exclusion rules).
+var planPathRank = map[string]int{
+	"linters.enable":                   0,
+	"linters.disable":                  1,
+	"linters.settings":                 2,
+	"linters.exclusions.generated":     3,
+	"linters.exclusions.paths":         4,
+	"linters.exclusions.rules":         5,
+	"formatters.enable":                6,
+	"formatters.settings":              7,
+	"formatters.exclusions.generated":  8,
+	"formatters.exclusions.paths":      9,
+	"run.go":                           10,
+	"run.timeout":                      11,
+	"run.allow-parallel-runners":       12,
+	"run.allow-serial-runners":         13,
+	"run.issues-exit-code":             14,
+	"run.build-tags":                   15,
+	"issues.max-issues-per-linter":     16,
+	"issues.max-same-issues":           17,
+}
+
 func sortChanges(changes []Change) {
-	sort.Slice(changes, func(i, j int) bool { return changes[i].Key() < changes[j].Key() })
+	sort.SliceStable(changes, func(i, j int) bool {
+		return planPathRank[changes[i].Path] < planPathRank[changes[j].Path]
+	})
 }
 
 func planEnableList(observed *types.Config, desired DesiredConfig) []Change {

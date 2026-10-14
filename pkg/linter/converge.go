@@ -69,6 +69,19 @@ func Converge(
 	working, replacementChanges := ReplaceDeprecatedLinters(working, env.Tool, neverEnable)
 	normalizerChanges = append(normalizerChanges, replacementChanges...)
 
+	working, ruleRenameChanges := RenameDeprecatedInExclusionRules(working)
+	normalizerChanges = append(normalizerChanges, ruleRenameChanges...)
+
+	// Redundancy removal needs the desired formatter stack, which needs the
+	// normalized world; run it just before rendering.
+	preDesired := Desired(env,
+		WithPragmatic(options.Pragmatic),
+		WithMinPriority(options.Priority),
+		WithUserEnabled(observed.Linters.Enable),
+	)
+	working, redundancyChanges := RemoveRedundancies(working, preDesired.EnableFormatters)
+	normalizerChanges = append(normalizerChanges, redundancyChanges...)
+
 	desired := Desired(env,
 		WithPragmatic(options.Pragmatic),
 		WithMinPriority(options.Priority),

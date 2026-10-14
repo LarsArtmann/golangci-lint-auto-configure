@@ -157,6 +157,111 @@ func ReplaceDeprecatedLinters(observed *types.Config, tool types.GolangciVersion
 	return normalized, changes
 }
 
+// RemoveRedundancies drops linters and formatters superseded by an enabled
+// counterpart: lll dies with golines, gofmt dies with gofumpt. Pure.
+func RemoveRedundancies(observed *types.Config, desiredFormatters []types.FormatterName) (*types.Config, []Change) {
+	normalized := observed.Clone()
+
+	var changes []Change
+
+	formatters := types.NewSet(desiredFormatters...)
+	for _, name := range normalized.Formatters.Enable {
+		formatters.Add(name)
+	}
+
+	if formatters.Contains("golines") && containsLinterName(toStrings(normalized.Linters.Enable), "lll") {
+		normalized.Linters.Enable = removeName(normalized.Linters.Enable, "lll")
+
+		changes = append(changes, Change{
+			Path: "linters.enable", Element: "lll", Kind: ChangeRemove,
+			From:   "lll",
+			Reason: "redundant when golines formatter is enabled (golines fixes long lines, lll only reports them)",
+		})
+	}
+
+	if formatters.Contains("gofumpt") && formatters.Contains("gofmt") {
+		normalized.Formatters.Enable = removeFormatterName(normalized.Formatters.Enable, "gofmt")
+
+		changes = append(changes, Change{
+			Path: "formatters.enable", Element: "gofmt", Kind: ChangeRemove,
+			From:   "gofmt",
+			Reason: "redundant when gofumpt is enabled (gofumpt is the stricter superset)",
+		})
+	}
+
+	if len(changes) == 0 {
+		return observed, nil
+	}
+
+	return normalized, changes
+}
+
+func removeFormatterName(names []types.FormatterName, name types.FormatterName) []types.FormatterName {
+	out := names[:0:0]
+
+	for _, candidate := range names {
+		if candidate != name {
+			out = append(out, candidate)
+		}
+	}
+
+	return out
+}
+
+func toStrings(names []types.LinterName) []string {
+	out := make([]string, 0, len(names))
+	for _, name := range names {
+		out = append(out, string(name))
+	}
+
+	return out
+}
+
+// RenameDeprecatedInExclusionRules rewrites EVERY deprecated linter name in
+// exclusion rules (not only enabled ones): names with a successor are
+// renamed, names without one are dropped. Pure.
+func RenameDeprecatedInExclusionRules(observed *types.Config) (*types.Config, []Change) {
+	var changes []Change
+
+	normalized := observed.Clone()
+
+	for i := range normalized.Linters.Exclusions.Rules {
+		rule := &normalized.Linters.Exclusions.Rules[i]
+
+		for _, entry := range append([]string{}, rule.Linters...) {
+			record, known := constants.PolicyRecord(types.LinterName(entry))
+			if !known || record.SupersessionReason == "" {
+				continue
+			}
+
+			if record.SupersededBy != "" {
+				rule.Linters = replaceStringEntry(rule.Linters, entry, string(record.SupersededBy))
+
+				changes = append(changes, Change{
+					Path: "linters.exclusions.rules",
+					Element: entry + "->" + string(record.SupersededBy),
+					Kind:    ChangeUpdate,
+					Reason:  record.SupersessionReason,
+				})
+			} else {
+				rule.Linters = replaceStringEntry(rule.Linters, entry, "")
+
+				changes = append(changes, Change{
+					Path: "linters.exclusions.rules", Element: entry, Kind: ChangeRemove,
+					From:   entry,
+					Reason: record.SupersessionReason,
+				})
+			}
+		}
+	}
+
+	if len(changes) == 0 {
+		return observed, nil
+	}
+
+	return normalized, changes
+}
+
 func deprecatedIn(enabled []types.LinterName) []types.LinterName {
 	var deprecated []types.LinterName
 
