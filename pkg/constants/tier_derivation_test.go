@@ -12,7 +12,11 @@ import (
 // These specs pin the derivation against the historically measured set, so a
 // new Evidence row silently reclassifying a linter fails here first.
 func TestPragmaticNoiseDerivation(t *testing.T) {
-	derived := constants.PragmaticNoiseLinters
+	derived := map[types.LinterName]string{}
+	for _, name := range constants.LintersInTier(types.TierPragmaticNoise) {
+		record, _ := constants.PolicyRecord(name)
+		derived[name] = record.Tier.Rationale
+	}
 
 	expected := map[string]string{
 		"funlen":           derived["funlen"],

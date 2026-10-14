@@ -48,9 +48,3 @@ func DerivedMinToolVersion() types.GolangciVersion {
 // against v2.14.0 (CI pin, schema snapshot), whose release binaries are
 // also built with Go 1.27.
 const ExpectedGolangCILintVersion = "v2.14.0"
-
-// LinterMinVersions maps linter names to the minimum golangci-lint version
-// that supports them. Linters not in this map are available in all versions.
-// Used to skip recommendations for linters not yet available in the installed
-// version. Derived from the policy table's ValidTool lower bounds.
-var LinterMinVersions = linterMinVersionsView()

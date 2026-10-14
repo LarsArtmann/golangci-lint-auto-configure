@@ -1,4 +1,0 @@
-{
-  "depguard": "never auto-enabled; use library-policy for banned-library governance, but respect manual configuration for architectural enforcement (layer dependency rules, feature isolation) via file-pattern rules that library-policy cannot replicate",
-  "exhaustruct_v5": "highest-friction linter across 160 sibling projects (6.5 nolint ratio as exhaustruct); never auto-enabled, but respected with curated stdlib ignore-patterns when added manually"
-}

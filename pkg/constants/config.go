@@ -28,28 +28,8 @@ var DefaultConfigFileNames = []string{
 	".golangci.json",
 }
 
-// CoreFormatters are the formatters enabled by default for all projects.
-// gci was removed from the default stack (2026-10-11): too many projects
-// rejected its reordering of import groups. It remains a valid formatter
-// that users can enable manually (see FormatterOrder and FormatterPolicies).
-// Derived from the formatter policy table.
-var CoreFormatters = coreFormattersView()
-
 // FormatterOrder defines the canonical ordering of formatters in config output.
 var FormatterOrder = []types.FormatterName{"gci", "goimports", "gofumpt", "golines", "swaggo"}
-
-// RedundantFormatters maps formatters that are superseded by another formatter.
-// The key is the redundant formatter, the value is its superset.
-// When the superset is enabled, the redundant formatter is not recommended.
-// This mirrors the RedundantLinters pattern for linters.
-// Derived from the formatter policy table.
-var RedundantFormatters = redundantFormattersView()
-
-// ProjectSpecificFormatters maps formatters that should only be recommended
-// when the project actually uses the corresponding technology.
-// The value is the technology key used by the analyzer's hasTechnology check.
-// Derived from the formatter policy table.
-var ProjectSpecificFormatters = projectSpecificFormattersView()
 
 // IsAutoEnableable reports whether the fixer may enable the formatter:
 // the core stack unconditionally, project-specific formatters when their
@@ -79,12 +59,6 @@ func IsRecommendable(name types.FormatterName) bool {
 
 	return known && record.SupersededBy != "" && IsAutoEnableable(record.SupersededBy)
 }
-
-// ProjectSpecificLinters maps linters that should only be recommended
-// when the project actually uses the corresponding technology.
-// The value is the technology key used by the analyzer's hasTechnology check.
-// Derived from the policy table's Gate payloads.
-var ProjectSpecificLinters = projectSpecificLintersView()
 
 // KnownBadSettingsKeys maps linter names to settings keys that are schema-invalid
 // for that linter and must be renamed to the valid key. Sources of bad keys:

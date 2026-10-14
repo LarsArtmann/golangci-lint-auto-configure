@@ -1,5 +1,0 @@
-{
-  "arangolint": "arangodb",
-  "clickhouselint": "clickhouse",
-  "gohumanize": "go-humanize"
-}

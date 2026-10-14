@@ -168,20 +168,22 @@ var _ = Describe("FEATURES.md documentation integrity", func() {
 
 		documented, err := strconv.Atoi(match[1])
 		Expect(err).ToNot(HaveOccurred())
-		Expect(documented).To(Equal(len(constants.PragmaticNoiseLinters)),
+		noiseLinters := constants.LintersInTier(types.TierPragmaticNoise)
+		Expect(documented).To(Equal(len(noiseLinters)),
 			"FEATURES.md documents %d pragmatic noise linters, but constants have %d",
-			documented, len(constants.PragmaticNoiseLinters))
+			documented, len(noiseLinters))
 
-		for name := range constants.PragmaticNoiseLinters {
+		for _, name := range noiseLinters {
 			Expect(content).To(ContainSubstring(string(name)),
 				fmt.Sprintf("pragmatic noise linter %q is missing from FEATURES.md", name))
 		}
 	})
 
 	It("tool-level disabled linters should be documented by name", func() {
-		Expect(constants.DisabledLinters).ToNot(BeEmpty())
+		disabledLinters := constants.LintersInTier(types.TierDisabled)
+		Expect(disabledLinters).ToNot(BeEmpty())
 
-		for name := range constants.DisabledLinters {
+		for _, name := range disabledLinters {
 			Expect(content).To(ContainSubstring(string(name)),
 				fmt.Sprintf("tool-level disabled linter %q is missing from FEATURES.md", name))
 		}

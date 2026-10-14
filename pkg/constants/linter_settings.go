@@ -226,12 +226,6 @@ type GolinesFormatterSettings struct {
 
 func (s GolinesFormatterSettings) ToMap() map[string]any { return mustSettingsToMap(s) }
 
-// DefaultLinterSettings provides compile-time-safe default settings for linters
-// that require configuration to work correctly when auto-enabled.
-// Derived from the policy table's VersionedSettings blocks.
-var DefaultLinterSettings = defaultLinterSettingsView()
-
-// DefaultFormatterSettings provides compile-time-safe default settings for formatters
-// that require configuration. Injected only when the formatter is enabled and no settings exist.
-// Derived from the formatter policy table.
-var DefaultFormatterSettings = defaultFormatterSettingsView()
+// The curated settings structs are referenced directly by the policy tables'
+// VersionedSettings blocks; constants.LinterSettings/FormatterSettings are
+// the query accessors.

@@ -82,48 +82,10 @@ func FormatterPolicyRecord(name types.FormatterName) (types.FormatterPolicy, boo
 	return types.FormatterPolicy{}, false
 }
 
-// formatterInfoView reconstructs the legacy display-metadata map.
-func formatterInfoView() map[types.FormatterName]types.FormatterInfo {
-	view := make(map[types.FormatterName]types.FormatterInfo, len(FormatterPolicies))
-	for _, record := range FormatterPolicies {
-		view[record.Name] = types.FormatterInfo{
-			Name:        record.Name,
-			Description: record.Description,
-			AutoFix:     record.AutoFix,
-		}
-	}
-
-	return view
-}
-
-// formatterPrioritiesView reconstructs the legacy priority map. Every table
-// record carries an explicit priority (FormatterPriorityHigh is the zero
-// value, so absence cannot be inferred), and the legacy map covered exactly
-// the table's formatter set.
-func formatterPrioritiesView() map[types.FormatterName]types.FormatterPriority {
-	view := make(map[types.FormatterName]types.FormatterPriority, len(FormatterPolicies))
-	for _, record := range FormatterPolicies {
-		view[record.Name] = record.Priority
-	}
-
-	return view
-}
-
-// formatterReasonsView reconstructs the legacy rationale map.
-func formatterReasonsView() map[types.FormatterName]string {
-	view := make(map[types.FormatterName]string)
-
-	for _, record := range FormatterPolicies {
-		if record.Rationale != "" {
-			view[record.Name] = record.Rationale
-		}
-	}
-
-	return view
-}
-
-// coreFormattersView reconstructs the core stack in canonical order.
-func coreFormattersView() []types.FormatterName {
+// CoreFormattersInOrder returns the core-stack formatters in canonical render
+// order (FormatterOrder filtered to Core records). The renderer and the
+// presets both consume this instead of a stored slice.
+func CoreFormattersInOrder() []types.FormatterName {
 	var names []types.FormatterName
 
 	for _, name := range FormatterOrder {
@@ -133,43 +95,4 @@ func coreFormattersView() []types.FormatterName {
 	}
 
 	return names
-}
-
-// redundantFormattersView reconstructs the legacy redundancy map.
-func redundantFormattersView() map[types.FormatterName]types.FormatterName {
-	view := make(map[types.FormatterName]types.FormatterName)
-
-	for _, record := range FormatterPolicies {
-		if record.SupersededBy != "" {
-			view[record.Name] = record.SupersededBy
-		}
-	}
-
-	return view
-}
-
-// projectSpecificFormattersView reconstructs the legacy tech-gate map.
-func projectSpecificFormattersView() map[types.FormatterName]string {
-	view := make(map[types.FormatterName]string)
-
-	for _, record := range FormatterPolicies {
-		if record.Gate.Kind == types.GateRequiresTech {
-			view[record.Name] = record.Gate.Tech
-		}
-	}
-
-	return view
-}
-
-// defaultFormatterSettingsView reconstructs the legacy curated-settings map.
-func defaultFormatterSettingsView() map[types.FormatterName]types.SettingsConverter {
-	view := make(map[types.FormatterName]types.SettingsConverter)
-
-	for _, record := range FormatterPolicies {
-		if len(record.Settings) > 0 {
-			view[record.Name] = record.Settings[0].Settings
-		}
-	}
-
-	return view
 }

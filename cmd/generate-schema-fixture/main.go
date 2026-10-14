@@ -1,8 +1,7 @@
 // Package main generates the schema-verification fixture consumed by the CI
 // schema-compat gate: a golangci-lint config containing EVERY default the fixer
-// injects (linter/formatter settings from DefaultLinterSettings and
-// DefaultFormatterSettings, run/output/issues normalizations, and default
-// exclusion rules and paths).
+// injects (linter/formatter settings from the policy tables, run/output/issues
+// normalizations, and default exclusion rules and paths).
 //
 // Usage:
 //
@@ -59,22 +58,30 @@ func main() {
 }
 
 func buildFixture() *types.Config {
-	linterNames := make([]types.LinterName, 0, len(constants.DefaultLinterSettings))
-	settings := make(map[string]any, len(constants.DefaultLinterSettings))
+	linterNames := make([]types.LinterName, 0, len(constants.LinterPolicies))
+	settings := make(map[string]any, len(constants.LinterPolicies))
 
-	for name, converter := range constants.DefaultLinterSettings {
-		linterNames = append(linterNames, name)
-		settings[string(name)] = converter.ToMap()
+	for _, record := range constants.LinterPolicies {
+		if len(record.Settings) == 0 {
+			continue
+		}
+
+		linterNames = append(linterNames, record.Name)
+		settings[string(record.Name)] = record.Settings[0].Settings.ToMap()
 	}
 
 	slices.Sort(linterNames)
 
-	formatterNames := make([]types.FormatterName, 0, len(constants.DefaultFormatterSettings))
-	formatterSettings := make(map[string]any, len(constants.DefaultFormatterSettings))
+	formatterNames := make([]types.FormatterName, 0, len(constants.FormatterPolicies))
+	formatterSettings := make(map[string]any, len(constants.FormatterPolicies))
 
-	for name, converter := range constants.DefaultFormatterSettings {
-		formatterNames = append(formatterNames, name)
-		formatterSettings[string(name)] = converter.ToMap()
+	for _, record := range constants.FormatterPolicies {
+		if len(record.Settings) == 0 {
+			continue
+		}
+
+		formatterNames = append(formatterNames, record.Name)
+		formatterSettings[string(record.Name)] = record.Settings[0].Settings.ToMap()
 	}
 
 	slices.Sort(formatterNames)

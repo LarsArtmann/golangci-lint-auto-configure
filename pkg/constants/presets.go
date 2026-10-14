@@ -51,7 +51,10 @@ var presetQueries = map[string]func(view map[types.LinterName]types.LinterPolicy
 var PresetLinters = resolvePresetLinters()
 
 func resolvePresetLinters() map[string][]types.LinterName {
-	view := LinterPolicyView()
+	view := make(map[types.LinterName]types.LinterPolicy, len(LinterPolicies))
+	for _, record := range LinterPolicies {
+		view[record.Name] = record
+	}
 
 	resolved := make(map[string][]types.LinterName, len(presetQueries))
 	for name, query := range presetQueries {
@@ -116,8 +119,8 @@ func byPriority(levels ...types.LinterPriority) func(map[types.LinterName]types.
 // PresetFormatters resolves the formatter sets for presets that include
 // formatters, derived from the formatter policy table (CoreFormatters).
 var PresetFormatters = map[string][]types.FormatterName{
-	"format": coreFormattersView(),
-	"house":  coreFormattersView(),
+	"format": CoreFormattersInOrder(),
+	"house":  CoreFormattersInOrder(),
 }
 
 // PresetDescriptions explains what each preset is for, with counts derived

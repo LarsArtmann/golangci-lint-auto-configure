@@ -1,6 +1,0 @@
-{
-  "funlen": "measured friction 0.83 nolints/config \u003e= 0.8 threshold (--pragmatic drops it)",
-  "gochecknoglobals": "measured friction 5.10 nolints/config \u003e= 0.8 threshold (--pragmatic drops it)",
-  "ireturn": "measured friction 1.30 nolints/config \u003e= 0.8 threshold (--pragmatic drops it)",
-  "wrapcheck": "measured friction 1.80 nolints/config \u003e= 0.8 threshold (--pragmatic drops it)"
-}
