@@ -190,6 +190,8 @@ func ledgerActionFor(action string) audit.Action {
 		return audit.ActionExclusionLinterRenamed
 	case "exclusion-linter-removed":
 		return audit.ActionExclusionLinterRemoved
+	case "exclusion-rule-merged":
+		return audit.ActionExclusionRuleMerged
 	default:
 		return audit.Action("updated")
 	}

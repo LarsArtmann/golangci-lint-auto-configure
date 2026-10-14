@@ -392,12 +392,17 @@ func auditActionFromChange(change Change) auditAction {
 	case change.Path == "linters.settings" && change.Kind == ChangeRemove:
 		action = "pruned-settings"
 	case change.Path == "linters.exclusions.rules" && change.Kind == ChangeUpdate:
-		action = "exclusion-linter-renamed"
+		if _, _, isRename := strings.Cut(change.Element, "->"); isRename {
+			action = "exclusion-linter-renamed"
+		} else {
+			action = "exclusion-rule-merged"
+		}
 	case change.Path == "linters.exclusions.rules" && change.Kind == ChangeRemove:
 		action = "exclusion-linter-removed"
 	}
 
 	linter := change.Element
+	reason := change.Reason
 
 	if action == "exclusion-linter-renamed" {
 		if from, _, found := strings.Cut(change.Element, "->"); found {
@@ -405,11 +410,47 @@ func auditActionFromChange(change Change) auditAction {
 		}
 	}
 
+	if action == "exclusion-rule-merged" {
+		reason = exclusionMergeReason(change)
+	}
+
 	return auditAction{
 		Linter: linter,
 		Action: action,
-		Reason: change.Reason,
+		Reason: reason,
 	}
+}
+
+// exclusionMergeReason names the linters the rule merge actually added, so
+// the ledger answers "what did the tool union into my rule?".
+func exclusionMergeReason(change Change) string {
+	reason := change.Reason
+
+	from, fromOK := change.From.([]string)
+	to, toOK := change.To.([]string)
+
+	if !fromOK || !toOK {
+		return reason
+	}
+
+	existing := make(map[string]bool, len(from))
+	for _, entry := range from {
+		existing[entry] = true
+	}
+
+	var added []string
+
+	for _, entry := range to {
+		if !existing[entry] {
+			added = append(added, entry)
+		}
+	}
+
+	if len(added) == 0 {
+		return reason
+	}
+
+	return reason + " (added: " + strings.Join(added, ", ") + ")"
 }
 
 var _ = constants.MinGolangCILintVersion
