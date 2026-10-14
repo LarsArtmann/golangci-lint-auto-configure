@@ -1,6 +1,7 @@
 package linter
 
 import (
+	"slices"
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -91,7 +92,11 @@ func sortedSettingNames[V any](m map[string]V) []string {
 // successors (policy-table supersession), migrating settings blocks and
 // exclusion-rule memberships. Pure: clone in, changes out. Replacement is
 // skipped when the successor is under a never-enable policy.
-func ReplaceDeprecatedLinters(observed *types.Config, tool types.GolangciVersion, neverEnable func(types.LinterName) bool) (*types.Config, []Change) {
+func ReplaceDeprecatedLinters(
+	observed *types.Config,
+	tool types.GolangciVersion,
+	neverEnable func(types.LinterName) bool,
+) (*types.Config, []Change) {
 	deprecated := deprecatedIn(observed.Linters.Enable)
 	if len(deprecated) == 0 {
 		return observed, nil
@@ -114,6 +119,7 @@ func ReplaceDeprecatedLinters(observed *types.Config, tool types.GolangciVersion
 
 		if record.SupersededBy == "" {
 			normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
+
 			changes = append(changes, removeChange)
 
 			continue
@@ -148,6 +154,124 @@ func ReplaceDeprecatedLinters(observed *types.Config, tool types.GolangciVersion
 
 			changes = append(changes, removeChange)
 		}
+	}
+
+	if len(changes) == 0 {
+		return observed, nil
+	}
+
+	return normalized, changes
+}
+
+// NormalizeConfigShape repairs the structural facts golangci-lint refuses to
+// load: a missing/wrong config version, an invalid run timeout, and the
+// removed typecheck meta-linter, plus the tool-disabled linter moves. Pure.
+func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
+	normalized := observed.Clone()
+
+	var changes []Change
+
+	if normalized.Version != "2" {
+		changes = append(changes, Change{
+			Path: "version", Kind: ChangeUpdate,
+			From: normalized.Version, To: "2",
+			Reason: "golangci-lint v2 config schema",
+		})
+
+		normalized.Version = "2"
+	}
+
+	if durationInvalid, durationReason := needsDurationFix(normalized.Run.Timeout); durationInvalid && normalized.Run.Timeout != "" {
+		changes = append(changes, Change{
+			Path: "run.timeout", Kind: ChangeUpdate,
+			From:   normalized.Run.Timeout,
+			To:     constants.DefaultTimeout,
+			Reason: durationReason,
+		})
+
+		normalized.Run.Timeout = constants.DefaultTimeout
+	}
+
+	for _, list := range []struct {
+		path  string
+		field *[]types.LinterName
+	}{
+		{"linters.enable", &normalized.Linters.Enable},
+		{"linters.disable", &normalized.Linters.Disable},
+	} {
+		if containsLinterName(toStrings(*list.field), "typecheck") {
+			*list.field = removeName(*list.field, "typecheck")
+
+			changes = append(changes, Change{
+				Path: list.path, Element: "typecheck", Kind: ChangeRemove,
+				From:   "typecheck",
+				Reason: "typecheck is a removed meta-linter (govet covers it)",
+			})
+		}
+	}
+
+	// Tool-level disabled linters (funcorder, noinlineerr): forcibly moved to
+	// linters.disable and removed from enable on every run.
+	for _, name := range constants.LintersInTier(types.TierDisabled) {
+		if !containsLinterName(toStrings(normalized.Linters.Enable), string(name)) {
+			continue
+		}
+
+		normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
+
+		reason := "tool-level disabled"
+		if record, known := constants.PolicyRecord(name); known && record.Tier.Rationale != "" {
+			reason = record.Tier.Rationale
+		}
+
+		changes = append(changes,
+			Change{
+				Path: "linters.enable", Element: string(name), Kind: ChangeRemove,
+				From: string(name), Reason: reason,
+			},
+			Change{
+				Path: "linters.disable", Element: string(name), Kind: ChangeAdd,
+				To: string(name), Reason: reason,
+			},
+		)
+
+		if !containsLinterName(toStrings(normalized.Linters.Disable), string(name)) {
+			normalized.Linters.Disable = append(normalized.Linters.Disable, name)
+		}
+	}
+
+	if len(changes) == 0 {
+		return observed, nil
+	}
+
+	return normalized, changes
+}
+
+// PruneOrphanSettings removes settings blocks for linters that are neither
+// enabled nor disabled (dead weight; the legacy prune pass). Pure.
+func PruneOrphanSettings(observed *types.Config) (*types.Config, []Change) {
+	if len(observed.Linters.Settings) == 0 {
+		return observed, nil
+	}
+
+	enabled := types.NewSet(observed.Linters.Enable...)
+	disabled := types.NewSet(observed.Linters.Disable...)
+
+	var changes []Change
+
+	normalized := observed.Clone()
+
+	for _, name := range sortedSettingNames(observed.Linters.Settings) {
+		if enabled.Contains(types.LinterName(name)) || disabled.Contains(types.LinterName(name)) {
+			continue
+		}
+
+		delete(normalized.Linters.Settings, name)
+
+		changes = append(changes, Change{
+			Path: "linters.settings", Element: name, Kind: ChangeRemove,
+			Reason: "orphaned settings block (linter neither enabled nor disabled)",
+		})
 	}
 
 	if len(changes) == 0 {
@@ -238,7 +362,7 @@ func RenameDeprecatedInExclusionRules(observed *types.Config) (*types.Config, []
 				rule.Linters = replaceStringEntry(rule.Linters, entry, string(record.SupersededBy))
 
 				changes = append(changes, Change{
-					Path: "linters.exclusions.rules",
+					Path:    "linters.exclusions.rules",
 					Element: entry + "->" + string(record.SupersededBy),
 					Kind:    ChangeUpdate,
 					Reason:  record.SupersessionReason,
@@ -271,7 +395,7 @@ func deprecatedIn(enabled []types.LinterName) []types.LinterName {
 		}
 	}
 
-	sort.Slice(deprecated, func(i, j int) bool { return deprecated[i] < deprecated[j] })
+	slices.Sort(deprecated)
 
 	return deprecated
 }
@@ -361,13 +485,7 @@ func replaceExclusionLinters(cfg *types.Config, from, to types.LinterName) []Cha
 }
 
 func containsLinterName(names []string, want string) bool {
-	for _, name := range names {
-		if name == want {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(names, want)
 }
 
 func replaceStringEntry(names []string, from, to string) []string {

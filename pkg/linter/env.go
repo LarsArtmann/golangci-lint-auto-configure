@@ -135,7 +135,11 @@ func CollectEnvBase(
 // collectAnalyzerEnabled records which linters the binary reports as enabled
 // (config enables plus its default set). Best-effort: on failure the set
 // stays empty and the renderer cannot skip defaults.
-func collectAnalyzerEnabled(ctx context.Context, analyzer types.LinterAnalyzer, configPath string) map[types.LinterName]bool {
+func collectAnalyzerEnabled(
+	ctx context.Context,
+	analyzer types.LinterAnalyzer,
+	configPath string,
+) map[types.LinterName]bool {
 	if analyzer == nil {
 		return nil
 	}

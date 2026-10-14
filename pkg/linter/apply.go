@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
-
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -200,13 +199,7 @@ func applyExclusionRule(rules *[]types.ExclusionRuleConfig, change Change) {
 }
 
 func containsFormatterName(names []types.FormatterName, want types.FormatterName) bool {
-	for _, name := range names {
-		if name == want {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(names, want)
 }
 
 func removeFormatterEntry(names []types.FormatterName, name types.FormatterName) []types.FormatterName {

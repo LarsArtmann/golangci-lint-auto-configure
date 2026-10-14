@@ -44,12 +44,20 @@ type ConvergeResult struct {
 	Converged bool
 }
 
-// NormalizeConfig runs every pre-analysis normalizer: bad settings keys,
+// NormalizeConfig runs every pre-analysis normalizer: config-shape repairs
+// (version, duration, typecheck, tool-disabled moves), bad settings keys,
 // deprecation replacement (version-gated, never-enable aware), and exclusion
 // rule renames. Pure: clone in, changes out. The result must be PERSISTED
 // before golangci-lint can list linters for it.
-func NormalizeConfig(observed *types.Config, tool types.GolangciVersion, neverEnable func(types.LinterName) bool) (*types.Config, []Change) {
-	working, changes := NormalizeBadSettingsKeys(observed)
+func NormalizeConfig(
+	observed *types.Config,
+	tool types.GolangciVersion,
+	neverEnable func(types.LinterName) bool,
+) (*types.Config, []Change) {
+	working, changes := NormalizeConfigShape(observed)
+
+	working, badKeyChanges := NormalizeBadSettingsKeys(working)
+	changes = append(changes, badKeyChanges...)
 
 	working, replacementChanges := ReplaceDeprecatedLinters(working, tool, neverEnable)
 	changes = append(changes, replacementChanges...)
