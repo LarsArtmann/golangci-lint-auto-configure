@@ -1,18 +1,44 @@
 package constants
 
+import "github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+
 // MinGolangCILintVersion is the minimum required version of golangci-lint.
 // This is enforced by the version checker to ensure compatibility with
 // the linter configurations and JSON output formats we expect.
-// Bumped from v2.10.1 to v2.12.0 (2026-10-07): the curated goconst default
-// injects `ignore-tests`, a settings key that only exists since v2.12.0.
-// On older binaries the tool would write a config golangci-lint refuses to
-// load at all — a classified refusal with an upgrade path is strictly safer.
-// (exhaustruct_v5 needs v2.13.0 but is never auto-enabled, so it does not
-// constrain the minimum.)
 //
-// Hand-synced with the curated settings until the reconciliation engine
-// derives it (SUPERB plan T13).
-const MinGolangCILintVersion = "v2.12.0"
+// DERIVED, not hand-maintained: the value is the maximum Since bound over
+// every settings block the tool renders (the oldest binary that can load a
+// rendered config). The goconst ignore-tests key (v2.12.0) is the current
+// binding constraint; adding a curated setting newer than that bumps this
+// automatically. Below-minimum binaries get the classified version.too_old
+// refusal (upgrade path) instead of a config golangci-lint refuses to load.
+var MinGolangCILintVersion = DerivedMinToolVersion().String()
+
+// DerivedMinToolVersion computes the tool minimum from the policy table:
+// the maximum Since bound over the settings blocks of every renderable
+// record (recommendable and pragmatic-noise tiers — the tiers the renderer
+// can emit). Zero means the table carries no versioned settings.
+func DerivedMinToolVersion() types.GolangciVersion {
+	var minimum types.GolangciVersion
+
+	for _, record := range LinterPolicies {
+		if record.Tier.Kind != types.TierRecommendable && record.Tier.Kind != types.TierPragmaticNoise {
+			continue
+		}
+
+		for _, block := range record.Settings {
+			if block.Since.IsZero() {
+				continue
+			}
+
+			if minimum.IsZero() || block.Since.Compare(minimum) > 0 {
+				minimum = block.Since
+			}
+		}
+	}
+
+	return minimum
+}
 
 // ExpectedGolangCILintVersion is the recommended golangci-lint version.
 // A warning is emitted when the detected version differs from this value,

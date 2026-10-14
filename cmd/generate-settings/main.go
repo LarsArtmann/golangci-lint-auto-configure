@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"go/format"
 	"os"
+
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"sort"
 	"strconv"
 	"strings"
@@ -54,8 +56,8 @@ func main() {
 	outputPath := flag.String("output", "", "path to output generated Go file")
 	schemaVersion := flag.String("schema-version", "",
 		"golangci-lint version the schema snapshot was taken from (e.g. v2.13.2)")
-	minToolVersion := flag.String("min-tool-version", "v2.12.0",
-		"minimum golangci-lint version the tool supports")
+	minToolVersion := flag.String("min-tool-version", constants.MinGolangCILintVersion,
+		"minimum golangci-lint version the tool supports (defaults to the derived table minimum)")
 
 	flag.Parse()
 
