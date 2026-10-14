@@ -3,132 +3,52 @@ package finding
 import (
 	"context"
 
-	errorfamily "github.com/larsartmann/go-error-family"
 	finding "github.com/larsartmann/go-finding"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
-// ConfigAnalyzer is the narrowest interface the detector needs from the linter analyzer.
-// This decouples pkg/finding from pkg/linter.
-type ConfigAnalyzer interface {
-	AnalyzeConfig(ctx context.Context, configPath string) (*types.ConfigAnalysis, error)
+// DeviationPlanner is the narrowest interface the detector needs: the
+// reconciler's report-only change plan for one config. Decouples pkg/finding
+// from pkg/linter's fixer plumbing.
+type DeviationPlanner interface {
+	PlanDeviations(ctx context.Context, configPath string, priority types.LinterPriority) ([]linter.Change, error)
 }
 
-const initialFindingsCapacity = 3
-
-// ConfigAnalysisDetector implements pipeline.Detector for golangci-lint config analysis.
-// It detects missing linters, deprecated linters, and missing formatters.
-type ConfigAnalysisDetector struct {
-	analyzer   ConfigAnalyzer
+// DeviationDetector reports desired-state drift as findings. It runs the
+// converge engine's plan phase in report-only mode and converts every
+// planned Change into one finding — lint mode and apply mode consume the
+// identical change set, so detect/repair drift is structurally impossible.
+type DeviationDetector struct {
+	planner    DeviationPlanner
 	configPath string
-	version    string
 	priority   types.LinterPriority
 }
 
-// NewConfigAnalysisDetector creates a detector that analyzes golangci-lint configuration.
-// The detector reports findings for all recommendations regardless of priority
-// (equivalent to LinterPriorityOptional). Use WithPriority to align detection
-// with a repairer's priority threshold, preventing detect→repair loops where
-// the detector reports findings the repairer intentionally won't fix.
-func NewConfigAnalysisDetector(analyzer ConfigAnalyzer, configPath, version string) *ConfigAnalysisDetector {
-	return &ConfigAnalysisDetector{
-		analyzer:   analyzer,
+// NewDeviationDetector creates a detector that reports config deviations for
+// the given file at the given recommendation threshold.
+func NewDeviationDetector(planner DeviationPlanner, configPath string, priority types.LinterPriority) *DeviationDetector {
+	return &DeviationDetector{
+		planner:    planner,
 		configPath: configPath,
-		version:    version,
-		priority:   types.LinterPriorityOptional,
+		priority:   priority,
 	}
-}
-
-// WithPriority sets the maximum priority for linter recommendations reported
-// as findings. Recommendations with Priority > maxPriority are suppressed,
-// aligning detection with a repairer that only fixes recommendations at or
-// below the same threshold. This prevents detect→repair loops where findings
-// the repairer intentionally skips reappear on every re-detect.
-// Returns the detector for chaining.
-func (d *ConfigAnalysisDetector) WithPriority(maxPriority types.LinterPriority) *ConfigAnalysisDetector {
-	d.priority = maxPriority
-
-	return d
 }
 
 // Name returns the detector name.
-func (d *ConfigAnalysisDetector) Name() string {
-	return "config-analysis"
+func (d *DeviationDetector) Name() string {
+	return "config-deviation"
 }
 
-// Detect runs config analysis and returns findings for missing/deprecated linters.
-func (d *ConfigAnalysisDetector) Detect(ctx context.Context) ([]finding.Finding, error) {
-	analysis, err := d.analyzer.AnalyzeConfig(ctx, d.configPath)
+// Detect plans the convergence (report-only) and converts the change set
+// into findings.
+func (d *DeviationDetector) Detect(ctx context.Context) ([]finding.Finding, error) {
+	changes, err := d.planner.PlanDeviations(ctx, d.configPath, d.priority)
 	if err != nil {
-		return nil, apperrors.WrapClassifiedf(err, "detector.analyze",
-			"analyze config %s", d.configPath)
+		return nil, apperrors.WrapClassifiedf(err, "detector.plan",
+			"plan deviations for config %s", d.configPath)
 	}
 
-	findings := make([]finding.Finding, 0, initialFindingsCapacity)
-
-	return findings, appendAnalysisFindings(&findings, analysis, d.priority)
-}
-
-func appendAnalysisFindings(
-	findings *[]finding.Finding,
-	analysis *types.ConfigAnalysis,
-	priority types.LinterPriority,
-) error {
-	linterRecs := filterLinterRecommendationsByPriority(analysis.LinterRecommendations, priority)
-
-	if err := appendDetectorFindings(findings, analysis.ConfigPath, "detector.convert_recommendations",
-		RecommendationsToFindings, linterRecs); err != nil {
-		return err
-	}
-
-	formatterRecs := filterFormatterRecommendationsByPriority(analysis.FormatterRecommendations, priority)
-
-	if err := appendDetectorFindings(findings, analysis.ConfigPath, "detector.convert_formatters",
-		FormatterRecommendationsToFindings, formatterRecs); err != nil {
-		return err
-	}
-
-	return appendDetectorFindings(findings, analysis.ConfigPath, "detector.convert_deprecated",
-		DeprecatedLintersToFindings, analysis.DeprecatedLinters)
-}
-
-// convertFunc is a generic converter that transforms domain data into Findings.
-type convertFunc[T any] func([]T, string) ([]finding.Finding, error)
-
-// appendDetectorFindings converts domain data to Findings and appends them.
-// On error, wraps with the given code as Corruption.
-func appendDetectorFindings[T any](
-	out *[]finding.Finding, configPath, code string,
-	convert convertFunc[T], items []T,
-) error {
-	recs, err := convert(items, configPath)
-	if err != nil {
-		return errorfamily.WrapCorruption(err, code, "convert findings")
-	}
-
-	*out = append(*out, recs...)
-
-	return nil
-}
-
-// DetectWithValidation also includes validation errors as findings.
-func (d *ConfigAnalysisDetector) DetectWithValidation(
-	ctx context.Context,
-	validationErrors []types.ValidationError,
-) ([]finding.Finding, error) {
-	findings, err := d.Detect(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	valRecs, err := ValidationErrorsToFindings(validationErrors, d.configPath)
-	if err != nil {
-		return nil, errorfamily.WrapCorruption(err, "detector.convert_validation",
-			"convert validation errors")
-	}
-
-	findings = append(findings, valRecs...)
-
-	return findings, nil
+	return DeviationsToFindings(changes, d.configPath)
 }

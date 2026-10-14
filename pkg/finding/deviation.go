@@ -50,8 +50,8 @@ func deviationFinding(change linter.Change, configPath string) (finding.Finding,
 		Category:   deviationCategory(change),
 		Tags:       deviationTags(change.Element),
 		Suggestion: change.Reason,
-		Before:     nonEmptyValue(change.From),
-		After:      nonEmptyValue(change.To),
+		BeforeCode: nonEmptyValue(change.From),
+		AfterCode:  nonEmptyValue(change.To),
 	})
 	if err != nil {
 		return finding.Finding{}, errorfamily.WrapCorruptionf(err, "deviation.finding",
@@ -149,11 +149,24 @@ func linterName(change linter.Change) (types.LinterName, bool) {
 }
 
 func deviationTags(element string) []finding.Tag {
-	if element == "" {
+	if !tagSafe(element) {
 		return []finding.Tag{}
 	}
 
 	return []finding.Tag{linterTag(element)}
+}
+
+// tagSafe reports whether the element can become a valid finding tag
+// (lowercase-hyphenated convention: first char a-z). Path patterns like
+// `_templ\.go$` carry no tag.
+func tagSafe(element string) bool {
+	if element == "" {
+		return false
+	}
+
+	first := element[0]
+
+	return first >= 'a' && first <= 'z'
 }
 
 func nonEmptyValue(v any) string {
