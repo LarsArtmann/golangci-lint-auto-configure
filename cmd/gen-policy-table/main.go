@@ -9,6 +9,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/format"
@@ -80,30 +81,40 @@ func main() {
 }
 
 func collect() []types.LinterPolicy {
+	legacy := readGoldenMaps()
+
 	names := map[types.LinterName]bool{}
 
-	for name := range constants.LinterPriorities {
-		names[name] = true
+	for name := range legacy.priorities {
+		names[types.LinterName(name)] = true
 	}
 
-	for name := range constants.LinterReasons {
-		names[name] = true
+	for name := range legacy.reasons {
+		names[types.LinterName(name)] = true
 	}
 
-	for name := range constants.DeprecatedLinters {
-		names[name] = true
+	for name := range legacy.deprecated {
+		names[types.LinterName(name)] = true
 	}
 
-	for name := range constants.DisabledLinters {
-		names[name] = true
+	for name := range legacy.disabled {
+		names[types.LinterName(name)] = true
 	}
 
-	for name := range constants.NeverAutoEnableLinters {
-		names[name] = true
+	for name := range legacy.neverAutoEnable {
+		names[types.LinterName(name)] = true
 	}
 
-	for name := range constants.PragmaticNoiseLinters {
-		names[name] = true
+	for name := range legacy.pragmaticNoise {
+		names[types.LinterName(name)] = true
+	}
+
+	for name := range legacy.minVersions {
+		names[types.LinterName(name)] = true
+	}
+
+	for name := range legacy.projectSpecific {
+		names[types.LinterName(name)] = true
 	}
 
 	for name := range constants.DefaultLinterSettings {
@@ -120,27 +131,78 @@ func collect() []types.LinterPolicy {
 	records := make([]types.LinterPolicy, 0, len(sorted))
 
 	for _, name := range sorted {
-		records = append(records, build(types.LinterName(name)))
+		records = append(records, build(types.LinterName(name), legacy))
 	}
 
 	return records
 }
 
-func build(name types.LinterName) types.LinterPolicy {
+type goldenMaps struct {
+	priorities      map[string]int
+	reasons         map[string]string
+	deprecated      map[string]goldenReplacement
+	disabled        map[string]string
+	neverAutoEnable map[string]string
+	pragmaticNoise  map[string]string
+	minVersions     map[string]string
+	projectSpecific map[string]string
+}
+
+type goldenReplacement struct {
+	Replacement string
+	Reason      string
+	MinVersion  string
+}
+
+// readGoldenMaps parses the frozen views goldens: the byte-exact pre-table
+// truth. Regenerating from the package vars would be circular (they are
+// views over this table) and has already proven lossy once.
+func readGoldenMaps() goldenMaps {
+	read := func(file string, into any) {
+		data, err := os.ReadFile("pkg/constants/testdata/views-golden/" + file)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "read golden", file, err)
+			os.Exit(1)
+		}
+
+		if err := json.Unmarshal(data, into); err != nil {
+			fmt.Fprintln(os.Stderr, "parse golden", file, err)
+			os.Exit(1)
+		}
+	}
+
+	var legacy goldenMaps
+
+	read("linter_priorities.json", &legacy.priorities)
+	read("linter_reasons.json", &legacy.reasons)
+	read("deprecated_linters.json", &legacy.deprecated)
+	read("disabled_linters.json", &legacy.disabled)
+	read("never_auto_enable_linters.json", &legacy.neverAutoEnable)
+	read("pragmatic_noise_linters.json", &legacy.pragmaticNoise)
+	read("linter_min_versions.json", &legacy.minVersions)
+	read("project_specific_linters.json", &legacy.projectSpecific)
+
+	return legacy
+}
+
+func build(name types.LinterName, legacy goldenMaps) types.LinterPolicy {
 	record := types.LinterPolicy{Name: name}
 
-	if priority, ok := constants.LinterPriorities[name]; ok && priority != types.LinterPriorityOptional {
-		record.Priority = priority
+	// Priorities come from the frozen golden JSON (the pre-table truth), NOT
+	// from constants.LinterPriorities: since the var swap that map is a view
+	// over THIS table, and regenerating from it would be circular.
+	if raw, ok := legacy.priorities[string(name)]; ok {
+		record.Priority = types.LinterPriority(raw)
 	} else {
 		// Explicit Optional: the zero value of LinterPriority is Critical, so
 		// "no recommendation callout" must be stated, never defaulted.
 		record.Priority = types.LinterPriorityOptional
 	}
 
-	record.Rationale = constants.LinterReasons[name]
+	record.Rationale = legacy.reasons[string(name)]
 
-	if replacement, deprecated := constants.DeprecatedLinters[name]; deprecated {
-		record.SupersededBy = replacement.Replacement
+	if replacement, deprecated := legacy.deprecated[string(name)]; deprecated {
+		record.SupersededBy = types.LinterName(replacement.Replacement)
 		record.SupersessionReason = replacement.Reason
 		record.SupersessionSince = parseVersion(replacement.MinVersion)
 
@@ -151,7 +213,7 @@ func build(name types.LinterName) types.LinterPolicy {
 		}
 	}
 
-	if minVer, hasMin := constants.LinterMinVersions[name]; hasMin {
+	if minVer, hasMin := legacy.minVersions[string(name)]; hasMin {
 		record.ValidTool.Min = parseVersion(minVer)
 	}
 
@@ -161,17 +223,17 @@ func build(name types.LinterName) types.LinterPolicy {
 		}
 	}
 
-	if tech, isSpecific := constants.ProjectSpecificLinters[name]; isSpecific {
+	if tech, isSpecific := legacy.projectSpecific[string(name)]; isSpecific {
 		record.Gate = types.RequiresTech(tech)
 	}
 
-	if reason, disabled := constants.DisabledLinters[name]; disabled {
+	if reason, disabled := legacy.disabled[string(name)]; disabled {
 		record.Tier = types.Tier{Kind: types.TierDisabled, Rationale: reason}
 		record.Priority = types.LinterPriorityOptional
 		record.Rationale = ""
-	} else if reason, never := constants.NeverAutoEnableLinters[name]; never {
+	} else if reason, never := legacy.neverAutoEnable[string(name)]; never {
 		record.Tier = types.Tier{Kind: types.TierNeverAutoEnable, Rationale: reason}
-	} else if reason, noise := constants.PragmaticNoiseLinters[name]; noise {
+	} else if reason, noise := legacy.pragmaticNoise[string(name)]; noise {
 		record.Tier = types.Tier{Kind: types.TierPragmaticNoise, Rationale: reason}
 	}
 
@@ -225,14 +287,19 @@ func render(records []types.LinterPolicy) string {
 
 		if record.SupersededBy != "" {
 			fmt.Fprintf(&b, "\t\tSupersededBy: %q,\n", string(record.SupersededBy))
-			fmt.Fprintf(&b, "\t\tSupersessionReason: %q,\n", record.SupersessionReason)
-
-			if record.SupersessionSince.String() != "" {
-				fmt.Fprintf(&b, "\t\tSupersessionSince: types.MustParseGolangciVersion(%q),\n", record.SupersessionSince.String())
-			}
 		}
 
-		if record.Priority != types.LinterPriorityOptional {
+		if record.SupersessionReason != "" {
+			fmt.Fprintf(&b, "\t\tSupersessionReason: %q,\n", record.SupersessionReason)
+		}
+
+		if record.SupersessionSince.String() != "" {
+			fmt.Fprintf(&b, "\t\tSupersessionSince: types.MustParseGolangciVersion(%q),\n", record.SupersessionSince.String())
+		}
+
+		if record.Priority == types.LinterPriorityOptional {
+			fmt.Fprintf(&b, "\t\tPriority: types.LinterPriorityOptional,\n")
+		} else {
 			fmt.Fprintf(&b, "\t\tPriority: %s,\n", priorityIdent(record.Priority))
 		}
 

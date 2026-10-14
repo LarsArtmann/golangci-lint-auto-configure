@@ -77,7 +77,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "deadcode",
 		SupersededBy:       "staticcheck",
 		SupersessionReason: "deadcode was removed in golangci-lint v2, use staticcheck instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "decorder",
@@ -142,8 +142,9 @@ var LinterPolicies = []types.LinterPolicy{
 		Rationale: "Find code that will cause problems with error wrapping",
 	},
 	{
-		Name:     "execinquery",
-		Priority: types.LinterPriorityCritical,
+		Name:               "execinquery",
+		SupersessionReason: "execinquery was removed in golangci-lint v2 with no direct replacement",
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "exhaustive",
@@ -154,7 +155,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "exhaustivestruct",
 		SupersededBy:       "exhaustive",
 		SupersessionReason: "exhaustivestruct was renamed to exhaustive in golangci-lint v2",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:               "exhaustruct",
@@ -162,7 +163,7 @@ var LinterPolicies = []types.LinterPolicy{
 		SupersededBy:       "exhaustruct_v5",
 		SupersessionReason: "exhaustruct is deprecated since golangci-lint v2.13.0, use exhaustruct_v5 instead",
 		SupersessionSince:  types.MustParseGolangciVersion("v2.13.0"),
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "exhaustruct_v5",
@@ -177,7 +178,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "exportloopref",
 		SupersededBy:       "copyloopvar",
 		SupersessionReason: "exportloopref was removed in golangci-lint v2 (Go 1.22 fixed loop variable semantics), use copyloopvar instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "exptostd",
@@ -200,8 +201,9 @@ var LinterPolicies = []types.LinterPolicy{
 		Rationale: "Forces type assertions to be safe",
 	},
 	{
-		Name: "funcorder",
-		Tier: types.Tier{Kind: types.TierDisabled, Rationale: "provides minimal value and can be confusing for users"},
+		Name:     "funcorder",
+		Priority: types.LinterPriorityOptional,
+		Tier:     types.Tier{Kind: types.TierDisabled, Rationale: "provides minimal value and can be confusing for users"},
 	},
 	{
 		Name:      "funlen",
@@ -215,7 +217,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "gas",
 		SupersededBy:       "gosec",
 		SupersessionReason: "gas was renamed to gosec",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "ginkgolinter",
@@ -288,7 +290,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "goerr113",
 		SupersededBy:       "err113",
 		SupersessionReason: "goerr113 was renamed to err113",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "goheader",
@@ -305,13 +307,13 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "golint",
 		SupersededBy:       "revive",
 		SupersessionReason: "golint was removed in golangci-lint v2, use revive instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:               "gomnd",
 		SupersededBy:       "mnd",
 		SupersessionReason: "gomnd was renamed to mnd",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "gomoddirectives",
@@ -349,7 +351,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "gosimple",
 		SupersededBy:       "staticcheck",
 		SupersessionReason: "gosimple was removed in golangci-lint v2, use staticcheck instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "gosmopolitan",
@@ -372,8 +374,9 @@ var LinterPolicies = []types.LinterPolicy{
 		Rationale: "Detect incorrect use of interfaces, helping avoid interface pollution",
 	},
 	{
-		Name:     "ifshort",
-		Priority: types.LinterPriorityCritical,
+		Name:               "ifshort",
+		SupersessionReason: "ifshort was removed in golangci-lint v2 with no direct replacement",
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "importas",
@@ -399,7 +402,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "interfacer",
 		SupersededBy:       "staticcheck",
 		SupersessionReason: "interfacer was removed in golangci-lint v2, use staticcheck instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "intrange",
@@ -433,7 +436,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "logrlint",
 		SupersededBy:       "loggercheck",
 		SupersessionReason: "logrlint was renamed to loggercheck",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "maintidx",
@@ -450,13 +453,13 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "maligned",
 		SupersededBy:       "govet",
 		SupersessionReason: "maligned was removed in golangci-lint v2, use govet with fieldalignment instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:               "megacheck",
 		SupersededBy:       "staticcheck",
 		SupersessionReason: "megacheck was renamed to staticcheck",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "mirror",
@@ -521,8 +524,9 @@ var LinterPolicies = []types.LinterPolicy{
 		Rationale: "Check whether function uses a non-inherited context",
 	},
 	{
-		Name: "noinlineerr",
-		Tier: types.Tier{Kind: types.TierDisabled, Rationale: "conflicts with formatters (gofumpt, goimports) that reformat error handling expressions, causing noisy churn and contradictory findings"},
+		Name:     "noinlineerr",
+		Priority: types.LinterPriorityOptional,
+		Tier:     types.Tier{Kind: types.TierDisabled, Rationale: "conflicts with formatters (gofumpt, goimports) that reformat error handling expressions, causing noisy churn and contradictory findings"},
 	},
 	{
 		Name:      "nolintlint",
@@ -538,7 +542,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "nosnakecase",
 		SupersededBy:       "revive",
 		SupersessionReason: "nosnakecase was removed in golangci-lint v2, use revive instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "nosprintfhostport",
@@ -600,7 +604,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "scopelint",
 		SupersededBy:       "copyloopvar",
 		SupersessionReason: "scopelint was removed in golangci-lint v2, use copyloopvar instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "sloglint",
@@ -626,7 +630,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "structcheck",
 		SupersededBy:       "staticcheck",
 		SupersessionReason: "structcheck was removed in golangci-lint v2, use staticcheck instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "tagalign",
@@ -643,7 +647,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "tenv",
 		SupersededBy:       "usetesting",
 		SupersessionReason: "tenv was removed in golangci-lint v2, use usetesting instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "testableexamples",
@@ -705,7 +709,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "varcheck",
 		SupersededBy:       "staticcheck",
 		SupersessionReason: "varcheck was removed in golangci-lint v2, use staticcheck instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "varnamelen",
@@ -717,13 +721,13 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:               "vet",
 		SupersededBy:       "govet",
 		SupersessionReason: "vet was renamed to govet",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:               "vetshadow",
 		SupersededBy:       "govet",
 		SupersessionReason: "vetshadow was merged into govet",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "wastedassign",
@@ -748,7 +752,7 @@ var LinterPolicies = []types.LinterPolicy{
 		ValidTool:          types.Interval[types.GolangciVersion]{Max: types.MustParseGolangciVersion("v2.2.0")},
 		SupersededBy:       "wsl_v5",
 		SupersessionReason: "wsl is deprecated since golangci-lint v2.2.0, use wsl_v5 instead",
-		Priority:           types.LinterPriorityCritical,
+		Priority:           types.LinterPriorityOptional,
 	},
 	{
 		Name:      "wsl_v5",
