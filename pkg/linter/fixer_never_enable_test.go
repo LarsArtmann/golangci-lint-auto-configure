@@ -20,23 +20,26 @@ func newQuietFixer() *Fixer {
 	}
 }
 
+// exhaustructPredecessor is the deprecated linter every replacement spec
+// exercises; exhaustructReplacementInput guarantees it has a supersession
+// record.
+const exhaustructPredecessor = types.LinterName("exhaustruct")
+
 // exhaustructReplacementInput builds a config carrying the deprecated
 // exhaustruct predecessor (with a settings block) so the replacement
 // normalizer has something to migrate.
 func exhaustructReplacementInput(t *testing.T) *types.Config {
 	t.Helper()
 
-	deprecated := types.LinterName("exhaustruct")
-
-	record, known := constants.PolicyRecord(deprecated)
+	record, known := constants.PolicyRecord(exhaustructPredecessor)
 	if !known || record.SupersessionReason == "" {
-		t.Fatalf("%q has no supersession record; pick a real predecessor", deprecated)
+		t.Fatalf("%q has no supersession record; pick a real predecessor", exhaustructPredecessor)
 	}
 
 	cfg := &types.Config{}
-	cfg.Linters.Enable = []types.LinterName{deprecated}
+	cfg.Linters.Enable = []types.LinterName{exhaustructPredecessor}
 	cfg.Linters.Settings = map[string]any{
-		string(deprecated): map[string]any{"custom": true},
+		string(exhaustructPredecessor): map[string]any{"custom": true},
 	}
 
 	return cfg
@@ -47,7 +50,6 @@ func exhaustructReplacementInput(t *testing.T) *types.Config {
 // predecessor is still removed but the replacement is NOT added and its
 // settings are NOT migrated.
 func TestReplacementRespectsNeverEnable(t *testing.T) {
-	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
 	cfg := exhaustructReplacementInput(t)
@@ -65,7 +67,7 @@ func TestReplacementRespectsNeverEnable(t *testing.T) {
 			t.Fatal("replacement was added despite never-enable — documented contract violated")
 		}
 
-		if name == deprecated {
+		if name == exhaustructPredecessor {
 			t.Fatal("deprecated predecessor must still be removed")
 		}
 	}
@@ -79,7 +81,6 @@ func TestReplacementRespectsNeverEnable(t *testing.T) {
 // never-enable predicate, the replacement path swaps the predecessor for its
 // successor and migrates the settings block.
 func TestReplacementProceedsWithoutNeverEnable(t *testing.T) {
-	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
 	cfg := exhaustructReplacementInput(t)
@@ -93,7 +94,7 @@ func TestReplacementProceedsWithoutNeverEnable(t *testing.T) {
 			found = true
 		}
 
-		if name == deprecated {
+		if name == exhaustructPredecessor {
 			t.Fatal("deprecated predecessor must be removed on swap")
 		}
 	}
@@ -115,7 +116,6 @@ func TestReplacementProceedsWithoutNeverEnable(t *testing.T) {
 // predates the supersession version, the predecessor is dropped WITHOUT the
 // successor and the change reason says why.
 func TestReplacementVersionGate(t *testing.T) {
-	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
 	cfg := exhaustructReplacementInput(t)
@@ -133,13 +133,13 @@ func TestReplacementVersionGate(t *testing.T) {
 	gated := false
 
 	for _, change := range changes {
-		if change.Element == string(deprecated) && change.Kind == ChangeRemove {
+		if change.Element == string(exhaustructPredecessor) && change.Kind == ChangeRemove {
 			gated = true
 		}
 	}
 
 	if !gated {
-		t.Fatalf("expected a removal change for %s, got %+v", deprecated, changes)
+		t.Fatalf("expected a removal change for %s, got %+v", exhaustructPredecessor, changes)
 	}
 }
 
@@ -157,7 +157,6 @@ func TestPragmaticCompositionWithNeverEnable(t *testing.T) {
 		}
 	}
 
-	deprecated := types.LinterName("exhaustruct")
 	replacement := types.LinterName("exhaustruct_v5")
 
 	cfg := exhaustructReplacementInput(t)
