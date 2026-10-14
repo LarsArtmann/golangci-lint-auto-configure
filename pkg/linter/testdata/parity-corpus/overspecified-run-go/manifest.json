@@ -1,0 +1,11 @@
+{
+  "name": "overspecified-run-go",
+  "description": "run.go targets Go 1.99, newer than any golangci-lint binary: exercises rescueOverspecifiedRunGo (repair pre-analysis, rescued-run-go audit entry) instead of the classified refusal.",
+  "source": "authored for the corpus (T01)",
+  "priority": "high",
+  "dryRun": false,
+  "forceSettings": false,
+  "pragmatic": false,
+  "localGoVersion": "1.27.1",
+  "requiresToolAtLeast": "v2.12.0"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "typical",
+  "description": "Mid-size real-world shape: partial enable set, one unjustified disable (no sidecar, so respected), existing settings (must be preserved), and a pre-run.go go version below the binary's build Go (cap must not fire).",
+  "source": "authored for the corpus (T01)",
+  "priority": "high",
+  "dryRun": false,
+  "forceSettings": false,
+  "pragmatic": false,
+  "localGoVersion": "1.27.1",
+  "requiresToolAtLeast": "v2.12.0"
+}

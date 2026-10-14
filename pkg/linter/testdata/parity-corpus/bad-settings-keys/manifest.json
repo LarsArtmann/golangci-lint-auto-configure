@@ -1,0 +1,11 @@
+{
+  "name": "bad-settings-keys",
+  "description": "goconst.min-length, the schema-invalid key this tool emitted before 2026-09-11: exercises the KnownBadSettingsKeys self-heal rename (bad key renamed, sibling keys preserved).",
+  "source": "authored for the corpus (T01)",
+  "priority": "high",
+  "dryRun": false,
+  "forceSettings": false,
+  "pragmatic": false,
+  "localGoVersion": "1.27.1",
+  "requiresToolAtLeast": "v2.12.0"
+}

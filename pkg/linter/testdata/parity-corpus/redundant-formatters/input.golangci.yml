@@ -1,0 +1,21 @@
+version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - errcheck
+    - govet
+    - gofmt
+    - lll
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - exhaustruct
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    paths:
+      - vendor/

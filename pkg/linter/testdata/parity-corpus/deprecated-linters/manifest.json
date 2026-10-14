@@ -1,0 +1,11 @@
+{
+  "name": "deprecated-linters",
+  "description": "Six deprecated linters enabled (wsl, gomodguard, exhaustruct, deadcode, gas, gomnd) plus a v4 exhaustruct settings block: exercises the full deprecation replacement migration including settings-block porting and KnownBadSettingsKeys renaming.",
+  "source": "authored for the corpus (T01)",
+  "priority": "high",
+  "dryRun": false,
+  "forceSettings": false,
+  "pragmatic": false,
+  "localGoVersion": "1.27.1",
+  "requiresToolAtLeast": "v2.13.0"
+}
