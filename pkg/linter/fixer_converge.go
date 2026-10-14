@@ -22,6 +22,20 @@ func (f *Fixer) convergeFixConfig(
 ) (*types.MigrationResult, error) {
 	version := f.detectVersion(ctx)
 
+	// Analyzer contract: the reconciler needs the binary and a parsable
+	// version. Failures carry the legacy classified exit codes
+	// (Infrastructure 69 for a missing binary, Corruption 65 for garbage
+	// version output) instead of degrading silently.
+	if f.analyzer != nil {
+		if err := f.analyzer.FindBinary(ctx); err != nil {
+			return migrationError("find golangci-lint binary", priority, dryRun, configPath, version, err)
+		}
+
+		if err := f.analyzer.CheckVersion(ctx); err != nil {
+			return migrationError("check golangci-lint version", priority, dryRun, configPath, version, err)
+		}
+	}
+
 	if err := f.rescueOverspecifiedRunGo(cfg, configPath, dryRun); err != nil {
 		return migrationError("rescue run.go", priority, dryRun, configPath, version, err)
 	}

@@ -22,7 +22,7 @@ var _ = Context("configure command", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		outputStr := string(output)
-		Expect(outputStr).To(ContainSubstring("[DRY-RUN]"))
+		Expect(outputStr).To(ContainSubstring("Dry run"))
 
 		// Verify original file unchanged
 		content, _ := os.ReadFile(configPath)
@@ -120,7 +120,7 @@ linters:
 		output, _ := cmd.CombinedOutput()
 
 		// Should show [DRY-RUN] indicator
-		Expect(string(output)).To(ContainSubstring("[DRY-RUN]"))
+		Expect(string(output)).To(ContainSubstring("Dry run"))
 	})
 
 	It("should exit 1 with --check when changes are needed", func() {
@@ -218,7 +218,7 @@ linters:
 		Expect(err).NotTo(HaveOccurred())
 
 		outputStr := string(output)
-		Expect(outputStr).To(ContainSubstring("Added"))
+		Expect(outputStr).To(ContainSubstring("Applied"))
 	})
 
 	It("should show diff with --check and restore original", func() {
@@ -242,7 +242,7 @@ linters:
 		Expect(err).To(HaveOccurred())
 
 		outputStr := string(output)
-		Expect(outputStr).To(ContainSubstring("Added"))
+		Expect(outputStr).To(ContainSubstring("Applied"))
 
 		restored, _ := os.ReadFile(configPath)
 		restoredStr := string(restored)

@@ -35,9 +35,9 @@ linters:
 
 		outputStr := string(output)
 		Expect(outputStr).To(Or(
-			ContainSubstring("Added"),
+			ContainSubstring("Applied"),
 			ContainSubstring("Removed"),
-			ContainSubstring("[DRY-RUN]"),
+			ContainSubstring("Dry run"),
 		))
 	})
 

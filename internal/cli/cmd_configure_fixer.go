@@ -29,6 +29,7 @@ func newConfiguredFixer(
 	fixer.SetGoVersionProvider(config.GetLocalGoVersion)
 	fixer.SetForceSettings(forceSettings)
 	fixer.SetShowMergedRules(showMergedRules)
+	fixer.SetPragmatic(analyzer.Pragmatic())
 
 	return fixer
 }

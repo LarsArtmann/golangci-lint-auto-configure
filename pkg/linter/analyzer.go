@@ -54,6 +54,12 @@ func (a *Analyzer) SetPragmatic(enabled bool) {
 	a.pragmatic = enabled
 }
 
+// Pragmatic reports whether pragmatic mode is on (the converge fixer mirrors
+// the analyzer's gate so both engines agree on the recommendation set).
+func (a *Analyzer) Pragmatic() bool {
+	return a.pragmatic
+}
+
 // SetProjectRoot sets the directory used for project-specific linter technology
 // detection (e.g. dustin/go-humanize → gohumanize linter, ClickHouse driver →
 // clickhouselint). Normally derived from config path inside buildAnalysis;
