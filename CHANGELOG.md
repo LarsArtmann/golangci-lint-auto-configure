@@ -6,7 +6,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Declarative desired-state reconciler is the default configure engine**
+  (ADR-017). Configuration is now collect → normalize → render → plan →
+  apply, with every stage pure except the file save. Key properties:
+  - **Audit = diff**: every applied change is one ledger entry projected from
+    the same `Change` object the applier executed; the audit vocabulary now
+    covers `moved-to-disable`, `removed-from-enable`, `pruned-settings`,
+    `re-enabled`, `suppressed-re-enable`, `exclusion-linter-renamed`,
+    `exclusion-linter-removed`, and `exclusion-rule-merged` with the added
+    linters named in the reason.
+  - **Findings = diff**: `report --format json/sarif/finding` (and the new
+    `config-deviation` detector) consume one desired-state `Evaluation`;
+    lint mode and apply mode cannot disagree.
+  - **User-disable respect**: linters in `linters.disable` are never
+    re-recommended; enable/disable conflicts resolve in favor of enable;
+    settings of non-enabled linters are pruned (`pruned-settings`).
+  - **Tiers derive from measurement**: the pragmatic-noise tier is derived
+    from friction evidence (`types.DeriveTier`, threshold 0.8 nolints/config)
+    instead of a hand-maintained map; `--pragmatic` is that threshold's user
+    handle.
+  - **Redundancy is a typed relation table**: lll→golines and gofmt→gofumpt
+    live in `constants.RedundancyRelations` with referential-integrity
+    checks, not hardcoded engine branches.
+  - **Self-hosted**: this repo's own config ships a divergence sidecar
+    (`.golangci-lint-auto-configure.yml`) and re-converges to itself
+    (`configure --check` exit 0).
+  - The legacy imperative pipeline remains available as an explicit opt-out
+    during the migration window; its deletion is tracked in TODO_LIST.md.
+
+### Changed
+
+- **HTML/JSON reports are evaluation-based.** The HTML report renders the
+  desired-state evaluation (enabled/disabled/deviations/suppressed plus
+  deviation tables); the JSON report carries `Deviations`, `Suppressed`, and
+  a `Converged` summary instead of the old recommendation counts.
+  `analyze --format json` is unchanged in this release.
+- `ConfigAnalysis` priority counts are derived methods, not serialized
+  fields.
+
 ### Fixed
+
+- **Deprecated linter names are now cleaned out of exclusion rules.** The
 
 - **Deprecated linter names are now cleaned out of exclusion rules.** The
   deprecation migration (enable-list swap, settings migration) and the

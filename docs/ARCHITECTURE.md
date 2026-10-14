@@ -14,6 +14,8 @@ The full decision records live in [`docs/adr/`](adr/) — one file per decision,
 | [ADR-013](adr/ADR-013-Context-Propagation.md)          | Context Propagation for Cancellation                     |
 | [ADR-014](adr/ADR-014-Strong-Type-Aliases.md)          | Strong Type Aliases for Linter and Formatter Names       |
 | [ADR-015](adr/ADR-015-Cobra-CLI.md)                    | Command-Line Interface with Cobra                        |
+| [ADR-017](adr/ADR-017-Declarative-Reconciler-Engine.md) | Declarative Desired-State Reconciler as the Default Engine |
+| [ADR-018](adr/ADR-018-Two-Version-Axes-Branded-Types.md) | Two Version Axes with Branded Types                      |
 
 ## Future Considerations
 
