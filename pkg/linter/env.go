@@ -1,0 +1,205 @@
+package linter
+
+import (
+	"context"
+	"os"
+	"sort"
+	"strings"
+
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/gogenfilter"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+)
+
+// Env is the complete set of environment facts the desired-state renderer
+// needs. Every fact is collected once, at one boundary, with typed shapes —
+// the renderer downstream is pure and takes no I/O.
+//
+// Zero values mean "unknown": a zero Tool disables version gating, a zero
+// LocalGo skips run.go updates, an empty Tech set fails gates open (matching
+// the analyzer's fail-open behavior).
+type Env struct {
+	// Tool is the detected golangci-lint version; zero when undetectable.
+	Tool types.GolangciVersion
+	// ToolBuildGo is the Go version the golangci-lint binary was built with
+	// (run.go cap); zero when unknown.
+	ToolBuildGo types.GoVersion
+	// LocalGo is the local toolchain version (major.minor); zero when
+	// unparsable.
+	LocalGo types.GoVersion
+	// ProjectGo is the project's go.mod go-directive; zero when absent.
+	ProjectGo types.GoVersion
+	// Tech maps technology keys (from policy Gates) to detection results.
+	// Missing keys fail open in ShouldRecommend.
+	Tech map[string]bool
+	// Generated holds the auto-detected generated-file exclusion patterns
+	// (gogenfilter results).
+	Generated []string
+}
+
+// UsesTech reports the project's technology detection result, failing open
+// for unknown keys (an undetectable technology must not suppress
+// recommendations).
+func (e Env) UsesTech(tech string) bool {
+	known, detected := e.Tech[tech]
+	if !known {
+		return true
+	}
+
+	return detected
+}
+
+// techKeys returns every technology key the policy tables gate on.
+func techKeys() []string {
+	keys := make(map[string]bool)
+
+	for _, record := range constants.LinterPolicies {
+		if record.Gate.Kind == types.GateRequiresTech {
+			keys[record.Gate.Tech] = true
+		}
+	}
+
+	for _, record := range constants.FormatterPolicies {
+		if record.Gate.Kind == types.GateRequiresTech {
+			keys[record.Gate.Tech] = true
+		}
+	}
+
+	unique := make([]string, 0, len(keys))
+	for key := range keys {
+		unique = append(unique, key)
+	}
+
+	sort.Strings(unique)
+
+	return unique
+}
+
+// CollectEnv gathers every environment fact the renderer needs. Best-effort
+// by design: detection failures degrade to zero values / fail-open tech
+// results (with the same semantics the analyzer applies today), because a
+// partially-known environment must produce a conservative config, not an
+// error. The returned error is reserved for a fundamentally unusable
+// environment (nil today — every failure mode has a defined degradation).
+func CollectEnv(
+	ctx context.Context,
+	analyzer types.LinterAnalyzer,
+	goVersionProvider GoVersionProvider,
+	configPath string,
+) (Env, error) {
+	env := Env{Tech: map[string]bool{}}
+
+	if analyzer != nil {
+		if err := analyzer.FindBinary(ctx); err == nil {
+			_ = analyzer.CheckVersion(ctx) // classify: failure leaves Tool zero
+		}
+
+		env.Tool = detectedToolVersion(analyzer)
+		env.ToolBuildGo = analyzer.DetectedBuildGoVersion()
+	}
+
+	env.LocalGo = collectLocalGo(goVersionProvider, ctx)
+	env.ProjectGo = readGoModGoDirective(configPath)
+	env.Tech = collectTech(configPath)
+	env.Generated = collectGeneratedExclusions(configPath)
+
+	return env, nil
+}
+
+func detectedToolVersion(analyzer types.LinterAnalyzer) types.GolangciVersion {
+	raw := analyzer.GetDetectedVersion()
+	if raw == "" {
+		return types.GolangciVersion{}
+	}
+
+	parsed, err := types.ParseGolangciVersion(raw)
+	if err != nil {
+		return types.GolangciVersion{}
+	}
+
+	return parsed
+}
+
+func collectLocalGo(provider GoVersionProvider, ctx context.Context) types.GoVersion {
+	if provider == nil {
+		return types.GoVersion{}
+	}
+
+	raw := provider(ctx)
+	if raw == "" {
+		return types.GoVersion{}
+	}
+
+	parsed, err := types.ParseGoVersion(raw)
+	if err != nil {
+		return types.GoVersion{}
+	}
+
+	return parsed
+}
+
+// collectTech runs every policy-gated technology detection, failing open per
+// key (detection errors count as "uses it", matching the analyzer's
+// hasTechnology contract so valid recommendations are never suppressed).
+func collectTech(configPath string) map[string]bool {
+	projectRoot := filepathDir(configPath)
+
+	results := make(map[string]bool, len(techKeys()))
+
+	detector := detection.NewDetector(projectRoot)
+
+	for _, tech := range techKeys() {
+		results[tech] = detectTechnology(detector, tech)
+	}
+
+	return results
+}
+
+func detectTechnology(detector *detection.Detector, tech string) bool {
+	switch tech {
+	case "swaggo":
+		result, err := detector.HasSwaggo()
+		if err != nil {
+			return true
+		}
+
+		return result
+	case "clickhouse":
+		return detector.HasClickHouse()
+	case "arangodb":
+		return detector.HasArangoDB()
+	case "go-humanize":
+		return detector.HasGoHumanize()
+	default:
+		return true
+	}
+}
+
+// collectGeneratedExclusions scans the project for generated files. Best
+// effort: a failed scan yields no extra patterns (the static defaults still
+// apply in the renderer).
+func collectGeneratedExclusions(configPath string) []string {
+	result, err := gogenfilter.ScanProject(os.DirFS(filepathDir(configPath)))
+	if err != nil {
+		return nil
+	}
+
+	patterns := make([]string, 0, len(result.Exclusions))
+	for _, exclusion := range result.Exclusions {
+		patterns = append(patterns, exclusion.Path)
+	}
+
+	sort.Strings(patterns)
+
+	return patterns
+}
+
+// filepathDir returns the directory portion of path ("." when there is none).
+func filepathDir(path string) string {
+	if idx := strings.LastIndex(path, "/"); idx > 0 {
+		return path[:idx]
+	}
+
+	return "."
+}
