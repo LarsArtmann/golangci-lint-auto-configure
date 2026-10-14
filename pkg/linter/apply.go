@@ -35,6 +35,10 @@ func applyLinterChanges(cfg *types.Config, change Change) {
 		if change.Kind == ChangeAdd {
 			cfg.Linters.Enable = append(cfg.Linters.Enable, types.LinterName(change.Element))
 		}
+	case "linters.disable":
+		if change.Kind == ChangeRemove {
+			cfg.Linters.Disable = removeLinterName(cfg.Linters.Disable, types.LinterName(change.Element))
+		}
 	case "linters.settings":
 		applySettingsChange(&cfg.Linters.Settings, change)
 	case "linters.exclusions.paths":
@@ -135,6 +139,18 @@ func toInt(v any) int {
 	}
 
 	return 0
+}
+
+func removeLinterName(names []types.LinterName, name types.LinterName) []types.LinterName {
+	out := names[:0:0]
+
+	for _, candidate := range names {
+		if candidate != name {
+			out = append(out, candidate)
+		}
+	}
+
+	return out
 }
 
 func applySettingsChange(section *map[string]any, change Change) {

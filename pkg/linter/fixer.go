@@ -37,6 +37,8 @@ type Fixer struct {
 	goVersionProvider GoVersionProvider
 	forceSettings     bool
 	showMergedRules   bool
+	engine            Engine
+	pragmatic         bool
 }
 
 // NewFixer creates a new fixer.
@@ -96,6 +98,17 @@ func (f *Fixer) SetShowMergedRules(show bool) {
 	f.showMergedRules = show
 }
 
+// SetEngine selects the configuration strategy (EngineLegacy default,
+// EngineConverge opt-in until the corpus flip).
+func (f *Fixer) SetEngine(engine Engine) {
+	f.engine = engine
+}
+
+// SetPragmatic drops the pragmatic-noise linters from the converge render.
+func (f *Fixer) SetPragmatic(enabled bool) {
+	f.pragmatic = enabled
+}
+
 // FixConfig fixes the golangci-lint configuration by enabling recommended linters.
 func (f *Fixer) FixConfig(
 	ctx context.Context,
@@ -108,6 +121,10 @@ func (f *Fixer) FixConfig(
 	cfg, err := f.configLoader.LoadConfig(configPath)
 	if err != nil {
 		return migrationError("load config", priority, dryRun, configPath, "", err)
+	}
+
+	if f.engine == EngineConverge {
+		return f.convergeFixConfig(ctx, cfg, configPath, priority, dryRun)
 	}
 
 	originalEnabled := f.configLoader.GetLintersEnabled(cfg)
