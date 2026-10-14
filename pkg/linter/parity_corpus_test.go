@@ -1,85 +1,29 @@
 package linter
 
 import (
-	"encoding/json/jsontext"
-	"encoding/json/v2"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"golang.org/x/mod/semver"
 )
 
-// TestParityCorpus is the byte-level regression gate for the configure engine
-// (plan phase P0). Each fixture's saved config bytes, audit entries, and
-// result summary are compared against the committed goldens. Set
-// UPDATE_PARITY=1 to regenerate goldens, then review the diff before
-// committing — the goldens are the contract later refactor phases are
-// judged against.
+// TestParityCorpusConverge is the byte-level regression gate for the configure
+// engine. Each fixture's saved config bytes are compared against the committed
+// goldens: the config bytes are the contract 160 consumer projects depend on.
+// Result/audit summaries are internal shape and are NOT compared here (the
+// audit mapping has its own specs).
 //
 // The run refuses when the environment's golangci-lint is older than a
 // fixture's requiresToolAtLeast floor: output would legitimately differ, and
 // silently regenerating goldens from a different tool version would corrupt
 // the contract.
-func TestParityCorpus(t *testing.T) {
-	update := os.Getenv("UPDATE_PARITY") == "1"
-
-	for _, fixture := range LoadParityCorpus(t) {
-		t.Run(fixture.Name, func(t *testing.T) {
-			guardToolVersion(t, fixture)
-
-			outcome := RunParityFixture(t, fixture)
-
-			goldenDir := filepath.Join(fixture.Dir, "golden")
-
-			assertGoldenBytes(t, update, goldenDir, "config.yml", outcome.ConfigBytes)
-			assertGoldenBytes(t, update, goldenDir, "audit.jsonl", outcome.AuditJSONL)
-			assertGoldenResult(t, update, goldenDir, outcome.Result)
-		})
-	}
-}
-
-// TestParityCorpusIdempotent runs every fixture a second time against the
-// first run's output: a converged config must re-converge to byte-identical
-// output. This is the property the declarative engine makes structural; until
-// then it pins the imperative engine's existing guarantee.
-func TestParityCorpusIdempotent(t *testing.T) {
-	for _, fixture := range LoadParityCorpus(t) {
-		t.Run(fixture.Name, func(t *testing.T) {
-			guardToolVersion(t, fixture)
-
-			first := RunParityFixture(t, fixture)
-
-			if first.Result.FixesApplied == 0 {
-				t.Skipf("fixture %s: no changes on first run, idempotency trivially holds", fixture.Name)
-			}
-
-			second := RunParityFixture(t, fixture)
-
-			if string(first.ConfigBytes) != string(second.ConfigBytes) {
-				t.Errorf(
-					"fixture %s not idempotent: second run changed config bytes\n--- first ---\n%s\n--- second ---\n%s",
-					fixture.Name,
-					first.ConfigBytes,
-					second.ConfigBytes,
-				)
-			}
-		})
-	}
-}
-
-// TestParityCorpusConverge is the flip gate (plan T20): the converge engine
-// must reproduce the SAME config bytes as the committed goldens (captured
-// from the legacy engine). Result/audit summaries are engine-shaped and are
-// NOT compared here — the config bytes are the contract 160 consumer
-// projects depend on.
 func TestParityCorpusConverge(t *testing.T) {
 	for _, fixture := range LoadParityCorpus(t) {
 		t.Run(fixture.Name, func(t *testing.T) {
 			guardToolVersion(t, fixture)
 
-			outcome := RunParityFixtureWithEngine(t, fixture, EngineConverge)
+			configBytes := RunParityFixture(t, fixture)
 
 			goldenPath := filepath.Join(fixture.Dir, "golden", "config.yml")
 
@@ -88,16 +32,16 @@ func TestParityCorpusConverge(t *testing.T) {
 				t.Fatalf("read golden config (regenerate with UPDATE_PARITY=1): %v", err)
 			}
 
-			if string(want) != string(outcome.ConfigBytes) {
+			if string(want) != string(configBytes) {
 				if dump := os.Getenv("CONVERGE_DUMP"); dump != "" {
 					dumpDir := filepath.Join(os.TempDir(), "converge-dump", fixture.Name)
 					_ = os.MkdirAll(dumpDir, 0o755)
 					_ = os.WriteFile(filepath.Join(dumpDir, "want.yml"), want, 0o644)
-					_ = os.WriteFile(filepath.Join(dumpDir, "got.yml"), outcome.ConfigBytes, 0o644)
+					_ = os.WriteFile(filepath.Join(dumpDir, "got.yml"), configBytes, 0o644)
 				}
 
 				t.Errorf("converge engine drifted from golden for %s (%d want bytes, %d got bytes)",
-					fixture.Name, len(want), len(outcome.ConfigBytes))
+					fixture.Name, len(want), len(configBytes))
 			}
 		})
 	}
@@ -148,68 +92,4 @@ var detectCorpusToolVersion = func(t *testing.T) string {
 	}
 
 	return analyzer.GetDetectedVersion()
-}
-
-func assertGoldenBytes(t *testing.T, update bool, goldenDir, name string, actual []byte) {
-	t.Helper()
-
-	goldenPath := filepath.Join(goldenDir, name)
-
-	if update {
-		if len(actual) == 0 && name == "audit.jsonl" {
-			_ = os.Remove(goldenPath)
-
-			return
-		}
-
-		if err := os.MkdirAll(goldenDir, 0o755); err != nil {
-			t.Fatalf("create golden dir: %v", err)
-		}
-
-		if err := os.WriteFile(goldenPath, actual, 0o644); err != nil {
-			t.Fatalf("write golden %s: %v", name, err)
-		}
-
-		return
-	}
-
-	want, err := os.ReadFile(goldenPath)
-	if err != nil {
-		if os.IsNotExist(err) && name == "audit.jsonl" && len(actual) == 0 {
-			return
-		}
-
-		t.Fatalf("read golden %s (regenerate with UPDATE_PARITY=1): %v", name, err)
-	}
-
-	if string(want) != string(actual) {
-		t.Errorf("golden mismatch for %s\n--- want ---\n%s\n--- got ---\n%s", name, want, actual)
-	}
-}
-
-func assertGoldenResult(t *testing.T, update bool, goldenDir string, result *types.MigrationResult) {
-	t.Helper()
-
-	if result == nil {
-		t.Fatal("nil MigrationResult")
-
-		return
-	}
-
-	payload, err := json.Marshal(struct {
-		FixesApplied int
-		Message      string
-		DryRun       bool
-	}{
-		FixesApplied: result.FixesApplied,
-		Message:      result.Message,
-		DryRun:       result.DryRun,
-	}, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
-	if err != nil {
-		t.Fatalf("marshal result: %v", err)
-	}
-
-	payload = append(payload, '\n')
-
-	assertGoldenBytes(t, update, goldenDir, "result.json", payload)
 }

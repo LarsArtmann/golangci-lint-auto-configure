@@ -5,9 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
-	"time"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
@@ -111,19 +109,10 @@ func LoadParityCorpus(t *testing.T) []ParityFixture {
 	return fixtures
 }
 
-// ParityOutcome is everything one fixture run produces that the goldens pin:
-// saved config bytes, scrubbed audit ledger bytes, and the result summary.
-type ParityOutcome struct {
-	ConfigBytes []byte
-	AuditJSONL  []byte
-	Result      *types.MigrationResult
-}
-
 // RunParityFixture materializes the fixture in a fresh temp directory, runs
 // the full FixConfig pipeline with a real analyzer and a real (temp) audit
-// ledger, and returns the byte-level outcome. engine selects the strategy
-// (EngineLegacy default, EngineConverge for the flip gate).
-func RunParityFixtureWithEngine(t *testing.T, fixture ParityFixture, engine Engine) ParityOutcome {
+// ledger, and returns the saved config bytes — the parity contract.
+func RunParityFixture(t *testing.T, fixture ParityFixture) []byte {
 	t.Helper()
 
 	dir := t.TempDir()
@@ -156,11 +145,9 @@ func RunParityFixtureWithEngine(t *testing.T, fixture ParityFixture, engine Engi
 	fixer.SetLedger(ledger)
 	fixer.SetGoVersionProvider(func(context.Context) string { return fixture.Manifest.LocalGoVersion })
 	fixer.SetForceSettings(fixture.Manifest.ForceSettings)
-	fixer.SetEngine(engine)
 	fixer.SetPragmatic(fixture.Manifest.Pragmatic)
 
-	result, err := fixer.FixConfig(context.Background(), configPath, priority, fixture.Manifest.DryRun)
-	if err != nil {
+	if _, err := fixer.FixConfig(context.Background(), configPath, priority, fixture.Manifest.DryRun); err != nil {
 		t.Fatalf("fixture %s: FixConfig failed: %v", fixture.Name, err)
 	}
 
@@ -169,61 +156,5 @@ func RunParityFixtureWithEngine(t *testing.T, fixture ParityFixture, engine Engi
 		t.Fatalf("fixture %s: read saved config: %v", fixture.Name, err)
 	}
 
-	return ParityOutcome{
-		ConfigBytes: configBytes,
-		AuditJSONL:  scrubAuditLedger(t, fixture.Name, ledgerPath),
-		Result:      result,
-	}
-}
-
-// RunParityFixture runs the fixture on the legacy engine (the original gate).
-func RunParityFixture(t *testing.T, fixture ParityFixture) ParityOutcome {
-	t.Helper()
-
-	return RunParityFixtureWithEngine(t, fixture, EngineLegacy)
-}
-
-// scrubAuditLedger normalizes the volatile per-run fields of the audit JSONL
-// (timestamp, run_id, repo_hash, repo_path, git_head) to fixed placeholders so
-// the action sequence stays byte-comparable across runs and machines.
-func scrubAuditLedger(t *testing.T, fixtureName, ledgerPath string) []byte {
-	t.Helper()
-
-	data, err := os.ReadFile(ledgerPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-
-		t.Fatalf("fixture %s: read audit ledger: %v", fixtureName, err)
-	}
-
-	if len(strings.TrimSpace(string(data))) == 0 {
-		return nil
-	}
-
-	var scrubbed strings.Builder
-
-	for line := range strings.SplitSeq(strings.TrimSpace(string(data)), "\n") {
-		var entry audit.Entry
-		if err := json.Unmarshal([]byte(line), &entry); err != nil {
-			t.Fatalf("fixture %s: parse audit entry: %v", fixtureName, err)
-		}
-
-		entry.Timestamp = time.Time{}
-		entry.RunID = "parity-corpus-run"
-		entry.RepoHash = "paritycorpus"
-		entry.RepoPath = "/parity/fixture/repo"
-		entry.GitHead = ""
-
-		lineBytes, err := json.Marshal(entry)
-		if err != nil {
-			t.Fatalf("fixture %s: marshal scrubbed audit entry: %v", fixtureName, err)
-		}
-
-		scrubbed.Write(lineBytes)
-		scrubbed.WriteByte('\n')
-	}
-
-	return []byte(scrubbed.String())
+	return configBytes
 }
