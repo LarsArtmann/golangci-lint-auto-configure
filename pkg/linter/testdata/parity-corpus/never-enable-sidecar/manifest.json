@@ -1,0 +1,11 @@
+{
+  "name": "never-enable-sidecar",
+  "description": "Unjustified disables plus a never-enable sidecar section: godot stays disabled (never-enable wins over enforcement), misspell is re-enabled, and the suppression lands in the ledger.",
+  "source": "authored for the corpus (T01)",
+  "priority": "high",
+  "dryRun": false,
+  "forceSettings": false,
+  "pragmatic": false,
+  "localGoVersion": "1.27.1",
+  "requiresToolAtLeast": "v2.12.0"
+}

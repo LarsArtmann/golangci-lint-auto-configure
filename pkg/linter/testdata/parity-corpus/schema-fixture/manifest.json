@@ -1,0 +1,11 @@
+{
+  "name": "schema-fixture",
+  "description": "Copy of pkg/constants/testdata/schema-fixture/.golangci.yml at corpus creation: every curated default (linter + formatter settings, run/issues/exclusion injections) enabled at once. Pins byte output for the maximal-settings path; regenerating the schema fixture legitimately regenerates this golden.",
+  "source": "pkg/constants/testdata/schema-fixture/.golangci.yml at commit d3f9ab3",
+  "priority": "high",
+  "dryRun": false,
+  "forceSettings": false,
+  "pragmatic": false,
+  "localGoVersion": "1.27.1",
+  "requiresToolAtLeast": "v2.12.0"
+}

@@ -1,0 +1,4 @@
+never-enable:
+  godot:
+    reason: demands per-package godoc; this repo documents per-file
+    category: convention

@@ -1,0 +1,11 @@
+{
+  "name": "pragmatic",
+  "description": "All four pragmatic-noise linters already enabled plus pragmatic=true: exercises the shouldSkipLinter pragmatic gate (noise linters are not re-recommended; user enables are still respected).",
+  "source": "authored for the corpus (T01)",
+  "priority": "high",
+  "dryRun": false,
+  "forceSettings": false,
+  "pragmatic": true,
+  "localGoVersion": "1.27.1",
+  "requiresToolAtLeast": "v2.12.0"
+}
