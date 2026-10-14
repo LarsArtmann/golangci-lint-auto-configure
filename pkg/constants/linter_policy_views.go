@@ -42,9 +42,14 @@ func init() {
 		}
 
 		fseen[record.Name] = true
+	}
 
-		if !slices.Contains(FormatterOrder, record.Name) {
-			panic(fmt.Sprintf("constants: formatter %q missing from FormatterOrder", record.Name))
+	// FormatterOrder references known records; the converse does not hold —
+	// gofmt is a known (redundant) formatter that is not part of the
+	// canonical render order.
+	for _, name := range FormatterOrder {
+		if !fseen[name] {
+			panic(fmt.Sprintf("constants: FormatterOrder references unknown formatter %q", name))
 		}
 	}
 

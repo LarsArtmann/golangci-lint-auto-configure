@@ -197,6 +197,20 @@ func (p LinterPolicy) Validate() error {
 		}
 	}
 
+	// Recommendation callouts are all-or-nothing: a priority without a
+	// rationale (or vice versa) would desynchronize the priority and reason
+	// views. The zero-value hazard (Critical == 0) makes the explicit pair
+	// mandatory on every non-disabled record.
+	if p.Tier.Kind != TierDisabled {
+		if p.Priority != LinterPriorityOptional && p.Rationale == "" {
+			return errPolicy("linter %s: recommendation priority without a rationale", p.Name)
+		}
+
+		if p.Priority == LinterPriorityOptional && p.Rationale != "" {
+			return errPolicy("linter %s: rationale without a recommendation priority", p.Name)
+		}
+	}
+
 	if !p.ValidTool.IsEmpty() {
 		p.ValidTool.MustValidate()
 	}
