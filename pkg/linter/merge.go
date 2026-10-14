@@ -461,33 +461,42 @@ func planDefaultExclusionRules(observed *types.Config, desired DesiredConfig) []
 	}
 
 	for _, defaultRule := range desired.ExclusionRules {
-		key := defaultRule.RuleKey()
-
-		idx, exists := existingByKey[key]
-		if !exists {
-			changes = append(changes, Change{
-				Path: PathLintersExclusionRules, Element: key, Kind: ChangeAdd,
-				To: cloneRule(defaultRule), Reason: "default exclusion rule",
-			})
-
-			continue
-		}
-
-		existingLinters := observed.Linters.Exclusions.Rules[idx].Linters
-
-		union, added := unionStrings(existingLinters, defaultRule.Linters)
-		if !added {
-			continue
-		}
-
-		changes = append(changes, Change{
-			Path: PathLintersExclusionRules, Element: key, Kind: ChangeUpdate,
-			From: append([]string{}, existingLinters...), To: union,
-			Reason: "default exclusion rule unioned with user rule",
-		})
+		changes = append(changes, planDefaultExclusionRule(observed, defaultRule, existingByKey)...)
 	}
 
 	return changes
+}
+
+// planDefaultExclusionRule merges one default rule: appended when no
+// observed rule shares its RuleKey, unioned into the shadowing rule
+// otherwise.
+func planDefaultExclusionRule(
+	observed *types.Config,
+	defaultRule types.ExclusionRuleConfig,
+	existingByKey map[string]int,
+) []Change {
+	key := defaultRule.RuleKey()
+
+	idx, exists := existingByKey[key]
+	if !exists {
+		return []Change{{
+			Path: PathLintersExclusionRules, Element: key, Kind: ChangeAdd,
+			To: cloneRule(defaultRule), Reason: "default exclusion rule",
+		}}
+	}
+
+	existingLinters := observed.Linters.Exclusions.Rules[idx].Linters
+
+	union, added := unionStrings(existingLinters, defaultRule.Linters)
+	if !added {
+		return nil
+	}
+
+	return []Change{{
+		Path: PathLintersExclusionRules, Element: key, Kind: ChangeUpdate,
+		From: append([]string{}, existingLinters...), To: union,
+		Reason: "default exclusion rule unioned with user rule",
+	}}
 }
 
 func unionStrings(existing, additions []string) ([]string, bool) {

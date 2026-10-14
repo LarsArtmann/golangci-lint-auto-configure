@@ -27,12 +27,8 @@ func (f *Fixer) convergeFixConfig(
 	// (Infrastructure 69 for a missing binary, Corruption 65 for garbage
 	// version output) instead of degrading silently.
 	if f.analyzer != nil {
-		if err := f.analyzer.FindBinary(ctx); err != nil {
-			return migrationError("find golangci-lint binary", priority, dryRun, configPath, version, err)
-		}
-
-		if err := f.analyzer.CheckVersion(ctx); err != nil {
-			return migrationError("check golangci-lint version", priority, dryRun, configPath, version, err)
+		if err := f.verifyAnalyzerContract(ctx); err != nil {
+			return nil, err
 		}
 	}
 
@@ -44,12 +40,29 @@ func (f *Fixer) convergeFixConfig(
 
 	overlay := f.sidecarOverlay(cfg)
 
-	working, normalizeChanges, phaseOneErr := f.convergePhaseOne(ctx, cfg, configPath, overlay, priority, dryRun, version)
+	working, normalizeChanges, phaseOneErr := f.convergePhaseOne(
+		ctx, cfg, configPath, overlay, priority, dryRun, version,
+	)
 	if phaseOneErr != nil {
 		return nil, phaseOneErr
 	}
 
 	return f.convergePhaseTwo(ctx, working, configPath, overlay, priority, dryRun, version, normalizeChanges)
+}
+
+// verifyAnalyzerContract proves the analyzer can run: the binary exists and
+// its version parses. The classified failure carries the legacy exit codes
+// (Infrastructure 69, Corruption 65).
+func (f *Fixer) verifyAnalyzerContract(ctx context.Context) error {
+	if err := f.analyzer.FindBinary(ctx); err != nil {
+		return analysisError("find golangci-lint binary", 0, false, "", "", err)
+	}
+
+	if err := f.analyzer.CheckVersion(ctx); err != nil {
+		return analysisError("check golangci-lint version", 0, false, "", "", err)
+	}
+
+	return nil
 }
 
 // convergePhaseOne normalizes WITHOUT analysis (golangci-lint cannot list
@@ -120,19 +133,8 @@ func (f *Fixer) convergePhaseTwo(
 
 	total := len(result.NormalizerChanges) + len(result.Plan)
 
-	if dryRun {
-		return &types.MigrationResult{
-			FixesApplied: total,
-			Message:      dryRunMessage(total, result),
-			NextSteps:    []string{"Run without --dry-run to apply the plan"},
-			DryRun:       true,
-		}, nil
-	}
-
-	if total == 0 {
-		return &types.MigrationResult{
-			Message: "Config already converged - no changes needed",
-		}, nil
+	if outcome := convergenceOutcome(total, result, dryRun); outcome != nil {
+		return outcome, nil
 	}
 
 	if err := f.configLoader.SaveConfig(result.Merged, configPath); err != nil {
@@ -145,6 +147,27 @@ func (f *Fixer) convergePhaseTwo(
 		FixesApplied: total,
 		Message:      convergeMessage(total, result),
 	}, nil
+}
+
+// convergenceOutcome returns the early MigrationResult for dry runs and
+// no-op runs; nil means "persist the merged config".
+func convergenceOutcome(total int, result *ConvergeResult, dryRun bool) *types.MigrationResult {
+	if dryRun {
+		return &types.MigrationResult{
+			FixesApplied: total,
+			Message:      dryRunMessage(total, result),
+			NextSteps:    []string{"Run without --dry-run to apply the plan"},
+			DryRun:       true,
+		}
+	}
+
+	if total == 0 {
+		return &types.MigrationResult{
+			Message: "Config already converged - no changes needed",
+		}
+	}
+
+	return nil
 }
 
 func dryRunMessage(total int, result *ConvergeResult) string {
@@ -204,18 +227,18 @@ func (f *Fixer) recordConvergeAudit(result *ConvergeResult) {
 //
 //nolint:gochecknoglobals // immutable vocabulary table
 var ledgerActionMap = map[string]audit.Action{
-	"added-to-enable":              audit.ActionAddedToEnable,
-	"formatter-added-to-enable":    audit.ActionFormatterAddedToEnable,
+	"added-to-enable":               audit.ActionAddedToEnable,
+	"formatter-added-to-enable":     audit.ActionFormatterAddedToEnable,
 	"formatter-removed-from-enable": audit.ActionFormatterRemovedFromEnable,
-	"removed-from-enable":          audit.ActionRemovedFromEnable,
-	"moved-to-disable":             audit.ActionMovedToDisable,
-	"removed-from-disable":         audit.ActionRemovedFromDisable,
-	"pruned-settings":              audit.ActionPrunedSettings,
-	"re-enabled":                   audit.ActionReEnabled,
-	"suppressed-re-enable":         audit.ActionSuppressedReEnable,
-	"exclusion-linter-renamed":     audit.ActionExclusionLinterRenamed,
-	"exclusion-linter-removed":     audit.ActionExclusionLinterRemoved,
-	"exclusion-rule-merged":        audit.ActionExclusionRuleMerged,
+	"removed-from-enable":           audit.ActionRemovedFromEnable,
+	"moved-to-disable":              audit.ActionMovedToDisable,
+	"removed-from-disable":          audit.ActionRemovedFromDisable,
+	"pruned-settings":               audit.ActionPrunedSettings,
+	"re-enabled":                    audit.ActionReEnabled,
+	"suppressed-re-enable":          audit.ActionSuppressedReEnable,
+	"exclusion-linter-renamed":      audit.ActionExclusionLinterRenamed,
+	"exclusion-linter-removed":      audit.ActionExclusionLinterRemoved,
+	"exclusion-rule-merged":         audit.ActionExclusionRuleMerged,
 }
 
 func ledgerActionFor(action string) audit.Action {

@@ -367,16 +367,16 @@ func (l *Loader) detectGoVersion(ctx context.Context) string {
 	// every toolchain patch bump. Unparsable versions (devel toolchains) are
 	// dropped so golangci-lint falls back to the go.mod / binary version
 	// instead of receiving a garbage value.
-	goVersion, ok := types.NormalizeGoMajorMinor(rawVersion)
-	if !ok {
+	goVersion, parseErr := types.ParseGoVersion(rawVersion)
+	if parseErr != nil {
 		l.logger.Warnf("Local Go version %q is not parsable; omitting run.go from the default config", rawVersion)
 
 		return ""
 	}
 
-	l.logger.Infof("Detected local Go version: %s", goVersion)
+	l.logger.Infof("Detected local Go version: %s", goVersion.String())
 
-	return goVersion
+	return goVersion.String()
 }
 
 func defaultExclusionPaths() []string {

@@ -48,6 +48,15 @@ func applyLinterChanges(cfg *types.Config, change Change) {
 		}
 	case PathLintersSettings:
 		applySettingsChange(&cfg.Linters.Settings, change)
+	case "linters.exclusions.paths", PathLintersExclusionRules, "linters.exclusions.generated":
+		applyLinterExclusionChanges(cfg, change)
+	}
+}
+
+// applyLinterExclusionChanges materializes the three linter-exclusion
+// change shapes: path lists, rules, and the generated marker.
+func applyLinterExclusionChanges(cfg *types.Config, change Change) {
+	switch change.Path {
 	case "linters.exclusions.paths":
 		applyStringList(&cfg.Linters.Exclusions.Paths, change)
 	case PathLintersExclusionRules:

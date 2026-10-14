@@ -110,20 +110,32 @@ func Converge(
 		return nil, planErr
 	}
 
-	result := &ConvergeResult{
+	return newConvergeResult(env, working, plan, normalizerChanges, suppressed, options), nil
+}
+
+// newConvergeResult assembles the run outcome; the merged config is
+// materialized only for real (non-dry-run) runs.
+func newConvergeResult(
+	env Env,
+	working *types.Config,
+	plan []Change,
+	normalizerChanges []Change,
+	suppressed []types.LinterName,
+	options ConvergeOptions,
+) *ConvergeResult {
+	var merged *types.Config
+	if !options.DryRun {
+		merged = ApplyPlan(working, plan)
+	}
+
+	return &ConvergeResult{
 		Env:               env,
 		Plan:              plan,
 		NormalizerChanges: normalizerChanges,
 		Suppressed:        suppressed,
-		Merged:            nil,
+		Merged:            merged,
 		Converged:         len(plan) == 0 && len(normalizerChanges) == 0,
 	}
-
-	if !options.DryRun {
-		result.Merged = ApplyPlan(working, plan)
-	}
-
-	return result, nil
 }
 
 // convergeNormalizers runs the pre-render normalizer chain: bad settings
