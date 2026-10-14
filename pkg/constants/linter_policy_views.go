@@ -1,8 +1,66 @@
 package constants
 
 import (
+	"fmt"
+
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
+
+// Table invariants are enforced at init: a violation is a programming error
+// in curated data and must fail fast (at test time and at first use), not
+// surface as a corrupted view later.
+func init() {
+	seen := make(map[types.LinterName]bool, len(LinterPolicies))
+
+	for _, record := range LinterPolicies {
+		if err := record.Validate(); err != nil {
+			panic(fmt.Sprintf("constants: invalid policy table: %v", err))
+		}
+
+		if seen[record.Name] {
+			panic(fmt.Sprintf("constants: duplicate policy record for linter %q", record.Name))
+		}
+
+		seen[record.Name] = true
+
+		for _, entry := range record.Settings {
+			if entry.Settings == nil {
+				panic(fmt.Sprintf("constants: linter %q has a nil settings block", record.Name))
+			}
+		}
+	}
+
+	fseen := make(map[types.FormatterName]bool, len(FormatterPolicies))
+
+	for _, record := range FormatterPolicies {
+		if err := record.Validate(); err != nil {
+			panic(fmt.Sprintf("constants: invalid formatter policy table: %v", err))
+		}
+
+		if fseen[record.Name] {
+			panic(fmt.Sprintf("constants: duplicate formatter policy record for %q", record.Name))
+		}
+
+		fseen[record.Name] = true
+
+		if !slices.Contains(FormatterOrder, record.Name) {
+			panic(fmt.Sprintf("constants: formatter %q missing from FormatterOrder", record.Name))
+		}
+	}
+
+	// Referential integrity: supersession and redundancy targets must exist.
+	for _, record := range LinterPolicies {
+		if record.SupersededBy != "" && !seen[record.SupersededBy] {
+			panic(fmt.Sprintf("constants: linter %q supersedes unknown linter %q", record.Name, record.SupersededBy))
+		}
+	}
+
+	for _, record := range FormatterPolicies {
+		if record.SupersededBy != "" && !fseen[record.SupersededBy] {
+			panic(fmt.Sprintf("constants: formatter %q superseded by unknown formatter %q", record.Name, record.SupersededBy))
+		}
+	}
+}
 
 // This file derives the legacy linter/formatter maps from the declarative
 // policy table (linter_policy_table.go). The table is the single source of

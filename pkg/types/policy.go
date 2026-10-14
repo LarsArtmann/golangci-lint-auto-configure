@@ -187,8 +187,14 @@ func (p LinterPolicy) Validate() error {
 		return errPolicy("linter %s: RequiresTech gate requires a technology key", p.Name)
 	}
 
-	if p.Tier.Kind == TierDisabled && p.Priority != LinterPriorityOptional {
-		return errPolicy("linter %s: disabled tier must not carry a recommendation priority", p.Name)
+	if p.Tier.Kind == TierDisabled {
+		if p.Priority != LinterPriorityOptional {
+			return errPolicy("linter %s: disabled tier must not carry a recommendation priority", p.Name)
+		}
+
+		if p.Rationale != "" {
+			return errPolicy("linter %s: disabled tier must not carry a recommendation rationale", p.Name)
+		}
 	}
 
 	if !p.ValidTool.IsEmpty() {
