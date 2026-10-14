@@ -593,7 +593,7 @@ var LinterPolicies = []types.LinterPolicy{
 		Name:      "revive",
 		Priority:  types.LinterPriorityHigh,
 		Rationale: "Fast, configurable, extensible, flexible, and beautiful linter",
-		Settings:  []types.VersionedSettings{{Settings: ReviveSettings{Rules: []ReviveRule{ReviveRule{Disabled: true, Name: "exported"}, ReviveRule{Disabled: true, Name: "package-comments"}}}, Since: types.GolangciVersion{}}},
+		Settings:  []types.VersionedSettings{{Settings: ReviveSettings{Rules: []ReviveRule{{Disabled: true, Name: "exported"}, {Disabled: true, Name: "package-comments"}}}, Since: types.GolangciVersion{}}},
 	},
 	{
 		Name:      "rowserrcheck",

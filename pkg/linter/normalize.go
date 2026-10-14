@@ -181,7 +181,10 @@ func NormalizeConfigShape(observed *types.Config) (*types.Config, []Change) {
 		normalized.Version = "2"
 	}
 
-	if durationInvalid, durationReason := needsDurationFix(normalized.Run.Timeout); durationInvalid && normalized.Run.Timeout != "" {
+	if durationInvalid, durationReason := needsDurationFix(
+		normalized.Run.Timeout,
+	); durationInvalid &&
+		normalized.Run.Timeout != "" {
 		changes = append(changes, Change{
 			Path: "run.timeout", Kind: ChangeUpdate,
 			From:   normalized.Run.Timeout,

@@ -25,7 +25,6 @@ import (
 	"sort"
 
 	"charm.land/log/v2"
-
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"

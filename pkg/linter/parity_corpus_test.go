@@ -1,7 +1,8 @@
 package linter
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"os"
 	"path/filepath"
 	"testing"
@@ -195,7 +196,7 @@ func assertGoldenResult(t *testing.T, update bool, goldenDir string, result *typ
 		return
 	}
 
-	payload, err := json.MarshalIndent(struct {
+	payload, err := json.Marshal(struct {
 		FixesApplied int
 		Message      string
 		DryRun       bool
@@ -203,7 +204,7 @@ func assertGoldenResult(t *testing.T, update bool, goldenDir string, result *typ
 		FixesApplied: result.FixesApplied,
 		Message:      result.Message,
 		DryRun:       result.DryRun,
-	}, "", "  ")
+	}, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 	if err != nil {
 		t.Fatalf("marshal result: %v", err)
 	}

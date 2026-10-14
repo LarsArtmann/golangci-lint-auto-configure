@@ -18,11 +18,11 @@ import (
 	"fmt"
 	"go/format"
 	"os"
-
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 )
 
 type schemaDef struct {
