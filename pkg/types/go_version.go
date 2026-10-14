@@ -46,8 +46,13 @@ func MustParseGoVersion(raw string) GoVersion {
 // IsZero reports whether the version is the zero value ("no version").
 func (v GoVersion) IsZero() bool { return v.major == 0 && v.minor == 0 }
 
-// String returns the "1.27" form golangci-lint configs use for run.go.
+// String returns the "1.27" form golangci-lint configs use for run.go, ""
+// for the zero value.
 func (v GoVersion) String() string {
+	if v.IsZero() {
+		return ""
+	}
+
 	return strconv.Itoa(v.major) + "." + strconv.Itoa(v.minor)
 }
 
