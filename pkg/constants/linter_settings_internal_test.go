@@ -45,8 +45,12 @@ func BenchmarkSettingsToMap_AllDefaults(b *testing.B) {
 	b.ResetTimer()
 
 	for b.Loop() {
-		for _, s := range DefaultLinterSettings {
-			_ = s.ToMap()
+		for _, record := range LinterPolicies {
+			if len(record.Settings) == 0 {
+				continue
+			}
+
+			_ = record.Settings[0].Settings.ToMap()
 		}
 	}
 }

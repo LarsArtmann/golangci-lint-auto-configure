@@ -12,15 +12,61 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// linterSettingsMap returns the base curated settings of a linter as a map,
+// failing the spec when the table carries none.
+func linterSettingsMap(name types.LinterName) map[string]any {
+	settings, ok := constants.LinterSettings(name)
+	Expect(ok).To(BeTrue(), "linter %q has no curated settings block in the policy table", name)
+
+	return settings.ToMap()
+}
+
+// formatterSettingsMap returns the base curated settings of a formatter as a
+// map, failing the spec when the table carries none.
+func formatterSettingsMap(name types.FormatterName) map[string]any {
+	settings, ok := constants.FormatterSettings(name)
+	Expect(ok).To(BeTrue(), "formatter %q has no curated settings block in the policy table", name)
+
+	return settings.ToMap()
+}
+
+// settingsBearingLinterPolicies returns every linter record with a curated
+// settings block.
+func settingsBearingLinterPolicies() []types.LinterPolicy {
+	var records []types.LinterPolicy
+
+	for _, record := range constants.LinterPolicies {
+		if len(record.Settings) > 0 {
+			records = append(records, record)
+		}
+	}
+
+	return records
+}
+
+// deprecatedLinterRecords returns every linter record carrying a supersession
+// reason (the FEATURES migration-map contract).
+func deprecatedLinterRecords() []types.LinterPolicy {
+	var records []types.LinterPolicy
+
+	for _, record := range constants.LinterPolicies {
+		if record.SupersessionReason != "" {
+			records = append(records, record)
+		}
+	}
+
+	return records
+}
+
 var _ = Describe("Reference preset", func() {
 	It("should only contain linters present in LinterPriorities", func() {
 		referenceLinters, ok := constants.PresetLinters["reference"]
 		Expect(ok).To(BeTrue(), "reference preset must exist")
 
 		for _, linter := range referenceLinters {
-			_, exists := constants.LinterPriorities[linter]
+			_, exists := constants.PolicyRecord(linter)
 			Expect(exists).
-				To(BeTrue(), "reference preset contains %q which is missing from LinterPriorities", linter)
+				To(BeTrue(), "reference preset contains %q which is missing from the policy table", linter)
 		}
 	})
 
@@ -32,79 +78,71 @@ var _ = Describe("Reference preset", func() {
 			referenceSet[string(l)] = struct{}{}
 		}
 
-		for linter, priority := range constants.LinterPriorities {
-			if priority == types.LinterPriorityCritical || priority == types.LinterPriorityHigh {
-				_, exists := referenceSet[string(linter)]
+		for _, record := range constants.LinterPolicies {
+			if record.Priority == types.LinterPriorityCritical || record.Priority == types.LinterPriorityHigh {
+				_, exists := referenceSet[string(record.Name)]
 				Expect(exists).
-					To(BeTrue(), "LinterPriorities[%s] (priority=%s) is missing from reference preset", linter, priority)
+					To(BeTrue(), "%s (priority=%s) is missing from reference preset", record.Name, record.Priority)
 			}
 		}
 	})
 })
 
-var _ = Describe("FormatterPriorities and FormatterReasons consistency", func() {
-	It("should have exactly the same keys in FormatterPriorities and FormatterReasons", func() {
-		for formatter := range constants.FormatterPriorities {
-			_, exists := constants.FormatterReasons[formatter]
-			Expect(exists).
-				To(BeTrue(), "FormatterPriorities contains %q which is missing from FormatterReasons", formatter)
-		}
-
-		for formatter := range constants.FormatterReasons {
-			_, exists := constants.FormatterPriorities[formatter]
-			Expect(exists).
-				To(BeTrue(), "FormatterReasons contains %q which is missing from FormatterPriorities", formatter)
+var _ = Describe("Formatter table report data", func() {
+	It("should give every formatter record a priority and a rationale (report data)", func() {
+		for _, record := range constants.FormatterPolicies {
+			Expect(record.Rationale).ToNot(BeEmpty(),
+				"formatter %q has no recommendation rationale", record.Name)
 		}
 	})
 })
 
-var _ = Describe("DefaultLinterSettings", func() {
-	It("should produce non-empty ToMap output for every entry", func() {
-		for linter, settings := range constants.DefaultLinterSettings {
-			m := settings.ToMap()
+var _ = Describe("Linter settings blocks", func() {
+	It("should produce non-empty ToMap output for every settings-bearing record", func() {
+		for _, record := range settingsBearingLinterPolicies() {
+			m := record.Settings[0].Settings.ToMap()
 			Expect(m).
-				ToNot(BeEmpty(), "DefaultLinterSettings[%q].ToMap() returned empty map", linter)
+				ToNot(BeEmpty(), "linter %q carries an empty curated settings block", record.Name)
 		}
 	})
 
 	It("should have cyclop max-complexity as int in ToMap output", func() {
-		m := constants.DefaultLinterSettings["cyclop"].ToMap()
+		m := linterSettingsMap("cyclop")
 		maxComplexity, ok := m["max-complexity"]
 		Expect(ok).To(BeTrue(), "cyclop settings missing max-complexity key")
 		Expect(maxComplexity).To(Equal(12))
 	})
 
-	It("should only reference linters that exist in LinterPriorities", func() {
-		for linter := range constants.DefaultLinterSettings {
-			_, exists := constants.LinterPriorities[linter]
-			Expect(exists).
-				To(BeTrue(), "DefaultLinterSettings has entry for %q which is missing from LinterPriorities — orphaned settings are dead code", linter)
+	It("should never carry curated settings on a disabled-tier linter", func() {
+		for _, record := range constants.LinterPolicies {
+			if record.Tier.Kind != types.TierDisabled {
+				continue
+			}
+
+			Expect(record.Settings).To(BeEmpty(),
+				"disabled linter %q carries curated settings — dead weight the prune pass must chase", record.Name)
 		}
 	})
 })
 
-var _ = Describe("DefaultFormatterSettings", func() {
-	It("should produce non-empty ToMap output for every entry", func() {
-		for formatter, settings := range constants.DefaultFormatterSettings {
-			m := settings.ToMap()
+var _ = Describe("Formatter settings blocks", func() {
+	It("should produce non-empty ToMap output for every settings-bearing record", func() {
+		for _, record := range constants.FormatterPolicies {
+			if len(record.Settings) == 0 {
+				continue
+			}
+
+			m := record.Settings[0].Settings.ToMap()
 			Expect(m).
-				ToNot(BeEmpty(), "DefaultFormatterSettings[%q].ToMap() returned empty map", formatter)
+				ToNot(BeEmpty(), "formatter %q carries an empty curated settings block", record.Name)
 		}
 	})
 
 	It("should have golines max-len as int in ToMap output", func() {
-		m := constants.DefaultFormatterSettings["golines"].ToMap()
+		m := formatterSettingsMap("golines")
 		maxLen, ok := m["max-len"]
 		Expect(ok).To(BeTrue(), "golines settings missing max-len key")
 		Expect(maxLen).To(Equal(120))
-	})
-
-	It("should only reference formatters that exist in FormatterPriorities", func() {
-		for formatter := range constants.DefaultFormatterSettings {
-			_, exists := constants.FormatterPriorities[formatter]
-			Expect(exists).
-				To(BeTrue(), "DefaultFormatterSettings has entry for %q which is missing from FormatterPriorities — orphaned settings are dead code", formatter)
-		}
 	})
 })
 
@@ -151,7 +189,7 @@ var _ = Describe("Format preset", func() {
 
 var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	It("ireturn should produce correct allow list", func() {
-		m := constants.DefaultLinterSettings["ireturn"].ToMap()
+		m := linterSettingsMap("ireturn")
 		allow, ok := m["allow"]
 		Expect(ok).To(BeTrue(), "ireturn settings missing allow key")
 		allowSlice, ok := allow.([]any)
@@ -160,7 +198,7 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("gocritic should produce disabled-checks list", func() {
-		m := constants.DefaultLinterSettings["gocritic"].ToMap()
+		m := linterSettingsMap("gocritic")
 		checks, ok := m["disabled-checks"]
 		Expect(ok).To(BeTrue(), "gocritic settings missing disabled-checks key")
 		checksSlice, ok := checks.([]any)
@@ -169,7 +207,7 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("exhaustruct_v5 should produce ignore-patterns list", func() {
-		m := constants.DefaultLinterSettings["exhaustruct_v5"].ToMap()
+		m := linterSettingsMap("exhaustruct_v5")
 		patterns, ok := m["ignore-patterns"]
 		Expect(ok).To(BeTrue(), "exhaustruct_v5 settings missing ignore-patterns key")
 		patternsSlice, ok := patterns.([]any)
@@ -178,7 +216,7 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("exhaustruct_v5 ignore-patterns should contain the canonical stdlib structs", func() {
-		m := constants.DefaultLinterSettings["exhaustruct_v5"].ToMap()
+		m := linterSettingsMap("exhaustruct_v5")
 		patterns, ok := m["ignore-patterns"]
 		Expect(ok).To(BeTrue(), "exhaustruct_v5 settings missing ignore-patterns key")
 		patternsSlice, ok := patterns.([]any)
@@ -206,7 +244,7 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("revive should produce rules with disabled entries", func() {
-		m := constants.DefaultLinterSettings["revive"].ToMap()
+		m := linterSettingsMap("revive")
 		rules, ok := m["rules"]
 		Expect(ok).To(BeTrue(), "revive settings missing rules key")
 		rulesSlice, ok := rules.([]any)
@@ -215,7 +253,7 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("varnamelen should produce ignore flags and names", func() {
-		m := constants.DefaultLinterSettings["varnamelen"].ToMap()
+		m := linterSettingsMap("varnamelen")
 		Expect(m["ignore-map-index-ok"]).To(BeTrue())
 		Expect(m["ignore-type-assert-ok"]).To(BeTrue())
 		names, ok := m["ignore-names"]
@@ -226,18 +264,18 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("gomoddirectives should produce replace-local bool", func() {
-		m := constants.DefaultLinterSettings["gomoddirectives"].ToMap()
+		m := linterSettingsMap("gomoddirectives")
 		Expect(m["replace-local"]).To(BeTrue())
 	})
 
 	It("ginkgolinter should produce forbid flags", func() {
-		m := constants.DefaultLinterSettings["ginkgolinter"].ToMap()
+		m := linterSettingsMap("ginkgolinter")
 		Expect(m["forbid-focus-container"]).To(BeTrue())
 		Expect(m["forbid-spec-pollution"]).To(BeTrue())
 	})
 
 	It("testifylint should produce enable-all and disable list", func() {
-		m := constants.DefaultLinterSettings["testifylint"].ToMap()
+		m := linterSettingsMap("testifylint")
 		Expect(m["enable-all"]).To(BeTrue())
 		disable, ok := m["disable"]
 		Expect(ok).To(BeTrue())
@@ -247,18 +285,18 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("makezero should produce always bool", func() {
-		m := constants.DefaultLinterSettings["makezero"].ToMap()
+		m := linterSettingsMap("makezero")
 		Expect(m["always"]).To(BeTrue())
 	})
 
 	It("funlen should produce lines and statements thresholds", func() {
-		m := constants.DefaultLinterSettings["funlen"].ToMap()
+		m := linterSettingsMap("funlen")
 		Expect(m["lines"]).To(Equal(200))
 		Expect(m["statements"]).To(Equal(100))
 	})
 
 	It("gosec should produce excludes list", func() {
-		m := constants.DefaultLinterSettings["gosec"].ToMap()
+		m := linterSettingsMap("gosec")
 		excludes, ok := m["excludes"]
 		Expect(ok).To(BeTrue(), "gosec settings missing excludes key")
 		excludesSlice, ok := excludes.([]any)
@@ -272,7 +310,7 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("errcheck should produce exclude-functions list", func() {
-		m := constants.DefaultLinterSettings["errcheck"].ToMap()
+		m := linterSettingsMap("errcheck")
 		fns, ok := m["exclude-functions"]
 		Expect(ok).To(BeTrue(), "errcheck settings missing exclude-functions key")
 		fnsSlice, ok := fns.([]any)
@@ -282,7 +320,7 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 	})
 
 	It("mnd should produce ignored-files list for test exclusion", func() {
-		m := constants.DefaultLinterSettings["mnd"].ToMap()
+		m := linterSettingsMap("mnd")
 		files, ok := m["ignored-files"]
 		Expect(ok).To(BeTrue(), "mnd settings missing ignored-files key")
 
@@ -293,22 +331,22 @@ var _ = Describe("DefaultLinterSettings ToMap equivalence", func() {
 })
 
 var _ = Describe("DefaultExclusionRules", func() {
-	It("should reference linters that exist in LinterPriorities", func() {
+	It("should reference linters that exist in the policy table", func() {
 		for _, rule := range constants.DefaultExclusionRules {
 			for _, linter := range rule.Linters {
-				_, exists := constants.LinterPriorities[types.LinterName(linter)]
+				_, exists := constants.PolicyRecord(types.LinterName(linter))
 				Expect(exists).
-					To(BeTrue(), "DefaultExclusionRules references %q which is missing from LinterPriorities", linter)
+					To(BeTrue(), "DefaultExclusionRules references %q which is missing from the policy table", linter)
 			}
 		}
 	})
 
-	It("should not include any linters from DisabledLinters", func() {
+	It("should not include any disabled-tier linters", func() {
 		for _, rule := range constants.DefaultExclusionRules {
 			for _, linter := range rule.Linters {
-				_, disabled := constants.DisabledLinters[types.LinterName(linter)]
-				Expect(disabled).
-					To(BeFalse(), "DefaultExclusionRules includes %q which is in DisabledLinters — excluded linters should be active", linter)
+				record, known := constants.PolicyRecord(types.LinterName(linter))
+				Expect(known && record.Tier.Kind == types.TierDisabled).
+					To(BeFalse(), "DefaultExclusionRules includes %q which is tool-disabled — excluded linters should be active", linter)
 			}
 		}
 	})
@@ -340,55 +378,57 @@ var _ = Describe("DefaultExclusionRules", func() {
 	})
 })
 
-var _ = Describe("PragmaticNoiseLinters", func() {
-	It("should have a non-empty reason for every entry", func() {
-		for linter, reason := range constants.PragmaticNoiseLinters {
-			Expect(reason).
-				ToNot(BeEmpty(), "PragmaticNoiseLinters contains %q with an empty reason", linter)
+var _ = Describe("Pragmatic-noise tier", func() {
+	It("should have a non-empty rationale for every member", func() {
+		for _, linter := range constants.LintersInTier(types.TierPragmaticNoise) {
+			record, known := constants.PolicyRecord(linter)
+			Expect(known).To(BeTrue(), "noise linter %q missing from the table", linter)
+			Expect(record.Tier.Rationale).
+				ToNot(BeEmpty(), "pragmatic-noise linter %q has an empty tier rationale", linter)
 		}
 	})
 
-	It("should be disjoint from DisabledLinters", func() {
-		for linter := range constants.PragmaticNoiseLinters {
-			_, disabled := constants.DisabledLinters[linter]
-			Expect(disabled).
-				To(BeFalse(), "PragmaticNoiseLinters contains %q which is also in DisabledLinters — already permanently disabled", linter)
+	It("should be disjoint from the disabled tier", func() {
+		for _, linter := range constants.LintersInTier(types.TierPragmaticNoise) {
+			record, known := constants.PolicyRecord(linter)
+			Expect(known && record.Tier.Kind == types.TierDisabled).
+				To(BeFalse(), "pragmatic-noise linter %q is also disabled-tier — already permanently disabled", linter)
 		}
 	})
 })
 
-var _ = Describe("CoreFormatters alignment", func() {
+var _ = Describe("Core formatter stack alignment", func() {
 	It("should contain exactly the validated formatter stack", func() {
-		Expect(constants.CoreFormatters).
+		Expect(constants.CoreFormattersInOrder()).
 			To(Equal([]types.FormatterName{"goimports", "gofumpt", "golines"}))
 	})
 
 	It("should match the house preset formatters", func() {
 		houseFormatters := constants.PresetFormatters["house"]
 
-		coreSet := make(map[types.FormatterName]struct{}, len(constants.CoreFormatters))
-		for _, f := range constants.CoreFormatters {
+		coreFormatters := constants.CoreFormattersInOrder()
+		coreSet := make(map[types.FormatterName]struct{}, len(coreFormatters))
+		for _, f := range coreFormatters {
 			coreSet[f] = struct{}{}
 		}
 
 		for _, f := range houseFormatters {
 			_, ok := coreSet[f]
 			Expect(ok).
-				To(BeTrue(), "house preset formatter %q is missing from CoreFormatters", f)
+				To(BeTrue(), "house preset formatter %q is missing from the core stack", f)
 		}
 
 		Expect(houseFormatters).
-			To(HaveLen(len(constants.CoreFormatters)),
-				"house preset and CoreFormatters should have the same number of formatters")
+			To(HaveLen(len(coreFormatters)),
+				"house preset and the core stack should have the same number of formatters")
 	})
 })
 
 // Docs-integrity derivation (M34): the "Deprecated Linter Migration Map"
-// table in FEATURES.md must stay in lockstep with constants.DeprecatedLinters
-// — one row per map entry, no extra rows, and the replacement column must
-// match the map ("—" for entries with no direct replacement). This is the
-// docs half; the cross-table half (DeprecatedLinters vs LinterMinVersions)
-// lives in the Describe block above.
+// table in FEATURES.md must stay in lockstep with the policy table's
+// supersession records — one row per record carrying a supersession reason,
+// no extra rows, and the replacement column must match SupersededBy
+// ("—" for entries with no direct replacement).
 var _ = Describe("FEATURES deprecation migration map", func() {
 	parseMigrationTable := func() map[string]string {
 		content, err := os.ReadFile(filepath.Join("..", "..", "FEATURES.md"))
@@ -439,33 +479,33 @@ var _ = Describe("FEATURES deprecation migration map", func() {
 		return rows
 	}
 
-	It("has exactly one row per DeprecatedLinters entry", func() {
+	It("has exactly one row per supersession record", func() {
 		rows := parseMigrationTable()
 
-		Expect(rows).To(HaveLen(len(constants.DeprecatedLinters)),
-			"FEATURES migration table and DeprecatedLinters must cover the same number of linters")
+		Expect(rows).To(HaveLen(len(deprecatedLinterRecords())),
+			"FEATURES migration table and the policy table must cover the same number of deprecations")
 	})
 
-	It("agrees with DeprecatedLinters on every replacement", func() {
+	It("agrees with the policy table on every replacement", func() {
 		rows := parseMigrationTable()
 
-		for linter, replacement := range constants.DeprecatedLinters {
-			rowReplacement, mapped := rows[string(linter)]
+		for _, record := range deprecatedLinterRecords() {
+			rowReplacement, mapped := rows[string(record.Name)]
 			Expect(mapped).
-				To(BeTrue(), "DeprecatedLinters[%q] is missing a row in the FEATURES migration table", linter)
+				To(BeTrue(), "deprecated linter %q is missing a row in the FEATURES migration table", record.Name)
 			Expect(rowReplacement).
-				To(Equal(string(replacement.Replacement)),
-					"FEATURES migration table row %q disagrees with DeprecatedLinters replacement", linter)
+				To(Equal(string(record.SupersededBy)),
+					"FEATURES migration table row %q disagrees with the policy table's SupersededBy", record.Name)
 		}
 	})
 
-	It("has no rows outside DeprecatedLinters", func() {
+	It("has no rows outside the policy table's supersession records", func() {
 		rows := parseMigrationTable()
 
 		for deprecated := range rows {
-			_, mapped := constants.DeprecatedLinters[types.LinterName(deprecated)]
-			Expect(mapped).
-				To(BeTrue(), "FEATURES migration table row %q has no DeprecatedLinters entry", deprecated)
+			record, known := constants.PolicyRecord(types.LinterName(deprecated))
+			Expect(known && record.SupersessionReason != "").
+				To(BeTrue(), "FEATURES migration table row %q has no supersession record in the policy table", deprecated)
 		}
 	})
 })

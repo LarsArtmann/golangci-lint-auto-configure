@@ -29,32 +29,30 @@ var _ = Describe("Policy table", func() {
 		}
 	})
 
-	It("never puts a disabled-tier linter into the recommendation views", func() {
-		for linter := range constants.DisabledLinters {
-			_, hasPriority := constants.LinterPriorities[linter]
-			Expect(hasPriority).
-				To(BeFalse(), "disabled linter %q leaked into LinterPriorities", linter)
-
-			_, hasReason := constants.LinterReasons[linter]
-			Expect(hasReason).
-				To(BeFalse(), "disabled linter %q leaked into LinterReasons", linter)
+	It("gives disabled-tier linters neither priority nor rationale", func() {
+		for _, linter := range constants.LintersInTier(types.TierDisabled) {
+			record, known := constants.PolicyRecord(linter)
+			Expect(known).To(BeTrue(), "disabled linter %q missing from the table", linter)
+			Expect(record.Priority).To(Equal(types.LinterPriorityOptional),
+				"disabled linter %q must not carry a recommendation priority", linter)
+			Expect(record.Rationale).To(BeEmpty(),
+				"disabled linter %q must not carry a recommendation rationale", linter)
 		}
 	})
 
 	It("gives never-auto-enable linters priority and rationale (manual enables need report data)", func() {
-		for linter := range constants.NeverAutoEnableLinters {
-			_, hasPriority := constants.LinterPriorities[linter]
-			Expect(hasPriority).
-				To(BeTrue(), "never-auto-enable linter %q missing from LinterPriorities", linter)
-
-			_, hasReason := constants.LinterReasons[linter]
-			Expect(hasReason).
-				To(BeTrue(), "never-auto-enable linter %q missing from LinterReasons", linter)
+		for _, linter := range constants.LintersInTier(types.TierNeverAutoEnable) {
+			record, known := constants.PolicyRecord(linter)
+			Expect(known).To(BeTrue(), "never-auto-enable linter %q missing from the table", linter)
+			Expect(record.Priority).NotTo(Equal(types.LinterPriorityOptional),
+				"never-auto-enable linter %q missing a recommendation priority", linter)
+			Expect(record.Rationale).NotTo(BeEmpty(),
+				"never-auto-enable linter %q missing a recommendation rationale", linter)
 		}
 	})
 
 	It("keeps supersession targets inside the table (referential integrity)", func() {
-		known := constants.LinterPolicyView()
+		known := policyTableByName()
 
 		for _, record := range constants.LinterPolicies {
 			if record.SupersededBy == "" {
@@ -68,7 +66,7 @@ var _ = Describe("Policy table", func() {
 	})
 
 	It("agrees with itself on gated replacements (deprecation since == replacement min version)", func() {
-		known := constants.LinterPolicyView()
+		known := policyTableByName()
 
 		for _, record := range constants.LinterPolicies {
 			if record.SupersededBy == "" || record.SupersessionSince.IsZero() {
@@ -132,7 +130,7 @@ var _ = Describe("Formatter policy table", func() {
 	})
 
 	It("marks exactly the validated core stack as Core, in canonical order", func() {
-		Expect(constants.CoreFormatters).To(Equal([]types.FormatterName{"goimports", "gofumpt", "golines"}))
+		Expect(constants.CoreFormattersInOrder()).To(Equal([]types.FormatterName{"goimports", "gofumpt", "golines"}))
 	})
 
 	It("keeps gci as a manual-only choice (known, ordered, not core)", func() {
@@ -140,7 +138,18 @@ var _ = Describe("Formatter policy table", func() {
 		Expect(known).To(BeTrue())
 
 		Expect(constants.FormatterOrder).To(ContainElement(types.FormatterName("gci")))
-		Expect(constants.CoreFormatters).NotTo(ContainElement(types.FormatterName("gci")),
+		Expect(constants.CoreFormattersInOrder()).NotTo(ContainElement(types.FormatterName("gci")),
 			"gci was removed from the default stack 2026-10-11")
 	})
 })
+
+// policyTableByName indexes the linter policy table by name for the
+// referential-integrity specs (the old LinterPolicyView, test-local now).
+func policyTableByName() map[types.LinterName]types.LinterPolicy {
+	known := make(map[types.LinterName]types.LinterPolicy, len(constants.LinterPolicies))
+	for _, record := range constants.LinterPolicies {
+		known[record.Name] = record
+	}
+
+	return known
+}

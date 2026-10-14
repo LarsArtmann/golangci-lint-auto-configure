@@ -148,8 +148,9 @@ func TestReplacementVersionGate(t *testing.T) {
 // disjoint, and the never-enable predicate fires purely on the sidecar —
 // independent of pragmatic filtering.
 func TestPragmaticCompositionWithNeverEnable(t *testing.T) {
-	for pragmaticName := range constants.PragmaticNoiseLinters {
-		if _, alsoNeverAuto := constants.NeverAutoEnableLinters[pragmaticName]; alsoNeverAuto {
+	for _, pragmaticName := range constants.LintersInTier(types.TierPragmaticNoise) {
+		record, known := constants.PolicyRecord(pragmaticName)
+		if known && record.Tier.Kind == types.TierNeverAutoEnable {
 			t.Fatalf(
 				"%s is both pragmatic-noise and never-auto-enable — the sets must stay disjoint",
 				pragmaticName,

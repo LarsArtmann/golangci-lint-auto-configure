@@ -40,14 +40,22 @@ var _ = Describe("Schema fixture gate", func() {
 		It("fixture contains an entry for every curated default setting", func() {
 			content := readFileString(filepath.Join(findRepoRoot(), schemaFixtureRelToRepo))
 
-			for linter := range constants.DefaultLinterSettings {
-				Expect(content).To(ContainSubstring("    "+string(linter)+":\n"),
-					"linter %s has curated defaults but is missing from the schema fixture", linter)
+			for _, record := range constants.LinterPolicies {
+				if len(record.Settings) == 0 {
+					continue
+				}
+
+				Expect(content).To(ContainSubstring("    "+string(record.Name)+":\n"),
+					"linter %s has curated defaults but is missing from the schema fixture", record.Name)
 			}
 
-			for formatter := range constants.DefaultFormatterSettings {
-				Expect(content).To(ContainSubstring("    "+string(formatter)+":\n"),
-					"formatter %s has curated defaults but is missing from the schema fixture", formatter)
+			for _, record := range constants.FormatterPolicies {
+				if len(record.Settings) == 0 {
+					continue
+				}
+
+				Expect(content).To(ContainSubstring("    "+string(record.Name)+":\n"),
+					"formatter %s has curated defaults but is missing from the schema fixture", record.Name)
 			}
 		})
 	})

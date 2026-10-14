@@ -1,7 +1,6 @@
 package constants_test
 
 import (
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -12,19 +11,19 @@ import (
 var _ = Describe("DefaultLinterSettings wire output", func() {
 	Describe("complexity linters", func() {
 		It("gocognit produces min-complexity 25", func() {
-			m := constants.DefaultLinterSettings["gocognit"].ToMap()
+			m := linterSettingsMap("gocognit")
 			Expect(m).To(HaveKeyWithValue("min-complexity", 25))
 			Expect(m).To(HaveLen(1))
 		})
 
 		It("gocyclo produces min-complexity 20", func() {
-			m := constants.DefaultLinterSettings["gocyclo"].ToMap()
+			m := linterSettingsMap("gocyclo")
 			Expect(m).To(HaveKeyWithValue("min-complexity", 20))
 			Expect(m).To(HaveLen(1))
 		})
 
 		It("nestif produces min-complexity 6", func() {
-			m := constants.DefaultLinterSettings["nestif"].ToMap()
+			m := linterSettingsMap("nestif")
 			Expect(m).To(HaveKeyWithValue("min-complexity", 6))
 			Expect(m).To(HaveLen(1))
 		})
@@ -32,7 +31,7 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 
 	Describe("goconst", func() {
 		It("produces min-len (NOT the schema-invalid min-length), min-occurrences, ignore-tests", func() {
-			m := constants.DefaultLinterSettings["goconst"].ToMap()
+			m := linterSettingsMap("goconst")
 			Expect(m).To(HaveKeyWithValue("min-len", 4))
 			Expect(m).To(HaveKeyWithValue("min-occurrences", 5))
 			Expect(m).To(HaveKeyWithValue("ignore-tests", true))
@@ -43,7 +42,7 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 
 	Describe("tagalign", func() {
 		It("produces align/sort/order with the curated ordering", func() {
-			m := constants.DefaultLinterSettings["tagalign"].ToMap()
+			m := linterSettingsMap("tagalign")
 			Expect(m).To(HaveKeyWithValue("align", false))
 			Expect(m).To(HaveKeyWithValue("sort", true))
 			Expect(m).To(HaveKeyWithValue("order", []any{
@@ -54,19 +53,19 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 
 	Describe("mnd", func() {
 		It("produces ignored-files for test files", func() {
-			m := constants.DefaultLinterSettings["mnd"].ToMap()
+			m := linterSettingsMap("mnd")
 			Expect(m).To(HaveKeyWithValue("ignored-files", []any{`_test\.go`}))
 		})
 
 		It("intentionally omits ignored-numbers (per-project decision, not universal)", func() {
-			m := constants.DefaultLinterSettings["mnd"].ToMap()
+			m := linterSettingsMap("mnd")
 			Expect(m).NotTo(HaveKey("ignored-numbers"))
 		})
 	})
 
 	Describe("wrapcheck", func() {
 		It("produces the stdlib signature regexps", func() {
-			m := constants.DefaultLinterSettings["wrapcheck"].ToMap()
+			m := linterSettingsMap("wrapcheck")
 			regexps, ok := m["ignore-sig-regexps"].([]any)
 			Expect(ok).To(BeTrue(), "ignore-sig-regexps must be a list")
 			Expect(regexps).To(HaveLen(16))
@@ -76,7 +75,7 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 		})
 
 		It("produces the error-constructor ignore sigs", func() {
-			m := constants.DefaultLinterSettings["wrapcheck"].ToMap()
+			m := linterSettingsMap("wrapcheck")
 			sigs, ok := m["ignore-sigs"].([]any)
 			Expect(ok).To(BeTrue(), "ignore-sigs must be a list")
 			Expect(sigs).To(HaveLen(9))
@@ -87,12 +86,12 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 
 	Describe("errcheck", func() {
 		It("enables check-type-assertions", func() {
-			m := constants.DefaultLinterSettings["errcheck"].ToMap()
+			m := linterSettingsMap("errcheck")
 			Expect(m).To(HaveKeyWithValue("check-type-assertions", true))
 		})
 
 		It("excludes curated Close/Fprint functions", func() {
-			m := constants.DefaultLinterSettings["errcheck"].ToMap()
+			m := linterSettingsMap("errcheck")
 			excluded, ok := m["exclude-functions"].([]any)
 			Expect(ok).To(BeTrue(), "exclude-functions must be a list")
 			Expect(excluded).To(HaveLen(16))
@@ -104,7 +103,7 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 
 	Describe("varnamelen", func() {
 		It("produces the typed threshold knobs", func() {
-			m := constants.DefaultLinterSettings["varnamelen"].ToMap()
+			m := linterSettingsMap("varnamelen")
 			Expect(m).To(HaveKeyWithValue("max-distance", 15))
 			Expect(m).To(HaveKeyWithValue("min-name-length", 2))
 			Expect(m).To(HaveKeyWithValue("ignore-map-index-ok", true))
@@ -112,7 +111,7 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 		})
 
 		It("produces ignore-decls with stdlib-only typed declarations", func() {
-			m := constants.DefaultLinterSettings["varnamelen"].ToMap()
+			m := linterSettingsMap("varnamelen")
 			decls, ok := m["ignore-decls"].([]any)
 			Expect(ok).To(BeTrue(), "ignore-decls must be a list")
 
@@ -129,7 +128,7 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 		})
 
 		It("produces the curated ignore-names", func() {
-			m := constants.DefaultLinterSettings["varnamelen"].ToMap()
+			m := linterSettingsMap("varnamelen")
 			Expect(m).To(HaveKeyWithValue("ignore-names", []any{
 				"err", "ok", "tt", "fn", "t", "i", "m", "g", "a", "b", "v",
 			}))

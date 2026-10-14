@@ -107,7 +107,7 @@ var _ = Describe("Preset queries parity", func() {
 		for _, preset := range []string{"format", "house"} {
 			formatters, ok := constants.PresetFormatters[preset]
 			Expect(ok).To(BeTrue(), "preset %q missing from PresetFormatters", preset)
-			Expect(formatters).To(Equal(constants.CoreFormatters))
+			Expect(formatters).To(Equal(constants.CoreFormattersInOrder()))
 		}
 	})
 })

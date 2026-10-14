@@ -40,14 +40,9 @@ var _ = Describe("--pragmatic flag", func() {
 		return false
 	}
 
-	// pragmaticNoiseNames extracts linter names from PragmaticNoiseLinters.
+	// pragmaticNoiseNames extracts the pragmatic-noise tier from the table.
 	pragmaticNoiseNames := func() []types.LinterName {
-		names := make([]types.LinterName, 0, len(constants.PragmaticNoiseLinters))
-		for name := range constants.PragmaticNoiseLinters {
-			names = append(names, name)
-		}
-
-		return names
+		return constants.LintersInTier(types.TierPragmaticNoise)
 	}
 
 	It("should exclude the 4 noise linters from the enable set", func() {

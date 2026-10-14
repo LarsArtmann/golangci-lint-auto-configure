@@ -127,7 +127,7 @@ var _ = Describe("Desired renderer", func() {
 		// swaggo is not core, so it never renders in the default set; the
 		// gate matters for the record's recommendability, covered by the
 		// formatter table specs. Here we pin that core rendering is stable.
-		Expect(Desired(without).EnableFormatters).To(Equal(constants.CoreFormatters))
+		Expect(Desired(without).EnableFormatters).To(Equal(constants.CoreFormattersInOrder()))
 	})
 
 	It("carries the curated settings of rendered linters", func() {
