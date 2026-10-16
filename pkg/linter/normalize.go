@@ -393,6 +393,75 @@ func PruneOrphanSettings(observed *types.Config) (*types.Config, []Change) {
 	return normalized, changes
 }
 
+// RemoveUnknownLinters drops linters.enable and linters.disable entries the
+// detected golangci-lint binary cannot name. Either entry fails config LOAD
+// ("unknown linters"), so the whole file is dead weight until the name is
+// gone — this normalizer heals configs poisoned by plugin-linter writes and
+// lets the rest of the pipeline analyze reality. A nil/empty known set (no
+// binary, failed probe) is a no-op: an unknown binary gates nothing. Pure.
+func RemoveUnknownLinters(observed *types.Config, known map[types.LinterName]bool) (*types.Config, []Change) {
+	if len(known) == 0 {
+		return observed, nil
+	}
+
+	normalized := observed.Clone()
+
+	changes := make([]Change, 0, 2)
+
+	kept, removed := partitionUnknown(normalized.Linters.Enable, known)
+	if len(removed) > 0 {
+		normalized.Linters.Enable = kept
+
+		changes = append(changes, unknownLinterChanges(removed, PathLintersEnable)...)
+	}
+
+	kept, removed = partitionUnknown(normalized.Linters.Disable, known)
+	if len(removed) > 0 {
+		normalized.Linters.Disable = kept
+
+		changes = append(changes, unknownLinterChanges(removed, PathLintersDisable)...)
+	}
+
+	if len(changes) == 0 {
+		return observed, nil
+	}
+
+	return normalized, changes
+}
+
+// unknownLinterChangeReason explains why an unknown name must go: the entry
+// is not an opinion, it is a load failure.
+const unknownLinterChangeReason = "not supported by the detected golangci-lint binary; " +
+	"the config cannot be loaded while it is listed (remove it, or run a binary " +
+	"built with this linter as a module plugin)"
+
+func unknownLinterChanges(removed []types.LinterName, path string) []Change {
+	changes := make([]Change, 0, len(removed))
+	for _, name := range removed {
+		changes = append(changes, Change{
+			Path: path, Element: string(name), Kind: ChangeRemove,
+			From:   string(name),
+			Reason: unknownLinterChangeReason,
+		})
+	}
+
+	return changes
+}
+
+func partitionUnknown(names []types.LinterName, known map[types.LinterName]bool) (kept, removed []types.LinterName) {
+	for _, name := range names {
+		if known[name] {
+			kept = append(kept, name)
+
+			continue
+		}
+
+		removed = append(removed, name)
+	}
+
+	return kept, removed
+}
+
 // RemoveRedundancies drops linters and formatters superseded by an enabled
 // counterpart (the RedundancyRelations table: lll dies with golines, gofmt
 // dies with gofumpt). Pure.

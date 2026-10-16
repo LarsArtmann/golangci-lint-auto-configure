@@ -26,6 +26,10 @@ type Evaluation struct {
 	// Suppressed lists linters the never-enable section protected from
 	// re-enable (audit-only events, no config change).
 	Suppressed []types.LinterName
+	// Unsupported lists recommendable linters the detected binary cannot
+	// name (plugin linters). Nothing was written for them; each carries an
+	// unsupported-recommendation finding.
+	Unsupported []types.LinterName
 	// Converged reports whether the observed config already matched.
 	Converged bool
 }
@@ -53,6 +57,7 @@ func (f *Fixer) Evaluate(
 		Observed:   cfg,
 		Deviations: append(append([]Change{}, result.NormalizerChanges...), result.Plan...),
 		Suppressed: result.Suppressed,
+		Unsupported: result.Unsupported,
 		Converged:  result.Converged,
 	}, nil
 }

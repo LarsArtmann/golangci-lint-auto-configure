@@ -29,6 +29,10 @@ type ConvergeResult struct {
 	// re-enabled but the sidecar's never-enable section protected. They are
 	// audit-only events: no config change accompanies them.
 	Suppressed []types.LinterName
+	// Unsupported lists recommendable linters the detected binary cannot
+	// name (plugin linters). Nothing was written for them; the fixer logs a
+	// warning and finding-based reports carry one finding each.
+	Unsupported []types.LinterName
 	// Merged is the converged configuration (nil for dry runs).
 	Merged *types.Config
 	// Converged reports whether the observed config already matched.
@@ -37,13 +41,15 @@ type ConvergeResult struct {
 
 // NormalizeConfig runs every pre-analysis normalizer: config-shape repairs
 // (version, duration, typecheck, tool-disabled moves), bad settings keys,
-// deprecation replacement (version-gated, never-enable aware), and exclusion
-// rule renames. Pure: clone in, changes out. The result must be PERSISTED
-// before golangci-lint can list linters for it.
+// deprecation replacement (version-gated, never-enable aware), unknown-linter
+// removal (capability-gated), and exclusion rule renames. Pure: clone in,
+// changes out. The result must be PERSISTED before golangci-lint can list
+// linters for it.
 func NormalizeConfig(
 	observed *types.Config,
 	tool types.GolangciVersion,
 	neverEnable func(types.LinterName) bool,
+	binaryKnown map[types.LinterName]bool,
 ) (*types.Config, []Change) {
 	working, changes := NormalizeConfigShape(observed)
 
@@ -52,6 +58,9 @@ func NormalizeConfig(
 
 	working, replacementChanges := ReplaceDeprecatedLinters(working, tool, neverEnable)
 	changes = append(changes, replacementChanges...)
+
+	working, unknownChanges := RemoveUnknownLinters(working, binaryKnown)
+	changes = append(changes, unknownChanges...)
 
 	working, ruleRenameChanges := RenameDeprecatedInExclusionRules(working)
 	changes = append(changes, ruleRenameChanges...)
@@ -80,7 +89,7 @@ func Converge(
 		neverEnable = sidecar.neverEnable
 	}
 
-	working, normalizerChanges := convergeNormalizers(observed, env.Tool, neverEnable)
+	working, normalizerChanges := convergeNormalizers(observed, env, neverEnable)
 
 	// The disable list minus the enable list is user intent; the renderer
 	// must not recommend those linters back (enable/disable conflicts are
@@ -90,12 +99,12 @@ func Converge(
 	working, redundancyChanges := removeConvergeRedundancies(working, env, options, userDisabled)
 	normalizerChanges = append(normalizerChanges, redundancyChanges...)
 
-	plan, suppressed, planErr := planConvergence(working, env, sidecar, options, userDisabled)
+	plan, suppressed, unsupported, planErr := planConvergence(working, env, sidecar, options, userDisabled)
 	if planErr != nil {
 		return nil, planErr
 	}
 
-	return newConvergeResult(env, working, plan, normalizerChanges, suppressed, options), nil
+	return newConvergeResult(env, working, plan, normalizerChanges, suppressed, unsupported, options), nil
 }
 
 // newConvergeResult assembles the run outcome; the merged config is
@@ -106,6 +115,7 @@ func newConvergeResult(
 	plan []Change,
 	normalizerChanges []Change,
 	suppressed []types.LinterName,
+	unsupported []types.LinterName,
 	options ConvergeOptions,
 ) *ConvergeResult {
 	var merged *types.Config
@@ -118,24 +128,29 @@ func newConvergeResult(
 		Plan:              plan,
 		NormalizerChanges: normalizerChanges,
 		Suppressed:        suppressed,
+		Unsupported:       unsupported,
 		Merged:            merged,
 		Converged:         len(plan) == 0 && len(normalizerChanges) == 0,
 	}
 }
 
 // convergeNormalizers runs the pre-render normalizer chain: bad settings
-// keys, deprecation replacement (version-gated, never-enable aware), and
-// exclusion rule renames. The config-shape repairs live in NormalizeConfig,
-// which the fixer runs in its persistence phase.
+// keys, deprecation replacement (version-gated, never-enable aware),
+// unknown-linter removal (capability-gated), and exclusion rule renames. The
+// config-shape repairs live in NormalizeConfig, which the fixer runs in its
+// persistence phase.
 func convergeNormalizers(
 	observed *types.Config,
-	tool types.GolangciVersion,
+	env Env,
 	neverEnable func(types.LinterName) bool,
 ) (*types.Config, []Change) {
 	working, changes := NormalizeBadSettingsKeys(observed)
 
-	working, replacementChanges := ReplaceDeprecatedLinters(working, tool, neverEnable)
+	working, replacementChanges := ReplaceDeprecatedLinters(working, env.Tool, neverEnable)
 	changes = append(changes, replacementChanges...)
+
+	working, unknownChanges := RemoveUnknownLinters(working, env.BinaryKnown)
+	changes = append(changes, unknownChanges...)
 
 	working, renameChanges := RenameDeprecatedInExclusionRules(working)
 
@@ -166,7 +181,7 @@ func planConvergence(
 	sidecar *sidecarOverlay,
 	options ConvergeOptions,
 	userDisabled []types.LinterName,
-) ([]Change, []types.LinterName, error) {
+) ([]Change, []types.LinterName, []types.LinterName, error) {
 	desired := renderDesired(env, options, working, userDisabled)
 
 	strategies := StrategiesFor(MergeOptions{
@@ -183,10 +198,10 @@ func planConvergence(
 	sortChanges(plan)
 
 	if err := ValidatePlan(plan); err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	return plan, suppressed, nil
+	return plan, suppressed, desired.Unsupported, nil
 }
 
 // renderDesired renders the desired configuration with the run's user-intent
