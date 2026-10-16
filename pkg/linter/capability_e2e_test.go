@@ -19,6 +19,14 @@ import (
 // stock binary rejects the enable entry and every subsequent lint run dies
 // before analysis. The capability gate must withhold the recommendation, and
 // a config already poisoned by an older tool version must be healed.
+// issueConfig is the poisoned shape older tool versions wrote: a bare
+// gohumanize enable entry a stock binary rejects.
+const issueConfig = `version: "2"
+linters:
+  enable:
+    - gohumanize
+`
+
 var _ = Describe("Fixer capability gate (issue #15)", func() {
 	var (
 		fixer      *linter.Fixer
@@ -46,12 +54,6 @@ var _ = Describe("Fixer capability gate (issue #15)", func() {
 		configPath = filepath.Join(dir, ".golangci.yml")
 		fixer = linter.NewFixer(logger, analyzer, config.NewLoader(logger))
 	})
-
-	issueConfig := `version: "2"
-linters:
-  enable:
-    - gohumanize
-`
 
 	It("never re-adds gohumanize on a clean config (recommendation withheld)", func() {
 		writeConfig(configPath, `version: "2"
