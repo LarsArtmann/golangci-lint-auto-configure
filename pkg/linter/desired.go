@@ -133,11 +133,13 @@ func Desired(env Env, options ...DesiredOption) DesiredConfig {
 	}
 
 	enabled, unsupported := renderEnableSet(request)
+	formatters := renderFormatterSet(request)
+	enabled = dropSuperseded(enabled, formatters)
 
 	return DesiredConfig{
 		EnableLinters:           enabled,
 		Unsupported:             unsupported,
-		EnableFormatters:        renderFormatterSet(request),
+		EnableFormatters:        formatters,
 		LinterSettings:          renderLinterSettings(request),
 		FormatterSettings:       renderFormatterSettings(request),
 		LinterExclusionPaths:    append([]string{}, constants.DefaultLinterExclusionPaths...),
@@ -194,6 +196,36 @@ func renderEnableSet(request desiredRequest) ([]types.LinterName, []types.Linter
 	slices.Sort(unsupported)
 
 	return enabled, unsupported
+}
+
+// dropSuperseded removes linters superseded by a desired formatter (the
+// RedundancyRelations table: lll dies with golines, gofmt with gofumpt). The
+// desired state must be self-consistent in ONE round: recommending `lll`
+// while also recommending `golines` produces a config the very next detect
+// reports as stale — a permanent detect/repair convergence loop (2026-10-17
+// BuildFlow incident). Cleanup of ALREADY-OBSERVED superseded entries stays
+// in RemoveRedundancies; this filters the recommendation itself.
+func dropSuperseded(enabled []types.LinterName, formatters []types.FormatterName) []types.LinterName {
+	formatterSet := types.NewSet(formatters...)
+	filtered := make([]types.LinterName, 0, len(enabled))
+
+	for _, name := range enabled {
+		superseded := false
+
+		for _, relation := range constants.RedundanciesFor(name) {
+			if formatterSet.Contains(relation.Superseder) {
+				superseded = true
+
+				break
+			}
+		}
+
+		if !superseded {
+			filtered = append(filtered, name)
+		}
+	}
+
+	return filtered
 }
 
 // capabilityBlocked reports whether the ONLY thing keeping a record out of
