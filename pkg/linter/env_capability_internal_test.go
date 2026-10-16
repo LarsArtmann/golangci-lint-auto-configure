@@ -72,6 +72,7 @@ var _ types.LinterAnalyzer = stubCapabilityAnalyzer{}
 func TestCollectEnvBasePopulatesBinaryKnown(t *testing.T) {
 	dir := t.TempDir()
 	configPath := filepath.Join(dir, ".golangci.yml")
+
 	if err := os.WriteFile(configPath, []byte("version: \"2\"\n"), 0o644); err != nil {
 		t.Fatalf("write config: %v", err)
 	}
@@ -97,6 +98,7 @@ func TestCollectEnvBasePopulatesBinaryKnown(t *testing.T) {
 func TestCollectEnvBaseFailsOpenWithoutProbe(t *testing.T) {
 	dir := t.TempDir()
 	configPath := filepath.Join(dir, ".golangci.yml")
+
 	if err := os.WriteFile(configPath, []byte("version: \"2\"\n"), 0o644); err != nil {
 		t.Fatalf("write config: %v", err)
 	}
@@ -116,6 +118,7 @@ func TestCollectEnvBaseFailsOpenWithoutProbe(t *testing.T) {
 func TestCollectEnvBaseFailsOpenOnProbeError(t *testing.T) {
 	dir := t.TempDir()
 	configPath := filepath.Join(dir, ".golangci.yml")
+
 	if err := os.WriteFile(configPath, []byte("version: \"2\"\n"), 0o644); err != nil {
 		t.Fatalf("write config: %v", err)
 	}

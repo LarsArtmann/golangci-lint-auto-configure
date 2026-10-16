@@ -48,17 +48,33 @@ func (a *Analyzer) runLintersProbe(
 		return nil, nil, err
 	}
 
+	parsed, err := parseLintersProbe(output)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return probeVocabulary(parsed), probeDefaultEnabled(parsed), nil
+}
+
+// parseLintersProbe decodes the wire format and rejects empty listings (a
+// binary that names no linters is broken; treating that as "known nothing"
+// would silently strip every linter from the render).
+func parseLintersProbe(output []byte) (golangciLintOutput, error) {
 	var parsed golangciLintOutput
 	if err := json.Unmarshal(output, &parsed); err != nil {
-		return nil, nil, apperrors.NewAnalysisError(
+		return golangciLintOutput{}, apperrors.NewAnalysisError(
 			"failed to parse golangci-lint linters JSON output", "", err)
 	}
 
 	if len(parsed.Enabled)+len(parsed.Disabled) == 0 {
-		return nil, nil, apperrors.NewAnalysisError(
+		return golangciLintOutput{}, apperrors.NewAnalysisError(
 			"golangci-lint linters probe returned no linters", "", nil)
 	}
 
+	return parsed, nil
+}
+
+func probeVocabulary(parsed golangciLintOutput) map[types.LinterName]bool {
 	known := make(map[types.LinterName]bool, len(parsed.Enabled)+len(parsed.Disabled))
 	for _, entry := range parsed.Enabled {
 		known[types.LinterName(entry.Name)] = true
@@ -68,12 +84,16 @@ func (a *Analyzer) runLintersProbe(
 		known[types.LinterName(entry.Name)] = true
 	}
 
+	return known
+}
+
+func probeDefaultEnabled(parsed golangciLintOutput) []types.LinterName {
 	defaults := make([]types.LinterName, 0, len(parsed.Enabled))
 	for _, entry := range parsed.Enabled {
 		defaults = append(defaults, types.LinterName(entry.Name))
 	}
 
-	return known, defaults, nil
+	return defaults
 }
 
 // DefaultEnabledLinters returns the linters the detected binary enables with

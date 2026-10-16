@@ -115,6 +115,7 @@ func TestProbeKnownLintersGarbageOutputFailsOpen(t *testing.T) {
 
 	script := "#!/bin/sh\necho 'not json'\n"
 	path := filepath.Join(dir, "golangci-lint")
+
 	if err := os.WriteFile(path, []byte(script), 0o755); err != nil {
 		t.Fatalf("write fake binary: %v", err)
 	}

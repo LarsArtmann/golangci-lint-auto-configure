@@ -20,6 +20,26 @@ func EvaluationToFindings(evaluation *linter.Evaluation) ([]finding.Finding, err
 		return nil, err
 	}
 
+	suppressed, err := suppressedReEnableFindings(evaluation)
+	if err != nil {
+		return nil, err
+	}
+
+	findings = append(findings, suppressed...)
+
+	unsupported, err := unsupportedRecommendationFindings(evaluation)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(findings, unsupported...), nil
+}
+
+// suppressedReEnableFindings reports one never-enable suppression each (no
+// config change accompanies them).
+func suppressedReEnableFindings(evaluation *linter.Evaluation) ([]finding.Finding, error) {
+	findings := make([]finding.Finding, 0, len(evaluation.Suppressed))
+
 	for _, name := range evaluation.Suppressed {
 		suppressed, buildErr := configFinding(configFindingParams{
 			RuleID:   RuleIDSuppressedReEnable,
@@ -39,15 +59,6 @@ func EvaluationToFindings(evaluation *linter.Evaluation) ([]finding.Finding, err
 		findings = append(findings, suppressed)
 	}
 
-	for _, name := range evaluation.Unsupported {
-		unsupported, buildErr := unsupportedRecommendationFinding(evaluation, name)
-		if buildErr != nil {
-			return nil, buildErr
-		}
-
-		findings = append(findings, unsupported)
-	}
-
 	return findings, nil
 }
 
@@ -60,6 +71,21 @@ const RuleIDSuppressedReEnable = "suppressed-re-enable"
 // config change accompanies it: writing the entry would make the config
 // unloadable ("unknown linters").
 const RuleIDUnsupportedRecommendation = "unsupported-recommendation"
+
+func unsupportedRecommendationFindings(evaluation *linter.Evaluation) ([]finding.Finding, error) {
+	findings := make([]finding.Finding, 0, len(evaluation.Unsupported))
+
+	for _, name := range evaluation.Unsupported {
+		unsupported, buildErr := unsupportedRecommendationFinding(evaluation, name)
+		if buildErr != nil {
+			return nil, buildErr
+		}
+
+		findings = append(findings, unsupported)
+	}
+
+	return findings, nil
+}
 
 func unsupportedRecommendationFinding(
 	evaluation *linter.Evaluation,

@@ -172,7 +172,9 @@ func collectAnalyzerEnabled(
 // analysisEnabledSet records the linters a successful analysis reports as
 // enabled (config enables plus the binary's defaults); nil when the config
 // could not be analyzed (e.g. it names a linter the binary does not carry).
-func analysisEnabledSet(analyzer types.LinterAnalyzer, ctx context.Context, configPath string) map[types.LinterName]bool {
+func analysisEnabledSet(
+	analyzer types.LinterAnalyzer, ctx context.Context, configPath string,
+) map[types.LinterName]bool {
 	analysis, err := analyzer.AnalyzeConfig(ctx, configPath)
 	if err != nil || analysis == nil {
 		return nil

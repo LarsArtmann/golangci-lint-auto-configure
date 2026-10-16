@@ -51,14 +51,14 @@ func (f *Fixer) Evaluate(
 	options := f.convergeOptions(priority, true)
 
 	return &Evaluation{
-		ConfigPath: configPath,
-		Env:        env,
-		Desired:    renderDesired(env, options, cfg, userDisabled),
-		Observed:   cfg,
-		Deviations: append(append([]Change{}, result.NormalizerChanges...), result.Plan...),
-		Suppressed: result.Suppressed,
+		ConfigPath:  configPath,
+		Env:         env,
+		Desired:     renderDesired(env, options, cfg, userDisabled),
+		Observed:    cfg,
+		Deviations:  append(append([]Change{}, result.NormalizerChanges...), result.Plan...),
+		Suppressed:  result.Suppressed,
 		Unsupported: result.Unsupported,
-		Converged:  result.Converged,
+		Converged:   result.Converged,
 	}, nil
 }
 
