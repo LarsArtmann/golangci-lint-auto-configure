@@ -47,7 +47,7 @@
 1. **Mid-list numbering churn in AGENTS.md.** I inserted the new gotcha as #8 in the middle of a 1–30 list, then wrote a renumber script that **crashed on its own assertion**, leaving duplicate numbering that a second pass had to fix. Should have appended at the end from the start.
 2. **Mangled edit in normalize.go.** A careless `edit` ate a newline and glued a function signature to its first statement. Caught by immediate re-view, fixed in the next edit.
 3. **Wrong-file edit.** Applied the ginkgolinter fix (issueConfig const) to `desired_capability_test.go` instead of `capability_e2e_test.go`; had to revert immediately.
-4. **Wasted debugging round on the "missing" CLI warning.** 4–5 tool calls chasing why the CLI didn't emit the gohumanize warning. Root cause: `configure`'s priority default (`high` in `commands.go:237` vs `optional` in `cmd_configure.go:109` — a discrepancy I had *already seen in grep output* and not registered) filters Medium-priority gohumanize before the capability gate ever runs. I should have checked flag defaults first.
+4. **Wasted debugging round on the "missing" CLI warning.** 4–5 tool calls chasing why the CLI didn't emit the gohumanize warning. Root cause: `configure`'s priority default (`high` in `commands.go:237` vs `optional` in `cmd_configure.go:109` — a discrepancy I had _already seen in grep output_ and not registered) filters Medium-priority gohumanize before the capability gate ever runs. I should have checked flag defaults first.
 5. **Stale-binary confusion.** Part of the same chase: suspicion that `/tmp/glac-bin` was stale added noise. Lesson: rebuild before re-testing CLI behavior.
 6. **History smear (not my act, but my problem to flag).** The auto-commit daemon split the feature across ~12 anonymous `chore: auto-commit N file(s)` commits. The feature is unreviewable from history; only a user-sanctioned squash fixes that now.
 
@@ -67,46 +67,46 @@
 
 Sorted by impact; first ~12 are real work, the rest are brainstorm/ROADMAP fuel (docs-health HARVEST should apply routing rigor).
 
-1. **Derive `ValidTool.Max` from `SupersessionReason` at table load** (kills the fail-open deadcode/gas hazard at the root; e1). *(HIGH)*
-2. **Verify + fix the pre-existing `vendorHash.nix` modification** sitting in the tree (buildflow-managed hash changed; I never validated it with `nix build` — could break every clone if stale). *(HIGH)*
-3. **Check CI lint workflow status** (`gh run list`) against the 45 pre-existing lll findings — if red, that's a broken gate predating this session. *(HIGH)*
-4. **File the evaluate-vs-apply divergence issue** (PlanDeviations 45 adds vs `--check` converged; evidence + repro commands in session transcript). *(HIGH)*
-5. **Investigate the dual priority-flag default** (`commands.go:237` "high" vs `cmd_configure.go:109` "optional") — which is the real `configure`, and which default is intended? Changes whether Medium linters are ever recommended at defaults. *(HIGH)*
-6. **Push + close issue #15** with the before/after repro evidence (user-gated). *(HIGH)*
-7. **Squash the ~12 daemon commits** for this feature into one reviewable commit (user-gated). *(HIGH)*
-8. **Formatter capability coverage:** verify whether `swaggo` formatter is bundled in stock binaries; if not, add a formatters probe + `RemoveUnknownFormatters`. *(HIGH if premise verifies)*
-9. **Spec: `verifyWrittenConfig` warning fires** when the post-write config is unloadable (only the success path is pinned today). *(MED)*
-10. **Spec: heal removals land in the audit ledger** as `removed-from-enable`/`removed-from-disable` (reasoned, not pinned). *(MED)*
-11. **CHANGELOG.md entry** for the capability gate + heal behavior change. *(MED)*
-12. **Run `nix flake check`** (format + build + tests gate) — the only house quality gate not executed this session. *(MED)*
-13. Harvest section (f) into TODO_LIST.md / ROADMAP.md (docs-health HARVEST). *(MED)*
-14. Close/remove the stale TODO_LIST.md item about legacy-engine deletion (verified deleted this session; AGENTS.md now says so — TODO_LIST may still track it). *(MED)*
-15. README.md: user-facing note (plugin linters need a custom binary; new warning semantics). *(MED)*
-16. Run `scripts/e2e-pin-matrix.sh` post-rationale-change. *(MED)*
-17. Finding-report (HTML/JSON/SARIF) coverage spec for `unsupported-recommendation` (report path currently only indirectly exercised). *(MED)*
-18. DOMAIN_LANGUAGE.md: capability probe / BinaryKnown / Unsupported / heal terms. *(LOW)*
-19. Debug-level log in `collectBinaryKnown` on probe failure (observability). *(LOW)*
-20. Run-summary or dedupe for Unsupported warnings (noise control at fleet scale). *(LOW)*
-21. Explicit timeout guard on the probe subprocess (hung binary must not hang configure). *(LOW)*
-22. Canary test pinning the `linters --json` wire shape (drift → silent fail-open today). *(LOW)*
-23. Windows story for probe tests: fixture binary is a `#!/bin/sh` script — guard with `runtime.GOOS` or skip on Windows CI. *(LOW)*
-24. Probe result info-log once per run ("probed golangci-lint 2.14.0: 115 linters known") for fleet debugging. *(LOW)*
-25. Measure configure runtime delta from the +2 golangci-lint invocations (probe + verify) on a large fleet. *(LOW)*
-26. Cross-check `RemoveUnknownLinters` ordering vs deprecation replacement in the normalizer chain (both mutate enable lists; interplay untested). *(LOW)*
-27. Consider capability-gating `renderFormatterSet` symmetrical to linters (if item 8's premise verifies). *(LOW)*
-28. Unify/document the duck-typed capability interfaces (`linterProber`, `configLoadVerifier`) beside `ledgerReader` in one "optional analyzer surface" doc note. *(LOW)*
-29. Document the Unsupported projection chain (Desired → ConvergeResult → Evaluation) so the three carriers don't drift. *(LOW)*
-30. Split `TestRemoveUnknownLinters` further if it grows (gocognit borderline at rewrite time). *(LOW)*
-31. CLI-level e2e spec: `configure --check` exit code reflects the heal (handleCheckMode integration). *(LOW)*
-32. Verify the Ginkgo `Skip` in capability_e2e actually triggers on a plugin-carrying binary (can't easily produce one; at least document how). *(LOW)*
-33. Upstream suggestion to golangci-lint: make `config verify` catch unknown linter names (would obsolete this bug class at the schema layer) — verify-before-filing first. *(ROADMAP)*
-34. Evaluate whether `Unsupported` should include below-threshold priorities in reports (product decision; today only at/above threshold). *(ROADMAP)*
-35. Persist probe results across fleet runs (per-binary cache keyed by binary hash) if item 25 shows real cost. *(ROADMAP)*
-36. Table-lint rule: policy records with `SupersessionReason` containing "removed" must carry `ValidTool.Max` (data-integrity spec so item 1 never regresses). *(MED — fold into item 1)*
-37. Check whether `docs/DOMAIN_LANGUAGE.md` needs the gate vocabulary before external users see the finding rule IDs. *(LOW)*
-38. Add the issue's `MANUALLY REVIEWED` checkbox tick to the #15 close checklist (user act). *(LOW)*
-39. LSP-vs-CLI lint drift in dev experience: stale golangci_lint_ls diagnostics showed ghosts of fixed issues; consider `lsp_restart` after bulk edits or a documented note. *(LOW)*
-40. Post-close: retro-annotate the 2026-10-14 status reports (docs-health ANNOTATE) that reference the pre-fix gohumanize behavior. *(LOW)*
+1. **Derive `ValidTool.Max` from `SupersessionReason` at table load** (kills the fail-open deadcode/gas hazard at the root; e1). _(HIGH)_
+2. **Verify + fix the pre-existing `vendorHash.nix` modification** sitting in the tree (buildflow-managed hash changed; I never validated it with `nix build` — could break every clone if stale). _(HIGH)_
+3. **Check CI lint workflow status** (`gh run list`) against the 45 pre-existing lll findings — if red, that's a broken gate predating this session. _(HIGH)_
+4. **File the evaluate-vs-apply divergence issue** (PlanDeviations 45 adds vs `--check` converged; evidence + repro commands in session transcript). _(HIGH)_
+5. **Investigate the dual priority-flag default** (`commands.go:237` "high" vs `cmd_configure.go:109` "optional") — which is the real `configure`, and which default is intended? Changes whether Medium linters are ever recommended at defaults. _(HIGH)_
+6. **Push + close issue #15** with the before/after repro evidence (user-gated). _(HIGH)_
+7. **Squash the ~12 daemon commits** for this feature into one reviewable commit (user-gated). _(HIGH)_
+8. **Formatter capability coverage:** verify whether `swaggo` formatter is bundled in stock binaries; if not, add a formatters probe + `RemoveUnknownFormatters`. _(HIGH if premise verifies)_
+9. **Spec: `verifyWrittenConfig` warning fires** when the post-write config is unloadable (only the success path is pinned today). _(MED)_
+10. **Spec: heal removals land in the audit ledger** as `removed-from-enable`/`removed-from-disable` (reasoned, not pinned). _(MED)_
+11. **CHANGELOG.md entry** for the capability gate + heal behavior change. _(MED)_
+12. **Run `nix flake check`** (format + build + tests gate) — the only house quality gate not executed this session. _(MED)_
+13. Harvest section (f) into TODO_LIST.md / ROADMAP.md (docs-health HARVEST). _(MED)_
+14. Close/remove the stale TODO_LIST.md item about legacy-engine deletion (verified deleted this session; AGENTS.md now says so — TODO_LIST may still track it). _(MED)_
+15. README.md: user-facing note (plugin linters need a custom binary; new warning semantics). _(MED)_
+16. Run `scripts/e2e-pin-matrix.sh` post-rationale-change. _(MED)_
+17. Finding-report (HTML/JSON/SARIF) coverage spec for `unsupported-recommendation` (report path currently only indirectly exercised). _(MED)_
+18. DOMAIN_LANGUAGE.md: capability probe / BinaryKnown / Unsupported / heal terms. _(LOW)_
+19. Debug-level log in `collectBinaryKnown` on probe failure (observability). _(LOW)_
+20. Run-summary or dedupe for Unsupported warnings (noise control at fleet scale). _(LOW)_
+21. Explicit timeout guard on the probe subprocess (hung binary must not hang configure). _(LOW)_
+22. Canary test pinning the `linters --json` wire shape (drift → silent fail-open today). _(LOW)_
+23. Windows story for probe tests: fixture binary is a `#!/bin/sh` script — guard with `runtime.GOOS` or skip on Windows CI. _(LOW)_
+24. Probe result info-log once per run ("probed golangci-lint 2.14.0: 115 linters known") for fleet debugging. _(LOW)_
+25. Measure configure runtime delta from the +2 golangci-lint invocations (probe + verify) on a large fleet. _(LOW)_
+26. Cross-check `RemoveUnknownLinters` ordering vs deprecation replacement in the normalizer chain (both mutate enable lists; interplay untested). _(LOW)_
+27. Consider capability-gating `renderFormatterSet` symmetrical to linters (if item 8's premise verifies). _(LOW)_
+28. Unify/document the duck-typed capability interfaces (`linterProber`, `configLoadVerifier`) beside `ledgerReader` in one "optional analyzer surface" doc note. _(LOW)_
+29. Document the Unsupported projection chain (Desired → ConvergeResult → Evaluation) so the three carriers don't drift. _(LOW)_
+30. Split `TestRemoveUnknownLinters` further if it grows (gocognit borderline at rewrite time). _(LOW)_
+31. CLI-level e2e spec: `configure --check` exit code reflects the heal (handleCheckMode integration). _(LOW)_
+32. Verify the Ginkgo `Skip` in capability_e2e actually triggers on a plugin-carrying binary (can't easily produce one; at least document how). _(LOW)_
+33. Upstream suggestion to golangci-lint: make `config verify` catch unknown linter names (would obsolete this bug class at the schema layer) — verify-before-filing first. _(ROADMAP)_
+34. Evaluate whether `Unsupported` should include below-threshold priorities in reports (product decision; today only at/above threshold). _(ROADMAP)_
+35. Persist probe results across fleet runs (per-binary cache keyed by binary hash) if item 25 shows real cost. _(ROADMAP)_
+36. Table-lint rule: policy records with `SupersessionReason` containing "removed" must carry `ValidTool.Max` (data-integrity spec so item 1 never regresses). _(MED — fold into item 1)_
+37. Check whether `docs/DOMAIN_LANGUAGE.md` needs the gate vocabulary before external users see the finding rule IDs. _(LOW)_
+38. Add the issue's `MANUALLY REVIEWED` checkbox tick to the #15 close checklist (user act). _(LOW)_
+39. LSP-vs-CLI lint drift in dev experience: stale golangci_lint_ls diagnostics showed ghosts of fixed issues; consider `lsp_restart` after bulk edits or a documented note. _(LOW)_
+40. Post-close: retro-annotate the 2026-10-14 status reports (docs-health ANNOTATE) that reference the pre-fix gohumanize behavior. _(LOW)_
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
@@ -116,4 +116,4 @@ Sorted by impact; first ~12 are real work, the rest are brainstorm/ROADMAP fuel 
 
 ---
 
-*Report format note: skill default is a styled HTML dashboard; the explicit `.md` path in your instruction wins (flagged per the skill's override rule). Section (f) exceeds the skill's Top-25 default per your "up to 50". Manual commit skipped per harness rule — the auto-commit daemon will pick this file up. HARVEST of (f) into TODO_LIST.md is pending your go-ahead since you asked me to wait.*
+_Report format note: skill default is a styled HTML dashboard; the explicit `.md` path in your instruction wins (flagged per the skill's override rule). Section (f) exceeds the skill's Top-25 default per your "up to 50". Manual commit skipped per harness rule — the auto-commit daemon will pick this file up. HARVEST of (f) into TODO_LIST.md is pending your go-ahead since you asked me to wait._
