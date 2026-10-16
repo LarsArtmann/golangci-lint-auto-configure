@@ -215,7 +215,7 @@ func indexOr(s, substr string, fallback int) int {
 // extraLinters is appended to the always-present `gosec` enable entry.
 // issuesBlock is the full literal YAML for the `issues:` block (key + value),
 // for example `issues: {}` or
-// `issues:\n  max-issues-per-linter: 50\n  max-same-issues: 10`.
+// `issues:\n  max-issues-per-linter: 0\n  max-same-issues: 0`.
 // Use `emptyIssuesBlock` for an empty object and `defaultIssuesBlock` for the
 // fixer-injected defaults.
 func fullyPreparedConfig(issuesBlock string, extraLinters ...string) string {
@@ -272,10 +272,11 @@ linters:
 const emptyIssuesBlock = `issues: {}`
 
 // defaultIssuesBlock is the issues block produced by the fixer when
-// `issues: {}` or no issues block is present.
+// `issues: {}` or no issues block is present: unlimited caps, written
+// explicitly so golangci-lint never falls back to its truncating defaults.
 const defaultIssuesBlock = `issues:
-  max-issues-per-linter: 50
-  max-same-issues: 10`
+  max-issues-per-linter: 0
+  max-same-issues: 0`
 
 // recordedAction captures one ledger Record call for test assertions.
 type recordedAction struct {
@@ -1174,18 +1175,18 @@ linters:
 	})
 
 	Context("Issues Block Normalization", func() {
-		It("should add max-issues-per-linter and max-same-issues when issues block is empty", func() {
+		It("should add explicit zero max-issues-per-linter and max-same-issues when issues block is empty", func() {
 			content, err := fixAndRead(
 				fixer, testConfig,
 				fullyPreparedConfig(emptyIssuesBlock),
 				types.LinterPriorityHigh, false,
 			)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("max-issues-per-linter:"))
-			Expect(content).To(ContainSubstring("max-same-issues:"))
+			Expect(content).To(ContainSubstring("max-issues-per-linter: 0"))
+			Expect(content).To(ContainSubstring("max-same-issues: 0"))
 		})
 
-		It("should not overwrite existing issue limits", func() {
+		It("should converge existing issue limits to unlimited (0)", func() {
 			content, err := fixAndRead(
 				fixer, testConfig,
 				fullyPreparedConfig(`issues:
@@ -1194,8 +1195,31 @@ linters:
 				types.LinterPriorityHigh, false,
 			)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(content).To(ContainSubstring("max-issues-per-linter: 200"))
-			Expect(content).To(ContainSubstring("max-same-issues: 50"))
+			Expect(content).To(ContainSubstring("max-issues-per-linter: 0"))
+			Expect(content).To(ContainSubstring("max-same-issues: 0"))
+			Expect(content).NotTo(ContainSubstring("max-issues-per-linter: 200"))
+		})
+
+		It("should stay converged when the caps are already explicit zeros", func() {
+			writeConfig(testConfig, fullyPreparedConfig(defaultIssuesBlock))
+			_, err := fixer.FixConfig(
+				context.Background(), testConfig, types.LinterPriorityHigh, false,
+			)
+			Expect(err).NotTo(HaveOccurred())
+
+			afterFirst, readErr := os.ReadFile(testConfig)
+			Expect(readErr).NotTo(HaveOccurred())
+
+			_, err = fixer.FixConfig(
+				context.Background(), testConfig, types.LinterPriorityHigh, false,
+			)
+			Expect(err).NotTo(HaveOccurred())
+
+			afterSecond, readErr := os.ReadFile(testConfig)
+			Expect(readErr).NotTo(HaveOccurred())
+			Expect(string(afterSecond)).To(Equal(string(afterFirst)), "explicit zeros must be byte-stable across runs")
+			Expect(string(afterSecond)).To(ContainSubstring("max-issues-per-linter: 0"))
+			Expect(string(afterSecond)).To(ContainSubstring("max-same-issues: 0"))
 		})
 	})
 

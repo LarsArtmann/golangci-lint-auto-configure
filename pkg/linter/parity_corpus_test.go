@@ -27,6 +27,18 @@ func TestParityCorpusConverge(t *testing.T) {
 
 			goldenPath := filepath.Join(fixture.Dir, "golden", "config.yml")
 
+			if os.Getenv("UPDATE_PARITY") == "1" {
+				if err := os.MkdirAll(filepath.Dir(goldenPath), 0o755); err != nil {
+					t.Fatalf("create golden dir: %v", err)
+				}
+
+				if err := os.WriteFile(goldenPath, configBytes, 0o644); err != nil {
+					t.Fatalf("write golden config: %v", err)
+				}
+
+				return
+			}
+
 			want, err := os.ReadFile(goldenPath)
 			if err != nil {
 				t.Fatalf("read golden config (regenerate with UPDATE_PARITY=1): %v", err)

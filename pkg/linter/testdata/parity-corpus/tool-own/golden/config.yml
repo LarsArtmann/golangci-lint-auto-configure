@@ -429,11 +429,11 @@ linters:
         linters:
           - revive
       - path: pkg/types/
-        text: "var-naming: avoid meaningless package names"
+        text: 'var-naming: avoid meaningless package names'
         linters:
           - revive
       - path: pkg/utils/
-        text: "var-naming: avoid meaningless package names"
+        text: 'var-naming: avoid meaningless package names'
         linters:
           - revive
       - path: pkg/errors/errors_test\.go
@@ -509,5 +509,5 @@ formatters:
       - pkg/gogenfilter/
       - wire_gen\.go$
 issues:
-  max-issues-per-linter: 100
-  max-same-issues: 15
+  max-issues-per-linter: 0
+  max-same-issues: 0

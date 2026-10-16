@@ -113,6 +113,10 @@ func (l *Loader) LoadConfig(path string) (*types.Config, error) {
 
 	if format == ConfigFormatYAML {
 		config.Issues.SetSourceIssuesKeys(yamlIssuesKeys(data))
+	} else if format == ConfigFormatTOML {
+		// JSON stays presence-unknown on purpose: its tags omit zero values,
+		// so a zero the saver just wrote would re-plan as absent forever.
+		config.Issues.SetSourceIssuesKeys(tomlIssuesKeys(data))
 	}
 
 	migrateLintersSettingsV1(&config, l.logger)
@@ -441,7 +445,50 @@ func marshalYAML(config *types.Config, indent int) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// yamlIssuesKeys decodes just enough of a YAML config to report which keys
+// its issues section carried. The result is always non-nil (an empty map
+// means the section or its keys are absent); callers feed it to
+// IssuesConfig.SetSourceIssuesKeys so the converge plan can tell an explicit
+// zero from an absent key.
+func yamlIssuesKeys(data []byte) map[string]bool {
+	keys := map[string]bool{}
+
+	var probe struct {
+		Issues map[string]any `yaml:"issues"`
+	}
+
+	if err := yaml.Unmarshal(data, &probe); err != nil {
+		return keys
+	}
+
+	for key := range probe.Issues {
+		keys[key] = true
+	}
+
+	return keys
+}
+
+// tomlIssuesKeys is the TOML twin of yamlIssuesKeys.
+func tomlIssuesKeys(data []byte) map[string]bool {
+	keys := map[string]bool{}
+
+	var probe struct {
+		Issues map[string]any `toml:"issues"`
+	}
+
+	if err := toml.Unmarshal(data, &probe); err != nil {
+		return keys
+	}
+
+	for key := range probe.Issues {
+		keys[key] = true
+	}
+
+	return keys
+}
+
 // detectYAMLIndent scans YAML data for the indentation width of the first
+// indented line. Returns defaultYAMLIndent when no indented line is found,
 // when indentation uses tabs (invalid YAML), or when the width exceeds
 // maxValidYAMLIndent.
 func detectYAMLIndent(data []byte) int {

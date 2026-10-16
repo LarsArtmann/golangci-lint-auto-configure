@@ -97,14 +97,14 @@ var domainMessageTemplates = map[string]errorfamily.MessageTemplate{
 	},
 	"config.validation.max_issues_per_linter": {
 		What:   "Invalid 'issues.max-issues-per-linter' in config.",
-		Why:    "The value must be a positive integer.",
-		Fix:    "Set issues.max-issues-per-linter to a positive value (e.g., 50).",
+		Why:    "The value must be zero or a positive integer.",
+		Fix:    "Set issues.max-issues-per-linter to 0 (unlimited, the enforced default) or a positive value.",
 		WayOut: "",
 	},
 	"config.validation.max_same_issues": {
 		What:   "Invalid 'issues.max-same-issues' in config.",
-		Why:    "The value must be a positive integer.",
-		Fix:    "Set issues.max-same-issues to a positive value (e.g., 10).",
+		Why:    "The value must be zero or a positive integer.",
+		Fix:    "Set issues.max-same-issues to 0 (unlimited, the enforced default) or a positive value.",
 		WayOut: "",
 	},
 

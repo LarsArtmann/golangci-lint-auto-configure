@@ -122,11 +122,11 @@ func applyRunChanges(cfg *types.Config, change Change) {
 func applyIssueChanges(cfg *types.Config, change Change) {
 	switch change.Path {
 	case "issues.max-issues-per-linter":
-		if change.Kind == ChangeAdd {
+		if change.Kind == ChangeAdd || change.Kind == ChangeUpdate {
 			cfg.Issues.MaxIssuesPerLinter = toInt(change.To)
 		}
 	case "issues.max-same-issues":
-		if change.Kind == ChangeAdd {
+		if change.Kind == ChangeAdd || change.Kind == ChangeUpdate {
 			cfg.Issues.MaxSameIssues = toInt(change.To)
 		}
 	}

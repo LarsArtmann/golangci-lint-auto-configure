@@ -33,10 +33,10 @@ var _ = Describe("NewConfig", func() {
 		Expect(cfg.Output.Formats).To(BeEmpty())
 	})
 
-	It("sets Issues defaults", func() {
+	It("sets Issues defaults to unlimited caps", func() {
 		cfg := types.NewConfig()
-		Expect(cfg.Issues.MaxIssuesPerLinter).To(Equal(50))
-		Expect(cfg.Issues.MaxSameIssues).To(Equal(10))
+		Expect(cfg.Issues.MaxIssuesPerLinter).To(Equal(0))
+		Expect(cfg.Issues.MaxSameIssues).To(Equal(0))
 	})
 
 	It("sets exclusions generated to lax", func() {

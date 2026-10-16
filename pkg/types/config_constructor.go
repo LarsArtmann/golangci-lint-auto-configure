@@ -5,17 +5,17 @@ type ConfigOption func(*Config)
 
 // defaultMaxIssuesPerLinter mirrors constants.DefaultMaxIssuesPerLinter.
 // Defined locally because pkg/types cannot import pkg/constants (circular).
-const defaultMaxIssuesPerLinter = 50
+const defaultMaxIssuesPerLinter = 0
 
 // defaultMaxSameIssues mirrors constants.DefaultMaxSameIssues.
-const defaultMaxSameIssues = 10
+const defaultMaxSameIssues = 0
 
 // NewConfig creates a new Config with safe production defaults:
 //   - Version set to ConfigVersionV2
 //   - Run.Timeout set to 5m, Tests enabled, IssuesExitCode 1
 //   - Output.Formats initialized to empty map
 //   - Linters.Exclusions.Generated and Formatters.Exclusions.Generated set to "lax"
-//   - Issues.MaxIssuesPerLinter 50, Issues.MaxSameIssues 10
+//   - Issues.MaxIssuesPerLinter 0, Issues.MaxSameIssues 0 (unlimited: issue output is never capped)
 //
 // Options are applied in order after defaults are set.
 func NewConfig(opts ...ConfigOption) *Config {

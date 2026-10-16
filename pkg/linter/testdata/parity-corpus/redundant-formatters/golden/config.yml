@@ -196,5 +196,5 @@ formatters:
       - _templ\.go$
       - vendor/
 issues:
-  max-issues-per-linter: 50
-  max-same-issues: 10
+  max-issues-per-linter: 0
+  max-same-issues: 0

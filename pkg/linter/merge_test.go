@@ -157,8 +157,16 @@ var _ = Describe("PlanDesired", func() {
 		Expect(runGo.From).To(Equal("1.24"))
 	})
 
+	// fileLoaded models a config that came off disk: the loader records
+	// which issues keys the file carried, and an empty file carries none.
+	fileLoaded := func() *types.Config {
+		cfg := emptyConfig()
+		cfg.Issues.SetSourceIssuesKeys(map[string]bool{})
+		return cfg
+	}
+
 	It("plans issues and runner defaults on an empty config", func() {
-		plan := PlanDesired(emptyConfig(), Desired(basicEnv()), StrategiesFor(MergeOptions{}))
+		plan := PlanDesired(fileLoaded(), Desired(basicEnv()), StrategiesFor(MergeOptions{}))
 
 		paths := make(map[string]bool)
 		for _, change := range plan {
@@ -169,6 +177,60 @@ var _ = Describe("PlanDesired", func() {
 		Expect(paths).To(HaveKey("issues.max-same-issues"))
 		Expect(paths).To(HaveKey("run.allow-parallel-runners"))
 		Expect(paths).To(HaveKey("linters.exclusions.paths"))
+	})
+
+	It("converges issue caps to unlimited (0) from any non-zero value", func() {
+		observed := fileLoaded()
+		observed.Issues.MaxIssuesPerLinter = 50
+		observed.Issues.MaxSameIssues = 10
+
+		plan := PlanDesired(observed, Desired(basicEnv()), StrategiesFor(MergeOptions{}))
+
+		byPath := map[string]Change{}
+		for _, change := range plan {
+			byPath[change.Path] = change
+		}
+
+		Expect(byPath["issues.max-issues-per-linter"].Kind).To(Equal(ChangeUpdate))
+		Expect(byPath["issues.max-issues-per-linter"].From).To(Equal(50))
+		Expect(byPath["issues.max-issues-per-linter"].To).To(Equal(0))
+		Expect(byPath["issues.max-same-issues"].Kind).To(Equal(ChangeUpdate))
+		Expect(byPath["issues.max-same-issues"].To).To(Equal(0))
+	})
+
+	It("adds explicit zero caps when the source file lacks the keys", func() {
+		observed := fileLoaded()
+
+		plan := PlanDesired(observed, Desired(basicEnv()), StrategiesFor(MergeOptions{}))
+
+		byPath := map[string]Change{}
+		for _, change := range plan {
+			byPath[change.Path] = change
+		}
+
+		Expect(byPath["issues.max-issues-per-linter"].Kind).To(Equal(ChangeAdd))
+		Expect(byPath["issues.max-issues-per-linter"].To).To(Equal(0))
+		Expect(byPath["issues.max-same-issues"].Kind).To(Equal(ChangeAdd))
+		Expect(byPath["issues.max-same-issues"].To).To(Equal(0))
+	})
+
+	It("treats explicit zero caps in the source file as converged", func() {
+		observed := fileLoaded()
+		observed.Issues.SetSourceIssuesKeys(map[string]bool{"max-issues-per-linter": true, "max-same-issues": true})
+
+		plan := PlanDesired(observed, Desired(basicEnv()), StrategiesFor(MergeOptions{}))
+
+		for _, change := range plan {
+			Expect(change.Path).NotTo(HavePrefix("issues."), "explicit zeros must not re-plan")
+		}
+	})
+
+	It("does not churn zero caps when presence is unknown (constructed or JSON configs)", func() {
+		plan := PlanDesired(emptyConfig(), Desired(basicEnv()), StrategiesFor(MergeOptions{}))
+
+		for _, change := range plan {
+			Expect(change.Path).NotTo(HavePrefix("issues."), "unknown presence must stay converged")
+		}
 	})
 
 	It("validates a clean plan without conflicts", func() {
