@@ -111,6 +111,10 @@ func (l *Loader) LoadConfig(path string) (*types.Config, error) {
 		return nil, apperrors.NewConfigError("failed to parse config file", path, err)
 	}
 
+	if format == ConfigFormatYAML {
+		config.Issues.SetSourceIssuesKeys(yamlIssuesKeys(data))
+	}
+
 	migrateLintersSettingsV1(&config, l.logger)
 
 	l.logger.Debugf("Loaded config from %s (format: %s)", path, format)
@@ -438,7 +442,6 @@ func marshalYAML(config *types.Config, indent int) ([]byte, error) {
 }
 
 // detectYAMLIndent scans YAML data for the indentation width of the first
-// indented line. Returns defaultYAMLIndent when no indented line is found,
 // when indentation uses tabs (invalid YAML), or when the width exceeds
 // maxValidYAMLIndent.
 func detectYAMLIndent(data []byte) int {

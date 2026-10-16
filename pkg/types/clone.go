@@ -1,5 +1,7 @@
 package types
 
+import "maps"
+
 func cloneSlice[T any](src []T) []T {
 	if src == nil {
 		return nil
@@ -127,7 +129,7 @@ func (e *LintersExclusionsConfig) Clone() LintersExclusionsConfig {
 
 // Clone returns a deep copy of IssuesConfig.
 func (i *IssuesConfig) Clone() IssuesConfig {
-	return IssuesConfig{
+	clone := IssuesConfig{
 		MaxIssuesPerLinter: i.MaxIssuesPerLinter,
 		MaxSameIssues:      i.MaxSameIssues,
 		NewFromRev:         i.NewFromRev,
@@ -138,6 +140,12 @@ func (i *IssuesConfig) Clone() IssuesConfig {
 		Fix:                i.Fix,
 		UniqByLine:         i.UniqByLine,
 	}
+
+	if i.sourceIssuesKeys != nil {
+		clone.sourceIssuesKeys = maps.Clone(i.sourceIssuesKeys)
+	}
+
+	return clone
 }
 
 // Clone returns a deep copy of FormattersConfig.

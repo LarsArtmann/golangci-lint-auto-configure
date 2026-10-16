@@ -70,8 +70,13 @@ func (r ExclusionRuleConfig) RuleKey() string {
 }
 
 type IssuesConfig struct {
-	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitzero" toml:"max-issues-per-linter,omitempty" yaml:"max-issues-per-linter,omitempty"`
-	MaxSameIssues      int    `json:"max-same-issues,omitzero"       toml:"max-same-issues,omitempty"       yaml:"max-same-issues,omitempty"`
+	// The issue caps are ALWAYS 0 (unlimited) in tool-managed configs, so
+	// their yaml/toml tags deliberately drop omitempty: an explicit zero
+	// must survive a round-trip, or golangci-lint would fall back to its
+	// own truncating defaults (50 per linter, 3 per text). The json tags
+	// keep omitzero so reports stay free of zero-value noise.
+	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitzero" toml:"max-issues-per-linter" yaml:"max-issues-per-linter"`
+	MaxSameIssues      int    `json:"max-same-issues,omitzero"       toml:"max-same-issues"       yaml:"max-same-issues"`
 	NewFromRev         string `json:"new-from-rev,omitempty"         toml:"new-from-rev,omitempty"          yaml:"new-from-rev,omitempty"`
 	NewFromPatch       string `json:"new-from-patch,omitempty"       toml:"new-from-patch,omitempty"        yaml:"new-from-patch,omitempty"`
 	New                bool   `json:"new,omitempty"                  toml:"new,omitempty"                   yaml:"new,omitempty"`
@@ -79,6 +84,33 @@ type IssuesConfig struct {
 	WholeFiles         bool   `json:"whole-files,omitempty"          toml:"whole-files,omitempty"           yaml:"whole-files,omitempty"`
 	Fix                bool   `json:"fix,omitempty"                  toml:"fix,omitempty"                   yaml:"fix,omitempty"`
 	UniqByLine         bool   `json:"uniq-by-line,omitempty"         toml:"uniq-by-line,omitempty"          yaml:"uniq-by-line,omitempty"`
+
+	// sourceIssuesKeys records which issues keys the source file carried.
+	// An absent key and an explicit 0 both decode to the zero value, but
+	// golangci-lint treats them differently (0 = unlimited, absent = the
+	// binary's own caps), so the converge plan needs the distinction.
+	// nil means presence is unknown (non-YAML sources, constructed
+	// configs). Unexported: every serializer skips it.
+	sourceIssuesKeys map[string]bool
+}
+
+// SetSourceIssuesKeys records the issues keys the source file carried.
+// A nil map marks presence as unknown; a non-nil (possibly empty) map as
+// known. Callers: the YAML config loader, right after decoding.
+func (i *IssuesConfig) SetSourceIssuesKeys(keys map[string]bool) {
+	i.sourceIssuesKeys = keys
+}
+
+// CarriesIssuesKey reports whether the source file carried the issues key.
+// The second return is false when presence is unknown, in which case the
+// caller must treat the zero value as converged instead of re-adding the
+// key on every run.
+func (i *IssuesConfig) CarriesIssuesKey(key string) (present, known bool) {
+	if i.sourceIssuesKeys == nil {
+		return false, false
+	}
+
+	return i.sourceIssuesKeys[key], true
 }
 
 type FormattersConfig struct {
