@@ -653,7 +653,10 @@ func planIssues(observed *types.Config, desired DesiredConfig) []Change {
 	var changes []Change
 
 	changes = append(changes, planIssueCap(
-		"max-issues-per-linter", observed.Issues.MaxIssuesPerLinter, desired.IssuesDefaults.MaxIssuesPerLinter, &observed.Issues,
+		"max-issues-per-linter",
+		observed.Issues.MaxIssuesPerLinter,
+		desired.IssuesDefaults.MaxIssuesPerLinter,
+		&observed.Issues,
 	)...)
 	changes = append(changes, planIssueCap(
 		"max-same-issues", observed.Issues.MaxSameIssues, desired.IssuesDefaults.MaxSameIssues, &observed.Issues,
@@ -684,10 +687,14 @@ func planIssueCap(key string, observedValue, desiredValue int, issues *types.Iss
 		return nil
 	}
 
-	return []Change{{
-		Path: path, Kind: ChangeAdd,
-		To: desiredValue, Reason: "make the unlimited cap explicit (an absent key falls back to golangci-lint's own caps)",
-	}}
+	return []Change{
+		{
+			Path:   path,
+			Kind:   ChangeAdd,
+			To:     desiredValue,
+			Reason: "make the unlimited cap explicit (an absent key falls back to golangci-lint's own caps)",
+		},
+	}
 }
 
 func planGeneratedDefaults(observed *types.Config) []Change {

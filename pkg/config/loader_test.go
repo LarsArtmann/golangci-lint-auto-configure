@@ -436,6 +436,58 @@ linters:
 			Expect(string(content)).NotTo(ContainSubstring("linters-settings"))
 		})
 
+		Context("issues cap presence and explicit zeros", func() {
+			It("records which issues keys the YAML file carried", func() {
+				writeConfigContent(testConfig, `version: "2"
+issues:
+  max-same-issues: 0
+`)
+
+				cfg, err := loader.LoadConfig(testConfig)
+				Expect(err).NotTo(HaveOccurred())
+
+				present, known := cfg.Issues.CarriesIssuesKey("max-same-issues")
+				Expect(known).To(BeTrue())
+				Expect(present).To(BeTrue())
+
+				present, known = cfg.Issues.CarriesIssuesKey("max-issues-per-linter")
+				Expect(known).To(BeTrue())
+				Expect(present).To(BeFalse())
+			})
+
+			It("treats an absent issues section as known-absent keys", func() {
+				writeConfigContent(testConfig, `version: "2"
+linters:
+  enable:
+    - gosec
+`)
+
+				cfg, err := loader.LoadConfig(testConfig)
+				Expect(err).NotTo(HaveOccurred())
+
+				for _, key := range []string{"max-issues-per-linter", "max-same-issues"} {
+					present, known := cfg.Issues.CarriesIssuesKey(key)
+					Expect(known).To(BeTrue())
+					Expect(present).To(BeFalse())
+				}
+			})
+
+			It("writes zero caps explicitly so they survive a round-trip", func() {
+				writeConfigContent(testConfig, `version: "2"
+`)
+
+				cfg, err := loader.LoadConfig(testConfig)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(loader.SaveConfig(cfg, testConfig)).To(Succeed())
+
+				content, readErr := os.ReadFile(testConfig)
+				Expect(readErr).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("max-issues-per-linter: 0"))
+				Expect(string(content)).To(ContainSubstring("max-same-issues: 0"))
+			})
+		})
+
 		It("should preserve full realistic config with multiple linter settings", func() {
 			configContent := `version: "2"
 run:

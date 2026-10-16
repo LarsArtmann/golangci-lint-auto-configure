@@ -75,15 +75,15 @@ type IssuesConfig struct {
 	// must survive a round-trip, or golangci-lint would fall back to its
 	// own truncating defaults (50 per linter, 3 per text). The json tags
 	// keep omitzero so reports stay free of zero-value noise.
-	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitzero" toml:"max-issues-per-linter" yaml:"max-issues-per-linter"`
-	MaxSameIssues      int    `json:"max-same-issues,omitzero"       toml:"max-same-issues"       yaml:"max-same-issues"`
-	NewFromRev         string `json:"new-from-rev,omitempty"         toml:"new-from-rev,omitempty"          yaml:"new-from-rev,omitempty"`
-	NewFromPatch       string `json:"new-from-patch,omitempty"       toml:"new-from-patch,omitempty"        yaml:"new-from-patch,omitempty"`
-	New                bool   `json:"new,omitempty"                  toml:"new,omitempty"                   yaml:"new,omitempty"`
-	NewFromMergeBase   string `json:"new-from-merge-base,omitempty"  toml:"new-from-merge-base,omitempty"   yaml:"new-from-merge-base,omitempty"`
-	WholeFiles         bool   `json:"whole-files,omitempty"          toml:"whole-files,omitempty"           yaml:"whole-files,omitempty"`
-	Fix                bool   `json:"fix,omitempty"                  toml:"fix,omitempty"                   yaml:"fix,omitempty"`
-	UniqByLine         bool   `json:"uniq-by-line,omitempty"         toml:"uniq-by-line,omitempty"          yaml:"uniq-by-line,omitempty"`
+	MaxIssuesPerLinter int    `json:"max-issues-per-linter,omitzero" toml:"max-issues-per-linter"         yaml:"max-issues-per-linter"`
+	MaxSameIssues      int    `json:"max-same-issues,omitzero"       toml:"max-same-issues"               yaml:"max-same-issues"`
+	NewFromRev         string `json:"new-from-rev,omitempty"         toml:"new-from-rev,omitempty"        yaml:"new-from-rev,omitempty"`
+	NewFromPatch       string `json:"new-from-patch,omitempty"       toml:"new-from-patch,omitempty"      yaml:"new-from-patch,omitempty"`
+	New                bool   `json:"new,omitempty"                  toml:"new,omitempty"                 yaml:"new,omitempty"`
+	NewFromMergeBase   string `json:"new-from-merge-base,omitempty"  toml:"new-from-merge-base,omitempty" yaml:"new-from-merge-base,omitempty"`
+	WholeFiles         bool   `json:"whole-files,omitempty"          toml:"whole-files,omitempty"         yaml:"whole-files,omitempty"`
+	Fix                bool   `json:"fix,omitempty"                  toml:"fix,omitempty"                 yaml:"fix,omitempty"`
+	UniqByLine         bool   `json:"uniq-by-line,omitempty"         toml:"uniq-by-line,omitempty"        yaml:"uniq-by-line,omitempty"`
 
 	// sourceIssuesKeys records which issues keys the source file carried.
 	// An absent key and an explicit 0 both decode to the zero value, but
