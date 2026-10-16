@@ -74,40 +74,67 @@ func TestRemoveUnknownLinters(t *testing.T) {
 
 			normalized, changes := RemoveUnknownLinters(observed, tt.known)
 
-			if len(changes) != tt.wantChangeCount {
-				t.Fatalf("RemoveUnknownLinters() changes = %d, want %d (%v)", len(changes), tt.wantChangeCount, changes)
-			}
-
-			if tt.wantNoopPointer {
-				if normalized != observed {
-					t.Errorf("RemoveUnknownLinters() returned a clone for a no-op run, want the original")
-				}
-
-				return
-			}
-
-			if !equalLinterNames(normalized.Linters.Enable, tt.wantEnable) {
-				t.Errorf("enable = %v, want %v", normalized.Linters.Enable, tt.wantEnable)
-			}
-
-			if !equalLinterNames(normalized.Linters.Disable, tt.wantDisable) {
-				t.Errorf("disable = %v, want %v", normalized.Linters.Disable, tt.wantDisable)
-			}
-
-			for _, change := range changes {
-				if change.Kind != ChangeRemove {
-					t.Errorf("change kind = %s, want remove", change.Kind)
-				}
-
-				if change.Path != PathLintersEnable && change.Path != PathLintersDisable {
-					t.Errorf("change path = %s, want a linter list path", change.Path)
-				}
-
-				if change.Reason == "" {
-					t.Errorf("change for %s carries no reason", change.Element)
-				}
-			}
+			assertUnknownLintersResult(t, tt.wantChangeCount, tt.wantNoopPointer, observed, normalized, changes)
+			assertRemovedListContent(t, tt.wantEnable, tt.wantDisable, tt.wantNoopPointer, normalized, changes)
 		})
+	}
+}
+
+func assertUnknownLintersResult(
+	t *testing.T,
+	wantChangeCount int,
+	wantNoopPointer bool,
+	observed, normalized *types.Config,
+	changes []Change,
+) {
+	t.Helper()
+
+	if len(changes) != wantChangeCount {
+		t.Fatalf("RemoveUnknownLinters() changes = %d, want %d (%v)", len(changes), wantChangeCount, changes)
+	}
+
+	if !wantNoopPointer {
+		return
+	}
+
+	if normalized != observed {
+		t.Errorf("RemoveUnknownLinters() returned a clone for a no-op run, want the original")
+	}
+}
+
+func assertRemovedListContent(
+	t *testing.T,
+	wantEnable, wantDisable []types.LinterName,
+	skipContent bool,
+	normalized *types.Config,
+	changes []Change,
+) {
+	t.Helper()
+
+	if skipContent {
+		return
+	}
+
+	if !equalLinterNames(normalized.Linters.Enable, wantEnable) {
+		t.Errorf("enable = %v, want %v", normalized.Linters.Enable, wantEnable)
+	}
+
+	if !equalLinterNames(normalized.Linters.Disable, wantDisable) {
+		t.Errorf("disable = %v, want %v", normalized.Linters.Disable, wantDisable)
+	}
+
+	for _, change := range changes {
+		if change.Kind != ChangeRemove {
+			t.Errorf("change kind = %s, want remove", change.Kind)
+		}
+
+		if change.Path != PathLintersEnable && change.Path != PathLintersDisable {
+			t.Errorf("change path = %s, want a linter list path", change.Path)
+		}
+
+		if change.Reason == "" {
+			t.Errorf("change for %s carries no reason", change.Element)
+		}
 	}
 }
 

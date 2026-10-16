@@ -150,6 +150,22 @@ func (f *Fixer) convergePhaseTwo(
 		return migrationError("converge config", priority, dryRun, configPath, version, err)
 	}
 
+	return f.finalizeConvergence(ctx, configPath, result, normalizeChanges, priority, dryRun, version)
+}
+
+// finalizeConvergence projects the convergence onto reports, logs, audit, and
+// persistence: normalizations from phase one are attached (never
+// double-counted), unsupported recommendations are surfaced, and non-dry-run
+// results are saved with a post-apply load check.
+func (f *Fixer) finalizeConvergence(
+	ctx context.Context,
+	configPath string,
+	result *ConvergeResult,
+	normalizeChanges []Change,
+	priority types.LinterPriority,
+	dryRun bool,
+	version string,
+) (*types.MigrationResult, error) {
 	f.logMergedExclusionRules(result)
 	f.warnUnsupportedRecommendations(result)
 
@@ -228,7 +244,7 @@ func (f *Fixer) verifyWrittenConfig(ctx context.Context, configPath string) {
 	if err := verifier.VerifyConfigLoads(ctx, configPath); err != nil {
 		f.logger.Warnf("⚠️  golangci-lint cannot load the config that was just written (%s):", configPath)
 		f.logger.Warnf("   %v", err)
-		f.logger.Warnf("   Re-run with --check and inspect the last change; this write breaks every future lint run until repaired")
+		f.logger.Warnf("   Re-run with --check and inspect the last change; this write breaks linting until repaired")
 	}
 }
 

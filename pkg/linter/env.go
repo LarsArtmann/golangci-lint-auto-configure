@@ -162,16 +162,35 @@ func collectAnalyzerEnabled(
 		return nil
 	}
 
-	analysis, err := analyzer.AnalyzeConfig(ctx, configPath)
-	if err == nil && analysis != nil {
-		enabled := make(map[types.LinterName]bool, len(analysis.EnabledLinters))
-		for _, info := range analysis.EnabledLinters {
-			enabled[info.Name] = true
-		}
-
+	if enabled := analysisEnabledSet(analyzer, ctx, configPath); enabled != nil {
 		return enabled
 	}
 
+	return probeDefaultEnabledSet(analyzer, ctx)
+}
+
+// analysisEnabledSet records the linters a successful analysis reports as
+// enabled (config enables plus the binary's defaults); nil when the config
+// could not be analyzed (e.g. it names a linter the binary does not carry).
+func analysisEnabledSet(analyzer types.LinterAnalyzer, ctx context.Context, configPath string) map[types.LinterName]bool {
+	analysis, err := analyzer.AnalyzeConfig(ctx, configPath)
+	if err != nil || analysis == nil {
+		return nil
+	}
+
+	enabled := make(map[types.LinterName]bool, len(analysis.EnabledLinters))
+	for _, info := range analysis.EnabledLinters {
+		enabled[info.Name] = true
+	}
+
+	return enabled
+}
+
+// probeDefaultEnabledSet falls back to the binary's default-enabled linters
+// (the same probe run's Enabled list): a config the binary cannot load is
+// about to be repaired, and the defaults are the right churn guard for that
+// render. Nil when the analyzer lacks the probe or the probe failed.
+func probeDefaultEnabledSet(analyzer types.LinterAnalyzer, ctx context.Context) map[types.LinterName]bool {
 	prober, ok := analyzer.(linterProber)
 	if !ok {
 		return nil

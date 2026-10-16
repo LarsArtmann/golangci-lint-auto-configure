@@ -27,15 +27,36 @@ func (a *Analyzer) ProbeKnownLinters(ctx context.Context) (map[types.LinterName]
 		}
 	}
 
-	output, err := a.runProbeCommand(ctx)
+	known, defaults, err := a.runLintersProbe(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	a.knownLinters = known
+	a.defaultEnabled = defaults
+
+	return known, nil
+}
+
+// runLintersProbe shells out once and splits the wire output into the binary's
+// vocabulary (enabled ∪ disabled) and its default-enabled set (enabled).
+func (a *Analyzer) runLintersProbe(
+	ctx context.Context,
+) (map[types.LinterName]bool, []types.LinterName, error) {
+	output, err := a.runProbeCommand(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	var parsed golangciLintOutput
 	if err := json.Unmarshal(output, &parsed); err != nil {
-		return nil, apperrors.NewAnalysisError(
+		return nil, nil, apperrors.NewAnalysisError(
 			"failed to parse golangci-lint linters JSON output", "", err)
+	}
+
+	if len(parsed.Enabled)+len(parsed.Disabled) == 0 {
+		return nil, nil, apperrors.NewAnalysisError(
+			"golangci-lint linters probe returned no linters", "", nil)
 	}
 
 	known := make(map[types.LinterName]bool, len(parsed.Enabled)+len(parsed.Disabled))
@@ -47,20 +68,12 @@ func (a *Analyzer) ProbeKnownLinters(ctx context.Context) (map[types.LinterName]
 		known[types.LinterName(entry.Name)] = true
 	}
 
-	if len(known) == 0 {
-		return nil, apperrors.NewAnalysisError(
-			"golangci-lint linters probe returned no linters", "", nil)
-	}
-
 	defaults := make([]types.LinterName, 0, len(parsed.Enabled))
 	for _, entry := range parsed.Enabled {
 		defaults = append(defaults, types.LinterName(entry.Name))
 	}
 
-	a.knownLinters = known
-	a.defaultEnabled = defaults
-
-	return known, nil
+	return known, defaults, nil
 }
 
 // DefaultEnabledLinters returns the linters the detected binary enables with
@@ -80,7 +93,7 @@ func (a *Analyzer) runProbeCommand(ctx context.Context) ([]byte, error) {
 		return nil, apperrors.WrapClassified(err, "probe.tempdir", "create probe working dir")
 	}
 
-	defer os.RemoveAll(empty) //nolint:errcheck // best-effort cleanup of an empty temp dir
+	defer os.RemoveAll(empty)
 
 	cmd := a.executeCommand(ctx, "linters", "--json")
 	cmd.Dir = empty

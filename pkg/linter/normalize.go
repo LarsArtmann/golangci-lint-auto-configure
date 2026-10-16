@@ -448,7 +448,9 @@ func unknownLinterChanges(removed []types.LinterName, path string) []Change {
 	return changes
 }
 
-func partitionUnknown(names []types.LinterName, known map[types.LinterName]bool) (kept, removed []types.LinterName) {
+func partitionUnknown(names []types.LinterName, known map[types.LinterName]bool) ([]types.LinterName, []types.LinterName) {
+	var kept, removed []types.LinterName
+
 	for _, name := range names {
 		if known[name] {
 			kept = append(kept, name)

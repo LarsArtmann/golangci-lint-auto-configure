@@ -173,7 +173,9 @@ func newDesiredRequest(env Env) desiredRequest {
 // interval contains the project's Go, whose gate passes, and which the tier
 // and priority filters admit. Records the detected binary cannot name are
 // withheld and reported as unsupported instead of rendered.
-func renderEnableSet(request desiredRequest) (enabled, unsupported []types.LinterName) {
+func renderEnableSet(request desiredRequest) ([]types.LinterName, []types.LinterName) {
+	var enabled, unsupported []types.LinterName
+
 	for _, record := range constants.LinterPolicies {
 		if !shouldRender(record, request) {
 			// A record that passes every other gate but fails the capability
