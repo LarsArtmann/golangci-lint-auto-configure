@@ -149,24 +149,37 @@ func linterName(change linter.Change) (types.LinterName, bool) {
 }
 
 func deviationTags(element string) []finding.Tag {
-	if !tagSafe(element) {
+	tag := linterTag(element)
+	if !tagSafe(string(tag)) {
 		return []finding.Tag{}
 	}
 
-	return []finding.Tag{linterTag(element)}
+	return []finding.Tag{tag}
 }
 
-// tagSafe reports whether the element can become a valid finding tag
-// (lowercase-hyphenated convention: first char a-z). Path patterns like
-// `_templ\.go$` carry no tag.
-func tagSafe(element string) bool {
-	if element == "" {
+// tagSafe reports whether the tag satisfies go-finding's lowercase-hyphenated
+// convention (first char a-z, remaining chars a-z0-9-). Callers pass the
+// TRANSFORMED tag (linterTag output), not the raw config element: rename
+// elements like `exhaustruct->exhaustruct_v5` normalize to
+// `exhaustruct->exhaustruct-v5`, whose `>` is invalid — such elements carry no
+// tag instead of crashing finding construction.
+func tagSafe(tag string) bool {
+	if tag == "" {
 		return false
 	}
 
-	first := element[0]
+	for i := 0; i < len(tag); i++ {
+		c := tag[i]
 
-	return first >= 'a' && first <= 'z'
+		switch {
+		case c >= 'a' && c <= 'z':
+		case i > 0 && (c >= '0' && c <= '9' || c == '-'):
+		default:
+			return false
+		}
+	}
+
+	return true
 }
 
 func nonEmptyValue(v any) string {
