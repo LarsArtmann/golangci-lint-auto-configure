@@ -52,9 +52,22 @@ func (a *Analyzer) ProbeKnownLinters(ctx context.Context) (map[types.LinterName]
 			"golangci-lint linters probe returned no linters", "", nil)
 	}
 
+	defaults := make([]types.LinterName, 0, len(parsed.Enabled))
+	for _, entry := range parsed.Enabled {
+		defaults = append(defaults, types.LinterName(entry.Name))
+	}
+
 	a.knownLinters = known
+	a.defaultEnabled = defaults
 
 	return known, nil
+}
+
+// DefaultEnabledLinters returns the linters the detected binary enables with
+// no config (the Enabled list of the same probe run). Nil until the probe
+// has run successfully — callers treat nil as "unknown".
+func (a *Analyzer) DefaultEnabledLinters(_ context.Context) []types.LinterName {
+	return a.defaultEnabled
 }
 
 // runProbeCommand runs `golangci-lint linters --json` with the working

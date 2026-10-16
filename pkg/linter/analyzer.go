@@ -34,6 +34,7 @@ type Analyzer struct {
 	projectRoot       string
 	pragmatic         bool
 	knownLinters      map[types.LinterName]bool
+	defaultEnabled    []types.LinterName
 }
 
 // NewAnalyzer creates a new linter analyzer.
@@ -46,6 +47,7 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 		projectRoot:       "",
 		pragmatic:         false,
 		knownLinters:      nil,
+		defaultEnabled:    nil,
 	}
 }
 

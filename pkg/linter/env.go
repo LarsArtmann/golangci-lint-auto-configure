@@ -41,6 +41,12 @@ type Env struct {
 	// renderer skips these: re-enabling an already-enabled linter would
 	// churn every config.
 	AnalyzerEnabled map[types.LinterName]bool
+	// BinaryKnown lists every linter name the detected golangci-lint binary
+	// can name (Enabled ∪ Disabled of `golangci-lint linters`). Plugin
+	// linters are absent from stock binaries, and an enable entry naming one
+	// makes the whole config unloadable. Empty means "binary unknown" —
+	// capability gating fails open.
+	BinaryKnown map[types.LinterName]bool
 }
 
 // UsesTech reports the project's technology detection result, failing open
@@ -128,13 +134,25 @@ func CollectEnvBase(
 	env.ProjectGo = readGoModGoDirective(configPath)
 	env.Tech = collectTech(configPath)
 	env.Generated = collectGeneratedExclusions(configPath)
+	env.BinaryKnown = collectBinaryKnown(ctx, analyzer)
 
 	return env, nil
 }
 
+// linterProber is the capability surface of the concrete *Analyzer: which
+// linters the detected binary can name, and which it enables by default.
+// Duck-typed (like the audit ledger reader) so test doubles that lack the
+// probe fail open instead of implementing the full analyzer surface.
+type linterProber interface {
+	ProbeKnownLinters(ctx context.Context) (map[types.LinterName]bool, error)
+	DefaultEnabledLinters(ctx context.Context) []types.LinterName
+}
+
 // collectAnalyzerEnabled records which linters the binary reports as enabled
 // (config enables plus its default set). Best-effort: on failure the set
-// stays empty and the renderer cannot skip defaults.
+// falls back to the probe's default-enabled linters (a config naming an
+// unknown linter cannot be analyzed, but the binary's defaults still prevent
+// bogus re-declaration churn), and on probe failure stays empty.
 func collectAnalyzerEnabled(
 	ctx context.Context,
 	analyzer types.LinterAnalyzer,
@@ -145,16 +163,52 @@ func collectAnalyzerEnabled(
 	}
 
 	analysis, err := analyzer.AnalyzeConfig(ctx, configPath)
-	if err != nil || analysis == nil {
+	if err == nil && analysis != nil {
+		enabled := make(map[types.LinterName]bool, len(analysis.EnabledLinters))
+		for _, info := range analysis.EnabledLinters {
+			enabled[info.Name] = true
+		}
+
+		return enabled
+	}
+
+	prober, ok := analyzer.(linterProber)
+	if !ok {
 		return nil
 	}
 
-	enabled := make(map[types.LinterName]bool, len(analysis.EnabledLinters))
-	for _, info := range analysis.EnabledLinters {
-		enabled[info.Name] = true
+	defaults := prober.DefaultEnabledLinters(ctx)
+	if len(defaults) == 0 {
+		return nil
+	}
+
+	enabled := make(map[types.LinterName]bool, len(defaults))
+	for _, name := range defaults {
+		enabled[name] = true
 	}
 
 	return enabled
+}
+
+// collectBinaryKnown runs the capability probe: every linter name the
+// detected binary can name. Best-effort: analyzers without the probe and
+// failed probes yield nil, and the renderer fails open.
+func collectBinaryKnown(ctx context.Context, analyzer types.LinterAnalyzer) map[types.LinterName]bool {
+	if analyzer == nil {
+		return nil
+	}
+
+	prober, ok := analyzer.(linterProber)
+	if !ok {
+		return nil
+	}
+
+	known, err := prober.ProbeKnownLinters(ctx)
+	if err != nil {
+		return nil
+	}
+
+	return known
 }
 
 func detectedToolVersion(analyzer types.LinterAnalyzer) types.GolangciVersion {

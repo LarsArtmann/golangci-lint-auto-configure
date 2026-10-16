@@ -33,6 +33,12 @@ type DesiredConfig struct {
 	RunDefaults RunDefaults
 	// IssuesDefaults are the issues-section defaults.
 	IssuesDefaults IssuesDefaults
+	// Unsupported lists recommendable linters the detected binary cannot
+	// name (plugin linters absent from stock builds). They are deliberately
+	// NOT rendered — an enable entry the binary rejects makes the whole
+	// config unloadable — and surfaced so the caller can report the gap.
+	// Empty when the binary could not be probed (fail open).
+	Unsupported []types.LinterName
 }
 
 // RunDefaults mirrors the run-section values the tool injects.
@@ -64,6 +70,7 @@ type desiredRequest struct {
 	projectGo         types.GoVersion
 	envTech           func(string) bool
 	analyzerEnabled   map[types.LinterName]bool
+	binaryKnown       map[types.LinterName]bool
 	userEnabled       map[types.LinterName]bool
 	userDisabled      map[types.LinterName]bool
 	enabledFormatters []types.FormatterName
@@ -125,8 +132,11 @@ func Desired(env Env, options ...DesiredOption) DesiredConfig {
 		apply(&request)
 	}
 
+	enabled, unsupported := renderEnableSet(request)
+
 	return DesiredConfig{
-		EnableLinters:           renderEnableSet(request),
+		EnableLinters:           enabled,
+		Unsupported:             unsupported,
 		EnableFormatters:        renderFormatterSet(request),
 		LinterSettings:          renderLinterSettings(request),
 		FormatterSettings:       renderFormatterSettings(request),
@@ -151,6 +161,7 @@ func newDesiredRequest(env Env) desiredRequest {
 		projectGo:         env.ProjectGo,
 		envTech:           env.UsesTech,
 		analyzerEnabled:   env.AnalyzerEnabled,
+		binaryKnown:       env.BinaryKnown,
 		userEnabled:       map[types.LinterName]bool{},
 		userDisabled:      map[types.LinterName]bool{},
 		enabledFormatters: []types.FormatterName{},
@@ -160,12 +171,17 @@ func newDesiredRequest(env Env) desiredRequest {
 // renderEnableSet computes the desired linters.enable: every recommendable
 // record whose validity interval contains the tool version, whose language
 // interval contains the project's Go, whose gate passes, and which the tier
-// and priority filters admit.
-func renderEnableSet(request desiredRequest) []types.LinterName {
-	var enabled []types.LinterName
-
+// and priority filters admit. Records the detected binary cannot name are
+// withheld and reported as unsupported instead of rendered.
+func renderEnableSet(request desiredRequest) (enabled, unsupported []types.LinterName) {
 	for _, record := range constants.LinterPolicies {
 		if !shouldRender(record, request) {
+			// A record that passes every other gate but fails the capability
+			// probe is a recommendation the caller should hear about.
+			if capabilityBlocked(record, request) {
+				unsupported = append(unsupported, record.Name)
+			}
+
 			continue
 		}
 
@@ -173,8 +189,24 @@ func renderEnableSet(request desiredRequest) []types.LinterName {
 	}
 
 	slices.Sort(enabled)
+	slices.Sort(unsupported)
 
-	return enabled
+	return enabled, unsupported
+}
+
+// capabilityBlocked reports whether the ONLY thing keeping a record out of
+// the render is the capability probe: a binary that cannot name the linter.
+// Used to distinguish "unsupported recommendation" from the ordinary
+// suppression reasons (tier, priority, user disable, tech gate).
+func capabilityBlocked(record types.LinterPolicy, request desiredRequest) bool {
+	return len(request.binaryKnown) > 0 && !request.binaryKnown[record.Name] &&
+		tierAdmits(record, request) &&
+		!request.userDisabled[record.Name] &&
+		record.Priority <= request.minPriority &&
+		!request.analyzerEnabled[record.Name] &&
+		(record.ValidTool.IsUnbounded() || record.ValidTool.Contains(request.tool)) &&
+		(record.Lang.IsUnbounded() || projectGoOf(request).IsZero() || record.Lang.Contains(projectGoOf(request))) &&
+		gateOpens(record.Gate, request)
 }
 
 // shouldRender evaluates one record against the environment. Zero tool
@@ -199,6 +231,14 @@ func shouldRender(record types.LinterPolicy, request desiredRequest) bool {
 	// Linters the binary already enables are never re-rendered: writing them
 	// would churn every config for no behavioral change.
 	if request.analyzerEnabled[record.Name] {
+		return false
+	}
+
+	// The capability gate: a linter the detected binary cannot name would
+	// make the whole config unloadable ("unknown linters"), so it is never
+	// written. An unprobed binary (empty set) fails open — an unknown binary
+	// gates nothing.
+	if len(request.binaryKnown) > 0 && !request.binaryKnown[record.Name] {
 		return false
 	}
 
@@ -303,6 +343,13 @@ func renderLinterSettings(request desiredRequest) map[types.LinterName][]types.V
 // settings only when the USER enabled them manually.
 func settingsApply(record types.LinterPolicy, request desiredRequest) bool {
 	if len(record.Settings) == 0 {
+		return false
+	}
+
+	// Settings for a linter the binary cannot name ride along with an
+	// unloadable config — gated exactly like the enable entry, including
+	// user-enables (after the heal normalizer ran, those are gone anyway).
+	if len(request.binaryKnown) > 0 && !request.binaryKnown[record.Name] {
 		return false
 	}
 
