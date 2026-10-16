@@ -82,10 +82,11 @@ var RegisteredCodes = map[string]bool{
 	"converter.validation_finding": true,
 	// detector
 	"detector.plan":                 true,
-	"evaluation.build_report":       true,
-	"evaluation.sarif":              true,
-	"evaluation.suppressed_finding": true,
-	"report.evaluate":               true,
+	"evaluation.build_report":        true,
+	"evaluation.sarif":               true,
+	"evaluation.suppressed_finding":  true,
+	"evaluation.unsupported_finding": true,
+	"report.evaluate":                true,
 	"deviation.finding":             true,
 	"detector.open_file":            true,
 	"detector.open_gomod":           true,
@@ -111,6 +112,8 @@ var RegisteredCodes = map[string]bool{
 	"linter.fmt_failed":       true,
 	"linter.priority.invalid": true,
 	"linter.retry":            true,
+	// probe (capability probe: what linters the pinned binary can name)
+	"probe.tempdir": true,
 	// migrate (the v1→v2 subcommand in internal/cli/cmd)
 	"migrate.create_migrator":    true,
 	"migrate.empty_path":         true,
