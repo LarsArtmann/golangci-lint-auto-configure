@@ -115,9 +115,10 @@ func (l *Loader) LoadConfig(path string) (*types.Config, error) {
 	case ConfigFormatYAML:
 		config.Issues.SetSourceIssuesKeys(yamlIssuesKeys(data))
 	case ConfigFormatTOML:
-		// JSON stays presence-unknown on purpose: its tags omit zero values,
-		// so a zero the saver just wrote would re-plan as absent forever.
 		config.Issues.SetSourceIssuesKeys(tomlIssuesKeys(data))
+	case ConfigFormatJSON:
+		// Presence-unknown on purpose: the JSON tags omit zero values, so a
+		// zero the saver just wrote would re-plan as absent forever.
 	}
 
 	migrateLintersSettingsV1(&config, l.logger)
