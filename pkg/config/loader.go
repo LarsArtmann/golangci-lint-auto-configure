@@ -111,9 +111,10 @@ func (l *Loader) LoadConfig(path string) (*types.Config, error) {
 		return nil, apperrors.NewConfigError("failed to parse config file", path, err)
 	}
 
-	if format == ConfigFormatYAML {
+	switch format {
+	case ConfigFormatYAML:
 		config.Issues.SetSourceIssuesKeys(yamlIssuesKeys(data))
-	} else if format == ConfigFormatTOML {
+	case ConfigFormatTOML:
 		// JSON stays presence-unknown on purpose: its tags omit zero values,
 		// so a zero the saver just wrote would re-plan as absent forever.
 		config.Issues.SetSourceIssuesKeys(tomlIssuesKeys(data))

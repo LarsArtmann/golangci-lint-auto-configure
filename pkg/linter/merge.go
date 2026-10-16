@@ -645,34 +645,29 @@ func capRunGo(observed, desired string) (Change, bool) {
 
 // planIssues converges the issue caps onto the desired values (0 =
 // unlimited: reported issues are never capped) and makes the converged zeros
-// explicit — an absent key would let golangci-lint fall back to its own
-// truncating defaults (50 per linter, 3 per text). The caps are policy, not
-// preference: existing values are converged, and only an explicit zero in
-// the source file counts as already converged.
+// explicit, because an absent key would let golangci-lint fall back to its
+// own truncating defaults (50 per linter, 3 per text). The caps are policy,
+// not preference: existing values are converged, and only an explicit zero
+// in the source file counts as already converged.
 func planIssues(observed *types.Config, desired DesiredConfig) []Change {
-	var changes []Change
-
+	changes := planIssueCap(
+		&observed.Issues, "max-issues-per-linter",
+		observed.Issues.MaxIssuesPerLinter, desired.IssuesDefaults.MaxIssuesPerLinter,
+	)
 	changes = append(changes, planIssueCap(
-		"max-issues-per-linter",
-		observed.Issues.MaxIssuesPerLinter,
-		desired.IssuesDefaults.MaxIssuesPerLinter,
-		&observed.Issues,
-	)...)
-	changes = append(changes, planIssueCap(
-		"max-same-issues", observed.Issues.MaxSameIssues, desired.IssuesDefaults.MaxSameIssues, &observed.Issues,
+		&observed.Issues, "max-same-issues",
+		observed.Issues.MaxSameIssues, desired.IssuesDefaults.MaxSameIssues,
 	)...)
 
-	changes = append(changes, planGeneratedDefaults(observed)...)
-
-	return changes
+	return append(changes, planGeneratedDefaults(observed)...)
 }
 
 // planIssueCap plans one issue cap. A non-desired value is updated; a desired
 // value whose key is provably absent from the source file is added so the
 // zero is written explicitly. Presence-unknown sources (non-YAML formats,
-// constructed configs) treat the desired value as converged — re-adding a
-// key that cannot be proven absent would break idempotence for them.
-func planIssueCap(key string, observedValue, desiredValue int, issues *types.IssuesConfig) []Change {
+// constructed configs) treat the desired value as converged: re-adding a key
+// that cannot be proven absent would break idempotence for them.
+func planIssueCap(issues *types.IssuesConfig, key string, observedValue, desiredValue int) []Change {
 	path := "issues." + key
 
 	if observedValue != desiredValue {

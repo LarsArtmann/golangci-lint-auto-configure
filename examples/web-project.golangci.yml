@@ -71,5 +71,5 @@ linters:
           - noctx
 
 issues:
-  max-issues-per-linter: 100
-  max-same-issues: 15
+  max-issues-per-linter: 0
+  max-same-issues: 0

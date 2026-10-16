@@ -65,6 +65,6 @@ linters:
       min-name-length: 2
 
 issues:
-  max-issues-per-linter: 50 # Stricter for libraries
-  max-same-issues: 5
+  max-issues-per-linter: 0 # Unlimited: never hide issues
+  max-same-issues: 0
   new: false

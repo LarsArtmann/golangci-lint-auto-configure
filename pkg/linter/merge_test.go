@@ -162,6 +162,7 @@ var _ = Describe("PlanDesired", func() {
 	fileLoaded := func() *types.Config {
 		cfg := emptyConfig()
 		cfg.Issues.SetSourceIssuesKeys(map[string]bool{})
+
 		return cfg
 	}
 

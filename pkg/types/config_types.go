@@ -105,7 +105,7 @@ func (i *IssuesConfig) SetSourceIssuesKeys(keys map[string]bool) {
 // The second return is false when presence is unknown, in which case the
 // caller must treat the zero value as converged instead of re-adding the
 // key on every run.
-func (i *IssuesConfig) CarriesIssuesKey(key string) (present, known bool) {
+func (i *IssuesConfig) CarriesIssuesKey(key string) (bool, bool) {
 	if i.sourceIssuesKeys == nil {
 		return false, false
 	}
