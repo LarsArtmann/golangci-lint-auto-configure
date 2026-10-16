@@ -13,6 +13,7 @@ legacy imperative engine, then delete the compat views over the policy table.
 ### 1. Legacy imperative engine deleted (T27.1)
 
 **Production code:**
+
 - `Engine` type + `EngineConverge`/`EngineLegacy` consts deleted (`converge.go`); `FixConfig` is
   now unconditionally `load → convergeFixConfig`.
 - `fixer.go` rewritten (~502 → ~160 lines): dropped `SetEngine`, `engine`/`reader` fields,
@@ -40,6 +41,7 @@ legacy imperative engine, then delete the compat views over the policy table.
 - `converge.go`: dropped the dead import-pin `var _ = constants.MinGolangCILintVersion`.
 
 **Tests:**
+
 - Deleted: `fixer_recorder_test.go`, `fixer_enforce_test.go`, `deprecated_version_test.go`,
   `exclusion_merge_internal_test.go`, `merge_exclusion_fuzz_test.go`.
 - Created `fixer_policy_test.go` (the three `loadPolicy` specs, ported).
@@ -99,17 +101,17 @@ legacy imperative engine, then delete the compat views over the policy table.
 
 ### 3. Every gate green at session end
 
-| Gate | Result |
-| --- | --- |
-| `go build ./...` / `go vet ./pkg/... ./internal/... ./cmd/...` | clean |
-| Full suite `ginkgo -r -p -race --skip-package=cmd/` (18 suites; pkg/linter now 147 specs) | PASS |
-| `TestParityCorpusConverge` + `FuzzUnionStrings` seeds | ok |
-| `golangci-lint run --config=.golangci.yml` | **0 issues** |
-| `nix fmt` | clean |
-| Self-host `configure --config .golangci.yml --check` | exit 0 (sidecar honored) |
-| Schema fixture regen | byte-identical |
-| `go run scripts/validate_linter_data.go` | passed |
-| CI parity job pattern | `^TestParityCorpusConverge$` |
+| Gate                                                                                      | Result                       |
+| ----------------------------------------------------------------------------------------- | ---------------------------- |
+| `go build ./...` / `go vet ./pkg/... ./internal/... ./cmd/...`                            | clean                        |
+| Full suite `ginkgo -r -p -race --skip-package=cmd/` (18 suites; pkg/linter now 147 specs) | PASS                         |
+| `TestParityCorpusConverge` + `FuzzUnionStrings` seeds                                     | ok                           |
+| `golangci-lint run --config=.golangci.yml`                                                | **0 issues**                 |
+| `nix fmt`                                                                                 | clean                        |
+| Self-host `configure --config .golangci.yml --check`                                      | exit 0 (sidecar honored)     |
+| Schema fixture regen                                                                      | byte-identical               |
+| `go run scripts/validate_linter_data.go`                                                  | passed                       |
+| CI parity job pattern                                                                     | `^TestParityCorpusConverge$` |
 
 Verification greps confirm zero references to any deleted symbol or view remain (the only
 `DeprecatedLinters`/`DisabledLinters` hits left are the unrelated `ConfigAnalysis` struct

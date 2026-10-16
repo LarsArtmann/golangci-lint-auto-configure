@@ -108,16 +108,16 @@
 
 ## b) Current verified state (all green at 16:29-16:32)
 
-| Gate | Result |
-| --- | --- |
-| `go build ./...` | OK |
-| Full suite `ginkgo -r -p -race --skip-package=cmd/` (18 suites) | PASS (1m10s) |
-| Parity corpus (`TestParityCorpus*`, incl. converge flip gate) | ok |
-| `golangci-lint run --config=.golangci.yml` | **0 issues** |
-| `nix fmt` (treefmt: gofumpt/golines/nixfmt) | clean |
-| Self-host `configure --config .golangci.yml --check` | exit 0, zero diff |
-| Pin matrix v2.14.0 (min v2.12.0) | ALL CHECKS PASSED |
-| `git status` | clean (auto-committed) |
+| Gate                                                            | Result                 |
+| --------------------------------------------------------------- | ---------------------- |
+| `go build ./...`                                                | OK                     |
+| Full suite `ginkgo -r -p -race --skip-package=cmd/` (18 suites) | PASS (1m10s)           |
+| Parity corpus (`TestParityCorpus*`, incl. converge flip gate)   | ok                     |
+| `golangci-lint run --config=.golangci.yml`                      | **0 issues**           |
+| `nix fmt` (treefmt: gofumpt/golines/nixfmt)                     | clean                  |
+| Self-host `configure --config .golangci.yml --check`            | exit 0, zero diff      |
+| Pin matrix v2.14.0 (min v2.12.0)                                | ALL CHECKS PASSED      |
+| `git status`                                                    | clean (auto-committed) |
 
 Deletions verified by grep: `WithPriority`, `ConfigAnalysisDetector`, the priority filters,
 the count fields, the hand-maintained noise tiers, and the pragmaticNoise golden are all
@@ -230,7 +230,7 @@ gone.
 10. Re-run `scripts/validate_linter_data.go` (or retire it) once views are gone (c.6).
 11. Dogfood: run `configure` (non-check) on the repo once and commit the resulting
     ledger-visible audit trail as a demo of `audit` output.
-12-50. Remaining plan micro-tasks all live in the plan doc §6 (T27.3-T27.6 docs polish,
+    12-50. Remaining plan micro-tasks all live in the plan doc §6 (T27.3-T27.6 docs polish,
     ROADMAP harvest for "no CUE / no key-level merge surgery" non-goals, docs-health sweep
     to fold this report, CHANGELOG release-date stamping when cutting the next version).
 

@@ -24,20 +24,20 @@ job.
 
 ## a) Fully done (implemented AND verified)
 
-| Phase | Deliverable | Verification |
-| ----- | ----------- | ------------ |
-| P0/T01–T02 | Parity corpus: 11 fixtures (bare-minimal, typical, deprecated-linters, bad-settings-keys, overspecified-run-go, redundant-formatters, enforced-sidecar, never-enable-sidecar, pragmatic, tool-own, schema-fixture) with manifests + golden config/audit/result snapshots; `UPDATE_PARITY=1` regen; idempotency spec; CI `parity` job (pinned golangci-lint v2.14.0) | `TestParityCorpus`, `TestParityCorpusIdempotent` green; CI job added to `ci.yml` |
-| P1/T03–T04 | Version kernel: `GolangciVersion` + `GoVersion` branded types (Parse-only, zero = unbounded), generic `Interval[V Ordered[V]]`, cross-axis misuse = compile error, deprecation shims, fuzz targets | `pkg/types` specs green; fuzz seeds pass |
-| P1/T05 | Call sites migrated behind the types (version checker, categorizer, run.go cap, GraduatedIn) | Full suite green; parity corpus green |
-| P2/T06–T07 | `LinterPolicy`/`FormatterPolicy` record types (closed Tier union, Gates, VersionedSettings, Evidence, supersession); **137-record policy table** + 6-record formatter table; init()-time structural validation (dup names, referential integrity, priority/rationale coupling) | `policy_table_test.go`; init panics proven by the gofmt-missing-order bug it caught |
-| P2/T08 | Compat views generating every legacy map from the table; **13 byte-golden views-parity tests** (`UPDATE_VIEWS=1`) | `TestLegacyViewsGolden` green — views reproduce the old maps exactly |
-| P2/T09 | Integrity specs ported to the table; structurally-impossible map tests deleted (tier overlap, semver validity, disabled-has-no-priority — now compile-time/init-time facts); `scripts/validate_linter_data.go` rewritten for the table era | green; validator runs clean |
-| P2/T10 | Presets as **queries** over the table (`reference` = the Critical+High query — drift now structurally impossible; declared presets init-validated); descriptions derive counts | `preset_queries_test.go` green: derived reference == legacy list exactly (61) |
-| P3/T11–T13 | `Env` collector (tool/build-Go/local-Go/project-Go/tech/generated/analyzer-enabled, fail-open semantics); pure `Desired()` renderer (tier/gate/validity/lang filtered, settings, run/issues defaults); **`MinGolangCILintVersion` DERIVED from the table** (hand constant deleted; generate-settings flag default follows derivation); pin-matrix v2.14.0 cell green locally | `desired_test.go`, `derived_min_test.go`, pin matrix A1–A4 ✓ |
-| P4/T14–T16 | Merge strategy table (path-keyed DATA; `--force-settings` = table flip); `Change` type with stable keys + `ConflictError`; `PlanDesired`/`ApplyPlan`; property specs: idempotency (`merge(merge(x))==merge(x)`), no-mutation, stable keys, conflict detection | `merge_test.go` green; lint clean |
-| P5/T17–T18 (core) | Pure normalizers (config-version, duration, typecheck removal, tool-disabled moves, bad-keys, deprecation replacement + settings migration + rule renames with dedupe, redundancy removal); `NormalizeConfig`/`PruneOrphanSettings`; `Converge` pipeline; two-phase driver (normalize → save → analyze → plan → apply → save) with legacy analyzer contract (exit 69/65 preserved) | corpus byte-green (below) |
-| P5/T19 (core) | Audit emission from `Change` records (`AuditActionsFor`); recorder still legacy-side | audit specs partially green (see b) |
-| P5/T20 (flip) | **Converge is the default engine**; legacy = `SetEngine(EngineLegacy)` opt-out; CLI specs updated to new markers; `--pragmatic` wired to the fixer | full CLI suite green; parity corpus green on BOTH engines |
+| Phase             | Deliverable                                                                                                                                                                                                                                                                                                                                                                        | Verification                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| P0/T01–T02        | Parity corpus: 11 fixtures (bare-minimal, typical, deprecated-linters, bad-settings-keys, overspecified-run-go, redundant-formatters, enforced-sidecar, never-enable-sidecar, pragmatic, tool-own, schema-fixture) with manifests + golden config/audit/result snapshots; `UPDATE_PARITY=1` regen; idempotency spec; CI `parity` job (pinned golangci-lint v2.14.0)                | `TestParityCorpus`, `TestParityCorpusIdempotent` green; CI job added to `ci.yml`    |
+| P1/T03–T04        | Version kernel: `GolangciVersion` + `GoVersion` branded types (Parse-only, zero = unbounded), generic `Interval[V Ordered[V]]`, cross-axis misuse = compile error, deprecation shims, fuzz targets                                                                                                                                                                                 | `pkg/types` specs green; fuzz seeds pass                                            |
+| P1/T05            | Call sites migrated behind the types (version checker, categorizer, run.go cap, GraduatedIn)                                                                                                                                                                                                                                                                                       | Full suite green; parity corpus green                                               |
+| P2/T06–T07        | `LinterPolicy`/`FormatterPolicy` record types (closed Tier union, Gates, VersionedSettings, Evidence, supersession); **137-record policy table** + 6-record formatter table; init()-time structural validation (dup names, referential integrity, priority/rationale coupling)                                                                                                     | `policy_table_test.go`; init panics proven by the gofmt-missing-order bug it caught |
+| P2/T08            | Compat views generating every legacy map from the table; **13 byte-golden views-parity tests** (`UPDATE_VIEWS=1`)                                                                                                                                                                                                                                                                  | `TestLegacyViewsGolden` green — views reproduce the old maps exactly                |
+| P2/T09            | Integrity specs ported to the table; structurally-impossible map tests deleted (tier overlap, semver validity, disabled-has-no-priority — now compile-time/init-time facts); `scripts/validate_linter_data.go` rewritten for the table era                                                                                                                                         | green; validator runs clean                                                         |
+| P2/T10            | Presets as **queries** over the table (`reference` = the Critical+High query — drift now structurally impossible; declared presets init-validated); descriptions derive counts                                                                                                                                                                                                     | `preset_queries_test.go` green: derived reference == legacy list exactly (61)       |
+| P3/T11–T13        | `Env` collector (tool/build-Go/local-Go/project-Go/tech/generated/analyzer-enabled, fail-open semantics); pure `Desired()` renderer (tier/gate/validity/lang filtered, settings, run/issues defaults); **`MinGolangCILintVersion` DERIVED from the table** (hand constant deleted; generate-settings flag default follows derivation); pin-matrix v2.14.0 cell green locally       | `desired_test.go`, `derived_min_test.go`, pin matrix A1–A4 ✓                        |
+| P4/T14–T16        | Merge strategy table (path-keyed DATA; `--force-settings` = table flip); `Change` type with stable keys + `ConflictError`; `PlanDesired`/`ApplyPlan`; property specs: idempotency (`merge(merge(x))==merge(x)`), no-mutation, stable keys, conflict detection                                                                                                                      | `merge_test.go` green; lint clean                                                   |
+| P5/T17–T18 (core) | Pure normalizers (config-version, duration, typecheck removal, tool-disabled moves, bad-keys, deprecation replacement + settings migration + rule renames with dedupe, redundancy removal); `NormalizeConfig`/`PruneOrphanSettings`; `Converge` pipeline; two-phase driver (normalize → save → analyze → plan → apply → save) with legacy analyzer contract (exit 69/65 preserved) | corpus byte-green (below)                                                           |
+| P5/T19 (core)     | Audit emission from `Change` records (`AuditActionsFor`); recorder still legacy-side                                                                                                                                                                                                                                                                                               | audit specs partially green (see b)                                                 |
+| P5/T20 (flip)     | **Converge is the default engine**; legacy = `SetEngine(EngineLegacy)` opt-out; CLI specs updated to new markers; `--pragmatic` wired to the fixer                                                                                                                                                                                                                                 | full CLI suite green; parity corpus green on BOTH engines                           |
 
 **Verified byte-parity:** all 11 corpus fixtures produce byte-identical
 configs on the converge engine vs the legacy-captured goldens
@@ -58,9 +58,9 @@ tool's own config.
    - Audit action mapping: converge emits `updated` where the ledger specs
      expect `moved-to-disable`, `pruned-settings`, `exclusion-linter-renamed`,
      `exclusion-linter-removed`, `re-enabled` for overlay adds → 6 specs.
-   The normalizers for all three surfaces EXIST and are unit-tested; the
-   wiring into `Converge`/`planDisableOverlay`/`AuditActionsFor` is the
-   remaining work (~1–2 h).
+     The normalizers for all three surfaces EXIST and are unit-tested; the
+     wiring into `Converge`/`planDisableOverlay`/`AuditActionsFor` is the
+     remaining work (~1–2 h).
 
 2. **P5/T21 sidecar overlays**: never-enable + anti-gaming enforcement work
    through `planDisableOverlay` (corpus proves it), but the suppression
@@ -75,15 +75,15 @@ tool's own config.
 
 ## c) Not started
 
-| Phase | What | Why it is safe to defer |
-| ----- | ---- | ----------------------- |
-| P5/T20.2–T20.3 | Delete the old imperative path (`applyAllFixes`, preflight, recorder + their specs) | Legacy is an explicit opt-out behind `EngineLegacy`; deletion cascades into ~dozens of spec files. The corpus gates any future deletion. |
-| P6/T22 | Findings = diff (`Deviation` adapter, detector rewrite, delete `WithPriority`) | Detector still works; its drift-risk is now contained by the shared policy table |
-| P6/T23 | `ConfigAnalysis` slim-down, `Evaluation` type, report-generator ports, golden regen | Reports consume the analyzer, which is untouched |
-| P7/T24 | Friction `Evidence` → tier derivation, `--pragmatic` as threshold | Evidence data is ALREADY in the table (ratios + counts); only the derivation fn + tier-map deletion remain |
-| P7/T25 | Typed redundancy relation table | Redundancy already moved into records (`SupersededBy`) + `RemoveRedundancies`; only the legacy `RedundantLinters` map remains as a view-shaped leftover |
-| P8/T26 | Self-host end-to-end proof (`tool-own` green IS the core proof; remaining: sidecar-as-divergence docs) | |
-| P8/T27 | ADRs (reconciler architecture, two version axes), AGENTS.md gotcha rewrites (#2/#6/#28), FEATURES/CHANGELOG | After the parity tail is green |
+| Phase          | What                                                                                                        | Why it is safe to defer                                                                                                                                 |
+| -------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P5/T20.2–T20.3 | Delete the old imperative path (`applyAllFixes`, preflight, recorder + their specs)                         | Legacy is an explicit opt-out behind `EngineLegacy`; deletion cascades into ~dozens of spec files. The corpus gates any future deletion.                |
+| P6/T22         | Findings = diff (`Deviation` adapter, detector rewrite, delete `WithPriority`)                              | Detector still works; its drift-risk is now contained by the shared policy table                                                                        |
+| P6/T23         | `ConfigAnalysis` slim-down, `Evaluation` type, report-generator ports, golden regen                         | Reports consume the analyzer, which is untouched                                                                                                        |
+| P7/T24         | Friction `Evidence` → tier derivation, `--pragmatic` as threshold                                           | Evidence data is ALREADY in the table (ratios + counts); only the derivation fn + tier-map deletion remain                                              |
+| P7/T25         | Typed redundancy relation table                                                                             | Redundancy already moved into records (`SupersededBy`) + `RemoveRedundancies`; only the legacy `RedundantLinters` map remains as a view-shaped leftover |
+| P8/T26         | Self-host end-to-end proof (`tool-own` green IS the core proof; remaining: sidecar-as-divergence docs)      |                                                                                                                                                         |
+| P8/T27         | ADRs (reconciler architecture, two version axes), AGENTS.md gotcha rewrites (#2/#6/#28), FEATURES/CHANGELOG | After the parity tail is green                                                                                                                          |
 
 ---
 
@@ -149,6 +149,7 @@ exist.
 ## f) Next 50 things (priority order)
 
 **P5 closeout (blocking green):**
+
 1. Respect user-disable in `shouldRender` (skip records in observed disable).
 2. Wire `PruneOrphanSettings` into the converge pipeline (post-apply or plan phase).
 3. Extend `AuditActionsFor`: settings-remove → `pruned-settings`.

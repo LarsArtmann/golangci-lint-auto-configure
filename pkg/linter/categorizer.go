@@ -126,9 +126,9 @@ func (a *Analyzer) makeLinterRecommendation(linter types.LinterInfo) types.Linte
 	rec := types.LinterRecommendation{
 		Name:   linter.Name,
 		Reason: a.getLinterReason(linter.Name),
-	}
 
-	rec.Priority = types.LinterPriorityOptional
+		Priority: types.LinterPriorityOptional,
+	}
 	if record, known := constants.PolicyRecord(linter.Name); known && record.Priority != types.LinterPriorityOptional {
 		rec.Priority = record.Priority
 	}
@@ -163,9 +163,9 @@ func (a *Analyzer) makeFormatterRecommendation(name types.FormatterName) types.F
 	rec := types.FormatterRecommendation{
 		Name:   name,
 		Reason: a.getFormatterReason(name),
-	}
 
-	rec.Priority = types.FormatterPriorityLow
+		Priority: types.FormatterPriorityLow,
+	}
 	if record, known := constants.FormatterPolicyRecord(name); known {
 		rec.Priority = record.Priority
 	}
