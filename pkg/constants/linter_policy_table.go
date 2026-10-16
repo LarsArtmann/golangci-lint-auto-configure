@@ -302,7 +302,7 @@ var linterPolicyRecords = []types.LinterPolicy{
 	{
 		Name:      "gohumanize",
 		Priority:  types.LinterPriorityMedium,
-		Rationale: "AST linter detecting hand-rolled reimplementations of github.com/dustin/go-humanize (H001-H009: bytes, comma, time, plural, SI, ftoa, parse-bytes, ordinal, comma-float). Requires a custom golangci-lint binary built with the gohumanize module plugin; auto-injected settings scope the linter to the highest-value rules (H001/H002/H003/H007).",
+		Rationale: "AST linter detecting hand-rolled reimplementations of github.com/dustin/go-humanize (H001-H009: bytes, comma, time, plural, SI, ftoa, parse-bytes, ordinal, comma-float). Ships only as a golangci-lint module plugin, so the recommendation is withheld unless the detected binary can name it (capability probe); run a custom binary built with the plugin to adopt it.",
 		Gate:      types.RequiresTech("go-humanize"),
 	},
 	{
