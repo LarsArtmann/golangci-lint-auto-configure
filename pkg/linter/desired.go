@@ -196,12 +196,16 @@ func renderEnableSet(request desiredRequest) (enabled, unsupported []types.Linte
 
 // capabilityBlocked reports whether the ONLY thing keeping a record out of
 // the render is the capability probe: a binary that cannot name the linter.
-// Used to distinguish "unsupported recommendation" from the ordinary
-// suppression reasons (tier, priority, user disable, tech gate).
+// User-enables are excluded from the report — a manual enable of an unknown
+// linter is handled by the heal normalizer (removal + audit), not framed as
+// a tool recommendation. Used to distinguish "unsupported recommendation"
+// from the ordinary suppression reasons (tier, priority, user disable, tech
+// gate).
 func capabilityBlocked(record types.LinterPolicy, request desiredRequest) bool {
 	return len(request.binaryKnown) > 0 && !request.binaryKnown[record.Name] &&
 		tierAdmits(record, request) &&
 		!request.userDisabled[record.Name] &&
+		!request.userEnabled[record.Name] &&
 		record.Priority <= request.minPriority &&
 		!request.analyzerEnabled[record.Name] &&
 		(record.ValidTool.IsUnbounded() || record.ValidTool.Contains(request.tool)) &&

@@ -2,6 +2,7 @@ package linter
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -150,6 +151,7 @@ func (f *Fixer) convergePhaseTwo(
 	}
 
 	f.logMergedExclusionRules(result)
+	f.warnUnsupportedRecommendations(result)
 
 	// Normalizations already persisted in phase one must not be
 	// double-counted.
@@ -161,12 +163,13 @@ func (f *Fixer) convergePhaseTwo(
 		return outcome, nil
 	}
 
-	return f.persistConvergence(configPath, result, total, priority, dryRun, version)
+	return f.persistConvergence(ctx, configPath, result, total, priority, dryRun, version)
 }
 
 // persistConvergence saves the merged config and records the audit trail;
 // it is the only non-dry-run path past the no-op outcome.
 func (f *Fixer) persistConvergence(
+	ctx context.Context,
 	configPath string,
 	result *ConvergeResult,
 	total int,
@@ -179,11 +182,54 @@ func (f *Fixer) persistConvergence(
 	}
 
 	f.recordConvergeAudit(result)
+	f.verifyWrittenConfig(ctx, configPath)
 
 	return &types.MigrationResult{
 		FixesApplied: total,
 		Message:      convergeMessage(total, result),
 	}, nil
+}
+
+// warnUnsupportedRecommendations surfaces the recommendations withheld
+// because the detected binary cannot name them (plugin linters on stock
+// binaries): the project qualifies, the binary does not — silence here would
+// read as "the tool sees nothing to add".
+func (f *Fixer) warnUnsupportedRecommendations(result *ConvergeResult) {
+	for _, name := range result.Unsupported {
+		tool := "the detected golangci-lint"
+		if !result.Env.Tool.IsZero() {
+			tool = fmt.Sprintf("golangci-lint %s", result.Env.Tool)
+		}
+
+		f.logger.Warnf(
+			"⚠️  %s is recommended for this project but %s does not include it; no enable entry was written "+
+				"(build a custom golangci-lint binary with the linter as a module plugin to adopt it)",
+			name, tool,
+		)
+	}
+}
+
+// configLoadVerifier is the post-apply tripwire surface of the concrete
+// *Analyzer (duck-typed like the probe so test doubles skip it).
+type configLoadVerifier interface {
+	VerifyConfigLoads(ctx context.Context, configPath string) error
+}
+
+// verifyWrittenConfig proves the saved config loads with the detected
+// binary. Best-effort by design: analyzers without the verifier skip it, and
+// a failed verification warns loudly instead of failing the run (the write
+// already happened; the check mode is the gating surface that repeats it).
+func (f *Fixer) verifyWrittenConfig(ctx context.Context, configPath string) {
+	verifier, ok := f.analyzer.(configLoadVerifier)
+	if !ok {
+		return
+	}
+
+	if err := verifier.VerifyConfigLoads(ctx, configPath); err != nil {
+		f.logger.Warnf("⚠️  golangci-lint cannot load the config that was just written (%s):", configPath)
+		f.logger.Warnf("   %v", err)
+		f.logger.Warnf("   Re-run with --check and inspect the last change; this write breaks every future lint run until repaired")
+	}
 }
 
 // convergeOptions bundles the fixer's user-intent flips for one run.
