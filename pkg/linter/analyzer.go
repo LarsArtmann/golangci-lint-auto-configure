@@ -33,6 +33,7 @@ type Analyzer struct {
 	detectedGoVersion types.GoVersion
 	projectRoot       string
 	pragmatic         bool
+	knownLinters      map[types.LinterName]bool
 }
 
 // NewAnalyzer creates a new linter analyzer.
@@ -44,6 +45,7 @@ func NewAnalyzer(logger *log.Logger) *Analyzer {
 		detectedGoVersion: types.GoVersion{},
 		projectRoot:       "",
 		pragmatic:         false,
+		knownLinters:      nil,
 	}
 }
 
