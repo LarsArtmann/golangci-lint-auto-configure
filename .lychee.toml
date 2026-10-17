@@ -23,3 +23,7 @@ exclude_path = [
 # Retry transient network failures so CI does not flake on single hiccups.
 max_retries = 2
 timeout = 20
+
+# sarifweb.azurewebsites.net (the SARIF spec site linked from README) rejects
+# bot user agents with 403; browsers load it fine, so it is excluded here.
+exclude = ["https://sarifweb.azurewebsites.net/"]

@@ -7,7 +7,7 @@ phase must keep this corpus green until its intentional, documented flip.
 
 ## Layout
 
-```
+```text
 <fixture>/
   input.golangci.yml                      fixture config fed to FixConfig
   input.golangci-lint-auto-configure.yml  optional policy sidecar

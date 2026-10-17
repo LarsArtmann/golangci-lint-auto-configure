@@ -16,7 +16,7 @@ type system cannot express "one linter, one tier".
 
 **Target:** `Render → Normalize → Diff → Converge`.
 
-```
+```text
 CollectEnv() (Env, error)          -- I/O edge, classified errors
 Normalize(observed)  observed'     -- pure (rescue run.go, bad-key renames)
 Desired(policy, env) Config        -- pure rendering of the policy table
