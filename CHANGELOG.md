@@ -12,11 +12,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- Nothing yet.
+- The pre-release checklist now honors `TMPDIR` for its coverage profile
+  and GoReleaser snapshot log instead of hardcoding `/tmp`, so it can run
+  on machines whose tmpfs is full.
 
 ### Fixed
 
-- Nothing yet.
+- The release workflow pins the cosign installer to v2.6.5. The unpinned
+  installer picked up cosign v3, which rejects the release signing config
+  (keyless service URLs plus `--output-signature`) with "cannot specify
+  service URLs and use signing config" — the v0.11.0 tag's release run
+  failed after building every artifact. Migrate the signs config to the
+  cosign v3 bundle format before unpinning.
 
 ## [0.11.0] - 2026-10-17
 
