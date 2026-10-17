@@ -4,7 +4,6 @@ import (
 	"slices"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
