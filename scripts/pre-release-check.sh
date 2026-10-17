@@ -141,11 +141,12 @@ fi
 # 12. Snapshot build (warning if it fails — non-blocking since syft/cosign may be missing)
 echo ""
 echo -e "  ${YELLOW}Running goreleaser snapshot...${NC}"
-if goreleaser release --snapshot --clean --skip=publish 2>/tmp/goreleaser-snapshot.log; then
+SNAPSHOT_LOG="${TMPDIR:-/tmp}/goreleaser-snapshot.log"
+if goreleaser release --snapshot --clean --skip=publish 2>"$SNAPSHOT_LOG"; then
 	echo -e "${GREEN}✓${NC} Goreleaser snapshot build succeeds"
 	pass=$((pass + 1))
 else
-	SNAPSHOT_ERR=$(tail -5 /tmp/goreleaser-snapshot.log)
+	SNAPSHOT_ERR=$(tail -5 "$SNAPSHOT_LOG")
 	if echo "$SNAPSHOT_ERR" | grep -q "syft\|cosign\|docker"; then
 		echo -e "${YELLOW}⚠${NC}  Goreleaser snapshot fails only on missing tool (syft/cosign/docker) — acceptable for local release"
 		warn=$((warn + 1))
@@ -156,7 +157,7 @@ else
 	fi
 fi
 
-rm -rf dist /tmp/coverage-check.out /tmp/goreleaser-snapshot.log 2>/dev/null || true
+rm -rf dist "${TMPDIR:-/tmp}/coverage-check.out" "$SNAPSHOT_LOG" 2>/dev/null || true
 
 echo ""
 echo "=== Results ==="
