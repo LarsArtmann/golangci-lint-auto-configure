@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Nothing yet.
+
+### Changed
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.11.0] - 2026-10-17
+
+### Added
+
 - **Declarative desired-state reconciler is the default configure engine**
   (ADR-017). Configuration is now collect → normalize → render → plan →
   apply, with every stage pure except the file save. Key properties:
@@ -33,48 +47,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - **Self-hosted**: this repo's own config ships a divergence sidecar
     (`.golangci-lint-auto-configure.yml`) and re-converges to itself
     (`configure --check` exit 0).
-  - The legacy imperative pipeline remains available as an explicit opt-out
-    during the migration window; its deletion is tracked in TODO_LIST.md.
-
-### Changed
-
-- **HTML/JSON reports are evaluation-based.** The HTML report renders the
-  desired-state evaluation (enabled/disabled/deviations/suppressed plus
-  deviation tables); the JSON report carries `Deviations`, `Suppressed`, and
-  a `Converged` summary instead of the old recommendation counts.
-  `analyze --format json` is unchanged in this release.
-- `ConfigAnalysis` priority counts are derived methods, not serialized
-  fields.
-
-### Fixed
-
-- **Deprecated linter names are now cleaned out of exclusion rules.** The
-
-- **Deprecated linter names are now cleaned out of exclusion rules.** The
-  deprecation migration (enable-list swap, settings migration) and the
-  pre-flight sweep both left `linters.exclusions.rules[].linters` untouched,
-  so a migrated config kept carrying the dead predecessor there — producing a
-  deprecation warning on every lint run today and a config-load failure once
-  upstream deletes the name. A fleet audit (2026-10-07) found 86 of 157
-  sibling configs in that state.
-  - The fixer now sweeps exclusion rules on every `configure` run, rewriting
-    the deprecated name to its replacement (deduplicated when a rule listed
-    both) — independent of the enable-list state, so already-migrated configs
-    heal too.
-  - Version-gated like the enable-set swap: a name is only rewritten once its
-    successor exists in the installed golangci-lint.
-  - Linters removed without a replacement (e.g. `ifshort`) are dropped from
-    exclusion lists; a rule whose Text/Source pattern was scoped purely to
-    such a linter is dropped with it (an unscoped pattern would suppress
-    matching findings from every linter), while path-scoped rules survive.
-  - Every rename/removal is audited in the ledger as
-    `exclusion-linter-renamed` / `exclusion-linter-removed`; `--check` and
-    `--dry-run` report the pending cleanup without touching the file.
-
-## [0.11.0] - 2026-10-07
-
-### Added
-
+  - The legacy imperative pipeline (and its `SetEngine` opt-out) was deleted
+    in this release; the declarative reconciler is the only engine, proven
+    byte-identical against the legacy goldens by the parity corpus.
 - **Go 1.27 compatibility: `run.go` is now version-aware.** golangci-lint
   refuses to load any config whose `run.go` targets a Go version newer than
   the one it was built with, so a local toolchain ahead of the linter binary
@@ -103,6 +78,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **HTML/JSON reports are evaluation-based.** The HTML report renders the
+  desired-state evaluation (enabled/disabled/deviations/suppressed plus
+  deviation tables); the JSON report carries `Deviations`, `Suppressed`, and
+  a `Converged` summary instead of the old recommendation counts.
+  `analyze --format json` is unchanged in this release.
+- `ConfigAnalysis` priority counts are derived methods, not serialized
+  fields.
 - **Deprecated-linter replacement now respects the sidecar `never-enable`
   section.** When the replacement linter is listed under `never-enable`,
   `configure` still removes the deprecated predecessor (deprecation cleanup)
@@ -220,6 +202,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `json.Deterministic(true)` — report writers, the audit ledger, CLI JSON
   outputs, and schema round-trip tests are now byte-stable (snapshot-friendly,
   diff-friendly).
+
+### Fixed
+
+- **Deprecated linter names are now cleaned out of exclusion rules.** The
+  deprecation migration (enable-list swap, settings migration) and the
+  pre-flight sweep both left `linters.exclusions.rules[].linters` untouched,
+  so a migrated config kept carrying the dead predecessor there — producing a
+  deprecation warning on every lint run today and a config-load failure once
+  upstream deletes the name. A fleet audit (2026-10-07) found 86 of 157
+  sibling configs in that state.
+  - The fixer now sweeps exclusion rules on every `configure` run, rewriting
+    the deprecated name to its replacement (deduplicated when a rule listed
+    both) — independent of the enable-list state, so already-migrated configs
+    heal too.
+  - Version-gated like the enable-set swap: a name is only rewritten once its
+    successor exists in the installed golangci-lint.
+  - Linters removed without a replacement (e.g. `ifshort`) are dropped from
+    exclusion lists; a rule whose Text/Source pattern was scoped purely to
+    such a linter is dropped with it (an unscoped pattern would suppress
+    matching findings from every linter), while path-scoped rules survive.
+  - Every rename/removal is audited in the ledger as
+    `exclusion-linter-renamed` / `exclusion-linter-removed`; `--check` and
+    `--dry-run` report the pending cleanup without touching the file.
+- **Apply mode could discard redundancy-pass normalizations while reporting
+  convergence.** In the two-phase apply, the outcome recorded the declarative
+  `Converge` pass's normalizer changes by overwriting the phase-one set
+  instead of merging — and the redundancy pass (a formatter-superseded
+  linter such as `lll` behind `golines`) runs only inside `Converge`, so its
+  removals never reached the recorded outcome. Consumers driving apply from
+  findings (BuildFlow's golangci-lint provider) saw apply report "already
+  converged" while detection kept planning the same removal: a permanent,
+  unrepaired finding. Phase-one and converge normalizer changes are now
+  union-merged by change key, so disjoint repairs from both sides survive
+  and shared repairs count once.
+- **Deviation finding tags built from linter-rename arrows crashed the
+  finding gate.** A replacement mapping such as `exhaustruct →
+  exhaustruct_v5` was used verbatim as a finding tag; the `>` violates the
+  finding spec's lowercase-hyphenated tag convention, failing consumers with
+  `[corruption:finding.build]`. Tags are now sanitized to the convention.
 
 ### Dependencies
 
