@@ -6,7 +6,6 @@
       "allowed_elements": ["details", "summary"],
     },
     "line-length": false,
-    "MD029": { "style": "one_or_ordered" },
     "no-duplicate-heading": {
       "siblings_only": true,
     },
