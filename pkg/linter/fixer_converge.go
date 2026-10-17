@@ -170,8 +170,14 @@ func (f *Fixer) finalizeConvergence(
 	f.warnUnsupportedRecommendations(result)
 
 	// Normalizations already persisted in phase one must not be
-	// double-counted.
-	result.NormalizerChanges = normalizeChanges
+	// double-counted. Phase one and Converge OVERLAP rather than replace
+	// each other: both derive the four shared config passes, Converge alone
+	// adds the redundancy pass. Union by change identity keeps every repair
+	// exactly once; the overwrite this replaces silently discarded
+	// Converge-only repairs (redundancy removals), short-circuiting apply
+	// with "already converged" while the report-only path still planned the
+	// same drift — a detect/apply divergence (2026-10-17 BuildFlow incident).
+	result.NormalizerChanges = mergeNormalizerChanges(normalizeChanges, result.NormalizerChanges)
 
 	total := len(result.NormalizerChanges) + len(result.Plan)
 
@@ -180,6 +186,33 @@ func (f *Fixer) finalizeConvergence(
 	}
 
 	return f.persistConvergence(ctx, configPath, result, total, priority, dryRun, version)
+}
+
+// mergeNormalizerChanges unions the phase-one normalizations with the
+// in-memory normalizations Converge derived, deduplicating by change
+// identity. Both sides derive the shared passes identically, so equal keys
+// are the same repair seen twice; a key on only one side is that side's
+// exclusive repair (config-shape repairs only phase one runs, the redundancy
+// pass only Converge runs). Pure.
+func mergeNormalizerChanges(persisted, derived []Change) []Change {
+	merged := make([]Change, 0, len(persisted)+len(derived))
+	seen := make(map[string]bool, len(persisted)+len(derived))
+
+	for _, change := range persisted {
+		seen[change.Key()] = true
+		merged = append(merged, change)
+	}
+
+	for _, change := range derived {
+		if seen[change.Key()] {
+			continue
+		}
+
+		seen[change.Key()] = true
+		merged = append(merged, change)
+	}
+
+	return merged
 }
 
 // persistConvergence saves the merged config and records the audit trail;
