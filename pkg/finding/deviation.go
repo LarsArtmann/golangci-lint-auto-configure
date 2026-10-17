@@ -168,7 +168,7 @@ func tagSafe(tag string) bool {
 		return false
 	}
 
-	for i := 0; i < len(tag); i++ {
+	for i := range len(tag) {
 		c := tag[i]
 
 		switch {
