@@ -176,7 +176,7 @@ linters:
 			for _, rule := range parsed.Linters.Exclusions.Rules {
 				Expect(rule.Linters).NotTo(ContainElement("ifshort"))
 
-				Expect(rule.Path == `_test\.go` && rule.Text == "" && rule.Source == "").
+				Expect(rule.Path == `_test\.go` && rule.Text == "" && rule.Source == "" && len(rule.Linters) == 0).
 					To(BeFalse(),
 						"golangci-lint v2 rejects single-criterion rules at load; "+
 							"a rule emptied by the sweep must be dropped, not left path-only")
