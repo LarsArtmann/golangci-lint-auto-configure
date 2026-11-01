@@ -34,8 +34,8 @@ User reported that `noinlineerr` conflicts with code formatters and should alway
 
 | # | Item                       | What's done | What's missing                                                                                                                                                                                                                                                                          |
 | - | -------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 | **AGENTS.md update**       | Not done    | The `DisabledLinters` set now has 2 entries. AGENTS.md item #10 says "Priorities live in `linter_priorities.go` + reasons in `linter_reasons.go`" but doesn't mention `DisabledLinters` or the invariant that disabled linters must not have priority/reason entries. Could add a note. |
-| 2 | **Validation script sync** | Not checked | `scripts/validate_linter_data.go` checks priorities↔reasons consistency but does NOT check that `DisabledLinters` entries are absent from priorities/reasons. The new data integrity test covers this at test time, but the manual validation script is now redundant/incomplete.       |
+| 1 | **AGENTS.md update**       | Not done    | The `DisabledLinters` set now has 2 entries. AGENTS.md item #10 says "Priorities live in `linter_priorities.go` + reasons in `linter_reasons.go`" but doesn't mention `DisabledLinters` or the invariant that disabled linters must not have priority/reason entries. Could add a note. **RESOLVED 2026-11-02 — AGENTS gotcha 11 documents the tier invariants on the policy table.** |
+| 2 | **Validation script sync** | Not checked | `scripts/validate_linter_data.go` checks priorities↔reasons consistency but does NOT check that `DisabledLinters` entries are absent from priorities/reasons. The new data integrity test covers this at test time, but the manual validation script is now redundant/incomplete. **RESOLVED — checks 7–8 added by the 2026-07-26 follow-up pass (`2026-07-26_20-28…md` a).** |
 
 ---
 
@@ -45,8 +45,8 @@ User reported that `noinlineerr` conflicts with code formatters and should alway
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ~~1~~ | ~~**Stale doc references**~~ done (docs-health pass 2026-10-07)                                                                                                                          | ~~30 files in `docs/status/` + `docs/archive/` still mention `noinlineerr` as a recommended/medium-priority linter. These are historical status reports (snapshots in time) and arguably should NOT be updated — they're point-in-time records. But if there's a curated doc that lists recommended linters, it needs updating.~~ |
 | ~~2~~ | ~~**FEATURES.md audit**~~ done (docs-health pass 2026-10-07)                                                                                                                             | ~~No check whether FEATURES.md mentions `noinlineerr` as a supported/recommended linter. (Quick grep showed no match, but worth verifying the disabled-linter feature is documented.)~~                                                                                                                                           |
-| 3     | **README.md user-facing docs**                                                                                                                                                           | No check whether README mentions `noinlineerr` or explains which linters are disabled and why. Users should know the tool actively disables certain linters.                                                                                                                                                                      |
-| 4     | **`noinlineerr` reason documentation**                                                                                                                                                   | The comment in `rules.go` explains the conflict, but there's no user-facing message. When the fixer disables `noinlineerr`, the user gets no explanation in the fix summary output. The fixer counts it as a normalization fix but doesn't surface "disabled noinlineerr because it conflicts with formatters."                   |
+| 3     | **README.md user-facing docs**                                                                                                                                                           | No check whether README mentions `noinlineerr` or explains which linters are disabled and why. Users should know the tool actively disables certain linters. **Won't implement — README stays user-level; the tier rationale lives in `docs/DOMAIN_LANGUAGE.md` and surfaces in analyze output per-linter.**                                                              |
+| 4     | **`noinlineerr` reason documentation**                                                                                                                                                   | The comment in `rules.go` explains the conflict, but there's no user-facing message. When the fixer disables `noinlineerr`, the user gets no explanation in the fix summary output. The fixer counts it as a normalization fix but doesn't surface "disabled noinlineerr because it conflicts with formatters." **RESOLVED — the Tier.Rationale on the policy record is the machine-readable reason; the move is audited as `moved-to-disable` with the rationale (ADR-017 audit=diff).** |
 | ~~5~~ | ~~**Finding/report for disabled linters**~~ **Won't implement — decided against — DisabledLintersToFindings converter parity dropped (tool-internal policy; archive 2026-07-10_14-13).** | ~~Deprecated linters get SARIF/JSON findings (`DeprecatedLintersToFindings` in `pkg/finding/converter.go`). Disabled linters get no such finding — the user only sees the linter moved to `disable:` in the config. Could add `DisabledLintersToFindings` for parity.~~                                                           |
 
 ---
@@ -79,7 +79,7 @@ Nothing. No regressions, no broken tests, no data loss. The one test failure dur
 3. ~~Add `DisabledLintersToFindings` converter in `pkg/finding/converter.go` (parity with `DeprecatedLintersToFindings`)~~ **Won't implement — decided against — converter parity dropped (tool-internal policy).**
 4. ~~Surface disabled-linter actions in fix summary output (so users see "disabled noinlineerr: conflicts with formatters")~~ done (docs-health pass 2026-10-07)
 5. ~~Update `scripts/validate_linter_data.go` to check `DisabledLinters` invariant (or delete it if tests fully cover it)~~ done (docs-health pass 2026-10-07)
-6. Add `--explain-disabled` CLI flag that prints which linters are disabled and why
+6. ~~Add `--explain-disabled` CLI flag that prints which linters are disabled and why~~ **declined-for-now — transparency flag not worth the surface (10-07 precedent) — tier rationale lives in DOMAIN_LANGUAGE + analyze output**
 7. ~~Verify FEATURES.md documents the disabled-linter behavior as a feature~~ done (docs-health pass 2026-10-07)
 
 ### Medium Priority (code quality improvements noticed during this session)
@@ -89,46 +89,46 @@ Nothing. No regressions, no broken tests, no data loss. The one test failure dur
 10. ~~Add data integrity test for `RedundantLinters` — verify entries don't appear in `DisabledLinters` (no overlap between the two mechanisms)~~ done (docs-health pass 2026-10-07)
 11. ~~Add data integrity test for `DeprecatedLinters` — verify entries don't appear in `DisabledLinters` (a linter shouldn't be both deprecated and disabled)~~ done (docs-health pass 2026-10-07)
 12. ~~Add data integrity test verifying all `LinterPriorities` entries have matching `LinterReasons` entries (and vice versa) — currently only in the manual script~~ done (docs-health pass 2026-10-07)
-13. Consider adding `LinterToFormatter` reason to the fixer output when `RemoveRedundantLinters` removes `lll` (same "no user-facing message" problem as disabled linters)
+13. ~~Consider adding `LinterToFormatter` reason to the fixer output when `RemoveRedundantLinters` removes `lll` (same "no user-facing message" problem as disabled linters)~~ **done — the typed `RedundancyRelations` table carries a `Reason` per relation (lll→golines, gofmt→gofumpt) and the removal is a Change with an audit reason**
 
 ### Low Priority (broader project health)
 
 14. ~~Audit all 30 stale doc references to `noinlineerr` in `docs/status/` and `docs/archive/` — decide policy: update or leave as historical snapshots~~ done (docs-health pass 2026-10-07)
-15. Add a "Disabled Linters" section to README.md explaining which linters the tool disables and why
-16. Consider a `--list-disabled` CLI subcommand for discoverability
+15. ~~Add a "Disabled Linters" section to README.md explaining which linters the tool disables and why~~ **declined-for-now — README stays user-level; DOMAIN_LANGUAGE owns the tier vocabulary**
+16. ~~Consider a `--list-disabled` CLI subcommand for discoverability~~ **declined-for-now — subcommand surface not justified by demand**
 17. ~~Review whether `funcorder` should also have a reason string (same `Set` limitation)~~ done (docs-health pass 2026-10-07)
-18. Check if any other linters conflict with formatters and should be added to `DisabledLinters` (e.g. `gofmt` as a linter vs `gofumpt` as a formatter — though `RemoveRedundantGofmt` already handles this)
-19. Add integration test that runs the full CLI with `--json` output and verifies `noinlineerr` appears in disabled list
+18. ~~Check if any other linters conflict with formatters and should be added to `DisabledLinters` (e.g. `gofmt` as a linter vs `gofumpt` as a formatter — though `RemoveRedundantGofmt` already handles this)~~ **done — the typed `constants.RedundancyRelations` table (lll→golines, gofmt→gofumpt) is the governed home for formatter-conflict relations, with init-time referential-integrity checks**
+19. ~~Add integration test that runs the full CLI with `--json` output and verifies `noinlineerr` appears in disabled list~~ **declined-for-now — covered class-wise by the T18 in-process dispatch specs (analyze json/sarif/finding)**
 20. ~~Consider whether the `DisabledLinters` comment in `rules.go` should reference specific formatter names or stay generic~~ done (docs-health pass 2026-10-07)
 21. ~~Run `nix flake check` to verify Nix build still passes after the changes~~ done (docs-health pass 2026-10-07)
 22. ~~Run `buildflow` to verify all 44 steps still pass~~ **Won't implement — obsolete — buildflow step count no longer applies; gates restructured.**
 23. ~~Consider adding a test that verifies `DisabledLinters` is non-empty (guard against accidental empty set)~~ done (docs-health pass 2026-10-07)
 24. ~~Consider adding a test that verifies `DisabledLinters` entries are valid linter names (exist in golangci-lint's linter list)~~ done (docs-health pass 2026-10-07)
-25. Document the disabled-linter mechanism in `docs/references/working-with-codebase.md`
-26. Review `pkg/linter/fixer_preflight.go` — should disabled linters also be removed pre-flight like deprecated linters? (Currently they're only handled at write-back in `fixer_config.go`)
+25. ~~Document the disabled-linter mechanism in `docs/references/working-with-codebase.md`~~ **declined — AGENTS gotcha 11 + DOMAIN_LANGUAGE own the mechanism**
+26. ~~Review `pkg/linter/fixer_preflight.go` — should disabled linters also be removed pre-flight like deprecated linters? (Currently they're only handled at write-back in `fixer_config.go`)~~ **done — the `moveToolDisabledLinters` normalizer runs pre-analysis in phase one (`pkg/linter/normalize.go`), audited as `moved-to-disable`**
 27. ~~Add test for `funcorder` in fixer (currently only tested in categorizer, not in fixer) — same gap that existed for `noinlineerr` before this session~~ done (docs-health pass 2026-10-07)
 28. ~~Consider unifying `funcorder` and `noinlineerr` disable reasons into a structured map~~ done (docs-health pass 2026-10-07)
 29. ~~Check if the HTML report generator includes disabled linters in its output~~ done (docs-health pass 2026-10-07)
 30. ~~Verify `pkg/ui/formatter.go` correctly displays disabled linters in the CLI summary~~ done (docs-health pass 2026-10-07)
 31. ~~Consider adding `noinlineerr` to the `noinlineerr` → disabled migration in `pkg/migration/` if there's a v1→v2 migration path~~ **Won't implement — v1 feature development is an explicit non-goal (ROADMAP).**
 32. ~~Review whether the `reference` preset in `presets.go` should explicitly exclude `DisabledLinters` (currently works by convention — disabled linters have no priority, so they're never critical/high)~~ done (docs-health pass 2026-10-07)
-33. Add a comment to `presets.go` noting that `DisabledLinters` are excluded by convention
+33. ~~Add a comment to `presets.go` noting that `DisabledLinters` are excluded by convention~~ **declined — presets are queries over the policy table now; the tier invariant is table-enforced**
 34. ~~Consider adding `DisabledLinters` to the `data_integrity_test.go` "Reference preset" Describe block (verify disabled linters are not in the reference preset)~~ done (docs-health pass 2026-10-07)
-35. Review the `fixer_results.go` output — does `dryRunResult` or `successResult` mention disabled linters?
+35. ~~Review the `fixer_results.go` output — does `dryRunResult` or `successResult` mention disabled linters?~~ **done — results are projections of `Change` records (ADR-017); every move to disable is reported and audited**
 36. ~~Check if the `--dry-run` output shows what would be disabled (currently only shows fix count)~~ done (docs-health pass 2026-10-07)
 37. ~~Consider adding a `DisabledLinters` field to `ConfigAnalysis` (currently only `DeprecatedLinters` is surfaced in analysis)~~ done (docs-health pass 2026-10-07)
 38. ~~Add test verifying `noinlineerr` is not in the `reference` preset~~ done (docs-health pass 2026-10-07)
-39. Consider whether `noinlineerr` should be mentioned in `docs/DOMAIN_LANGUAGE.md` under linter categories
+39. ~~Consider whether `noinlineerr` should be mentioned in `docs/DOMAIN_LANGUAGE.md` under linter categories~~ **done — the "Linter Management Tier" term covers Disabled/NeverAutoEnable/PragmaticNoise vocabulary**
 40. ~~Run `templ generate` to verify HTML report doesn't need updating for disabled linters~~ done (docs-health pass 2026-10-07)
 41. ~~Check if the JSON report includes disabled linters in its output~~ done (docs-health pass 2026-10-07)
-42. Consider adding a `--disable-reason` field to the JSON report for each disabled linter
+42. ~~Consider adding a `--disable-reason` field to the JSON report for each disabled linter~~ **declined-for-now — report surface stays minimal**
 43. ~~Review whether SARIF output should include disabled-linter findings (currently only deprecated-linter findings)~~ **Won't implement — same decision as item 3 — SARIF disabled-linter findings dropped.**
 44. ~~Add a test that verifies the fixer is idempotent when `noinlineerr` is already in the disable list~~ done (docs-health pass 2026-10-07)
-45. Consider whether `enable-all` + `disable` pattern should also move `noinlineerr` to disable (currently `EnableAll` is not handled by the fixer)
+45. ~~Consider whether `enable-all` + `disable` pattern should also move `noinlineerr` to disable (currently `EnableAll` is not handled by the fixer)~~ **declined-for-now — no observed demand; revisit on a real-world `enable-all` config**
 46. ~~Review `pkg/linter/fixer.go:enableRecommendedLinters` — ensure disabled linters can never be re-enabled by the recommendation engine~~ done (docs-health pass 2026-10-07)
 47. ~~Add a guard in `enableRecommendedLinters` that explicitly checks `DisabledLinters` (defense in depth, even though categorizer already filters)~~ done (docs-health pass 2026-10-07)
-48. Consider logging at Info level (not Debug) when a linter is disabled due to being in `DisabledLinters`
-49. Review whether the `configure` command should warn if the user's existing config has `noinlineerr` enabled before the fixer runs
+48. ~~Consider logging at Info level (not Debug) when a linter is disabled due to being in `DisabledLinters`~~ **done — audit=diff records every `moved-to-disable` with rationale; categorizer logs the skip with the Tier.Rationale**
+49. ~~Review whether the `configure` command should warn if the user's existing config has `noinlineerr` enabled before the fixer runs~~ **done — the normalizer moves it to `disable` with an audited rationale on every configure pass**
 50. ~~Celebrate — the task is done and all tests pass~~ **NOT-DO — celebration, not an action item.**
 
 ---
@@ -143,6 +143,8 @@ Nothing. No regressions, no broken tests, no data loss. The one test failure dur
 
 **Question:** Should I leave these as historical snapshots (consistent with `funcorder` precedent), or should there be a "stale reference policy" that updates or annotates them?
 
+> **RESOLVED (docs-health canon):** leave as snapshots; annotate — the status-README lifecycle policy (`docs/status/README.md`) governs. This file's own annotation is the pattern.
+
 ### 2. Should `DisabledLinters` be upgraded to carry machine-readable reason strings?
 
 **Context:** `DeprecatedLinters` is a `map[LinterName]LinterReplacement` (carries reason + replacement). `RedundantLinters` is a `map[LinterName]LinterToFormatter` (carries reason + formatter). `DisabledLinters` is just a `Set[LinterName]` — no reason data. The rationale for disabling `noinlineerr` lives only in a code comment and is never surfaced to the user.
@@ -150,6 +152,8 @@ Nothing. No regressions, no broken tests, no data loss. The one test failure dur
 **What I tried:** Followed the existing `funcorder` precedent (which is also reasonless). But `funcorder` was disabled for different reasons (produced too many false positives) and the rationale may have been communicated elsewhere.
 
 **Question:** Should I convert `DisabledLinters` to `map[LinterName]string` (or add a parallel `DisabledLinterReasons` map) so the fixer can surface "disabled noinlineerr: conflicts with formatters" to the user? Or is the current silent-move-to-disable behavior sufficient?
+
+> **RESOLVED:** reasons shipped — first as the reason map (commit `31df177`), now as `Tier.Rationale` on the policy-table record; the move is audited as `moved-to-disable` with that rationale.
 
 ---
 
@@ -219,3 +223,14 @@ The follow-ups flagged here were resolved by the next session (`2026-07-10_14-13
 - **AGENTS.md #10** (DisabledLinters is static data): ✅ documented.
 
 **Still open:** dry-run logging inconsistency; `funcorder` test gap. See `TODO_LIST.md`.
+
+---
+
+## Resolution (2026-11-02, docs-health fifth sweep)
+
+Every remaining bare item now carries a verdict: formatter-conflict
+relations live in the typed `RedundancyRelations` table (items 13/18), the
+pre-flight disabled-linter move is the `moveToolDisabledLinters` normalizer
+(item 26), results are `Change` projections (item 35), and the remaining
+surface ideas were consciously declined (transparency flags/report fields).
+Both `g` questions answered inline above. **Fully resolved — archived.**

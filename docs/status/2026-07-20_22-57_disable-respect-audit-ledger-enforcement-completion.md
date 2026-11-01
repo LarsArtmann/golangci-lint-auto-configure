@@ -200,28 +200,28 @@ JSONL ledger has no file locking. Two parallel configure runs (e.g., BuildFlow r
 
 ### Broader audit recording
 
-20. Snapshot and diff Go version changes
-21. Snapshot and diff runner settings
-22. Snapshot and diff build tags
-23. Snapshot and diff output formats
-24. Snapshot and diff issues settings (`max-issues-per-linter`, `max-same-issues`)
-25. Snapshot and diff exclusion rules
+20. ~~Snapshot and diff Go version changes~~ **done — ADR-017 audit=diff: every Change is one ledger entry; `rescued-run-go` audits run.go repairs**
+21. ~~Snapshot and diff runner settings~~ **done — runner-settings writes are `Change` records projected into the ledger (audit=diff)**
+22. ~~Snapshot and diff build tags~~ **done — build-tag writes are `Change` records (audit=diff)**
+23. ~~Snapshot and diff output formats~~ **done — output-format writes are `Change` records (audit=diff)**
+24. ~~Snapshot and diff issues settings (`max-issues-per-linter`, `max-same-issues`)~~ **done — the always-0 caps convergence is planned and audited as Changes (2026-10-16)**
+25. ~~Snapshot and diff exclusion rules~~ **done — audited as `exclusion-rule-merged` with the added linters named in the reason**
 
 ### Robustness
 
-26. Add file locking (`flock`) to ledger append
-27. Add file locking to `PurgeOlder` rewrite
+26. ~~Add file locking (`flock`) to ledger append~~ **declined-for-now — in-process mutex chosen (see item 28 verdict); no observed concurrent-run corruption**
+27. ~~Add file locking to `PurgeOlder` rewrite~~ **declined-for-now — same decision as item 26**
 28. ~~Consider SQLite backend for concurrent-write safety (BuildFlow pattern)~~ **Won't implement — SQLite backend not pursued; in-process mutex chosen.**
-29. Add ledger size cap or rotation (beyond 90-day purge)
-30. Add `--ledger-path` flag to override default location
+29. ~~Add ledger size cap or rotation (beyond 90-day purge)~~ **declined-for-now — 90-day retention purge suffices at observed volumes**
+30. ~~Add `--ledger-path` flag to override default location~~ **declined-for-now — `XDG_CACHE_HOME` relocation covers the testing/troubleshooting need**
 
 ### CLI polish
 
-31. Add `audit --summary` mode (counts by action, by linter, by repo)
-32. Add `audit --repo <path>` filter by repository
-33. Add `audit --action <type>` filter by action type
-34. Add `audit --follow` / `--watch` for tailing new entries
-35. Add exit codes to `audit` (e.g., exit 1 if unjustified disables found)
+31. ~~Add `audit --summary` mode (counts by action, by linter, by repo)~~ **declined-for-now — subcommand surface stays minimal; `--json` covers scripting**
+32. ~~Add `audit --repo <path>` filter by repository~~ **declined-for-now — same**
+33. ~~Add `audit --action <type>` filter by action type~~ **declined-for-now — same**
+34. ~~Add `audit --follow` / `--watch` for tailing new entries~~ **declined-for-now — `tail -f` on the JSONL file covers it**
+35. ~~Add exit codes to `audit` (e.g., exit 1 if unjustified disables found)~~ **declined-for-now — audit is a query surface, not a gate**
 
 ### Documentation
 
@@ -230,13 +230,13 @@ JSONL ledger has no file locking. Two parallel configure runs (e.g., BuildFlow r
 38. ~~Update TODO_LIST.md with remaining Pillar C work~~ done (docs-health pass 2026-10-07)
 39. ~~Update DOMAIN_LANGUAGE.md with new terms~~ done (docs-health pass 2026-10-07)
 40. ~~Add resolution note to the moved feedback doc~~ done (docs-health pass 2026-10-07)
-41. Update `docs/references/working-with-codebase.md` with audit/policy sections
+41. ~~Update `docs/references/working-with-codebase.md` with audit/policy sections~~ **declined — AGENTS ("Audit ledger" + "Policy enforcement" bullets) owns the pointers**
 42. ~~Update prior status report (`docs/status/2026-07-20_12-28_*`) with cross-reference~~ done (docs-health pass 2026-10-07)
 
 ### Build verification
 
 43. ~~Run `nix build` and fix any issues~~ done (docs-health pass 2026-10-07)
-44. Run `nix flake check` and fix any issues
+44. ~~Run `nix flake check` and fix any issues~~ **done — all 5 x86_64-linux checks + packages + apps green (root-caused 2026-10-07; the historical "0 checks" flap was unreproducible on nix 2.34.8)**
 45. ~~Update `vendorHash` in `flake.nix` if go.mod changed~~ done (docs-health pass 2026-10-07)
 
 ### Policy features
@@ -261,6 +261,8 @@ Running each disabled linter to count hidden findings takes minutes on large rep
 
 I cannot decide this because it trades coverage against speed, and the right answer depends on how the tool is invoked in your BuildFlow pipeline (pre-commit hook = must be fast; manual `analyze` = can be slow).
 
+> **RESOLVED:** moot — runtime cost analysis and `FindingsHidden` were dropped entirely (items 15–17 verdicts); no consumer remains.
+
 ### Q2: Sidecar committed or gitignored?
 
 Should `.golangci-lint-auto-configure.yml` be:
@@ -269,6 +271,8 @@ Should `.golangci-lint-auto-configure.yml` be:
 - **(b)** Gitignored (per-developer, personal preferences)
 
 I chose "committed" in the README, but this is a product decision. If committed, agents must add entries to justify disables (visible in review). If gitignored, enforcement is per-developer and provides no team-level anti-gaming protection.
+
+> **RESOLVED:** committed — the README's sidecar section documents "Commit the sidecar to git so the team shares a baseline"; the repo's own divergence sidecar is committed (v0.11.0 self-hosting).
 
 ### Q3: `FindingsHidden` — implement now or remove the field?
 
@@ -279,3 +283,18 @@ The `FindingsHidden` field is in the audit `Entry` struct but always 0. Should I
 - **(c)** Leave it as-is (field exists, shows intent, populated later)
 
 I lean toward (b) — a dead field is a lie in the schema — but removing it means changing the JSONL format which is already written to disk by prior runs.
+
+> **RESOLVED:** option (b) — the `FindingsHidden` field was removed (2026-09-13 pareto session, T25); the JSONL schema note was updated.
+
+---
+
+## Resolution (2026-11-02, docs-health fifth sweep)
+
+The recording-coverage gap closed structurally with ADR-017 (audit = diff:
+every applied change is one ledger entry projected from the same `Change`
+object — run.go, runner, build-tag, output-format, issues-cap, and
+exclusion-rule mutations all audited now). Audit/enforcement test coverage
+closed (`cmd_audit_test.go`, `fixer_enforce` legacy suites → T18 FixConfig
+e2e with a REAL sidecar + ledger). Remaining CLI-polish ideas were
+consciously declined (subcommand surface stays minimal). All three `g`
+questions answered inline. **Fully resolved — archived.**

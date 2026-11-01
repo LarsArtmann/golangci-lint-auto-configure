@@ -90,11 +90,11 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
 ### 5. Error handling governance (largely complete)
 
 - **Swallowed-error audit cadence** — quarterly `erraudit` re-check (last full
-  review 2026-07-30: 194 findings, all triaged as intentional/idiomatic). Exit
-  code governance remains best-in-class: a single `os.Exit()` in `Main()` via
-  `errorfamily.ExitCode()`.
-- **Error-code registry** — ~40 ad-hoc error codes exist without a convention
-  test; a registry would prevent drift (raised 2026-07-08, never prioritized).
+  re-check 2026-10-07: 81 findings, all triaged as intentional/idiomatic; next
+  due ~2027-01). Exit code governance remains best-in-class: a single
+  `os.Exit()` in `Main()` via `errorfamily.ExitCode()`.
+- ~~**Error-code registry**~~ — shipped (M28): `pkg/errors/codes.go` +
+  convention tests, every used code registered and template-locked.
 
 ### 6. Public-repo operations & launch
 
