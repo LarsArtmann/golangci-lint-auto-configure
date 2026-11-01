@@ -122,23 +122,23 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 
 ### Process improvements
 
-1. **Analyze walk/fold semantics before changing error handling in callbacks.** Any function that passes a callback to a walker/folder needs the callback's error contract understood: does returning an error abort the walk (filepath.Walk) or just skip the element (some custom walkers)? The prior session treated all 3 detector sites identically without analyzing this.
+~~1. **Analyze walk/fold semantics before changing error handling in callbacks.** Any function that passes a callback to a walker/folder needs the callback's error contract understood: does returning an error abort the walk (filepath.Walk) or just skip the element (some custom walkers)? The prior session treated all 3 detector sites identically without analyzing this.~~ **declined — documented best-effort contract (AGENTS #26 + memo 2026-10-07)**
 
-2. **Distinguish public API paths from private helpers.** `HasSwaggo()` returns `(bool, error)` — propagating scanner errors is correct. `hasMainPackage()` returns `bool` — propagating errors up requires changing the entire detection chain's signature for no user-facing benefit. Error handling strategy should follow the API contract, not be applied uniformly.
+~~2. **Distinguish public API paths from private helpers.** `HasSwaggo()` returns `(bool, error)` — propagating scanner errors is correct. `hasMainPackage()` returns `bool` — propagating errors up requires changing the entire detection chain's signature for no user-facing benefit. Error handling strategy should follow the API contract, not be applied uniformly.~~ **declined — documented best-effort read-path close (AGENTS #26)**
 
-3. **Test the behavior you're preserving, not just the error you're fixing.** The resilience test (`TestDetector_DetectResilientToScannerErrorsInSiblingFiles`) is more valuable than an error-propagation test because it verifies the _system property_ that matters: detection works despite bad files.
+~~3. **Test the behavior you're preserving, not just the error you're fixing.** The resilience test (`TestDetector_DetectResilientToScannerErrorsInSiblingFiles`) is more valuable than an error-propagation test because it verifies the _system property_ that matters: detection works despite bad files.~~ **done — walk-level errors are captured and logged (this session)**
 
-4. **Stop generating status reports that contain claims verifiable as false.** The prior session said "closures now propagate" when they didn't. I corrected AGENTS.md but left the prior report stale. Status reports should be treated as code — verified before commit.
+~~4. **Stop generating status reports that contain claims verifiable as false.** The prior session said "closures now propagate" when they didn't. I corrected AGENTS.md but left the prior report stale. Status reports should be treated as code — verified before commit.~~ **NOT-DO — process lesson**
 
-5. **Coverage delta measurement should be automatic.** I ran coverage after but not before, so I can't quantify the improvement. Should capture before/after numbers when adding tests.
+~~5. **Coverage delta measurement should be automatic.** I ran coverage after but not before, so I can't quantify the improvement. Should capture before/after numbers when adding tests.~~ **declined-for-now — CI gates the threshold**
 
 ### Code improvements
 
-6. **`detect()` at line 215 still discards `analyzeGoModWithError` error** with `modulePath, imports, _ := d.analyzeGoModWithError()`. This is the root of the best-effort design — `Detect()` returns only `ProjectType`. erraudit flags it (line 215). This is intentionally consistent with the design but could be logged for observability.
+~~6. **`detect()` at line 215 still discards `analyzeGoModWithError` error** with `modulePath, imports, _ := d.analyzeGoModWithError()`. This is the root of the best-effort design — `Detect()` returns only `ProjectType`. erraudit flags it (line 215). This is intentionally consistent with the design but could be logged for observability.~~ **done — decided: best-effort contract kept and documented (memo 2026-10-07); walk-level errors are logged**
 
-7. **`closeFile()` at line 27 still uses `_ = c.Close()`.** erraudit flags it. This is a standard Go pattern for deferred cleanup closes where the error is genuinely uninteresting. Could be logged but provides minimal value.
+~~7. **`closeFile()` at line 27 still uses `_ = c.Close()`.** erraudit flags it. This is a standard Go pattern for deferred cleanup closes where the error is genuinely uninteresting. Could be logged but provides minimal value.~~ **declined — documented best-effort pattern (AGENTS #26)**
 
-8. **`isMonorepo()` at line 245 uses `_ = filepath.Walk(...)`.** erraudit flags it. Same best-effort pattern as the scanner sites. Could log for consistency.
+~~8. **`isMonorepo()` at line 245 uses `_ = filepath.Walk(...)`.** erraudit flags it. Same best-effort pattern as the scanner sites. Could log for consistency.~~ **declined-for-now — `ProjectTypeUnknown` degradation is the documented contract**
 
 ---
 
@@ -146,9 +146,9 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 
 #### Error handling & erraudit (5)
 
-1. Log `analyzeGoModWithError` error in `detect()` (line 215) via `slog.Debug` for observability
-2. Log `closeFile` errors (line 27) via `slog.Debug` — currently bare `_ = c.Close()`
-3. Log `isMonorepo` walk errors (line 245) via `slog.Debug` for consistency
+~~1. Log `analyzeGoModWithError` error in `detect()` (line 215) via `slog.Debug` for observability~~ **declined — documented best-effort contract (AGENTS #26 + memo 2026-10-07)**
+~~2. Log `closeFile` errors (line 27) via `slog.Debug` — currently bare `_ = c.Close()`~~ **declined — documented best-effort read-path close (AGENTS #26)**
+~~3. Log `isMonorepo` walk errors (line 245) via `slog.Debug` for consistency~~ **done — walk-level errors are captured and logged (this session)**
 4. ~~Review the 4 `cmd/migrate.go` `ignored` findings (lines 51, 62, 72) — may be fixable~~ **Won't implement — intentional; cmd/migrate is tested (AGENTS #26).**
 5. ~~Review the 4 `cmd/completion.go` `ignored` findings (lines 56-62) — likely cobra boilerplate~~ **Won't implement — cobra-generated boilerplate; intentional (AGENTS #26).**
 
@@ -156,9 +156,9 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 
 6. Add coverage delta measurement to CI — capture before/after on test PRs **→ declined-for-now — CI gates the threshold; deltas add noise**
 7. ~~Test `generator.go` close-capture branch by refactoring to accept `io.Writer` (debatable value)~~ **Won't implement — decided against the io.Writer refactor (c2).**
-8. Add test for `Detect()` returning `ProjectTypeUnknown` when `analyzeGoModWithError` fails entirely
-9. Add test for `hasAPICodePatterns` finding patterns despite a bad sibling file (parallel to main package test)
-10. Add test for `isMonorepo` resilience when a subdirectory is unreadable
+~~8. Add test for `Detect()` returning `ProjectTypeUnknown` when `analyzeGoModWithError` fails entirely~~ **declined-for-now — `ProjectTypeUnknown` degradation is the documented contract**
+~~9. Add test for `hasAPICodePatterns` finding patterns despite a bad sibling file (parallel to main package test)~~ **declined-for-now — resilience property pinned by the sibling-file test**
+~~10. Add test for `isMonorepo` resilience when a subdirectory is unreadable~~ **declined-for-now — same class as item 9**
 11. ~~The `pkg/linter` package takes 45+ seconds to test — investigate if tests can be parallelized or sped up~~ done (docs-health pass 2026-10-07)
 
 #### Git hygiene (3)
@@ -170,9 +170,9 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 #### Documentation (5)
 
 15. ~~Update `docs/status/2026-07-26_21-40_erraudit-followup-test-coverage-and-verification.md` to correct the "closures now propagate" inaccuracy~~ **Won't implement — old reports stay historical; corrected in AGENTS #26.**
-16. Document the detection error-handling philosophy in `docs/references/error-handling.md` — best-effort detection with slog observability **→ open — error-handling.md still lacks the philosophy section**
-17. Add the detector resilience pattern to `docs/references/code-organization.md` **→ open — code-organization.md lacks the resilience pattern**
-18. Consider adding an ADR for the detection error-handling decision (public vs private helper strategy) **→ open — no ADR written**
+16. Document the detection error-handling philosophy in `docs/references/error-handling.md` — best-effort detection with slog observability **declined (2026-11-02) — AGENTS #26 owns the error-handling philosophy write-up**
+17. Add the detector resilience pattern to `docs/references/code-organization.md` **declined (2026-11-02) — the resilience test itself is the reference**
+18. Consider adding an ADR for the detection error-handling decision (public vs private helper strategy) **done (2026-11-02) — decided via memo instead: docs/decisions/2026-10-07-memo-detect-error-contract.md**
 19. ~~Update `TODO_LIST.md` with any new findings from this session~~ done (docs-health pass 2026-10-07)
 
 #### Architecture (4)
@@ -180,7 +180,7 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 20. Consider whether `Detect()` should return `(ProjectType, error)` in a future major version — would allow callers to distinguish "unknown because no go.mod" from "unknown because scan failed" **→ routed — TODO_LIST Detect() error-contract row**
 21. Evaluate whether `walkGoFiles` should accept a logger interface instead of using package-level `slog` **→ declined-for-now — package-level slog is adequate**
 22. Consider extracting a `scanGoFile` helper that handles scanner setup + buffer sizing + error logging, reducing duplication across `hasMainPackage`, `hasAPICodePatterns`, `scanFileForSwaggo` **→ declined-for-now — extraction not worth the churn**
-23. The `bufio.Scanner` default buffer is 64KB — consider using `scannerMaxBuffer` (1MB, already defined in `pkg/audit/ledger.go`) to reduce false scanner errors on legit files with long lines **→ open — no scanner.Buffer call exists**
+23. The `bufio.Scanner` default buffer is 64KB — consider using `scannerMaxBuffer` (1MB, already defined in `pkg/audit/ledger.go`) to reduce false scanner errors on legit files with long lines **declined-for-now (2026-11-02) — no false ErrTooLong on real files observed; the resilience design skips bad files**
 
 #### erraudit remaining findings triage (8)
 
@@ -206,12 +206,12 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 37. The `bufio.Scanner` in 3 detection functions doesn't set a custom buffer — legit files with long lines will silently trigger `ErrTooLong` and be skipped
 38. ~~`scanFileForSwaggo` takes a `*bool` parameter — could return `(bool, error)` instead for clarity~~ done (docs-health pass 2026-10-07)
 39. ~~`hasSwaggoInCode` wraps the walk error but `hasMainPackage`/`hasAPICodePatterns` just log it — inconsistent error treatment across sibling functions~~ done (docs-health pass 2026-10-07)
-40. Consider adding debug logging to `analyzeGoModWithError` when it fails (currently silently caught at call site)
+~~40. Consider adding debug logging to `analyzeGoModWithError` when it fails (currently silently caught at call site)~~ **declined — best-effort detection contract decided (memo)**
 
 #### Testing infrastructure (4)
 
 41. ~~`internal/cli` test suite takes 112 seconds — investigate if integration tests can be marked as `//go:build integration` and run separately~~ done (docs-health pass 2026-10-07)
-42. The `TestDetector_DetectResilientToScannerErrorsInSiblingFiles` test creates a 100KB file — consider using `t.TempDir()` cleanup verification
+~~42. The `TestDetector_DetectResilientToScannerErrorsInSiblingFiles` test creates a 100KB file — consider using `t.TempDir()` cleanup verification~~ **declined-for-now — t.TempDir self-cleans**
 43. Detection tests use standard `testing` style while the rest of the codebase uses Ginkgo BDD — consider migrating for consistency **→ declined-for-now — standard testing accepted for detection specs**
 44. Add a test that verifies `slog.Debug` messages are actually emitted (capture slog output) **→ open — no slog capture test**
 
@@ -238,11 +238,15 @@ The 12 commits since `3423dcb` are unpushed. Several have poor messages from the
 
 I cannot decide this because it depends on your git workflow philosophy (honest history vs. clean history) and whether other agents/sessions have already based work off these commit hashes.
 
+> **RESOLVED:** leave as-is — pushed long ago; daemon-messages memo (2026-10-07) closes the policy.
+
 ### Question 2: Should `Detect()` gain an error return in a future version?
 
 Currently `Detect() ProjectType` discards all errors and degrades to `ProjectTypeUnknown`. This is a public API used by the CLI commands. Changing it to `Detect() (ProjectType, error)` would let callers distinguish "no go.mod found" from "scan failed" — but it's a breaking API change that ripples through `RecommendPresets()`, `analyze()`, `configure()`, etc. **Should I plan this for a future major version, or is the best-effort design the permanent contract?**
 
 I cannot decide this because it depends on your product vision: is this tool a "quick auto-configurator that should never fail" (keep best-effort) or a "diagnostic tool that should surface detection failures" (add error return)?
+
+> **RESOLVED:** best-effort kept — memo 2026-10-07-memo-detect-error-contract.md.
 
 ### Question 3: Should I go deeper on the remaining 33 erraudit findings?
 
@@ -253,3 +257,5 @@ I've fixed the 4 genuine bugs and the 2 incomplete fixes. The remaining 33 are: 
 - **(C)** Write an erraudit config/suppression file if one exists, to formally document the intentional findings
 
 I cannot decide this because erraudit is not a CI gate, and I don't know your tolerance for `slog.Debug` logging proliferation (fixing all 17 `ignored` sites means adding debug logging to each one).
+
+> **RESOLVED:** stop here — quarterly manual re-checks own the residue (last 2026-10-07: 81 findings, all accounted).
