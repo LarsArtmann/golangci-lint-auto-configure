@@ -62,7 +62,7 @@ func NormalizeConfig(
 	working, unknownChanges := RemoveUnknownLinters(working, binaryKnown)
 	changes = append(changes, unknownChanges...)
 
-	working, ruleRenameChanges := RenameDeprecatedInExclusionRules(working)
+	working, ruleRenameChanges := RenameDeprecatedInExclusionRules(working, tool)
 	changes = append(changes, ruleRenameChanges...)
 
 	if len(changes) == 0 {
@@ -152,7 +152,7 @@ func convergeNormalizers(
 	working, unknownChanges := RemoveUnknownLinters(working, env.BinaryKnown)
 	changes = append(changes, unknownChanges...)
 
-	working, renameChanges := RenameDeprecatedInExclusionRules(working)
+	working, renameChanges := RenameDeprecatedInExclusionRules(working, env.Tool)
 
 	return working, append(changes, renameChanges...)
 }

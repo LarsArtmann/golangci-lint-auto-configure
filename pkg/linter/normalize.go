@@ -588,13 +588,19 @@ func toStrings(names []types.LinterName) []string {
 }
 
 // RenameDeprecatedInExclusionRules rewrites EVERY deprecated linter name in
-// exclusion rules (not only enabled ones): names with a successor are
-// renamed (a successor already listed dedupes the predecessor entry away),
-// names without one are dropped. Rules scoped by Text or Source whose linter
-// list the sweep emptied are dropped entirely — left behind, the pattern
-// would suppress matching findings from every linter (the legacy removal
-// contract; path-scoped rules survive with an emptied list). Pure.
-func RenameDeprecatedInExclusionRules(observed *types.Config) (*types.Config, []Change) {
+// exclusion rules (not only enabled ones): names whose supersession chain
+// reaches a successor available on the installed tool are renamed to the
+// terminal successor (a successor already listed dedupes the predecessor
+// entry away), and names without a reachable successor are dropped — the
+// entry would reference a linter the binary cannot name. Rules scoped by
+// Text or Source whose linter list the sweep emptied are dropped entirely —
+// left behind, the pattern would suppress matching findings from every
+// linter (the legacy removal contract; path-scoped rules survive with an
+// emptied list). Pure.
+func RenameDeprecatedInExclusionRules(
+	observed *types.Config,
+	tool types.GolangciVersion,
+) (*types.Config, []Change) {
 	normalized := observed.Clone()
 
 	var changes []Change
@@ -603,7 +609,7 @@ func RenameDeprecatedInExclusionRules(observed *types.Config) (*types.Config, []
 	kept := make([]types.ExclusionRuleConfig, 0, len(rules))
 
 	for _, rule := range rules {
-		swept, ruleChanged, ruleChanges := sweepExclusionRuleLinters(rule)
+		swept, ruleChanged, ruleChanges := sweepExclusionRuleLinters(rule, tool)
 		changes = append(changes, ruleChanges...)
 
 		if keptRule, survives := keepSweptRule(rule, swept, ruleChanged); survives {
@@ -646,7 +652,7 @@ func keepSweptRule(
 // with a successor become that successor (deduped against what the rule
 // already lists), names without one vanish. The returned list is the swept
 // linters; ruleChanged reports whether any deprecated name was touched.
-func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, []Change) {
+func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig, tool types.GolangciVersion) ([]string, bool, []Change) {
 	kept := make([]string, 0, len(rule.Linters))
 	seen := make(map[string]bool, len(rule.Linters))
 
@@ -664,7 +670,8 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, 
 
 		changed = true
 
-		if record.SupersededBy == "" {
+		terminal, swappable := resolveSupersessionChain(record, tool, nil)
+		if !swappable || terminal.SupersededBy == "" {
 			changes = append(changes, sweptDropChange(entry, record))
 
 			continue
@@ -672,7 +679,7 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig) ([]string, bool, 
 
 		var rename Change
 
-		kept, rename = sweepRename(entry, record, kept, seen)
+		kept, rename = sweepRename(entry, terminal.SupersededBy, record.SupersessionReason, kept, seen)
 		changes = append(changes, rename)
 	}
 
@@ -704,22 +711,23 @@ func sweptDropChange(entry string, record types.LinterPolicy) Change {
 // rule already lists, and returns the extended kept list.
 func sweepRename(
 	entry string,
-	record types.LinterPolicy,
+	successor types.LinterName,
+	reason string,
 	kept []string,
 	seen map[string]bool,
 ) ([]string, Change) {
-	successor := string(record.SupersededBy)
+	name := string(successor)
 
-	if !seen[successor] {
-		seen[successor] = true
-		kept = append(kept, successor)
+	if !seen[name] {
+		seen[name] = true
+		kept = append(kept, name)
 	}
 
 	return kept, Change{
 		Path:    PathLintersExclusionRules,
-		Element: entry + "->" + successor,
+		Element: entry + "->" + name,
 		Kind:    ChangeUpdate,
-		Reason:  record.SupersessionReason,
+		Reason:  reason,
 	}
 }
 

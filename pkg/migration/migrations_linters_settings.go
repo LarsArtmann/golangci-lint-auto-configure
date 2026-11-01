@@ -50,6 +50,33 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 		}
 	}
 
+	// 1b. Rename v1 keys whose v2 successor has identical semantics
+	for linterName, renames := range rules.RenamedLinterSettings {
+		linterSettings, ok := settings[linterName].(map[string]any)
+		if !ok {
+			continue
+		}
+
+		for oldKey, newKey := range renames {
+			value, exists := linterSettings[oldKey]
+			if !exists {
+				continue
+			}
+
+			delete(linterSettings, oldKey)
+
+			if _, hasNew := linterSettings[newKey]; !hasNew {
+				linterSettings[newKey] = value
+			}
+
+			fixes++
+		}
+
+		if len(linterSettings) == 0 {
+			delete(settings, linterName)
+		}
+	}
+
 	// 2. Remove settings for linters that no longer support them
 	for linterName := range rules.LintersWithoutSettings {
 		if _, exists := settings[linterName]; exists {

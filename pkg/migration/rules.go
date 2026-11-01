@@ -13,7 +13,12 @@ import (
 //
 
 type MigrationRules struct {
-	RemovedLinterSettings         map[string][]string
+	RemovedLinterSettings map[string][]string
+	// RenamedLinterSettings maps linter name -> old settings key -> v2 key,
+	// for renames whose semantics are unchanged (wrapcheck's v1 camelCase
+	// keys became kebab-case in v2 with identical meaning). Renaming keeps
+	// the user's intent; the old RemovedLinterSettings drop silently lost it.
+	RenamedLinterSettings         map[string]map[string]string
 	ModernizeDisableMappings      map[string]string
 	SloglintKeyNamingCaseMappings map[string]string
 	GocriticSettingsToRemove      []string
@@ -24,6 +29,7 @@ type MigrationRules struct {
 func DefaultRules() *MigrationRules {
 	return &MigrationRules{
 		RemovedLinterSettings:         removedLinterSettings(),
+		RenamedLinterSettings:         renamedLinterSettings(),
 		ModernizeDisableMappings:      modernizeDisableMappings(),
 		SloglintKeyNamingCaseMappings: sloglintKeyNamingCaseMappings(),
 		GocriticSettingsToRemove:      gocriticSettingsToRemove(),
@@ -42,7 +48,21 @@ func removedLinterSettings() map[string][]string {
 		"nolintlint":     {"allow-leading-space"},
 		"tagliatelle":    {"use-field-name"},
 		"unused":         {"check-exported"},
-		"wrapcheck":      {"ignoreSigRegexps", "ignoreSigs", "ignorePackageGlobs"},
+	}
+}
+
+// renamedLinterSettings covers the v1 keys the migration guide renames with
+// unchanged semantics. wrapcheck's camelCase keys all became kebab-case;
+// ignoreInterfaceRegexps was missing from earlier versions of this table,
+// which silently dropped that part of a user's wrapcheck configuration.
+func renamedLinterSettings() map[string]map[string]string {
+	return map[string]map[string]string{
+		"wrapcheck": {
+			"ignoreSigs":            "ignore-sigs",
+			"ignoreSigRegexps":      "ignore-sig-regexps",
+			"ignorePackageGlobs":    "ignore-package-globs",
+			"ignoreInterfaceRegexps": "ignore-interface-regexps",
+		},
 	}
 }
 
