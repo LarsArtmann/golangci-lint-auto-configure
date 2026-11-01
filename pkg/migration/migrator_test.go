@@ -12,7 +12,52 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/migration"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.yaml.in/yaml/v3"
 )
+
+var _ = Describe("wrapcheck setting renames", func() {
+	It("renames every v1 camelCase key to its v2 kebab-case successor", func() {
+		testDir := GinkgoT().TempDir()
+
+		configPath := testMigrationWithConfig(testDir, `version: "1"
+linters-settings:
+  wrapcheck:
+    ignoreSigs:
+      - ".Errorf("
+    ignoreSigRegexps:
+      - "fmt\\."
+    ignorePackageGlobs:
+      - "encoding/*"
+    ignoreInterfaceRegexps:
+      - "^Endable$"
+`)
+
+		content, err := os.ReadFile(configPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		var migrated struct {
+			Linters struct {
+				Settings struct {
+					Wrapcheck map[string]any `yaml:"wrapcheck"`
+				} `yaml:"settings"`
+			} `yaml:"linters"`
+		}
+
+		Expect(yaml.Unmarshal(content, &migrated)).To(Succeed())
+
+		wrapcheck := migrated.Linters.Settings.Wrapcheck
+		Expect(wrapcheck).NotTo(BeNil(), "wrapcheck settings block must survive the migration")
+
+		for _, key := range []string{"ignore-sigs", "ignore-sig-regexps", "ignore-package-globs", "ignore-interface-regexps"} {
+			Expect(wrapcheck).To(HaveKey(key),
+				"v1 camelCase keys must be renamed with their values intact, not dropped: missing %s", key)
+		}
+
+		for _, legacy := range []string{"ignoreSigs", "ignoreSigRegexps", "ignorePackageGlobs", "ignoreInterfaceRegexps"} {
+			Expect(wrapcheck).NotTo(HaveKey(legacy), "legacy key %s must not survive the v2 migration", legacy)
+		}
+	})
+})
 
 func TestMigration(t *testing.T) {
 	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
