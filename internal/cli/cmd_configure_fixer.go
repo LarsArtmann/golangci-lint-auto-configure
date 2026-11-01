@@ -76,8 +76,15 @@ func prepareFixerRun(
 	ctx context.Context, logger *log.Logger, analyzer *linter.Analyzer,
 	configLoader *config.Loader, configFile string, flags *Flags,
 ) (*linter.Fixer, types.LinterPriority, error) {
+	// Check mode never persists its result: --check --diff saves the config
+	// only to render a diff and restores the original right after, but the
+	// fixer emits audit entries during that temporary save. Suppressing the
+	// ledger keeps "dry runs never emit entries" true and stops phantom
+	// applied-changes from poisoning regression-loop detection.
+	suppressAudit := flags.NoAudit || flags.Check
+
 	fixer := newConfiguredFixer(ctx, logger, analyzer, configLoader, configFile,
-		flags.NoAudit, flags.ForceSettings, flags.ShowMergedRules)
+		suppressAudit, flags.ForceSettings, flags.ShowMergedRules)
 
 	linterPriority, err := ParsePriorityParam(flags.Priority)
 	if err != nil {
