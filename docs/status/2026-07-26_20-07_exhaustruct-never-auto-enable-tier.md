@@ -85,8 +85,8 @@ I read the script (line 91-109 checks `DisabledLinters` consistency) but did NOT
 
 ## c) NOT STARTED
 
-1. **Integration test for manual exhaustruct enable.** No integration test verifies the full round-trip: user manually adds exhaustruct → configure runs → exhaustruct stays enabled → safe defaults injected → test exclusion rules present.
-2. **CLI acceptance test for `--pragmatic`.** The planning doc (`docs/planning/2026-07-25_07-56_golangci-lint-friction-reduction-pareto-plan.md:F31`) has an open item: "Add CLI acceptance test: `--pragmatic` produces config without the noise linters." This was never done for the original 5, and is still not done for the new 4.
+1. ~~**Integration test for manual exhaustruct enable.** No integration test verifies the full round-trip: user manually adds exhaustruct → configure runs → exhaustruct stays enabled → safe defaults injected → test exclusion rules present.~~ done — round-trip specs shipped by the 20-28 session (f4 struck)
+2. ~~**CLI acceptance test for `--pragmatic`.** The planning doc (`docs/planning/2026-07-25_07-56_golangci-lint-friction-reduction-pareto-plan.md:F31`) has an open item: "Add CLI acceptance test: `--pragmatic` produces config without the noise linters." This was never done for the original 5, and is still not done for the new 4.~~ done — `cmd_pragmatic_test.go` acceptance tests (F31, 14-29 session)
 3. **`docs/DOMAIN_LANGUAGE.md`** — not checked for whether the three-tier linter management model should be documented there.
 
 ---

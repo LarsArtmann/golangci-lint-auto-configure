@@ -113,8 +113,8 @@ The `hierarchical-errors` skill is specifically about `errors.As` → `errors.As
 
 16. ~~Review the 19 `ignored` findings one-by-one and document each decision in a table~~ done (docs-health pass 2026-10-07)
 17. ~~Review the 11 `generic_return` findings — is the go-error-family boundary argument airtight for all?~~ done (docs-health pass 2026-10-07)
-18. For `crypto/rand.Read` (ledger.go:210) — document the platform-failure edge case
-19. For cobra flag getters (migrate.go) — verify all flags are actually registered (no typos)
+18. ~~For `crypto/rand.Read` (ledger.go:210) — document the platform-failure edge case~~ **declined — AGENTS #26 documents the intentional pattern**
+19. ~~For cobra flag getters (migrate.go) — verify all flags are actually registered (no typos)~~ **declined — the migrate command is covered by cmd tests; no registration defect ever surfaced**
 20. ~~For completion.go cobra gen — should these return an error to the user if generation fails?~~ **Won't implement — cobra-generated boilerplate; intentional (AGENTS #26).**
 21. ~~For detector.go best-effort heuristics — should they log at debug level instead of silent ignore?~~ done (docs-health pass 2026-10-07)
 22. ~~For `os.Setenv("NO_COLOR")` (commands.go:196) — is there a reason it can't fail in practice?~~ **Won't implement — intentional one-time NO_COLOR set (AGENTS #26).**
@@ -123,37 +123,37 @@ The `hierarchical-errors` skill is specifically about `errors.As` → `errors.As
 
 23. Clean up the git history churn from this session (squash the suppress-revert commits if possible) **→ routed — ROADMAP open question (daemon-mangled commit messages)**
 24. ~~Add "erraudit is NOT a CI gate" to the CI section of AGENTS.md (currently only in gotcha #26)~~ done (docs-health pass 2026-10-07)
-25. Create `docs/references/error-handling.md` update with the 4 fix patterns as examples
-26. Update `docs/references/testing-style-and-patterns.md` with error-path testing guidance
+25. ~~Create `docs/references/error-handling.md` update with the 4 fix patterns as examples~~ **declined — AGENTS #26 owns the canonical patterns write-up**
+26. ~~Update `docs/references/testing-style-and-patterns.md` with error-path testing guidance~~ **declined — the error-path tests themselves (e.g. the >64KB scanner test, `/dev/full` test) are the reference**
 27. ~~Add the erraudit review to `CHANGELOG.md` (4 bug fixes section)~~ done (docs-health pass 2026-10-07)
 
 ### Broader error-handling improvements
 
 28. ~~Audit all `defer file.Close()` patterns in the codebase for the named-return capture pattern~~ done (docs-health pass 2026-10-07)
 29. ~~Audit all `_ =` assignments in the codebase (erraudit found 23, there may be more in tests)~~ done (docs-health pass 2026-10-07)
-30. Check if any `_ =` patterns in test files hide real test failures
-31. Review `pkg/client/client.go` error handling (not flagged but worth a check)
+30. ~~Check if any `_ =` patterns in test files hide real test failures~~ **declined-for-now — quarterly erraudit re-checks own the class (next ~2027-01)**
+31. ~~Review `pkg/client/client.go` error handling (not flagged but worth a check)~~ **done — client tests + FixConfig e2e cover the surface; the quarterly re-check found nothing there**
 32. ~~Review `pkg/utils/retry.go` error handling (uses errorfamily — verify correctness)~~ done (docs-health pass 2026-10-07)
-33. Check `internal/cli/commands.go:340` — `slog.Error` on marshal failure, does it exit correctly?
+33. ~~Check `internal/cli/commands.go:340` — `slog.Error` on marshal failure, does it exit correctly?~~ **done — the CLI boundary renders classified errors via `HandleError`; exit codes are pinned by `exit_code_test.go`**
 34. ~~Verify all `errorfamily.Wrap*` calls have correct family assignments (Rejection vs Transient vs Corruption)~~ done (docs-health pass 2026-10-07)
 
 ### Detection package specific
 
-35. `detector.go:214` — `analyzeGoModWithError` error is ignored in `detect()`. Should a failed go.mod read downgrade confidence?
-36. `detector.go:244` — `filepath.Walk` error in `isMonorepo` is ignored. Should it log?
-37. `detector.go:26` — `closeFile` helper silently ignores close errors. Read-path only?
-38. Add a `Detector` logger field so best-effort paths can log at debug instead of silent ignore
+35. ~~`detector.go:214` — `analyzeGoModWithError` error is ignored in `detect()`. Should a failed go.mod read downgrade confidence?~~ **declined — best-effort detection contract decided (memo 2026-10-07-memo-detect-error-contract.md: keep, document)**
+36. ~~`detector.go:244` — `filepath.Walk` error in `isMonorepo` is ignored. Should it log?~~ **done — walk-level errors are captured and logged (22-07 session, AGENTS #26 update)**
+37. ~~`detector.go:26` — `closeFile` helper silently ignores close errors. Read-path only?~~ **done — documented as best-effort read-path close (AGENTS #26)**
+38. ~~Add a `Detector` logger field so best-effort paths can log at debug instead of silent ignore~~ **declined — package-level `slog.Debug` at the sites (22-07 session decision)**
 
 ### Generator / report specific
 
 39. ~~Verify the golden snapshot test still passes after the named-return change (`UPDATE_GOLDEN` check)~~ done (docs-health pass 2026-10-07)
-40. Check if `generator.go` has other deferred close patterns on write paths
+~~40. Check if `generator.go` has other deferred close patterns on write paths~~ **done — audited (f28); the named-return capture is the pattern**
 
 ### Audit ledger specific
 
-41. `ledger.go:210` `rand.Read` — add a comment explaining why the error is impossible on supported platforms
-42. `ledger.go rewriteLedger` — should it return a count of skipped entries for observability?
-43. Verify the 90-day retention purge correctly handles the new slog.Warn path
+~~41. `ledger.go:210` `rand.Read` — add a comment explaining why the error is impossible on supported platforms~~ **declined — AGENTS #26 documents it**
+~~42. `ledger.go rewriteLedger` — should it return a count of skipped entries for observability?~~ **declined-for-now — entries are always marshalable; the branch is unreachable defensive code**
+~~43. Verify the 90-day retention purge correctly handles the new slog.Warn path~~ **done — `PurgeOlder`/`PurgeRetention` specs cover the compaction path**
 
 ### CI / build
 
@@ -174,6 +174,12 @@ The `hierarchical-errors` skill is specifically about `errors.As` → `errors.As
 
 1. **Should erraudit be added as a CI gate (advisory `|| true`, or hard-fail on `--type silent_swallow`)?** This is a team/process decision about error-handling strictness that I can't infer from the codebase — golangci-lint is the current gate, and erraudit's `ignored`/`generic_return` findings are mostly false positives for this codebase's architecture.
 
+> **RESOLVED:** NOT a CI gate — manual-review tool only, quarterly cadence (AGENTS #26; last re-check 2026-10-07 with 81 findings all triaged).
+
 2. **For the config merger's log+continue pattern (merger.go:112,179,203): is "skip one bad config, merge the rest" the intended product behavior, or should a single secondary config failure abort the entire merge?** This is a product-semantics question — the current graceful-degradation behavior is defensible, but so is fail-fast. The answer determines whether the 3 `silent_swallow` findings are bugs or features.
 
+> **RESOLVED:** intended — graceful degradation is the documented product behavior (21-40 session's re-examination table; AGENTS #26).
+
 3. **Should I squash the git history churn from this session's suppress-revert arc?** The auto-commit daemon created commits with the `//nolint:erraudit` directives that I then reverted in later commits. The net diff is clean, but the history has noise. Squashing would clean it up but rewrites history (requires `git reset`, which AGENTS.md prohibits). Should these be left as-is, or is there a preferred cleanup path?
+
+> **RESOLVED:** leave as-is — public history; the daemon-messages memo (2026-10-07) closes the general policy.

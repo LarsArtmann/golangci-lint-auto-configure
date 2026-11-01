@@ -68,11 +68,11 @@ Nothing. Everything I started this session was completed and verified.
 
 Items I explicitly chose to defer (with rationale):
 
-1. **Sidecar enforcement integration test for NeverAutoEnable linters.** I added a unit test for `isToolLevelManaged` (prior session) and round-trip tests for the fixer flow (this session), but I did NOT add a test that exercises the full sidecar policy enforcement path: sidecar present → exhaustruct in `linters.disable` → fixer should NOT re-enable it (exempt via `isToolLevelManaged`). This is the highest-value missing test.
+~~1. **Sidecar enforcement integration test for NeverAutoEnable linters.** I added a unit test for `isToolLevelManaged` (prior session) and round-trip tests for the fixer flow (this session), but I did NOT add a test that exercises the full sidecar policy enforcement path: sidecar present → exhaustruct in `linters.disable` → fixer should NOT re-enable it (exempt via `isToolLevelManaged`). This is the highest-value missing test.~~ done — shipped by the 20-43 session (`TestEnforceDisableReasons_NeverAutoEnableExempt`) and superseded in coverage by the T18 FixConfig e2e with a REAL sidecar
 
-2. **HTML report golden verification.** I did not check whether exhaustruct appears in the "recommended linters" section of the golden HTML report (`pkg/report/testdata/golden/report.html`). The golden test feeds a fixed `ConfigAnalysis` (not a live configure run), so it likely doesn't reference exhaustruct, but this was not verified.
+~~2. **HTML report golden verification.** I did not check whether exhaustruct appears in the "recommended linters" section of the golden HTML report (`pkg/report/testdata/golden/report.html`). The golden test feeds a fixed `ConfigAnalysis` (not a live configure run), so it likely doesn't reference exhaustruct, but this was not verified.~~ done — the committed golden contains no exhaustruct recommendation
 
-3. **Stale reference cleanup in historical docs.** `docs/reviews/2026-07-10_deep-architecture-data-model-review.md:431` still says "reference preset 62 linters" and `docs/cross-project-golangci-lint-audit-report.md:111` says "62 linters enabled". These are point-in-time snapshots and per the update-old-docs skill philosophy should NOT be rewritten — but they could be annotated.
+~~3. **Stale reference cleanup in historical docs.** `docs/reviews/2026-07-10_deep-architecture-data-model-review.md:431` still says "reference preset 62 linters" and `docs/cross-project-golangci-lint-audit-report.md:111` says "62 linters enabled". These are point-in-time snapshots and per the update-old-docs skill philosophy should NOT be rewritten — but they could be annotated.~~ done — the review doc was annotated (10-07); the audit report was deleted in the going-public sanitization
 
 ---
 
@@ -118,19 +118,19 @@ The validation script prints "All 1 never-auto-enable linters" — grammatically
 
 ### Design improvements
 
-1. **The three maps should have a shared validation helper.** Right now the Ginkgo tests (`data_integrity_test.go`) and the standalone script (`validate_linter_data.go`) duplicate the same constraint logic in two different styles (Gomega vs fmt.Printf). A shared `ValidateTiers()` function in `pkg/constants/` would eliminate the duplication and ensure both gates always agree.
+~~1. **The three maps should have a shared validation helper.** Right now the Ginkgo tests (`data_integrity_test.go`) and the standalone script (`validate_linter_data.go`) duplicate the same constraint logic in two different styles (Gomega vs fmt.Printf). A shared `ValidateTiers()` function in `pkg/constants/` would eliminate the duplication and ensure both gates always agree.~~ **Won't implement — resolved YAGNI (g1 RESOLVED note): the Ginkgo specs are the gate; the manual script is a debug aid**
 
-2. **`isToolLevelManaged` test names are inconsistent.** As noted in section d: 3 cases say "disabled", 1 says "managed", 3 say "not managed". Should be standardized to "managed" since that's the function name.
+~~2. **`isToolLevelManaged` test names are inconsistent.** As noted in section d: 3 cases say "disabled", 1 says "managed", 3 say "not managed". Should be standardized to "managed" since that's the function name.~~ done — fixed by the 20-43 session (f1)
 
-3. **Singular/plural in printf output.** The validation script should handle "1 linter" vs "N linters". This affects all 8 checks, not just the new ones.
+~~3. **Singular/plural in printf output.** The validation script should handle "1 linter" vs "N linters". This affects all 8 checks, not just the new ones.~~ done — `noun()` helper, all 8 checks (20-43 session)
 
 ### Process improvements
 
-4. **Read the prior status report's "e) WHAT WE SHOULD IMPROVE" section more carefully.** Item 3 explicitly named `data_integrity_test.go:436` AND the fixer_enforce_test.go inconsistency. I only fixed the first. I should have grepped for all occurrences of "tool-level disabled" before declaring the task done.
+~~4. **Read the prior status report's "e) WHAT WE SHOULD IMPROVE" section more carefully.** Item 3 explicitly named `data_integrity_test.go:436` AND the fixer_enforce_test.go inconsistency. I only fixed the first. I should have grepped for all occurrences of "tool-level disabled" before declaring the task done.~~ **NOT-DO — process lesson, no repo artifact**
 
-5. **Don't use `rg` in bash.** Use the Grep tool. It's in the instructions.
+~~5. **Don't use `rg` in bash.** Use the Grep tool. It's in the instructions.~~ **NOT-DO — process lesson**
 
-6. **Investigate Ginkgo verbose output.** The next time Ginkgo spec names don't appear, try: `ginkgo -v -focus="..."` directly, or check if GOMEMLIMIT/output buffering is swallowing output. The probe technique should be a last resort.
+~~6. **Investigate Ginkgo verbose output.** The next time Ginkgo spec names don't appear, try: `ginkgo -v -focus="..."` directly, or check if GOMEMLIMIT/output buffering is swallowing output. The probe technique should be a last resort.~~ **NOT-DO — process lesson**
 
 ---
 
@@ -141,14 +141,14 @@ The validation script prints "All 1 never-auto-enable linters" — grammatically
 1. ~~**Fix `fixer_enforce_test.go:72-74` test names** — change "tool-level disabled" → "tool-level managed (forcibly disabled)" for the 3 DisabledLinters entries~~ done (docs-health pass 2026-10-07)
 2. ~~**Fix pluralization in `validate_linter_data.go`** — "1 linter" vs "N linters" for all 8 checks (or at least checks 7 & 8)~~ done (docs-health pass 2026-10-07)
 3. ~~**Add sidecar enforcement integration test** — sidecar present + exhaustruct in disable list → fixer must NOT re-enable it (exempt via `isToolLevelManaged`). This is the highest-value missing test.~~ done (docs-health pass 2026-10-07)
-4. **Verify HTML report golden test** — confirm exhaustruct doesn't appear as a "recommended linter" in `pkg/report/testdata/golden/report.html`. If it does, regenerate with `UPDATE_GOLDEN=1`.
+4. ~~**Verify HTML report golden test** — confirm exhaustruct doesn't appear as a "recommended linter" in `pkg/report/testdata/golden/report.html`. If it does, regenerate with `UPDATE_GOLDEN=1`.~~ **done — the committed golden contains no exhaustruct recommendation; the test pins it**
 
 ### Short-term improvements (from prior report, still open)
 
 5. ~~**Consider whether `gochecknoglobals` (friction 5.1) should move to NeverAutoEnable** — second-highest friction linter, no config knobs in v2. Currently PragmaticNoise.~~ done (docs-health pass 2026-10-07)
 6. ~~**Consider whether `ireturn` should be NeverAutoEnable** — friction 1.3, heavy nolint volume.~~ done (docs-health pass 2026-10-07)
-7. **Audit `docs/research/` and `docs/planning/` for stale "5 noise linters" references** — annotate as historical or update.
-8. **Check `pkg/report/report.templ`** — verify the HTML report doesn't list exhaustruct in any "recommended" or "should enable" section.
+7. ~~**Audit `docs/research/` and `docs/planning/` for stale "5 noise linters" references** — annotate as historical or update.~~ done (docs-health pass 2026-10-07, item 9 of the 20-07 report)
+8. ~~**Check `pkg/report/report.templ`** — verify the HTML report doesn't list exhaustruct in any "recommended" or "should enable" section.~~ **done — golden test pins the rendered set**
 9. **Add `NeverAutoEnableLinters` to the `presets` command output** — so users can see which linters are excluded from auto-enable. **→ declined-for-now — presets output stays minimal**
 10. **Consider a `--list-never-auto-enable` CLI flag** — transparency for users. **→ declined-for-now — transparency flag not worth the surface**
 
@@ -156,7 +156,7 @@ The validation script prints "All 1 never-auto-enable linters" — grammatically
 
 11. ~~**Add a test verifying `injectDefaultSettings` still fires for manually-enabled exhaustruct** — the round-trip test checks the output contains `exhaustruct:` settings, but a focused unit test on `injectDefaultSettings` with exhaustruct in the enable list would be more precise.~~ done (docs-health pass 2026-10-07)
 12. ~~**Add coverage analysis on `isNeverAutoEnable`** — verify the categorizer method is covered (the categorizer_test specs should cover it, but verify with `-cover`).~~ done (docs-health pass 2026-10-07)
-13. **Add a test for the `analyze` command output** — when analyzing a config with exhaustruct disabled, it should NOT recommend enabling it.
+13. ~~**Add a test for the `analyze` command output** — when analyzing a config with exhaustruct disabled, it should NOT recommend enabling it.~~ **done — categorizer skips NeverAutoEnable records unconditionally; covered by categorizer + acceptance specs**
 14. ~~**Golden snapshot for CLI output** — the `configure` command output should not mention exhaustruct as a recommendation.~~ done (docs-health pass 2026-10-07)
 
 ### Architecture
@@ -164,14 +164,14 @@ The validation script prints "All 1 never-auto-enable linters" — grammatically
 15. **Unify the three tier maps into a typed enum** — `map[LinterName]LinterManagementTier` where tier is `Disabled | NeverAutoEnable | PragmaticNoise | Default`. Eliminates the "check 3 maps" pattern in categorizer + fixer_enforce. **→ declined-for-now — three maps documented; enum not worth the churn**
 16. ~~**Extract shared `ValidateTiers()` function** — single source of truth for tier constraints, called by both Ginkgo tests and the standalone script.~~ **Won't implement — resolved YAGNI in-file — duplication kept, Ginkgo specs are the gate.**
 17. ~~**Consider whether the `migrate` command should handle exhaustruct** — when migrating v1→v2, if exhaustruct is enabled in v1, should it be preserved? Currently yes (migrate doesn't use categorizer skip logic). Verify this is intentional.~~ done (docs-health pass 2026-10-07)
-18. **Review interaction with `--check` mode** — configs with exhaustruct disabled won't trigger a "you should enable exhaustruct" diff. Verify.
+~~18. **Review interaction with `--check` mode** — configs with exhaustruct disabled won't trigger a "you should enable exhaustruct" diff. Verify.~~ **done — desired-state rendering excludes NeverAutoEnable tiers; `--check` converges**
 
 ### Documentation debt
 
-19. **Update `docs/references/working-with-codebase.md`** — "Adding commands/linters" section should document the three-tier system.
+~~19. **Update `docs/references/working-with-codebase.md`** — "Adding commands/linters" section should document the three-tier system.~~ **declined — DOMAIN_LANGUAGE + policy-table doc comments own the tier system**
 20. ~~**Annotate `docs/reviews/2026-07-10_deep-architecture-data-model-review.md:431`** — still says "62 linters" for the reference preset.~~ done (docs-health pass 2026-10-07)
-21. **Annotate `docs/cross-project-golangci-lint-audit-report.md:111`** — still says "62 linters enabled".
-22. **Update `docs/research/validation-delta.md`** — its "Resolution" section says `--pragmatic` is the mechanism for exhaustruct friction; now outdated.
+21. ~~**Annotate `docs/cross-project-golangci-lint-audit-report.md:111`** — still says "62 linters enabled".~~ **obsolete — the file was deleted in the going-public sanitization (2026-09-09, `5b3af80`)**
+~~22. **Update `docs/research/validation-delta.md`** — its "Resolution" section says `--pragmatic` is the mechanism for exhaustruct friction; now outdated.~~ **declined — point-in-time research doc, annotated as historical**
 23. ~~**Review all `docs/status/` reports** that reference "exhaustruct enabled by default" — annotate as historical.~~ done (docs-health pass 2026-10-07)
 
 ### CI/CD and release
@@ -193,25 +193,25 @@ The validation script prints "All 1 never-auto-enable linters" — grammatically
 32. ~~**Standardize all "tool-level" language across the codebase** — grep for "tool-level disabled" and "tool-level managed" and make consistent.~~ done (docs-health pass 2026-10-07)
 33. **Add `NeverAutoEnableLinters` to the `analyze --json` output** — so programmatic consumers can detect tool-managed linters. **→ declined-for-now — analyze output stays minimal**
 34. **Consider a `--force-enable exhaustruct` flag** — for users who want the old behavior. **→ declined-for-now — YAGNI; never-enable section covers the need**
-35. **Review `pkg/finding/categories.go:66`** — exhaustruct is mapped to `CategoryTypeSafety`; verify this is still correct.
+~~35. **Review `pkg/finding/categories.go:66`** — exhaustruct is mapped to `CategoryTypeSafety`; verify this is still correct.~~ **moot — exhaustruct deprecated (→ exhaustruct_v5 since v2.13); category mapping unchanged and correct**
 36. ~~**Consider migration path for existing configs** — configs auto-generated with exhaustruct enabled are now "stranded" (enabled but never recommended); should the tool warn?~~ done (docs-health pass 2026-10-07)
 
 ### Cleanup
 
 37. ~~**Remove any remaining hardcoded exhaustruct expectations in tests** — verify no other test hardcodes the old reference preset list.~~ done (docs-health pass 2026-10-07)
-38. **Review `internal/cli/cmd_configure_test.go`** — any tests that assert exhaustruct appears in configure output.
-39. **Review `internal/cli/integration_test.go`** — any integration tests where exhaustruct appears in output.
+38. ~~**Review `internal/cli/cmd_configure_test.go`** — any tests that assert exhaustruct appears in configure output.~~ **done — superseded: the acceptance tests assert the opposite**
+39. ~~**Review `internal/cli/integration_test.go`** — any integration tests where exhaustruct appears in output.~~ **done — same**
 40. ~~**Add singular/plural helper to validation script** — `func plural(n int, word string) string`.~~ done (docs-health pass 2026-10-07)
-41. **Consider whether `recvcheck` (friction ~2.5) should join NeverAutoEnable** — another high-friction linter from the baseline data.
+41. ~~**Consider whether `recvcheck` (friction ~2.5) should join NeverAutoEnable** — another high-friction linter from the baseline data.~~ **done — systematized: the friction-derived pragmatic tier is the standing mechanism; recvcheck stays recommendable**
 42. ~~**Verify `pkg/config/settings_validator.go:30`** — it validates linter settings keys against `LinterPriorities`; exhaustruct is still in Priorities (Medium), so this works, but verify.~~ done (docs-health pass 2026-10-07)
-43. **Review `fixer_audit.go:56`** — looks up `DisabledLinters[linter]` for the audit reason; NeverAutoEnable linters won't have a reason there. Verify audit output is sensible.
-44. **Consider whether `--recommend` flow is affected** — currently applies presets, which don't include exhaustruct, but verify.
-45. **Update `--help` output for `configure`** — mention that exhaustruct is never auto-enabled but supported when manual.
+43. ~~**Review `fixer_audit.go:56`** — looks up `DisabledLinters[linter]` for the audit reason; NeverAutoEnable linters won't have a reason there. Verify audit output is sensible.~~ **done — obsolete shape: audit reasons come from `Change` records + Tier.Rationale (ADR-017)**
+44. ~~**Consider whether `--recommend` flow is affected** — currently applies presets, which don't include exhaustruct, but verify.~~ **done — presets are table queries; tierAdmits excludes NeverAutoEnable**
+45. ~~**Update `--help` output for `configure`** — mention that exhaustruct is never auto-enabled but supported when manual.~~ **declined-for-now — help text stays terse**
 46. ~~**Review `gosec` friction** — gosec has 590 nolints (friction ~3.7); evaluate if it should get similar treatment.~~ done (docs-health pass 2026-10-07)
 47. ~~**Add a test verifying `updateConfigFromSets` does NOT move exhaustruct to disable list** — the round-trip test covers this indirectly, but a focused unit test on the function itself would be more precise.~~ done (docs-health pass 2026-10-07)
-48. **Consider whether other linters from the baseline data should join NeverAutoEnable** — data-driven decision.
+48. ~~**Consider whether other linters from the baseline data should join NeverAutoEnable** — data-driven decision.~~ **done — the friction-derived tier systematized the decision (threshold 0.8, `tier_derivation_test.go`)**
 49. ~~**Review the `presets.go` `reference` preset** — verify no other High-priority linters should be reconsidered.~~ done (docs-health pass 2026-10-07)
-50. **Consider whether the three-tier model should be documented in README.md** — currently only in AGENTS.md and DOMAIN_LANGUAGE.md. **→ declined-for-now — README stays user-level; tiers live in constants + DOMAIN_LANGUAGE**
+50. ~~**Consider whether the three-tier model should be documented in README.md** — currently only in AGENTS.md and DOMAIN_LANGUAGE.md.~~ **→ declined-for-now — README stays user-level; tiers live in constants + DOMAIN_LANGUAGE**
 
 ---
 
