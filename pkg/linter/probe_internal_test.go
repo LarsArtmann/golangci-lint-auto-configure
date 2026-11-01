@@ -132,3 +132,49 @@ func TestProbeKnownLintersGarbageOutputFailsOpen(t *testing.T) {
 		t.Errorf("ProbeKnownLinters() = %v, want nil on failure (callers must fail open)", known)
 	}
 }
+
+// v2_15StyleLintersJSON mimics golangci-lint v2.15.0's bare-dir probe: the
+// Enabled list covers nearly the whole vocabulary instead of the default
+// set, so the Enabled list is no longer "default-enabled" but "everything".
+const v2_15StyleLintersJSON = `{
+  "Enabled": [
+    {"name": "errcheck", "description": "d", "fast": false, "deprecated": false},
+    {"name": "govet", "description": "d", "fast": true, "deprecated": false},
+    {"name": "gosec", "description": "d", "fast": false, "deprecated": false},
+    {"name": "bodyclose", "description": "d", "fast": false, "deprecated": false},
+    {"name": "wsl_v5", "description": "d", "fast": false, "deprecated": false}
+  ],
+  "Disabled": [
+    {"name": "gohumanize", "description": "plugin", "fast": false, "deprecated": false}
+  ]
+}`
+
+func TestProbeDefaultEnabledImplausibleSetFailsOpen(t *testing.T) {
+	dir := t.TempDir()
+
+	script := "#!/bin/sh\ncat <<'JSONEOF'\n" + v2_15StyleLintersJSON + "\nJSONEOF\n"
+
+	path := filepath.Join(dir, "golangci-lint")
+
+	if err := os.WriteFile(path, []byte(script), 0o755); err != nil {
+		t.Fatalf("write fake binary: %v", err)
+	}
+
+	analyzer := NewAnalyzer(NewTestLogger())
+	analyzer.golangciLintPath = path
+
+	known, err := analyzer.ProbeKnownLinters(context.Background())
+	if err != nil {
+		t.Fatalf("ProbeKnownLinters failed: %v", err)
+	}
+
+	if len(known) != 6 {
+		t.Fatalf("vocabulary = %d names, want 6 (enabled and disabled both count)", len(known))
+	}
+
+	if defaults := analyzer.DefaultEnabledLinters(context.Background()); defaults != nil {
+		t.Errorf("DefaultEnabledLinters() = %v, want nil: a default set covering most of "+
+			"the vocabulary is the v2.15.0 list-everything behavior, not the default set; "+
+			"consuming it would silently suppress every recommendation", defaults)
+	}
+}

@@ -102,19 +102,6 @@ linters:
     exhaustruct_v5:
       ignore-patterns:
         - net/http.Client
-        - net/http.Server
-        - net/http.Request
-        - net/http.Response
-        - net/http.Transport
-        - net/http.Cookie
-        - net.TCPAddr
-        - net.Dialer
-        - log/slog.HandlerOptions
-        - sync.WaitGroup
-        - bytes.Buffer
-        - time.Ticker
-        - time.Timer
-        - os/exec.Cmd
     funlen:
       lines: 200
       statements: 100

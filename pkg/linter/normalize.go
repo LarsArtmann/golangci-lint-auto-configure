@@ -208,8 +208,6 @@ func replaceDeprecatedLinter(
 		return []Change{removeChange}
 	}
 
-	normalized.Linters.Enable = replaceNameUnique(normalized.Linters.Enable, name, terminal.Name)
-
 	return swapDeprecatedLinter(normalized, name, terminal, removeChange)
 }
 
@@ -240,8 +238,8 @@ func swapDeprecatedLinter(
 		)
 	}
 
-	changes = append(changes, migrateDeprecatedSettings(normalized, name, record.SupersededBy)...)
-	changes = append(changes, replaceExclusionLinters(normalized, name, record.SupersededBy)...)
+	changes = append(changes, migrateDeprecatedSettings(normalized, name, successor)...)
+	changes = append(changes, replaceExclusionLinters(normalized, name, successor)...)
 
 	return changes
 }
