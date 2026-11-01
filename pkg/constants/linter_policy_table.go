@@ -79,8 +79,8 @@ var linterPolicyRecords = []types.LinterPolicy{
 	},
 	{
 		Name:               "deadcode",
-		SupersededBy:       "staticcheck",
-		SupersessionReason: "deadcode was removed in golangci-lint v2, use staticcheck instead",
+		SupersededBy:       "unused",
+		SupersessionReason: "deadcode was removed in golangci-lint v2, use unused instead (its v1 deprecation prescribed unused)",
 		Priority:           types.LinterPriorityOptional,
 	},
 	{
@@ -157,8 +157,8 @@ var linterPolicyRecords = []types.LinterPolicy{
 	},
 	{
 		Name:               "exhaustivestruct",
-		SupersededBy:       "exhaustive",
-		SupersessionReason: "exhaustivestruct was renamed to exhaustive in golangci-lint v2",
+		SupersededBy:       "exhaustruct",
+		SupersessionReason: "exhaustivestruct was renamed to exhaustruct in golangci-lint v1.46.0, and v2 removed the old name (exhaustruct itself chains to exhaustruct_v5 on newer binaries)",
 		Priority:           types.LinterPriorityOptional,
 	},
 	{
@@ -402,8 +402,7 @@ var linterPolicyRecords = []types.LinterPolicy{
 	},
 	{
 		Name:               "interfacer",
-		SupersededBy:       "staticcheck",
-		SupersessionReason: "interfacer was removed in golangci-lint v2, use staticcheck instead",
+		SupersessionReason: "interfacer was removed in golangci-lint v2 with no direct replacement",
 		Priority:           types.LinterPriorityOptional,
 	},
 	{
@@ -541,8 +540,7 @@ var linterPolicyRecords = []types.LinterPolicy{
 	},
 	{
 		Name:               "nosnakecase",
-		SupersededBy:       "revive",
-		SupersessionReason: "nosnakecase was removed in golangci-lint v2, use revive instead",
+		SupersessionReason: "nosnakecase was removed in golangci-lint v2 with no direct replacement",
 		Priority:           types.LinterPriorityOptional,
 	},
 	{
@@ -629,8 +627,8 @@ var linterPolicyRecords = []types.LinterPolicy{
 	},
 	{
 		Name:               "structcheck",
-		SupersededBy:       "staticcheck",
-		SupersessionReason: "structcheck was removed in golangci-lint v2, use staticcheck instead",
+		SupersededBy:       "unused",
+		SupersessionReason: "structcheck was removed in golangci-lint v2, use unused instead (its v1 deprecation prescribed unused)",
 		Priority:           types.LinterPriorityOptional,
 	},
 	{
@@ -708,8 +706,8 @@ var linterPolicyRecords = []types.LinterPolicy{
 	},
 	{
 		Name:               "varcheck",
-		SupersededBy:       "staticcheck",
-		SupersessionReason: "varcheck was removed in golangci-lint v2, use staticcheck instead",
+		SupersededBy:       "unused",
+		SupersessionReason: "varcheck was removed in golangci-lint v2, use unused instead (its v1 deprecation prescribed unused)",
 		Priority:           types.LinterPriorityOptional,
 	},
 	{

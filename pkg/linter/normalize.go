@@ -143,10 +143,47 @@ func ReplaceDeprecatedLinters(
 	return normalized, changes
 }
 
+// resolveSupersessionChain walks a linter's supersession chain to the
+// terminal replacement applicable to the installed tool, so a chained
+// deprecation (exhaustivestruct -> exhaustruct -> exhaustruct_v5) converges
+// in ONE configure run instead of oscillating across two. Every hop is
+// gated by its own never-enable policy and SupersessionSince, mirroring
+// blockedReplacementSuffix. Returns the terminal record and whether the
+// swap may proceed: false when the chain dead-ends (no successor, a still
+// deprecated intermediate whose own successor is blocked, or a successor
+// that would itself be swapped away) — the caller then drops the linter
+// without a replacement, the same outcome a single deprecated linter gets
+// on a tool that predates its successor.
+func resolveSupersessionChain(
+	record types.LinterPolicy,
+	tool types.GolangciVersion,
+	neverEnable func(types.LinterName) bool,
+) (types.LinterPolicy, bool) {
+	for record.SupersededBy != "" {
+		if suffix := blockedReplacementSuffix(record, tool, neverEnable); suffix != "" {
+			return record, false
+		}
+
+		next, known := constants.PolicyRecord(record.SupersededBy)
+		if !known {
+			return record, false
+		}
+
+		record = next
+
+		if record.SupersessionReason == "" {
+			return record, true
+		}
+	}
+
+	return record, false
+}
+
 // replaceDeprecatedLinter migrates one enabled deprecated linter: dropped
-// outright without a successor, dropped WITHOUT the successor under a
-// never-enable policy, dropped when the installed tool predates the
-// successor, or swapped (with settings and exclusion migrations) otherwise.
+// outright without a (reachable) successor, or swapped (with settings and
+// exclusion migrations) to the terminal successor of its supersession
+// chain otherwise. Blocked hops (never-enable policy, successor gated on a
+// newer tool) drop the linter WITHOUT any replacement.
 func replaceDeprecatedLinter(
 	normalized *types.Config,
 	name types.LinterName,
@@ -154,47 +191,51 @@ func replaceDeprecatedLinter(
 	tool types.GolangciVersion,
 	neverEnable func(types.LinterName) bool,
 ) []Change {
+	terminal, swappable := resolveSupersessionChain(record, tool, neverEnable)
+
 	removeChange := Change{
 		Path: PathLintersEnable, Element: string(name), Kind: ChangeRemove,
 		From: string(name), Reason: record.SupersessionReason,
 	}
 
-	if record.SupersededBy == "" {
+	blocked := blockedReplacementSuffix(terminal, tool, neverEnable)
+	if !swappable || blocked != "" || terminal.SupersededBy == "" {
+		removeChange.Reason += blocked
 		normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
 
 		return []Change{removeChange}
 	}
 
-	if suffix := blockedReplacementSuffix(record, tool, neverEnable); suffix != "" {
-		normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
-		removeChange.Reason += suffix
+	normalized.Linters.Enable = replaceNameUnique(normalized.Linters.Enable, name, terminal.SupersededBy)
 
-		return []Change{removeChange}
-	}
-
-	normalized.Linters.Enable = replaceName(normalized.Linters.Enable, name, record.SupersededBy)
-
-	return swapDeprecatedLinter(normalized, name, record, removeChange)
+	return swapDeprecatedLinter(normalized, name, terminal, removeChange)
 }
 
 // swapDeprecatedLinter rewrites the enable entry to the successor and
-// migrates its settings block and exclusion-rule memberships.
+// migrates its settings block and exclusion-rule memberships. When several
+// deprecated linters share one successor (deadcode, varcheck, structcheck
+// all land on unused), the successor is added once and the later
+// predecessors are dropped — the change list stays truthful about it.
 func swapDeprecatedLinter(
 	normalized *types.Config,
 	name types.LinterName,
 	record types.LinterPolicy,
 	removeChange Change,
 ) []Change {
-	normalized.Linters.Enable = replaceName(normalized.Linters.Enable, name, record.SupersededBy)
+	successorExisted := slices.Contains(normalized.Linters.Enable, record.SupersededBy)
+	normalized.Linters.Enable = replaceNameUnique(normalized.Linters.Enable, name, record.SupersededBy)
 
 	changes := make([]Change, 0, typicalReplacementChanges)
-	changes = append(changes,
-		removeChange,
-		Change{
-			Path: PathLintersEnable, Element: string(record.SupersededBy), Kind: ChangeAdd,
-			To: string(record.SupersededBy), Reason: record.SupersessionReason,
-		},
-	)
+	changes = append(changes, removeChange)
+
+	if !successorExisted {
+		changes = append(changes,
+			Change{
+				Path: PathLintersEnable, Element: string(record.SupersededBy), Kind: ChangeAdd,
+				To: string(record.SupersededBy), Reason: removeChange.Reason,
+			},
+		)
+	}
 
 	changes = append(changes, migrateDeprecatedSettings(normalized, name, record.SupersededBy)...)
 	changes = append(changes, replaceExclusionLinters(normalized, name, record.SupersededBy)...)
@@ -708,10 +749,19 @@ func removeName(names []types.LinterName, name types.LinterName) []types.LinterN
 	return out
 }
 
-func replaceName(names []types.LinterName, from, to types.LinterName) []types.LinterName {
+// replaceNameUnique rewrites every from entry to to, except when to is
+// already listed elsewhere — then from is simply dropped, so shared
+// successors (deadcode, varcheck, structcheck all land on unused) can never
+// produce duplicate enable entries.
+func replaceNameUnique(names []types.LinterName, from, to types.LinterName) []types.LinterName {
 	out := names[:0:0]
+	successorListed := slices.Contains(names, to)
 
 	for _, candidate := range names {
+		if candidate == from && successorListed {
+			continue
+		}
+
 		if candidate == from {
 			out = append(out, to)
 
