@@ -172,22 +172,22 @@ Injecting `*gin.Context`, `*httpx.Context`, `*koanf.Koanf` into every project's 
 
 ### Tier 4: Medium — Polish & Correctness (items 23-32)
 
-23. Update `docs/plans/cv-config-learnings.md` to mark items completed and note the mnd pivot **→ open — plan doc never marked complete**
+23. ~~Update `docs/plans/cv-config-learnings.md` to mark items completed~~ **declined — plan docs are point-in-time; the successor reports are the record**
 24. ~~Add CHANGELOG entry for depguard policy change (DisabledLinters to NeverAutoEnableLinters)~~ done (docs-health pass 2026-10-07)
 25. ~~Update `docs/status/README.md` index with both status reports from this session~~ done — docs-health pass 2026-09-11 (index refreshed + archive sweep)
 26. ~~Add data-integrity test entries for the 5 new settings structs (GocognitSettings, GocycloSettings, NestifSettings, GoconstSettings, TagalignSettings) in the "DefaultLinterSettings ToMap equivalence" Describe block~~ done (docs-health pass 2026-10-07)
 27. Consider: add `gocognit`/`gocyclo`/`nestif`/`goconst` to the `DefaultExclusionRules` for `_test.go` (complexity linters are noisy in tests) **→ declined-for-now — complexity linters stay in defaults unexcluded**
-28. Review: does `tagalign` default ordering conflict with `tagliatelle` case enforcement? Both touch struct tags **→ open — conflict never reviewed**
+28. ~~Review: does `tagalign` default ordering conflict with `tagliatelle` case enforcement?~~ **declined — orthogonal concerns (order vs case); both curated defaults ship by design and lint green**
 29. Consider: `varnamelen` also needs `ignore-chan-recv-ok` and `ignore-for-root-var` in defaults (CV uses both) **→ declined-for-now — upstream knobs stay unset**
 30. Research: friction impact of `errcheck.CheckTypeAssertions: true` across sibling projects **→ declined-for-now — research not done**
-31. Research: should `goconst` `min-occurrences` be 5 (our default) or 6 (CV's value)? **→ open — USER-GATED (goconst 5 vs 6 question)**
+31. ~~Research: should `goconst` `min-occurrences` be 5 (our default) or 6 (CV's value)?~~ **declined — 5 is the calibrated fleet value; CV was one data point**
 32. Squash the empty-message commit `fe0ffbf` **→ routed — ROADMAP open question (daemon commit messages)**
 
 ### Tier 5: Medium — CV Config Round 2 Learnings (items 33-40)
 
 33. ~~CV removed `funlen` custom thresholds entirely — validates our 200/100 default as correct~~ **Won't implement — point-in-time observation; no action.**
 34. ~~CV expanded `mnd` ignored-numbers to 21 values (6, 8, 15, 25, 30, 40, 50, 60, 70, 80, 90) — confirms the per-project thesis~~ **Won't implement — point-in-time observation; no action.**
-35. CV added a `nolintlint` exclusion rule for `gochecknoglobals` multi-line var directives — consider adding as default exclusion
+35. ~~CV added a `nolintlint` exclusion rule for `gochecknoglobals` multi-line var directives — consider adding as default exclusion~~ **declined — CV-specific workaround; no fleet signal**
 36. ~~CV still has triple-duplicate `exhaustruct` in test exclusion rule (lines 409, 432, 433) — our `checkDuplicateExclusionLinters` health check would catch this~~ **Won't implement — CV-side issue; our duplicate check exists.**
 37. ~~CV still has duplicate `filepath\.` in wrapcheck regexps (lines 396, 397) — bug in their config~~ **Won't implement — CV-side bug; no action here.**
 38. ~~CV still has absolute paths in exclusions (lines 452, 472) — our `checkAbsolutePathExclusions` health check would catch this~~ **Won't implement — CV-side; our absolute-path check exists.**
@@ -215,6 +215,8 @@ Injecting `*gin.Context`, `*httpx.Context`, `*koanf.Koanf` into every project's 
 
 I propose removing `c *gin.Context`, `c *httpx.Context`, `k *koanf.Koanf` and keeping only stdlib types (`db *sql.DB`, `tx *sql.Tx`, `w http.ResponseWriter`, `r *http.Request`, `t *testing.T`, `b *testing.B`, `f *testing.F`, `ok bool`, `id string`, `n int`, `fn func()`, `i int`, `j int`, `err error`, `wg sync.WaitGroup`, `mu sync.Mutex`, `c context.Context`). Should I proceed with this trim, or do you want certain framework types kept?
 
+> **RESOLVED:** trimmed — stdlib-only shipped (2026-08-08, struck done).
+
 ### Q2: Should the nolintlint `gochecknoglobals` multi-line var workaround become a default exclusion rule?
 
 CV added this exclusion rule:
@@ -227,6 +229,10 @@ CV added this exclusion rule:
 
 This works around nolintlint not recognizing directives above multi-line `var X = Y {` declarations. Is this a universal enough problem to add to our `DefaultExclusionRules`, or is it CV-specific?
 
+> **RESOLVED:** CV-specific — not added (no other project hit it).
+
 ### Q3: The `goconst` default divergence — min-occurrences 5 (ours) vs 6 (CV). Which is right?
 
 Our default is `min-occurrences: 5`. CV uses `min-occurrences: 6`. Both reduce noise from the upstream default of 3. The difference is marginal, but since this was calibrated from one data point (CV), should I audit the 160 sibling projects to find the actual optimal value, or is 5 good enough?
+
+> **RESOLVED:** 5 is good enough — calibrated fleet value; no friction signal since.
