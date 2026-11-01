@@ -95,12 +95,12 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 
 ## c) NOT STARTED
 
-1. **End-to-end policy enforcement test through `FixConfig`** — testing `loadPolicy` → `enforceDisableReasons` wiring through the full fixer flow with a real sidecar file, not just isolated method calls.
-2. **White-box unit tests for other `cmd_*.go` files** — `cmd_validate.go`, `cmd_analyze.go`, `cmd_migrate.go`, `cmd_installhook.go` have zero unit tests.
-3. **`shortRunID` panic risk** — the function does `parts[2][:4]` without length check; would panic on a malformed run ID with a short third segment. Not tested, not fixed.
-4. **Race detection** — couldn't run `go test -race` (CGO not enabled in this shell; the Nix devShell would enable it).
-5. **Audit subcommand binary integration tests** — running the built binary with `audit --json`, `audit --since 7d`, `audit --linter errcheck`, `audit --clear` to verify the full CLI path.
-6. **Conflict (exit 1) exit code integration test** — `ErrChangesNeeded` / `ErrHookAlreadyExists` path is classified but not exercised via integration test.
+1. ~~**End-to-end policy enforcement test through `FixConfig`** — testing `loadPolicy` → `enforceDisableReasons` wiring through the full fixer flow with a real sidecar file, not just isolated method calls.~~ done — T18 FixConfig e2e with a REAL sidecar + ledger (2026-09-13)
+2. ~~**White-box unit tests for other `cmd_*.go` files** — `cmd_validate.go`, `cmd_analyze.go`, `cmd_migrate.go`, `cmd_installhook.go` have zero unit tests.~~ done (docs-health pass 2026-10-07, items f2-f5)
+3. ~~**`shortRunID` panic risk** — the function does `parts[2][:4]` without length check; would panic on a malformed run ID with a short third segment. Not tested, not fixed.~~ done (f7)
+4. ~~**Race detection** — couldn't run `go test -race` (CGO not enabled in this shell; the Nix devShell would enable it).~~ done (f36)
+5. ~~**Audit subcommand binary integration tests** — running the built binary with `audit --json`, `audit --since 7d`, `audit --linter errcheck`, `audit --clear` to verify the full CLI path.~~ done — superseded by T18 in-process dispatch specs
+6. ~~**Conflict (exit 1) exit code integration test** — `ErrChangesNeeded` / `ErrHookAlreadyExists` path is classified but not exercised via integration test.~~ done (f8)
 
 ---
 
@@ -142,68 +142,68 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 6. ~~Add white-box unit tests for `cmd_configure.go` helper functions (`prepareConfigFile`, `runPresetOrFixer`, `runFmtUnlessDry`)~~ done (docs-health pass 2026-10-07)
 7. ~~Fix `shortRunID` panic risk — guard `parts[2]` length before slicing~~ done (docs-health pass 2026-10-07)
 8. ~~Add Conflict (exit 1) exit code integration test (`ErrHookAlreadyExists` via installhook)~~ done (docs-health pass 2026-10-07)
-9. Add Transient (exit 75) exit code integration test if a trigger path exists
-10. Add audit subcommand binary integration tests (`audit --json`, `audit --since`, `audit --linter`, `audit --clear`)
+9. ~~Add Transient (exit 75) exit code integration test if a trigger path exists~~ **declined-for-now — no hermetic trigger path exists; the family→code mapping is unit-covered via errorfamily**
+10. ~~Add audit subcommand binary integration tests (`audit --json`, `audit --since`, `audit --linter`, `audit --clear`)~~ **done — superseded by the T18 in-process dispatch specs + the cmd_audit orchestrator tests**
 
 ### Test Quality
 
 11. ~~Refactor `buildBinary()` into a `BeforeSuite`-cached build to cut CLI test suite from ~40s to ~5s~~ done (docs-health pass 2026-10-07)
-12. Investigate wsl_v5 LSP vs CLI discrepancy — determine which is authoritative
-13. Consolidate `enforceRecorder` and `captureRecorder` into a shared test helper (possibly in a testutil package)
+12. ~~Investigate wsl_v5 LSP vs CLI discrepancy — determine which is authoritative~~ **Won't implement — one-off stale-LSP-cache anomaly (the same class was root-caused as gopls false positives in the 2026-07-26_22-07 session); CLI is authoritative**
+13. ~~Consolidate `enforceRecorder` and `captureRecorder` into a shared test helper (possibly in a testutil package)~~ **declined — the package boundary (`linter` vs `linter_test`) is intentional; duplication is 10 lines**
 14. ~~Add table-driven test for `outputAuditTable` column formatting (verify all 5 columns render)~~ done (docs-health pass 2026-10-07)
-15. Add test for `writeAuditRow` with empty reason (verify em-dash substitution)
-16. Add test for `filterAuditEntries` combining both `--since` and `--linter` filters simultaneously
-17. Add test for `parseSinceDuration` with `0d` (zero days — edge case)
-18. Add test for `newRunLedger` with empty `configFile` path
+15. ~~Add test for `writeAuditRow` with empty reason (verify em-dash substitution)~~ **declined-for-now — diminishing returns; core render path covered**
+16. ~~Add test for `filterAuditEntries` combining both `--since` and `--linter` filters simultaneously~~ **declined-for-now — combined-filter logic is shared with the single-filter paths already tested**
+17. ~~Add test for `parseSinceDuration` with `0d` (zero days — edge case)~~ **declined-for-now**
+18. ~~Add test for `newRunLedger` with empty `configFile` path~~ **declined-for-now**
 19. ~~Add test for `runAuditCommand` with `--json` flag (verify JSON output path through orchestrator)~~ done (docs-health pass 2026-10-07)
 20. Add test for `runAuditCommand` with `--since` filter (verify duration parsing through orchestrator)
 
 ### Policy & Enforcement
 
-21. Add test for policy enforcement in dry-run mode (should be skipped — verify no re-enables)
-22. Add test for sidecar with empty `disabled:` map (policy present, no justifications → all re-enabled)
-23. Add test for sidecar with invalid `category` value (graceful handling)
-24. Add test for policy with `Disabled: nil` map (no panic, all unjustified)
+21. ~~Add test for policy enforcement in dry-run mode (should be skipped — verify no re-enables)~~ **done — enforcement only runs on non-dry-run saves; covered by the enforcement spec matrix + T18 e2e**
+22. ~~Add test for sidecar with empty `disabled:` map (policy present, no justifications → all re-enabled)~~ **declined-for-now — edge of a covered matrix**
+23. ~~Add test for sidecar with invalid `category` value (graceful handling)~~ **declined-for-now — category is advisory; policy.Load is malformed-YAML-tested**
+24. ~~Add test for policy with `Disabled: nil` map (no panic, all unjustified)~~ **declined-for-now — nil-map read is Go zero behavior, covered implicitly**
 25. ~~Add test verifying enforcement respects tool-level disabled even when sidecar justifies them (anti-gaming: user can't justify tool-level disables)~~ done (docs-health pass 2026-10-07)
 
 ### Audit Ledger
 
 26. ~~Add test for audit ledger integration with `FixConfig` — verify entries written on actual config mutation~~ done (docs-health pass 2026-10-07)
-27. Add test for 90-day retention purge triggering correctly
-28. Add test for concurrent writes to the audit ledger (mutex correctness)
+27. ~~Add test for 90-day retention purge triggering correctly~~ **declined-for-now — `PurgeOlder` unit-tested; the `PurgeRetention` wiring is exercised by ledger specs**
+28. ~~Add test for concurrent writes to the audit ledger (mutex correctness)~~ **declined-for-now — single-process mutex; no concurrent-writer contract to pin**
 29. ~~Add test for malformed JSONL lines being skipped (crash resilience in `ReadAll`)~~ done (docs-health pass 2026-10-07)
-30. Add test for `audit.Clear` on non-existent file (creates empty file)
+30. ~~Add test for `audit.Clear` on non-existent file (creates empty file)~~ **declined-for-now**
 
 ### Error Handling
 
 31. ~~Add test for `AnalysisError` cause-chain classification (binary-not-found → Infrastructure, version-too-old → Rejection)~~ done (docs-health pass 2026-10-07)
 32. ~~Add test for `--json-errors` output with Infrastructure and Corruption families (verify JSON schema)~~ done (docs-health pass 2026-10-07)
 33. ~~Add test for `WrapClassified` with nil error (typed-nil pitfall guard)~~ done (docs-health pass 2026-10-07)
-34. Add test for `ConfigError` always classified as Rejection regardless of cause
-35. Add test for `MigrationError` always classified as Rejection regardless of cause
+34. ~~Add test for `ConfigError` always classified as Rejection regardless of cause~~ **done — type-level `Classified` implementation in `pkg/errors/classification.go`, pinned by classification specs**
+35. ~~Add test for `MigrationError` always classified as Rejection regardless of cause~~ **done — same type-level mechanism, same specs**
 
 ### Code Quality
 
 36. ~~Run full test suite with `-race` in the Nix devShell (CGO enabled)~~ done (docs-health pass 2026-10-07)
-37. Add `nix flake check` run to verify Nix formatting and build
+37. ~~Add `nix flake check` run to verify Nix formatting and build~~ **done — green and root-caused 2026-10-07 (the historical "0 checks" flap was unreproducible on nix 2.34.8)**
 38. ~~Verify `vendorHash` is still correct after the session (no go.mod changes, but good practice)~~ done (docs-health pass 2026-10-07)
 39. ~~Consider extracting `pathWithoutGolangciLint` and PATH helpers into `test_helpers_test.go` for reuse~~ done (docs-health pass 2026-10-07)
-40. Add benchmark tests for `filterAuditEntries` with large ledgers (1000+ entries)
+40. ~~Add benchmark tests for `filterAuditEntries` with large ledgers (1000+ entries)~~ **declined-for-now — no observed perf concern at real ledger sizes**
 
 ### Documentation
 
 41. ~~Update `FEATURES.md` to reflect test coverage improvements~~ done (docs-health pass 2026-10-07)
 42. ~~Update `TODO_LIST.md` — mark the three high-priority test tasks as done~~ done (docs-health pass 2026-10-07)
-43. Add the `os.IsNotExist` gotcha to `docs/references/error-handling.md`
-44. Consider adding a testing coverage section to `docs/references/testing-style-and-patterns.md`
+43. ~~Add the `os.IsNotExist` gotcha to `docs/references/error-handling.md`~~ **declined — AGENTS gotcha 19 owns the canonical write-up**
+44. ~~Consider adding a testing coverage section to `docs/references/testing-style-and-patterns.md`~~ **declined — coverage strategy lives in AGENTS + the coverage-check tool docs**
 45. ~~Document the build-once test optimization opportunity in `TODO_LIST.md`~~ **Won't implement — solved differently — suite parallelized 116s to 48s.**
 
 ### Future Hardening
 
-46. Add fuzzing tests for `parseSinceDuration` (arbitrary string inputs)
-47. Add fuzzing tests for `shortRunID` (arbitrary run ID strings)
-48. Add fuzzing tests for `parseEntry` in `pkg/audit/ledger.go` (arbitrary JSONL lines)
-49. Add property-based test for `filterAuditEntries` (filtering is idempotent and order-preserving)
+46. ~~Add fuzzing tests for `parseSinceDuration` (arbitrary string inputs)~~ **declined-for-now — the fuzz CI job targets the higher-risk parsers (version normalization, YAML indent, exclusion merge)**
+47. ~~Add fuzzing tests for `shortRunID` (arbitrary run ID strings)~~ **declined-for-now — same**
+48. ~~Add fuzzing tests for `parseEntry` in `pkg/audit/ledger.go` (arbitrary JSONL lines)~~ **declined-for-now — malformed-line skipping is unit-tested; the ledger is local-only, not a parsing boundary**
+49. ~~Add property-based test for `filterAuditEntries` (filtering is idempotent and order-preserving)~~ **declined-for-now**
 50. ~~Consider adding a `.golangci-lint-auto-configure.yml` schema validation test (validates all categories, required fields)~~ **Won't implement — sidecar promotion is an explicit non-goal (ROADMAP).**
 
 ---
@@ -212,6 +212,12 @@ Internal functions are well-covered, but the **cobra wiring** (`newAuditCommand`
 
 1. **Should new white-box tests use Ginkgo BDD style or is standard `testing` acceptable?** The project convention is Ginkgo, but white-box tests (same package) can't easily join the `_test` package's Ginkgo suite. `fixer_recorder_test.go` already uses standard testing as precedent, but I want confirmation on the project's preferred direction before writing more.
 
+   > **RESOLVED:** standard `testing` accepted for white-box specs (re-affirmed by the 2026-10-07 sweep).
+
 2. **Is the 33-89 second CLI test suite runtime acceptable, or should I refactor to a `BeforeSuite`-cached binary build?** This would change the test structure significantly (shared state across specs) and I don't want to break the existing test isolation pattern without sign-off.
 
+   > **RESOLVED:** shipped differently and better — T19 made `buildBinary` a build-once `sync.Once` and fixed a real data race; the parallel suite now runs ~48s.
+
 3. **Should the policy enforcement tests be elevated to integration-level (through `FixConfig` with a real sidecar), or is the current unit-level isolation sufficient?** Integration tests would catch wiring bugs but require golangci-lint installed and add ~10s per test. Unit tests are fast but don't verify the actual call chain.
+
+   > **RESOLVED:** T18 shipped exactly that — 3 public-API FixConfig e2e specs with a REAL sidecar + REAL ledger file.

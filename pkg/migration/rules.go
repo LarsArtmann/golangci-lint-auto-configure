@@ -40,6 +40,7 @@ func DefaultRules() *MigrationRules {
 func removedLinterSettings() map[string][]string {
 	return map[string][]string{
 		"cyclop":         {"skip-tests"},
+		"errcheck":       {"exclude", "ignore"},
 		"exhaustive":     {"check-generated"},
 		"fatcontext":     {"ignore-len"},
 		"gci":            {"skip-generated"},
@@ -47,7 +48,8 @@ func removedLinterSettings() map[string][]string {
 		"gomodguard":     {"local-replace-directives"},
 		"nolintlint":     {"allow-leading-space"},
 		"tagliatelle":    {"use-field-name"},
-		"unused":         {"check-exported"},
+		"unused":         {"check-exported", "exported-is-used"},
+		"usestdlibvars":  {"os-dev-null", "syslog-priority"},
 	}
 }
 
@@ -55,8 +57,16 @@ func removedLinterSettings() map[string][]string {
 // unchanged semantics. wrapcheck's camelCase keys all became kebab-case;
 // ignoreInterfaceRegexps was missing from earlier versions of this table,
 // which silently dropped that part of a user's wrapcheck configuration.
+// misspell and predeclared renames come from the v1→v2 migration guide
+// (upstream v2.15.0 schema confirms the v1 keys no longer exist).
 func renamedLinterSettings() map[string]map[string]string {
 	return map[string]map[string]string{
+		"misspell": {
+			"ignore-words": "ignore-rules",
+		},
+		"predeclared": {
+			"q": "qualified-name",
+		},
 		"wrapcheck": {
 			"ignoreSigs":             "ignore-sigs",
 			"ignoreSigRegexps":       "ignore-sig-regexps",
