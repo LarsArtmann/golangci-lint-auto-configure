@@ -32,12 +32,13 @@ scoped work lives in `TODO_LIST.md`; shipped features live in `FEATURES.md`.
   settings.
 - **Exclusion-merge control & observability** (routed from the 2026-07-31
   50-item list, never refined) — a `--reset-exclusions` flag (replace all
-  exclusion rules with defaults), a `--show-merged-rules`/`--validate-merge`
-  dry-run (which rules would merge, which linters get added), logging which
-  linters were merged into each rule, recording exclusion-rule merges in the
-  audit ledger, and versioned default exclusion rules ("v1 defaults" vs
-  "v2 defaults"). One coherent theme: make RuleKey merging visible and
-  reversible instead of implicit.
+  exclusion rules with defaults), a `--validate-merge` dry-run (which rules
+  would merge, which linters get added), and versioned default exclusion rules
+  ("v1 defaults" vs "v2 defaults"). One coherent theme: make RuleKey merging
+  visible and reversible instead of implicit. (Shipped along the way:
+  `--show-merged-rules` logging, and exclusion-rule merges recorded in the
+  audit ledger as `exclusion-rule-merged` — pinned by
+  `exclusion_merge_ledger_internal_test.go`.)
 - **Comment-preserving YAML round-trip** — `yaml.Node`-based save path that
   preserves comments and blank lines (current `SaveConfig` reorders/reformats);
   pairs naturally with a `--indent` override flag. Fuzz tests for

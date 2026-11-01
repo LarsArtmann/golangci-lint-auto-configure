@@ -88,12 +88,14 @@ var _ = Context("check mode combinations", func() {
 
 	It("should not write audit ledger entries with --check --diff", func() {
 		initGitRepo()
+
 		binaryPath := buildBinary()
 
 		runInCache := func(cacheDir, configContent string, args ...string) string {
 			configPath := writeConfig(configContent)
 			cmdArgs := append([]string{"configure", "--config", configPath}, args...)
 			cmd := exec.Command(binaryPath, cmdArgs...)
+
 			cmd.Env = append(os.Environ(), "XDG_CACHE_HOME="+cacheDir)
 			_, _ = cmd.CombinedOutput()
 
