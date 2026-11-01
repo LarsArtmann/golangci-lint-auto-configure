@@ -48,6 +48,15 @@ Point-in-time snapshots from development sessions. Each report captures what was
 > ROADMAP theme-2/4 additions, 2 FEATURES ghost rows removed (auto-tag
 > workflow, CI retry logic), AGENTS gotcha 13 version-drift fix.
 
+> **Fifth sweep (2026-11-02, docs-health AUDIT):** re-verified every bare
+> item in the remaining 2026-0* corpus against the post-v0.11.0 tree (legacy
+> engine + compat views + `rules.go`/`linter_reasons.go` deleted; tier enum on
+> the policy table; lll redundancy removal accounted). Newly-resolved items
+> struck inline with per-item evidence; files whose every item carries a
+> verdict were archived (manifest in `../archive/status/`). TODO_LIST/FEATURES/
+> README/CHANGELOG/AGENTS rehabilitated in the same pass (AGENTS gotchas 11/20
+> and detail items 2/4/5 de-drifted against the current code layout).
+
 ## Lifecycle & Cadence
 
 Status reports are point-in-time snapshots, never living documents. The
@@ -111,10 +120,10 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 | 2026-07-27 | `01-25_v0.6.0-release-self-assessment` | v0.6.0 cut; brutal process review    |
 | 2026-07-27 | `01-42_post-release-cleanup-status`    | ldflags fix, GoReleaser deprecations |
 
-### Regression-Loop Prevention & Pareto (2026-07-30/31)
-
-| Date | Report | Key Outcome |
-| ---- | ------ | ----------- |
+| Date       | Report                                 | Key Outcome                          |
+| ---------- | -------------------------------------- | ------------------------------------ |
+| 2026-07-27 | `01-25_v0.6.0-release-self-assessment` | v0.6.0 cut; brutal process review    |
+| 2026-07-27 | `01-42_post-release-cleanup-status`    | ldflags fix, GoReleaser deprecations |
 
 ### gohumanize & CV-Config Learnings (2026-08)
 
@@ -136,4 +145,20 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 | 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`                 | Living-docs overhaul + 28-file archive sweep                                |
 | 2026-09-11 | `23-26_pareto-execution-t11-t25-thirteen-tasks-and-honest-scars` | T11–T25: GHCR backfill, rulesets, gitleaks, ADR consolidation, README audit |
 | 2026-09-28 | `21-59_go-1.27-readiness-shipped-and-reviewed`                   | Go 1.27 readiness: `run.go` major.minor + cap + rescue; live frontier       |
-| 2026-10-07 | `02-57_docs-health-third-sweep-full-audit`                       | Third docs-health sweep: 15 files archived, living docs rehabilitated       |
+| 2026-10-07 | `07-26_pareto-execution-s3-m33-m34-quick-wins-and-honest-accounting` | M33/M34 quick wins; honest accounting |
+
+### Declarative Reconciler & v0.11.0 Era (2026-10 → 11)
+
+| Date       | Report                                              | Key Outcome                                                        |
+| ---------- | --------------------------------------------------- | ------------------------------------------------------------------ |
+| 2026-10-11 | `19-39_gci-removed-from-formatter-force-enable-stack` | gci dropped from CoreFormatters/house                              |
+| 2026-10-13 | `16-02_noinlineerr-force-disabled-across-go-appkit`  | noinlineerr forced disabled fleet-wide                             |
+| 2026-10-13 | `17-22_buildflow-gate-errors-fixed-standing-warnings-triaged` | Gate errors fixed; 7 warning classes triaged             |
+| 2026-10-13 | `17-50_exclusion-sweep-status-and-self-review`      | Exclusion-rules deprecation sweep shipped                          |
+| 2026-10-14 | `14-59_declarative-reconciler-execution-status`     | ADR-017 reconciler P1–P4                                            |
+| 2026-10-14 | `16-32_declarative-reconciler-p5-closeout-through-p8` | P5–P8 closeout                                                    |
+| 2026-10-14 | `18-34_legacy-engine-and-compat-view-deletion`      | Legacy engine deleted; reconciler is the only engine                |
+| 2026-10-16 | `19-46_issue-15-capability-gate-session-closeout`   | Capability probe gates recommendations on the pinned binary         |
+| 2026-10-16 | `22-50_always-zero-issue-caps-status-and-self-review` | Issue caps always converge to 0                                   |
+| 2026-10-17 | `04-16_buildflow-finding-gate-incident-fix`         | mergeNormalizerChanges union fix (check/apply drift dead)           |
+| 2026-10-17 | `06-04_v0.11.0-release-and-buildflow-pin-bump-status` | v0.11.0 shipped; cosign pinned; BuildFlow pin bumped              |
