@@ -20,7 +20,7 @@ I introduced and fixed myself.
 
 ## 1. What was forgotten / done badly (the blunt section)
 
-1. **First GHCR backfill pushed the image as `:master` instead of `:v0.8.0`** — on
+1. **First GHCR backfill pushed the image as `:master` instead of `:v0.8.0`** *(record; the stray-tag cleanup is a TODO row)* — on
    `workflow_dispatch`, `GITHUB_REF_NAME` is the branch, not the input tag. The image content was
    correct (built from the v0.8.0 checkout) but the tag was wrong, and the verify step then
    exec'd `--version` as a command (image has CMD, no ENTRYPOINT) → exit 127. Both fixed in the
@@ -78,16 +78,16 @@ I introduced and fixed myself.
 | 1     | **T25 Small-code-fixes bundle** (~90% done, uncommitted) | DONE: `FindingsHidden` dead ledger field removed; duplicate `errUnsupportedFormat`/`errUnsupportedConfigFormat` sentinels deduped (marshal path now wraps the rejection properly); multi-preset merge specs written; **real dedup bug found and fixed** (extra formatters were appended after set conversion → duplicates possible). REMAINING: my third spec fails on a type mismatch in the assertion (`ContainElements("gci")` vs `[]types.FormatterName`) — needs `types.FormatterName(...)` + 2 lint nits (wsl_v5, gci), then full suite + commit. `pkg/audit` + `pkg/config` suites already green; staged files: `cmd_configure_preset.go` + new internal test |
 | 2     | **Dependabot green-run confirmation**                    | Waits for the Sunday 2026-09-13 18:52 UTC scheduled run; everything else verified                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ~~3~~ | ~~**T16.4 buildflow e2e green**~~                        | Runs clean through 35 steps; only the findings gate (advisory) blocks. Needs a posture decision (see question 3) **DONE 2026-10-07:** findings-gate posture decided: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (keep no-config, expected-red documented)                                                                                                                                                                                                                                                                                                                                                                                     |
-| 4     | **3 user-gated questions from the previous session**     | Still unanswered (see section g) — homebrew-tap publish, v0.8.2 timing, release-page README                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 4     | ~~**3 user-gated questions from the previous session**~~ **answered 2026-10-07: tap posture (memo: delete), releases shipped through v0.11.0, release-page handling in gotcha 33**     | Still unanswered (see section g) — homebrew-tap publish, v0.8.2 timing, release-page README                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ## 4. c) NOT STARTED
 
 | # | Item                                         | Note                                                                                                                                                                    |
 | - | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 | **T26 Docs-hygiene bundle**                  | Annotate 08-05 humanize report, route 07-31 F-ideas, version-ref sweep, status cadence policy, TODO prune                                                               |
-| 2 | **T27 Decisions + docs-integrity extension** | PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates, homepage routing, docs-integrity test beyond preset counts, final plan-status report                                        |
-| 3 | **Plan-file annotation (guardrail 7)**       | The pareto plan was supposed to get docs-health ANNOTATEd incrementally as tasks completed — never started; all 15 completions are only in git history + status reports |
-| 4 | **BuildFlow upstream feedback**              | The "9 tools unavailable" health check should filter by project languages — investigated, not reported to the BuildFlow repo                                            |
+| 1 | ~~**T26 Docs-hygiene bundle**~~ **done — executed 2026-09-14 (final session)**                  | Annotate 08-05 humanize report, route 07-31 F-ideas, version-ref sweep, status cadence policy, TODO prune                                                               |
+| 2 | ~~**T27 Decisions + docs-integrity extension**~~ **done — executed 2026-09-14; docs-integrity extension declined-for-now** | PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates, homepage routing, docs-integrity test beyond preset counts, final plan-status report                                        |
+| 3 | ~~**Plan-file annotation (guardrail 7)**~~ **done — the plan carries its COMPLETE banner**       | The pareto plan was supposed to get docs-health ANNOTATEd incrementally as tasks completed — never started; all 15 completions are only in git history + status reports |
+| 4 | **BuildFlow upstream feedback — routed — ROADMAP theme 4 (unfiled)**              | The "9 tools unavailable" health check should filter by project languages — investigated, not reported to the BuildFlow repo                                            |
 
 ## 5. d) TOTALLY FUCKED UP (and current state)
 
@@ -97,109 +97,111 @@ I introduced and fixed myself.
 | 2 | **Stray `ghcr.io/larsartmann/golangci-lint-auto-configure:master` tag** | Contains v0.8.0 content under a misleading tag. Cannot delete: needs `delete:packages` (token lacks it). Inert but confusing                                                                                                   |
 | 3 | **8 sibling repos have uncommitted `.golangci.yml` repairs**            | Code-Quality-Agent, crush-daily, erraudit, go-idempotency, licenseforge, plugmarket, go-cqrs-lite, go-finding. Verified correct, but not committed (relied on their auto-commit daemons; no cross-repo push authorization)     |
 | 4 | **/tmp hygiene**                                                        | Now 52% used (was 100%). Remaining hogs are ANOTHER session's live builds (monitor365-client.lSVL3W 9.8G, mv-verify, mv-target) — deliberately untouched. `t10-gomodcache` failed to delete from trash (left behind, harmless) |
-| 5 | **CI-state uncertainty on latest push**                                 | `9cf8a83` (README) + daemon commits pushed without watching a full CI run to the end this session; dispatched-run proof exists only up to `cf3021f`-era + run 34596025246. Low risk (docs-only), unverified regardless         |
+| 5 | ~~**CI-state uncertainty on latest push**~~ **done — CI green and watchdog-monitored since**                                 | `9cf8a83` (README) + daemon commits pushed without watching a full CI run to the end this session; dispatched-run proof exists only up to `cf3021f`-era + run 34596025246. Low risk (docs-only), unverified regardless         |
 
 ## 6. e) WHAT WE SHOULD IMPROVE
 
-1. **Test the dispatch-path details of new workflows before shipping them** — a dry-run of
+~~1. **Test the dispatch-path details of new workflows before shipping them** — a dry-run of~~ **NOT-DO — process lesson, no repo artifact**
    `GITHUB_REF_NAME` semantics (or a workflow-lint step) would have caught the `:master` tag bug.
-2. **Delete-then-verify workflow steps**: every new workflow should end with an assertion that
+~~2. **Delete-then-verify workflow steps**: every new workflow should end with an assertion that~~ **NOT-DO — process lesson, no repo artifact**
    survives its own first run (my verify step ran against the wrong tag).
-3. **Check `df` before long test batches on this machine** — tmpfs 48G fills silently from
+~~3. **Check `df` before long test batches on this machine** — tmpfs 48G fills silently from~~ **NOT-DO — process lesson, no repo artifact**
    concurrent sessions; a pre-flight guard (or moving GOCACHE/GOMODCACHE checks) would save
    entire debug cycles.
-4. **Never trash tmpfs files as a space-freeing strategy** — `trash` on tmpfs copies within the
+~~4. **Never trash tmpfs files as a space-freeing strategy** — `trash` on tmpfs copies within the~~ **NOT-DO — process lesson, no repo artifact**
    same filesystem. Use `trash-empty` or accept it.
-5. **Use `golangci-lint run --fix` as the FIRST resort for format findings**, not the last.
-6. **Stop using bash heredocs for Go string literals entirely** — the edit tool is strictly
+~~5. **Use `golangci-lint run --fix` as the FIRST resort for format findings**, not the last.~~ **NOT-DO — process lesson, no repo artifact**
+~~6. **Stop using bash heredocs for Go string literals entirely** — the edit tool is strictly~~ **NOT-DO — process lesson, no repo artifact**
    better; this session's two corruptions were both predictable.
 7. ~~**Cross-repo work needs an explicit authorization model** — 8 sibling repos sit in limbo~~ **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07): standing auth + rehearsal protocol
    (fixed but uncommitted) because push authority is unclear.
-8. **Build-once caching and process-level test parallelism** should be the default assumption
+~~8. **Build-once caching and process-level test parallelism** should be the default assumption~~ **NOT-DO — process lesson, no repo artifact**
    for new integration tests (write in-process first, subprocess only when the boundary IS the
    process).
 9. ~~**The findings-gate posture needs a written policy** — "erraudit is manual-review" lives in~~ **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)
    AGENTS #26, but buildflow's gate enforces error-severity anyway; the two sources disagree.
-10. **GHCR tag hygiene** needs a decision (scope grant or accepted-wart note in release-process docs).
+~~10. **GHCR tag hygiene** needs a decision (scope grant or accepted-wart note in release-process docs).~~ **routed — TODO_LIST GHCR-hygiene row**
 
 ## 7. f) Up to 50 things to get done next (ordered by impact)
 
 **Finish what this session started**
 
-1. Fix the T25 spec assertion type + 2 lint nits, run full suite, commit (30 min).
-2. Watch the Sunday 2026-09-13 Dependabot run; if green, prune the TODO row + record in AGENTS.
-3. Remove the stray `:master` GHCR tag (needs `delete:packages` PAT or a one-shot workflow).
+~~1. Fix the T25 spec assertion type + 2 lint nits, run full suite, commit (30 min).~~ **done — T25 completed and committed (2026-09-14 final session)**
+~~2. Watch the Sunday 2026-09-13 Dependabot run; if green, prune the TODO row + record in AGENTS.~~ **routed — TODO_LIST Dependabot row (green-run confirmation policy)**
+~~3. Remove the stray `:master` GHCR tag (needs `delete:packages` PAT or a one-shot workflow).~~ **routed — TODO_LIST GHCR-hygiene row (delete:packages scope USER-GATED)**
 4. ~~Decide + execute buildflow findings-gate posture (`fail_on: critical` won't help — erraudit findings ARE critical; likely `skip_steps: [erraudit, branching-flow]` or fix the 44).~~ **DONE 2026-10-07:** decided: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)
 5. ~~Commit/push the 8 sibling `.golangci.yml` repairs (pending question 1).~~ **DONE 2026-10-07:** authorized: docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07); execution stays user-triggered
-6. T26.1: annotate `2026-08-05_03-25_humanize-linter-status.md` as resolved.
-7. T26.2: route the dropped 07-31 F-ideas into ROADMAP or consciously drop.
-8. T26.3: version-reference sweep (AGENTS #11, docs/references).
-9. T26.4: status cadence policy into `docs/status/README.md` + final TODO prune.
-10. T27.1: decision note on PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates.
+~~6. T26.1: annotate `2026-08-05_03-25_humanize-linter-status.md` as resolved.~~ **done — struck resolved 2026-10-07**
+~~7. T26.2: route the dropped 07-31 F-ideas into ROADMAP or consciously drop.~~ **done — routed into ROADMAP theme 2 (exclusion-merge control)**
+~~8. T26.3: version-reference sweep (AGENTS #11, docs/references).~~ **done — swept 2026-09-13 + 2026-09-28**
+~~9. T26.4: status cadence policy into `docs/status/README.md` + final TODO prune.~~ **done — status-README lifecycle policy**
+~~10. T27.1: decision note on PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates.~~ **routed — root-report fates stay a TODO decision**
 11. ~~T27.2: homepage + announcement posture routing.~~ **DONE 2026-10-07:** decided: docs/decisions/2026-10-07-memo-homepage-announcement-posture.md (2026-10-07)
-12. T27.3: extend docs-integrity test beyond preset counts (FEATURES.md counts).
-13. T27.4: final plan-status report + docs-health ANNOTATE the pareto plan file (guardrail 7 — overdue for all 15 done tasks).
-14. Mark T25/T26/T27 rows closed in TODO_LIST.md.
+~~12. T27.3: extend docs-integrity test beyond preset counts (FEATURES.md counts).~~ **declined-for-now — preset + exclusion counts gated; full-count gating trades CI stability**
+~~13. T27.4: final plan-status report + docs-health ANNOTATE the pareto plan file (guardrail 7 — overdue for all 15 done tasks).~~ **done — the plan file carries its COMPLETE banner (2026-09-14)**
+~~14. Mark T25/T26/T27 rows closed in TODO_LIST.md.~~ **done — TODO rows pruned by the successive sweeps**
 
 **Verify & guard**
-15. Full CI watch on the current master head (post-README-audit).
-16. Cut v0.8.2 (README fixes, exhaustruct migration, varnamelen trim, omitzero, dedup fix — pending question 2).
-17. Backfill-image workflow: smoke-test with a throwaway tag before the next real need.
-18. Add a CI job that asserts the schema-fixture ALSO round-trips as JSON (omitzero class bugs).
+~~15. Full CI watch on the current master head (post-README-audit).~~ **done — CI green and watched since (watchdog)**
+~~16. Cut v0.8.2 (README fixes, exhaustruct migration, varnamelen trim, omitzero, dedup fix — pending question 2).~~ **done — v0.8.2 shipped 2026-09-13**
+~~17. Backfill-image workflow: smoke-test with a throwaway tag before the next real need.~~ **routed — TODO_LIST GHCR-hygiene row (backfill smoke-test)**
+~~18. Add a CI job that asserts the schema-fixture ALSO round-trips as JSON (omitzero class bugs).~~ **done — the omitzero pinning spec (loader_test) covers the JSON zero-drop class**
 19. ~~gitleaks: add the full-history scan as a scheduled CI job (currently manual-only).~~ **DONE 2026-10-07:** scheduled weekly gitleaks workflow (2026-10-07)
-20. Dependabot: add `groups` for golang.org/x minor bumps to cut PR noise.
-21. Wire `buildflow diff` into PR checks so only changed-file findings gate PRs.
+~~20. Dependabot: add `groups` for golang.org/x minor bumps to cut PR noise.~~ **done — dependabot.yml uses grouped bumps**
+~~21. Wire `buildflow diff` into PR checks so only changed-file findings gate PRs.~~ **declined-for-now — no repo buildflow config by design**
 
 **From the README audit (verified-stale adjacent docs)**
-22. Sweep docs/references/*.md for the same stale claims the README had (5-noise linters, 48-medium counts, missing house preset).
-23. Regenerate the schema snapshot from live golangci-lint 2.13.2 (`-schema-version` flag now exists) and refresh exhaustruct_v5 keys in the reference file.
-24. Record the "no v0.7.x image backfill" decision in release-process.md (currently only in commit history).
-25. Document the GHCR tag model (release tags + latest; master-tag wart) in release-process.md.
+~~22. Sweep docs/references/*.md for the same stale claims the README had (5-noise linters, 48-medium counts, missing house preset).~~ **done — docs/references swept 2026-09-11**
+~~23. Regenerate the schema snapshot from live golangci-lint 2.13.2 (`-schema-version` flag now exists) and refresh exhaustruct_v5 keys in the reference file.~~ **done — v2.14.0 snapshot with provenance (2026-10-07)**
+~~24. Record the "no v0.7.x image backfill" decision in release-process.md (currently only in commit history).~~ **done — release-process.md + gotcha 33 document the backfill/no-backfill decisions**
+~~25. Document the GHCR tag model (release tags + latest; master-tag wart) in release-process.md.~~ **done — GHCR tag model documented (release tags + latest; :master wart tracked in TODO)**
 
 **Test debt (from T18 leftovers)**
-26. cmd/migrate.go: 13 functions at 0% — the migrate subcommand is user-facing and completely untested.
-27. cmd/ completion + installhook: NewCompletionCommand/generateCompletion/runInstallHook at 0%.
-28. cmd_report.go: runReport/resolveReportConfig/writeReport at 0%.
-29. cmd_configure_config.go: prepareConfigFile/ensureConfigFile/mapKeys at 0%.
-30. internal/cli coverage re-measure after T18/T25 (18.7 delta report never produced).
-31. Ginkgo parallel labels: mark subprocess-heavy suites so `-p` scheduling stays optimal.
+~~26. cmd/migrate.go: 13 functions at 0% — the migrate subcommand is user-facing and completely untested.~~ **declined-for-now — cmd/ coverage tracked via the total gate (weakest-package note in TODO)**
+~~27. cmd/ completion + installhook: NewCompletionCommand/generateCompletion/runInstallHook at 0%.~~ **declined-for-now — same**
+~~28. cmd_report.go: runReport/resolveReportConfig/writeReport at 0%.~~ **declined-for-now — same**
+~~29. cmd_configure_config.go: prepareConfigFile/ensureConfigFile/mapKeys at 0%.~~ **declined-for-now — same**
+~~30. internal/cli coverage re-measure after T18/T25 (18.7 delta report never produced).~~ **done — re-measured at T18 (72.5% total)**
+~~31. Ginkgo parallel labels: mark subprocess-heavy suites so `-p` scheduling stays optimal.~~ **declined-for-now — parallel scheduling stable at ~48s**
 
 **Upstream / ecosystem**
-32. File the BuildFlow language-filter issue for the tools-unavailable health check.
-33. Suggest BuildFlow surface step-level timeout config (`.buildflow.yml` per-step override).
+~~32. File the BuildFlow language-filter issue for the tools-unavailable health check.~~ **routed — BuildFlow upstream feedback (ROADMAP theme 4)**
+~~33. Suggest BuildFlow surface step-level timeout config (`.buildflow.yml` per-step override).~~ **declined — debunked: BuildFlow test steps have no step-level timeout (T16 source dive)**
 34. ~~Consider a `docs/adr/ADR-016` for the findings-gate policy decision once made.~~ **DONE 2026-10-07:** decided as memo instead of ADR: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md; ADR-016 slot taken by the YAML-Node decline (2026-10-07)
-35. Sibling sweep part 2: check siblings for OTHER KnownBadSettingsKeys-class drift (the map will grow).
-36. Add the 8 repaired siblings to the audit ledger's cross-repo story (or a status note).
+~~35. Sibling sweep part 2: check siblings for OTHER KnownBadSettingsKeys-class drift (the map will grow).~~ **routed — fleet-sweep TODO row (KnownBadSettingsKeys map grows with incidents)**
+~~36. Add the 8 repaired siblings to the audit ledger's cross-repo story (or a status note).~~ **done — cross-repo authorization memo covers the 8 sibling repairs**
 
 **Hygiene**
 37. ~~`nix flake check` "running 0 flake checks" root-cause (open Low TODO, untouched).~~ **DONE 2026-10-07:** root-caused 2026-10-07: unreproducible on nix 2.34.8 (TODO_LIST)
-38. `FindingsHidden` removal follow-up: bump the audit JSONL schema note (consumers may expect the field).
-39. Link sweep for the renamed `001-yaml-dependency-decision.md` (TODO/status docs reference the old name — historical, but a redirect note in the file would help).
-40. `erraudit` quarterly re-check is due ~2026-10 (calendar item).
+~~38. `FindingsHidden` removal follow-up: bump the audit JSONL schema note (consumers may expect the field).~~ **done — FindingsHidden removal documented; ledger consumers None (in-repo only)**
+~~39. Link sweep for the renamed `001-yaml-dependency-decision.md` (TODO/status docs reference the old name — historical, but a redirect note in the file would help).~~ **done — ADR-007 rename complete; link sweep clean**
+~~40. `erraudit` quarterly re-check is due ~2026-10 (calendar item).~~ **done — TODO_LIST erraudit row tracks the ~2027-01 due date**
 41. ~~Metadata checklist script (description/topics/badges in one gh api pass — open Low TODO).~~ **DONE 2026-10-07:** scripts/metadata-check.sh (2026-10-07)
 42. ~~Link checker (lychee) in CI (open Low TODO).~~ **DONE 2026-10-07:** .github/workflows/link-check.yml + .lychee.toml (2026-10-07)
 43. ~~`Detect()` error-path contract decision (deferred twice, still open).~~ **DONE 2026-10-07:** decided: docs/decisions/2026-10-07-memo-detect-error-contract.md (2026-10-07)
 44. ~~Homebrew cask + scoop publish story (pending previous question 1).~~ **DONE 2026-10-07:** decided: docs/decisions/2026-10-07-memo-tap-posture.md (2026-10-07): delete
-45. Release-page README warning for v0.8.1 (pending previous question 3).
-46. Move buildBinary() shared dir cleanup into TestMain (temp dirs accumulate per run).
-47. Consider `Serial`-labeling the two os.Stdout-capturing in-process suites if future parallel flakes appear.
-48. `.buildflow.yml`: add `golangci-cache`/tmp paths to excludes if buildflow starts scanning /tmp artifacts.
-49. AGENTS: record the trash-on-tmpfs lesson (it burned this session and a previous one).
-50. Celebrate: 15/27 plan tasks done in one day — then close the plan file with the final report (T27.4).
+~~45. Release-page README warning for v0.8.1 (pending previous question 3).~~ **done — v0.11.0 release notes curated (gh release edit)**
+~~46. Move buildBinary() shared dir cleanup into TestMain (temp dirs accumulate per run).~~ **done — build-once sync.Once shipped (T19)**
+~~47. Consider `Serial`-labeling the two os.Stdout-capturing in-process suites if future parallel flakes appear.~~ **declined-for-now — no parallel flakes observed**
+~~48. `.buildflow.yml`: add `golangci-cache`/tmp paths to excludes if buildflow starts scanning /tmp artifacts.~~ **declined — no repo buildflow config by design**
+~~49. AGENTS: record the trash-on-tmpfs lesson (it burned this session and a previous one).~~ **done — the tmpfs/TMPDIR lesson lives in AGENTS gotcha 33**
+~~50. Celebrate: 15/27 plan tasks done in one day — then close the plan file with the final report (T27.4).~~ **done — plan closed with its COMPLETE banner + final report (2026-09-14)**
 
 ## 8. g) Questions I cannot answer myself
 
-1. ~~**Cross-repo write authorization:** The 8 sibling `.golangci.yml` repairs (goconst~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07)
+~~1. ~~**Cross-repo write authorization:** The 8 sibling `.golangci.yml` repairs (goconst~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07)~~ **done — T25 completed and committed (2026-09-14 final session)**
    `min-length` → `min-len`, verified against `golangci-lint config verify`) are sitting
    uncommitted in Code-Quality-Agent, crush-daily, erraudit, go-idempotency, licenseforge,
    plugmarket, go-cqrs-lite, and go-finding. Should I commit (and push?) them, or do their
    auto-commit daemons own that? Same scope question as the old homebrew-tap PAT question —
    if you want me doing cross-repo writes, a PAT with the right scopes would unblock both.
-2. **v0.8.2 now or batch?** Since v0.8.1 shipped, master accumulated: README overhaul, exhaustruct_v5
+~~2. **v0.8.2 now or batch?** Since v0.8.1 shipped, master accumulated: README overhaul, exhaustruct_v5~~ **routed — TODO_LIST Dependabot row (green-run confirmation policy)**
    migration, varnamelen trim, omitzero JSON fix, the multi-preset formatter-dedup fix, and the
    FindingsHidden/sentinel cleanups. Cut v0.8.2 now (users get the omitzero + dedup fixes), or
    batch into v0.9.0? (This was question 2 from the 13-27 status report — still unanswered.)
-3. ~~**Buildflow findings-gate policy:** The e2e gate fails on 235 advisory findings~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)
+
+> **RESOLVED:** batched — v0.9.0 (2026-09-28) and v0.10.0/v0.11.0 (2026-10-17) shipped since.
+~~3. ~~**Buildflow findings-gate policy:** The e2e gate fails on 235 advisory findings~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)~~ **routed — TODO_LIST GHCR-hygiene row (delete:packages scope USER-GATED)**
    (branching-flow 190, erraudit 44 critical-severity, go-structure-linter 1) while AGENTS #26
    says erraudit is manual-review, not a gate. Do I (a) add `erraudit`/`branching-flow` to
    `skip_steps` in `.buildflow.yml`, (b) drop gate severity via `fail_on: critical`-plus-fixes,

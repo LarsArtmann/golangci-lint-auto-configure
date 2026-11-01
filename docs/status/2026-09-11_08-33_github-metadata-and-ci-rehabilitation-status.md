@@ -56,7 +56,7 @@ Each item verifiably complete, with evidence.
 | b1 | **Release pipeline fix**                          | Workflow edit committed; buildx + GHCR login in place; goreleaser `check` passes in CI                                     | **Unproven** — the fix only executes on the next `v*` tag. v0.8.0's GHCR image is still missing; v0.7.x too                                                                                                          | Needs a release (user decision on version bump) | S (tag + watch)                       |
 | b2 | **GitHub metadata completeness**                  | Description, topics, badges, license, security policy, issues/wiki/discussions settings all match sibling-repo conventions | Homepage field empty (no website exists — deliberately not set to a dead URL); no custom social-preview image (no sibling has one)                                                                                   | Website launch is a project of its own          | S for homepage-if-site, L for website |
 | b3 | **Root-cause of the July CI failure**             | Forward-fixed: the two failure classes I could reproduce are gone (config schema; missing binary in test job)              | **Historic root cause unconfirmed** — GitHub purged the July logs (`BlobNotFound` on all 5 jobs), so I cannot prove what red in July                                                                                 | Log expiry; nothing recoverable                 | —                                     |
-| b4 | **`linter_settings_generated.go` reference file** | Still describes goconst `min-length` (generated from the v2.13 JSON schema, build-tagged out of the binary)                | Regenerating against the schema keeps the reference "as-2.13" — it will _never_ agree with the runtime's `min-len` emission. Decision needed: regenerate + annotate, or exclude goconst from the generated reference | Cosmetic/reference-only; no build impact        | S                                     |
+| b4 | **`linter_settings_generated.go` reference file** | Still describes goconst `min-length` (generated from the v2.13 JSON schema, build-tagged out of the binary)                | Regenerating against the schema keeps the reference "as-2.13" — it will _never_ agree with the runtime's `min-len` emission. Decision needed: regenerate + annotate, or exclude goconst from the generated reference | Cosmetic/reference-only; no build impact        | S                                      **RESOLVED 2026-11-02: v2.14.0 snapshot + provenance header resolve the drift (2026-10-07)** |
 
 ---
 
@@ -66,15 +66,15 @@ Planned or identified this session; no work done. Priority flags per quality gui
 
 | #  | What                                                                                          | Why not started                                                                                         | Priority                                             |
 | -- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| c1 | **Website launch** (homepage field empty)                                                     | Out of session scope; full website-launch skill flow needed                                             | Medium (user previously launches sites for siblings) |
-| c2 | **Custom social-preview image** (Open Graph)                                                  | No sibling repo has one; needs a design decision + image tooling                                        | Low                                                  |
-| c3 | **Backfill GHCR image for v0.8.0** (docker build from existing tag, no re-release)            | Needs release-strategy decision (see g2)                                                                | Medium                                               |
+| c1 | ~~**Website launch**~~ **→ routed — ROADMAP theme 6; homepage posture decided portfolio-plus (memo 2026-10-07)**                                                     | Out of session scope; full website-launch skill flow needed                                             | Medium (user previously launches sites for siblings) |
+| c2 | ~~**Custom social-preview image**~~ **declined-for-now — no shared brand asset**                                                  | No sibling repo has one; needs a design decision + image tooling                                        | Low                                                  |
+| c3 | ~~**Backfill GHCR image for v0.8.0**~~ **done — T12 backfill workflow, image verified (2026-09-13)**            | Needs release-strategy decision (see g2)                                                                | Medium                                               |
 | c4 | **Sweep sibling projects for the emitted `min-length` key**                                   | Session scope ended at this repo; cross-project sweep is its own task                                   | High (see d1)                                        |
 | c5 | **docs-health HARVEST of section (f)** into TODO_LIST/ROADMAP                                 | User instruction: write report, then wait                                                               | High (skill mandates the handoff)                    |
-| c6 | **Dependabot Updates workflow failures** (2026-08-23, 08-30, 09-06 all `failure` in run list) | Noticed during run-list triage; explicitly out of scope per user instruction                            | Medium                                               |
-| c7 | **auto-tag.yml decision** (still `disabled_manually`)                                         | Superseded by manual tagging via go-release flow; needs an owner decision (delete vs keep-disabled)     | Low                                                  |
+| c6 | ~~**Dependabot Updates workflow failures**~~ **→ routed — TODO_LIST Dependabot row (vendorHash drift policy)** | Noticed during run-list triage; explicitly out of scope per user instruction                            | Medium                                               |
+| c7 | ~~**auto-tag.yml decision**~~ **done — deleted 2026-09-13 (contradicted the tag policy)**                                         | Superseded by manual tagging via go-release flow; needs an owner decision (delete vs keep-disabled)     | Low                                                  |
 | c8 | **Branch protection / rulesets on `master` and `v*` tags**                                    | Not checked this session (repo settings beyond metadata were out of scope)                              | Medium                                               |
-| c9 | **Private vulnerability reporting toggle**                                                    | SECURITY.md exists and `isSecurityPolicyEnabled: true`; the advisory-reporting toggle was never checked | Low                                                  |
+| c9 | ~~**Private vulnerability reporting toggle**~~ **declined-for-now — external setting; policy flag true**                                                    | SECURITY.md exists and `isSecurityPolicyEnabled: true`; the advisory-reporting toggle was never checked | Low                                                  |
 
 ---
 
@@ -210,11 +210,17 @@ Ranked by impact. Impact: Critical / High / Medium / Low. Effort: S (<30min) / M
 **g1. Why was `ci.yml` (and `auto-tag.yml`) manually disabled, and was that intentional policy or cleanup noise?**
 What I tried: `gh api /actions/workflows` shows only `disabled_manually` with no actor/reason/timestamp surfaced; July run logs are purged (`BlobNotFound` on all 5 jobs of the last run); git history of the workflow files shows no disabling commit (it's a settings-side action, not a repo change). If it was deliberate (e.g., "stop failing-workflow noise"), my re-enable changes your intent; if accidental, we're good — but then we should know _how_ it got disabled so the watchdog (f6) can detect that class too.
 
+> **RESOLVED (unknowable):** July logs purged; the watchdog (f6, shipped) now detects the class — workflow state + master health are checked weekly.
+
 **g2. Do you want a v0.8.1 cut now to ship the `min-len` fix and validate the repaired release pipeline — and should the missing v0.8.0 GHCR image be backfilled from the existing tag, or left as "fixed going forward"?**
 Why I can't decide: releasing is version-policy (the go-release skill's trigger list says "should we release" is your call), and backfilling means pushing container tags for an already-published release — defensible either way (immutability vs completeness). Both options unblock d2's proof.
 
+> **RESOLVED:** v0.8.1 shipped (2026-09-11) and proved the pipeline; the v0.8.0 image was backfilled (T12).
+
 **g3. Should the ~160 sibling projects be swept for the emitted `goconst.min-length` key (f4), and may the fixer normalize that key in their configs on their next configure run (f1)?**
 Why I can't decide: touching 160 sibling repos is a fleet-wide change; the normalization write (f1) deliberately overrides the tool's own idempotency guarantee, which is a policy change to how the tool treats user settings — that's yours to authorize, not mine to assume.
+
+> **RESOLVED:** key-normalization shipped (T2, `KnownBadSettingsKeys`); the sibling sweep was authorized and 8 repairs landed (memo 2026-10-07 covers cross-repo auth).
 
 ---
 
