@@ -12,9 +12,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Upstream data audit v2.0.0 → v2.15.0.** The supersession table was
+  corrected against the official migration guide and v1 deprecation notes:
+  `deadcode`, `varcheck`, and `structcheck` now migrate to `unused` (their
+  v1 deprecations prescribed unused — the old `staticcheck` mapping silently
+  changed the lint surface), `exhaustivestruct` now migrates to
+  `exhaustruct` (the old `exhaustive` mapping conflated two different
+  linters), and `interfacer`/`nosnakecase` are removed without replacement
+  (upstream prescribes none). The deprecated sweep resolves supersession
+  chains in one run (`exhaustivestruct → exhaustruct → exhaustruct_v5`
+  converges immediately on v2.13+ binaries instead of settling across two
+  runs), and successors shared by several predecessors are added exactly
+  once with truthful change accounting.
+- The `migrate` subcommand renames wrapcheck's v1 camelCase settings keys to
+  their v2 kebab-case successors (`ignoreSigs` → `ignore-sigs`,
+  `ignoreSigRegexps` → `ignore-sig-regexps`, `ignorePackageGlobs` →
+  `ignore-package-globs`, `ignoreInterfaceRegexps` →
+  `ignore-interface-regexps`) instead of dropping them — user intent is
+  preserved, and `ignoreInterfaceRegexps` was silently lost before.
+- The E2E pin matrix now also runs against golangci-lint v2.15.0 (the
+  latest release), proving configured configs load and `configure --check`
+  stays idempotent on the newest binary.
 - The pre-release checklist now honors `TMPDIR` for its coverage profile
   and GoReleaser snapshot log instead of hardcoding `/tmp`, so it can run
   on machines whose tmpfs is full.
+
+### Fixed
+
+- **golangci-lint v2.15.0 compatibility.** v2.15.0's config-free `linters`
+  command lists every known linter under Enabled, which poisoned the
+  capability probe's default-enabled set; a default set covering most of
+  the vocabulary is now treated as unreliable and discarded instead of
+  suppressing every recommendation. The deprecation sweep now also drops
+  exclusion rules whose linter list it empties (any scope): golangci-lint v2
+  rejects single-criterion rules at config load ("at least 2 of text,
+  source, path, linters"), so the previously preserved path-only rule shells
+  broke the config on the very next lint run.
 
 ### Fixed
 
