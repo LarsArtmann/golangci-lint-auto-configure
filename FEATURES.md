@@ -1,7 +1,7 @@
 # golangci-lint-auto-configure — Feature Audit
 
 **Version:** v0.11.0
-**Last Audited:** 2026-10-07
+**Last Audited:** 2026-11-02
 
 Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `PLANNED`.
 
@@ -252,7 +252,7 @@ One row per `constants.DeprecatedLinters` entry; a lockstep spec in `pkg/constan
 | GitHub release pipeline (GoReleaser) | FULLY_FUNCTIONAL | dockers_v2 → GHCR, cosign keyless signing, SBOMs, curated release notes; manual tagging via the go-release flow (the auto-tag workflow was deleted 2026-09-13) |
 | Committed templ output (\_templ.go)  | FULLY_FUNCTIONAL | No build-time generation needed                                                                                                                                |
 | Govulncheck security scanning        | FULLY_FUNCTIONAL | CI job runs govulncheck ./...                                                                                                                                  |
-| Coverage threshold gate              | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 60% threshold)                                                                                                                 |
+| Coverage threshold gate               | FULLY_FUNCTIONAL | cmd/coverage-check (Go program, 65% threshold; suite total 72.5% at 2026-10-07)                                                                                |
 | GitHub Actions pinned to SHAs        | FULLY_FUNCTIONAL | 14 distinct actions across 5 workflows, all pinned to immutable commit hashes                                                                                  |
 | Settings struct codegen              | FULLY_FUNCTIONAL | `cmd/generate-settings` generates 88 structs from JSON Schema                                                                                                  |
 | jsondeterminism release gate         | FULLY_FUNCTIONAL | Release gate + CI run the SDK's `jsondeterminism` analyzer; bare `encoding/json/v2` Marshal fails the gate                                                     |

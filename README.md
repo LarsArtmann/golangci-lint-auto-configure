@@ -55,7 +55,7 @@ go build -o /usr/local/bin/golangci-lint-auto-configure ./cmd/golangci-lint-auto
 Every release publishes a multi-arch (amd64 + arm64) image to GHCR:
 
 ```bash
-docker pull ghcr.io/larsartmann/golangci-lint-auto-configure:v0.8.1
+docker pull ghcr.io/larsartmann/golangci-lint-auto-configure:v0.11.0
 ```
 
 ### Verifying Release Artifacts
@@ -65,7 +65,7 @@ All release artifacts are signed with [cosign](https://github.com/sigstore/cosig
 To verify a downloaded artifact:
 
 ```bash
-gh release download v0.8.1 -p "checksums.txt*" -p "*Linux_x86_64.tar.gz*" --dir /tmp/verify
+gh release download v0.11.0 -p "checksums.txt*" -p "*Linux_x86_64.tar.gz*" --dir /tmp/verify
 cd /tmp/verify
 
 # 1. Checksums
@@ -611,7 +611,7 @@ go test -cover ./pkg/... ./internal/...
 The `cmd/coverage-check` binary enforces a minimum test coverage threshold in CI:
 
 ```bash
-# Fail if total coverage drops below 60%
+# Fail if total coverage drops below 65%
 go run ./cmd/coverage-check -min=65 -profile=coverage.out
 
 # Also available via Nix
@@ -627,14 +627,15 @@ The repository runs these GitHub Actions workflows:
 
 | Workflow             | Trigger                | What it gates                                                                                                                                                                                                                                                                                                 |
 | -------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`             | push/PR (non-markdown) | Nix flake check, govulncheck, **schema-compat gate** (every injected default verified against live golangci-lint), **e2e pin matrix** (v2.10.1/v2.12.0/v2.13.2/v2.14.0 — see below), **dogfood gate** (`configure --check` on the repo's own config), golangci-lint, test + build with `-race`, coverage ≥65% |
+| `ci.yml`             | push/PR (non-markdown) | Nix flake check, govulncheck, **schema-compat gate** (every injected default verified against live golangci-lint), **e2e pin matrix** (v2.10.1/v2.12.0/v2.13.2/v2.14.0/v2.15.0 — see below), **dogfood gate** (`configure --check` on the repo's own config), golangci-lint, test + build with `-race`, coverage ≥65% |
 | `release.yml`        | `v*` tags              | GoReleaser: binaries, archives, deb/rpm/apk, cosign keyless signing, SBOMs, GHCR multi-arch image                                                                                                                                                                                                             |
 | `markdown-lint.yml`  | markdown changes       | markdownlint-cli2 over docs (excludes status reports, archive, CHANGELOG)                                                                                                                                                                                                                                     |
 | `ci-watchdog.yml`    | weekly cron            | Asserts `ci.yml` is active and the last master run is green; opens an issue on drift                                                                                                                                                                                                                          |
 | `backfill-image.yml` | manual dispatch        | Rebuilds + pushes the GHCR image for any already-released tag whose docker stage failed                                                                                                                                                                                                                       |
 
-**E2E pin matrix.** CI runs `scripts/e2e-pin-matrix.sh` against four pinned
-golangci-lint versions. Cells below the supported minimum (v2.12.0) must get
+**E2E pin matrix.** CI runs `scripts/e2e-pin-matrix.sh` against five pinned
+golangci-lint versions (v2.10.1 pre-minimum, v2.12.0 minimum, v2.13.2,
+v2.14.0, v2.15.0). Cells below the supported minimum (v2.12.0) must get
 a classified `version.too_old` refusal — never a written config that
 golangci-lint cannot load. Cells at or above the minimum prove the full
 contract: patch-form `run.go` is normalized and capped at the binary's build
