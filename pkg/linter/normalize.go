@@ -198,32 +198,35 @@ func replaceDeprecatedLinter(
 		From: string(name), Reason: record.SupersessionReason,
 	}
 
-	blocked := blockedReplacementSuffix(terminal, tool, neverEnable)
-	if !swappable || blocked != "" || terminal.SupersededBy == "" {
-		removeChange.Reason += blocked
+	if !swappable {
+		if suffix := blockedReplacementSuffix(terminal, tool, neverEnable); suffix != "" {
+			removeChange.Reason += suffix
+		}
+
 		normalized.Linters.Enable = removeName(normalized.Linters.Enable, name)
 
 		return []Change{removeChange}
 	}
 
-	normalized.Linters.Enable = replaceNameUnique(normalized.Linters.Enable, name, terminal.SupersededBy)
+	normalized.Linters.Enable = replaceNameUnique(normalized.Linters.Enable, name, terminal.Name)
 
 	return swapDeprecatedLinter(normalized, name, terminal, removeChange)
 }
 
-// swapDeprecatedLinter rewrites the enable entry to the successor and
-// migrates its settings block and exclusion-rule memberships. When several
-// deprecated linters share one successor (deadcode, varcheck, structcheck
-// all land on unused), the successor is added once and the later
-// predecessors are dropped — the change list stays truthful about it.
+// swapDeprecatedLinter rewrites the enable entry to the terminal successor
+// and migrates its settings block and exclusion-rule memberships. When
+// several deprecated linters share one successor (deadcode, varcheck,
+// structcheck all land on unused), the successor is added once and the
+// later predecessors are dropped — the change list stays truthful about it.
 func swapDeprecatedLinter(
 	normalized *types.Config,
 	name types.LinterName,
 	record types.LinterPolicy,
 	removeChange Change,
 ) []Change {
-	successorExisted := slices.Contains(normalized.Linters.Enable, record.SupersededBy)
-	normalized.Linters.Enable = replaceNameUnique(normalized.Linters.Enable, name, record.SupersededBy)
+	successor := record.Name
+	successorExisted := slices.Contains(normalized.Linters.Enable, successor)
+	normalized.Linters.Enable = replaceNameUnique(normalized.Linters.Enable, name, successor)
 
 	changes := make([]Change, 0, typicalReplacementChanges)
 	changes = append(changes, removeChange)
@@ -231,8 +234,8 @@ func swapDeprecatedLinter(
 	if !successorExisted {
 		changes = append(changes,
 			Change{
-				Path: PathLintersEnable, Element: string(record.SupersededBy), Kind: ChangeAdd,
-				To: string(record.SupersededBy), Reason: removeChange.Reason,
+				Path: PathLintersEnable, Element: string(successor), Kind: ChangeAdd,
+				To: string(successor), Reason: removeChange.Reason,
 			},
 		)
 	}
@@ -671,7 +674,7 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig, tool types.Golang
 		changed = true
 
 		terminal, swappable := resolveSupersessionChain(record, tool, nil)
-		if !swappable || terminal.SupersededBy == "" {
+		if !swappable {
 			changes = append(changes, sweptDropChange(entry, record))
 
 			continue
@@ -679,7 +682,7 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig, tool types.Golang
 
 		var rename Change
 
-		kept, rename = sweepRename(entry, terminal.SupersededBy, record.SupersessionReason, kept, seen)
+		kept, rename = sweepRename(entry, terminal.Name, record.SupersessionReason, kept, seen)
 		changes = append(changes, rename)
 	}
 

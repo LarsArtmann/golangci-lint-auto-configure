@@ -53,7 +53,20 @@ func (a *Analyzer) runLintersProbe(
 		return nil, nil, err
 	}
 
-	return probeVocabulary(parsed), probeDefaultEnabled(parsed), nil
+	vocabulary := probeVocabulary(parsed)
+	defaults := probeDefaultEnabled(parsed)
+
+	// golangci-lint v2.15.0 changed the bare-dir `linters` output to list
+	// every known linter under Enabled (108 of 115 observed), so a set
+	// covering most of the vocabulary is no longer "default-enabled" but
+	// "everything". The only consumer is the degraded-analysis fallback in
+	// collectAnalyzerEnabled, where a poisoned set would silently suppress
+	// EVERY recommendation; an implausible set fails open to nil instead.
+	if len(defaults)*2 > len(vocabulary) {
+		defaults = nil
+	}
+
+	return vocabulary, defaults, nil
 }
 
 // parseLintersProbe decodes the wire format and rejects empty listings (a
