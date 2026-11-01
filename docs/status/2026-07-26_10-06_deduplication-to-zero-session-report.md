@@ -100,22 +100,22 @@ The original `collectAnalysisFindings` ALWAYS called `report.AddFindings(recs)`,
 
 ### High impact
 
-4. **Write tests for `appendFindingBatch`** — covers the error/no-error branches and verifies findings are added on success.
-5. **Write tests for `mustSettingsAction`** — verifies it panics on error and is nil-safe on success.
-6. **Write test for `printBytesToStdout`** — verifies output to stdout.
+4. ~~**Write tests for `appendFindingBatch`** — covers the error/no-error branches and verifies findings are added on success.~~ **declined-for-now — trivial helper; behavior covered transitively by the converter specs**
+5. ~~**Write tests for `mustSettingsAction`** — verifies it panics on error and is nil-safe on success.~~ **declined-for-now — panic-on-programming-error is the documented contract; testing panics adds little**
+6. ~~**Write test for `printBytesToStdout`** — verifies output to stdout.~~ **declined-for-now — one-line os.Stdout wrapper**
 7. ~~**Run `nix build`** to verify reproducible build still works.~~ done (docs-health pass 2026-10-07)
 8. ~~**Run `nix flake check`** to verify format + build + tests pass.~~ done (docs-health pass 2026-10-07)
 9. ~~**Update vendorHash in flake.nix** if needed (probably not, since no new imports).~~ **Won't implement — no import changes; the vendorHash guard automates it.**
 
 ### Documentation
 
-10. **Document `//art-dupl:accept` convention** in AGENTS.md or `docs/references/working-with-codebase.md` — explain what it is, when to use it, and that it requires art-dupl >= the commit that introduced directive suppression.
+10. ~~**Document `//art-dupl:accept` convention** in AGENTS.md or `docs/references/working-with-codebase.md` — explain what it is, when to use it, and that it requires art-dupl >= the commit that introduced directive suppression.~~ **declined — the deduplicate-code skill owns the convention; in-repo docs don't restate tool directives**
 11. ~~**Document the new helpers** (`appendFindingBatch`, `mustSettingsAction`, `printBytesToStdout`) if they're non-obvious.~~ done (docs-health pass 2026-10-07)
-12. **Note in AGENTS.md** that the Nix art-dupl binary may be outdated and accept-directives require a manual rebuild.
+12. ~~**Note in AGENTS.md** that the Nix art-dupl binary may be outdated and accept-directives require a manual rebuild.~~ **declined — environment concern, not repo knowledge; the dedup skill documents it**
 
 ### Code quality follow-ups
 
-13. **Consider whether `printBytesToStdout` belongs in a shared `cli/output.go`** instead of `cmd_analyze.go` — it's used by 3 different command files.
+13. ~~**Consider whether `printBytesToStdout` belongs in a shared `cli/output.go`** instead of `cmd_analyze.go` — it's used by 3 different command files.~~ **declined-for-now — three call sites in one package; moving it is churn without a fourth consumer**
 14. ~~**Review whether `appendFindingBatch` should use a functional options pattern** if more finding-batch sources are added later.~~ **Won't implement — declined — functional options for 3 call sites is overkill.**
 15. ~~**Check if `mustSettingsAction` could return `error` instead of panicking** — panic-on-programming-error is the documented choice, but worth a second look.~~ **Won't implement — declined — panic-on-programming-error is the documented choice.**
 16. ~~**Run `UPDATE_GOLDEN=1 go test ./pkg/report/...`** to verify HTML report golden test still passes (unrelated to my changes but worth checking).~~ done (docs-health pass 2026-10-07)
@@ -131,7 +131,7 @@ The original `collectAnalysisFindings` ALWAYS called `report.AddFindings(recs)`,
 ### General project health (noticed during session)
 
 22. ~~**16 `gopls stdversion` warnings** about `encoding/json/v2` requiring go1.27 — these are expected (GOEXPERIMENT=jsonv2) but could confuse contributors.~~ **Won't implement — moot — toolchain past the go1.27/jsonv2 need.**
-23. **6 `gopls bloop` warnings** about `b.N` → `b.Loop()` modernization in benchmark files.
+23. ~~**6 `gopls bloop` warnings** about `b.N` → `b.Loop()` modernization in benchmark files.~~ **done — benchmarks migrated to `b.Loop()` (M29, 2026-10-07)**
 24. ~~**The `os` import removal from `cmd_presets.go`** should be double-checked — confirm no other code in that file uses `os`.~~ done (docs-health pass 2026-10-07)
 25. ~~**Verify `go mod tidy`** doesn't change anything (no new imports added, but worth confirming).~~ done (docs-health pass 2026-10-07)
 26. ~~**Consider adding a pre-commit hook for art-dupl** to catch duplication before it lands.~~ **Won't implement — dupl/jscpd buildflow gates chosen instead.**
@@ -148,10 +148,16 @@ The original `collectAnalysisFindings` ALWAYS called `report.AddFindings(recs)`,
 
 The uncommitted changes to `pkg/linter/fixer.go` (visible at session start as `M pkg/linter/fixer.go`) changed the `newConfigUpdater` signature to require a `GoVersionProvider` argument, but `fixer_config.go:218` wasn't updated to pass one. This is **not my change** — it was in the working tree when I started. Should I fix the call site (and if so, what `GoVersionProvider` implementation should I pass?), or is this intentional in-progress work from another session that I should leave alone?
 
+> **RESOLVED:** fixed by the next session (16-37 item 1: `newConfigUpdater(logger, nil)` + wiring).
+
 ### 2. Should the overwritten `art-dupl` binary be reverted?
 
 I replaced `/home/lars/go/bin/art-dupl` with a rebuilt version from local source to enable accept-directive suppression. Without this, `//art-dupl:accept` directives are silently ignored. Should I leave the updated binary in place, or revert to the Nix-managed version (and instead document that accept-directives require a newer build)?
 
+> **RESOLVED (environment):** superseded — later tooling pinned art-dupl properly; no repo action remains.
+
 ### 3. Is the `appendFindingBatch` behavioral change acceptable?
 
 The original code always called `report.AddFindings(recs)` even on error (a no-op since converters return `nil` on error). My refactor explicitly skips `AddFindings` on error. The behavior is equivalent today, but if a converter ever returns partial results + error, my version would drop those partial findings while the original would include them. Should I preserve the original always-add behavior for safety, or is the explicit skip-on-error the better pattern?
+
+> **RESOLVED:** the skip-on-error pattern stands — converters' contract remains nil-on-error, and the find/fix flow was later rewritten on the Change model (ADR-017) where partial-results-plus-error cannot occur.

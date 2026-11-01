@@ -173,7 +173,7 @@
 7. ~~Write BDD specs for `SettingsMap` (`pkg/types/settings_map_test.go`) — `AsSettingsMap`, `IsEmpty`, `GetMap`, `Clone`~~ done (docs-health pass 2026-10-07)
 8. ~~Write a CLI integration test that exercises `NewRootCommand` + `Execute` with actual args (not just calling internal functions)~~ done (docs-health pass 2026-10-07)
 9. ~~Run `go run ./cmd/coverage-check -min=60` to verify coverage didn't drop~~ done (docs-health pass 2026-10-07)
-10. Add a test for `Flags` struct binding — verify all 14 flags parse correctly
+10. ~~Add a test for `Flags` struct binding — verify all 14 flags parse correctly~~ **declined-for-now — the T18 in-process dispatch specs exercise the real cobra parse path end-to-end**
 11. ~~Add test for `auditDisabled(true)` and `auditDisabled(false)` edge cases (currently only 3 cases tested)~~ done (docs-health pass 2026-10-07)
 12. ~~Test the `pkg/client` public API end-to-end with a real config file after branded-type migration~~ done (docs-health pass 2026-10-07)
 
@@ -184,18 +184,18 @@
 15. ~~Update `FEATURES.md` if the Flags refactor changed any user-visible behavior~~ **Won't implement — internal refactor; FEATURES is feature-level.**
 16. ~~Add `ADR-007-SettingsMap-Wrapper.md` documenting the SettingsMap design decision~~ **Won't implement — ADR number since taken; AGENTS #25 documents the design.**
 17. ~~Add `ADR-008-Flags-Struct.md` documenting the Flags pattern and why globals were removed~~ **Won't implement — ADR number since taken; AGENTS #24 documents the pattern.**
-18. Update `docs/references/testing-style-and-patterns.md` with how to test commands that use `*Flags`
+18. ~~Update `docs/references/testing-style-and-patterns.md` with how to test commands that use `*Flags`~~ **declined — the dispatch-spec pattern is visible in the test files themselves (T18)**
 
 ### Low Priority (Polish)
 
 19. ~~Rename `MigrateFlags` fields to match `Flags` naming if they're merged~~ **Won't implement — MigrateFlags deleted entirely.**
-20. Consider moving `Version` var into the `Flags` struct or a `BuildInfo` struct
-21. Add `String()` method to `SettingsMap` for debug logging
-22. Consider `SettingsMap.Merge(other SettingsMap) int` to centralize the merge logic from `merger_helpers.go`
-23. Consider `SettingsMap.HasKey(key string) bool` to replace raw map lookups
-24. Add `SettingsMap.GetString(key string) (string, bool)` if string type assertions appear in migration code
+20. ~~Consider moving `Version` var into the `Flags` struct or a `BuildInfo` struct~~ **declined — `Version` is the ldflags injection point; moving it re-couples build config to CLI state**
+21. ~~Add `String()` method to `SettingsMap` for debug logging~~ **declined-for-now — no consumer**
+22. ~~Consider `SettingsMap.Merge(other SettingsMap) int` to centralize the merge logic from `merger_helpers.go`~~ **declined-for-now — the strategy table (merge.go) owns merging; a method would split the policy**
+23. ~~Consider `SettingsMap.HasKey(key string) bool` to replace raw map lookups~~ **declined-for-now — no consumer**
+24. ~~Add `SettingsMap.GetString(key string) (string, bool)` if string type assertions appear in migration code~~ **declined-for-now — v1 migration is maintenance-only**
 25. ~~Audit all `//nolint` directives in files touched this session — verify each is still justified~~ done (docs-health pass 2026-10-07)
-26. Check if `examples/api-usage/main.go` compiles and works after all the type changes
+26. ~~Check if `examples/api-usage/main.go` compiles and works after all the type changes~~ **done — compiles against the current tree (verified 2026-11-02: `go build ./examples/...` clean)**
 27. ~~Run `nix flake check` for the full CI pipeline verification~~ done (docs-health pass 2026-10-07)
 28. ~~Verify `vendorHash` in `flake.nix` is up to date after any go.mod changes~~ done (docs-health pass 2026-10-07)
 29. ~~Update `CHANGELOG.md` with the Phase 4 changes~~ **Won't implement — never written; superseded by later release notes.**
@@ -203,10 +203,10 @@
 
 ### Cleanup
 
-31. Check if the `mapKeys` function in `cmd_configure_config.go` can be simplified now that `types.ToSortedSlice` exists
-32. Audit `resolveConfig` — it now takes `*Flags` but only reads 2 fields (`ConfigPath`, `DryRun`, `NoAutoMerge`). Consider narrowing the interface.
-33. Check if `resolveAnalyzeConfig` should use `resolveConfigPath` instead of duplicating the config-path-resolution logic
-34. Review if `cmd_configure_preset.go`'s `applyPresetFormatters` can use `types.NewSet` instead of manual `map[string]struct{}` + `mapKeys`
+31. ~~Check if the `mapKeys` function in `cmd_configure_config.go` can be simplified now that `types.ToSortedSlice` exists~~ **declined-for-now — micro-cleanup, no churn budget**
+32. ~~Audit `resolveConfig` — it now takes `*Flags` but only reads 2 fields (`ConfigPath`, `DryRun`, `NoAutoMerge`). Consider narrowing the interface.~~ **declined-for-now — the ROADMAP narrow-interface theme tracks the general class**
+33. ~~Check if `resolveAnalyzeConfig` should use `resolveConfigPath` instead of duplicating the config-path-resolution logic~~ **declined-for-now — same**
+34. ~~Review if `cmd_configure_preset.go`'s `applyPresetFormatters` can use `types.NewSet` instead of manual `map[string]struct{}` + `mapKeys`~~ **declined-for-now — same**
 35. ~~Verify the golden snapshot test for HTML reports still passes (`UPDATE_GOLDEN=1 go test ./pkg/report/...`)~~ done (docs-health pass 2026-10-07)
 36. ~~Check if any `.golangci.yml` lint rule changes are needed for the new `Flags` struct pattern~~ done (docs-health pass 2026-10-07)
 37. ~~Audit for any remaining `map[string]any` type assertions outside the SettingsMap wrapper~~ done (docs-health pass 2026-10-07)
@@ -216,15 +216,15 @@
 
 ### Future Architecture
 
-41. Consider extracting a `CommandContext` struct that bundles `*Flags`, `*log.Logger`, `*linter.Analyzer`, `*config.Loader` — the `CommandBuilder` already does this but could be formalized
-42. Consider making `Flags` immutable (all fields unexported, accessors only) — prevents accidental mutation during command execution
-43. Consider a `FlagSet` interface for commands that need custom flags (like migrate's `--skip-validation`)
-44. Evaluate if `SettingsMap` should implement `json.Marshaler`/`json.Unmarshaler` for the JSON config format
-45. Consider if `types.Config` should embed `SettingsMap` for `Linters.Settings` and `Formatters.Settings` instead of raw `map[string]any`
+41. ~~Consider extracting a `CommandContext` struct that bundles `*Flags`, `*log.Logger`, `*linter.Analyzer`, `*config.Loader` — the `CommandBuilder` already does this but could be formalized~~ **declined — `CommandBuilder` IS that struct; renaming is churn**
+42. ~~Consider making `Flags` immutable (all fields unexported, accessors only) — prevents accidental mutation during command execution~~ **declined-for-now — no observed mutation bug; the lint surface (gochecknoglobals etc.) covers the class**
+43. ~~Consider a `FlagSet` interface for commands that need custom flags (like migrate's `--skip-validation`)~~ **declined — MigrateFlags was deleted; migrate binds locally (AGENTS gotcha 25)**
+44. ~~Evaluate if `SettingsMap` should implement `json.Marshaler`/`json.Unmarshaler` for the JSON config format~~ **declined-for-now — the JSON path round-trips via the config loader; no direct marshal need**
+45. ~~Consider if `types.Config` should embed `SettingsMap` for `Linters.Settings` and `Formatters.Settings` instead of raw `map[string]any`~~ **declined — raw map is the round-trip contract with user YAML; a wrapper would risk dropping unknown keys**
 46. ~~Document the settings write-path (`SettingsConverter.ToMap()`) vs read-path (`SettingsMap`) split in an ADR~~ done (docs-health pass 2026-10-07)
 47. ~~Evaluate if the migration package's `TriState` type should be shared with `types` package~~ **Won't implement — TriState stays in pkg/migration; v1 is a non-goal.**
-48. Consider a unified `LinterSettings` branded type wrapper (like `LinterName`) for settings keys
-49. Review if `Version` branded type needs `MarshalYAML`/`UnmarshalYAML` for explicit v1/v2 version validation
+48. ~~Consider a unified `LinterSettings` branded type wrapper (like `LinterName`) for settings keys~~ **declined-for-now — the SettingsMap wrapper + typed curated structs cover the safety need**
+49. ~~Review if `Version` branded type needs `MarshalYAML`/`UnmarshalYAML` for explicit v1/v2 version validation~~ **declined — version validation happens at load with classified errors; marshaling is tag-driven**
 50. ~~Plan for removing v1 migration support entirely (flag with deprecation timeline) — this would allow deleting the entire `migration` package~~ **Won't implement — decided — v1 stays functional, bug-fixes only (ROADMAP non-goals).**
 
 ---
@@ -235,6 +235,8 @@
 
 The migrate command in `internal/cli/cmd/migrate.go` has its own `MigrateFlags` struct and reads flags via `cmd.Flags().GetBool("verbose")` instead of cobra binding. I changed `NewMigrateCommand` to pass `clicmd.MigrateFlags{}` (empty struct) because the old code passed globals that no longer exist. The migrate command still works because it reads from `cmd.Flags()` at runtime, but the `MigrateFlags` struct is now vestigial — it's always empty. **Should I merge MigrateFlags into the shared Flags struct, or should migrate keep its own flag pattern since it has unique flags like `--skip-validation`?**
 
+> **RESOLVED:** MigrateFlags was deleted entirely; migrate binds its unique `--skip-validation` locally (AGENTS gotcha 25 documents why the sub-package can't import `internal/cli`).
+
 ### Q2: Was `pkg/finding/converter.go` part of this session's work?
 
 The git diff shows `pkg/finding/converter.go` was modified in commit `67ec4d2` ("feat(finding): enhance finding detection and conversion logic"), which was committed by the auto-git daemon during this session. I did NOT modify `converter.go` — it was the daemon committing work from a prior session or a parallel process. **Should I investigate this file to verify it's correct, or is it from a different work stream I should leave alone?**
@@ -242,3 +244,5 @@ The git diff shows `pkg/finding/converter.go` was modified in commit `67ec4d2` (
 ### Q3: Is the `//nolint:funlen` on `runConfigure` acceptable, or should I restructure?
 
 I added `//nolint:funlen // dispatcher: length is from multi-arg delegate calls, not complexity` to `runConfigure` because inlining `runPresetOrFixer` pushed it to 43 lines (>30 limit). The function is a pure dispatcher — 3 guard/prepare lines, 1 log line, 1 branch, 2 delegate calls. The alternative is passing `*Flags` to `runFixerMode`/`handlePresetMode` to reduce arg count, but that changes the function signatures significantly. **Is the nolint acceptable for a pure dispatcher, or should I do the deeper refactor to eliminate it?**
+
+> **RESOLVED:** restructured — `*Flags` is passed whole (follow-up item 1, struck done 2026-10-07); the nolint is gone.
