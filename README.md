@@ -134,7 +134,7 @@ never rewritten; the fix is upgrading golangci-lint.
 The minimum supported golangci-lint (v2.12.0) is coupled to the oldest
 settings key the tool injects (`goconst.ignore-tests`, added in v2.12.0);
 older binaries get a clear refusal instead of a config they cannot load.
-CI verifies this contract across four pinned golangci-lint versions via the
+CI verifies this contract across five pinned golangci-lint versions via the
 e2e pin matrix (`scripts/e2e-pin-matrix.sh`).
 
 ## Usage
