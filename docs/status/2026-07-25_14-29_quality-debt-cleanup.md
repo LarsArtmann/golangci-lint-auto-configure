@@ -156,7 +156,7 @@ These were identified as potential work but I did NOT touch them:
 
 ### CI/build
 
-41. Add a CI step that runs the tool on its own repo's `.golangci.yml` and verifies no diff (dogfood gate) **→ routed — TODO_LIST dogfood-gate row**
+41. ~~Add a CI step that runs the tool on its own repo's `.golangci.yml` and verifies no diff (dogfood gate)~~ **done — dogfood step in ci.yml, 2026-10-07**
 42. Add `golangci-lint run` (no fix) as a `flake.nix` check output for local dev **→ routed — TODO_LIST flake-check-output row**
 43. ~~Verify `nix build` still passes after any future go.mod changes (vendorHash update procedure)~~ done (docs-health pass 2026-10-07)
 
@@ -168,10 +168,10 @@ These were identified as potential work but I did NOT touch them:
 
 ### Process
 
-47. Before changing any constant: grep ALL consumers, trace every usage path, document downstream effects
-48. After changing defaults: always regenerate the repo's own config (or document why it's not regenerated)
-49. Always run `nix build` before declaring done — raw `go build` is insufficient
-50. Consider a pre-flight checklist: (1) grep consumers, (2) check downstream, (3) regenerate self-config, (4) nix build, (5) nix flake check
+47. ~~Before changing any constant: grep ALL consumers, trace every usage path, document downstream effects~~ **NOT-DO — process advice, no repo artifact (survives in the session lessons)**
+48. ~~After changing defaults: always regenerate the repo's own config (or document why it's not regenerated)~~ **NOT-DO — process advice; the dogfood gate now enforces exactly this mechanically**
+49. ~~Always run `nix build` before declaring done — raw `go build` is insufficient~~ **NOT-DO — process advice; CI runs the full nix job on every push**
+50. ~~Consider a pre-flight checklist: (1) grep consumers, (2) check downstream, (3) regenerate self-config, (4) nix build, (5) nix flake check~~ **NOT-DO — subsumed by `scripts/pre-release-check.sh` + CI**
 
 ---
 
@@ -179,6 +179,12 @@ These were identified as potential work but I did NOT touch them:
 
 1. **Should the `format` preset also get `golines`?** I added golines to `CoreFormatters` (making it 4 formatters), but `PresetFormatters["format"]` still has 3 (`{gci, goimports, gofumpt}`). The `house` preset has 4. Now there's a 3-way inconsistency: CoreFormatters=4, format=3, house=4. Should `format` also get golines, or is it intentionally the "minimal formatter" preset (3 only) while `house` is the "full stack" (4)? This is a product decision about what the `format` preset means.
 
+   > **RESOLVED:** `format` got `golines` (alignment fix, MT8) — and `gci` was later dropped from the whole stack (2026-10-11), leaving `{goimports, gofumpt, golines}` everywhere; pinned by the CoreFormatters alignment spec.
+
 2. **Should `EnableGolinesFormatter` be removed (golines becomes unconditional) or should golines be removed from `CoreFormatters` (golines stays conditional)?** By adding golines to CoreFormatters, I accidentally made `EnableGolinesFormatter` dead code — it's always bypassed because golines is already in the set. Option A: remove the dead method, accept golines as unconditional (research shows 128/160 use it). Option B: remove golines from CoreFormatters, keep the conditional recommendation path. Option A aligns with the validated winning stack; Option B preserves the analyzer's intelligent recommendation. Both are defensible.
 
+   > **RESOLVED:** Option A — the dead method was removed (MT8, 2026-07-26); `RemoveRedundancies` now owns the lll→golines relation via the typed table.
+
 3. **How should I remove stale G104 from the repo's own `.golangci.yml`?** The tool's idempotency guarantee means re-running `configure` won't remove G104 — it never overwrites existing settings. Options: (a) manually delete the `gosec:` settings block from `.golangci.yml`, then run the tool to re-inject the correct defaults (G304/G115 only); (b) leave it as-is and accept the split-brain; (c) build a `--force-settings` flag (significant work). Option (a) is the pragmatic fix but requires touching the config file directly. What's acceptable?
+
+   > **RESOLVED:** (c) — `--force-settings` shipped (2026-07-26); the repo's own config was regenerated with the tool (G104 gone), and self-hosting now converges byte-identically (`configure --check` exit 0).

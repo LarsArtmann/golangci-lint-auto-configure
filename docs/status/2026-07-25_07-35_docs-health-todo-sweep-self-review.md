@@ -222,6 +222,8 @@ The `docs/adr/` directory already exists with 5 ADR files (ADR-001 through ADR-0
 
 It walks upward until it finds `go.mod`. This works when tests run from the package directory, but could break in edge cases (e.g., if `go.mod` is in a parent workspace). A more robust approach would use `runtime.Caller` to get the test file's path and walk from there. Low risk for now, but worth noting.
 
+> **declined-for-now (2026-11-02)** — the helper has been stable across four months of CI runs; revisit only if a workspace-layout failure appears.
+
 ### 6. No test verifies that `wrapcheck` lacks default settings
 
 I skipped adding wrapcheck defaults. But there's no test that asserts "these linters SHOULD have defaults" vs "these linters intentionally don't." Without such a test, the decision to skip wrapcheck is invisible — the next developer won't know it was a deliberate choice.
@@ -232,12 +234,12 @@ I skipped adding wrapcheck defaults. But there's no test that asserts "these lin
 
 ### Immediate (fix what this session left incomplete)
 
-1. Run `nix flake check` — the canonical quality gate (not run this session)
+1. ~~Run `nix flake check` — the canonical quality gate (not run this session)~~ **done — green and root-caused 2026-10-07 (the "0 checks" flap was unreproducible on nix 2.34.8)**
 2. ~~Verify README `<details>` blocks render correctly on GitHub (push to a branch, view rendered)~~ done (docs-health pass 2026-10-07)
 3. ~~Fix README example output to be accurate (either pipe through `sed` to strip ANSI, or note that output is styled)~~ done (docs-health pass 2026-10-07)
 4. ~~Reconcile funlen defaults: should they match upstream (60/40) or project config (30/20)?~~ done (docs-health pass 2026-10-07)
-5. Review mnd ignored-numbers against real-world Go code for noise level
-6. Extend docs-integrity test to cover ALL hardcoded counts in FEATURES.md (110 linters, 6 formatters, etc.)
+5. ~~Review mnd ignored-numbers against real-world Go code for noise level~~ **Won't implement — obsolete: the curated ignored-numbers list was removed entirely (2026-08-08, per-project by design; `ignored-files: _test.go` remains)**
+6. ~~Extend docs-integrity test to cover ALL hardcoded counts in FEATURES.md (110 linters, 6 formatters, etc.)~~ **declined-for-now — preset counts + exclusion-linter enumeration are gated; full-count gating trades CI stability for marginal drift protection**
 7. ~~Add a test asserting which linters intentionally lack default settings (document the wrapcheck skip)~~ **Won't implement — wrapcheck now HAS curated defaults (linter_settings.go).**
 
 ### ARCHITECTURE.md structural fixes
@@ -255,16 +257,16 @@ I skipped adding wrapcheck defaults. But there's no test that asserts "these lin
 15. ~~Audit remaining linter settings against golangci-lint v2.12.2 (Item 36)~~ done (docs-health pass 2026-10-07)
 16. ~~Check if `clickhouselint` belongs in `reference` preset (Item 38)~~ done (docs-health pass 2026-10-07)
 17. ~~Add integration test for multi-preset support once implemented~~ done (docs-health pass 2026-10-07)
-18. Add test for `--detect` mode preset selection accuracy
+18. ~~Add test for `--detect` mode preset selection accuracy~~ **declined-for-now — detection is best-effort by contract (memo 2026-10-07); the categorizer/detector specs cover the mapping**
 
 ### Documentation depth
 
 19. ~~Full README.md claim-by-claim audit (all ~500 lines) (Item 19)~~ done (docs-health pass 2026-10-07)
 20. ~~Add `format` preset section with example output in README~~ done (docs-health pass 2026-10-07)
 21. ~~Consolidate/archive the 100+ July status reports (Item 25)~~ done (docs-health pass 2026-10-07)
-22. Add a CONTRIBUTING.md section on how to add a new linter (end-to-end guide)
+22. ~~Add a CONTRIBUTING.md section on how to add a new linter (end-to-end guide)~~ **declined-for-now — AGENTS gotcha 11 ("edit the ONE record in the policy table") + `docs/references/working-with-codebase.md` cover it**
 23. ~~Document the `audit` command in README usage section (currently only in Features table)~~ done (docs-health pass 2026-10-07)
-24. Add architecture diagram (D2 or mermaid) showing package dependencies
+24. ~~Add architecture diagram (D2 or mermaid) showing package dependencies~~ **declined-for-now — the architecture-visualization route exists if ever wanted; no consumer demand**
 
 ### Type safety & data-model
 
@@ -315,13 +317,19 @@ I skipped adding wrapcheck defaults. But there's no test that asserts "these lin
 
 I set the injected defaults to `lines: 60, statements: 40` (matching upstream golangci-lint). But the project's own `.golangci.yml` uses `lines: 30, statements: 20` — twice as strict. If the tool configures other projects with looser thresholds than it applies to itself, that's a values mismatch. Should defaults be "safe for beginners" (upstream) or "what we'd actually recommend" (stricter)? **This is a product philosophy decision I cannot make.**
 
+> **RESOLVED:** house style — 200/100, calibrated across 160 sibling projects and dominant in the fleet (2026-07-25 friction session C3; documented in AGENTS gotcha 7).
+
 ### 2. Should ARCHITECTURE.md's inline ADRs be extracted to `docs/adr/` files?
 
 `docs/adr/` already has 5 ADR files. ARCHITECTURE.md has 8 ADRs inline. This is a split brain — ADRs live in two places. Extracting them would be the right structural fix, but it's a significant reorganization that changes how every ADR is referenced. **Is this the right time to do it, or should ARCHITECTURE.md remain a single-file reference?**
 
+> **RESOLVED:** extracted — 15 ADRs under `docs/adr/ADR-NNN-slug.md`, ARCHITECTURE.md is a linked index (T21, 2026-09-13).
+
 ### 3. Should the docs-integrity test be strict (CI-blocking) or advisory?
 
 The test I wrote cross-checks FEATURES.md counts against code. If someone adds a linter to a preset without updating FEATURES.md, the test fails. Some teams want this (forces docs updates). Others find it friction (docs become a build dependency). **Is CI-blocking the right enforcement level for this project, or should documentation drift remain advisory?**
+
+> **RESOLVED:** strict — the docs-integrity test is CI-blocking and has caught real drift (kept through four months of green CI).
 
 ---
 

@@ -3,6 +3,10 @@
 
 package migration
 
+import (
+	"strings"
+)
+
 // normalizeLocalPrefixes converts local-prefixes from string to array format.
 func normalizeLocalPrefixes(settings map[string]any) int {
 	if localPrefixes, ok := settings["local-prefixes"]; ok {
@@ -178,7 +182,93 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 		}
 	}
 
+	// 9. predeclared.ignore became a list in v2 (v1 allowed a bare string)
+	if predeclared, ok := settings["predeclared"].(map[string]any); ok {
+		fixes += normalizeStringToSlice(predeclared, "ignore")
+	}
+
+	// 10. sloglint.context-only (bool) became sloglint.context (enum: all|scope)
+	if sloglint, ok := settings["sloglint"].(map[string]any); ok {
+		if v, exists := sloglint["context-only"]; exists {
+			if truthy, isBool := v.(bool); isBool && truthy {
+				if _, hasContext := sloglint["context"]; !hasContext {
+					sloglint["context"] = "all"
+				}
+			}
+
+			delete(sloglint, "context-only")
+
+			fixes++
+		}
+	}
+
+	// 11. govet.check-shadowing (bool) became enabling the "shadow" analyzer
+	if govet, ok := settings["govet"].(map[string]any); ok {
+		if v, exists := govet["check-shadowing"]; exists {
+			if truthy, isBool := v.(bool); isBool && truthy {
+				enable, _ := govet["enable"].([]any)
+
+				hasShadow := false
+
+				for _, analyzer := range enable {
+					if analyzer == "shadow" {
+						hasShadow = true
+
+						break
+					}
+				}
+
+				if !hasShadow {
+					govet["enable"] = append(enable, "shadow")
+				}
+			}
+
+			delete(govet, "check-shadowing")
+
+			fixes++
+		}
+	}
+
+	// 12. gocritic ruleguard paths: the ${configDir} variable was renamed to ${base-path}
+	if gocritic, ok := settings["gocritic"].(map[string]any); ok {
+		if ruleguard, ok := gocritic["settings"].(map[string]any); ok {
+			if rules, ok := ruleguard["rules"].(string); ok && strings.Contains(rules, "${configDir}") {
+				ruleguard["rules"] = strings.ReplaceAll(rules, "${configDir}", "${base-path}")
+
+				fixes++
+			}
+		}
+	}
+
 	return fixes
+}
+
+// normalizeStringToSlice converts a bare string value at key into a one-element
+// string list, mirroring v2 settings keys that became arrays (predeclared.ignore).
+func normalizeStringToSlice(settings map[string]any, key string) int {
+	value, ok := settings[key]
+	if !ok {
+		return 0
+	}
+
+	switch v := value.(type) {
+	case string:
+		if v != "" {
+			settings[key] = []string{v}
+
+			return 1
+		}
+
+		delete(settings, key)
+
+		return 1
+	case nil:
+		delete(settings, key)
+
+		return 1
+	}
+
+	return 0
 }
 
 // migrateFormattersSettings applies migrations to formatters.settings.

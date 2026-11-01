@@ -146,12 +146,12 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 
 ### Quality Follow-ups
 
-37. Write tests for `Version.Compare()` (semver ordering edge cases)
-38. Write tests for `TriState.UnmarshalYAML` (nil/true/false)
+37. ~~Write tests for `Version.Compare()` (semver ordering edge cases)~~ **done — `pkg/types/go_version_test.go` (CompareGoMajorMinor DescribeTable) + `version_fuzz_test.go` cover ordering incl. numeric-minor cases (1.9 < 1.10)**
+38. ~~Write tests for `TriState.UnmarshalYAML` (nil/true/false)~~ **declined-for-now — v1 migration is maintenance-only (ROADMAP non-goal); the type is frozen**
 39. ~~Write tests for `NewConfig()` options (all `With*` functions)~~ done (docs-health pass 2026-10-07)
 40. ~~Run `golangci-lint run` on the repo's own config — verify zero issues~~ done (docs-health pass 2026-10-07)
 41. ~~Run `UPDATE_GOLDEN=1 go test ./pkg/report/...` — review HTML golden diff~~ done (docs-health pass 2026-10-07)
-42. Update `AGENTS.md` with the new type system (LinterName/FormatterName/Version/TriState)
+42. ~~Update `AGENTS.md` with the new type system (LinterName/FormatterName/Version/TriState)~~ **done — branded types are woven through AGENTS (gotcha 11 tier records, gotcha 28 version helpers, struct-tag policy); DOMAIN_LANGUAGE carries the vocabulary**
 43. ~~Update `docs/references/json-v2.md` with the `omitzero` vs `omitempty` status after branded types~~ done (docs-health pass 2026-10-07)
 44. ~~Update `TODO_LIST.md` — remove completed items (format preset, dead code, G104)~~ done (docs-health pass 2026-10-07)
 45. ~~Update `CHANGELOG.md` with all Phase 1-3 changes~~ done (docs-health pass 2026-10-07)
@@ -167,6 +167,12 @@ Executing the 16-task Pareto plan to make the architecture and data model "super
 
 1. **Should `pkg/client` be dissolved entirely or kept as a focused facade?** The plan says "dissolve into `internal/cli` or give focused API" but `examples/api-usage/main.go` imports it — removing it is a breaking API change for external consumers. Do you want to keep a public `pkg/client` with a narrowed API, or dissolve it and update the example?
 
+   > **RESOLVED:** kept as a focused public facade (MT12 decision, ADR-style note in commit; `pkg/client` remains the SDK-style entry point).
+
 2. **Should `DefaultMaxIssuesPerLinter`/`DefaultMaxSameIssues` live in `pkg/constants` or `pkg/config`?** I moved them to `constants` to break the linter→config dependency, but they were originally config-package constants. Keeping both creates a split-brain. The "right" home depends on whether you consider these "config schema defaults" (config) or "tool-wide constants" (constants).
 
+   > **RESOLVED:** moot — the always-0 caps policy (2026-10-16) converges both caps to unlimited on every run; the constants no longer carry semantic weight.
+
 3. **Should the `format` preset now align exactly with `CoreFormatters` (4 formatters) or remain intentionally different?** I added `golines` to align them (the plan recommended this), but the old `format` preset was documented as the "minimal formatter" preset. If you want them different, I should revert and document the intentional divergence instead.
+
+   > **RESOLVED:** aligned — `format` got `golines` (MT8); the later gci removal (2026-10-11) re-aligned the whole stack to `{goimports, gofumpt, golines}`, pinned by the alignment spec.

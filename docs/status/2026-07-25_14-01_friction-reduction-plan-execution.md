@@ -109,8 +109,8 @@ These were in the v2 plan but I did NOT touch them:
 ### YAML/DX improvements
 
 13. ~~Investigate preserving YAML indentation in the config loader's output (2-space vs 4-space)~~ done (docs-health pass 2026-10-07)
-14. Add a `--diff-only` mode that shows what would change without reformatting whitespace
-15. Consider a `--check-format` flag that fails if the tool would reformat the file
+14. ~~Add a `--diff-only` mode that shows what would change without reformatting whitespace~~ **done — the `--diff` flag is that mode (diff preview; `--check --diff` never leaves the file modified)**
+15. ~~Consider a `--check-format` flag that fails if the tool would reformat the file~~ **done — `--check` fails (exit 1) whenever the tool would change the file; YAML indent is preserved on save**
 
 ### Test debt (C11-C17, all not started)
 
@@ -165,7 +165,7 @@ These were in the v2 plan but I did NOT touch them:
 
 47. ~~Verify `nix build` still passes (vendorHash may need update after go.mod changes from parallel agents)~~ done (docs-health pass 2026-10-07)
 48. ~~Run `nix flake check` end-to-end~~ done (docs-health pass 2026-10-07)
-49. Add a CI step that runs the tool on its own repo's `.golangci.yml` and verifies no diff (dogfood gate) **→ routed — TODO_LIST dogfood-gate row**
+49. ~~Add a CI step that runs the tool on its own repo's `.golangci.yml` and verifies no diff (dogfood gate)~~ **done — dogfood step in ci.yml (`configure --check`, NO_AUDIT set), 2026-10-07**
 50. Add `golangci-lint run` (no fix) as a `flake.nix` check output for local dev **→ routed — TODO_LIST flake-check-output row**
 
 ---
@@ -174,9 +174,15 @@ These were in the v2 plan but I did NOT touch them:
 
 1. **Should I bump the version as minor (0.6.0) or patch (0.5.1)?** The changes are additive (new flag, new settings structs, new preset) and don't break existing behavior, but they DO change default injected values (funlen 60→200, new gosec/errcheck excludes). Semver says: additive defaults that change output could be minor. But the tool is pre-1.0 (0.5.x), so the rules are looser. This is your call.
 
+   > **RESOLVED:** v0.6.0 shipped 2026-07-27.
+
 2. **Should G104 stay in the gosec excludes list?** G104 (unhandled errors) overlaps with errcheck, but gosec may flag error paths that errcheck doesn't (e.g., in security-sensitive contexts). Removing G104 means more gosec noise but tighter security. Keeping it means less noise but a potential false-negative. I can't determine your risk tolerance for this.
 
+   > **RESOLVED:** removed — see the Q2 row in the Resolution table below.
+
 3. **Should the `RuleKey()` dedup behavior change to allow merging new linters into existing rules?** Right now, adding linters to `DefaultExclusionRules` only helps new configs. Changing `RuleKey()` to include the linter list (or adding a merge step) would propagate updates to existing configs — but it would also re-write configs that users intentionally trimmed. This is a product/architecture decision about how aggressive the tool should be with existing configs.
+
+   > **RESOLVED:** union merge shipped — same-`RuleKey` rules get their linter lists unioned in both the converge renderer and the config merger; merges are audited as `exclusion-rule-merged` and visible via `--show-merged-rules` (AGENTS detail item 5).
 
 ---
 

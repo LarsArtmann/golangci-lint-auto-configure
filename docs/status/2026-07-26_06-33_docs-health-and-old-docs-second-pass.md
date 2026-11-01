@@ -163,7 +163,7 @@ I rebuilt TODO_LIST/ROADMAP/FEATURES for accuracy but added no CHANGELOG entry f
 2. ~~**Add the ARCHITECTURE.md-vs-docs/adr/ split-brain to AGENTS.md gotchas** — the context I failed to record (§d.2)~~ **Won't implement — resolved — ARCHITECTURE.md is now an index into docs/adr/.**
 3. ~~**Verify the remaining 10 of the 20-55 report's 17 claims** — close the rigor gap (§d.3)~~ **Won't implement — claims verified by the 2026-09-11 archive sweep.**
 4. ~~**Investigate the garbled `rg` output** — root-cause the tool anomaly (§d.4)~~ **Won't implement — transient one-off tool anomaly.**
-5. **Add a CHANGELOG line for the living-doc accuracy rebuild** — if deemed in-scope (Q2)
+5. ~~**Add a CHANGELOG line for the living-doc accuracy rebuild** — if deemed in-scope (Q2)~~ **declined — doc accuracy rebuilds are process, not product; CHANGELOG stays user-facing (Q2 answer)**
 
 ### Release (the C19 blocker)
 
@@ -191,7 +191,7 @@ I rebuilt TODO_LIST/ROADMAP/FEATURES for accuracy but added no CHANGELOG entry f
 21. ~~**ARCHITECTURE.md ADR-by-ADR audit** (8 inline ADRs, last audited partially)~~ done (docs-health pass 2026-10-07)
 22. ~~**Second annotation pass on `2026-07-25_05-40` §f items 7-14** (most still open — verify and annotate)~~ **Won't implement — the docs/status cadence policy now governs.**
 23. ~~**Second annotation pass on `2026-07-25_07-03` forward items** (verify which shipped)~~ **Won't implement — the docs/status cadence policy now governs.**
-24. **Extend docs-integrity test to cover ALL hardcoded counts** (14 structs, 27 templates, 88 structs, etc.)
+24. ~~**Extend docs-integrity test to cover ALL hardcoded counts** (14 structs, 27 templates, 88 structs, etc.)~~ **declined-for-now — preset + exclusion counts are gated; full-count gating trades CI stability for marginal protection**
 25. ~~**Add the `docs/status/` archive cadence policy** to ROADMAP/AGENTS~~ done (docs-health pass 2026-10-07)
 
 ### Verification & testing
@@ -242,13 +242,19 @@ I rebuilt TODO_LIST/ROADMAP/FEATURES for accuracy but added no CHANGELOG entry f
 
 The unreleased batch is large (~30 entries): new features (`--pragmatic`, `--recommend`, multi-preset, `CommandResult`, domain templates, settings codegen) plus **changed default injected values** (`funlen` 60→200, new gosec/errcheck/wrapcheck excludes, `CoreFormatters` 3→4). Semver says additive defaults that change output argue for **minor**. But the project is pre-1.0 (0.5.x), where rules are looser, and nothing is a breaking API change. The prior `14-01_friction-reduction` report asked the same question and it has stayed open since. **I cannot make this call — it's a product/semver decision.** Once decided, I can do the bump + CHANGELOG section move + tag + README callout (items 7-10 above) in one pass.
 
+> **RESOLVED:** minor — v0.6.0 shipped 2026-07-27.
+
 ### 2. Should the living-doc accuracy rebuild get a CHANGELOG line, or is that meta/noise?
 
 I rebuilt `TODO_LIST.md`, `ROADMAP.md`, and `FEATURES.md` to match code reality (removed 11 done items from TODO_LIST, added ~15 shipped features to FEATURES, fixed "Core formatters (3)"→4). Arguably CHANGELOG is for **user-facing product changes** and doc-accuracy fixes are internal hygiene. But FEATURES.md is user-facing (it's the feature inventory) and the "Core formatters (3)" claim was a user-visible lie. **Is one line under "Changed" (e.g. "FEATURES.md and TODO_LIST.md reconciled with shipped code") appropriate, or does that clutter a product changelog with process notes?** I lean toward including it for FEATURES fixes and excluding it for TODO_LIST/ROADMAP, but it's your call.
 
+> **RESOLVED:** exclude — CHANGELOG stays product-only; the docs-integrity test is the enforcement that keeps FEATURES truthful (and it has worked).
+
 ### 3. Should I do a second annotation pass on the `05-40` and `07-03` reports' forward-looking lists, or was leaving them alone correct restraint?
 
 I left these 2 of the 14 files untouched, judging that prior annotations (05-40) or genuine openness (07-03) made annotation low-value. But I did not verify line-by-line. The 05-40 §f items 7-14 ("evaluate adding err113/varnamelen/paralleltest/revive/musttag to default exclusions") are **mostly still open** — so the report's forward list is still a live backlog, and annotating "still open" adds little. The 07-03 "NOT STARTED" items are similarly still open. **So restraint seems correct — but should I verify that claim properly and add a one-line "verified still open as of 2026-07-26" note to each, or is that exactly the kind of low-value annotation the update-old-docs skill tells me to avoid?** I lean toward leaving them alone, but you may want the verification trail.
+
+> **RESOLVED:** moot — the 2026-10-07 sweep (and the 2026-11-02 fifth sweep) performed exactly those annotation passes; both files now carry per-item verdicts. The cadence policy in `docs/status/README.md` governs recurrence.
 
 ---
 

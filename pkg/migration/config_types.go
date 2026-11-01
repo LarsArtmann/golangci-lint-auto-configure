@@ -169,7 +169,9 @@ type Issues struct {
 
 // ExcludeRule represents an exclusion rule.
 type ExcludeRule struct {
-	Path    string   `yaml:"path,omitempty"`
-	Text    string   `yaml:"text,omitempty"`
-	Linters []string `yaml:"linters,omitempty"`
+	Path       string   `yaml:"path,omitempty"`
+	PathExcept string   `yaml:"path-except,omitempty"`
+	Text       string   `yaml:"text,omitempty"`
+	Source     string   `yaml:"source,omitempty"`
+	Linters    []string `yaml:"linters,omitempty"`
 }

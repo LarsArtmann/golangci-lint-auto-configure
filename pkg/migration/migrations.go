@@ -70,9 +70,11 @@ func (m *Migrator) migrateIssuesExcludeRules(config *Config) bool {
 
 	for _, rule := range config.ExcludeRules {
 		config.Linters.Exclusions.Rules = append(config.Linters.Exclusions.Rules, ExclusionRule{
-			Path:    rule.Path,
-			Text:    rule.Text,
-			Linters: rule.Linters,
+			Path:       rule.Path,
+			PathExcept: rule.PathExcept,
+			Text:       rule.Text,
+			Source:     rule.Source,
+			Linters:    rule.Linters,
 		})
 	}
 

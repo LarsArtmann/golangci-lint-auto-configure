@@ -179,7 +179,7 @@ I wrote `cmd/coverage-check/main.go` but added ZERO tests for it. The function `
 ### Immediate (fix what this session left incomplete)
 
 1. ~~**Delete `scripts/coverage-check.sh`** — it's replaced by `cmd/coverage-check/main.go` and is now a ghost file~~ done (docs-health pass 2026-10-07)
-2. **Run `nix flake check` (FULL, no `--no-build`)** — the canonical quality gate was not fully run this session
+2. ~~**Run `nix flake check` (FULL, no `--no-build`)** — the canonical quality gate was not fully run this session~~ **done — green and root-caused 2026-10-07; CI runs the full check on every push**
 3. ~~**Add a unit test for `parseTotalCoverage`** in `cmd/coverage-check/` — pure parsing logic, zero tests~~ done (docs-health pass 2026-10-07)
 4. ~~**Document the `UPDATE_GOLDEN=1` workflow** in AGENTS.md and working-with-codebase.md~~ done (docs-health pass 2026-10-07)
 5. ~~**Annotate `docs/research/` references to `coverage-check.sh`** as superseded~~ done (docs-health pass 2026-10-07)
@@ -238,7 +238,7 @@ I wrote `cmd/coverage-check/main.go` but added ZERO tests for it. The function `
 
 41. ~~**Adopt `HandleError` at the CLI boundary** — replaces ad-hoc slog calls~~ done (docs-health pass 2026-10-07)
 42. ~~**Register domain message templates** for `errorfamily.New()` constructors~~ done (docs-health pass 2026-10-07)
-43. **Add `--json-errors` test for all exit codes** (0, 1, 65, 69, 75) — currently only 1, 65, 69 tested
+43. ~~**Add `--json-errors` test for all exit codes** (0, 1, 65, 69, 75) — currently only 1, 65, 69 tested~~ **declined-for-now — the family→code mapping is errorfamily-owned and unit-tested; exit 75 has no hermetic trigger**
 44. ~~**Audit the `legacyerrors` nolint directives** — verify they're still needed with current linter version~~ **Won't implement — zero legacyerrors directives remain.**
 
 ### Code quality
@@ -258,13 +258,19 @@ I wrote `cmd/coverage-check/main.go` but added ZERO tests for it. The function `
 
 I replaced it with `cmd/coverage-check/main.go` and updated CI to use the Go version. The bash script still exists at `scripts/coverage-check.sh`. External users or CI pipelines outside this repo may reference it. **Should I `git rm` it, or leave it as a deprecated fallback?** If deleting, should I add a note to CHANGELOG?
 
+> **RESOLVED:** deleted (`git rm`, 17-31 session); CHANGELOG records the replacement (AGENTS gotcha 23).
+
 ### 2. Should the funlen defaults be 60/40 (upstream) or 30/20 (project config)?
 
 `pkg/constants/linter_settings.go` injects `FunlenSettings{Lines: 60, Statements: 40}` (upstream golangci-lint defaults) when the tool enables `funlen`. But the project's own `.golangci.yml` uses `lines: 30, statements: 20` (stricter). This means the tool would configure OTHER projects with looser settings than it uses itself. **Should the tool inject upstream defaults (60/40) or the project's stricter values (30/20)?** This is a product philosophy decision: "safe defaults" vs "opinionated defaults."
 
+> **RESOLVED:** neither — house style 200/100, calibrated from fleet friction evidence (C3, 2026-07-25).
+
 ### 3. Should `nix flake check` (full, with build) be added to CI?
 
 Currently CI runs `nix flake check --no-build` (evaluation only). The full check (`nix flake check` without `--no-build`) would build the package, run tests, and run the race detector inside the Nix derivation — but it requires SSH access for private repos (go-finding, gogenfilter) and takes 10-15 minutes. **Is the extra CI time worth the hermetic verification, or is `--no-build` + the existing Go test job sufficient?**
+
+> **RESOLVED:** moot twice over — the flake inputs went public https (2026-09-09), and CI's nix job runs the full check + vendorHash guard on every push.
 
 ---
 

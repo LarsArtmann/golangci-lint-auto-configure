@@ -59,6 +59,212 @@ linters-settings:
 	})
 })
 
+var _ = Describe("v1→v2 settings conversions from the upstream migration guide", func() {
+	// parseSettingsAfterMigration runs the migrator on configContent and returns
+	// the migrated settings map for linterName (linters.settings.<linterName>).
+	parseSettingsAfterMigration := func(configContent, linterName string) map[string]any {
+		testDir := GinkgoT().TempDir()
+		configPath := testMigrationWithConfig(testDir, configContent)
+
+		content, err := os.ReadFile(configPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		var migrated struct {
+			Linters struct {
+				Settings map[string]map[string]any `yaml:"settings"`
+			} `yaml:"linters"`
+		}
+
+		Expect(yaml.Unmarshal(content, &migrated)).To(Succeed())
+
+		return migrated.Linters.Settings[linterName]
+	}
+
+	It("renames misspell.ignore-words to ignore-rules", func() {
+		settings := parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  misspell:
+    ignore-words:
+      - "unkown"
+`, "misspell")
+
+		Expect(settings).To(HaveKey("ignore-rules"))
+		Expect(settings).NotTo(HaveKey("ignore-words"))
+		Expect(settings["ignore-rules"]).To(ContainElement("unkown"))
+	})
+
+	It("renames predeclared.q to qualified-name and converts ignore string to a list", func() {
+		settings := parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  predeclared:
+    q: true
+    ignore: "cap"
+`, "predeclared")
+
+		Expect(settings).To(HaveKey("qualified-name"))
+		Expect(settings).NotTo(HaveKey("q"))
+		Expect(settings["ignore"]).To(BeAssignableToTypeOf([]string{}),
+			"v1 bare-string ignore must become a v2 list")
+		Expect(settings["ignore"]).To(ContainElement("cap"))
+	})
+
+	It("converts sloglint.context-only=true to context: all and drops context-only=false", func() {
+		settings := parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  sloglint:
+    context-only: true
+    no-global-all: false
+`, "sloglint")
+
+		Expect(settings).To(HaveKeyWithValue("context", "all"))
+		Expect(settings).NotTo(HaveKey("context-only"))
+
+		settings = parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  sloglint:
+    context-only: false
+`, "sloglint")
+
+		Expect(settings).NotTo(HaveKey("context-only"), "false context-only is the v1 default and must be dropped")
+		Expect(settings).NotTo(HaveKey("context"))
+	})
+
+	It("converts govet.check-shadowing=true to enabling the shadow analyzer", func() {
+		settings := parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  govet:
+    check-shadowing: true
+`, "govet")
+
+		Expect(settings).NotTo(HaveKey("check-shadowing"))
+		Expect(settings["enable"]).To(ContainElement("shadow"))
+
+		settings = parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  govet:
+    check-shadowing: true
+    enable:
+      - "shadow"
+      - "asmdecl"
+`, "govet")
+
+		Expect(settings["enable"]).To(HaveLen(2),
+			"shadow must not be appended twice when the user already enables it")
+	})
+
+	It("drops removed errcheck, unused, and usestdlibvars keys", func() {
+		settings := parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  errcheck:
+    exclude: "errcheck-exclude.txt"
+    check-type-assertions: true
+  unused:
+    exported-is-used: false
+  usestdlibvars:
+    os-dev-null: true
+    http-method: true
+`, "errcheck")
+
+		Expect(settings).NotTo(HaveKey("exclude"), "v1 errcheck.exclude is removed upstream with no 1:1 successor")
+		Expect(settings).To(HaveKey("check-type-assertions"), "valid errcheck settings must survive")
+
+		unused := parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  unused:
+    exported-is-used: true
+`, "unused")
+		Expect(unused).NotTo(HaveKey("exported-is-used"))
+
+		usestdlibvars := parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  usestdlibvars:
+    os-dev-null: true
+    syslog-priority: true
+    http-method: true
+`, "usestdlibvars")
+		Expect(usestdlibvars).NotTo(HaveKey("os-dev-null"))
+		Expect(usestdlibvars).NotTo(HaveKey("syslog-priority"))
+		Expect(usestdlibvars).To(HaveKey("http-method"), "valid usestdlibvars settings must survive")
+	})
+
+	It("rewrites gocritic ruleguard paths from ${configDir} to ${base-path}", func() {
+		settings := parseSettingsAfterMigration(`version: "1"
+linters-settings:
+  gocritic:
+    settings:
+      ruleguard:
+        rules: "rules.go,${configDir}/more-rules.go"
+`, "gocritic")
+
+		ruleguard := settings["settings"].(map[string]any)
+		Expect(ruleguard["rules"]).To(Equal("rules.go,${base-path}/more-rules.go"))
+	})
+})
+
+var _ = Describe("v1 exclusion-rule criterion preservation", func() {
+	It("carries source and path-except criteria into linters.exclusions.rules", func() {
+		testDir := GinkgoT().TempDir()
+
+		configPath := testMigrationWithConfig(testDir, `version: "1"
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+    - source: "//nolint:gomodguard"
+      linters:
+        - gomodguard
+    - path-except: _test\.go
+      linters:
+        - dupl
+`)
+
+		content, err := os.ReadFile(configPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		var migrated struct {
+			Linters struct {
+				Exclusions struct {
+					Rules []struct {
+						Path       string   `yaml:"path"`
+						PathExcept string   `yaml:"path-except"`
+						Text       string   `yaml:"text"`
+						Source     string   `yaml:"source"`
+						Linters    []string `yaml:"linters"`
+					} `yaml:"rules"`
+				} `yaml:"exclusions"`
+			} `yaml:"linters"`
+		}
+
+		Expect(yaml.Unmarshal(content, &migrated)).To(Succeed())
+
+		rules := migrated.Linters.Exclusions.Rules
+		Expect(rules).To(HaveLen(3), "every v1 exclusion rule must survive the migration")
+
+		byCriterion := func(criterion string) map[string]any {
+			for _, rule := range rules {
+				switch criterion {
+				case "source":
+					if rule.Source != "" {
+						return map[string]any{"source": rule.Source, "linters": rule.Linters}
+					}
+				case "path-except":
+					if rule.PathExcept != "" {
+						return map[string]any{"path-except": rule.PathExcept, "linters": rule.Linters}
+					}
+				}
+			}
+
+			return nil
+		}
+
+		Expect(byCriterion("source")).NotTo(BeNil(),
+			"a v1 rule scoped by source must not lose its criterion (previously dropped, leaving a possibly-invalid rule)")
+		Expect(byCriterion("path-except")).NotTo(BeNil(),
+			"a v1 rule scoped by path-except must not lose its criterion")
+	})
+})
+
 func TestMigration(t *testing.T) {
 	RegisterFailHandler(Fail) //art-dupl:accept Ginkgo per-package bootstrap
 	RunSpecs(t, "Migration Suite")
