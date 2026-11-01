@@ -159,7 +159,7 @@ linters:
 			}
 		})
 
-		It("keeps path-scoped rules and clears the removed linter from them", func() {
+		It("drops the path-scoped rule whose only linter was removed", func() {
 			configContent := `version: "2"
 linters:
   default: none
@@ -173,18 +173,14 @@ linters:
 `
 			parsed := fixExclusionsAndParse(fixer, testConfig, configContent)
 
-			pathOnlyRuleSurvived := false
-
 			for _, rule := range parsed.Linters.Exclusions.Rules {
 				Expect(rule.Linters).NotTo(ContainElement("ifshort"))
 
-				if rule.Path == `_test\.go` && rule.Text == "" && rule.Source == "" {
-					pathOnlyRuleSurvived = true
-				}
+				Expect(rule.Path == `_test\.go` && rule.Text == "" && rule.Source == "").
+					To(BeFalse(),
+						"golangci-lint v2 rejects single-criterion rules at load; "+
+							"a rule emptied by the sweep must be dropped, not left path-only")
 			}
-
-			Expect(pathOnlyRuleSurvived).To(BeTrue(),
-				"the user's path-only rule must survive the removed-linter cleanup")
 		})
 
 		It("keeps only the surviving linters of a mixed rule", func() {

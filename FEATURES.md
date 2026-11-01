@@ -175,14 +175,14 @@ One row per `constants.DeprecatedLinters` entry; a lockstep spec in `pkg/constan
 | wsl              | wsl_v5         | Deprecated since golangci-lint v2.2.0                  |
 | exhaustruct      | exhaustruct_v5 | Deprecated since golangci-lint v2.13.0 (version-gated) |
 | gomodguard       | gomodguard_v2  | Deprecated since golangci-lint v2.12.0 (version-gated) |
-| deadcode         | staticcheck    | Removed in v2                                          |
-| varcheck         | staticcheck    | Removed in v2                                          |
-| structcheck      | staticcheck    | Removed in v2                                          |
+| deadcode         | unused         | Removed in v2 (its v1 deprecation prescribed unused)   |
+| varcheck         | unused         | Removed in v2 (its v1 deprecation prescribed unused)   |
+| structcheck      | unused         | Removed in v2 (its v1 deprecation prescribed unused)   |
 | gosimple         | staticcheck    | Removed in v2 (merged into staticcheck)                |
-| exhaustivestruct | exhaustive     | Renamed in v2                                          |
-| interfacer       | staticcheck    | Removed in v2                                          |
+| exhaustivestruct | exhaustruct    | Renamed in v1.46.0; v2 removed the old name (chains to exhaustruct_v5 on newer binaries) |
+| interfacer       | —              | Removed in v2, no direct replacement                   |
 | maligned         | govet          | Removed in v2 (use govet fieldalignment)               |
-| nosnakecase      | revive         | Removed in v2                                          |
+| nosnakecase      | —              | Removed in v2, no direct replacement                   |
 | exportloopref    | copyloopvar    | Removed in v2 (Go 1.22 fixed loop variable semantics)  |
 | golint           | revive         | Removed in v2                                          |
 | scopelint        | copyloopvar    | Removed in v2                                          |

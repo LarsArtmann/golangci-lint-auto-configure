@@ -595,11 +595,11 @@ func toStrings(names []types.LinterName) []string {
 // reaches a successor available on the installed tool are renamed to the
 // terminal successor (a successor already listed dedupes the predecessor
 // entry away), and names without a reachable successor are dropped — the
-// entry would reference a linter the binary cannot name. Rules scoped by
-// Text or Source whose linter list the sweep emptied are dropped entirely —
-// left behind, the pattern would suppress matching findings from every
-// linter (the legacy removal contract; path-scoped rules survive with an
-// emptied list). Pure.
+// entry would reference a linter the binary cannot name. Rules whose
+// linter list the sweep emptied are dropped entirely: golangci-lint v2
+// rejects single-criterion rules at load ("at least 2 of text, source,
+// path, linters"), so a survived path-only rule would break the config the
+// very next lint run. Pure.
 func RenameDeprecatedInExclusionRules(
 	observed *types.Config,
 	tool types.GolangciVersion,
@@ -630,9 +630,10 @@ func RenameDeprecatedInExclusionRules(
 }
 
 // keepSweptRule decides a swept rule's fate: untouched rules pass through,
-// rules emptied by the sweep whose scope is Text or Source are dropped
-// entirely (the pattern would suppress matching findings from every linter),
-// and every other swept rule survives with the rewritten linter list.
+// rules emptied by the sweep are dropped entirely — a rule referencing no
+// linter suppresses nothing, and golangci-lint v2's schema validation
+// rejects single-criterion rules at load, so keeping the shell would break
+// the config instead of just doing nothing.
 func keepSweptRule(
 	rule types.ExclusionRuleConfig,
 	swept []string,
@@ -642,7 +643,7 @@ func keepSweptRule(
 		return rule, true
 	}
 
-	if len(swept) == 0 && (rule.Text != "" || rule.Source != "") {
+	if len(swept) == 0 {
 		return rule, false
 	}
 
