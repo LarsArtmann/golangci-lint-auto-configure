@@ -58,9 +58,9 @@ func removedLinterSettings() map[string][]string {
 func renamedLinterSettings() map[string]map[string]string {
 	return map[string]map[string]string{
 		"wrapcheck": {
-			"ignoreSigs":            "ignore-sigs",
-			"ignoreSigRegexps":      "ignore-sig-regexps",
-			"ignorePackageGlobs":    "ignore-package-globs",
+			"ignoreSigs":             "ignore-sigs",
+			"ignoreSigRegexps":       "ignore-sig-regexps",
+			"ignorePackageGlobs":     "ignore-package-globs",
 			"ignoreInterfaceRegexps": "ignore-interface-regexps",
 		},
 	}

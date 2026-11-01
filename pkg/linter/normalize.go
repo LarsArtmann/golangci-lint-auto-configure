@@ -149,11 +149,11 @@ func ReplaceDeprecatedLinters(
 // in ONE configure run instead of oscillating across two. Every hop is
 // gated by its own never-enable policy and SupersessionSince, mirroring
 // blockedReplacementSuffix. Returns the terminal record and whether the
-// swap may proceed: false when the chain dead-ends (no successor, a still
-// deprecated intermediate whose own successor is blocked, or a successor
-// that would itself be swapped away) — the caller then drops the linter
-// without a replacement, the same outcome a single deprecated linter gets
-// on a tool that predates its successor.
+// swap may proceed: false when the chain dead-ends — no successor, an
+// intermediate that is itself superseded further but blocked, or a
+// successor that would itself be swapped away. The caller then drops the
+// linter without a replacement, the same outcome a single deprecated
+// linter gets on a tool that predates its successor.
 func resolveSupersessionChain(
 	record types.LinterPolicy,
 	tool types.GolangciVersion,
@@ -672,20 +672,31 @@ func sweepExclusionRuleLinters(rule types.ExclusionRuleConfig, tool types.Golang
 
 		changed = true
 
-		terminal, swappable := resolveSupersessionChain(record, tool, nil)
-		if !swappable {
-			changes = append(changes, sweptDropChange(entry, record))
+		var swept Change
 
-			continue
-		}
-
-		var rename Change
-
-		kept, rename = sweepRename(entry, terminal.Name, record.SupersessionReason, kept, seen)
-		changes = append(changes, rename)
+		kept, swept = sweepDeprecatedEntry(entry, record, tool, kept, seen)
+		changes = append(changes, swept)
 	}
 
 	return kept, changed, changes
+}
+
+// sweepDeprecatedEntry resolves one supersession-record entry inside a rule:
+// renamed to the terminal successor when the chain is usable on the installed
+// tool, dropped when it is not.
+func sweepDeprecatedEntry(
+	entry string,
+	record types.LinterPolicy,
+	tool types.GolangciVersion,
+	kept []string,
+	seen map[string]bool,
+) ([]string, Change) {
+	terminal, swappable := resolveSupersessionChain(record, tool, nil)
+	if !swappable {
+		return kept, sweptDropChange(entry, record)
+	}
+
+	return sweepRename(entry, terminal.Name, record.SupersessionReason, kept, seen)
 }
 
 // keepSweptEntry keeps a non-deprecated entry, deduped against what the
@@ -763,9 +774,9 @@ func removeName(names []types.LinterName, name types.LinterName) []types.LinterN
 // already listed elsewhere — then from is simply dropped, so shared
 // successors (deadcode, varcheck, structcheck all land on unused) can never
 // produce duplicate enable entries.
-func replaceNameUnique(names []types.LinterName, from, to types.LinterName) []types.LinterName {
+func replaceNameUnique(names []types.LinterName, from, successor types.LinterName) []types.LinterName {
 	out := names[:0:0]
-	successorListed := slices.Contains(names, to)
+	successorListed := slices.Contains(names, successor)
 
 	for _, candidate := range names {
 		if candidate == from && successorListed {
@@ -773,7 +784,7 @@ func replaceNameUnique(names []types.LinterName, from, to types.LinterName) []ty
 		}
 
 		if candidate == from {
-			out = append(out, to)
+			out = append(out, successor)
 
 			continue
 		}
