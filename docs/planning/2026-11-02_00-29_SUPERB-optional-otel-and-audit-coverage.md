@@ -197,9 +197,11 @@ flowchart TD
 - [x] SDK client with injected Recorder writes entries (spec-pinned)
 - [x] Unknown flag exits 1 with family=rejection (spec-pinned)
 - [x] Dogfood `configure --check` on this repo's own config: exit 0 was NOT
-  reachable at gate time — the concurrent session's in-flight tech-gated
-  retraction normalizer (arangolint/clickhouselint) reports 2 pending changes
-  on the self-repo config; that is their intended convergence, not a defect
-  of this plan's work. `--check --diff` restored the config byte-identically
-  (verified). Environment note: concurrent sessions sharing /mnt/buildcache
+  reachable at first gate time — the concurrent session's tech-gated
+  retraction normalizer (arangolint/clickhouselint) reported 2 pending
+  changes on the self-repo config. Resolved by converging the own config
+  (c01d745: the tool's designed self-heal, `configure --check` exit 0
+  verified) after the prior commit's CI dogfood gate had gone red.
+  `--check --diff` had restored the config byte-identically throughout.
+  Environment note: concurrent sessions sharing /mnt/buildcache
   corrupted link artifacts twice; run heavy gates with an isolated GOCACHE.
