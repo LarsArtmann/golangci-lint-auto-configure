@@ -119,6 +119,10 @@ Each open question below now has a one-page decision memo in
 `docs/decisions/` (2026-10-07) with options, costs, and a recommendation —
 answering is a 5-minute read per memo:
 
+- **OTEL scope** (decided 2026-11-02): traces shipped, strictly opt-in
+  (`--otel` / `GOLANGCI_LINT_AUTO_CONFIGURE_OTEL`, OTLP/HTTP only, SDK
+  isolated in `pkg/telemetry`); gRPC transport, metrics, and log signals
+  stay parked until a real consumer asks for them.
 - **Git history sanitization**: sibling-project references exist in pre-cleanup
   history (accepted 2026-09-09). Reopen as a `git filter-repo` purge, or close
   as "acceptable forever"? Everything downstream (gitleaks scope, announcement)

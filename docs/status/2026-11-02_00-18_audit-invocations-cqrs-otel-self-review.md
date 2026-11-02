@@ -88,6 +88,15 @@ one TODO row harvested. Test suites for the touched packages green.
    needed) exited 75 in one test, while the isolated `--check --diff` repro
    exited 1. Same semantic condition, different exit codes across check
    modes — observed, unexplained, un-pinned.
+   > **ANNOTATION 2026-11-02 (SUPERB session):** This claim was a FALSE
+   > ALARM. Live verification during the SUPERB planning pass showed the 75
+   > came from the **unknown-flag path** (a `--show-diff` typo fell into the
+   > unclassified exit-code default), not from check mode: `configure --check`
+   > with changes needed correctly exits 1 (`ErrChangesNeeded` → Conflict →
+   > 1). Both mappings are now spec-pinned in `exit_code_test.go`, and the
+   > unknown-flag path itself was fixed to exit 1 (Rejection) via
+   > `SetFlagErrorFunc`. The follow-ups in §d-6 and §e-3 below are therefore
+   > resolved, not open.
 
 ## c) NOT STARTED
 

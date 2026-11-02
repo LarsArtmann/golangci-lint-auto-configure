@@ -440,6 +440,27 @@ case $exit_code in
 esac
 ```
 
+## Optional Telemetry
+
+Tracing is **off by default** — a normal run makes zero network calls. Enable it explicitly when you want to observe runs in an OpenTelemetry backend:
+
+```bash
+# One-off run with tracing
+golangci-lint-auto-configure configure --otel
+
+# Or via environment (e.g. in CI)
+export GOLANGCI_LINT_AUTO_CONFIGURE_OTEL=1
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+golangci-lint-auto-configure configure --check
+```
+
+- `--otel` or `GOLANGCI_LINT_AUTO_CONFIGURE_OTEL=1` turns on tracing; export uses OTLP over HTTP.
+- The endpoint, headers, and timeouts come from the standard `OTEL_EXPORTER_OTLP_*` environment variables, so any OTLP collector works (Jaeger, Grafana Alloy, Honeycomb, ...).
+- Each run emits a root span (`cli.<command>`) plus engine spans (`fix-config`, `migrate`) carrying attributes like `config.path`, `dry_run`, `priority`, and `changes.total`; failures are stamped with the error family and code.
+- Best-effort by design: an unreachable collector logs a warning and the run continues; the final flush is bounded to 5 seconds so tracing can never hang a CI job.
+
+Embedded as a library? The reusable packages import the OpenTelemetry API only — you get noop tracers unless your host registers a provider, so embedding never leaks traces. For mutation auditing, `pkg/client`'s `Options.Recorder` accepts an audit recorder (`audit.OpenRunLedger` or your own sink).
+
 ## Commands
 
 | Command        | Description                                    |

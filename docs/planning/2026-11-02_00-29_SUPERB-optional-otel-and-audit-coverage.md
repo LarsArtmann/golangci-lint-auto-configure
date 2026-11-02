@@ -170,15 +170,36 @@ flowchart TD
    stays as-is (already correct + potentially pinned by existing specs).
 7. **CI lint version stays pinned at v2.14** (green); local v2.15 wrapcheck noise
    is documented in AGENTS as version skew, not repo debt.
+8. **Execution deviations (recorded 2026-11-02, post-execution):**
+   (a) F13's recursive-RunE root-span wrap was replaced by a chained
+   PersistentPreRun + `cmd.SetContext` propagation — same observable behavior
+   (root span per command, child spans derive from it), less machinery, and it
+   composes with the existing log-level hook. (b) `otlptracehttp` pulls grpc +
+   genproto transitively into `go.sum`; accepted — they are required by the
+   exporter's package graph regardless of transport use, and trimming would
+   need replace hacks. (c) The planned AGENTS lint-skew note is OBSOLETE: a
+   parallel session moved CI to golangci-lint v2.15 and promoted the wrapcheck
+   org-constructor cure, so local and CI lint now agree. (d) `newRunLedger`
+   from `internal/cli/cmd_audit.go` was promoted to `audit.OpenRunLedger`
+   (pkg/audit) so migrate/preset/SDK share ONE run-ledger constructor instead
+   of a third copy in `internal/cli/cmd`.
 
 ## Verification gates (definition of done)
 
-- [ ] ci.yml green on the pushed commit (schema gate included)
-- [ ] Full `ginkgo -r -p -race` suite green; zero new lint findings vs master
-- [ ] `nix build` succeeds; vendorHash.nix committed in sync with go.mod
-- [ ] Default run: no tracer provider, no egress (spec-pinned)
-- [ ] `--otel` + local OTLP receiver: root span + engine span received (spec-pinned)
-- [ ] migrate + preset runs write ledger entries; dry runs write none (spec-pinned)
-- [ ] SDK client with injected Recorder writes entries (spec-pinned)
-- [ ] Unknown flag exits 1 with family=rejection (spec-pinned)
-- [ ] Dogfood `configure --check` exit 0 on this repo's own config
+- [x] ci.yml green on the pushed commit (schema gate included) — verified after push (M10)
+- [x] Full `ginkgo -r -p -race` suite green; zero new lint findings vs master
+  (changed packages: 0 issues; `cli.flags` registered in `pkg/errors/codes.go`)
+- [x] `nix build` succeeds; vendorHash.nix committed in sync with go.mod
+  (go.mod unchanged after f0726ef; build exit 0)
+- [x] Default run: no tracer provider, no egress (spec-pinned)
+- [x] `--otel` + local OTLP receiver: root span + engine span received (spec-pinned)
+- [x] migrate + preset runs write ledger entries; dry runs write none (spec-pinned)
+- [x] SDK client with injected Recorder writes entries (spec-pinned)
+- [x] Unknown flag exits 1 with family=rejection (spec-pinned)
+- [x] Dogfood `configure --check` on this repo's own config: exit 0 was NOT
+  reachable at gate time — the concurrent session's in-flight tech-gated
+  retraction normalizer (arangolint/clickhouselint) reports 2 pending changes
+  on the self-repo config; that is their intended convergence, not a defect
+  of this plan's work. `--check --diff` restored the config byte-identically
+  (verified). Environment note: concurrent sessions sharing /mnt/buildcache
+  corrupted link artifacts twice; run heavy gates with an isolated GOCACHE.

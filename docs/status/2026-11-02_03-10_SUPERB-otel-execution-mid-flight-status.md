@@ -167,3 +167,23 @@ harvest from this snapshot beyond the plan file itself.)
 `pkg/constants/linter_settings_generated.go` (regenerated),
 `internal/cli/{commands.go,flags.go,cmd_inprocess_test.go}`,
 `pkg/linter/fixer.go`, `go.mod`/`go.sum`.
+
+---
+
+## COMPLETION ADDENDUM (2026-11-02 ~06:15)
+
+Resumed and finished: M4 (migrate span in `internal/cli/cmd/migrate.go`),
+M5 (audit coverage: `audit.EnvVarDisable`, `config-migrated` +
+`preset-applied` actions, `audit.OpenRunLedger` constructor promoted from
+`newRunLedger`, migrate/preset wiring, `client.Options.Recorder`), M6
+(`SetFlagErrorFunc` → usage errors exit 1; `cli.flags` registered in
+`pkg/errors/codes.go`), M7 (installhook no-mutation spec + ErrChangesNeeded
+exit-1 pin), M9 (lint 0 findings on changed packages, `nix fmt` 0 changed,
+full `ginkgo -r -p -race` green, `nix build` exit 0), M8 (all docs), M10
+(curated pathspec commits + push + CI verified). F13 deviation and the grpc
+transitive acceptance are recorded in the plan's Design decisions §8. The
+false 75-vs-1 claim in the 00-18 report is annotated inline. Dogfood
+`configure --check` exits 1 with 2 pending changes from the CONCURRENT
+session's tech-gated retraction normalizer (their convergence; check-diff
+restored the config byte-identically). Shared-GOCACHE link corruption hit
+twice; heavy gates ran with an isolated cache.

@@ -8,6 +8,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Optional OpenTelemetry tracing, strictly opt-in.** `--otel` or
+  `GOLANGCI_LINT_AUTO_CONFIGURE_OTEL=1` enables OTLP/HTTP trace export
+  (endpoint via the standard `OTEL_EXPORTER_OTLP_*` env vars); default runs
+  stay local-only with a noop tracer and zero egress. One root span per
+  command (`cli.<command>`) plus engine spans (`fix-config`, `migrate`)
+  carry `config.path`, `dry_run`, `priority`, `changes.total`, and error
+  family/code on failure. Reusable packages import the OpenTelemetry API
+  only; the SDK and exporter live in `pkg/telemetry` at the CLI boundary,
+  so embedded SDK consumers (BuildFlow) keep noop tracers unless the host
+  registers a provider. Setup/flush failures warn and degrade to noop, and
+  the final flush is bounded to 5 seconds.
+- **Audit-ledger coverage is now 4/4 mutating paths.** `migrate` writes a
+  `config-migrated` entry on real (non-dry) migrations, `configure
+  --preset` writes `preset-applied` (preset names in the Linter field), and
+  SDK consumers can inject a recorder via `client.Options.Recorder` — which
+  also enables `PreviouslyAutoEnabled` regression-loop detection for
+  embedded runs. Run-ledger creation and the
+  `GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT` env var are centralized in
+  `audit.OpenRunLedger` / `audit.EnvVarDisable` (migrate honors the env
+  var; it binds no `--no-audit` flag of its own). Dry and check runs still
+  record nothing.
 - **golangci-lint v2.15.0 is the new baseline.** The CI lint/test jobs and
   all four golangci-lint-action pins run v2.15.0, `ExpectedGolangCILintVersion`
   matches, and the JSON-schema snapshot behind the generated settings
@@ -94,6 +115,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Usage errors (unknown flag, bad flag value) now exit 1 (Rejection) instead
+  of 75 — cobra flag errors are classified via `SetFlagErrorFunc`, so a typo
+  on the command line reads as "user input was wrong", not a transient
+  failure worth retrying. Pinned by an exit-code spec alongside the
+  `--check`-found-changes Conflict→1 mapping, and `install-hook` gained a
+  no-mutation contract spec (writes only `.git/hooks/pre-commit`, never
+  `.golangci.yml`).
 - **golangci-lint v2.15.0 compatibility.** v2.15.0's config-free `linters`
   command lists every known linter under Enabled, which poisoned the
   capability probe's default-enabled set; a default set covering most of
