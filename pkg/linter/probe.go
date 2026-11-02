@@ -130,6 +130,10 @@ func (a *Analyzer) DefaultEnabledLinters(_ context.Context) []types.LinterName {
 // (version only) so the probe never depends on the user's config — a
 // config naming an unknown linter fails to load, exactly the condition
 // the probe must diagnose.
+// probeConfigFilePerm keeps the throwaway probe config owner-only; nothing
+// else on the machine needs to read it.
+const probeConfigFilePerm os.FileMode = 0o600
+
 func (a *Analyzer) runProbeCommand(ctx context.Context) ([]byte, error) {
 	empty, err := os.MkdirTemp("", "golangci-lint-auto-configure-probe-")
 	if err != nil {
@@ -139,7 +143,7 @@ func (a *Analyzer) runProbeCommand(ctx context.Context) ([]byte, error) {
 	defer os.RemoveAll(empty)
 
 	minimal := filepath.Join(empty, "probe.yml")
-	if err := os.WriteFile(minimal, []byte("version: \"2\"\n"), 0o600); err != nil {
+	if err := os.WriteFile(minimal, []byte("version: \"2\"\n"), probeConfigFilePerm); err != nil {
 		return nil, apperrors.WrapClassified(err, "probe.minimal-config", "write minimal probe config")
 	}
 

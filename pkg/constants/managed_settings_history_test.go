@@ -74,7 +74,10 @@ var _ = Describe("Managed settings provenance", func() {
 			tuned["ignore-sigs"] = []any{".Errorf(", "my custom sig("}
 
 			Expect(constants.IsHistoricalCuratedLinterBlock("wrapcheck", tuned)).To(BeFalse())
-			Expect(constants.IsHistoricalCuratedLinterBlock("gosec", map[string]any{"excludes": []any{"G304"}})).To(BeFalse())
+
+			gosecBlock := map[string]any{"excludes": []any{"G304"}}
+
+			Expect(constants.IsHistoricalCuratedLinterBlock("gosec", gosecBlock)).To(BeFalse())
 			Expect(constants.IsHistoricalCuratedLinterBlock("wrapcheck", map[string]any{})).To(BeFalse())
 		})
 

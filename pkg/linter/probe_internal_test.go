@@ -250,6 +250,7 @@ func TestProbeDefaultEnabledSetMatchesBothEras(t *testing.T) {
 	for _, name := range defaults {
 		got = append(got, string(name))
 	}
+
 	sort.Strings(got)
 	sort.Strings(want)
 
