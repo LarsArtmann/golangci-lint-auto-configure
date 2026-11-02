@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Regression-loop detection is back, declaratively.** When the audit
+  ledger shows the tool auto-enabled a linter that the user has since
+  removed (and the config no longer enables), the converge renderer now
+  declines to re-recommend it — the exact remove/re-add loop the ledger
+  observed is not recreated. Each decline is surfaced in the run result,
+  recorded as a `suppressed-re-enable` audit entry, and accompanied by a
+  printed (never auto-written) copy-paste block for the durable
+  `never-enable` sidecar section, since the ledger signal is per-machine
+  and 90-day-purged. A manual re-enable in the config always wins over
+  the suppression; SDK consumers get the same behavior by injecting a
+  recorder via `client.Options.Recorder`.
 - **Optional OpenTelemetry tracing, strictly opt-in.** `--otel` or
   `GOLANGCI_LINT_AUTO_CONFIGURE_OTEL=1` enables OTLP/HTTP trace export
   (endpoint via the standard `OTEL_EXPORTER_OTLP_*` env vars); default runs

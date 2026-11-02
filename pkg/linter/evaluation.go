@@ -48,7 +48,7 @@ func (f *Fixer) Evaluate(
 	}
 
 	userDisabled := disableMinusEnable(cfg)
-	options := f.convergeOptions(priority, true)
+	options := f.convergeOptions(cfg, priority, true)
 
 	return &Evaluation{
 		ConfigPath:  configPath,
@@ -79,7 +79,7 @@ func (f *Fixer) evaluateConvergence(
 		return nil, Env{}, nil, err
 	}
 
-	result, err := Converge(ctx, cfg, env, f.sidecarOverlay(cfg), f.convergeOptions(priority, true))
+	result, err := Converge(ctx, cfg, env, f.sidecarOverlay(cfg), f.convergeOptions(cfg, priority, true))
 	if err != nil {
 		return nil, Env{}, nil, analysisError("converge config", priority, true, configPath, "", err)
 	}

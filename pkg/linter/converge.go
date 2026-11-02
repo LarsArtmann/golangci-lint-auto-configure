@@ -14,6 +14,10 @@ type ConvergeOptions struct {
 	DryRun        bool
 	ForceSettings bool
 	Pragmatic     bool
+	// CycleSuppressed seeds the audit ledger's previously-auto-enabled set
+	// (linters the tool added before and the user removed). The renderer
+	// declines to re-recommend them and reports each decline.
+	CycleSuppressed []types.LinterName
 }
 
 // ConvergeResult reports what one convergence run decided.
@@ -29,6 +33,11 @@ type ConvergeResult struct {
 	// re-enabled but the sidecar's never-enable section protected. They are
 	// audit-only events: no config change accompanies them.
 	Suppressed []types.LinterName
+	// CycleSuppressed lists linters the renderer declined to recommend
+	// because the audit ledger shows the tool auto-enabled them before and
+	// the user has since removed them (regression-loop detection). Audit-only;
+	// the fixer offers the durable never-enable sidecar entry for each.
+	CycleSuppressed []types.LinterName
 	// Unsupported lists recommendable linters the detected binary cannot
 	// name (plugin linters). Nothing was written for them; the fixer logs a
 	// warning and finding-based reports carry one finding each.
@@ -103,12 +112,40 @@ func Converge(
 	working, redundancyChanges := removeConvergeRedundancies(working, env, options, userDisabled)
 	normalizerChanges = append(normalizerChanges, redundancyChanges...)
 
-	plan, suppressed, unsupported, planErr := planConvergence(working, env, sidecar, options, userDisabled)
+	return convergePlanAndAssemble(working, env, sidecar, options, userDisabled, normalizerChanges)
+}
+
+// convergePlanAndAssemble runs the plan against the normalized working config
+// and assembles the convergence result from it.
+func convergePlanAndAssemble(
+	working *types.Config,
+	env Env,
+	sidecar *sidecarOverlay,
+	options ConvergeOptions,
+	userDisabled []types.LinterName,
+	normalizerChanges []Change,
+) (*ConvergeResult, error) {
+	plan, suppressed, cycleSuppressed, unsupported, planErr := planConvergence(
+		working,
+		env,
+		sidecar,
+		options,
+		userDisabled,
+	)
 	if planErr != nil {
 		return nil, planErr
 	}
 
-	return newConvergeResult(env, working, plan, normalizerChanges, suppressed, unsupported, options), nil
+	return newConvergeResult(
+		env,
+		working,
+		plan,
+		normalizerChanges,
+		suppressed,
+		cycleSuppressed,
+		unsupported,
+		options,
+	), nil
 }
 
 // newConvergeResult assembles the run outcome; the merged config is
@@ -119,6 +156,7 @@ func newConvergeResult(
 	plan []Change,
 	normalizerChanges []Change,
 	suppressed []types.LinterName,
+	cycleSuppressed []types.LinterName,
 	unsupported []types.LinterName,
 	options ConvergeOptions,
 ) *ConvergeResult {
@@ -132,6 +170,7 @@ func newConvergeResult(
 		Plan:              plan,
 		NormalizerChanges: normalizerChanges,
 		Suppressed:        suppressed,
+		CycleSuppressed:   cycleSuppressed,
 		Unsupported:       unsupported,
 		Merged:            merged,
 		Converged:         len(plan) == 0 && len(normalizerChanges) == 0,
@@ -185,7 +224,7 @@ func planConvergence(
 	sidecar *sidecarOverlay,
 	options ConvergeOptions,
 	userDisabled []types.LinterName,
-) ([]Change, []types.LinterName, []types.LinterName, error) {
+) ([]Change, []types.LinterName, []types.LinterName, []types.LinterName, error) {
 	desired := renderDesired(env, options, working, userDisabled)
 
 	strategies := StrategiesFor(MergeOptions{
@@ -202,10 +241,10 @@ func planConvergence(
 	sortChanges(plan)
 
 	if err := ValidatePlan(plan); err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
-	return plan, suppressed, desired.Unsupported, nil
+	return plan, suppressed, desired.CycleSuppressed, desired.Unsupported, nil
 }
 
 // renderDesired renders the desired configuration with the run's user-intent
@@ -221,6 +260,7 @@ func renderDesired(
 		WithMinPriority(options.Priority),
 		WithUserEnabled(working.Linters.Enable),
 		WithUserDisabled(userDisabled),
+		WithCycleSuppressed(options.CycleSuppressed),
 	)
 }
 
@@ -459,6 +499,14 @@ func AuditActionsFor(result *ConvergeResult) []auditAction {
 		})
 	}
 
+	for _, name := range result.CycleSuppressed {
+		actions = append(actions, auditAction{
+			Linter: string(name),
+			Action: suppressedReEnableAction,
+			Reason: cycleSuppressedReason,
+		})
+	}
+
 	return actions
 }
 
@@ -481,6 +529,7 @@ const (
 	actionExclusionRuleMerged   = "exclusion-rule-merged"
 	suppressedReEnableAction    = "suppressed-re-enable"
 	suppressedReEnableReason    = "never-enable sidecar entry blocks enforcement re-enable"
+	cycleSuppressedReason       = "ledger cycle detection: previously auto-enabled and removed; never-enable sidecar recommended"
 	unjustifiedDisableReasonPfx = "unjustified"
 )
 

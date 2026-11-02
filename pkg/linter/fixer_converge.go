@@ -145,7 +145,7 @@ func (f *Fixer) convergePhaseTwo(
 		return migrationError("collect environment", priority, dryRun, configPath, version, envErr)
 	}
 
-	result, err := Converge(ctx, cfg, env, overlay, f.convergeOptions(priority, dryRun))
+	result, err := Converge(ctx, cfg, env, overlay, f.convergeOptions(cfg, priority, dryRun))
 	if err != nil {
 		return migrationError("converge config", priority, dryRun, configPath, version, err)
 	}
@@ -168,6 +168,7 @@ func (f *Fixer) finalizeConvergence(
 ) (*types.MigrationResult, error) {
 	f.logMergedExclusionRules(result)
 	f.warnUnsupportedRecommendations(result)
+	f.warnCycleSuppressed(result)
 
 	// Normalizations already persisted in phase one must not be
 	// double-counted. Phase one and Converge OVERLAP rather than replace
@@ -258,6 +259,24 @@ func (f *Fixer) warnUnsupportedRecommendations(result *ConvergeResult) {
 	}
 }
 
+// warnCycleSuppressed offers the durable signal for every regression-loop
+// suppression: the per-machine audit ledger broke this loop, but only a
+// committed never-enable sidecar entry protects every other machine and CI.
+// Non-interactive by design — the CLI stays scriptable; nothing is written.
+func (f *Fixer) warnCycleSuppressed(result *ConvergeResult) {
+	for _, name := range result.CycleSuppressed {
+		f.logger.Warnf(
+			"⚠️  %s: not re-enabled (the audit ledger shows it was auto-enabled before and then removed — remove/re-add loop detected)",
+			name,
+		)
+		f.logger.Warnf("    To make this durable across machines, add to .golangci-lint-auto-configure.yml:")
+		f.logger.Warnf("      never-enable:")
+		f.logger.Warnf("        %s:", name)
+		f.logger.Warnf("          reason: \"removed by maintainer; do not auto-enable\"")
+		f.logger.Warnf("          category: convention")
+	}
+}
+
 // configLoadVerifier is the post-apply tripwire surface of the concrete
 // *Analyzer (duck-typed like the probe so test doubles skip it).
 type configLoadVerifier interface {
@@ -282,12 +301,17 @@ func (f *Fixer) verifyWrittenConfig(ctx context.Context, configPath string) {
 }
 
 // convergeOptions bundles the fixer's user-intent flips for one run.
-func (f *Fixer) convergeOptions(priority types.LinterPriority, dryRun bool) ConvergeOptions {
+func (f *Fixer) convergeOptions(
+	cfg *types.Config,
+	priority types.LinterPriority,
+	dryRun bool,
+) ConvergeOptions {
 	return ConvergeOptions{
-		Priority:      priority,
-		DryRun:        dryRun,
-		ForceSettings: f.forceSettings,
-		Pragmatic:     f.pragmatic,
+		Priority:        priority,
+		DryRun:          dryRun,
+		ForceSettings:   f.forceSettings,
+		Pragmatic:       f.pragmatic,
+		CycleSuppressed: f.cycleSuppressionCandidates(cfg),
 	}
 }
 

@@ -2,6 +2,7 @@ package linter
 
 import (
 	"context"
+	"slices"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
@@ -27,29 +28,31 @@ type fixerConfigLoader interface {
 // Fixer fixes golangci-lint configurations by converging the observed config
 // onto the declarative desired state (ADR-017).
 type Fixer struct {
-	configLoader      fixerConfigLoader
-	analyzer          types.LinterAnalyzer
-	logger            *log.Logger
-	ledger            audit.Recorder
-	pol               *policy.Policy
-	goVersionProvider GoVersionProvider
-	forceSettings     bool
-	showMergedRules   bool
-	pragmatic         bool
+	configLoader          fixerConfigLoader
+	analyzer              types.LinterAnalyzer
+	logger                *log.Logger
+	ledger                audit.Recorder
+	previouslyAutoEnabled map[types.LinterName]bool
+	pol                   *policy.Policy
+	goVersionProvider     GoVersionProvider
+	forceSettings         bool
+	showMergedRules       bool
+	pragmatic             bool
 }
 
 // NewFixer creates a new fixer.
 func NewFixer(logger *log.Logger, analyzer types.LinterAnalyzer, configLoader fixerConfigLoader) *Fixer {
 	return &Fixer{
-		configLoader:      configLoader,
-		analyzer:          analyzer,
-		logger:            logger,
-		goVersionProvider: func(context.Context) string { return "" },
-		ledger:            audit.NoopRecorder{},
-		pol:               nil,
-		forceSettings:     false,
-		showMergedRules:   false,
-		pragmatic:         false,
+		configLoader:          configLoader,
+		analyzer:              analyzer,
+		logger:                logger,
+		goVersionProvider:     func(context.Context) string { return "" },
+		ledger:                audit.NoopRecorder{},
+		previouslyAutoEnabled: nil,
+		pol:                   nil,
+		forceSettings:         false,
+		showMergedRules:       false,
+		pragmatic:             false,
 	}
 }
 
@@ -61,6 +64,48 @@ func (f *Fixer) SetLedger(recorder audit.Recorder) {
 	}
 
 	f.ledger = recorder
+	f.previouslyAutoEnabled = nil
+
+	// Duck-typed like the probe: recorders without ledger history (test
+	// doubles, the noop recorder) keep cycle detection off.
+	if reader, ok := recorder.(ledgerReader); ok {
+		previous := reader.PreviouslyAutoEnabled()
+		if len(previous) > 0 {
+			f.previouslyAutoEnabled = make(map[types.LinterName]bool, len(previous))
+			for name, yes := range previous {
+				f.previouslyAutoEnabled[types.LinterName(name)] = yes
+			}
+		}
+	}
+}
+
+// ledgerReader is the optional audit-recorder surface exposing
+// regression-loop history: which linters the tool auto-enabled before.
+type ledgerReader interface {
+	PreviouslyAutoEnabled() map[string]bool
+}
+
+// cycleSuppressionCandidates returns the ledger's previously-auto-enabled
+// linters the current config no longer enables: the tool added them, the
+// user removed them, and recommending them again would recreate the loop.
+func (f *Fixer) cycleSuppressionCandidates(cfg *types.Config) []types.LinterName {
+	if len(f.previouslyAutoEnabled) == 0 || cfg == nil {
+		return nil
+	}
+
+	enabled := types.NewSet(cfg.Linters.Enable...)
+
+	var candidates []types.LinterName
+
+	for name := range f.previouslyAutoEnabled {
+		if !enabled.Contains(name) {
+			candidates = append(candidates, name)
+		}
+	}
+
+	slices.Sort(candidates)
+
+	return candidates
 }
 
 // SetGoVersionProvider sets the function used to detect the local Go version.

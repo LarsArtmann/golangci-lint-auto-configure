@@ -39,6 +39,12 @@ type DesiredConfig struct {
 	// config unloadable — and surfaced so the caller can report the gap.
 	// Empty when the binary could not be probed (fail open).
 	Unsupported []types.LinterName
+	// CycleSuppressed lists otherwise-recommendable linters the renderer
+	// declined because the audit ledger shows the tool auto-enabled them
+	// before and the user has since removed them: re-adding would recreate
+	// the observed remove/re-add loop. Surfaced so the fixer can offer the
+	// durable never-enable sidecar entry.
+	CycleSuppressed []types.LinterName
 }
 
 // RunDefaults mirrors the run-section values the tool injects.
@@ -73,6 +79,7 @@ type desiredRequest struct {
 	binaryKnown       map[types.LinterName]bool
 	userEnabled       map[types.LinterName]bool
 	userDisabled      map[types.LinterName]bool
+	cycleSuppressed   map[types.LinterName]bool
 	enabledFormatters []types.FormatterName
 }
 
@@ -97,6 +104,21 @@ func WithUserDisabled(names []types.LinterName) DesiredOption {
 		r.userDisabled = make(map[types.LinterName]bool, len(names))
 		for _, name := range names {
 			r.userDisabled[name] = true
+		}
+	}
+}
+
+// WithCycleSuppressed seeds the audit ledger's previously-auto-enabled set
+// (linters the TOOL once added and the user has since removed). The renderer
+// declines to recommend them again — re-adding would recreate the exact
+// remove/re-add loop the ledger observed — and reports each decline so the
+// fixer can offer the durable never-enable sidecar entry. A user's manual
+// re-enable wins over the suppression.
+func WithCycleSuppressed(names []types.LinterName) DesiredOption {
+	return func(r *desiredRequest) {
+		r.cycleSuppressed = make(map[types.LinterName]bool, len(names))
+		for _, name := range names {
+			r.cycleSuppressed[name] = true
 		}
 	}
 }
@@ -132,13 +154,14 @@ func Desired(env Env, options ...DesiredOption) DesiredConfig {
 		apply(&request)
 	}
 
-	enabled, unsupported := renderEnableSet(request)
+	enabled, unsupported, cycleSuppressed := renderEnableSet(request)
 	formatters := renderFormatterSet(request)
 	enabled = dropSuperseded(enabled, formatters)
 
 	return DesiredConfig{
 		EnableLinters:           enabled,
 		Unsupported:             unsupported,
+		CycleSuppressed:         cycleSuppressed,
 		EnableFormatters:        formatters,
 		LinterSettings:          renderLinterSettings(request),
 		FormatterSettings:       renderFormatterSettings(request),
@@ -164,6 +187,7 @@ func newDesiredRequest(env Env) desiredRequest {
 		envTech:           env.UsesTech,
 		analyzerEnabled:   env.AnalyzerEnabled,
 		binaryKnown:       env.BinaryKnown,
+		cycleSuppressed:   nil,
 		userEnabled:       map[types.LinterName]bool{},
 		userDisabled:      map[types.LinterName]bool{},
 		enabledFormatters: []types.FormatterName{},
@@ -175,8 +199,8 @@ func newDesiredRequest(env Env) desiredRequest {
 // interval contains the project's Go, whose gate passes, and which the tier
 // and priority filters admit. Records the detected binary cannot name are
 // withheld and reported as unsupported instead of rendered.
-func renderEnableSet(request desiredRequest) ([]types.LinterName, []types.LinterName) {
-	var enabled, unsupported []types.LinterName
+func renderEnableSet(request desiredRequest) ([]types.LinterName, []types.LinterName, []types.LinterName) {
+	var enabled, unsupported, cycleSuppressed []types.LinterName
 
 	for _, record := range constants.LinterPolicies {
 		if !shouldRender(record, request) {
@@ -189,13 +213,23 @@ func renderEnableSet(request desiredRequest) ([]types.LinterName, []types.Linter
 			continue
 		}
 
+		// The ledger observed this linter being auto-enabled and then removed
+		// by the user; recommending it again recreates that loop. A manual
+		// re-enable (userEnabled) is the user changing their mind and wins.
+		if request.cycleSuppressed[record.Name] && !request.userEnabled[record.Name] {
+			cycleSuppressed = append(cycleSuppressed, record.Name)
+
+			continue
+		}
+
 		enabled = append(enabled, record.Name)
 	}
 
 	slices.Sort(enabled)
 	slices.Sort(unsupported)
+	slices.Sort(cycleSuppressed)
 
-	return enabled, unsupported
+	return enabled, unsupported, cycleSuppressed
 }
 
 // dropSuperseded removes linters superseded by a desired formatter (the

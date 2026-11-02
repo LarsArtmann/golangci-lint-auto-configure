@@ -1,6 +1,7 @@
 package linter_test
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -288,11 +289,18 @@ type recordedAction struct {
 // captureRecorder is a test fake for audit.Recorder that collects all Record calls.
 type captureRecorder struct {
 	actions []recordedAction
+	// previously seeds ledger history for cycle-suppression specs: linters
+	// the (fake) ledger saw auto-enabled before. Nil keeps cycle detection off.
+	previously map[string]bool
 }
 
 func (c *captureRecorder) Record(action audit.Action, linter, reason string) {
 	c.actions = append(c.actions, recordedAction{action: action, linter: linter, reason: reason})
 }
+
+// PreviouslyAutoEnabled satisfies the ledgerReader surface so SetLedger picks
+// the fake's history up exactly like a real *audit.Ledger.
+func (c *captureRecorder) PreviouslyAutoEnabled() map[string]bool { return c.previously }
 
 func (c *captureRecorder) hasAction(action audit.Action, linter string) bool {
 	for _, a := range c.actions {
@@ -807,6 +815,77 @@ linters:
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(recorder.actions).To(BeEmpty())
+		})
+	})
+
+	Context("Cycle Suppression (regression loop detection)", func() {
+		It("does not re-enable a linter the ledger shows was auto-enabled then removed", func() {
+			var warnings bytes.Buffer
+
+			warnLogger := log.NewWithOptions(&warnings, log.Options{Level: log.WarnLevel})
+			cycleFixer := linter.NewFixer(warnLogger, analyzer, configTypes)
+			recorder := &captureRecorder{previously: map[string]bool{"gosec": true}}
+			cycleFixer.SetLedger(recorder)
+
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			writeConfig(testConfig, configContent)
+			_, err := cycleFixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Enable).NotTo(ContainElement(types.LinterName("gosec")))
+
+			Expect(recorder.hasAction(audit.ActionSuppressedReEnable, "gosec")).To(BeTrue())
+			Expect(warnings.String()).To(ContainSubstring("never-enable:"))
+			Expect(warnings.String()).To(ContainSubstring("gosec:"))
+			Expect(strings.Count(warnings.String(), "remove/re-add loop detected")).To(Equal(1))
+		})
+
+		It("keeps a manually re-enabled linter despite ledger history", func() {
+			recorder := &captureRecorder{previously: map[string]bool{"gosec": true}}
+			fixer.SetLedger(recorder)
+
+			configContent := `version: "2"
+linters:
+  enable:
+    - gosec
+`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Enable).To(ContainElement(types.LinterName("gosec")))
+			Expect(recorder.hasAction(audit.ActionSuppressedReEnable, "gosec")).To(BeFalse())
+		})
+
+		It("stays silent without ledger history", func() {
+			var warnings bytes.Buffer
+
+			warnLogger := log.NewWithOptions(&warnings, log.Options{Level: log.WarnLevel})
+			cycleFixer := linter.NewFixer(warnLogger, analyzer, configTypes)
+			cycleFixer.SetLedger(&captureRecorder{})
+
+			configContent := `version: "2"
+linters:
+  enable:
+    - errcheck
+`
+			writeConfig(testConfig, configContent)
+			_, err := cycleFixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			// Without history the recommendable set is rendered as usual.
+			Expect(parsed.Linters.Enable).To(ContainElement(types.LinterName("gosec")))
+			Expect(warnings.String()).NotTo(ContainSubstring("remove/re-add loop detected"))
 		})
 	})
 
