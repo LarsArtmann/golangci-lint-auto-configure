@@ -88,7 +88,54 @@ else
 	fail=$((fail + 1))
 fi
 
-# 6. Download and smoke-test a binary
+# 6. Bundle signatures exist (cosign v3 bundle format: *.sigstore.json)
+SIG_BUNDLES=$(echo "$ASSET_NAMES" | grep -c '\.sigstore\.json$' || true)
+CHECKSUM_BUNDLE=$(echo "$ASSET_NAMES" | grep -c '^checksums\.txt\.sigstore\.json$' || true)
+if [ "$CHECKSUM_BUNDLE" -ge 1 ] && [ "$SIG_BUNDLES" -ge 2 ]; then
+	echo -e "${GREEN}✓${NC} Cosign bundle signatures present (${SIG_BUNDLES} bundles incl. checksums)"
+	pass=$((pass + 1))
+else
+	echo -e "${RED}✗${NC} Cosign bundle signatures missing (${SIG_BUNDLES} bundles, checksums bundle: ${CHECKSUM_BUNDLE})"
+	fail=$((fail + 1))
+fi
+
+# 7. SBOM assets exist (GoReleaser emits <archive>.sbom.json)
+SBOM_COUNT=$(echo "$ASSET_NAMES" | grep -c '\.sbom\.json$' || true)
+if [ "$SBOM_COUNT" -ge 1 ]; then
+	echo -e "${GREEN}✓${NC} SBOM assets present (${SBOM_COUNT})"
+	pass=$((pass + 1))
+else
+	echo -e "${RED}✗${NC} SBOM assets missing"
+	fail=$((fail + 1))
+fi
+
+# 8. GHCR image exists for the tag (best-effort: needs read:packages scope)
+GHCR_VERSIONS=$(gh api "users/LarsArtmann/packages/container/golangci-lint-auto-configure/versions" \
+	--jq '.[].metadata.container.tags[]' 2>/dev/null || true)
+if echo "$GHCR_VERSIONS" | grep -qx "${TAG}"; then
+	echo -e "${GREEN}✓${NC} GHCR image tagged ${TAG}"
+	pass=$((pass + 1))
+elif [ -z "$GHCR_VERSIONS" ]; then
+	echo -e "${GREEN}~${NC} GHCR check skipped (no packages API access)"
+else
+	echo -e "${RED}✗${NC} GHCR image missing tag ${TAG}"
+	fail=$((fail + 1))
+fi
+
+# 9. Homebrew cask version matches (cask is manually managed; best-effort)
+CASK_CONTENT=$(gh api "repos/LarsArtmann/homebrew-tap/contents/Casks/golangci-lint-auto-configure.rb" \
+	--jq '.content' 2>/dev/null | base64 -d 2>/dev/null || true)
+if [ -z "$CASK_CONTENT" ]; then
+	echo -e "${GREEN}~${NC} Homebrew cask check skipped (no cask in tap)"
+elif echo "$CASK_CONTENT" | grep -q "version \"${VERSION}\""; then
+	echo -e "${GREEN}✓${NC} Homebrew cask is at ${VERSION}"
+	pass=$((pass + 1))
+else
+	echo -e "${RED}✗${NC} Homebrew cask is not at ${VERSION} — update the tap"
+	fail=$((fail + 1))
+fi
+
+# 10. Download and smoke-test a binary
 echo ""
 echo "  Downloading Linux x86_64 binary for smoke test..."
 TMPDIR=$(mktemp -d)

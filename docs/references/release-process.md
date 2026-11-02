@@ -154,3 +154,49 @@ If Actions are unavailable, run GoReleaser locally (step 6 above). All artifacts
 ### `goreleaser check` fails on deprecations
 
 Fix the deprecated config properties before releasing. See [GoReleaser deprecations](https://goreleaser.com/deprecations) for migration guides.
+
+### Release run died after the tag was pushed (do NOT move the tag)
+
+If the release workflow fails after `git push --tags` (the v0.11.0 case:
+cosign signing broke after every artifact had already been built and
+uploaded), the tag must NOT be deleted or re-pushed — the Go module proxy
+may already have indexed it, and a moved tag poisons the version forever.
+The proven local fallback:
+
+1. Verify the tag is on master and master is green: `git log --oneline -1`
+   and `gh run list --branch master --limit 3`.
+2. Publish the GitHub release locally, skipping the steps that broke:
+   `GORELEASER_CURRENT_TAG=vX.Y.Z GITHUB_TOKEN=$(gh auth token) goreleaser
+   release --clean --skip=validate,sbom,sign,docker` (pick the skip list to
+   match what already succeeded — GoReleaser re-uploads artifacts idempotently
+   but does not deduplicate across its own partial runs).
+3. Curate the release notes: `gh release edit vX.Y.Z --notes-file <file>`
+   (GoReleaser's changelog dump is not the shipping notes).
+4. Backfill anything skipped via dedicated workflows: dispatch
+   `backfill-image.yml` with `tag=vX.Y.Z` for the GHCR image; SBOM/signature
+   backfill runs the same GoReleaser command with only those steps from a
+   machine with the required credentials.
+5. Verify end-to-end: `./scripts/post-release-verify.sh X.Y.Z` (signature
+   bundles, SBOMs, GHCR tag, cask, binary smoke test) and a clean
+   `go get github.com/larsartmann/golangci-lint-auto-configure@vX.Y.Z`
+   from outside the module.
+
+### Cosign v3 bundle format
+
+Releases are signed with cosign v3's REQUIRED bundle format: each artifact
+gets a `<artifact>.sigstore.json` bundle containing the signature, the
+Fulcio certificate, and the transparency-log material. There are no separate
+`.sig`/`.pem` assets anymore. Verification:
+
+```sh
+cosign verify-blob \
+  --bundle <artifact>.sigstore.json \
+  --certificate-identity-regexp '^https://github.com/LarsArtmann/golangci-lint-auto-configure/\.github/workflows/release\.yml@[a-f0-9]+$' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  <artifact>
+```
+
+The signs config passes no service URLs: v3 fetches Fulcio/Rekor endpoints
+from the TUF signing config, and explicitly passing them alongside it is the
+error that broke the v0.11.0 release ("cannot specify service URLs and use
+signing config").

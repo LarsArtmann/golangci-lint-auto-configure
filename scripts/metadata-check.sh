@@ -71,7 +71,7 @@ if [ -z "$latest_tag" ]; then
 else
 	ok "latest release: $latest_tag"
 	assets="$(gh api "repos/$REPO/releases/latest" --jq '.assets[].name')"
-	for kind in checksums.txt checksums.txt.pem checksums.txt.sig sbom .sig Linux_x86_64.tar.gz Linux_arm64.tar.gz Darwin_arm64.tar.gz amd64.deb x86_64.rpm; do
+	for kind in checksums.txt checksums.txt.sigstore.json sbom .sigstore.json Linux_x86_64.tar.gz Linux_arm64.tar.gz Darwin_arm64.tar.gz amd64.deb x86_64.rpm; do
 		if echo "$assets" | grep -q "$kind"; then ok "asset matching *$kind*"; else bad "asset missing: *$kind*"; fi
 	done
 fi
