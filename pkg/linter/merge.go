@@ -387,6 +387,14 @@ func planSettingsBlock(
 	}
 
 	if strategy == StrategyPreferUser {
+		if path == PathLintersSettings && constants.IsHistoricalCuratedLinterBlock(name, observedBlock) {
+			return Change{
+				Path: path, Element: name, Kind: ChangeUpdate,
+				From: observedBlock.Clone(), To: desiredBlock,
+				Reason: "refreshed-managed-settings",
+			}, true
+		}
+
 		return Change{}, false // existing non-empty settings are never touched
 	}
 

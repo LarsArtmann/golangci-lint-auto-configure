@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Managed-settings refresh: curated blocks that the tool wrote and the
+  curation has since evolved now update in place, without touching user
+  tuning.** Provenance is a historical-hash table
+  (`constants.ManagedSettingsHistory`): a settings block whose canonical
+  hash matches a recorded older curated generation is proven tool-written
+  and stale, so the default strategy plans one update to the current
+  curated default (audited as `refreshed-managed-settings`); any other
+  existing block remains user-owned and untouched, and `--force-settings`
+  keeps its overwrite path. The table replaces the sketched comment-stamp
+  design, which the YAML writer's comment loss would have destroyed on the
+  first save. The seed generation is the v0.11.x wrapcheck default, so
+  every fleet config carrying the pre-errorfamily-exemption regexps
+  refreshes on the next configure pass.
 - **Fleet convergence sweep complete: all 143 eligible sibling repos
   converged, pushed, and verified on GitHub (2026-11-02).** 108 repos
   received the full convergence (stale tech-gated linter retraction,
