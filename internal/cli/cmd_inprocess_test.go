@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/internal/cli"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/telemetry"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -16,7 +17,7 @@ import (
 // captured os.Stdout, returning everything written (charm log, cobra output,
 // and report output all write to os.Stdout directly).
 func executeInProcess(args ...string) string {
-	cmd := cli.NewRootCommand(&cli.Flags{})
+	cmd := cli.NewRootCommand(&cli.Flags{}, &telemetry.Session{})
 
 	original := os.Stdout
 

@@ -19,4 +19,5 @@ type Flags struct {
 	Check           bool
 	ForceSettings   bool
 	ShowMergedRules bool
+	OTel            bool
 }

@@ -45,7 +45,7 @@ live repo/CI verification during planning.
 - **The 4% that delivers 64%:** Audit-ledger truth (M5): migrate + preset events +
   SDK recorder injection. Makes "every mutation is an event" true for 4/4 paths.
 - **The 20% that delivers 80%:** Master-green fix (M1) + flag-error exit code (M6)
-  + contract pins (M7). Trust surface: CI red is a credibility hole; exit codes and
+  with contract pins (M7). Trust surface: CI red is a credibility hole; exit codes and
   no-mutation contracts are user-facing promises.
 - **The other 20% to reach 100%:** Full verification gates (M9), all docs
   (M8: SECURITY/README/FEATURES/CHANGELOG/AGENTS/ROADMAP/TODO_LIST), curated

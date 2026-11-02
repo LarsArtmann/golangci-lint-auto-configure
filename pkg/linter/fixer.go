@@ -7,7 +7,14 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/policy"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
+
+// tracerName names the OpenTelemetry tracer for this package. The tracer is
+// the noop implementation unless the host (the CLI via pkg/telemetry)
+// registers a provider, so embedded consumers stay trace-free by default.
+const tracerName = "github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
 
 // fixerConfigLoader is the narrowest interface the Fixer needs: load, save,
 // and inspect linter state. This is a subset of types.ConfigLoader.
@@ -109,6 +116,15 @@ func (f *Fixer) FixConfig(
 	priority types.LinterPriority,
 	dryRun bool,
 ) (*types.MigrationResult, error) {
+	ctx, span := otel.Tracer(tracerName).Start(ctx, "fix-config")
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("config.path", configPath),
+		attribute.Int("priority", int(priority)),
+		attribute.Bool("dry_run", dryRun),
+	)
+
 	f.logger.Infof("Loading configuration: %s", configPath)
 
 	cfg, err := f.configLoader.LoadConfig(configPath)
@@ -116,7 +132,12 @@ func (f *Fixer) FixConfig(
 		return migrationError("load config", priority, dryRun, configPath, "", err)
 	}
 
-	return f.convergeFixConfig(ctx, cfg, configPath, priority, dryRun)
+	result, err := f.convergeFixConfig(ctx, cfg, configPath, priority, dryRun)
+	if err == nil {
+		span.SetAttributes(attribute.Int("changes.total", result.FixesApplied))
+	}
+
+	return result, err
 }
 
 // detectVersion tries to detect the golangci-lint version early for version-gated replacements.

@@ -15,6 +15,7 @@ import (
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/telemetry"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/version"
 	"github.com/spf13/cobra"
@@ -160,7 +161,7 @@ func newLogger() *log.Logger {
 }
 
 // NewRootCommand creates the root CLI command.
-func NewRootCommand(flags *Flags) *cobra.Command {
+func NewRootCommand(flags *Flags, session *telemetry.Session) *cobra.Command {
 	logger := newLogger()
 	slog.SetDefault(slog.New(logger))
 
@@ -178,7 +179,12 @@ actionable recommendations to improve your Go code quality.`,
 
 	builder := NewCommandBuilder(logger, analyzer, configLoader, flags)
 
-	rootCmd.PersistentPreRun = makeLogLevelConfigurer(logger, flags)
+	rootCmd.PersistentPreRun = makePersistentPreRun(
+		logger,
+		flags,
+		session,
+		makeLogLevelConfigurer(logger, flags),
+	)
 
 	addSubCommands(rootCmd, builder, logger, configLoader)
 	registerGlobalFlags(rootCmd, flags)
@@ -186,6 +192,28 @@ actionable recommendations to improve your Go code quality.`,
 	rootCmd.SetVersionTemplate(version.Get().Full() + "\n")
 
 	return rootCmd
+}
+
+// makePersistentPreRun chains the log-level configuration with the optional
+// telemetry setup: when --otel (or its env var) is enabled, the root span for
+// the executing command starts here — cmd is the deepest command being run.
+func makePersistentPreRun(
+	logger *log.Logger,
+	flags *Flags,
+	session *telemetry.Session,
+	configureLogLevel func(*cobra.Command, []string),
+) func(*cobra.Command, []string) {
+	return func(cmd *cobra.Command, args []string) {
+		configureLogLevel(cmd, args)
+
+		if telemetry.Enabled(flags.OTel) {
+			spanCtx := session.Setup(cmd.Context(), cmd.Name(), telemetry.Options{
+				ServiceVersion: version.Get().Version,
+				Logger:         logger,
+			})
+			cmd.SetContext(spanCtx)
+		}
+	}
 }
 
 // makeLogLevelConfigurer returns a PersistentPreRun that adjusts the logger level
@@ -247,14 +275,27 @@ func registerGlobalFlags(rootCmd *cobra.Command, flags *Flags) {
 		BoolVar(&flags.JSONErrors, "json-errors", false, "Output errors as JSON to stderr for programmatic consumption")
 	rootCmd.PersistentFlags().
 		BoolVar(&flags.NoColor, "no-color", false, "Disable colored output (also honored via NO_COLOR env var)")
+	rootCmd.PersistentFlags().
+		BoolVar(&flags.OTel, "otel", false, "Enable optional OpenTelemetry tracing, off by default "+
+			"(also: GOLANGCI_LINT_AUTO_CONFIGURE_OTEL=1; endpoint via OTEL_EXPORTER_OTLP_ENDPOINT)")
 }
 
 // Execute runs the CLI using fang for enhanced CLI features.
 func Execute(ctx context.Context, flags *Flags) error {
-	//nolint:contextcheck // Context is passed through fang.Execute; linter doesn't trace third-party calls
-	rootCmd := NewRootCommand(flags)
+	session := &telemetry.Session{}
+	//nolint:contextcheck // at runtime cmd.Context() IS the ctx given to fang.Execute; the linter cannot trace through fang/cobra
+	rootCmd := NewRootCommand(flags, session)
 
 	err := fang.Execute(ctx, rootCmd, fang.WithVersion(Version))
+
+	// WithoutCancel: inherit values but not cancellation — the run ctx may
+	// already be canceled when the CLI exits, and the span flush still needs
+	// its full window.
+	finishCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), telemetry.ShutdownTimeout)
+	defer cancel()
+
+	session.Finish(finishCtx, err)
+
 	if err != nil {
 		return apperrors.WrapClassified(err, "cli.execute", "failed to execute command")
 	}
