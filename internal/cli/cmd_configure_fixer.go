@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	appdiff "github.com/larsartmann/golangci-lint-auto-configure/pkg/diff"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
@@ -25,7 +26,7 @@ func newConfiguredFixer(
 	showMergedRules bool,
 ) *linter.Fixer {
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
-	fixer.SetLedger(newRunLedger(ctx, logger, configFile, noAudit))
+	fixer.SetLedger(audit.OpenRunLedger(ctx, logger, configFile, noAudit))
 	fixer.SetGoVersionProvider(config.GetLocalGoVersion)
 	fixer.SetForceSettings(forceSettings)
 	fixer.SetShowMergedRules(showMergedRules)

@@ -1,13 +1,11 @@
 package cli
 
 import (
-	"context"
 	"encoding/json/jsontext"
 	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"text/tabwriter"
@@ -17,12 +15,13 @@ import (
 	errorfamily "github.com/larsartmann/go-error-family"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
-	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 const (
-	auditEnvVar     = "GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT"
+	// auditEnvVar mirrors pkg/audit.EnvVarDisable for help text; the behavior
+	// lives in audit.OpenRunLedger (single source of truth).
+	auditEnvVar     = audit.EnvVarDisable
 	cliHoursPerDay  = 24
 	tabwriterPad    = 2
 	runIDMinParts   = 3
@@ -51,52 +50,6 @@ Output:
 
 Maintenance:
   --clear         Truncate the ledger file and exit`
-
-// auditDisabled reports whether the audit ledger should be skipped for this run.
-// Honors both the --no-audit flag and the GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT env var.
-func auditDisabled(noAudit bool) bool {
-	if noAudit {
-		return true
-	}
-
-	return os.Getenv(auditEnvVar) != ""
-}
-
-// newRunLedger creates the audit ledger for a configure run.
-// Returns a NoopRecorder when audit is disabled or the ledger path is unavailable.
-// Retention purge runs at creation to clean up stale entries from prior runs.
-//
-//nolint:ireturn // strategy pattern: returns concrete Ledger or NoopRecorder
-func newRunLedger(
-	ctx context.Context,
-	logger *log.Logger,
-	configFile string,
-	noAudit bool,
-) audit.Recorder {
-	if auditDisabled(noAudit) {
-		return audit.NoopRecorder{}
-	}
-
-	ledgerPath := audit.DefaultLedgerPath()
-	if ledgerPath == "" {
-		logger.Debugf("Audit ledger disabled: cannot resolve OS cache directory")
-
-		return audit.NoopRecorder{}
-	}
-
-	repoPath := filepath.Dir(configFile)
-	runCtx := audit.RunContext{
-		RunID:    audit.NewRunID(),
-		RepoHash: audit.RepoHashOf(repoPath),
-		RepoPath: repoPath,
-		GitHead:  utils.GitHead(ctx, repoPath),
-	}
-
-	ledger := audit.NewLedger(logger, runCtx, ledgerPath)
-	ledger.PurgeRetention(audit.DefaultRetention())
-
-	return ledger
-}
 
 func newAuditCommand(builder *CommandBuilder) *cobra.Command {
 	var (

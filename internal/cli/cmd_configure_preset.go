@@ -7,6 +7,7 @@ import (
 
 	"charm.land/log/v2"
 	errorfamily "github.com/larsartmann/go-error-family"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/detection"
@@ -70,10 +71,28 @@ func handlePresetMode(
 	}
 
 	if !dryRun {
+		recordPresetAudit(ctx, logger, configFile, presets, flags.NoAudit)
+
 		runFmtCommand(ctx, logger, analyzer, configFile)
 	}
 
 	return nil
+}
+
+// recordPresetAudit writes the preset-applied ledger entry so the whole-file
+// preset rewrite is as visible in the audit trail as any configure mutation.
+// Check/dry runs never reach this helper.
+func recordPresetAudit(
+	ctx context.Context,
+	logger *log.Logger,
+	configFile string,
+	presets []string,
+	noAudit bool,
+) {
+	audit.OpenRunLedger(ctx, logger, configFile, noAudit).Record(
+		audit.ActionPresetApplied, strings.Join(presets, ","),
+		"preset mode rewrote linters and formatters enable lists",
+	)
 }
 
 func loadPresetConfig(

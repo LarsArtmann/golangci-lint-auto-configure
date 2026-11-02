@@ -1,13 +1,25 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
+
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/migration"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 	"github.com/spf13/cobra"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
+
+// tracerName names the OpenTelemetry tracer for this package. The tracer is
+// the noop implementation unless the CLI registers a provider via
+// pkg/telemetry, so the migrate span only exists for --otel runs.
+const tracerName = "github.com/larsartmann/golangci-lint-auto-configure/internal/cli/cmd"
 
 const migrateLong = `Migrates golangci-lint configuration from v1 to v2 schema.
 
@@ -61,7 +73,15 @@ func runMigrate(
 
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 
-	return executeMigration(logger, configLoader, configFile, dryRun, skipValidation, verbose)
+	return executeMigration(
+		cmd.Context(),
+		logger,
+		configLoader,
+		configFile,
+		dryRun,
+		skipValidation,
+		verbose,
+	)
 }
 
 func resolveMigrateConfig(
@@ -86,6 +106,7 @@ func resolveMigrateConfig(
 }
 
 func executeMigration(
+	ctx context.Context,
 	logger *log.Logger,
 	configLoader *config.Loader,
 	configFile string,
@@ -104,7 +125,16 @@ func executeMigration(
 		return nil
 	}
 
-	return runMigrator(logger, configLoader, configFile, dryRun, skipValidation, verbose, oldConfig)
+	return runMigrator(
+		ctx,
+		logger,
+		configLoader,
+		configFile,
+		dryRun,
+		skipValidation,
+		verbose,
+		oldConfig,
+	)
 }
 
 func loadConfigForMigration(
@@ -128,26 +158,89 @@ func isAlreadyV2(cfg *types.Config) bool {
 }
 
 func runMigrator(
+	ctx context.Context,
 	logger *log.Logger,
 	configLoader *config.Loader,
 	configFile string,
 	dryRun, skipValidation, verbose bool,
 	oldConfig *types.Config,
 ) error {
+	// The child span context is discarded: this span is a leaf around MigrateToV2.
+	_, span := otel.Tracer(tracerName).Start(ctx, "migrate")
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("config.path", configFile),
+		attribute.Bool("dry_run", dryRun),
+		attribute.Bool("skip_validation", skipValidation),
+	)
+
+	//nolint:contextcheck // MigrateToV2 predates context threading (pkg/migration)
+	success, fixesApplied, err := executeMigrator(
+		logger,
+		configFile,
+		dryRun,
+		skipValidation,
+		verbose,
+	)
+	if err != nil {
+		return err
+	}
+
+	recordMigrationOutcome(ctx, logger, span, configFile, dryRun, success, fixesApplied)
+
+	showMigrationResult(logger, configLoader, configFile, oldConfig, success, fixesApplied, dryRun)
+
+	return nil
+}
+
+// executeMigrator builds the migrator and runs the v1→v2 rewrite.
+func executeMigrator(
+	logger *log.Logger,
+	configFile string,
+	dryRun, skipValidation, verbose bool,
+) (bool, int, error) {
 	migrator, err := createMigrator(configFile, dryRun, skipValidation, verbose, logger)
 	if err != nil {
-		return apperrors.WrapClassified(err, "migrate.create_migrator",
+		return false, 0, apperrors.WrapClassified(err, "migrate.create_migrator",
 			"create migrator failed")
 	}
 
 	success, fixesApplied, err := migrator.MigrateToV2()
 	if err != nil {
-		return apperrors.WrapClassified(err, "migrate.migrate", "migration failed")
+		return false, 0, apperrors.WrapClassified(err, "migrate.migrate", "migration failed")
 	}
 
-	showMigrationResult(logger, configLoader, configFile, oldConfig, success, fixesApplied, dryRun)
+	return success, fixesApplied, nil
+}
 
-	return nil
+// recordMigrationOutcome stamps the migrate span's result attrs and writes
+// the config-migrated ledger entry for non-dry successes. Dry runs record
+// nothing, matching the configure contract. The
+// GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT env var disables the entry (migrate
+// binds no --no-audit flag of its own).
+func recordMigrationOutcome(
+	ctx context.Context,
+	logger *log.Logger,
+	span trace.Span,
+	configFile string,
+	dryRun, success bool,
+	fixesApplied int,
+) {
+	if !success {
+		return
+	}
+
+	span.SetAttributes(attribute.Int("fixes.applied", fixesApplied))
+
+	if dryRun {
+		return
+	}
+
+	audit.OpenRunLedger(ctx, logger, configFile, false).Record(
+		audit.ActionConfigMigrated, "config",
+		fmt.Sprintf("migrated v1 config to v2 schema (%d fixes applied)", fixesApplied),
+	)
 }
 
 func createMigrator(

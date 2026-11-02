@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"charm.land/log/v2"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
@@ -19,6 +20,13 @@ type Options struct {
 
 	// Verbose enables debug logging
 	Verbose bool
+
+	// Recorder, when non-nil, receives an audit entry for every mutation
+	// FixConfig applies (added-to-enable, pruned-settings, ...). The privacy
+	// default is nil: the SDK then writes no ledger and regression-loop
+	// detection (PreviouslyAutoEnabled) stays off until a host injects one
+	// (e.g. audit.OpenRunLedger or a custom sink).
+	Recorder audit.Recorder
 }
 
 // Client provides a simplified API for golangci-lint configuration analysis.
@@ -49,6 +57,10 @@ func New(opts Options) *Client {
 
 	fixer := linter.NewFixer(logger, analyzer, configLoader)
 	fixer.SetGoVersionProvider(config.GetLocalGoVersion)
+
+	if opts.Recorder != nil {
+		fixer.SetLedger(opts.Recorder)
+	}
 
 	return &Client{
 		configLoader: configLoader,

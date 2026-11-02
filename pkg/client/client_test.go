@@ -4,9 +4,12 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/audit"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/client"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
 func TestNewCreatesValidClient(t *testing.T) {
@@ -137,4 +140,65 @@ linters:
 	}
 
 	return path
+}
+
+// recordedAction is one audit tuple captured by collectingRecorder.
+type recordedAction struct {
+	action audit.Action
+	linter string
+}
+
+// collectingRecorder captures audit entries in memory for test assertions.
+type collectingRecorder struct {
+	mu      sync.Mutex
+	entries []recordedAction
+}
+
+func (r *collectingRecorder) Record(action audit.Action, linter, _ string) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	r.entries = append(r.entries, recordedAction{action: action, linter: linter})
+}
+
+func TestFixConfigRecordsToInjectedRecorder(t *testing.T) {
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, ".golangci.yml")
+
+	err := os.WriteFile(configPath, []byte(`version: "2"
+run:
+  timeout: 5m
+linters:
+  enable:
+    - errcheck
+`), 0o644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	recorder := &collectingRecorder{}
+	c := client.New(client.Options{Recorder: recorder})
+
+	if _, err := c.FixConfig(
+		context.Background(),
+		configPath,
+		client.FixOptions{Priority: types.LinterPriorityHigh},
+	); err != nil {
+		t.Skipf("skipping FixConfig recorder test (requires golangci-lint): %v", err)
+	}
+
+	recorder.mu.Lock()
+	defer recorder.mu.Unlock()
+
+	if len(recorder.entries) == 0 {
+		t.Error("expected audit entries via the injected recorder when FixConfig applies changes")
+	}
+
+	for _, entry := range recorder.entries {
+		if entry.action == audit.ActionAddedToEnable {
+			return
+		}
+	}
+
+	t.Errorf("expected at least one added-to-enable entry, got %+v", recorder.entries)
 }

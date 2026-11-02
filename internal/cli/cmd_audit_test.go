@@ -373,43 +373,53 @@ func TestClearAuditLedger(t *testing.T) {
 	}
 }
 
-func TestAuditDisabled_FlagAndEnv(t *testing.T) {
+func TestOpenRunLedger_DisabledByFlagOrEnv(t *testing.T) {
+	configFile := filepath.Join(t.TempDir(), ".golangci.yml")
+	logger := testAuditLogger()
+
 	t.Run("enabled by default", func(t *testing.T) {
 		t.Setenv(auditEnvVar, "")
+		t.Setenv("XDG_CACHE_HOME", t.TempDir())
 
-		if auditDisabled(false) {
-			t.Error("expected auditDisabled(false) to be false")
+		recorder := audit.OpenRunLedger(context.Background(), logger, configFile, false)
+
+		if _, ok := recorder.(audit.NoopRecorder); ok {
+			t.Error("expected a real ledger when neither flag nor env disables audit")
 		}
 	})
 
 	t.Run("disabled via flag", func(t *testing.T) {
 		t.Setenv(auditEnvVar, "")
 
-		if !auditDisabled(true) {
-			t.Error("expected auditDisabled(true) to be true when flag set")
+		recorder := audit.OpenRunLedger(context.Background(), logger, configFile, true)
+
+		if _, ok := recorder.(audit.NoopRecorder); !ok {
+			t.Errorf("expected audit.NoopRecorder when disabled, got %T", recorder)
 		}
 	})
 
 	t.Run("disabled via env var", func(t *testing.T) {
 		t.Setenv(auditEnvVar, "1")
 
-		if !auditDisabled(false) {
-			t.Error("expected auditDisabled(false) to be true when env var set")
+		recorder := audit.OpenRunLedger(context.Background(), logger, configFile, false)
+
+		if _, ok := recorder.(audit.NoopRecorder); !ok {
+			t.Errorf("expected audit.NoopRecorder when env var set, got %T", recorder)
 		}
 	})
 }
 
-func TestNewRunLedger_DisabledReturnsNoop(t *testing.T) {
+func TestOpenRunLedger_DisabledReturnsNoop(t *testing.T) {
 	configFile := filepath.Join(t.TempDir(), ".golangci.yml")
 
-	recorder := newRunLedger(context.Background(), testAuditLogger(), configFile, true)
+	recorder := audit.OpenRunLedger(context.Background(), testAuditLogger(), configFile, true)
 
 	if _, ok := recorder.(audit.NoopRecorder); !ok {
 		t.Errorf("expected audit.NoopRecorder when disabled, got %T", recorder)
 	}
 }
 
-func TestNewRunLedger_EnabledReturnsLedger(t *testing.T) {
+func TestOpenRunLedger_EnabledReturnsLedger(t *testing.T) {
 	t.Setenv(auditEnvVar, "")
 
 	// Force a deterministic, writable cache dir so DefaultLedgerPath resolves.
@@ -418,7 +428,7 @@ func TestNewRunLedger_EnabledReturnsLedger(t *testing.T) {
 
 	configFile := filepath.Join(t.TempDir(), ".golangci.yml")
 
-	recorder := newRunLedger(context.Background(), testAuditLogger(), configFile, false)
+	recorder := audit.OpenRunLedger(context.Background(), testAuditLogger(), configFile, false)
 
 	ledger, ok := recorder.(*audit.Ledger)
 	if !ok {
