@@ -44,12 +44,20 @@ jobs:
       - name: Validate GoReleaser config
         uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:
+          # Floating GoReleaser v2.x is deliberate: a breaking v2.x fails the
+          # `goreleaser check` step before any release work runs, so drift is
+          # caught as a red job, not a broken release. Pin only if check-gating
+          # ever stops covering it.
           version: "~> v2"
           args: check
 
       - name: Snapshot build (nothing is published)
         uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:
+          # Floating GoReleaser v2.x is deliberate: a breaking v2.x fails the
+          # `goreleaser check` step before any release work runs, so drift is
+          # caught as a red job, not a broken release. Pin only if check-gating
+          # ever stops covering it.
           version: "~> v2"
           args: release --snapshot --clean --skip=sign,sbom,docker
         env:
