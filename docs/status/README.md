@@ -117,3 +117,6 @@ numbered item struck, routed, or consciously declined) and archived to
 | 2026-11-02 | `00-03_upstream-v2-audit-full-support-sweep-status` | Upstream v2 audit: full linter-support sweep                        |
 | 2026-11-02 | `00-18_audit-invocations-cqrs-otel-self-review`     | Audit invocations + CQRS/OTel self-review                          |
 | 2026-11-02 | `01-19_docs-health-fifth-sweep-all-2026-0x-resolved` | Fifth docs-health sweep: 32 files resolved + archived, living docs rehabilitated |
+| 2026-11-02 | `03-10_SUPERB-otel-execution-mid-flight-status`      | OTEL execution interrupted mid-M4 (M2-M4 done, M5-M10 open)        |
+| 2026-11-02 | `03-36_upstream-v2-15-baseline-migration-depth-status` | v2.15 baseline, migrate depth, chain fixture (interrupted session) |
+| 2026-11-02 | `06-09_fleet-convergence-d0-green-t1-t2-landed-t3-mid-flight` | Fleet-convergence execution: D0 green, T1/T2 landed, T3 mid-flight |
