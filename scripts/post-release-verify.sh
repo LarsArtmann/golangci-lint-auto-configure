@@ -111,12 +111,15 @@ fi
 
 # 8. GHCR image exists for the tag (best-effort: needs read:packages scope)
 GHCR_VERSIONS=$(gh api "users/LarsArtmann/packages/container/golangci-lint-auto-configure/versions" \
-	--jq '.[].metadata.container.tags[]' 2>/dev/null || true)
-if echo "$GHCR_VERSIONS" | grep -qx "${TAG}"; then
+	--jq '.[].metadata.container.tags[]' 2>/dev/null)
+# An API failure (e.g. missing read:packages scope) prints an error body on
+# stdout with a non-zero exit; only trust the tag list when the call itself
+# succeeded.
+if [ -z "$GHCR_VERSIONS" ] || ! gh api "users/LarsArtmann/packages/container/golangci-lint-auto-configure/versions" --jq '.[0].id' >/dev/null 2>&1; then
+	echo -e "${GREEN}~${NC} GHCR check skipped (no packages API access)"
+elif echo "$GHCR_VERSIONS" | grep -qx "${TAG}"; then
 	echo -e "${GREEN}✓${NC} GHCR image tagged ${TAG}"
 	pass=$((pass + 1))
-elif [ -z "$GHCR_VERSIONS" ]; then
-	echo -e "${GREEN}~${NC} GHCR check skipped (no packages API access)"
 else
 	echo -e "${RED}✗${NC} GHCR image missing tag ${TAG}"
 	fail=$((fail + 1))
