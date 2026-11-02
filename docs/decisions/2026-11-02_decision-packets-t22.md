@@ -17,6 +17,7 @@ incident (stale in-process binary reporting phantom findings) showed the gate
 can be wrong for reasons outside this repo.
 
 **Options**:
+
 1. Keep no-config posture (status quo): warnings stay advisory, errors gate.
 2. Add `.buildflow.yml` with `fail_on:` allowlists per gate.
 3. Add `.buildflow.yml` with `skip_steps:` for the noisy advisory tools.
