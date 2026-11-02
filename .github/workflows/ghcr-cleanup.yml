@@ -1,0 +1,59 @@
+# Delete a stray tag from the GHCR image without touching anything else.
+#
+# The v0.11.0 release left a :master tag on the package; tags other than
+# release versions are pollution (there is no :latest on purpose either).
+# Deletes only versions whose tag list is EXACTLY the requested tag — a
+# version carrying additional tags (e.g. a shared :latest) is refused, since
+# deleting it would take those tags down with it.
+name: GHCR Tag Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag to delete (e.g. master)"
+        required: true
+        type: string
+
+permissions:
+  packages: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete versions tagged exactly ${{ inputs.tag }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          package="golangci-lint-auto-configure"
+          owner="LarsArtmann"
+          page=1
+          deleted=0
+          while :; do
+            versions=$(gh api --paginate=false \
+              "/users/${owner}/packages/container/${package}/versions?per_page=100&page=${page}" \
+              --jq '.[] | {id: .id, tags: (.metadata.container.tags // [])} | @json') || break
+            [ -z "$versions" ] && break
+            while IFS= read -r row; do
+              [ -z "$row" ] && continue
+              id=$(echo "$row" | jq -r '.id')
+              tags=$(echo "$row" | jq -r '.tags | join(",")')
+              if [ "$tags" = "$TAG" ]; then
+                echo "deleting version ${id} (tags: ${tags})"
+                gh api -X DELETE \
+                  "/users/${owner}/packages/container/${package}/versions/${id}"
+                deleted=$((deleted + 1))
+              else
+                echo "keeping version ${id} (tags: ${tags:-<untagged>})"
+              fi
+            done <<< "$versions"
+            page=$((page + 1))
+          done
+          if [ "$deleted" -eq 0 ]; then
+            echo "no version carried exactly the tag ${TAG}; nothing to do"
+          else
+            echo "deleted ${deleted} version(s) tagged ${TAG}"
+          fi
