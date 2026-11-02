@@ -133,10 +133,13 @@ func TestProbeKnownLintersGarbageOutputFailsOpen(t *testing.T) {
 	}
 }
 
-// v2_15StyleLintersJSON mimics golangci-lint v2.15.0's bare-dir probe: the
-// Enabled list covers nearly the whole vocabulary instead of the default
-// set, so the Enabled list is no longer "default-enabled" but "everything".
-const v2_15StyleLintersJSON = `{
+// inheritedConfigLintersJSON mimics a probe that inherited an AMBIENT
+// config from a parent directory (observed 2026-11-01: /tmp/.golangci.yml
+// enabling 108 of 115 linters leaked into the temp-cwd probe; the initial
+// attribution to a v2.15.0 output change was falsified 2026-11-02): the
+// Enabled list covers nearly the whole vocabulary, so it is not
+// "default-enabled" but "everything".
+const inheritedConfigLintersJSON = `{
   "Enabled": [
     {"name": "errcheck", "description": "d", "fast": false, "deprecated": false},
     {"name": "govet", "description": "d", "fast": true, "deprecated": false},
@@ -152,7 +155,7 @@ const v2_15StyleLintersJSON = `{
 func TestProbeDefaultEnabledImplausibleSetFailsOpen(t *testing.T) {
 	dir := t.TempDir()
 
-	script := "#!/bin/sh\ncat <<'JSONEOF'\n" + v2_15StyleLintersJSON + "\nJSONEOF\n"
+	script := "#!/bin/sh\ncat <<'JSONEOF'\n" + inheritedConfigLintersJSON + "\nJSONEOF\n"
 
 	path := filepath.Join(dir, "golangci-lint")
 
@@ -174,7 +177,55 @@ func TestProbeDefaultEnabledImplausibleSetFailsOpen(t *testing.T) {
 
 	if defaults := analyzer.DefaultEnabledLinters(context.Background()); defaults != nil {
 		t.Errorf("DefaultEnabledLinters() = %v, want nil: a default set covering most of "+
-			"the vocabulary is the v2.15.0 list-everything behavior, not the default set; "+
+			"the vocabulary is inherited-config contamination (or a genuinely "+
+			"list-everything binary), not the default set; "+
 			"consuming it would silently suppress every recommendation", defaults)
+	}
+}
+
+// The probe must pin itself to a minimal explicit --config: a bare temp
+// cwd is not hermetic because golangci-lint walks UP from the working
+// directory to discover configs, so an ambient config in any parent
+// (observed: /tmp/.golangci.yml) leaks into the listing.
+func TestProbePinsMinimalConfig(t *testing.T) {
+	dir := t.TempDir()
+
+	argsPath := filepath.Join(dir, "args.txt")
+	configPath := filepath.Join(dir, "captured-config.yml")
+
+	script := "#!/bin/sh\n" +
+		"echo \"$@\" > \"" + argsPath + "\"\n" +
+		"while [ $# -gt 0 ]; do case \"$1\" in --config) shift; cp \"$1\" \"" + configPath + "\";; esac; shift; done\n" +
+		"cat <<'JSONEOF'\n" + inheritedConfigLintersJSON + "\nJSONEOF\n"
+
+	path := filepath.Join(dir, "golangci-lint")
+
+	if err := os.WriteFile(path, []byte(script), 0o755); err != nil {
+		t.Fatalf("write fake binary: %v", err)
+	}
+
+	analyzer := NewAnalyzer(NewTestLogger())
+	analyzer.golangciLintPath = path
+
+	if _, err := analyzer.ProbeKnownLinters(context.Background()); err != nil {
+		t.Fatalf("ProbeKnownLinters failed: %v", err)
+	}
+
+	args, err := os.ReadFile(argsPath)
+	if err != nil {
+		t.Fatalf("fake binary captured no args: %v", err)
+	}
+
+	if !strings.Contains(string(args), "--config") {
+		t.Errorf("probe args = %q, want an explicit --config pinning the listing", args)
+	}
+
+	captured, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("fake binary captured no --config value: %v", err)
+	}
+
+	if got := strings.TrimSpace(string(captured)); got != `version: "2"` {
+		t.Errorf("probe config = %q, want a minimal version-only config", got)
 	}
 }

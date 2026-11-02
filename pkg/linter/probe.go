@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json/v2"
 	"os"
+	"path/filepath"
 
 	apperrors "github.com/larsartmann/golangci-lint-auto-configure/pkg/errors"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -56,10 +57,12 @@ func (a *Analyzer) runLintersProbe(
 	vocabulary := probeVocabulary(parsed)
 	defaults := probeDefaultEnabled(parsed)
 
-	// golangci-lint v2.15.0 changed the bare-dir `linters` output to list
-	// every known linter under Enabled (108 of 115 observed), so a set
-	// covering most of the vocabulary is no longer "default-enabled" but
-	// "everything". The only consumer is the degraded-analysis fallback in
+	// Defense-in-depth against an inherited config: a default set covering
+	// most of the vocabulary is not "default-enabled" but "everything"
+	// (observed 2026-11-01 when an ambient /tmp/.golangci.yml leaked into a
+	// non-hermetic probe; the initial "v2.15.0 lists everything" attribution
+	// was falsified 2026-11-02 — v2.15.0's bare-dir output matches v2.14's).
+	// The only consumer is the degraded-analysis fallback in
 	// collectAnalyzerEnabled, where a poisoned set would silently suppress
 	// EVERY recommendation; an implausible set fails open to nil instead.
 	if len(defaults)*2 > len(vocabulary) {
@@ -116,10 +119,17 @@ func (a *Analyzer) DefaultEnabledLinters(_ context.Context) []types.LinterName {
 	return a.defaultEnabled
 }
 
-// runProbeCommand runs `golangci-lint linters --json` with the working
-// directory set to a fresh temp dir, so no project config can constrain or
-// break the vocabulary listing (a config naming an unknown linter fails to
-// load — exactly the condition the probe must diagnose).
+// runProbeCommand runs `golangci-lint linters --json` pinned to a minimal
+// explicit config in a fresh temp dir. A bare temp cwd is NOT hermetic:
+// golangci-lint discovers configs by walking UP from the working
+// directory, so an ambient config in any parent (observed 2026-11-01:
+// /tmp/.golangci.yml enabling 108 of 115 linters) leaks into the probe and
+// poisons both the default-enabled set and, via load failures, the
+// vocabulary. The explicit --config pins the listing to the binary's true
+// defaults regardless of where the probe runs. The config stays minimal
+// (version only) so the probe never depends on the user's config — a
+// config naming an unknown linter fails to load, exactly the condition
+// the probe must diagnose.
 func (a *Analyzer) runProbeCommand(ctx context.Context) ([]byte, error) {
 	empty, err := os.MkdirTemp("", "golangci-lint-auto-configure-probe-")
 	if err != nil {
@@ -128,7 +138,12 @@ func (a *Analyzer) runProbeCommand(ctx context.Context) ([]byte, error) {
 
 	defer os.RemoveAll(empty)
 
-	cmd := a.executeCommand(ctx, "linters", "--json")
+	minimal := filepath.Join(empty, "probe.yml")
+	if err := os.WriteFile(minimal, []byte("version: \"2\"\n"), 0o600); err != nil {
+		return nil, apperrors.WrapClassified(err, "probe.minimal-config", "write minimal probe config")
+	}
+
+	cmd := a.executeCommand(ctx, "linters", "--json", "--config", minimal)
 	cmd.Dir = empty
 
 	output, err := cmd.CombinedOutput()

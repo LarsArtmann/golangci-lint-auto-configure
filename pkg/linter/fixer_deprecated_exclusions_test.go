@@ -178,7 +178,7 @@ linters:
 
 				Expect(rule.Path == `_test\.go` && rule.Text == "" && rule.Source == "" && len(rule.Linters) == 0).
 					To(BeFalse(),
-						"golangci-lint v2 rejects single-criterion rules at load; "+
+						"golangci-lint rejects single-criterion rules at load (since >= v1.38.0, all v2); "+
 							"a rule emptied by the sweep must be dropped, not left path-only")
 			}
 		})

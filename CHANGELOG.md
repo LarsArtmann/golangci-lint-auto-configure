@@ -133,15 +133,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `--check`-found-changes Conflict→1 mapping, and `install-hook` gained a
   no-mutation contract spec (writes only `.git/hooks/pre-commit`, never
   `.golangci.yml`).
-- **golangci-lint v2.15.0 compatibility.** v2.15.0's config-free `linters`
-  command lists every known linter under Enabled, which poisoned the
-  capability probe's default-enabled set; a default set covering most of
-  the vocabulary is now treated as unreliable and discarded instead of
-  suppressing every recommendation. The deprecation sweep now also drops
-  exclusion rules whose linter list it empties (any scope): golangci-lint v2
+- **The capability probe is hermetic (ambient-config contamination
+  fixed).** The 2026-11-01 audit attributed a "108 of 115 Enabled"
+  bare-dir probe to a v2.15.0 output change; reproducing under a clean
+  parent directory falsified that — v2.15.0 behaves like v2.14 (Enabled =
+  the 5-linter default set), and the real cause was an ambient
+  `/tmp/.golangci.yml` discovered by golangci-lint's upward config search
+  from the probe's temp cwd. The probe now pins itself to a minimal
+  explicit `--config` (version-only), so ambient configs can no longer
+  poison the vocabulary or the default-enabled set; the implausible-set
+  guard (>half the vocabulary → nil, fail open) remains as defense-in-
+  depth.
+- The deprecation sweep now also drops
+  exclusion rules whose linter list it empties (any scope): golangci-lint
   rejects single-criterion rules at config load ("at least 2 of text,
-  source, path, linters"), so the previously preserved path-only rule shells
-  broke the config on the very next lint run.
+  source, path, linters" — upstream's `excludeRuleMinConditionsCount = 2`,
+  enforced since at least v1.38.0/2021 and in every v2 release), so the
+  previously preserved path-only rule shells broke the config on the very
+  next lint run.
 - `configure --check --diff` no longer writes phantom audit-ledger entries.
   Check mode temporarily saves the converged config to render the diff and
   restores the original right after, but the fixer emitted its audit entries

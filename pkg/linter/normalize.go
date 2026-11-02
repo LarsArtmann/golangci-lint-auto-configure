@@ -641,10 +641,11 @@ func toStrings(names []types.LinterName) []string {
 // terminal successor (a successor already listed dedupes the predecessor
 // entry away), and names without a reachable successor are dropped — the
 // entry would reference a linter the binary cannot name. Rules whose
-// linter list the sweep emptied are dropped entirely: golangci-lint v2
+// linter list the sweep emptied are dropped entirely: golangci-lint
 // rejects single-criterion rules at load ("at least 2 of text, source,
-// path, linters"), so a survived path-only rule would break the config the
-// very next lint run. Pure.
+// path, linters" — upstream `excludeRuleMinConditionsCount = 2`, enforced
+// since at least v1.38.0/2021 and in every v2 release), so a survived
+// path-only rule would break the config the very next lint run. Pure.
 func RenameDeprecatedInExclusionRules(
 	observed *types.Config,
 	tool types.GolangciVersion,
