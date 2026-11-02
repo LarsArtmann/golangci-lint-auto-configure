@@ -108,10 +108,8 @@ homebrew_casks:
       - golangci-lint-auto-configure
     hooks:
       post:
-        install: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/golangci-lint-auto-configure"]
-          end
+        install_steps: |
+          run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/golangci-lint-auto-configure"]
 
 nix:
   - name: golangci-lint-auto-configure
