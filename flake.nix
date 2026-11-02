@@ -103,7 +103,7 @@
       };
 
       perSystem =
-        { config, ... }:
+        { config, pkgs, ... }:
         {
           checks.race = config.packages.default.overrideAttrs (old: {
             doCheck = true;
@@ -118,6 +118,24 @@
             program = "${config.packages.default}/bin/coverage-check";
             meta.description = "Enforce minimum test coverage threshold from a Go coverage profile";
           };
+
+          apps.lint =
+            let
+              lintScript = pkgs.writeShellScript "repo-lint" ''
+                set -euo pipefail
+                export CGO_ENABLED=1
+                export GOEXPERIMENT=jsonv2
+                export GOPRIVATE=github.com/larsartmann/*,github.com/LarsArtmann/*
+                export GOCACHE="''${XDG_CACHE_HOME:-$HOME/.cache}/golangci-lint-auto-configure-lint"
+                cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+                exec ${pkgs.golangci-lint}/bin/golangci-lint run --config=.golangci.yml --timeout=10m "$@"
+              '';
+            in
+            {
+              type = "app";
+              program = "${lintScript}";
+              meta.description = "Run golangci-lint over the repo with the committed config";
+            };
         };
     };
 }
