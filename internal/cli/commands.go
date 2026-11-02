@@ -165,7 +165,29 @@ func NewRootCommand(flags *Flags, session *telemetry.Session) *cobra.Command {
 	logger := newLogger()
 	slog.SetDefault(slog.New(logger))
 
-	rootCmd := &cobra.Command{
+	rootCmd := newRootCmd()
+
+	analyzer := linter.NewAnalyzer(logger)
+	configLoader := config.NewLoader(logger)
+
+	builder := NewCommandBuilder(logger, analyzer, configLoader, flags)
+
+	chainPersistentPreRun(rootCmd, logger, flags, session)
+
+	addSubCommands(rootCmd, builder, logger, configLoader)
+	registerGlobalFlags(rootCmd, flags)
+
+	// Usage errors are Rejections — see rejectFlagErrors.
+	rootCmd.SetFlagErrorFunc(rejectFlagErrors)
+
+	rootCmd.SetVersionTemplate(version.Get().Full() + "\n")
+
+	return rootCmd
+}
+
+// newRootCmd builds the bare root command literal.
+func newRootCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:   constants.ToolName,
 		Short: "Automatically configure and optimize golangci-lint",
 		Long: `A tool that automatically analyzes golangci-lint configurations,
@@ -173,30 +195,19 @@ detects missing linters with smart categorization, and provides
 actionable recommendations to improve your Go code quality.`,
 		Version: Version,
 	}
+}
 
-	analyzer := linter.NewAnalyzer(logger)
-	configLoader := config.NewLoader(logger)
-
-	builder := NewCommandBuilder(logger, analyzer, configLoader, flags)
-
+// chainPersistentPreRun wires the log-level hook and the optional telemetry
+// root-span setup as the root PersistentPreRun.
+func chainPersistentPreRun(
+	rootCmd *cobra.Command,
+	logger *log.Logger,
+	flags *Flags,
+	session *telemetry.Session,
+) {
 	rootCmd.PersistentPreRun = makePersistentPreRun(
-		logger,
-		flags,
-		session,
-		makeLogLevelConfigurer(logger, flags),
+		logger, flags, session, makeLogLevelConfigurer(logger, flags),
 	)
-
-	addSubCommands(rootCmd, builder, logger, configLoader)
-	registerGlobalFlags(rootCmd, flags)
-
-	// Usage errors (unknown flag, bad value) are Rejections: the user's input
-	// was wrong, not the environment — exit 1, never the unclassified 75
-	// default the errorfamily exit-code mapping falls back to.
-	rootCmd.SetFlagErrorFunc(rejectFlagErrors)
-
-	rootCmd.SetVersionTemplate(version.Get().Full() + "\n")
-
-	return rootCmd
 }
 
 // rejectFlagErrors classifies cobra usage errors (unknown flag, bad value) as

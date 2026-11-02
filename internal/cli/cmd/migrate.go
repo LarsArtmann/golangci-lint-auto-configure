@@ -165,23 +165,12 @@ func runMigrator(
 	dryRun, skipValidation, verbose bool,
 	oldConfig *types.Config,
 ) error {
-	// The child span context is discarded: this span is a leaf around MigrateToV2.
-	_, span := otel.Tracer(tracerName).Start(ctx, "migrate")
+	span := startMigrateSpan(ctx, configFile, dryRun, skipValidation)
 	defer span.End()
-
-	span.SetAttributes(
-		attribute.String("config.path", configFile),
-		attribute.Bool("dry_run", dryRun),
-		attribute.Bool("skip_validation", skipValidation),
-	)
 
 	//nolint:contextcheck // MigrateToV2 predates context threading (pkg/migration)
 	success, fixesApplied, err := executeMigrator(
-		logger,
-		configFile,
-		dryRun,
-		skipValidation,
-		verbose,
+		logger, configFile, dryRun, skipValidation, verbose,
 	)
 	if err != nil {
 		return err
@@ -192,6 +181,26 @@ func runMigrator(
 	showMigrationResult(logger, configLoader, configFile, oldConfig, success, fixesApplied, dryRun)
 
 	return nil
+}
+
+// startMigrateSpan starts the migrate engine span with its fixed attributes.
+// The child span context is discarded: this span is a leaf around MigrateToV2.
+//
+//nolint:spancheck,ireturn // the span deliberately outlives this helper: runMigrator ends it via defer
+func startMigrateSpan(
+	ctx context.Context,
+	configFile string,
+	dryRun, skipValidation bool,
+) trace.Span {
+	_, span := otel.Tracer(tracerName).Start(ctx, "migrate")
+
+	span.SetAttributes(
+		attribute.String("config.path", configFile),
+		attribute.Bool("dry_run", dryRun),
+		attribute.Bool("skip_validation", skipValidation),
+	)
+
+	return span
 }
 
 // executeMigrator builds the migrator and runs the v1→v2 rewrite.

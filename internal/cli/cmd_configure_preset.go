@@ -57,23 +57,36 @@ func handlePresetMode(
 ) error {
 	dryRun := flags.Check || flags.DryRun
 
-	if err := applyPreset(
-		ctx,
-		logger,
-		configLoader,
-		configFile,
-		presets,
-		dryRun,
-		extraFormatters,
-	); err != nil {
-		return apperrors.WrapClassifiedf(err, "configure.preset",
-			"apply preset failed (presets=%v, dryRun=%t)", presets, dryRun)
+	if err := applyPresets(ctx, logger, configLoader, configFile,
+		presets, dryRun, extraFormatters); err != nil {
+		return err
 	}
 
 	if !dryRun {
 		recordPresetAudit(ctx, logger, configFile, presets, flags.NoAudit)
 
 		runFmtCommand(ctx, logger, analyzer, configFile)
+	}
+
+	return nil
+}
+
+// applyPresets runs the whole-file preset application and classifies failures
+// as configure.preset errors.
+func applyPresets(
+	ctx context.Context,
+	logger *log.Logger,
+	configLoader *config.Loader,
+	configFile string,
+	presets []string,
+	dryRun bool,
+	extraFormatters []types.FormatterName,
+) error {
+	if err := applyPreset(
+		ctx, logger, configLoader, configFile, presets, dryRun, extraFormatters,
+	); err != nil {
+		return apperrors.WrapClassifiedf(err, "configure.preset",
+			"apply preset failed (presets=%v, dryRun=%t)", presets, dryRun)
 	}
 
 	return nil
