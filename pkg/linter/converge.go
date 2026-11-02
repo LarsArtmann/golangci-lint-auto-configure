@@ -42,14 +42,15 @@ type ConvergeResult struct {
 // NormalizeConfig runs every pre-analysis normalizer: config-shape repairs
 // (version, duration, typecheck, tool-disabled moves), bad settings keys,
 // deprecation replacement (version-gated, never-enable aware), unknown-linter
-// removal (capability-gated), and exclusion rule renames. Pure: clone in,
-// changes out. The result must be PERSISTED before golangci-lint can list
-// linters for it.
+// removal (capability-gated), stale tech-gated retraction, and exclusion rule
+// renames. Pure: clone in, changes out. The result must be PERSISTED before
+// golangci-lint can list linters for it.
 func NormalizeConfig(
 	observed *types.Config,
 	tool types.GolangciVersion,
 	neverEnable func(types.LinterName) bool,
 	binaryKnown map[types.LinterName]bool,
+	tech map[string]bool,
 ) (*types.Config, []Change) {
 	working, changes := NormalizeConfigShape(observed)
 
@@ -61,6 +62,9 @@ func NormalizeConfig(
 
 	working, unknownChanges := RemoveUnknownLinters(working, binaryKnown)
 	changes = append(changes, unknownChanges...)
+
+	working, retractedChanges := RemoveStaleTechGatedLinters(working, tech)
+	changes = append(changes, retractedChanges...)
 
 	working, ruleRenameChanges := RenameDeprecatedInExclusionRules(working, tool)
 	changes = append(changes, ruleRenameChanges...)
@@ -471,6 +475,7 @@ const (
 	actionUpdated               = "updated"
 	actionAddedToEnable         = "added-to-enable"
 	actionReEnabled             = "re-enabled"
+	actionRetractedTech         = "retracted-project-specific"
 	actionExclusionRenamed      = "exclusion-linter-renamed"
 	actionExclusionRemoved      = "exclusion-linter-removed"
 	actionExclusionRuleMerged   = "exclusion-rule-merged"
@@ -509,6 +514,10 @@ func auditActionFromChange(change Change) auditAction {
 
 	if action == actionAddedToEnable && strings.HasPrefix(change.Reason, unjustifiedDisableReasonPfx) {
 		action = actionReEnabled
+	}
+
+	if action == "removed-from-enable" && strings.HasPrefix(change.Reason, retractedTechReasonPfx) {
+		action = actionRetractedTech
 	}
 
 	if action == actionExclusionRuleMerged {

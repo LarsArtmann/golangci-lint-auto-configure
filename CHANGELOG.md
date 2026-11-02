@@ -48,6 +48,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   from those constructors, which is the house error-handling pattern, not a
   missing wrap — every org consumer (~577 modules) would otherwise flood on
   v2.15.0 binaries.
+- `configure` retracts stale project-specific linters: a tech-gated linter
+  (arangolint, clickhouselint, gohumanize) that stays in `linters.enable`
+  after its dependency left the project can never fire, so the next pass
+  removes it and audits the removal as `retracted-project-specific`
+  (queryable via `audit --linter`). Undetected technology fails open (the
+  entry is kept), and disable entries are never touched — re-adding the
+  dependency should find the user's explicit choice.
 
 ### Changed
 

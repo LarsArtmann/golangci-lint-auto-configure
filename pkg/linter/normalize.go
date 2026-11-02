@@ -474,6 +474,87 @@ func partitionUnknown(
 	return kept, removed
 }
 
+// retractedTechReasonPfx marks enable-list removals whose cause is a gone
+// technology dependency; the audit projection maps them to a distinct action.
+const retractedTechReasonPfx = "retracted project-specific"
+
+// RemoveStaleTechGatedLinters drops linters.enable entries whose policy
+// record gates on a technology the project definitively does not use
+// (arangolint without an ArangoDB driver, clickhouselint without ClickHouse,
+// gohumanize without go-humanize): the entry was written when the dependency
+// existed and can never fire now. A tech key absent from the map fails open
+// (kept), matching techAvailable; disable entries stay untouched — a disabled
+// linter for an absent tech is inert, and re-adding the dependency should
+// find the user's explicit choice. Pure.
+func RemoveStaleTechGatedLinters(
+	observed *types.Config,
+	tech map[string]bool,
+) (*types.Config, []Change) {
+	if len(observed.Linters.Enable) == 0 || len(tech) == 0 {
+		return observed, nil
+	}
+
+	stale := staleTechGatedLinters(tech)
+	if len(stale) == 0 {
+		return observed, nil
+	}
+
+	kept, changes := dropStaleTechGated(observed.Linters.Enable, stale)
+	if len(changes) == 0 {
+		return observed, nil
+	}
+
+	normalized := observed.Clone()
+	normalized.Linters.Enable = kept
+
+	return normalized, changes
+}
+
+// dropStaleTechGated filters the enable list, collecting one Change per
+// retracted entry.
+func dropStaleTechGated(
+	enable []types.LinterName,
+	stale map[types.LinterName]string,
+) ([]types.LinterName, []Change) {
+	kept := make([]types.LinterName, 0, len(enable))
+
+	var changes []Change
+
+	for _, name := range enable {
+		if techKey, isStale := stale[name]; isStale {
+			changes = append(changes, Change{
+				Path: PathLintersEnable, Element: string(name), Kind: ChangeRemove,
+				From:   string(name),
+				Reason: retractedTechReasonPfx + " linter (tech " + techKey + " not detected in this project)",
+			})
+
+			continue
+		}
+
+		kept = append(kept, name)
+	}
+
+	return kept, changes
+}
+
+// staleTechGatedLinters maps every tech-gated linter whose technology is
+// definitively absent (present in tech and false) to its tech key.
+func staleTechGatedLinters(tech map[string]bool) map[types.LinterName]string {
+	stale := make(map[types.LinterName]string)
+
+	for _, record := range constants.LinterPolicies {
+		if record.Gate.Kind != types.GateRequiresTech {
+			continue
+		}
+
+		if usesTech, known := tech[record.Gate.Tech]; known && !usesTech {
+			stale[record.Name] = record.Gate.Tech
+		}
+	}
+
+	return stale
+}
+
 // RemoveRedundancies drops linters and formatters superseded by an enabled
 // counterpart (the RedundancyRelations table: lll dies with golines, gofmt
 // dies with gofumpt). Pure.

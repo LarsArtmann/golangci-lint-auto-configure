@@ -116,7 +116,7 @@ func (f *Fixer) convergePhaseOne(
 		return nil, nil, analysisError("collect environment", priority, dryRun, configPath, version, envErr)
 	}
 
-	normalized, normalizeChanges := NormalizeConfig(cfg, baseEnv.Tool, neverEnable, baseEnv.BinaryKnown)
+	normalized, normalizeChanges := NormalizeConfig(cfg, baseEnv.Tool, neverEnable, baseEnv.BinaryKnown, baseEnv.Tech)
 	if len(normalizeChanges) > 0 && !dryRun {
 		if err := f.configLoader.SaveConfig(normalized, configPath); err != nil {
 			return nil, nil, analysisError("save normalized config", priority, dryRun, configPath, version, err)
@@ -423,6 +423,7 @@ var ledgerActionMap = map[string]audit.Action{
 	"formatter-added-to-enable":     audit.ActionFormatterAddedToEnable,
 	"formatter-removed-from-enable": audit.ActionFormatterRemovedFromEnable,
 	"removed-from-enable":           audit.ActionRemovedFromEnable,
+	"retracted-project-specific":    audit.ActionRetractedProjectSpecific,
 	"moved-to-disable":              audit.ActionMovedToDisable,
 	"removed-from-disable":          audit.ActionRemovedFromDisable,
 	"pruned-settings":               audit.ActionPrunedSettings,

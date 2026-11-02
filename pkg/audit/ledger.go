@@ -10,6 +10,7 @@ package audit
 
 import (
 	"bufio"
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -23,7 +24,14 @@ import (
 
 	"charm.land/log/v2"
 	errorfamily "github.com/larsartmann/go-error-family"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/utils"
 )
+
+// EnvVarDisable skips all audit-ledger writes when set to any non-empty
+// value. It mirrors the --no-audit flag for callers without flag access
+// (the migrate command, embedded SDK consumers) and is the single source of
+// truth for the environment variable name.
+const EnvVarDisable = "GOLANGCI_LINT_AUTO_CONFIGURE_NO_AUDIT"
 
 const (
 	appName           = "golangci-lint-auto-configure"
@@ -46,6 +54,10 @@ const (
 	ActionMovedToDisable     Action = "moved-to-disable"
 	ActionRemovedFromDisable Action = "removed-from-disable"
 	ActionPrunedSettings     Action = "pruned-settings"
+	// ActionRetractedProjectSpecific records that a tech-gated linter was
+	// removed from enable because the project definitively no longer uses
+	// the gating technology (e.g. arangolint without an ArangoDB driver).
+	ActionRetractedProjectSpecific Action = "retracted-project-specific"
 	// ActionReEnabled records that an unjustified disable was undone (Pillar C enforcement).
 	ActionReEnabled Action = "re-enabled"
 	// ActionSuppressedReEnable records that a linter was NOT re-added to enable
@@ -73,6 +85,14 @@ const (
 	// golangci-lint (deprecated with no replacement) was dropped from
 	// linters.exclusions.rules[].linters.
 	ActionExclusionLinterRemoved Action = "exclusion-linter-removed"
+	// ActionConfigMigrated records that the migrate command rewrote a v1
+	// config to the v2 schema — a whole-file migration, not a per-linter
+	// change (the Linter field carries "config").
+	ActionConfigMigrated Action = "config-migrated"
+	// ActionPresetApplied records that configure --preset rewrote the
+	// enable/disable and formatter lists from named presets (the Linter field
+	// carries the comma-joined preset names).
+	ActionPresetApplied Action = "preset-applied"
 )
 
 // Entry is a single audit record, serialized as one JSONL line.
@@ -140,6 +160,39 @@ func DefaultLedgerPath() string {
 	}
 
 	return filepath.Join(dir, ledgerFileName)
+}
+
+// OpenRunLedger creates the per-run ledger for a config mutation: it resolves
+// the default ledger path, stamps a fresh RunContext (run ID, repo hash, git
+// head), and purges entries past DefaultRetention. It returns a NoopRecorder
+// when disabled is true, EnvVarDisable is set, or the ledger path is
+// unavailable, so callers never need to nil-check the result.
+//
+//nolint:ireturn // strategy pattern: returns *Ledger or NoopRecorder
+func OpenRunLedger(ctx context.Context, logger *log.Logger, configFile string, disabled bool) Recorder {
+	if disabled || os.Getenv(EnvVarDisable) != "" {
+		return NoopRecorder{}
+	}
+
+	ledgerPath := DefaultLedgerPath()
+	if ledgerPath == "" {
+		logger.Debugf("Audit ledger disabled: cannot resolve OS cache directory")
+
+		return NoopRecorder{}
+	}
+
+	repoPath := filepath.Dir(configFile)
+	runCtx := RunContext{
+		RunID:    NewRunID(),
+		RepoHash: RepoHashOf(repoPath),
+		RepoPath: repoPath,
+		GitHead:  utils.GitHead(ctx, repoPath),
+	}
+
+	ledger := NewLedger(logger, runCtx, ledgerPath)
+	ledger.PurgeRetention(DefaultRetention())
+
+	return ledger
 }
 
 // NewLedger creates a ledger for the given run. If path is empty, or its parent

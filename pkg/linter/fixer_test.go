@@ -681,6 +681,40 @@ linters:
 			Expect(parsed.Linters.Settings).NotTo(HaveKey("unused"))
 		})
 
+		It("retracts project-specific linters whose tech dependency is gone", func() {
+			configContent := `version: "2"
+linters:
+  enable:
+    - arangolint
+    - errcheck`
+			// The temp project has no ArangoDB driver anywhere, so the
+			// arangolint entry (written when the dependency existed) can
+			// never fire: the next configure pass retracts it.
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Enable).NotTo(ContainElement(types.LinterName("arangolint")))
+			Expect(parsed.Linters.Enable).To(ContainElement(types.LinterName("errcheck")))
+		})
+
+		It("records retracted-project-specific when a stale tech-gated entry is removed", func() {
+			recorder := &captureRecorder{}
+			fixer.SetLedger(recorder)
+
+			configContent := `version: "2"
+linters:
+  enable:
+    - arangolint`
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityMedium, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(recorder.hasAction(audit.ActionRetractedProjectSpecific, "arangolint")).To(BeTrue())
+		})
+
 		It("should resolve a linter present in both enable and disable", func() {
 			configContent := `version: "2"
 linters:
