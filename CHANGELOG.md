@@ -4,10 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [0.12.0] - 2026-11-02
 
 ### Added
 
+- **Release pipeline hardening.** Releases are signed with cosign v3's
+  required bundle format (one `.sigstore.json` per artifact; no separate
+  `.sig`/`.pem`), a dispatchable workflow backfills signatures and SBOMs onto
+  an already-published release, `post-release-verify.sh` now checks signature
+  bundles, SBOM assets, the GHCR tag, and the Homebrew cask, and a GHCR
+  cleanup workflow deletes stray image tags without ever touching a version
+  that carries other tags. Dependency-bot branches get `vendorHash.nix`
+  committed straight to the PR, so Dependabot go_modules updates are green
+  and mergeable instead of red by construction.
+-
 - **Managed-settings refresh: curated blocks that the tool wrote and the
   curation has since evolved now update in place, without touching user
   tuning.** Provenance is a historical-hash table
