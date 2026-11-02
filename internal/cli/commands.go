@@ -189,9 +189,20 @@ actionable recommendations to improve your Go code quality.`,
 	addSubCommands(rootCmd, builder, logger, configLoader)
 	registerGlobalFlags(rootCmd, flags)
 
+	// Usage errors (unknown flag, bad value) are Rejections: the user's input
+	// was wrong, not the environment — exit 1, never the unclassified 75
+	// default the errorfamily exit-code mapping falls back to.
+	rootCmd.SetFlagErrorFunc(rejectFlagErrors)
+
 	rootCmd.SetVersionTemplate(version.Get().Full() + "\n")
 
 	return rootCmd
+}
+
+// rejectFlagErrors classifies cobra usage errors (unknown flag, bad value) as
+// Rejections so HandleError maps them to exit code 1.
+func rejectFlagErrors(_ *cobra.Command, err error) error {
+	return errorfamily.WrapRejection(err, "cli.flags", "invalid flag usage")
 }
 
 // makePersistentPreRun chains the log-level configuration with the optional

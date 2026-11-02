@@ -42,6 +42,7 @@ var RegisteredCodes = map[string]bool{
 	"client.save_config":     true,
 	// cli
 	"cli.execute":             true,
+	"cli.flags":               true,
 	"cli.resolve_config_path": true,
 	// config
 	"config.backup_read":                      true,

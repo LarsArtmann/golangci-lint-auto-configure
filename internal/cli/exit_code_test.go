@@ -91,6 +91,39 @@ var _ = Context("exit codes", func() {
 		Expect(exitErr.ExitCode()).To(Equal(1))
 	})
 
+	It("should exit 1 (Rejection) on an unknown flag", func() {
+		binaryPath := buildBinary()
+
+		err := exec.Command(binaryPath, "configure", "--definitely-not-a-flag").Run()
+		Expect(err).To(HaveOccurred())
+
+		exitErr, ok := errors.AsType[*exec.ExitError](err)
+		Expect(ok).To(BeTrue())
+		Expect(exitErr.ExitCode()).To(Equal(1),
+			"usage errors are Rejections (user input was wrong), never the unclassified 75 default")
+	})
+
+	It("should exit 1 (Conflict) when --check finds fixes needed", func() {
+		initGitRepo()
+
+		binaryPath := buildBinary()
+		configPath := writeConfig(testConfigContentMinimal)
+
+		err := exec.Command(
+			binaryPath,
+			"configure",
+			"--config", configPath,
+			"--priority", "high",
+			"--check",
+		).Run()
+		Expect(err).To(HaveOccurred())
+
+		exitErr, ok := errors.AsType[*exec.ExitError](err)
+		Expect(ok).To(BeTrue())
+		Expect(exitErr.ExitCode()).To(Equal(1),
+			"ErrChangesNeeded is a Conflict: the config deviates from the desired state")
+	})
+
 	It("should output JSON error with --json-errors flag", func() {
 		initGitRepo()
 
