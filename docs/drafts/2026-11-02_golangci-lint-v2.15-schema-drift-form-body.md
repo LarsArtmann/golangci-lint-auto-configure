@@ -87,7 +87,7 @@ linters:
 <details>
 
 ```console
-$ go version && go env
+# paste output here
 ```
 
 </details>
