@@ -61,7 +61,7 @@ jobs:
       - name: Install golangci-lint for CLI tests
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.14.0
+          version: v2.15.0
           install-only: true
 
       - name: Build verification
@@ -159,7 +159,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.14.0
+          version: v2.15.0
           args: --config=.golangci.yml --timeout=5m
           working-directory: .
           skip-cache: false
@@ -198,7 +198,7 @@ jobs:
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.14.0
+          version: v2.15.0
           install-only: true
 
       - name: Fixture drift guard (regenerate + diff)
@@ -216,11 +216,11 @@ jobs:
           # The reference file must stay in lockstep with the committed schema
           # snapshot: a silent rot here means the hand-maintained curated
           # structs in linter_settings.go drift from the schema unnoticed.
-          go run ./cmd/generate-settings -schema=pkg/constants/schema/golangci-lint.jsonschema.json -output=pkg/constants/linter_settings_generated.go -schema-version=v2.14.0
+          go run ./cmd/generate-settings -schema=pkg/constants/schema/golangci-lint.jsonschema.json -output=pkg/constants/linter_settings_generated.go -schema-version=v2.15.0
           if git diff --exit-code pkg/constants/linter_settings_generated.go; then
             echo "✓ linter_settings_generated.go in sync with the schema"
           else
-            echo "✗ linter_settings_generated.go is stale — run 'go run ./cmd/generate-settings -schema=pkg/constants/schema/golangci-lint.jsonschema.json -output=pkg/constants/linter_settings_generated.go -schema-version=v2.14.0' and commit"
+            echo "✗ linter_settings_generated.go is stale — run 'go run ./cmd/generate-settings -schema=pkg/constants/schema/golangci-lint.jsonschema.json -output=pkg/constants/linter_settings_generated.go -schema-version=v2.15.0' and commit"
             exit 1
           fi
 
@@ -361,7 +361,7 @@ jobs:
       - name: Install pinned golangci-lint
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.14.0
+          version: v2.15.0
           install-only: true
 
       - name: Run parity corpus

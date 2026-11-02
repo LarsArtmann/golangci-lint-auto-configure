@@ -159,10 +159,14 @@ Status vocabulary: `FULLY_FUNCTIONAL` · `PARTIALLY_FUNCTIONAL` · `BROKEN` · `
 
 | Feature                                         | Status           | Notes                              |
 | ----------------------------------------------- | ---------------- | ---------------------------------- |
-| issues.exclude-rules → linters.exclusions.rules | FULLY_FUNCTIONAL | Path-based migration               |
-| issues.exclude-dirs → exclusions.paths          | FULLY_FUNCTIONAL | Directory exclusions               |
-| issues.exclude-files → exclusions.paths         | FULLY_FUNCTIONAL | File exclusions                    |
-| Linter-specific settings migration              | FULLY_FUNCTIONAL | gci, cyclop, wrapcheck, etc.       |
+| issues.exclude-rules → linters.exclusions.rules | FULLY_FUNCTIONAL | Path-based migration; `path-except`/`source` carried |
+| issues.exclude → exclusions.rules               | FULLY_FUNCTIONAL | Path-anchored rules with `(?i)` prefix (v1 case-insensitive default) |
+| issues.exclude-dirs → exclusions.paths          | FULLY_FUNCTIONAL | Directory exclusions, deduped       |
+| issues.exclude-files → exclusions.paths         | FULLY_FUNCTIONAL | File exclusions, deduped            |
+| issues.exclude-use-default → exclusion presets  | FULLY_FUNCTIONAL | Four v2 presets; v1 `false` opts out; version-gated |
+| exclude-dir-use-default / skip-dirs-use-default → exclusions.paths | FULLY_FUNCTIONAL | Guide's default dirs, deduped with user dirs |
+| output.format → output.formats map              | FULLY_FUNCTIONAL | Compound tokens, `junit-xml-extended`, `colored-*` mapping |
+| Linter-specific settings migration              | FULLY_FUNCTIONAL | gci, cyclop, wrapcheck (v2.15.0-schema-verified), etc. |
 | Removed settings cleanup                        | FULLY_FUNCTIONAL | Removes deprecated linter settings |
 | `--skip-validation` flag                        | FULLY_FUNCTIONAL | Skips post-migration validation    |
 

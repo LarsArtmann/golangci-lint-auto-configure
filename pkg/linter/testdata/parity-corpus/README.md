@@ -24,6 +24,7 @@ phase must keep this corpus green until its intentional, documented flip.
 | `bare-minimal`          | default enable-set rendering, formatter injection, run/issues/output defaults |
 | `typical`               | partial enables, respected disable (no sidecar), preserved settings, old run.go untouched |
 | `deprecated-linters`    | deprecation replacement migration + settings-block porting + bad-key rename |
+| `exhaustivestruct-chain` | supersession-chain collapse (exhaustivestruct → exhaustruct → exhaustruct_v5 in one run) + settings ported across hops |
 | `bad-settings-keys`     | KnownBadSettingsKeys self-heal (`goconst.min-length` → `min-len`)          |
 | `overspecified-run-go`  | run.go rescue (repair + `rescued-run-go` audit entry)                      |
 | `redundant-formatters`  | gofmt/golines redundancy removal, exclusion-rule merge + linter rename     |

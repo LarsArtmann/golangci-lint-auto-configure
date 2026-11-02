@@ -11,9 +11,11 @@ type Config struct {
 	ExcludeDirUseDefault   TriState       `yaml:"exclude-dir-use-default,omitempty"`
 	ExcludeRulesUseDefault TriState       `yaml:"exclude-rules-use-default,omitempty"`
 	ExcludeUseDefault      TriState       `yaml:"exclude-use-default,omitempty"`
+	ExcludeCaseSensitive   TriState       `yaml:"exclude-case-sensitive,omitempty"`
 	LintersSettingsV1      map[string]any `yaml:"linters-settings,omitempty"`
 	Version                string         `yaml:"version"`
 	ExcludeRules           []ExcludeRule  `yaml:"exclude-rules,omitempty"`
+	Exclude                []string       `yaml:"exclude,omitempty"`
 	ExcludeFiles           []string       `yaml:"exclude-files,omitempty"`
 	ExcludeDirs            []string       `yaml:"exclude-dirs,omitempty"`
 	Output                 Output         `yaml:"output,omitempty"`
@@ -67,9 +69,11 @@ func moveIssuesFieldsToTemp(temp, issuesMap map[string]any) map[string]any {
 		tempKey string
 	}{
 		{"exclude-rules", "exclude-rules"},
+		{"exclude", "exclude"},
 		{"exclude-files", "exclude-files"},
 		{"exclude-dirs", "exclude-dirs"},
 		{"exclude-use-default", "exclude-use-default"},
+		{"exclude-case-sensitive", "exclude-case-sensitive"},
 		{"exclude-rules-use-default", "exclude-rules-use-default"},
 		{"exclude-dir-use-default", "exclude-dir-use-default"},
 	}
@@ -107,10 +111,11 @@ type RunIssues struct {
 
 // Output represents the output section of golangci-lint configuration.
 type Output struct {
-	Format           string `yaml:"format,omitempty"`
-	PrintIssuedLines bool   `yaml:"print-issued-lines,omitempty"`
-	PrintLinterName  bool   `yaml:"print-linter-name,omitempty"`
-	SortResults      bool   `yaml:"sort-results,omitempty"`
+	Format           string                    `yaml:"format,omitempty"`
+	Formats          map[string]map[string]any `yaml:"formats,omitempty"`
+	PrintIssuedLines bool                      `yaml:"print-issued-lines,omitempty"`
+	PrintLinterName  bool                      `yaml:"print-linter-name,omitempty"`
+	SortResults      bool                      `yaml:"sort-results,omitempty"`
 }
 
 // Linters represents the linters section of golangci-lint configuration.

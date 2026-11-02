@@ -96,6 +96,8 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 
 	fixesApplied := 0
 
+	wasV1 := !m.rules.IsValidVersion(cfg.Version)
+
 	// Fix 0: Migrate version to v2 format
 	if migrateVersion(&cfg.Version, m.rules) {
 		fixesApplied += m.logFixApplied("Migrated version to v2 format")
@@ -106,13 +108,19 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 		fixesApplied += m.logFixApplied("Set default run.timeout")
 	}
 
+	// Fix 0c: Migrate run.skip-dirs-use-default (deprecated chain:
+	// run.skip-dirs-use-default → issues.exclude-dir-use-default → exclusions.paths)
+	if m.migrateRunSkipDirsUseDefault(cfg, wasV1) {
+		fixesApplied += m.logFixApplied("Migrated 'run.skip-dirs-use-default' to exclusions.paths (default directories)")
+	}
+
 	// Fix 1: Move top-level linters-settings to nested linters.settings
 	if m.migrateLintersSettings(cfg) {
 		fixesApplied += m.logFixApplied("Migrated 'linters-settings' to nested 'linters.settings'")
 	}
 
-	// Fix 2: Migrate issues.* properties (rules, dirs, files)
-	issuesFixes := m.migrateIssuesProperties(cfg)
+	// Fix 2: Migrate issues.* properties (rules, exclude list, use-default flags)
+	issuesFixes := m.migrateIssuesProperties(cfg, wasV1)
 	fixesApplied += m.logFixesApplied(
 		fmt.Sprintf("Migrated %d 'issues.*' properties to new structure", issuesFixes),
 		issuesFixes,

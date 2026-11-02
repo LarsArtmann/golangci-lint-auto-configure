@@ -85,12 +85,12 @@ var _ = Describe("v1→v2 settings conversions from the upstream migration guide
 linters-settings:
   misspell:
     ignore-words:
-      - "unkown"
+      - "unknown"
 `, "misspell")
 
 		Expect(settings).To(HaveKey("ignore-rules"))
 		Expect(settings).NotTo(HaveKey("ignore-words"))
-		Expect(settings["ignore-rules"]).To(ContainElement("unkown"))
+		Expect(settings["ignore-rules"]).To(ContainElement("unknown"))
 	})
 
 	It("renames predeclared.q to qualified-name and converts ignore string to a list", func() {
@@ -103,8 +103,10 @@ linters-settings:
 
 		Expect(settings).To(HaveKey("qualified-name"))
 		Expect(settings).NotTo(HaveKey("q"))
-		Expect(settings["ignore"]).To(BeAssignableToTypeOf([]string{}),
-			"v1 bare-string ignore must become a v2 list")
+		Expect(settings["ignore"]).To(SatisfyAny(
+			BeAssignableToTypeOf([]string{}),
+			BeAssignableToTypeOf([]any{}),
+		), "v1 bare-string ignore must become a v2 list, not a bare string")
 		Expect(settings["ignore"]).To(ContainElement("cap"))
 	})
 
@@ -196,7 +198,7 @@ linters-settings:
         rules: "rules.go,${configDir}/more-rules.go"
 `, "gocritic")
 
-		ruleguard := settings["settings"].(map[string]any)
+		ruleguard := settings["settings"].(map[string]any)["ruleguard"].(map[string]any)
 		Expect(ruleguard["rules"]).To(Equal("rules.go,${base-path}/more-rules.go"))
 	})
 })
@@ -375,6 +377,287 @@ linters:
     - errcheck
 `
 }
+
+var _ = Describe("structural v1→v2 conversions from the upstream migration guide", func() {
+	// migratedDoc mirrors the migrated YAML sections the structural conversions
+	// write, for assertions after the run.
+	type migratedDoc struct {
+		Exclude   []string `yaml:"exclude"`
+		CaseSens  *bool    `yaml:"exclude-case-sensitive"`
+		OutputUse *bool    `yaml:"exclude-use-default"`
+		DirUse    *bool    `yaml:"exclude-dir-use-default"`
+		SkipDirs  *bool    `yaml:"skip-dirs-use-default"`
+		Output    struct {
+			Format  string                    `yaml:"format"`
+			Formats map[string]map[string]any `yaml:"formats"`
+		} `yaml:"output"`
+		Formatters struct {
+			Exclusions struct {
+				Paths []string `yaml:"paths"`
+			} `yaml:"exclusions"`
+		} `yaml:"formatters"`
+		Linters struct {
+			Exclusions struct {
+				Presets []string `yaml:"presets"`
+				Paths   []string `yaml:"paths"`
+				Rules   []struct {
+					Path string `yaml:"path"`
+					Text string `yaml:"text"`
+				} `yaml:"rules"`
+			} `yaml:"exclusions"`
+		} `yaml:"linters"`
+	}
+
+	// migrate runs the migrator and returns the parsed result. Success and
+	// fix-count assertions are made inside testMigrationWithConfig.
+	migrate := func(configContent string) migratedDoc {
+		configPath := testMigrationWithConfig(GinkgoT().TempDir(), configContent)
+
+		content, err := os.ReadFile(configPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		var doc migratedDoc
+		Expect(yaml.Unmarshal(content, &doc)).To(Succeed())
+
+		return doc
+	}
+
+	It("converts issues.exclude to path-anchored rules with a (?i) prefix by default", func() {
+		doc := migrate(`version: "1"
+issues:
+  exclude:
+    - abcdef
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Exclude).To(BeEmpty())
+		Expect(doc.Linters.Exclusions.Rules).To(HaveLen(1))
+		Expect(doc.Linters.Exclusions.Rules[0].Path).To(Equal(`(.+)\.go$`))
+		Expect(doc.Linters.Exclusions.Rules[0].Text).To(Equal("(?i)abcdef"))
+	})
+
+	It("keeps v2 case-sensitive excludes unprefixed via exclude-case-sensitive: true", func() {
+		doc := migrate(`version: "1"
+issues:
+  exclude-case-sensitive: true
+  exclude:
+    - ABCDEF
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Linters.Exclusions.Rules).To(HaveLen(1))
+		Expect(doc.Linters.Exclusions.Rules[0].Text).To(Equal("ABCDEF"))
+	})
+
+	It("does not duplicate a rule that already exists", func() {
+		doc := migrate(`version: "1"
+issues:
+  exclude:
+    - abcdef
+  exclude-rules:
+    - path: '(.+)\.go$'
+      text: (?i)abcdef
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Linters.Exclusions.Rules).To(HaveLen(1))
+	})
+
+	It("maps exclude-use-default=true and the absent v1 default to the four presets", func() {
+		for _, tc := range []struct{ name, cfg string }{
+			{"explicit true", `issues:
+  exclude-use-default: true
+`},
+			{"absent (v1 default true)", ``},
+		} {
+			doc := migrate("version: \"1\"\n" + tc.cfg + `linters:
+  enable:
+    - errcheck
+`)
+
+			Expect(doc.Linters.Exclusions.Presets).To(ConsistOf(
+				"comments", "common-false-positives", "legacy", "std-error-handling",
+			), tc.name)
+			Expect(doc.OutputUse).To(BeNil(), tc.name)
+		}
+	})
+
+	It("adds no presets when v1 explicitly opted out with exclude-use-default=false", func() {
+		doc := migrate(`version: "1"
+issues:
+  exclude-use-default: false
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Linters.Exclusions.Presets).To(BeEmpty())
+	})
+
+	It("clears a stray exclude-use-default on a v2 config without adding presets", func() {
+		configPath := writeYMLConfig(GinkgoT().TempDir(), `version: "2"
+exclude-use-default: true
+linters:
+  enable:
+    - errcheck
+`)
+
+		m, err := migration.NewMigrator(configPath, false)
+		Expect(err).NotTo(HaveOccurred())
+		m.SetValidator(migration.MockValidator{})
+
+		success, _, err := m.MigrateToV2()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(success).To(BeTrue())
+
+		content, err := os.ReadFile(configPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		var doc migratedDoc
+		Expect(yaml.Unmarshal(content, &doc)).To(Succeed())
+		Expect(doc.Linters.Exclusions.Presets).To(BeEmpty())
+	})
+
+	It("converts exclude-dir-use-default to the guide's default directory exclusions", func() {
+		doc := migrate(`version: "1"
+issues:
+  exclude-dir-use-default: true
+linters:
+  enable:
+    - errcheck
+`)
+
+		defaults := ConsistOf("third_party$", "builtin$", "examples$")
+		Expect(doc.Linters.Exclusions.Paths).To(defaults)
+		Expect(doc.Formatters.Exclusions.Paths).To(defaults)
+	})
+
+	It("adds no default directories when every use-default flag opted out", func() {
+		doc := migrate(`version: "1"
+run:
+  skip-dirs-use-default: false
+issues:
+  exclude-dir-use-default: false
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Linters.Exclusions.Paths).To(BeEmpty())
+		Expect(doc.Formatters.Exclusions.Paths).To(BeEmpty())
+	})
+
+	It("converts run.skip-dirs-use-default and dedupes with existing exclude-dirs", func() {
+		doc := migrate(`version: "1"
+run:
+  skip-dirs-use-default: true
+issues:
+  exclude-dirs:
+    - third_party$
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Linters.Exclusions.Paths).To(ConsistOf(
+			"third_party$", "builtin$", "examples$",
+		))
+	})
+
+	It("migrates the guide's compound output.format example to output.formats", func() {
+		doc := migrate(`version: "1"
+output:
+  format: 'checkstyle:report.xml,json:stdout,colored-line-number'
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Output.Format).To(Equal(""))
+		Expect(doc.Output.Formats).To(HaveLen(3))
+		Expect(doc.Output.Formats["checkstyle"]).To(HaveKeyWithValue("path", "report.xml"))
+		Expect(doc.Output.Formats["json"]).To(HaveKeyWithValue("path", "stdout"))
+		Expect(doc.Output.Formats["text"]).To(SatisfyAll(
+			HaveKeyWithValue("path", "stdout"),
+			HaveKeyWithValue("colors", true),
+		))
+	})
+
+	It("maps line-number, tab, and junit-xml-extended faithfully", func() {
+		doc := migrate(`version: "1"
+output:
+  format: 'line-number,colored-tab:out.txt,junit-xml-extended'
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Output.Formats["text"]).To(HaveKeyWithValue("path", "stdout"))
+		Expect(doc.Output.Formats["text"]).NotTo(HaveKey("colors"))
+		Expect(doc.Output.Formats["tab"]).To(SatisfyAll(
+			HaveKeyWithValue("path", "out.txt"),
+			HaveKeyWithValue("colors", true),
+		))
+		Expect(doc.Output.Formats["junit-xml"]).To(HaveKeyWithValue("extended", true))
+	})
+
+	It("drops formats removed in v2 (github-actions) and preserves existing v2 blocks on collision", func() {
+		doc := migrate(`version: "1"
+output:
+  format: 'github-actions,colored-line-number'
+  formats:
+    text:
+      path: keep-me.txt
+linters:
+  enable:
+    - errcheck
+`)
+
+		Expect(doc.Output.Format).To(Equal(""))
+		Expect(doc.Output.Formats).To(HaveLen(1))
+		Expect(doc.Output.Formats["text"]).To(HaveKeyWithValue("path", "keep-me.txt"))
+		Expect(doc.Output.Formats["text"]).NotTo(HaveKey("colors"))
+	})
+
+	It("is idempotent: a second run reports no migration", func() {
+		configPath := writeYMLConfig(GinkgoT().TempDir(), `version: "1"
+issues:
+  exclude:
+    - abcdef
+  exclude-use-default: true
+output:
+  format: json
+linters:
+  enable:
+    - errcheck
+`)
+
+		run := func() (bool, int) {
+			m, err := migration.NewMigrator(configPath, false)
+			Expect(err).NotTo(HaveOccurred())
+			m.SetValidator(migration.MockValidator{})
+
+			success, fixes, err := m.MigrateToV2()
+			Expect(err).NotTo(HaveOccurred())
+
+			return success, fixes
+		}
+
+		success, fixes := run()
+		Expect(success).To(BeTrue())
+		Expect(fixes).To(BeNumerically(">", 0))
+
+		success, fixes = run()
+		Expect(success).To(BeFalse())
+		Expect(fixes).To(Equal(0))
+	})
+})
 
 var _ = Describe("Migrator", func() {
 	var testDir string

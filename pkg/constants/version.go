@@ -45,6 +45,6 @@ func DerivedMinToolVersion() types.GolangciVersion {
 // as the tool is tested and developed against this specific version.
 // v2.13.2 was the first line built with Go 1.27 — older binaries reject
 // configs whose run.go targets Go 1.27+. The tool is developed and tested
-// against v2.14.0 (CI pin, schema snapshot), whose release binaries are
+// against v2.15.0 (CI pin, schema snapshot), whose release binaries are
 // also built with Go 1.27.
-const ExpectedGolangCILintVersion = "v2.14.0"
+const ExpectedGolangCILintVersion = "v2.15.0"

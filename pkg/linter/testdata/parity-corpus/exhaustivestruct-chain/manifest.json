@@ -1,0 +1,11 @@
+{
+  "Name": "exhaustivestruct-chain",
+  "Description": "exhaustivestruct (the v1.46-renamed predecessor) with a v1 settings block: the supersession chain exhaustivestruct → exhaustruct → exhaustruct_v5 must collapse to exhaustruct_v5 in ONE run, porting the settings through both hops (exclude → ignore-patterns via KnownBadSettingsKeys).",
+  "Source": "authored for the corpus (upstream v2.0.0→v2.15.0 audit, 2026-11-01)",
+  "Priority": "high",
+  "DryRun": false,
+  "ForceSettings": false,
+  "Pragmatic": false,
+  "LocalGoVersion": "1.27.1",
+  "RequiresToolAtLeast": "v2.13.0"
+}

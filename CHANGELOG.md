@@ -8,7 +8,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Nothing yet.
+- **golangci-lint v2.15.0 is the new baseline.** The CI lint/test jobs and
+  all four golangci-lint-action pins run v2.15.0, `ExpectedGolangCILintVersion`
+  matches, and the JSON-schema snapshot behind the generated settings
+  reference is captured from the v2.15.0 tag (sole new key:
+  `exhaustruct_v5.allow-empty-blank-assignments`; the curated minimum stays
+  v2.12.0).
+- The `migrate` subcommand converts the remaining v1→v2 settings
+  transformations the official migration guide prescribes:
+  `misspell.ignore-words` → `ignore-rules`, `predeclared.q` →
+  `qualified-name`, `predeclared.ignore` string → list, `sloglint.context-only:
+  true` → `context: all`, `govet.check-shadowing` → `enable: [shadow]`
+  (with the shadow entry deduplicated), and gocritic ruleguard's
+  `${configDir}` → `${base-path}`. It also drops keys that no longer exist
+  in v2 (`errcheck.exclude`/`errcheck.ignore`, `unused.exported-is-used`,
+  `usestdlibvars.os-dev-null`/`syslog-priority`) and carries
+  `path-except`/`source` through the `issues.exclude-rules` →
+  `linters.exclusions.rules` move instead of silently losing them. It also
+  converts the structural v1 sections the guide prescribes: `issues.exclude`
+  becomes path-anchored exclusion rules with a `(?i)` prefix (v1 matched
+  case-insensitively unless `exclude-case-sensitive: true`),
+  `issues.exclude-use-default` becomes the four v2 exclusion presets,
+  `issues.exclude-dir-use-default` and `run.skip-dirs-use-default` become the
+  guide's default directory exclusions (deduped against user `exclude-dirs`;
+  an explicit v1 `false` opts out), and `output.format` compound tokens
+  become the `output.formats` map (`colored-line-number` → `text` with
+  `colors`, `junit-xml-extended` → `extended`; v2-dropped formats such as
+  `github-actions` are dropped). Flag conversions are version-gated so
+  re-running `migrate` on a migrated config reports zero fixes. A v1 config
+  carrying every legacy key now migrates to a config
+  `golangci-lint v2.15.0 config verify` loads clean.
+- A new `exhaustivestruct-chain` parity-corpus fixture pins the one-run
+  supersession-chain collapse (`exhaustivestruct` → `exhaustruct` →
+  `exhaustruct_v5`) including settings ported across both hops.
 
 ### Changed
 
@@ -62,6 +94,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   service URLs and use signing config" — the v0.11.0 tag's release run
   failed after building every artifact. Migrate the signs config to the
   cosign v3 bundle format before unpinning.
+- The repo's own lint config is green under wrapcheck 2.13 (shipped in the
+  v2.15.0 binary): an `ignore-sig-regexps` entry exempts the in-module
+  classified-error constructors (`pkg/errors`, `go-error-family`), whose
+  returned errors are the house error-handling pattern, not missing wraps.
+  Without it, every local run on a v2.15 binary reported ~137 false
+  wrapcheck findings.
 
 ## [0.11.0] - 2026-10-17
 

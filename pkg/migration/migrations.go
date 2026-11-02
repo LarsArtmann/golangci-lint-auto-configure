@@ -5,6 +5,7 @@ package migration
 
 import (
 	"maps"
+	"strings"
 
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
@@ -35,11 +36,15 @@ func initSettings(settings *map[string]any) {
 }
 
 // migrateIssuesProperties migrates all issues properties.
-func (m *Migrator) migrateIssuesProperties(config *Config) int {
+func (m *Migrator) migrateIssuesProperties(config *Config, wasV1 bool) int {
 	fixes := 0
 
 	if m.migrateIssuesExcludeRules(config) {
 		fixes += m.logFixApplied("Migrated 'issues.exclude-rules' to 'linters.exclusions.rules'")
+	}
+
+	if m.migrateIssuesExclude(config) {
+		fixes += m.logFixApplied("Migrated 'issues.exclude' to 'linters.exclusions.rules'")
 	}
 
 	if m.migrateIssuesExcludeDirs(config) {
@@ -48,6 +53,14 @@ func (m *Migrator) migrateIssuesProperties(config *Config) int {
 
 	if m.migrateIssuesExcludeFiles(config) {
 		fixes += m.logFixApplied("Migrated 'issues.exclude-files' to exclusions.paths")
+	}
+
+	if m.migrateIssuesExcludeUseDefault(config, wasV1) {
+		fixes += m.logFixApplied("Migrated 'issues.exclude-use-default' to 'linters.exclusions.presets'")
+	}
+
+	if m.migrateIssuesExcludeDirUseDefault(config, wasV1) {
+		fixes += m.logFixApplied("Migrated 'issues.exclude-dir-use-default' to exclusions.paths (default directories)")
 	}
 
 	flagFixes := m.migrateIssuesFlags(config)
@@ -69,13 +82,7 @@ func (m *Migrator) migrateIssuesExcludeRules(config *Config) bool {
 	}
 
 	for _, rule := range config.ExcludeRules {
-		config.Linters.Exclusions.Rules = append(config.Linters.Exclusions.Rules, ExclusionRule{
-			Path:       rule.Path,
-			PathExcept: rule.PathExcept,
-			Text:       rule.Text,
-			Source:     rule.Source,
-			Linters:    rule.Linters,
-		})
+		config.Linters.Exclusions.Rules = append(config.Linters.Exclusions.Rules, ExclusionRule(rule))
 	}
 
 	config.ExcludeRules = nil
@@ -93,8 +100,8 @@ func (m *Migrator) migrateIssuesExcludeDirs(config *Config) bool {
 		return true
 	}
 
-	config.Linters.Exclusions.Paths = append(config.Linters.Exclusions.Paths, config.ExcludeDirs...)
-	config.Formatters.Exclusions.Paths = append(config.Formatters.Exclusions.Paths, config.ExcludeDirs...)
+	appendUnique(&config.Linters.Exclusions.Paths, config.ExcludeDirs)
+	appendUnique(&config.Formatters.Exclusions.Paths, config.ExcludeDirs)
 	config.ExcludeDirs = nil
 
 	return true
@@ -110,11 +117,169 @@ func (m *Migrator) migrateIssuesExcludeFiles(config *Config) bool {
 		return true
 	}
 
-	config.Linters.Exclusions.Paths = append(config.Linters.Exclusions.Paths, config.ExcludeFiles...)
-	config.Formatters.Exclusions.Paths = append(config.Formatters.Exclusions.Paths, config.ExcludeFiles...)
+	appendUnique(&config.Linters.Exclusions.Paths, config.ExcludeFiles)
+	appendUnique(&config.Formatters.Exclusions.Paths, config.ExcludeFiles)
 	config.ExcludeFiles = nil
 
 	return true
+}
+
+// appendUnique appends items to target, skipping entries already present.
+func appendUnique(target *[]string, items []string) {
+	seen := make(map[string]bool, len(*target)+len(items))
+	for _, existing := range *target {
+		seen[existing] = true
+	}
+
+	for _, item := range items {
+		if seen[item] {
+			continue
+		}
+
+		seen[item] = true
+		*target = append(*target, item)
+	}
+}
+
+// excludeRulePathAllGo is the path criterion the migration guide prescribes
+// for exclusion rules converted from the plain 'issues.exclude' list.
+const excludeRulePathAllGo = `(.+)\.go$`
+
+// migrateIssuesExclude migrates the plain 'issues.exclude' regex list to
+// 'linters.exclusions.rules' entries (path-anchored, per the upstream migration
+// guide), folding v1's case-insensitive default into a (?i) prefix.
+func (m *Migrator) migrateIssuesExclude(config *Config) bool {
+	if len(config.Exclude) == 0 && config.ExcludeCaseSensitive == TriStateUnspecified {
+		return false
+	}
+
+	if m.dryRun {
+		return true
+	}
+
+	caseInsensitive := config.ExcludeCaseSensitive != TriStateEnabled
+
+	seen := make(map[string]bool, len(config.Linters.Exclusions.Rules))
+	for _, rule := range config.Linters.Exclusions.Rules {
+		seen[rule.Path+"\x00"+rule.Text] = true
+	}
+
+	for _, pattern := range config.Exclude {
+		text := pattern
+		if caseInsensitive {
+			text = "(?i)" + pattern
+		}
+
+		rule := ExclusionRule{Path: excludeRulePathAllGo, Text: text}
+		if seen[rule.Path+"\x00"+rule.Text] {
+			continue
+		}
+
+		seen[rule.Path+"\x00"+rule.Text] = true
+		config.Linters.Exclusions.Rules = append(config.Linters.Exclusions.Rules, rule)
+	}
+
+	config.Exclude = nil
+	config.ExcludeCaseSensitive = TriStateUnspecified
+
+	return true
+}
+
+// migrateIssuesExcludeUseDefault migrates 'issues.exclude-use-default' to the
+// four v2 exclusion presets that supersede the v1 default exclusions. An
+// explicit v1 `false` opted out of the defaults, so it converts to no presets.
+// A v1 config without the key had the defaults active (v1 default true), so
+// genuine v1 configs get the presets even when the key is absent.
+func (m *Migrator) migrateIssuesExcludeUseDefault(config *Config, wasV1 bool) bool {
+	if config.ExcludeUseDefault == TriStateUnspecified && !wasV1 {
+		return false
+	}
+
+	defaultsActive := wasV1 && config.ExcludeUseDefault != TriStateDisabled
+	if defaultsActive && !m.dryRun {
+		mergeDefaultExclusionPresets(&config.Linters.Exclusions.Presets)
+	}
+
+	if m.dryRun {
+		return true
+	}
+
+	config.ExcludeUseDefault = TriStateUnspecified
+
+	return true
+}
+
+// migrateIssuesExcludeDirUseDefault migrates 'issues.exclude-dir-use-default'
+// to the default directory exclusions the guide prescribes. Explicit v1
+// `false` opted out; genuine v1 configs without the key had the defaults
+// active, mirroring migrateIssuesExcludeUseDefault.
+func (m *Migrator) migrateIssuesExcludeDirUseDefault(config *Config, wasV1 bool) bool {
+	if config.ExcludeDirUseDefault == TriStateUnspecified && !wasV1 {
+		return false
+	}
+
+	defaultsActive := wasV1 && config.ExcludeDirUseDefault != TriStateDisabled
+	if defaultsActive && !m.dryRun {
+		mergeDefaultExcludeDirs(config)
+	}
+
+	if m.dryRun {
+		return true
+	}
+
+	config.ExcludeDirUseDefault = TriStateUnspecified
+
+	return true
+}
+
+// migrateRunSkipDirsUseDefault migrates 'run.skip-dirs-use-default' (deprecated
+// in v1.57.0 in favor of exclude-dir-use-default, itself removed in v2) to the
+// same default directory exclusions.
+func (m *Migrator) migrateRunSkipDirsUseDefault(config *Config, wasV1 bool) bool {
+	if config.Run.SkipDirsUseDefault == TriStateUnspecified && !wasV1 {
+		return false
+	}
+
+	defaultsActive := wasV1 && config.Run.SkipDirsUseDefault != TriStateDisabled
+	if defaultsActive && !m.dryRun {
+		mergeDefaultExcludeDirs(config)
+	}
+
+	if m.dryRun {
+		return true
+	}
+
+	config.Run.SkipDirsUseDefault = TriStateUnspecified
+
+	return true
+}
+
+// mergeDefaultExclusionPresets unions the four v2 exclusion presets (the v1
+// default exclusions) into the existing preset list without duplicates.
+func mergeDefaultExclusionPresets(presets *[]string) {
+	defaults := []string{"comments", "common-false-positives", "legacy", "std-error-handling"}
+
+	existing := make(map[string]bool, len(*presets)+len(defaults))
+	for _, preset := range *presets {
+		existing[preset] = true
+	}
+
+	for _, preset := range defaults {
+		if existing[preset] {
+			continue
+		}
+
+		existing[preset] = true
+		*presets = append(*presets, preset)
+	}
+}
+
+// mergeDefaultExcludeDirs unions the default directory exclusions prescribed by
+// the migration guide into both linter and formatter exclusion paths.
+func mergeDefaultExcludeDirs(config *Config) {
+	defaults := []string{"third_party$", "builtin$", "examples$"}
+	appendUnique(&config.Linters.Exclusions.Paths, defaults)
+	appendUnique(&config.Formatters.Exclusions.Paths, defaults)
 }
 
 // migrateIssuesFlags migrates deprecated boolean flags.
@@ -129,41 +294,11 @@ func (m *Migrator) migrateIssuesFlags(config *Config) int {
 }
 
 func (m *Migrator) countIssuesFlags(config *Config) int {
-	count := 0
-	if config.ExcludeUseDefault != TriStateUnspecified {
-		count++
-	}
-
 	if config.ExcludeRulesUseDefault != TriStateUnspecified {
-		count++
+		return 1
 	}
 
-	if config.ExcludeDirUseDefault != TriStateUnspecified {
-		count++
-	}
-
-	return count
-}
-
-func (m *Migrator) clearIssuesFlags(config *Config) int {
-	fixes := 0
-
-	if config.ExcludeUseDefault != TriStateUnspecified {
-		config.ExcludeUseDefault = TriStateUnspecified
-		fixes++
-	}
-
-	if config.ExcludeRulesUseDefault != TriStateUnspecified {
-		config.ExcludeRulesUseDefault = TriStateUnspecified
-		fixes++
-	}
-
-	if config.ExcludeDirUseDefault != TriStateUnspecified {
-		config.ExcludeDirUseDefault = TriStateUnspecified
-		fixes++
-	}
-
-	return fixes
+	return 0
 }
 
 // migrateFormatters migrates formatters from linters.enable to formatters.enable.
@@ -267,11 +402,72 @@ func (m *Migrator) clearOutputProperties(config *Config) int {
 	}
 
 	if config.Output.Format != "" {
+		if blocks := outputFormatBlocks(config.Output.Format); len(blocks) > 0 {
+			if config.Output.Formats == nil {
+				config.Output.Formats = make(map[string]map[string]any, len(blocks))
+			}
+
+			for name, block := range blocks {
+				if _, exists := config.Output.Formats[name]; !exists {
+					config.Output.Formats[name] = block
+				}
+			}
+		}
+
 		config.Output.Format = ""
 		fixes++
 	}
 
 	return fixes
+}
+
+func (m *Migrator) clearIssuesFlags(config *Config) int {
+	if config.ExcludeRulesUseDefault != TriStateUnspecified {
+		config.ExcludeRulesUseDefault = TriStateUnspecified
+		return 1
+	}
+
+	return 0
+}
+
+// outputFormatBlocks parses a v1 'output.format' value (comma-separated
+// format[:path] tokens) into v2 'output.formats' blocks per the migration
+// guide. Unknown v2-dropped formats (e.g. github-actions) are skipped.
+func outputFormatBlocks(format string) map[string]map[string]any {
+	blocks := make(map[string]map[string]any)
+
+	for token := range strings.SplitSeq(format, ",") {
+		token = strings.TrimSpace(token)
+		if token == "" {
+			continue
+		}
+
+		name, path, _ := strings.Cut(token, ":")
+		if path == "" {
+			path = "stdout"
+		}
+
+		switch name {
+		case "colored-line-number":
+			blocks["text"] = map[string]any{"path": path, "colors": true}
+		case "line-number":
+			blocks["text"] = map[string]any{"path": path}
+		case "colored-tab":
+			blocks["tab"] = map[string]any{"path": path, "colors": true}
+		case "tab":
+			blocks["tab"] = map[string]any{"path": path}
+		case "junit-xml-extended":
+			blocks["junit-xml"] = map[string]any{"path": path, "extended": true}
+		case "html", "checkstyle", "code-climate", "junit-xml", "json", "teamcity", "sarif":
+			blocks[name] = map[string]any{"path": path}
+		}
+	}
+
+	if len(blocks) == 0 {
+		return nil
+	}
+
+	return blocks
 }
 
 // migrateVersion ensures the config has a valid v2 version string.

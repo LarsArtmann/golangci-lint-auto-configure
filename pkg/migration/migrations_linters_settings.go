@@ -4,6 +4,7 @@
 package migration
 
 import (
+	"slices"
 	"strings"
 )
 
@@ -32,12 +33,42 @@ func normalizeLocalPrefixes(settings map[string]any) int {
 }
 
 // migrateLinterSettings applies all linter-specific settings migrations.
-//
-//nolint:gocognit,nestif,gocyclo,cyclop,funlen // Complex migration logic with many linter-specific cases
+// Each step is a self-contained helper so the sequence stays auditable.
 func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 	fixes := 0
 
-	// 1. Remove deprecated properties from known linters
+	fixes += removeDeprecatedLinterSettings(settings, rules)
+	fixes += renameLegacyLinterSettings(settings, rules)
+	fixes += removeSettingsForLintersWithoutSettings(settings, rules)
+	fixes += removeDeprecatedGocriticCheckers(settings, rules)
+
+	// goimports.local-prefixes: v1 allowed a bare string, v2 wants a list
+	if goimports, ok := settings["goimports"].(map[string]any); ok {
+		fixes += normalizeLocalPrefixes(goimports)
+	}
+
+	fixes += dropNullGosecExcludes(settings)
+	fixes += migrateForbidigoPatternKey(settings)
+	fixes += migrateModernizeDisableValues(settings, rules)
+	fixes += migrateSloglintKeyNamingCase(settings, rules)
+
+	// predeclared.ignore became a list in v2 (v1 allowed a bare string)
+	if predeclared, ok := settings["predeclared"].(map[string]any); ok {
+		fixes += normalizeStringToSlice(predeclared, "ignore")
+	}
+
+	fixes += migrateSloglintContextOnly(settings)
+	fixes += migrateGovetCheckShadowing(settings)
+	fixes += migrateGocriticRuleguardPaths(settings)
+
+	return fixes
+}
+
+// removeDeprecatedLinterSettings deletes properties that no longer exist in
+// the v2 schema, dropping the linter's block entirely when it empties out.
+func removeDeprecatedLinterSettings(settings map[string]any, rules *MigrationRules) int {
+	fixes := 0
+
 	for linterName, propsToRemove := range rules.RemovedLinterSettings {
 		if linterSettings, ok := settings[linterName].(map[string]any); ok {
 			for _, prop := range propsToRemove {
@@ -54,7 +85,14 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 		}
 	}
 
-	// 1b. Rename v1 keys whose v2 successor has identical semantics
+	return fixes
+}
+
+// renameLegacyLinterSettings renames v1 keys whose v2 successor has identical
+// semantics; an already-present successor key wins and the legacy value drops.
+func renameLegacyLinterSettings(settings map[string]any, rules *MigrationRules) int {
+	fixes := 0
+
 	for linterName, renames := range rules.RenamedLinterSettings {
 		linterSettings, ok := settings[linterName].(map[string]any)
 		if !ok {
@@ -81,7 +119,14 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 		}
 	}
 
-	// 2. Remove settings for linters that no longer support them
+	return fixes
+}
+
+// removeSettingsForLintersWithoutSettings drops whole settings blocks for
+// linters that expose no settings at all in v2.
+func removeSettingsForLintersWithoutSettings(settings map[string]any, rules *MigrationRules) int {
+	fixes := 0
+
 	for linterName := range rules.LintersWithoutSettings {
 		if _, exists := settings[linterName]; exists {
 			delete(settings, linterName)
@@ -90,7 +135,14 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 		}
 	}
 
-	// 3. Handle gocritic.settings - remove old checker settings
+	return fixes
+}
+
+// removeDeprecatedGocriticCheckers deletes v1 gocritic checker settings that
+// v2 no longer supports, removing the settings key when it empties out.
+func removeDeprecatedGocriticCheckers(settings map[string]any, rules *MigrationRules) int {
+	fixes := 0
+
 	if gocritic, ok := settings["gocritic"].(map[string]any); ok {
 		if gocriticSettings, ok := gocritic["settings"].(map[string]any); ok {
 			for _, setting := range rules.GocriticSettingsToRemove {
@@ -107,140 +159,204 @@ func migrateLinterSettings(settings map[string]any, rules *MigrationRules) int {
 		}
 	}
 
-	// 4. Convert goimports.local-prefixes from string to array
-	if goimports, ok := settings["goimports"].(map[string]any); ok {
-		fixes += normalizeLocalPrefixes(goimports)
+	return fixes
+}
+
+// dropNullGosecExcludes removes a gosec.excludes key that only carries null.
+func dropNullGosecExcludes(settings map[string]any) int {
+	gosec, ok := settings["gosec"].(map[string]any)
+	if !ok {
+		return 0
 	}
 
-	// 5. Convert gosec.excludes from null to array (or remove)
-	if gosec, ok := settings["gosec"].(map[string]any); ok {
-		if excludes, exists := gosec["excludes"]; exists {
-			if excludes == nil {
-				delete(gosec, "excludes")
+	if excludes, exists := gosec["excludes"]; exists && excludes == nil {
+		delete(gosec, "excludes")
+
+		return 1
+	}
+
+	return 0
+}
+
+// migrateForbidigoPatternKey renames the forbidigo.forbid item key p to
+// pattern, the v2 name for the same matcher field.
+func migrateForbidigoPatternKey(settings map[string]any) int {
+	fixes := 0
+
+	forbidigo, ok := settings["forbidigo"].(map[string]any)
+	if !ok {
+		return 0
+	}
+
+	forbid, ok := forbidigo["forbid"].([]any)
+	if !ok {
+		return 0
+	}
+
+	for i, item := range forbid {
+		if itemMap, ok := item.(map[string]any); ok {
+			if p, exists := itemMap["p"]; exists {
+				itemMap["pattern"] = p
+				delete(itemMap, "p")
 
 				fixes++
 			}
 		}
-	}
 
-	// 6. Migrate forbidigo.forbid field rename: p -> pattern
-	if forbidigo, ok := settings["forbidigo"].(map[string]any); ok {
-		if forbid, ok := forbidigo["forbid"].([]any); ok {
-			for i, item := range forbid {
-				if itemMap, ok := item.(map[string]any); ok {
-					if p, exists := itemMap["p"]; exists {
-						itemMap["pattern"] = p
-						delete(itemMap, "p")
-
-						fixes++
-					}
-				}
-
-				forbid[i] = item
-			}
-		}
-	}
-
-	// 7. Fix modernize.disable enum values
-	if modernize, ok := settings["modernize"].(map[string]any); ok {
-		if disable, ok := modernize["disable"].([]any); ok {
-			var newDisable []any
-
-			for _, item := range disable {
-				if str, ok := item.(string); ok {
-					if mapped, exists := rules.MapModernizeDisable(str); exists {
-						if mapped != str {
-							fixes++
-						}
-
-						newDisable = append(newDisable, mapped)
-					} else {
-						newDisable = append(newDisable, str)
-					}
-				}
-			}
-
-			if fixes > 0 {
-				modernize["disable"] = newDisable
-			}
-		}
-	}
-
-	// 8. Fix sloglint.key-naming-case enum values
-	if sloglint, ok := settings["sloglint"].(map[string]any); ok {
-		if keyNamingCase, ok := sloglint["key-naming-case"].(string); ok {
-			if mapped, exists := rules.MapSloglintKeyNamingCase(keyNamingCase); exists {
-				if mapped != keyNamingCase {
-					sloglint["key-naming-case"] = mapped
-					fixes++
-				}
-			} else {
-				delete(sloglint, "key-naming-case")
-
-				fixes++
-			}
-		}
-	}
-
-	// 9. predeclared.ignore became a list in v2 (v1 allowed a bare string)
-	if predeclared, ok := settings["predeclared"].(map[string]any); ok {
-		fixes += normalizeStringToSlice(predeclared, "ignore")
-	}
-
-	// 10. sloglint.context-only (bool) became sloglint.context (enum: all|scope)
-	if sloglint, ok := settings["sloglint"].(map[string]any); ok {
-		if v, exists := sloglint["context-only"]; exists {
-			if truthy, isBool := v.(bool); isBool && truthy {
-				if _, hasContext := sloglint["context"]; !hasContext {
-					sloglint["context"] = "all"
-				}
-			}
-
-			delete(sloglint, "context-only")
-
-			fixes++
-		}
-	}
-
-	// 11. govet.check-shadowing (bool) became enabling the "shadow" analyzer
-	if govet, ok := settings["govet"].(map[string]any); ok {
-		if v, exists := govet["check-shadowing"]; exists {
-			if truthy, isBool := v.(bool); isBool && truthy {
-				enable, _ := govet["enable"].([]any)
-
-				hasShadow := false
-
-				for _, analyzer := range enable {
-					if analyzer == "shadow" {
-						hasShadow = true
-
-						break
-					}
-				}
-
-				if !hasShadow {
-					govet["enable"] = append(enable, "shadow")
-				}
-			}
-
-			delete(govet, "check-shadowing")
-
-			fixes++
-		}
-	}
-
-	// 12. gocritic ruleguard paths: the ${configDir} variable was renamed to ${base-path}
-	if gocritic, ok := settings["gocritic"].(map[string]any); ok {
-		if ruleguard, ok := gocritic["settings"].(map[string]any); ok {
-			if rules, ok := ruleguard["rules"].(string); ok && strings.Contains(rules, "${configDir}") {
-				ruleguard["rules"] = strings.ReplaceAll(rules, "${configDir}", "${base-path}")
-
-				fixes++
-			}
-		}
+		forbid[i] = item
 	}
 
 	return fixes
+}
+
+// migrateModernizeDisableValues maps v1 modernize.disable enum values onto
+// their v2 spellings, passing unknown values through untouched.
+func migrateModernizeDisableValues(settings map[string]any, rules *MigrationRules) int {
+	modernize, ok := settings["modernize"].(map[string]any)
+	if !ok {
+		return 0
+	}
+
+	disable, ok := modernize["disable"].([]any)
+	if !ok {
+		return 0
+	}
+
+	mapped, changed := mapModernizeDisableValues(disable, rules)
+	if changed > 0 {
+		modernize["disable"] = mapped
+	}
+
+	return changed
+}
+
+// mapModernizeDisableValues rewrites one disable list, reporting the mapped
+// list and how many enum values changed; non-string entries drop out, exactly
+// as the v1→v2 carry always behaved.
+func mapModernizeDisableValues(disable []any, rules *MigrationRules) ([]any, int) {
+	mapped := make([]any, 0, len(disable))
+
+	changed := 0
+
+	for _, item := range disable {
+		if str, isString := item.(string); isString {
+			value, exists := rules.MapModernizeDisable(str)
+			if !exists {
+				value = str
+			} else if value != str {
+				changed++
+			}
+
+			mapped = append(mapped, value)
+		}
+	}
+
+	return mapped, changed
+}
+
+// migrateSloglintKeyNamingCase maps the v1 sloglint.key-naming-case enum
+// onto v2 spellings; unmappable values are dropped (v2 rejects them).
+func migrateSloglintKeyNamingCase(settings map[string]any, rules *MigrationRules) int {
+	sloglint, ok := settings["sloglint"].(map[string]any)
+	if !ok {
+		return 0
+	}
+
+	keyNamingCase, ok := sloglint["key-naming-case"].(string)
+	if !ok {
+		return 0
+	}
+
+	if mapped, exists := rules.MapSloglintKeyNamingCase(keyNamingCase); exists {
+		if mapped != keyNamingCase {
+			sloglint["key-naming-case"] = mapped
+
+			return 1
+		}
+
+		return 0
+	}
+
+	delete(sloglint, "key-naming-case")
+
+	return 1
+}
+
+// migrateSloglintContextOnly converts the v1 sloglint.context-only boolean
+// into the v2 sloglint.context enum ("all"); an explicit context key wins.
+func migrateSloglintContextOnly(settings map[string]any) int {
+	sloglint, ok := settings["sloglint"].(map[string]any)
+	if !ok {
+		return 0
+	}
+
+	v, exists := sloglint["context-only"]
+	if !exists {
+		return 0
+	}
+
+	if truthy, isBool := v.(bool); isBool && truthy {
+		if _, hasContext := sloglint["context"]; !hasContext {
+			sloglint["context"] = "all"
+		}
+	}
+
+	delete(sloglint, "context-only")
+
+	return 1
+}
+
+// migrateGovetCheckShadowing replaces the removed govet.check-shadowing flag
+// with the "shadow" analyzer in govet.enable, deduplicating an existing entry.
+func migrateGovetCheckShadowing(settings map[string]any) int {
+	govet, ok := settings["govet"].(map[string]any)
+	if !ok {
+		return 0
+	}
+
+	v, exists := govet["check-shadowing"]
+	if !exists {
+		return 0
+	}
+
+	if truthy, isBool := v.(bool); isBool && truthy {
+		enable, _ := govet["enable"].([]any)
+		if !slices.Contains(enable, "shadow") {
+			govet["enable"] = append(enable, "shadow")
+		}
+	}
+
+	delete(govet, "check-shadowing")
+
+	return 1
+}
+
+// migrateGocriticRuleguardPaths rewrites the ${configDir} variable in gocritic
+// ruleguard paths to its v2 name ${base-path}.
+func migrateGocriticRuleguardPaths(settings map[string]any) int {
+	gocritic, ok := settings["gocritic"].(map[string]any)
+	if !ok {
+		return 0
+	}
+
+	gocriticSettings, ok := gocritic["settings"].(map[string]any)
+	if !ok {
+		return 0
+	}
+
+	ruleguard, ok := gocriticSettings["ruleguard"].(map[string]any)
+	if !ok {
+		return 0
+	}
+
+	rules, ok := ruleguard["rules"].(string)
+	if !ok || !strings.Contains(rules, "${configDir}") {
+		return 0
+	}
+
+	ruleguard["rules"] = strings.ReplaceAll(rules, "${configDir}", "${base-path}")
+
+	return 1
 }
 
 // normalizeStringToSlice converts a bare string value at key into a one-element

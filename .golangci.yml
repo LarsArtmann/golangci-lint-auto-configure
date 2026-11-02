@@ -256,6 +256,11 @@ linters:
         - .WithMessage(
         - .WithMessagef(
         - .WithStack(
+      ignore-sig-regexps:
+        # wrapcheck >= 2.13 flags in-module cross-package returns from the
+        # classified-error constructors; classified errors are returned, not
+        # re-wrapped (house pattern)
+        - github\.com/larsartmann/(golangci-lint-auto-configure/pkg/errors|go-error-family)\.
   exclusions:
     generated: lax
     presets:

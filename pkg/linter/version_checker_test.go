@@ -27,7 +27,7 @@ var _ = Describe("validateVersion", func() {
 
 	Context("when version equals expected", func() {
 		It("should not warn", func() {
-			err := analyzer.validateVersion("v2.14.0")
+			err := analyzer.validateVersion(constants.ExpectedGolangCILintVersion)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(buf.String()).To(BeEmpty())
 		})
@@ -53,9 +53,15 @@ var _ = Describe("validateVersion", func() {
 
 	Context("when version is newer than expected", func() {
 		It("should warn about unexpected version", func() {
-			err := analyzer.validateVersion("v2.15.0")
+			newer := "v2.16.0"
+			// Guards rot loudly: bump this spec constant together with the
+			// constants when the recommendation moves.
+			Expect(semver.Compare(newer, constants.ExpectedGolangCILintVersion)).
+				To(BeNumerically(">", 0), "spec constant must be > ExpectedGolangCILintVersion — update it when the recommendation bumps")
+
+			err := analyzer.validateVersion(newer)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(buf.String()).To(ContainSubstring("v2.15.0"))
+			Expect(buf.String()).To(ContainSubstring(newer))
 			Expect(buf.String()).To(ContainSubstring(constants.ExpectedGolangCILintVersion))
 		})
 	})
