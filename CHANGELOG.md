@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Fleet convergence sweep complete: all 143 eligible sibling repos
+  converged, pushed, and verified on GitHub (2026-11-02).** 108 repos
+  received the full convergence (stale tech-gated linter retraction,
+  deprecated-linter sweep, issue caps → 0, curated settings alignment), 22
+  verified as already-converged no-ops, and 15 carried pre-existing v1-era
+  settings keys that golangci-lint v2.15's stricter `config verify` rejects —
+  each healed with a surgical `fix(config)` commit whose recipes now seed the
+  `KnownBadSettingsKeys` policy deliberation. The sweep also proved the
+  committed-hook class of false-positive verifications (`--no-verify` +
+  remote-head confirmation is now the recorded protocol) and surfaced an
+  inverted upstream schema drift: the v2.15.0 binary enforces exhaustive
+  setting names that the v2.15.0 committed jsonschema still lists under the
+  old ones. Full per-bucket totals, scars, and the heal inventory:
+  `docs/status/2026-11-02_13-12_fleet-sweep-complete-143-repos.md`.
 - **Regression-loop detection is back, declaratively.** When the audit
   ledger shows the tool auto-enabled a linter that the user has since
   removed (and the config no longer enables), the converge renderer now
