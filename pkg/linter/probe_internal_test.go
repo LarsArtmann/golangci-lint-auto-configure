@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 
@@ -180,6 +181,82 @@ func TestProbeDefaultEnabledImplausibleSetFailsOpen(t *testing.T) {
 			"the vocabulary is inherited-config contamination (or a genuinely "+
 			"list-everything binary), not the default set; "+
 			"consuming it would silently suppress every recommendation", defaults)
+	}
+}
+
+// defaultEraLintersJSON pins the TRUE default-enabled set. Verified against
+// clean-parent probes on 2026-11-02: golangci-lint v2.14 AND v2.15 behave
+// identically here (the earlier "v2.15 lists everything" reading was ambient
+// /tmp/.golangci.yml contamination, not an output change), so this one
+// fixture covers both binary eras. Enabled is the documented 5-linter
+// default set; the disabled remainder keeps defaults ≤ half the vocabulary
+// so the plausibility guard accepts it.
+const defaultEraLintersJSON = `{
+  "Enabled": [
+    {"name": "errcheck", "description": "d", "fast": false, "deprecated": false},
+    {"name": "govet", "description": "d", "fast": true, "deprecated": false},
+    {"name": "ineffassign", "description": "d", "fast": true, "deprecated": false},
+    {"name": "staticcheck", "description": "d", "fast": false, "deprecated": false},
+    {"name": "unused", "description": "d", "fast": false, "deprecated": false}
+  ],
+  "Disabled": [
+    {"name": "gosec", "description": "d", "fast": false, "deprecated": false},
+    {"name": "bodyclose", "description": "d", "fast": false, "deprecated": false},
+    {"name": "wsl_v5", "description": "d", "fast": false, "deprecated": false},
+    {"name": "ginkgolinter", "description": "d", "fast": false, "deprecated": false},
+    {"name": "nilnesserr", "description": "d", "fast": false, "deprecated": false},
+    {"name": "usestdlibvars", "description": "d", "fast": true, "deprecated": false}
+  ]
+}`
+
+// The plausibility guard must ACCEPT the genuine default set: v2.14 and
+// v2.15 binaries both report these 5 enabled linters under a hermetic probe,
+// and the degraded-analysis fallback consumes exactly this set.
+func TestProbeDefaultEnabledSetMatchesBothEras(t *testing.T) {
+	dir := t.TempDir()
+
+	script := "#!/bin/sh\ncat <<'JSONEOF'\n" + defaultEraLintersJSON + "\nJSONEOF\n"
+
+	path := filepath.Join(dir, "golangci-lint")
+
+	if err := os.WriteFile(path, []byte(script), 0o755); err != nil {
+		t.Fatalf("write fake binary: %v", err)
+	}
+
+	analyzer := NewAnalyzer(NewTestLogger())
+	analyzer.golangciLintPath = path
+
+	known, err := analyzer.ProbeKnownLinters(context.Background())
+	if err != nil {
+		t.Fatalf("ProbeKnownLinters failed: %v", err)
+	}
+
+	if len(known) != 11 {
+		t.Fatalf("vocabulary = %d names, want 11 (enabled and disabled both count)", len(known))
+	}
+
+	defaults := analyzer.DefaultEnabledLinters(context.Background())
+	if defaults == nil {
+		t.Fatal("DefaultEnabledLinters() = nil, want the 5-linter default set: the " +
+			"plausibility guard must not trip on a genuine default-era listing")
+	}
+
+	want := []string{"errcheck", "govet", "ineffassign", "staticcheck", "unused"}
+	if len(defaults) != len(want) {
+		t.Fatalf("default set = %v, want %v", defaults, want)
+	}
+
+	got := make([]string, 0, len(defaults))
+	for _, name := range defaults {
+		got = append(got, string(name))
+	}
+	sort.Strings(got)
+	sort.Strings(want)
+
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("default set = %v, want %v", got, want)
+		}
 	}
 }
 
