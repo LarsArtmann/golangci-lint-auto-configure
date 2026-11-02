@@ -90,7 +90,7 @@ cosign verify-blob \
 ### Without Nix
 
 - **Go**: 1.27+
-- **golangci-lint**: v2.12.0+ minimum (v2.14.0+ recommended; tool refuses configs it cannot keep loadable)
+- **golangci-lint**: v2.12.0+ minimum (v2.15.0+ recommended; tool refuses configs it cannot keep loadable)
 - **Git**: Must run inside a git repository (for version control)
 - **ginkgo**: For running tests (`go install github.com/onsi/ginkgo/v2/ginkgo@latest`)
 - **templ**: For report template generation (`go install github.com/a-h/templ/cmd/templ@latest`)
@@ -341,9 +341,12 @@ unjustified in `disabled`). This takes priority over all other mechanisms.
 
 The tool also detects regression loops **automatically** via the audit ledger:
 if a linter was auto-enabled in a past run and then removed, it is skipped on
-the next run (with a warning). The `never-enable` section makes this permanent
-and works across machines and CI (the audit ledger is local and purged after 90
-days).
+the next run (with a warning) and the tool prints a ready-to-paste
+`never-enable` entry for the sidecar — nothing is written automatically, so
+the CLI stays scriptable. The `never-enable` section makes the suppression
+permanent and works across machines and CI (the audit ledger is local and
+purged after 90 days). A manual re-enable in `.golangci.yml` always wins over
+the automatic suppression.
 
 ### Validate Configuration
 
