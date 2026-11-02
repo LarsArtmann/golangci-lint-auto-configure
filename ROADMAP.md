@@ -129,7 +129,7 @@ answering is a 5-minute read per memo:
   name-privacy/announcement dimension remains open.
 - **gohumanize strategy**: project-specific (current, dep-gated on
   `dustin/go-humanize`) vs everywhere (requires custom-binary story for stock
-  golangci-lint users). Analysis in `docs/status/2026-08-05_04-14…md`; decision
+  golangci-lint users). Analysis in `docs/archive/status/2026-08-05_04-14…md`; decision
   blocked since 2026-08-05.
 - **Daemon-mangled commit messages**: several mid-2026-07 commits have
   truncated/garbled messages (`5b91141`, `df5f006`, `dc2b0d6` era). Rewrite via

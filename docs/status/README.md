@@ -56,6 +56,20 @@ Point-in-time snapshots from development sessions. Each report captures what was
 > verdict were archived (manifest in `../archive/status/`). TODO_LIST/FEATURES/
 > README/CHANGELOG/AGENTS rehabilitated in the same pass (AGENTS gotchas 11/20
 > and detail items 2/4/5 de-drifted against the current code layout).
+>
+> **Fifth-sweep archive manifest (32 files, all `git mv` renames):**
+>
+> | Group (files) | Classification | Deciding reason |
+> | ------------- | -------------- | --------------- |
+> | 2026-07-10 noinlineerr, 2026-07-20 disable-respect | ARCHIVE | every item struck/declined; both `g` questions answered inline |
+> | 2026-07-25/26 sprints (05-40, 07-03, 07-35, 14-01 ×2, 14-29, 06-33, 09-41, 10-06, 16-37) | ARCHIVE | residual ideas consciously declined or covered by standing gates; v0.6.0 questions answered |
+> | 2026-07-26 exhaustruct trio (20-07, 20-28, 20-43) | ARCHIVE | tier model landed on the policy table; friction-derived tier systematized the residual decisions |
+> | 2026-07-26 erraudit trio (21-24, 21-40, 22-07) | ARCHIVE | erraudit posture decided (manual-review, AGENTS #26); detection contract memo |
+> | 2026-07-27 releases (01-25, 01-42) | ARCHIVE | all follow-ups done/declined; five releases shipped since |
+> | 2026-08 gohumanize trio + CV pair (03-48, 04-14, 08-58, 01-07, 01-23) | ARCHIVE | gohumanize strategy decided by memo + capability probe; CV learnings all shipped/declined |
+> | 2026-09 launch & pareto (02-08, 06-38, 08-33, 09-23, 23-26) | ARCHIVE | decisions closed by the 2026-10-07 memos; remaining work routed to TODO/ROADMAP |
+> | 2026-09-28 go-1.27 | ARCHIVE | frontier work shipped in v0.9.0+; residue routed |
+> | planning/2026-09-11 SUPERB pareto plan | ARCHIVE | COMPLETE banner (2026-09-14); all 27 task rows struck |
 
 ## Lifecycle & Cadence
 
@@ -80,72 +94,10 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 
 ## Live Reports by Theme
 
-### Quality Sprints & Sweeps (2026-07-25/26)
-
-| Date       | Report                                         | Key Outcome                                 |
-| ---------- | ---------------------------------------------- | ------------------------------------------- |
-| 2026-07-25 | `05-40_forcetypeassert-test-exclusion-default` | Test exclusion default                      |
-| 2026-07-25 | `07-03_test-coverage-sprint-status`            | Enforcement + audit CLI tests               |
-| 2026-07-25 | `07-35_docs-health-todo-sweep-self-review`     | 15/50 sweep items                           |
-| 2026-07-25 | `14-01_50-item-todo-list-second-sweep`         | 16/50 sweep items                           |
-| 2026-07-25 | `14-01_friction-reduction-plan-execution`      | `--pragmatic`, house preset, funlen 200/100 |
-| 2026-07-25 | `14-29_quality-debt-cleanup`                   | CoreFormatters, gosec/errcheck alignment    |
-| 2026-07-26 | `06-33_docs-health-and-old-docs-second-pass`   | Second annotation pass                      |
-| 2026-07-26 | `09-41_superb-plan-phase-1-3-execution`        | Branded types, decoupling                   |
-| 2026-07-26 | `10-06_deduplication-to-zero-session-report`   | art-dupl → 0 clones                         |
-| 2026-07-26 | `16-37_superb-plan-phase-4-execution`          | Flags struct, SettingsMap                   |
-
-### Linter Policy & Tiers (2026-07-10 → 07-26)
-
-| Date       | Report                                                      | Key Outcome                          |
-| ---------- | ----------------------------------------------------------- | ------------------------------------ |
-| 2026-07-10 | `11-34_noinlineerr-disabled-formatter-conflict`             | noinlineerr disabled                 |
-| 2026-07-20 | `22-57_disable-respect-audit-ledger-enforcement-completion` | Ledger + sidecar enforcement shipped |
-| 2026-07-26 | `20-07_exhaustruct-never-auto-enable-tier`                  | NeverAutoEnable tier                 |
-| 2026-07-26 | `20-28_exhaustruct-followup-cleanup-pass`                   | Validation checks 7–8                |
-| 2026-07-26 | `20-43_exhaustruct-followup-brutal-self-review`             | Test renames, authorship confession  |
-
-### Error Handling Reviews (2026-07-26)
-
-| Date       | Report                                                     | Key Outcome                        |
-| ---------- | ---------------------------------------------------------- | ---------------------------------- |
-| 2026-07-26 | `21-24_erraudit-full-review-brutal-self-assessment`        | 4 real bugs fixed, nolint reverted |
-| 2026-07-26 | `21-40_erraudit-followup-test-coverage-and-verification`   | Error-path tests                   |
-| 2026-07-26 | `22-07_detector-error-propagation-fix-and-self-assessment` | Scanner error propagation          |
-
-### Releases (2026-07-27)
-
-| Date       | Report                                 | Key Outcome                          |
-| ---------- | -------------------------------------- | ------------------------------------ |
-| 2026-07-27 | `01-25_v0.6.0-release-self-assessment` | v0.6.0 cut; brutal process review    |
-| 2026-07-27 | `01-42_post-release-cleanup-status`    | ldflags fix, GoReleaser deprecations |
-
-| Date       | Report                                 | Key Outcome                          |
-| ---------- | -------------------------------------- | ------------------------------------ |
-| 2026-07-27 | `01-25_v0.6.0-release-self-assessment` | v0.6.0 cut; brutal process review    |
-| 2026-07-27 | `01-42_post-release-cleanup-status`    | ldflags fix, GoReleaser deprecations |
-
-### gohumanize & CV-Config Learnings (2026-08)
-
-| Date       | Report                                            | Key Outcome                         |
-| ---------- | ------------------------------------------------- | ----------------------------------- |
-| 2026-08-05 | `03-48_gohumanize-project-specific-integration`   | Dep-gated gohumanize shipped        |
-| 2026-08-05 | `04-14_gohumanize-everywhere-pushback-comparison` | Module-plugin vs Go-plugin analysis |
-| 2026-08-07 | `08-58_gohumanize-linter-h004-resolved`           | H004 resolved via documented nolint |
-| 2026-08-08 | `01-07_cv-config-learnings-implementation`        | 11 CV-derived default improvements  |
-| 2026-08-08 | `01-23_cv-config-learnings-brutal-self-review`    | BDD-spec debt surfaced              |
-
-### Public Launch & CI Rehabilitation (2026-09)
-
-| Date       | Report                                                           | Key Outcome                                                                 |
-| ---------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| 2026-09-09 | `02-08_going-public-launch-and-sanitization`                     | Repo made public; sanitization battery                                      |
-| 2026-09-11 | `06-38_buildflow-failures-resolved`                              | Generator formatting, vendorHash triage                                     |
-| 2026-09-11 | `08-33_github-metadata-and-ci-rehabilitation-status`             | Metadata, CI re-enable, goconst schema fix                                  |
-| 2026-09-11 | `09-23_docs-health-archive-and-living-docs-pass`                 | Living-docs overhaul + 28-file archive sweep                                |
-| 2026-09-11 | `23-26_pareto-execution-t11-t25-thirteen-tasks-and-honest-scars` | T11–T25: GHCR backfill, rulesets, gitleaks, ADR consolidation, README audit |
-| 2026-09-28 | `21-59_go-1.27-readiness-shipped-and-reviewed`                   | Go 1.27 readiness: `run.go` major.minor + cap + rescue; live frontier       |
-| 2026-10-07 | `07-26_pareto-execution-s3-m33-m34-quick-wins-and-honest-accounting` | M33/M34 quick wins; honest accounting |
+All 2026-0* reports were fully resolved by the 2026-11-02 sweep (every
+numbered item struck, routed, or consciously declined) and archived to
+[`../archive/status/`](../archive/status/). The live reports below are the
+2026-10 era onward.
 
 ### Declarative Reconciler & v0.11.0 Era (2026-10 → 11)
 
@@ -162,3 +114,6 @@ standing rule (established 2026-09-14, pareto plan T26.4):
 | 2026-10-16 | `22-50_always-zero-issue-caps-status-and-self-review` | Issue caps always converge to 0                                   |
 | 2026-10-17 | `04-16_buildflow-finding-gate-incident-fix`         | mergeNormalizerChanges union fix (check/apply drift dead)           |
 | 2026-10-17 | `06-04_v0.11.0-release-and-buildflow-pin-bump-status` | v0.11.0 shipped; cosign pinned; BuildFlow pin bumped              |
+| 2026-11-02 | `00-03_upstream-v2-audit-full-support-sweep-status` | Upstream v2 audit: full linter-support sweep                        |
+| 2026-11-02 | `00-18_audit-invocations-cqrs-otel-self-review`     | Audit invocations + CQRS/OTel self-review                          |
+| 2026-11-02 | `01-19_docs-health-fifth-sweep-all-2026-0x-resolved` | Fifth docs-health sweep: 32 files resolved + archived, living docs rehabilitated |
