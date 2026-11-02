@@ -282,17 +282,37 @@ jobs:
           # The guard repairs a stale vendorHash.nix (go.mod/go.sum changed
           # without it) and the git diff check turns the repair into a loud
           # failure with exact contributor instructions, instead of an opaque
-          # hash-mismatch build error.
+          # hash-mismatch build error. Dependency-bot branches skip the loud
+          # failure: the repair is committed back to the PR by the step below,
+          # because Dependabot cannot compute the hash itself.
           scripts/vendorhash-guard.sh --fix
           if git diff --exit-code vendorHash.nix; then
             echo "✓ vendorHash.nix in sync with go.mod/go.sum"
+          elif [[ "${GITHUB_HEAD_REF:-}" == dependabot/* ]]; then
+            echo "~ vendorHash.nix repaired for the dependency bot; the auto-commit step will push it"
           else
             echo "✗ vendorHash.nix was stale — run 'scripts/vendorhash-guard.sh --fix' locally and commit"
             exit 1
           fi
 
+      - name: Auto-commit vendorHash on dependency-bot branches
+        if: startsWith(github.head_ref || github.ref_name, 'dependabot/')
+        run: |
+          if git diff --quiet vendorHash.nix; then
+            echo "vendorHash.nix already in sync"
+            exit 0
+          fi
+          git config user.name "golangci-lint-auto-configure CI"
+          git config user.email "noreply@larsartmann.com"
+          git add vendorHash.nix
+          git commit -m "chore: update vendorHash.nix for the dependency change"
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+
       - name: Verify binary
         run: ./result/bin/golangci-lint-auto-configure --version
+
+    permissions:
+      contents: write
 
     timeout-minutes: 15
   govulncheck:
