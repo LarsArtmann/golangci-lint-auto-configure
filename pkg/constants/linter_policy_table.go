@@ -743,7 +743,7 @@ var linterPolicyRecords = []types.LinterPolicy{
 		Priority:  types.LinterPriorityHigh,
 		Rationale: "Checks that errors returned from external packages are wrapped",
 		Friction:  &types.Evidence{Ratio: 1.8, Nolints: 0, Configs: 0, AsOf: time.Time{}},
-		Settings:  []types.VersionedSettings{{Settings: WrapcheckSettings{IgnoreSigs: []string{".Errorf(", "errors.New(", "errors.Unwrap(", "errors.Join(", ".Wrap(", ".Wrapf(", ".WithMessage(", ".WithMessagef(", ".WithStack("}, IgnoreSigRegexps: []string{"encoding/json", "fmt\\.", "errors\\.", "slices\\.", "maps\\.", "sort\\.", "time\\.", "net/http", "os\\.", "io\\.", "strings\\.", "strconv\\.", "path\\.", "filepath\\.", "compress/gzip", "\\(context\\.Context\\)\\.Err"}}, Since: types.GolangciVersion{}}},
+		Settings:  []types.VersionedSettings{{Settings: WrapcheckSettings{IgnoreSigs: []string{".Errorf(", "errors.New(", "errors.Unwrap(", "errors.Join(", ".Wrap(", ".Wrapf(", ".WithMessage(", ".WithMessagef(", ".WithStack("}, IgnoreSigRegexps: []string{"encoding/json", "fmt\\.", "errors\\.", "slices\\.", "maps\\.", "sort\\.", "time\\.", "net/http", "os\\.", "io\\.", "strings\\.", "strconv\\.", "path\\.", "filepath\\.", "compress/gzip", "\\(context\\.Context\\)\\.Err", "github\\.com/larsartmann/([^/]+/pkg/errors|go-error-family)\\."}}, Since: types.GolangciVersion{}}},
 	},
 	{
 		Name:               "wsl",

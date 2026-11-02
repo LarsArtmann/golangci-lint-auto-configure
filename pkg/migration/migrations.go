@@ -159,30 +159,42 @@ func (m *Migrator) migrateIssuesExclude(config *Config) bool {
 
 	caseInsensitive := config.ExcludeCaseSensitive != TriStateEnabled
 
-	seen := make(map[string]bool, len(config.Linters.Exclusions.Rules))
-	for _, rule := range config.Linters.Exclusions.Rules {
-		seen[rule.Path+"\x00"+rule.Text] = true
-	}
-
-	for _, pattern := range config.Exclude {
-		text := pattern
-		if caseInsensitive {
-			text = "(?i)" + pattern
-		}
-
-		rule := ExclusionRule{Path: excludeRulePathAllGo, Text: text}
-		if seen[rule.Path+"\x00"+rule.Text] {
-			continue
-		}
-
-		seen[rule.Path+"\x00"+rule.Text] = true
-		config.Linters.Exclusions.Rules = append(config.Linters.Exclusions.Rules, rule)
-	}
+	config.Linters.Exclusions.Rules = appendExcludeRules(
+		config.Linters.Exclusions.Rules, config.Exclude, caseInsensitive,
+	)
 
 	config.Exclude = nil
 	config.ExcludeCaseSensitive = TriStateUnspecified
 
 	return true
+}
+
+// appendExcludeRules converts the plain v1 'issues.exclude' regex list into
+// path-anchored exclusion rules, skipping rules that already exist.
+func appendExcludeRules(rules []ExclusionRule, patterns []string, caseInsensitive bool) []ExclusionRule {
+	seen := make(map[string]bool, len(rules))
+
+	for _, rule := range rules {
+		seen[rule.Path+"\x00"+rule.Text] = true
+	}
+
+	for _, pattern := range patterns {
+		text := pattern
+		if caseInsensitive {
+			text = "(?i)" + pattern
+		}
+
+		key := excludeRulePathAllGo + "\x00" + text
+		if seen[key] {
+			continue
+		}
+
+		seen[key] = true
+
+		rules = append(rules, ExclusionRule{Path: excludeRulePathAllGo, Text: text})
+	}
+
+	return rules
 }
 
 // migrateIssuesExcludeUseDefault migrates 'issues.exclude-use-default' to the
@@ -402,18 +414,7 @@ func (m *Migrator) clearOutputProperties(config *Config) int {
 	}
 
 	if config.Output.Format != "" {
-		if blocks := outputFormatBlocks(config.Output.Format); len(blocks) > 0 {
-			if config.Output.Formats == nil {
-				config.Output.Formats = make(map[string]map[string]any, len(blocks))
-			}
-
-			for name, block := range blocks {
-				if _, exists := config.Output.Formats[name]; !exists {
-					config.Output.Formats[name] = block
-				}
-			}
-		}
-
+		mergeOutputFormatBlocks(&config.Output)
 		config.Output.Format = ""
 		fixes++
 	}
@@ -421,14 +422,37 @@ func (m *Migrator) clearOutputProperties(config *Config) int {
 	return fixes
 }
 
+// mergeOutputFormatBlocks folds the parsed v1 output.format blocks into
+// output.formats without overwriting existing entries.
+func mergeOutputFormatBlocks(out *Output) {
+	blocks := outputFormatBlocks(out.Format)
+	if len(blocks) == 0 {
+		return
+	}
+
+	if out.Formats == nil {
+		out.Formats = make(map[string]map[string]any, len(blocks))
+	}
+
+	for name, block := range blocks {
+		if _, exists := out.Formats[name]; !exists {
+			out.Formats[name] = block
+		}
+	}
+}
+
 func (m *Migrator) clearIssuesFlags(config *Config) int {
 	if config.ExcludeRulesUseDefault != TriStateUnspecified {
 		config.ExcludeRulesUseDefault = TriStateUnspecified
+
 		return 1
 	}
 
 	return 0
 }
+
+// outputFormatPathKey is the v2 formats-block key naming the output target.
+const outputFormatPathKey = "path"
 
 // outputFormatBlocks parses a v1 'output.format' value (comma-separated
 // format[:path] tokens) into v2 'output.formats' blocks per the migration
@@ -437,29 +461,8 @@ func outputFormatBlocks(format string) map[string]map[string]any {
 	blocks := make(map[string]map[string]any)
 
 	for token := range strings.SplitSeq(format, ",") {
-		token = strings.TrimSpace(token)
-		if token == "" {
-			continue
-		}
-
-		name, path, _ := strings.Cut(token, ":")
-		if path == "" {
-			path = "stdout"
-		}
-
-		switch name {
-		case "colored-line-number":
-			blocks["text"] = map[string]any{"path": path, "colors": true}
-		case "line-number":
-			blocks["text"] = map[string]any{"path": path}
-		case "colored-tab":
-			blocks["tab"] = map[string]any{"path": path, "colors": true}
-		case "tab":
-			blocks["tab"] = map[string]any{"path": path}
-		case "junit-xml-extended":
-			blocks["junit-xml"] = map[string]any{"path": path, "extended": true}
-		case "html", "checkstyle", "code-climate", "junit-xml", "json", "teamcity", "sarif":
-			blocks[name] = map[string]any{"path": path}
+		if name, block, ok := outputFormatBlock(token); ok {
+			blocks[name] = block
 		}
 	}
 
@@ -468,6 +471,37 @@ func outputFormatBlocks(format string) map[string]map[string]any {
 	}
 
 	return blocks
+}
+
+// outputFormatBlock converts one v1 output.format token (format[:path]) into
+// its v2 formats block; v2-dropped formats report ok=false and vanish.
+func outputFormatBlock(token string) (string, map[string]any, bool) {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return "", nil, false
+	}
+
+	name, path, _ := strings.Cut(token, ":")
+	if path == "" {
+		path = "stdout"
+	}
+
+	switch name {
+	case "colored-line-number":
+		return "text", map[string]any{outputFormatPathKey: path, "colors": true}, true
+	case "line-number":
+		return "text", map[string]any{outputFormatPathKey: path}, true
+	case "colored-tab":
+		return "tab", map[string]any{outputFormatPathKey: path, "colors": true}, true
+	case "tab":
+		return "tab", map[string]any{outputFormatPathKey: path}, true
+	case "junit-xml-extended":
+		return "junit-xml", map[string]any{outputFormatPathKey: path, "extended": true}, true
+	case "html", "checkstyle", "code-climate", "junit-xml", "json", "teamcity", "sarif":
+		return name, map[string]any{outputFormatPathKey: path}, true
+	}
+
+	return "", nil, false
 }
 
 // migrateVersion ensures the config has a valid v2 version string.

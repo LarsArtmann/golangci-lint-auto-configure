@@ -638,6 +638,49 @@ linters:
 			Expect(parsed.Linters.Settings).To(HaveKey("gosec"))
 		})
 
+		It("keeps settings for linters that run via the standard default set", func() {
+			configContent := `version: "2"
+linters:
+  settings:
+    unused:
+      field-alignment: struct
+    mnd:
+      checks:
+        - argument`
+			// At PriorityCritical, `unused` (high) is not rendered into the
+			// enable set, but the binary runs it anyway via the implicit
+			// standard default — its settings are live and must survive the
+			// orphan prune. `mnd` neither runs by default nor is enabled:
+			// dead weight, pruned as before.
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Settings).To(HaveKey("unused"),
+				"unused runs via the standard default set; its settings are live")
+			Expect(parsed.Linters.Settings).NotTo(HaveKey("mnd"))
+		})
+
+		It("still prunes default-set linter settings under default: none", func() {
+			configContent := `version: "2"
+linters:
+  default: none
+  settings:
+    unused:
+      field-alignment: struct`
+			// With nothing enabled implicitly, unused's settings are dead
+			// weight: the prune must stay byte-identical for default: none.
+			writeConfig(testConfig, configContent)
+			_, err := fixer.FixConfig(context.Background(), testConfig, types.LinterPriorityCritical, false)
+			Expect(err).NotTo(HaveOccurred())
+
+			parsed, err := configTypes.LoadConfig(testConfig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(parsed.Linters.Settings).NotTo(HaveKey("unused"))
+		})
+
 		It("should resolve a linter present in both enable and disable", func() {
 			configContent := `version: "2"
 linters:

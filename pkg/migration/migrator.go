@@ -111,7 +111,8 @@ func (m *Migrator) MigrateToV2() (bool, int, error) {
 	// Fix 0c: Migrate run.skip-dirs-use-default (deprecated chain:
 	// run.skip-dirs-use-default → issues.exclude-dir-use-default → exclusions.paths)
 	if m.migrateRunSkipDirsUseDefault(cfg, wasV1) {
-		fixesApplied += m.logFixApplied("Migrated 'run.skip-dirs-use-default' to exclusions.paths (default directories)")
+		fixesApplied += m.logFixApplied(
+			"Migrated 'run.skip-dirs-use-default' to exclusions.paths (default directories)")
 	}
 
 	// Fix 1: Move top-level linters-settings to nested linters.settings

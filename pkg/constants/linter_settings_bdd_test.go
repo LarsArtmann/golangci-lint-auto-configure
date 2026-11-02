@@ -68,10 +68,12 @@ var _ = Describe("DefaultLinterSettings wire output", func() {
 			m := linterSettingsMap("wrapcheck")
 			regexps, ok := m["ignore-sig-regexps"].([]any)
 			Expect(ok).To(BeTrue(), "ignore-sig-regexps must be a list")
-			Expect(regexps).To(HaveLen(16))
+			Expect(regexps).To(HaveLen(17))
 			Expect(regexps).To(ContainElement("fmt\\."))
 			Expect(regexps).To(ContainElement("errors\\."))
 			Expect(regexps).To(ContainElement(`\(context\.Context\)\.Err`))
+			Expect(regexps).To(ContainElement(`github\.com/larsartmann/([^/]+/pkg/errors|go-error-family)\.`),
+				"org classified-error constructors are exempt (wrapcheck 2.13 flood)")
 		})
 
 		It("produces the error-constructor ignore sigs", func() {

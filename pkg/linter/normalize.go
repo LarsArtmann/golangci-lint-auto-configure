@@ -401,40 +401,6 @@ func moveToolDisabledLinter(normalized *types.Config, name types.LinterName) []C
 	return changes
 }
 
-// PruneOrphanSettings removes settings blocks for linters that are neither
-// enabled nor disabled (dead weight; the legacy prune pass). Pure.
-func PruneOrphanSettings(observed *types.Config) (*types.Config, []Change) {
-	if len(observed.Linters.Settings) == 0 {
-		return observed, nil
-	}
-
-	enabled := types.NewSet(observed.Linters.Enable...)
-	disabled := types.NewSet(observed.Linters.Disable...)
-
-	changes := make([]Change, 0, len(observed.Linters.Settings))
-
-	normalized := observed.Clone()
-
-	for _, name := range sortedSettingNames(observed.Linters.Settings) {
-		if enabled.Contains(types.LinterName(name)) || disabled.Contains(types.LinterName(name)) {
-			continue
-		}
-
-		delete(normalized.Linters.Settings, name)
-
-		changes = append(changes, Change{
-			Path: PathLintersSettings, Element: name, Kind: ChangeRemove,
-			Reason: "orphaned settings block (linter neither enabled nor disabled)",
-		})
-	}
-
-	if len(changes) == 0 {
-		return observed, nil
-	}
-
-	return normalized, changes
-}
-
 // RemoveUnknownLinters drops linters.enable and linters.disable entries the
 // detected golangci-lint binary cannot name. Either entry fails config LOAD
 // ("unknown linters"), so the whole file is dead weight until the name is

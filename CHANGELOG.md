@@ -41,6 +41,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - A new `exhaustivestruct-chain` parity-corpus fixture pins the one-run
   supersession-chain collapse (`exhaustivestruct` → `exhaustruct` →
   `exhaustruct_v5`) including settings ported across both hops.
+- The curated wrapcheck defaults now include an `ignore-sig-regexps` entry
+  for LarsArtmann classified-error constructors
+  (`github\.com/larsartmann/([^/]+/pkg/errors|go-error-family)\.`): wrapcheck
+  2.13 (golangci-lint v2.14+ binaries) flags in-module cross-package returns
+  from those constructors, which is the house error-handling pattern, not a
+  missing wrap — every org consumer (~577 modules) would otherwise flood on
+  v2.15.0 binaries.
 
 ### Changed
 
@@ -62,6 +69,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `ignore-package-globs`, `ignoreInterfaceRegexps` →
   `ignore-interface-regexps`) instead of dropping them — user intent is
   preserved, and `ignoreInterfaceRegexps` was silently lost before.
+- wrapcheck's curated settings now exempt the org's classified-error
+  constructors: the default `ignore-sig-regexps` carries
+  `github\.com/larsartmann/([^/]+/pkg/errors|go-error-family)\.`, because
+  wrapcheck 2.13 (shipped in golangci-lint v2.14+ binaries) flags in-module
+  cross-package returns from classified-error constructors — the self-repo
+  flood alone was 137 findings, and 577 go-error-family consumers flood
+  identically on the v2.15 bump. The next `configure` pass renders the
+  healed block on every fleet repo, and the parity-corpus goldens were
+  regenerated accordingly.
 - The E2E pin matrix now also runs against golangci-lint v2.15.0 (the
   latest release), proving configured configs load and `configure --check`
   stays idempotent on the newest binary.
@@ -100,6 +116,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   returned errors are the house error-handling pattern, not missing wraps.
   Without it, every local run on a v2.15 binary reported ~137 false
   wrapcheck findings.
+- `configure` no longer deletes live settings for linters that run via the
+  standard default set. The orphaned-settings prune removed settings blocks
+  for any linter outside the enable list — but under `linters.default:
+  standard` (the v2 default), default-enabled linters such as `unused` or
+  `ineffassign` run WITHOUT being listed, so their settings were live and
+  were wrongly pruned as dead weight. The prune now keeps settings for
+  linters the analyzer reports as enabled (defaults included) unless they
+  are also disabled; under `linters.default: none` the behavior is
+  byte-identical. The unused exported `PruneOrphanSettings` normalizer
+  (superseded by the closing plan long ago) is removed.
 
 ## [0.11.0] - 2026-10-17
 

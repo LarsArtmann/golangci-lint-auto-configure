@@ -193,7 +193,7 @@ func planConvergence(
 
 	overlayChanges, suppressed := planDisableOverlay(working, sidecar, env)
 	plan = append(plan, overlayChanges...)
-	plan = append(plan, closingPlans(working, desired, overlayChanges)...)
+	plan = append(plan, closingPlans(working, desired, overlayChanges, env)...)
 
 	sortChanges(plan)
 
@@ -222,12 +222,18 @@ func renderDesired(
 
 // closingPlans appends the two enable-set-dependent plans. The final enable
 // set decides both: overlay adds count as enabled (they ARE the enforcement
-// result).
-func closingPlans(working *types.Config, desired DesiredConfig, overlayChanges []Change) []Change {
+// result). The effective-default guard keeps settings alive for linters the
+// binary runs implicitly (linters.default: standard, the v2 default).
+func closingPlans(
+	working *types.Config,
+	desired DesiredConfig,
+	overlayChanges []Change,
+	env Env,
+) []Change {
 	finalEnable := finalEnableSet(working, desired, overlayChanges)
 
 	changes := planEnableDisableConflicts(working, finalEnable, overlayChanges)
-	changes = append(changes, planOrphanSettings(working, finalEnable)...)
+	changes = append(changes, planOrphanSettings(working, finalEnable, env)...)
 
 	return changes
 }
@@ -373,17 +379,32 @@ func planEnableDisableConflicts(
 }
 
 // planOrphanSettings removes settings blocks for linters outside the final
-// enable set: disabled and unenabled linters carry dead weight settings that
-// imply activity where there is none (the legacy prune passes, as one plan).
-func planOrphanSettings(observed *types.Config, finalEnable types.Set[types.LinterName]) []Change {
+// enable set, with one liveness guard: a linter the binary runs by default
+// (linters.default: standard or absent — the v2 default) is live WITHOUT an
+// enable entry, so its settings survive unless it is also disabled. Under
+// linters.default: none the analyzer reports no implicit set and the prune
+// behaves exactly as before. A nil AnalyzerEnabled (no binary, failed probe)
+// gates nothing open, preserving the legacy behavior there too.
+func planOrphanSettings(
+	observed *types.Config,
+	finalEnable types.Set[types.LinterName],
+	env Env,
+) []Change {
 	if len(observed.Linters.Settings) == 0 {
 		return nil
 	}
 
+	disabled := types.NewSet(observed.Linters.Disable...)
+
 	var changes []Change
 
 	for _, name := range sortedSettingNames(observed.Linters.Settings) {
-		if finalEnable.Contains(types.LinterName(name)) {
+		linter := types.LinterName(name)
+		if finalEnable.Contains(linter) {
+			continue
+		}
+
+		if env.AnalyzerEnabled[linter] && !disabled.Contains(linter) {
 			continue
 		}
 
