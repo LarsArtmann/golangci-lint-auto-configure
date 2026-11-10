@@ -145,11 +145,11 @@ Nothing is broken. All builds pass, all tests pass, lint is clean.
 23. ~~Write integration spec: configure run on a config with orphaned settings (e.g., `lll` settings without `lll` in enable) prunes them~~ done (docs-health pass 2026-10-07)
 24. ~~Write integration spec: configure run on a config with absolute paths in exclusions triggers health check~~ done (docs-health pass 2026-10-07)
 25. ~~Write integration spec: configure run on a config with duplicate exclusion linters triggers health check~~ done (docs-health pass 2026-10-07)
-~~26. Write integration spec: depguard with `rules` settings is preserved through configure run~~ **declined-for-now — the round-trip specs cover preservation of enabled-linter settings**
-~~27. Write integration spec: depguard is never auto-recommended even at High priority threshold~~ **done — depguard is a NeverAutoEnable-tier record; excluded from every recommendation path**
-28. Verify: `pruneUnenabledLinterSettings` does not remove settings for NeverAutoEnable linters that are manually enabled (depguard, exhaustruct) **→ open — untested**
-29. Verify: `pruneUnenabledLinterSettings` does not remove settings for formatters (only touches `Linters.Settings`, not `Formatters.Settings`) **→ open — untested**
-30. Review: does the `tagalign` default ordering conflict with `tagliatelle` (which enforces case rules on the same tags)? **→ open — conflict never reviewed/documented**
+    ~~26. Write integration spec: depguard with `rules` settings is preserved through configure run~~ **declined-for-now — the round-trip specs cover preservation of enabled-linter settings**
+    ~~27. Write integration spec: depguard is never auto-recommended even at High priority threshold~~ **done — depguard is a NeverAutoEnable-tier record; excluded from every recommendation path**
+26. Verify: `pruneUnenabledLinterSettings` does not remove settings for NeverAutoEnable linters that are manually enabled (depguard, exhaustruct) **→ open — untested**
+27. Verify: `pruneUnenabledLinterSettings` does not remove settings for formatters (only touches `Linters.Settings`, not `Formatters.Settings`) **→ open — untested**
+28. Review: does the `tagalign` default ordering conflict with `tagliatelle` (which enforces case rules on the same tags)? **→ open — conflict never reviewed/documented**
 
 ### Tier 4: Medium — Depguard Follow-up (items 31-35)
 
@@ -162,20 +162,20 @@ Nothing is broken. All builds pass, all tests pass, lint is clean.
 ### Tier 5: Low — Polish & Future (items 36-50)
 
 36. ~~Consider adding `lll` to the health check: warn when `lll` settings exist but linter is not enabled (orphaned settings)~~ **Won't implement — obsolete — pruneUnenabledLinterSettings removes orphaned settings.**
-~~37. Consider adding `ignore-chan-recv-ok` and `ignore-for-root-var` to `varnamelen` defaults~~ **declined-for-now — upstream knobs stay unset (10-07 precedent)**
-38. ~~Consider adding `gocritic` settings: the CV config also disables `ifElseChain` (already done in our defaults)~~ **Won't implement — obsolete — gocritic default already shipped.**
-~~39. Consider adding `godox` keywords default: CV uses `FIXME, BUG, HACK` (our tool has no default for godox)~~ **declined — CV-specific, not generalizable**
-~~40. Consider adding `lll` `line-length` default when golines is NOT enabled~~ **declined — the typed redundancy relation (lll↔golines) governs; emitting lll settings without lll is pruned as orphans**
-~~41. Consider adding `interfacebloat` default max-interface-methods threshold~~ **declined — CV-specific**
-~~42. Consider adding `importas` defaults for common alias patterns~~ **declined — CV-specific**
-~~43. Consider adding `gosec` config severity filtering~~ **declined — curated G304/G115 excludes are the settled posture**
-~~44. Consider adding `revive` additional disabled rules beyond `exported` and `package-comments`~~ **declined — curated revive defaults are the settled posture**
-45. Consider: should the tool detect and recommend depguard when a project has an `internal/` directory with feature/layer subdirectories? **→ declined-for-now — depguard stays NeverAutoEnable**
-~~46. Research: does the `errcheck` `check-type-assertions: true` default cause friction in any of the 160 sibling projects?~~ **declined-for-now — no friction signal from the fleet**
-~~47. Research: does the `wrapcheck` `IgnoreSigRegexps` list need `go.opentelemetry.io/otel` for OTel-using projects?~~ **declined-for-now — no OTel friction signal**
-~~48. Research: what is the friction impact of `goconst` `min-occurrences: 5` vs the upstream default of 3?~~ **declined — 5 is the calibrated fleet value; 6 vs 5 is marginal (CV was one data point)**
-~~49. Consider adding a `tagliatelle` `header: kebab` default (CV uses it, our tool doesn't)~~ **declined — CV-specific**
-50. Squash the intermediate auto-commits into clean semantic commits **→ routed — ROADMAP open question (daemon commit messages)**
+    ~~37. Consider adding `ignore-chan-recv-ok` and `ignore-for-root-var` to `varnamelen` defaults~~ **declined-for-now — upstream knobs stay unset (10-07 precedent)**
+37. ~~Consider adding `gocritic` settings: the CV config also disables `ifElseChain` (already done in our defaults)~~ **Won't implement — obsolete — gocritic default already shipped.**
+    ~~39. Consider adding `godox` keywords default: CV uses `FIXME, BUG, HACK` (our tool has no default for godox)~~ **declined — CV-specific, not generalizable**
+    ~~40. Consider adding `lll` `line-length` default when golines is NOT enabled~~ **declined — the typed redundancy relation (lll↔golines) governs; emitting lll settings without lll is pruned as orphans**
+    ~~41. Consider adding `interfacebloat` default max-interface-methods threshold~~ **declined — CV-specific**
+    ~~42. Consider adding `importas` defaults for common alias patterns~~ **declined — CV-specific**
+    ~~43. Consider adding `gosec` config severity filtering~~ **declined — curated G304/G115 excludes are the settled posture**
+    ~~44. Consider adding `revive` additional disabled rules beyond `exported` and `package-comments`~~ **declined — curated revive defaults are the settled posture**
+38. Consider: should the tool detect and recommend depguard when a project has an `internal/` directory with feature/layer subdirectories? **→ declined-for-now — depguard stays NeverAutoEnable**
+    ~~46. Research: does the `errcheck` `check-type-assertions: true` default cause friction in any of the 160 sibling projects?~~ **declined-for-now — no friction signal from the fleet**
+    ~~47. Research: does the `wrapcheck` `IgnoreSigRegexps` list need `go.opentelemetry.io/otel` for OTel-using projects?~~ **declined-for-now — no OTel friction signal**
+    ~~48. Research: what is the friction impact of `goconst` `min-occurrences: 5` vs the upstream default of 3?~~ **declined — 5 is the calibrated fleet value; 6 vs 5 is marginal (CV was one data point)**
+    ~~49. Consider adding a `tagliatelle` `header: kebab` default (CV uses it, our tool doesn't)~~ **declined — CV-specific**
+39. Squash the intermediate auto-commits into clean semantic commits **→ routed — ROADMAP open question (daemon commit messages)**
 
 ---
 

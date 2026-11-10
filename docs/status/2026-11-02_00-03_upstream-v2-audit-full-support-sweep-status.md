@@ -354,7 +354,7 @@ lint gate clean of new findings, migration 44/44).
 
 ---
 
-*Report written 2026-11-02 00:03. All claims above verified against the
+_Report written 2026-11-02 00:03. All claims above verified against the
 session's commands and outputs; the incident log (§d) is deliberately
 unflattering because the next reader deserves the failure modes, not the
-highlight reel.*
+highlight reel._

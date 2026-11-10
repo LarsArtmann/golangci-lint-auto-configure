@@ -156,10 +156,10 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 
 6. Add coverage delta measurement to CI — capture before/after on test PRs **→ declined-for-now — CI gates the threshold; deltas add noise**
 7. ~~Test `generator.go` close-capture branch by refactoring to accept `io.Writer` (debatable value)~~ **Won't implement — decided against the io.Writer refactor (c2).**
-~~8. Add test for `Detect()` returning `ProjectTypeUnknown` when `analyzeGoModWithError` fails entirely~~ **declined-for-now — `ProjectTypeUnknown` degradation is the documented contract**
-~~9. Add test for `hasAPICodePatterns` finding patterns despite a bad sibling file (parallel to main package test)~~ **declined-for-now — resilience property pinned by the sibling-file test**
-~~10. Add test for `isMonorepo` resilience when a subdirectory is unreadable~~ **declined-for-now — same class as item 9**
-11. ~~The `pkg/linter` package takes 45+ seconds to test — investigate if tests can be parallelized or sped up~~ done (docs-health pass 2026-10-07)
+   ~~8. Add test for `Detect()` returning `ProjectTypeUnknown` when `analyzeGoModWithError` fails entirely~~ **declined-for-now — `ProjectTypeUnknown` degradation is the documented contract**
+   ~~9. Add test for `hasAPICodePatterns` finding patterns despite a bad sibling file (parallel to main package test)~~ **declined-for-now — resilience property pinned by the sibling-file test**
+   ~~10. Add test for `isMonorepo` resilience when a subdirectory is unreadable~~ **declined-for-now — same class as item 9**
+8. ~~The `pkg/linter` package takes 45+ seconds to test — investigate if tests can be parallelized or sped up~~ done (docs-health pass 2026-10-07)
 
 #### Git hygiene (3)
 
@@ -206,14 +206,14 @@ It claimed "closures now propagate scanner.Err()" for `hasMainPackage`/`hasAPICo
 37. The `bufio.Scanner` in 3 detection functions doesn't set a custom buffer — legit files with long lines will silently trigger `ErrTooLong` and be skipped
 38. ~~`scanFileForSwaggo` takes a `*bool` parameter — could return `(bool, error)` instead for clarity~~ done (docs-health pass 2026-10-07)
 39. ~~`hasSwaggoInCode` wraps the walk error but `hasMainPackage`/`hasAPICodePatterns` just log it — inconsistent error treatment across sibling functions~~ done (docs-health pass 2026-10-07)
-~~40. Consider adding debug logging to `analyzeGoModWithError` when it fails (currently silently caught at call site)~~ **declined — best-effort detection contract decided (memo)**
+    ~~40. Consider adding debug logging to `analyzeGoModWithError` when it fails (currently silently caught at call site)~~ **declined — best-effort detection contract decided (memo)**
 
 #### Testing infrastructure (4)
 
 41. ~~`internal/cli` test suite takes 112 seconds — investigate if integration tests can be marked as `//go:build integration` and run separately~~ done (docs-health pass 2026-10-07)
-~~42. The `TestDetector_DetectResilientToScannerErrorsInSiblingFiles` test creates a 100KB file — consider using `t.TempDir()` cleanup verification~~ **declined-for-now — t.TempDir self-cleans**
-43. Detection tests use standard `testing` style while the rest of the codebase uses Ginkgo BDD — consider migrating for consistency **→ declined-for-now — standard testing accepted for detection specs**
-44. Add a test that verifies `slog.Debug` messages are actually emitted (capture slog output) **→ open — no slog capture test**
+    ~~42. The `TestDetector_DetectResilientToScannerErrorsInSiblingFiles` test creates a 100KB file — consider using `t.TempDir()` cleanup verification~~ **declined-for-now — t.TempDir self-cleans**
+42. Detection tests use standard `testing` style while the rest of the codebase uses Ginkgo BDD — consider migrating for consistency **→ declined-for-now — standard testing accepted for detection specs**
+43. Add a test that verifies `slog.Debug` messages are actually emitted (capture slog output) **→ open — no slog capture test**
 
 #### Future hardening (4)
 

@@ -59,17 +59,17 @@ Point-in-time snapshots from development sessions. Each report captures what was
 >
 > **Fifth-sweep archive manifest (32 files, all `git mv` renames):**
 >
-> | Group (files) | Classification | Deciding reason |
-> | ------------- | -------------- | --------------- |
-> | 2026-07-10 noinlineerr, 2026-07-20 disable-respect | ARCHIVE | every item struck/declined; both `g` questions answered inline |
-> | 2026-07-25/26 sprints (05-40, 07-03, 07-35, 14-01 ×2, 14-29, 06-33, 09-41, 10-06, 16-37) | ARCHIVE | residual ideas consciously declined or covered by standing gates; v0.6.0 questions answered |
-> | 2026-07-26 exhaustruct trio (20-07, 20-28, 20-43) | ARCHIVE | tier model landed on the policy table; friction-derived tier systematized the residual decisions |
-> | 2026-07-26 erraudit trio (21-24, 21-40, 22-07) | ARCHIVE | erraudit posture decided (manual-review, AGENTS #26); detection contract memo |
-> | 2026-07-27 releases (01-25, 01-42) | ARCHIVE | all follow-ups done/declined; five releases shipped since |
-> | 2026-08 gohumanize trio + CV pair (03-48, 04-14, 08-58, 01-07, 01-23) | ARCHIVE | gohumanize strategy decided by memo + capability probe; CV learnings all shipped/declined |
-> | 2026-09 launch & pareto (02-08, 06-38, 08-33, 09-23, 23-26) | ARCHIVE | decisions closed by the 2026-10-07 memos; remaining work routed to TODO/ROADMAP |
-> | 2026-09-28 go-1.27 | ARCHIVE | frontier work shipped in v0.9.0+; residue routed |
-> | planning/2026-09-11 SUPERB pareto plan | ARCHIVE | COMPLETE banner (2026-09-14); all 27 task rows struck |
+> | Group (files)                                                                            | Classification | Deciding reason                                                                                  |
+> | ---------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------ |
+> | 2026-07-10 noinlineerr, 2026-07-20 disable-respect                                       | ARCHIVE        | every item struck/declined; both `g` questions answered inline                                   |
+> | 2026-07-25/26 sprints (05-40, 07-03, 07-35, 14-01 ×2, 14-29, 06-33, 09-41, 10-06, 16-37) | ARCHIVE        | residual ideas consciously declined or covered by standing gates; v0.6.0 questions answered      |
+> | 2026-07-26 exhaustruct trio (20-07, 20-28, 20-43)                                        | ARCHIVE        | tier model landed on the policy table; friction-derived tier systematized the residual decisions |
+> | 2026-07-26 erraudit trio (21-24, 21-40, 22-07)                                           | ARCHIVE        | erraudit posture decided (manual-review, AGENTS #26); detection contract memo                    |
+> | 2026-07-27 releases (01-25, 01-42)                                                       | ARCHIVE        | all follow-ups done/declined; five releases shipped since                                        |
+> | 2026-08 gohumanize trio + CV pair (03-48, 04-14, 08-58, 01-07, 01-23)                    | ARCHIVE        | gohumanize strategy decided by memo + capability probe; CV learnings all shipped/declined        |
+> | 2026-09 launch & pareto (02-08, 06-38, 08-33, 09-23, 23-26)                              | ARCHIVE        | decisions closed by the 2026-10-07 memos; remaining work routed to TODO/ROADMAP                  |
+> | 2026-09-28 go-1.27                                                                       | ARCHIVE        | frontier work shipped in v0.9.0+; residue routed                                                 |
+> | planning/2026-09-11 SUPERB pareto plan                                                   | ARCHIVE        | COMPLETE banner (2026-09-14); all 27 task rows struck                                            |
 
 ## Lifecycle & Cadence
 
@@ -101,22 +101,22 @@ numbered item struck, routed, or consciously declined) and archived to
 
 ### Declarative Reconciler & v0.11.0 Era (2026-10 → 11)
 
-| Date       | Report                                              | Key Outcome                                                        |
-| ---------- | --------------------------------------------------- | ------------------------------------------------------------------ |
-| 2026-10-11 | `19-39_gci-removed-from-formatter-force-enable-stack` | gci dropped from CoreFormatters/house                              |
-| 2026-10-13 | `16-02_noinlineerr-force-disabled-across-go-appkit`  | noinlineerr forced disabled fleet-wide                             |
-| 2026-10-13 | `17-22_buildflow-gate-errors-fixed-standing-warnings-triaged` | Gate errors fixed; 7 warning classes triaged             |
-| 2026-10-13 | `17-50_exclusion-sweep-status-and-self-review`      | Exclusion-rules deprecation sweep shipped                          |
-| 2026-10-14 | `14-59_declarative-reconciler-execution-status`     | ADR-017 reconciler P1–P4                                            |
-| 2026-10-14 | `16-32_declarative-reconciler-p5-closeout-through-p8` | P5–P8 closeout                                                    |
-| 2026-10-14 | `18-34_legacy-engine-and-compat-view-deletion`      | Legacy engine deleted; reconciler is the only engine                |
-| 2026-10-16 | `19-46_issue-15-capability-gate-session-closeout`   | Capability probe gates recommendations on the pinned binary         |
-| 2026-10-16 | `22-50_always-zero-issue-caps-status-and-self-review` | Issue caps always converge to 0                                   |
-| 2026-10-17 | `04-16_buildflow-finding-gate-incident-fix`         | mergeNormalizerChanges union fix (check/apply drift dead)           |
-| 2026-10-17 | `06-04_v0.11.0-release-and-buildflow-pin-bump-status` | v0.11.0 shipped; cosign pinned; BuildFlow pin bumped              |
-| 2026-11-02 | `00-03_upstream-v2-audit-full-support-sweep-status` | Upstream v2 audit: full linter-support sweep                        |
-| 2026-11-02 | `00-18_audit-invocations-cqrs-otel-self-review`     | Audit invocations + CQRS/OTel self-review                          |
-| 2026-11-02 | `01-19_docs-health-fifth-sweep-all-2026-0x-resolved` | Fifth docs-health sweep: 32 files resolved + archived, living docs rehabilitated |
-| 2026-11-02 | `03-10_SUPERB-otel-execution-mid-flight-status`      | OTEL execution interrupted mid-M4 (M2-M4 done, M5-M10 open)        |
-| 2026-11-02 | `03-36_upstream-v2-15-baseline-migration-depth-status` | v2.15 baseline, migrate depth, chain fixture (interrupted session) |
-| 2026-11-02 | `06-09_fleet-convergence-d0-green-t1-t2-landed-t3-mid-flight` | Fleet-convergence execution: D0 green, T1/T2 landed, T3 mid-flight |
+| Date       | Report                                                        | Key Outcome                                                                      |
+| ---------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 2026-10-11 | `19-39_gci-removed-from-formatter-force-enable-stack`         | gci dropped from CoreFormatters/house                                            |
+| 2026-10-13 | `16-02_noinlineerr-force-disabled-across-go-appkit`           | noinlineerr forced disabled fleet-wide                                           |
+| 2026-10-13 | `17-22_buildflow-gate-errors-fixed-standing-warnings-triaged` | Gate errors fixed; 7 warning classes triaged                                     |
+| 2026-10-13 | `17-50_exclusion-sweep-status-and-self-review`                | Exclusion-rules deprecation sweep shipped                                        |
+| 2026-10-14 | `14-59_declarative-reconciler-execution-status`               | ADR-017 reconciler P1–P4                                                         |
+| 2026-10-14 | `16-32_declarative-reconciler-p5-closeout-through-p8`         | P5–P8 closeout                                                                   |
+| 2026-10-14 | `18-34_legacy-engine-and-compat-view-deletion`                | Legacy engine deleted; reconciler is the only engine                             |
+| 2026-10-16 | `19-46_issue-15-capability-gate-session-closeout`             | Capability probe gates recommendations on the pinned binary                      |
+| 2026-10-16 | `22-50_always-zero-issue-caps-status-and-self-review`         | Issue caps always converge to 0                                                  |
+| 2026-10-17 | `04-16_buildflow-finding-gate-incident-fix`                   | mergeNormalizerChanges union fix (check/apply drift dead)                        |
+| 2026-10-17 | `06-04_v0.11.0-release-and-buildflow-pin-bump-status`         | v0.11.0 shipped; cosign pinned; BuildFlow pin bumped                             |
+| 2026-11-02 | `00-03_upstream-v2-audit-full-support-sweep-status`           | Upstream v2 audit: full linter-support sweep                                     |
+| 2026-11-02 | `00-18_audit-invocations-cqrs-otel-self-review`               | Audit invocations + CQRS/OTel self-review                                        |
+| 2026-11-02 | `01-19_docs-health-fifth-sweep-all-2026-0x-resolved`          | Fifth docs-health sweep: 32 files resolved + archived, living docs rehabilitated |
+| 2026-11-02 | `03-10_SUPERB-otel-execution-mid-flight-status`               | OTEL execution interrupted mid-M4 (M2-M4 done, M5-M10 open)                      |
+| 2026-11-02 | `03-36_upstream-v2-15-baseline-migration-depth-status`        | v2.15 baseline, migrate depth, chain fixture (interrupted session)               |
+| 2026-11-02 | `06-09_fleet-convergence-d0-green-t1-t2-landed-t3-mid-flight` | Fleet-convergence execution: D0 green, T1/T2 landed, T3 mid-flight               |

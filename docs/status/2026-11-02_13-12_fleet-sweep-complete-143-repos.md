@@ -6,14 +6,14 @@
 
 ## Final Totals
 
-| Bucket | Count | Detail |
-| --- | --- | --- |
-| Eligible repos | 143 | skips.txt documents the 32 exclusions with reasons |
-| Converged + pushed | 108 | configure produced a diff; committed and pushed to GitHub |
-| Verified still-converged | 22 | configure is a no-op at GitHub HEAD (incl. this repo) |
-| Post-push schema heals | 15 | v2.15 schema strictness on pre-existing v1-era keys (below) |
-| Silent no-op recoveries | 3 | go-plugin-mvp, BuildFlow, cqrs-htmx (see Scars) |
-| Push failures outstanding | 0 | crush-daily's initial failure recovered in the sync flow |
+| Bucket                    | Count | Detail                                                      |
+| ------------------------- | ----- | ----------------------------------------------------------- |
+| Eligible repos            | 143   | skips.txt documents the 32 exclusions with reasons          |
+| Converged + pushed        | 108   | configure produced a diff; committed and pushed to GitHub   |
+| Verified still-converged  | 22    | configure is a no-op at GitHub HEAD (incl. this repo)       |
+| Post-push schema heals    | 15    | v2.15 schema strictness on pre-existing v1-era keys (below) |
+| Silent no-op recoveries   | 3     | go-plugin-mvp, BuildFlow, cqrs-htmx (see Scars)             |
+| Push failures outstanding | 0     | crush-daily's initial failure recovered in the sync flow    |
 
 Post-sweep GitHub state: **0** configs carry any dead linter name
 (deadcode/varcheck/structcheck/exhaustivestruct/interfacer/nosnakecase, F22
@@ -28,23 +28,23 @@ them).
 keys that the convergence push made visible. Each got a surgical `fix(config)`
 commit. The recipe inventory, for KnownBadSettingsKeys deliberation (F73):
 
-| Repo | Violation → fix |
-| --- | --- |
-| blog | wrapcheck `defaultSuffixes` (no v2 successor) → dropped |
-| code-duplicate-analyzer | forbidigo `p:` → `pattern:`; gochecknoglobals settings → dropped (linter has none) |
-| Code-Quality-Agent | mnd `ignored-numbers` bare numbers → quoted strings |
-| go-wizard-sdk | revive `exported-warnings`/`ignore-name-header` → dropped |
-| invoices | exhaustive `check: map` → `mapliteral` |
-| StopTube | gomoddirectives `local_replace_directives` → `replace-local` |
-| storbi | wrapcheck `excluded-files` → dropped (existing `_test.go` exclusion rule already lists wrapcheck) |
-| template-air | ginkgolinter v1 keys dropped, `suppress-err`→`suppress-err-assertion`; godot `top`→`toplevel`; noctx block dropped |
-| template-github-actions | funlen `functions` dropped; gochecknoglobals block dropped; ireturn `enabled` dropped |
-| testing | nestif `max-depth`→`min-complexity`; gochecknoglobals allow-list dropped (inexpressible in v2 — flagged in commit) |
-| universal-workflow | funlen `max-len` dropped; gosmopolitan `ignore-tests` dropped; nestif `min-depth`→`min-complexity`; usetesting `for-transformed-mkdir` dropped; emptied blocks removed |
-| yt-history-intel | recvcheck `exclude`→`exclusions` |
-| Zlota44 | err113 block (none in schema) → path-scoped exclusion rule preserving all 5 path prefixes |
-| ast-state-analyzer | forbidigo `analyze_types`→`analyze-types`, `exclude_godoc`→`exclude-godoc-examples`; `analyze_functions` dropped |
-| desire-secrets | gomodguard_v2 v1 nested shape → v2 `{module, match-type}` array (all 30 allows + jwt-go block preserved); modernize `simplify-range` dropped; exhaustive reshaped to the v2.15 binary schema |
+| Repo                    | Violation → fix                                                                                                                                                                              |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| blog                    | wrapcheck `defaultSuffixes` (no v2 successor) → dropped                                                                                                                                      |
+| code-duplicate-analyzer | forbidigo `p:` → `pattern:`; gochecknoglobals settings → dropped (linter has none)                                                                                                           |
+| Code-Quality-Agent      | mnd `ignored-numbers` bare numbers → quoted strings                                                                                                                                          |
+| go-wizard-sdk           | revive `exported-warnings`/`ignore-name-header` → dropped                                                                                                                                    |
+| invoices                | exhaustive `check: map` → `mapliteral`                                                                                                                                                       |
+| StopTube                | gomoddirectives `local_replace_directives` → `replace-local`                                                                                                                                 |
+| storbi                  | wrapcheck `excluded-files` → dropped (existing `_test.go` exclusion rule already lists wrapcheck)                                                                                            |
+| template-air            | ginkgolinter v1 keys dropped, `suppress-err`→`suppress-err-assertion`; godot `top`→`toplevel`; noctx block dropped                                                                           |
+| template-github-actions | funlen `functions` dropped; gochecknoglobals block dropped; ireturn `enabled` dropped                                                                                                        |
+| testing                 | nestif `max-depth`→`min-complexity`; gochecknoglobals allow-list dropped (inexpressible in v2 — flagged in commit)                                                                           |
+| universal-workflow      | funlen `max-len` dropped; gosmopolitan `ignore-tests` dropped; nestif `min-depth`→`min-complexity`; usetesting `for-transformed-mkdir` dropped; emptied blocks removed                       |
+| yt-history-intel        | recvcheck `exclude`→`exclusions`                                                                                                                                                             |
+| Zlota44                 | err113 block (none in schema) → path-scoped exclusion rule preserving all 5 path prefixes                                                                                                    |
+| ast-state-analyzer      | forbidigo `analyze_types`→`analyze-types`, `exclude_godoc`→`exclude-godoc-examples`; `analyze_functions` dropped                                                                             |
+| desire-secrets          | gomodguard_v2 v1 nested shape → v2 `{module, match-type}` array (all 30 allows + jwt-go block preserved); modernize `simplify-range` dropped; exhaustive reshaped to the v2.15 binary schema |
 
 **Finding worth an upstream issue**: the v2.15.0 BINARY enforces exhaustive
 keys (`explicit-exhaustive`, `ignore-constants`, `ignore-types` as arrays,

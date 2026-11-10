@@ -20,7 +20,7 @@ I introduced and fixed myself.
 
 ## 1. What was forgotten / done badly (the blunt section)
 
-1. **First GHCR backfill pushed the image as `:master` instead of `:v0.8.0`** *(record; the stray-tag cleanup is a TODO row)* — on
+1. **First GHCR backfill pushed the image as `:master` instead of `:v0.8.0`** _(record; the stray-tag cleanup is a TODO row)_ — on
    `workflow_dispatch`, `GITHUB_REF_NAME` is the branch, not the input tag. The image content was
    correct (built from the v0.8.0 checkout) but the tag was wrong, and the verify step then
    exec'd `--version` as a command (image has CMD, no ENTRYPOINT) → exit 127. Both fixed in the
@@ -73,53 +73,53 @@ I introduced and fixed myself.
 
 ## 3. b) PARTIALLY DONE
 
-| #     | Item                                                     | Exact remaining work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| ----- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ~~1~~ | ~~**T25 Small-code-fixes bundle** (~90% done, uncommitted)~~ | ~~DONE: `FindingsHidden` dead ledger field removed; duplicate `errUnsupportedFormat`/`errUnsupportedConfigFormat` sentinels deduped (marshal path now wraps the rejection properly); multi-preset merge specs written; **real dedup bug found and fixed** (extra formatters were appended after set conversion → duplicates possible). REMAINING: my third spec fails on a type mismatch in the assertion (`ContainElements("gci")` vs `[]types.FormatterName`) — needs `types.FormatterName(...)` + 2 lint nits (wsl_v5, gci), then full suite + commit. `pkg/audit` + `pkg/config` suites already green; staged files: `cmd_configure_preset.go` + new internal test~~ **done — T25 completed 2026-09-14**|
-| ~~2~~ | ~~**Dependabot green-run confirmation**~~ | ~~Waits for the Sunday 2026-09-13 18:52 UTC scheduled run; everything else verified~~ **routed — TODO Dependabot row**|
-| ~~3~~ | ~~**T16.4 buildflow e2e green**~~ | ~~Runs clean through 35 steps; only the findings gate (advisory) blocks. Needs a posture decision (see question 3) **DONE 2026-10-07:** findings-gate posture decided: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (keep no-config, expected-red documented)~~ |
-| ~~4~~ | ~~**3 user-gated questions from the previous session**~~ | ~~Still unanswered (see section g) — homebrew-tap publish, v0.8.2 timing, release-page README~~ **answered 2026-10-07: tap posture (memo: delete), releases shipped through v0.11.0, release-page handling in gotcha 33**|
+| #     | Item                                                         | Exact remaining work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ~~1~~ | ~~**T25 Small-code-fixes bundle** (~90% done, uncommitted)~~ | ~~DONE: `FindingsHidden` dead ledger field removed; duplicate `errUnsupportedFormat`/`errUnsupportedConfigFormat` sentinels deduped (marshal path now wraps the rejection properly); multi-preset merge specs written; **real dedup bug found and fixed** (extra formatters were appended after set conversion → duplicates possible). REMAINING: my third spec fails on a type mismatch in the assertion (`ContainElements("gci")` vs `[]types.FormatterName`) — needs `types.FormatterName(...)` + 2 lint nits (wsl_v5, gci), then full suite + commit. `pkg/audit` + `pkg/config` suites already green; staged files: `cmd_configure_preset.go` + new internal test~~ **done — T25 completed 2026-09-14** |
+| ~~2~~ | ~~**Dependabot green-run confirmation**~~                    | ~~Waits for the Sunday 2026-09-13 18:52 UTC scheduled run; everything else verified~~ **routed — TODO Dependabot row**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ~~3~~ | ~~**T16.4 buildflow e2e green**~~                            | ~~Runs clean through 35 steps; only the findings gate (advisory) blocks. Needs a posture decision (see question 3) **DONE 2026-10-07:** findings-gate posture decided: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (keep no-config, expected-red documented)~~                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ~~4~~ | ~~**3 user-gated questions from the previous session**~~     | ~~Still unanswered (see section g) — homebrew-tap publish, v0.8.2 timing, release-page README~~ **answered 2026-10-07: tap posture (memo: delete), releases shipped through v0.11.0, release-page handling in gotcha 33**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ## 4. c) NOT STARTED
 
-| # | Item                                         | Note                                                                                                                                                                    |
-| - | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ~~1~~ | ~~**T26 Docs-hygiene bundle**~~ | ~~Annotate 08-05 humanize report, route 07-31 F-ideas, version-ref sweep, status cadence policy, TODO prune~~ **done — executed 2026-09-14 (final session)**|
-| ~~2~~ | ~~**T27 Decisions + docs-integrity extension**~~ | ~~PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates, homepage routing, docs-integrity test beyond preset counts, final plan-status report~~ **done — executed 2026-09-14; docs-integrity extension declined-for-now**|
-| ~~3~~ | ~~**Plan-file annotation (guardrail 7)**~~ | ~~The pareto plan was supposed to get docs-health ANNOTATEd incrementally as tasks completed — never started; all 15 completions are only in git history + status reports~~ **done — the plan carries its COMPLETE banner**|
-| ~~4~~ | ~~**BuildFlow upstream feedback — routed — ROADMAP theme 4 (unfiled)**~~ | ~~The "9 tools unavailable" health check should filter by project languages — investigated, not reported to the BuildFlow repo~~ |
+| #     | Item                                                                     | Note                                                                                                                                                                                                                        |
+| ----- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ~~1~~ | ~~**T26 Docs-hygiene bundle**~~                                          | ~~Annotate 08-05 humanize report, route 07-31 F-ideas, version-ref sweep, status cadence policy, TODO prune~~ **done — executed 2026-09-14 (final session)**                                                                |
+| ~~2~~ | ~~**T27 Decisions + docs-integrity extension**~~                         | ~~PARTS/PROJECT_SPLIT/BDD_TESTS_REVIEW fates, homepage routing, docs-integrity test beyond preset counts, final plan-status report~~ **done — executed 2026-09-14; docs-integrity extension declined-for-now**              |
+| ~~3~~ | ~~**Plan-file annotation (guardrail 7)**~~                               | ~~The pareto plan was supposed to get docs-health ANNOTATEd incrementally as tasks completed — never started; all 15 completions are only in git history + status reports~~ **done — the plan carries its COMPLETE banner** |
+| ~~4~~ | ~~**BuildFlow upstream feedback — routed — ROADMAP theme 4 (unfiled)**~~ | ~~The "9 tools unavailable" health check should filter by project languages — investigated, not reported to the BuildFlow repo~~                                                                                            |
 
 ## 5. d) TOTALLY FUCKED UP (and current state)
 
-| # | Item                                                                    | State                                                                                                                                                                                                                          |
-| - | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ~~1~~ | ~~**T25 tree is red**~~ | ~~One failing spec (type-mismatch assertion) + 2 lint nits sit in staged/uncommitted files; the auto-commit daemon may commit them as-is. 3-line fix, not yet applied because you said report-then-wait~~ **done — fixed by the final session (2026-09-14)**|
-| ~~2~~ | ~~**Stray `ghcr.io/larsartmann/golangci-lint-auto-configure:master` tag**~~ | ~~Contains v0.8.0 content under a misleading tag. Cannot delete: needs `delete:packages` (token lacks it). Inert but confusing~~ **routed — TODO GHCR-hygiene row**|
-| ~~3~~ | ~~**8 sibling repos have uncommitted `.golangci.yml` repairs**~~ | ~~Code-Quality-Agent, crush-daily, erraudit, go-idempotency, licenseforge, plugmarket, go-cqrs-lite, go-finding. Verified correct, but not committed (relied on their auto-commit daemons; no cross-repo push authorization)~~ **done — cross-repo memo (2026-10-07)**|
-| ~~4~~ | ~~**/tmp hygiene**~~ | ~~Now 52% used (was 100%). Remaining hogs are ANOTHER session's live builds (monitor365-client.lSVL3W 9.8G, mv-verify, mv-target) — deliberately untouched. `t10-gomodcache` failed to delete from trash (left behind, harmless)~~ **environment — no repo action**|
-| ~~5~~ | ~~**CI-state uncertainty on latest push**~~ | ~~`9cf8a83` (README) + daemon commits pushed without watching a full CI run to the end this session; dispatched-run proof exists only up to `cf3021f`-era + run 34596025246. Low risk (docs-only), unverified regardless~~ **done — CI green and watchdog-monitored since**|
+| #     | Item                                                                        | State                                                                                                                                                                                                                                                                       |
+| ----- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ~~1~~ | ~~**T25 tree is red**~~                                                     | ~~One failing spec (type-mismatch assertion) + 2 lint nits sit in staged/uncommitted files; the auto-commit daemon may commit them as-is. 3-line fix, not yet applied because you said report-then-wait~~ **done — fixed by the final session (2026-09-14)**                |
+| ~~2~~ | ~~**Stray `ghcr.io/larsartmann/golangci-lint-auto-configure:master` tag**~~ | ~~Contains v0.8.0 content under a misleading tag. Cannot delete: needs `delete:packages` (token lacks it). Inert but confusing~~ **routed — TODO GHCR-hygiene row**                                                                                                         |
+| ~~3~~ | ~~**8 sibling repos have uncommitted `.golangci.yml` repairs**~~            | ~~Code-Quality-Agent, crush-daily, erraudit, go-idempotency, licenseforge, plugmarket, go-cqrs-lite, go-finding. Verified correct, but not committed (relied on their auto-commit daemons; no cross-repo push authorization)~~ **done — cross-repo memo (2026-10-07)**      |
+| ~~4~~ | ~~**/tmp hygiene**~~                                                        | ~~Now 52% used (was 100%). Remaining hogs are ANOTHER session's live builds (monitor365-client.lSVL3W 9.8G, mv-verify, mv-target) — deliberately untouched. `t10-gomodcache` failed to delete from trash (left behind, harmless)~~ **environment — no repo action**         |
+| ~~5~~ | ~~**CI-state uncertainty on latest push**~~                                 | ~~`9cf8a83` (README) + daemon commits pushed without watching a full CI run to the end this session; dispatched-run proof exists only up to `cf3021f`-era + run 34596025246. Low risk (docs-only), unverified regardless~~ **done — CI green and watchdog-monitored since** |
 
 ## 6. e) WHAT WE SHOULD IMPROVE
 
 ~~1. **Test the dispatch-path details of new workflows before shipping them** — a dry-run of~~ **NOT-DO — process lesson, no repo artifact**
-   `GITHUB_REF_NAME` semantics (or a workflow-lint step) would have caught the `:master` tag bug.
+`GITHUB_REF_NAME` semantics (or a workflow-lint step) would have caught the `:master` tag bug.
 ~~2. **Delete-then-verify workflow steps**: every new workflow should end with an assertion that~~ **NOT-DO — process lesson, no repo artifact**
-   survives its own first run (my verify step ran against the wrong tag).
+survives its own first run (my verify step ran against the wrong tag).
 ~~3. **Check `df` before long test batches on this machine** — tmpfs 48G fills silently from~~ **NOT-DO — process lesson, no repo artifact**
-   concurrent sessions; a pre-flight guard (or moving GOCACHE/GOMODCACHE checks) would save
-   entire debug cycles.
+concurrent sessions; a pre-flight guard (or moving GOCACHE/GOMODCACHE checks) would save
+entire debug cycles.
 ~~4. **Never trash tmpfs files as a space-freeing strategy** — `trash` on tmpfs copies within the~~ **NOT-DO — process lesson, no repo artifact**
-   same filesystem. Use `trash-empty` or accept it.
+same filesystem. Use `trash-empty` or accept it.
 ~~5. **Use `golangci-lint run --fix` as the FIRST resort for format findings**, not the last.~~ **NOT-DO — process lesson, no repo artifact**
 ~~6. **Stop using bash heredocs for Go string literals entirely** — the edit tool is strictly~~ **NOT-DO — process lesson, no repo artifact**
-   better; this session's two corruptions were both predictable.
+better; this session's two corruptions were both predictable.
 7. ~~**Cross-repo work needs an explicit authorization model** — 8 sibling repos sit in limbo~~ **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07): standing auth + rehearsal protocol
-   (fixed but uncommitted) because push authority is unclear.
+(fixed but uncommitted) because push authority is unclear.
 ~~8. **Build-once caching and process-level test parallelism** should be the default assumption~~ **NOT-DO — process lesson, no repo artifact**
-   for new integration tests (write in-process first, subprocess only when the boundary IS the
-   process).
+for new integration tests (write in-process first, subprocess only when the boundary IS the
+process).
 9. ~~**The findings-gate posture needs a written policy** — "erraudit is manual-review" lives in~~ **DONE 2026-10-07:** docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)
-   AGENTS #26, but buildflow's gate enforces error-severity anyway; the two sources disagree.
+AGENTS #26, but buildflow's gate enforces error-severity anyway; the two sources disagree.
 ~~10. **GHCR tag hygiene** needs a decision (scope grant or accepted-wart note in release-process docs).~~ **routed — TODO_LIST GHCR-hygiene row**
 
 ## 7. f) Up to 50 things to get done next (ordered by impact)
@@ -190,23 +190,23 @@ I introduced and fixed myself.
 ## 8. g) Questions I cannot answer myself
 
 ~~1. ~~**Cross-repo write authorization:** The 8 sibling `.golangci.yml` repairs (goconst~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-cross-repo-write-authorization.md (2026-10-07)~~ **done — T25 completed and committed (2026-09-14 final session)**
-   `min-length` → `min-len`, verified against `golangci-lint config verify`) are sitting
-   uncommitted in Code-Quality-Agent, crush-daily, erraudit, go-idempotency, licenseforge,
-   plugmarket, go-cqrs-lite, and go-finding. Should I commit (and push?) them, or do their
-   auto-commit daemons own that? Same scope question as the old homebrew-tap PAT question —
-   if you want me doing cross-repo writes, a PAT with the right scopes would unblock both.
+`min-length` → `min-len`, verified against `golangci-lint config verify`) are sitting
+uncommitted in Code-Quality-Agent, crush-daily, erraudit, go-idempotency, licenseforge,
+plugmarket, go-cqrs-lite, and go-finding. Should I commit (and push?) them, or do their
+auto-commit daemons own that? Same scope question as the old homebrew-tap PAT question —
+if you want me doing cross-repo writes, a PAT with the right scopes would unblock both.
 ~~2. **v0.8.2 now or batch?** Since v0.8.1 shipped, master accumulated: README overhaul, exhaustruct_v5~~ **routed — TODO_LIST Dependabot row (green-run confirmation policy)**
-   migration, varnamelen trim, omitzero JSON fix, the multi-preset formatter-dedup fix, and the
-   FindingsHidden/sentinel cleanups. Cut v0.8.2 now (users get the omitzero + dedup fixes), or
-   batch into v0.9.0? (This was question 2 from the 13-27 status report — still unanswered.)
+migration, varnamelen trim, omitzero JSON fix, the multi-preset formatter-dedup fix, and the
+FindingsHidden/sentinel cleanups. Cut v0.8.2 now (users get the omitzero + dedup fixes), or
+batch into v0.9.0? (This was question 2 from the 13-27 status report — still unanswered.)
 
 > **RESOLVED:** batched — v0.9.0 (2026-09-28) and v0.10.0/v0.11.0 (2026-10-17) shipped since.
-~~3. ~~**Buildflow findings-gate policy:** The e2e gate fails on 235 advisory findings~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)~~ **routed — TODO_LIST GHCR-hygiene row (delete:packages scope USER-GATED)**
-   (branching-flow 190, erraudit 44 critical-severity, go-structure-linter 1) while AGENTS #26
-   says erraudit is manual-review, not a gate. Do I (a) add `erraudit`/`branching-flow` to
-   `skip_steps` in `.buildflow.yml`, (b) drop gate severity via `fail_on: critical`-plus-fixes,
-   (c) fix/annotate the 44 erraudit findings for real, or (d) leave the gate red and documented?
-   I cannot decide this for you because it defines what "green" means for YOUR local buildflow.
+> ~~3. ~~**Buildflow findings-gate policy:** The e2e gate fails on 235 advisory findings~~ **DONE 2026-10-07:** answered: docs/decisions/2026-10-07-memo-buildflow-findings-gate-posture.md (2026-10-07)~~ **routed — TODO_LIST GHCR-hygiene row (delete:packages scope USER-GATED)**
+> (branching-flow 190, erraudit 44 critical-severity, go-structure-linter 1) while AGENTS #26
+> says erraudit is manual-review, not a gate. Do I (a) add `erraudit`/`branching-flow` to
+> `skip_steps` in `.buildflow.yml`, (b) drop gate severity via `fail_on: critical`-plus-fixes,
+> (c) fix/annotate the 44 erraudit findings for real, or (d) leave the gate red and documented?
+> I cannot decide this for you because it defines what "green" means for YOUR local buildflow.
 
 ---
 

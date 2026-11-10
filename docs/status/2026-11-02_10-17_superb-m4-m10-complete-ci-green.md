@@ -9,13 +9,13 @@ through M10 to completion. CI is green on the final commit `8bebd80`.
 
 ## What landed (this session)
 
-| Commit | Milestones | Content |
-| --- | --- | --- |
-| `98a74a1` | M4+M5 | Migrate OTEL span + audit coverage 4/4: `config-migrated` / `preset-applied` actions, `audit.OpenRunLedger`/`EnvVarDisable` (promoted from internal/cli's `newRunLedger`), migrate + preset wiring, `client.Options.Recorder`; binary-level ledger specs (XDG_CACHE_HOME-isolated) + client recorder spec |
-| `044d75a` | M6+M7 | `SetFlagErrorFunc` → usage errors exit 1 (Rejection, `cli.flags` registered in `pkg/errors/codes.go`); exit-code pins (unknown flag → 1, `--check` changes-needed → 1) + installhook no-mutation spec |
-| `156041a` | M8 | Docs: SECURITY (opt-in telemetry posture), README "Optional Telemetry" section, FEATURES rows, CHANGELOG, AGENTS gotcha 34 (telemetry design) + gotcha 17 refresh, ROADMAP OTEL decision, TODO_LIST row narrowed, plan errata, 00-18 false-claim annotation |
-| `c01d745` | master-green | Converged own config for the concurrent session's tech-gated retraction normalizer (arangolint/clickhouselint out; CI dogfood gate had gone red on their `89a87b3`) |
-| `8bebd80` | lint-red fix | Wrap-proof funlen restructure (see incident 2) — CI lint green |
+| Commit    | Milestones   | Content                                                                                                                                                                                                                                                                                                   |
+| --------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `98a74a1` | M4+M5        | Migrate OTEL span + audit coverage 4/4: `config-migrated` / `preset-applied` actions, `audit.OpenRunLedger`/`EnvVarDisable` (promoted from internal/cli's `newRunLedger`), migrate + preset wiring, `client.Options.Recorder`; binary-level ledger specs (XDG_CACHE_HOME-isolated) + client recorder spec |
+| `044d75a` | M6+M7        | `SetFlagErrorFunc` → usage errors exit 1 (Rejection, `cli.flags` registered in `pkg/errors/codes.go`); exit-code pins (unknown flag → 1, `--check` changes-needed → 1) + installhook no-mutation spec                                                                                                     |
+| `156041a` | M8           | Docs: SECURITY (opt-in telemetry posture), README "Optional Telemetry" section, FEATURES rows, CHANGELOG, AGENTS gotcha 34 (telemetry design) + gotcha 17 refresh, ROADMAP OTEL decision, TODO_LIST row narrowed, plan errata, 00-18 false-claim annotation                                               |
+| `c01d745` | master-green | Converged own config for the concurrent session's tech-gated retraction normalizer (arangolint/clickhouselint out; CI dogfood gate had gone red on their `89a87b3`)                                                                                                                                       |
+| `8bebd80` | lint-red fix | Wrap-proof funlen restructure (see incident 2) — CI lint green                                                                                                                                                                                                                                            |
 
 ## Verification (all green at final state)
 
@@ -28,7 +28,7 @@ through M10 to completion. CI is green on the final commit `8bebd80`.
 - Dogfood: `--help` lists `--otel`; `configure --check` exit 0 after c01d745; earlier
   `--check --diff` runs restored the config byte-identically every time.
 - CI `ci.yml` on `8bebd80`: success (4m47s) — lint + dogfood + schema gate + e2e pin matrix
-  + parity corpus + nix flake check all green.
+  - parity corpus + nix flake check all green.
 
 ## Incidents this session (fixed)
 

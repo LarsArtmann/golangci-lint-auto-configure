@@ -19,18 +19,18 @@ stray config is trashed.
 
 ## a) Fully done (verified)
 
-| Item | Evidence |
-| --- | --- |
-| D0 master green (recovered 3-way interleaved sessions, landed dead sessions' work) | CI green through `1cff856` |
-| T1 stale project-specific linter retraction | `89a87b3`, pushed; fleet prediction confirmed: ~98/117 drifted configs carried arangolint/clickhouselint |
-| T2 orphaned-settings prune + curated wrapcheck exemption | `1cff856` (landed by D0 recovery) |
-| T3 declarative regression-loop detection + never-enable offers | `634b904` pushed; specs green (`desired_cycle_test.go`, fixer_test cycle context); CI green |
-| T7/T8/T9/T10 v2.15 frontier (schema snapshot, version pins, wrapcheck, chain fixture) | `ef60545` + fix; dogfood gate green via co-tenant's `c01d745` |
-| F10 README durable-suppression note + F32 version-claims sweep | `90efec4` pushed |
-| T11 single-criterion validation version pin | Verified against upstream source: `excludeRuleMinConditionsCount = 2` present since ≥v1.38.0 (2021) and in every v2 release; CHANGELOG/spec/AGENTS updated (uncommitted with probe work) |
-| T12 verify-before-filing outcome: DO NOT FILE | Premise falsified (see §d); no upstream issue filed; this is the skill working as designed |
-| Fleet sweep Phase A+B: full classification of 175 config-bearing siblings | 143 eligible / 32 skipped-with-reasons; 100 drifted, 22 converged, 17 config+fmt, 4 fmt-only |
-| Fleet sweep batches 1–2 + 3 schema heals | 23 repos pushed green-verified: accounting-pitch-deck ActaFlow ai-router-implementation AI-Speed-Test ai-task-prioritizer AI-von-Art-Bench architecture-diagrams ArtCode AutoCart auto-deduplicate bank-sync BerryBig branching-flow BuildFlow chats Code-To-CV-Agent cqrs-htmx (+heals on ai-router-implementation, AI-Speed-Test, auto-deduplicate) |
+| Item                                                                                  | Evidence                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D0 master green (recovered 3-way interleaved sessions, landed dead sessions' work)    | CI green through `1cff856`                                                                                                                                                                                                                                                                                                                            |
+| T1 stale project-specific linter retraction                                           | `89a87b3`, pushed; fleet prediction confirmed: ~98/117 drifted configs carried arangolint/clickhouselint                                                                                                                                                                                                                                              |
+| T2 orphaned-settings prune + curated wrapcheck exemption                              | `1cff856` (landed by D0 recovery)                                                                                                                                                                                                                                                                                                                     |
+| T3 declarative regression-loop detection + never-enable offers                        | `634b904` pushed; specs green (`desired_cycle_test.go`, fixer_test cycle context); CI green                                                                                                                                                                                                                                                           |
+| T7/T8/T9/T10 v2.15 frontier (schema snapshot, version pins, wrapcheck, chain fixture) | `ef60545` + fix; dogfood gate green via co-tenant's `c01d745`                                                                                                                                                                                                                                                                                         |
+| F10 README durable-suppression note + F32 version-claims sweep                        | `90efec4` pushed                                                                                                                                                                                                                                                                                                                                      |
+| T11 single-criterion validation version pin                                           | Verified against upstream source: `excludeRuleMinConditionsCount = 2` present since ≥v1.38.0 (2021) and in every v2 release; CHANGELOG/spec/AGENTS updated (uncommitted with probe work)                                                                                                                                                              |
+| T12 verify-before-filing outcome: DO NOT FILE                                         | Premise falsified (see §d); no upstream issue filed; this is the skill working as designed                                                                                                                                                                                                                                                            |
+| Fleet sweep Phase A+B: full classification of 175 config-bearing siblings             | 143 eligible / 32 skipped-with-reasons; 100 drifted, 22 converged, 17 config+fmt, 4 fmt-only                                                                                                                                                                                                                                                          |
+| Fleet sweep batches 1–2 + 3 schema heals                                              | 23 repos pushed green-verified: accounting-pitch-deck ActaFlow ai-router-implementation AI-Speed-Test ai-task-prioritizer AI-von-Art-Bench architecture-diagrams ArtCode AutoCart auto-deduplicate bank-sync BerryBig branching-flow BuildFlow chats Code-To-CV-Agent cqrs-htmx (+heals on ai-router-implementation, AI-Speed-Test, auto-deduplicate) |
 
 ## b) Partially done
 
@@ -101,6 +101,7 @@ T13 (probe era fixtures — re-scoped by the contamination finding, see §e).
 ## f) Next things (ordered, ~50)
 
 **Sweep completion (T5/T6):**
+
 1. Heal 3 verify-failures (blog, code-duplicate-analyzer, Code-Quality-Agent) — same recipe as the healed three
 2. Batches 3–10: 80 drifted repos (10/batch, spot-verify 5 diffs each)
 3. 17 config+fmt repos (two-commit split: config / format)

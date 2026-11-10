@@ -32,7 +32,7 @@ You can expect an initial response within 7 days. Fixes are released as soon as 
 
 ## Scope
 
-This tool reads and writes golangci-lint configuration files locally. It does not run as a service and does not transmit any data by default; the sole network egress is OTLP trace export that the user must explicitly enable and configure (see *Optional telemetry* above). Issues of particular interest:
+This tool reads and writes golangci-lint configuration files locally. It does not run as a service and does not transmit any data by default; the sole network egress is OTLP trace export that the user must explicitly enable and configure (see _Optional telemetry_ above). Issues of particular interest:
 
 - Config injection or code execution through malicious `.golangci.yml` content
 - Path traversal in config discovery, report generation, or the audit ledger

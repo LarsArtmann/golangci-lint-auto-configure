@@ -108,40 +108,40 @@
 
 ## f) Things to get done next (remaining plan; live source: plan file F16–F46)
 
-| #  | Task (≤12 min each)                                                                          | Master |
-| -- | --------------------------------------------------------------------------------------------- | ------ |
-| 1  | Migrate span: thread ctx runMigrate→executeMigration→runMigrator; attrs dry_run/skip_validation/fixes_applied | M4 |
-| 2  | Lint-clean pass over all new span/telemetry code (wsl, wrapcheck)                              | M4     |
-| 3  | Export `audit.EnvVarDisable`; alias the cli const to it                                        | M5     |
-| 4  | Add `ActionConfigMigrated` + `ActionPresetApplied` actions with doc comments                   | M5     |
-| 5  | Wire ledger into migrate command; emit `config-migrated` on non-dry success                    | M5     |
-| 6  | Wire ledger into preset path; emit `preset-applied` on non-dry save                            | M5     |
-| 7  | `client.Options.Recorder` + `SetLedger` when non-nil + privacy/cycle-detection doc comment     | M5     |
-| 8  | Spec: migrate non-dry writes exactly one `config-migrated`; dry-run none                        | M5    |
-| 9  | Spec: preset run writes `preset-applied`; check-mode preset writes none                         | M5    |
-| 10 | Spec: client with Recorder emits entries on apply                                              | M5     |
-| 11 | `rootCmd.SetFlagErrorFunc` → `WrapRejection("cli.flags")` — usage errors exit 1                | M6     |
-| 12 | Spec: unknown flag exits 1 with family=rejection (was 75)                                       | M6    |
-| 13 | Spec: installhook writes only the git hook, never `.golangci.yml`                               | M7    |
-| 14 | Inspect exit_code_test.go; pin ErrChangesNeeded→1 if unpinned                                  | M7     |
-| 15 | SECURITY.md telemetry paragraph (strictly opt-in, standard envs, default local-only)           | M8     |
-| 16 | README "Optional OpenTelemetry" section + example                                               | M8    |
-| 17 | FEATURES.md: OTEL row + audit-coverage rows                                                     | M8    |
-| 18 | CHANGELOG: Added (OTEL, audit coverage, recorder) / Fixed (flag-error exit 1)                  | M8     |
-| 19 | AGENTS.md: telemetry gotcha + gotcha-17 caveat refresh + lint-skew note                         | M8    |
-| 20 | ROADMAP OTEL decision line; TODO_LIST coverage-row partial close                                | M8    |
-| 21 | Focused suites: telemetry, cli, client, audit                                                    | M9   |
-| 22 | Full `ginkgo -r -p -race` + cmd package tests                                                    | M9    |
-| 23 | golangci-lint baseline diff vs CURRENT master = zero new findings                                | M9    |
-| 24 | `scripts/vendorhash-guard.sh --fix`; commit vendorHash.nix WITH go.mod/go.sum                   | M9    |
-| 25 | `nix build` + dogfood `configure --check` exit 0                                                 | M9    |
-| 26 | `nix fmt`; final `git status` review of MY files only                                            | M9    |
-| 27 | Curated commits per chunk, pathspec-scoped, very detailed messages                              | M10   |
-| 28 | `git push` (explicitly requested)                                                                | M10   |
-| 29 | `gh run` verify: ci.yml green incl. schema gate                                                  | M10   |
-| 30 | Amend plan file: record F13→PersistentPreRun deviation                                           | new   |
-| 31 | docs-health ANNOTATE the 00-18 self-review's false exit-code claim                               | new   |
-| 32 | Decide/document the grpc transitive dependency acceptance                                        | new   |
+| #  | Task (≤12 min each)                                                                                           | Master |
+| -- | ------------------------------------------------------------------------------------------------------------- | ------ |
+| 1  | Migrate span: thread ctx runMigrate→executeMigration→runMigrator; attrs dry_run/skip_validation/fixes_applied | M4     |
+| 2  | Lint-clean pass over all new span/telemetry code (wsl, wrapcheck)                                             | M4     |
+| 3  | Export `audit.EnvVarDisable`; alias the cli const to it                                                       | M5     |
+| 4  | Add `ActionConfigMigrated` + `ActionPresetApplied` actions with doc comments                                  | M5     |
+| 5  | Wire ledger into migrate command; emit `config-migrated` on non-dry success                                   | M5     |
+| 6  | Wire ledger into preset path; emit `preset-applied` on non-dry save                                           | M5     |
+| 7  | `client.Options.Recorder` + `SetLedger` when non-nil + privacy/cycle-detection doc comment                    | M5     |
+| 8  | Spec: migrate non-dry writes exactly one `config-migrated`; dry-run none                                      | M5     |
+| 9  | Spec: preset run writes `preset-applied`; check-mode preset writes none                                       | M5     |
+| 10 | Spec: client with Recorder emits entries on apply                                                             | M5     |
+| 11 | `rootCmd.SetFlagErrorFunc` → `WrapRejection("cli.flags")` — usage errors exit 1                               | M6     |
+| 12 | Spec: unknown flag exits 1 with family=rejection (was 75)                                                     | M6     |
+| 13 | Spec: installhook writes only the git hook, never `.golangci.yml`                                             | M7     |
+| 14 | Inspect exit_code_test.go; pin ErrChangesNeeded→1 if unpinned                                                 | M7     |
+| 15 | SECURITY.md telemetry paragraph (strictly opt-in, standard envs, default local-only)                          | M8     |
+| 16 | README "Optional OpenTelemetry" section + example                                                             | M8     |
+| 17 | FEATURES.md: OTEL row + audit-coverage rows                                                                   | M8     |
+| 18 | CHANGELOG: Added (OTEL, audit coverage, recorder) / Fixed (flag-error exit 1)                                 | M8     |
+| 19 | AGENTS.md: telemetry gotcha + gotcha-17 caveat refresh + lint-skew note                                       | M8     |
+| 20 | ROADMAP OTEL decision line; TODO_LIST coverage-row partial close                                              | M8     |
+| 21 | Focused suites: telemetry, cli, client, audit                                                                 | M9     |
+| 22 | Full `ginkgo -r -p -race` + cmd package tests                                                                 | M9     |
+| 23 | golangci-lint baseline diff vs CURRENT master = zero new findings                                             | M9     |
+| 24 | `scripts/vendorhash-guard.sh --fix`; commit vendorHash.nix WITH go.mod/go.sum                                 | M9     |
+| 25 | `nix build` + dogfood `configure --check` exit 0                                                              | M9     |
+| 26 | `nix fmt`; final `git status` review of MY files only                                                         | M9     |
+| 27 | Curated commits per chunk, pathspec-scoped, very detailed messages                                            | M10    |
+| 28 | `git push` (explicitly requested)                                                                             | M10    |
+| 29 | `gh run` verify: ci.yml green incl. schema gate                                                               | M10    |
+| 30 | Amend plan file: record F13→PersistentPreRun deviation                                                        | new    |
+| 31 | docs-health ANNOTATE the 00-18 self-review's false exit-code claim                                            | new    |
+| 32 | Decide/document the grpc transitive dependency acceptance                                                     | new    |
 
 (routed: the audit-coverage row already lives in TODO_LIST.md; nothing new to
 harvest from this snapshot beyond the plan file itself.)

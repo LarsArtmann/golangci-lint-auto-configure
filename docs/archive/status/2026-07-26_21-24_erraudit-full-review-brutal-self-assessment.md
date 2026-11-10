@@ -147,7 +147,7 @@ The `hierarchical-errors` skill is specifically about `errors.As` → `errors.As
 ### Generator / report specific
 
 39. ~~Verify the golden snapshot test still passes after the named-return change (`UPDATE_GOLDEN` check)~~ done (docs-health pass 2026-10-07)
-~~40. Check if `generator.go` has other deferred close patterns on write paths~~ **done — audited (f28); the named-return capture is the pattern**
+    ~~40. Check if `generator.go` has other deferred close patterns on write paths~~ **done — audited (f28); the named-return capture is the pattern**
 
 ### Audit ledger specific
 

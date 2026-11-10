@@ -129,7 +129,7 @@ real v2.15.0 binary · parity corpus deterministic.
 ## c) NOT STARTED
 
 1. **Release v0.12.0** (user-gated) — the v2.15.0 baseline + complete migrate
-   + curated wrapcheck default are release-worthy content.
+   - curated wrapcheck default are release-worthy content.
 2. **Upstream golangci-lint issues** (user-gated): v2.15 bare-dir `linters`
    output lists every known linter (our probe now guards); the "at least 2 of
    text, source, path, linters" exclusion validation UX.
@@ -218,58 +218,58 @@ v1-defaults semantics table (absent flag = defaults active).
 
 ## f) NEXT (up to 50, brainstorm-sorted by impact — HARVEST fuel)
 
-| #  | Item                                                                                                      | Why / Source |
-|----|-----------------------------------------------------------------------------------------------------------|--------------|
-| 1  | Fleet sweep: re-run `configure` across ~160 sibling repos                                                 | One pass now heals run.go + caps + exclusion rules + wrapcheck flood; biggest real-world win |
-| 2  | Release v0.12.0 (USER-GATED)                                                                              | v2.15.0 baseline + complete migrate + curated wrapcheck are ship-worthy |
-| 3  | Coordinate with OTEL session: its ledger-coverage row applies to `migrate` directly (my work rewrites configs with zero ledger entries) | Split-brain risk between our two change surfaces |
-| 4  | Self-converge this repo: `configure --check` with the curated wrapcheck default                            | Proves the tool heals its own config; check overlap with the manual entry |
-| 5  | Watch next CI run: schema-verify + lint jobs green at v2.15.0; e2e-pin-matrix cells                        | Local gates green; CI is the contract |
-| 6  | HARVEST this list into TODO_LIST/ROADMAP (docs-health)                                                    | Section f belongs in living docs, not a timestamped file |
-| 7  | Annotate the 03-36 status report: Q1–Q3 resolved (docs-health ANNOTATE)                                   | Closes the question loop non-destructively |
-| 8  | `issues.include` EXC→preset conversion (derive EXC→preset table from golangci source)                     | Last faithful migration-guide gap in `migrate` |
-| 9  | `exclude-rules-use-default` fate decision (drop vs `legacy` preset guess)                                 | Honest-drop is current; decide permanently |
-| 10 | Parity fixtures for the structural conversions (formats map, presets, exclude list)                        | Corpus covers none of the new surface |
-| 11 | Run `scripts/validate_linter_data.go` after policy-table edits (+ make it a scripted target)               | Forgotten locally this session |
-| 12 | Pin `outputFormatBlocks` map-order determinism in a spec (or return ordered data)                          | Unverified guarantee under future goldens |
-| 13 | README.md migrate section update (sales page still pre-structural)                                        | Docs truth |
-| 14 | Migrate verbose output: list which structural conversions WOULD fire in dry-run                            | UX for the new surface |
-| 15 | Warn (verbose) when dropping v2-absent output formats (`github-actions`) instead of silent skip            | Noticed during implementation |
-| 16 | TriState for `print-issued-lines`/`print-linter-name` to fold explicit-false into `formats.text` options   | Guide-prescribed; currently cleared only (documented limitation) |
-| 17 | Measure the post-curated-default flood on a sample fleet repo (validate 577-consumer claim end-to-end)     | Evidence for the release notes |
-| 18 | CI job (or Go test) that reproduces the temp-git migrate→`config verify` proof                            | The E2E proof is currently manual |
-| 19 | Update `docs/references/working-with-codebase.md` if it documents the old flag-clear pattern               | Docs truth |
-| 20 | Draft v0.12.0 release notes from the Unreleased CHANGELOG                                                  | Release prep |
-| 21 | Upstream candidate: report v2.15 bare-dir `linters` output change (probe-breaking) — verify-before-filing   | USER-GATED |
-| 22 | Upstream candidate: "at least 2 of" exclusion-validation error UX — verify-before-filing                   | USER-GATED |
-| 23 | `--pragmatic` interplay doc: wrapcheck is noise-tier; curated default only affects manual enables          | Avoids user confusion |
-| 24 | Verify `configure` renderer passes `output.formats` maps through untouched for users who have one          | Convergence-path check |
-| 25 | Race-detector flake check: `-count=2` on pkg/migration (map iteration, shared rules state)                 | Cheap insurance |
-| 26 | AGENTS.md doubled-backslash cleanup in wrapcheck spans                                                     | Cosmetic rot |
-| 27 | "What This Is" note: migrate is now genuinely deep — verify the maintenance-only framing still holds       | Docs honesty |
-| 28 | Confirm `89a87b3` stale-linter retraction didn't collide with TODO_LIST "orphan-prune extension" row        | Row may be DONE now |
-| 29 | cosign v3 bundle migration + unpin (existing TODO row)                                                     | Release infra |
-| 30 | Dependabot vendorHash CI policy decision (existing row)                                                    | Existing |
-| 31 | markdownlint nested-object config investigation (existing row)                                             | Existing |
-| 32 | Curated-default refresh provenance mechanism (existing row)                                                | Existing |
-| 33 | Auto-durable suppressions → sidecar `never-enable` (existing row)                                          | Existing |
-| 34 | v0.11.0 artifact backfill signatures+SBOMs (existing row, USER-GATED)                                      | Existing |
-| 35 | Floating-installer audit across workflows (existing row)                                                   | Existing |
-| 36 | Fold tag-failed-release runbook into release-process.md (existing row)                                     | Existing |
-| 37 | Audit-ledger coverage for migrate/preset/SDK paths (existing row — coordinate with OTEL session)           | Existing |
-| 38 | GOEXPERIMENT=jsonv2 cleanup sweep (existing TODOs, USER-GATED)                                             | Inert on Go 1.27 |
-| 39 | Consider `junit-xml-extended:false` token → plain junit-xml (currently only extended:true handled)          | Completeness nit |
-| 40 | `teamcity`/`sarif` formats: no v1 counterpart — confirm none needed in the parser                          | Completeness check (done implicitly, pin it in a spec) |
-| 41 | Migrate `--skip-validation` interplay spec with new conversions                                            | Edge path |
-| 42 | Idempotency spec for skip-dirs + exclude-dir-use-default BOTH enabled (double merge, dedup path)           | Spec hole |
-| 43 | i18n/emoji-free output snapshot for the new fix messages                                                   | UX polish |
-| 44 | Check `run.skip-dirs-use-default: false` + user `skip-dirs` retention semantics                            | Rare-path fidelity |
-| 45 | Consider exporting `excludeRulePathAllGo` (or moving to types) if other consumers need the guide's anchor   | API hygiene |
-| 46 | Windows CRLF safety check for migrated configs                                                             | Portability |
-| 47 | Release-notes: document the behavior-preservation choice (absent v1 flags convert to defaults)             | User-facing rationale |
-| 48 | Post-release proxy check: `go get` + pkg.go.dev render for v0.12.0                                         | Release verification |
-| 49 | Backfill: run erraudit quarterly re-check when due (~2027-01)                                              | Existing cadence |
-| 50 | Archive this report's predecessor + this one after HARVEST (docs-health archive pass)                      | Docs hygiene |
+| #  | Item                                                                                                                                    | Why / Source                                                                                 |
+| -- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 1  | Fleet sweep: re-run `configure` across ~160 sibling repos                                                                               | One pass now heals run.go + caps + exclusion rules + wrapcheck flood; biggest real-world win |
+| 2  | Release v0.12.0 (USER-GATED)                                                                                                            | v2.15.0 baseline + complete migrate + curated wrapcheck are ship-worthy                      |
+| 3  | Coordinate with OTEL session: its ledger-coverage row applies to `migrate` directly (my work rewrites configs with zero ledger entries) | Split-brain risk between our two change surfaces                                             |
+| 4  | Self-converge this repo: `configure --check` with the curated wrapcheck default                                                         | Proves the tool heals its own config; check overlap with the manual entry                    |
+| 5  | Watch next CI run: schema-verify + lint jobs green at v2.15.0; e2e-pin-matrix cells                                                     | Local gates green; CI is the contract                                                        |
+| 6  | HARVEST this list into TODO_LIST/ROADMAP (docs-health)                                                                                  | Section f belongs in living docs, not a timestamped file                                     |
+| 7  | Annotate the 03-36 status report: Q1–Q3 resolved (docs-health ANNOTATE)                                                                 | Closes the question loop non-destructively                                                   |
+| 8  | `issues.include` EXC→preset conversion (derive EXC→preset table from golangci source)                                                   | Last faithful migration-guide gap in `migrate`                                               |
+| 9  | `exclude-rules-use-default` fate decision (drop vs `legacy` preset guess)                                                               | Honest-drop is current; decide permanently                                                   |
+| 10 | Parity fixtures for the structural conversions (formats map, presets, exclude list)                                                     | Corpus covers none of the new surface                                                        |
+| 11 | Run `scripts/validate_linter_data.go` after policy-table edits (+ make it a scripted target)                                            | Forgotten locally this session                                                               |
+| 12 | Pin `outputFormatBlocks` map-order determinism in a spec (or return ordered data)                                                       | Unverified guarantee under future goldens                                                    |
+| 13 | README.md migrate section update (sales page still pre-structural)                                                                      | Docs truth                                                                                   |
+| 14 | Migrate verbose output: list which structural conversions WOULD fire in dry-run                                                         | UX for the new surface                                                                       |
+| 15 | Warn (verbose) when dropping v2-absent output formats (`github-actions`) instead of silent skip                                         | Noticed during implementation                                                                |
+| 16 | TriState for `print-issued-lines`/`print-linter-name` to fold explicit-false into `formats.text` options                                | Guide-prescribed; currently cleared only (documented limitation)                             |
+| 17 | Measure the post-curated-default flood on a sample fleet repo (validate 577-consumer claim end-to-end)                                  | Evidence for the release notes                                                               |
+| 18 | CI job (or Go test) that reproduces the temp-git migrate→`config verify` proof                                                          | The E2E proof is currently manual                                                            |
+| 19 | Update `docs/references/working-with-codebase.md` if it documents the old flag-clear pattern                                            | Docs truth                                                                                   |
+| 20 | Draft v0.12.0 release notes from the Unreleased CHANGELOG                                                                               | Release prep                                                                                 |
+| 21 | Upstream candidate: report v2.15 bare-dir `linters` output change (probe-breaking) — verify-before-filing                               | USER-GATED                                                                                   |
+| 22 | Upstream candidate: "at least 2 of" exclusion-validation error UX — verify-before-filing                                                | USER-GATED                                                                                   |
+| 23 | `--pragmatic` interplay doc: wrapcheck is noise-tier; curated default only affects manual enables                                       | Avoids user confusion                                                                        |
+| 24 | Verify `configure` renderer passes `output.formats` maps through untouched for users who have one                                       | Convergence-path check                                                                       |
+| 25 | Race-detector flake check: `-count=2` on pkg/migration (map iteration, shared rules state)                                              | Cheap insurance                                                                              |
+| 26 | AGENTS.md doubled-backslash cleanup in wrapcheck spans                                                                                  | Cosmetic rot                                                                                 |
+| 27 | "What This Is" note: migrate is now genuinely deep — verify the maintenance-only framing still holds                                    | Docs honesty                                                                                 |
+| 28 | Confirm `89a87b3` stale-linter retraction didn't collide with TODO_LIST "orphan-prune extension" row                                    | Row may be DONE now                                                                          |
+| 29 | cosign v3 bundle migration + unpin (existing TODO row)                                                                                  | Release infra                                                                                |
+| 30 | Dependabot vendorHash CI policy decision (existing row)                                                                                 | Existing                                                                                     |
+| 31 | markdownlint nested-object config investigation (existing row)                                                                          | Existing                                                                                     |
+| 32 | Curated-default refresh provenance mechanism (existing row)                                                                             | Existing                                                                                     |
+| 33 | Auto-durable suppressions → sidecar `never-enable` (existing row)                                                                       | Existing                                                                                     |
+| 34 | v0.11.0 artifact backfill signatures+SBOMs (existing row, USER-GATED)                                                                   | Existing                                                                                     |
+| 35 | Floating-installer audit across workflows (existing row)                                                                                | Existing                                                                                     |
+| 36 | Fold tag-failed-release runbook into release-process.md (existing row)                                                                  | Existing                                                                                     |
+| 37 | Audit-ledger coverage for migrate/preset/SDK paths (existing row — coordinate with OTEL session)                                        | Existing                                                                                     |
+| 38 | GOEXPERIMENT=jsonv2 cleanup sweep (existing TODOs, USER-GATED)                                                                          | Inert on Go 1.27                                                                             |
+| 39 | Consider `junit-xml-extended:false` token → plain junit-xml (currently only extended:true handled)                                      | Completeness nit                                                                             |
+| 40 | `teamcity`/`sarif` formats: no v1 counterpart — confirm none needed in the parser                                                       | Completeness check (done implicitly, pin it in a spec)                                       |
+| 41 | Migrate `--skip-validation` interplay spec with new conversions                                                                         | Edge path                                                                                    |
+| 42 | Idempotency spec for skip-dirs + exclude-dir-use-default BOTH enabled (double merge, dedup path)                                        | Spec hole                                                                                    |
+| 43 | i18n/emoji-free output snapshot for the new fix messages                                                                                | UX polish                                                                                    |
+| 44 | Check `run.skip-dirs-use-default: false` + user `skip-dirs` retention semantics                                                         | Rare-path fidelity                                                                           |
+| 45 | Consider exporting `excludeRulePathAllGo` (or moving to types) if other consumers need the guide's anchor                               | API hygiene                                                                                  |
+| 46 | Windows CRLF safety check for migrated configs                                                                                          | Portability                                                                                  |
+| 47 | Release-notes: document the behavior-preservation choice (absent v1 flags convert to defaults)                                          | User-facing rationale                                                                        |
+| 48 | Post-release proxy check: `go get` + pkg.go.dev render for v0.12.0                                                                      | Release verification                                                                         |
+| 49 | Backfill: run erraudit quarterly re-check when due (~2027-01)                                                                           | Existing cadence                                                                             |
+| 50 | Archive this report's predecessor + this one after HARVEST (docs-health archive pass)                                                   | Docs hygiene                                                                                 |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 

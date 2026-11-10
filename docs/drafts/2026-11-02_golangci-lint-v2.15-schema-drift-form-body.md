@@ -7,11 +7,11 @@
 
 ### Welcome
 
-- [X] Yes, I'm using a binary release within 2 latest [releases](https://github.com/golangci/golangci-lint/releases). Only such installations are supported.
-- [X] Yes, I've searched similar [issues on GitHub](https://github.com/golangci/golangci-lint/issues) and didn't find any.
-- [X] Yes, I've read the `typecheck` section of the [FAQ](https://golangci-lint.run/docs/welcome/faq/#why-do-you-have-typecheck-errors).
-- [X] Yes, I've tried with the standalone [linter](https://golangci-lint.run/docs/linters/) if available (e.g., gocritic, go vet, etc.).
-- [X] I agree to follow this project's [Code of Conduct](https://github.com/golangci/golangci-lint?tab=coc-ov-file)
+- [x] Yes, I'm using a binary release within 2 latest [releases](https://github.com/golangci/golangci-lint/releases). Only such installations are supported.
+- [x] Yes, I've searched similar [issues on GitHub](https://github.com/golangci/golangci-lint/issues) and didn't find any.
+- [x] Yes, I've read the `typecheck` section of the [FAQ](https://golangci-lint.run/docs/welcome/faq/#why-do-you-have-typecheck-errors).
+- [x] Yes, I've tried with the standalone [linter](https://golangci-lint.run/docs/linters/) if available (e.g., gocritic, go vet, etc.).
+- [x] I agree to follow this project's [Code of Conduct](https://github.com/golangci/golangci-lint?tab=coc-ov-file)
 
 ### How did you install golangci-lint?
 
@@ -126,4 +126,4 @@ $ golangci-lint config verify --config fixed.yaml
 
 ### Validation
 
-- [X] Yes, I've included all the information above (example, version, config, etc.).
+- [x] Yes, I've included all the information above (example, version, config, etc.).

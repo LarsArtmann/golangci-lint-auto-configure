@@ -31,6 +31,7 @@ session.
 ## Foreword: What did I forget / could do better / still improve?
 
 **Forgot:**
+
 - The CHANGELOG `[Unreleased]` "Added" edit — content written, but the edit
   was REJECTED because I read the file via `bash sed` instead of the View
   tool first. One edit away from done (see b1).
@@ -41,6 +42,7 @@ session.
   are undocumented outside CHANGELOG-content-in-waiting).
 
 **Could do better:**
+
 - Probe deep-map structures with a throwaway internal test BEFORE writing
   conversion + spec — the gocritic nesting cost three debug cycles (d1).
 - Verify exit codes before counting findings from external tools — my first
@@ -51,6 +53,7 @@ session.
   `ci.yml`/`version.go`; apply the discipline to docs too).
 
 **Still improve:**
+
 - The migrate subcommand still silently DROPS three structural user intents
   (`exclude-use-default`, `issues.exclude`, `output.format`) instead of
   converting them (c-item, question 3).
@@ -234,6 +237,7 @@ session.
 ## f) 50 things to do next (prioritized; ← = blocked on user)
 
 **Finish this sweep (do first):**
+
 1. Apply the drafted CHANGELOG `[Unreleased]` Added-section edit (b1).
 2. Apply the verified wrapcheck `ignore-sig-regexps` fix to
    `.golangci.yml` once the concurrent session settles; re-lint → 0
@@ -249,87 +253,87 @@ session.
 
 **Migrate completeness (schema-verified, one PR each):**
 9. `issues.exclude-use-default: false` → explicit empty
-   `linters.exclusions.presets` (preserve the "no default exclusions"
-   intent). ← q3
+`linters.exclusions.presets` (preserve the "no default exclusions"
+intent). ← q3
 10. `issues.exclude` (plain string list) → `exclusions.rules` path rules.
 11. `issues.include` → `linters.exclusions.presets` conversion.
 12. `output.format` (line-number/colored-*/tab variants) → `output.formats`
-    keyed structure instead of silent drop.
+keyed structure instead of silent drop.
 13. `issues.exclude-generated(-strict)` → `linters.exclusions.generated`.
 14. Migrate: emit a summary WARNING listing every key dropped with no
-    successor (`errcheck.exclude`, …) so loss is visible, never silent.
+successor (`errcheck.exclude`, …) so loss is visible, never silent.
 15. `scripts/e2e-pin-matrix.sh`: add "migrated config loads" step per cell.
 16. Extend the parity corpus (or a migrate corpus) to cover the NEW
-    conversions — migrate currently has no golden snapshots at all.
+conversions — migrate currently has no golden snapshots at all.
 17. Unify `normalizeLocalPrefixes` + `normalizeStringToSlice` into one
-    string→list helper.
+string→list helper.
 18. Per-entry provenance (source version/link) for `removedLinterSettings`.
 19. Table-driven weird-YAML-type test for `migrateLinterSettings` (string
-    where list expected, nil maps, etc.).
+where list expected, nil maps, etc.).
 20. Split `migrateLinterSettings` (now 12 steps) per-linter before it hits
-    the nolint ceiling.
+the nolint ceiling.
 21. Consider `type ExcludeRule = ExclusionRule` alias now that the structs
-    are identical (staticcheck already exploits convertibility).
+are identical (staticcheck already exploits convertibility).
 
 **Baseline hygiene:**
 22. Docs-wide v2.14.0 → v2.15.0 reference sweep (README, FEATURES,
-    docs/references/*).
+docs/references/*).
 23. Curated wrapcheck default decision → if approved: policy-table change,
-    parity regen, schema-fixture regen, MinGolangCILintVersion re-check,
-    fleet rollout note. ← q2
+parity regen, schema-fixture regen, MinGolangCILintVersion re-check,
+fleet rollout note. ← q2
 24. Upstream issue: v2.15 bare-dir probe semantics (verify-before-filing).
 25. Upstream issue candidate: wrapcheck 2.13 in-module flood intent.
 26. Release v0.12.0 (after 1–8): changelog cut, tag, GoReleaser, proxy
-    verify, GHCR backfill. ← user-gated
+verify, GHCR backfill. ← user-gated
 27. BuildFlow flake-input refresh after push + `nix run .#reinstall` +
-    `BUILDFLOW_NO_RESULT_CACHE=1` verify (gotcha 32 — the stale-binary
-    loop will otherwise flag phantom findings).
+`BUILDFLOW_NO_RESULT_CACHE=1` verify (gotcha 32 — the stale-binary
+loop will otherwise flag phantom findings).
 28. CI drift guard: fail when ci.yml pin ≠ ExpectedGolangCILintVersion ≠
-    generated-file header version (single-source-of-truth test).
+generated-file header version (single-source-of-truth test).
 29. Schema-verify job: assert the generated-file header version matches
-    the `-schema-version` flag it was built with.
+the `-schema-version` flag it was built with.
 30. coverage-check run for pkg/migration after new code (`-min=65` gate).
 31. Lychee link-check for the new CHANGELOG migration-guide link.
 32. Differential test: upstream's own `golangci-lint migrate` vs ours on a
-    shared v1 fixture set (compatibility witness).
+shared v1 fixture set (compatibility witness).
 33. Spec: emptied multi-linter exclusion rule where only SOME linters are
-    superseded (partial rename keeps rule alive) — verify existing
-    behavior is pinned.
+superseded (partial rename keeps rule alive) — verify existing
+behavior is pinned.
 34. Spec: `normalizeStringToSlice` nil/empty handling.
 35. Pin matrix: document why v2.11.x has no cell (below-min refusal
-    already proven at v2.10.1).
+already proven at v2.10.1).
 
 **Fleet (read-only scans are free; mutations need approval):**
 36. Supervised configure run on the 4 flagged fleet configs. ← approval
 37. Quantify wrapcheck-2.13 exposure across the 577 errorfamily consumers
-    (estimate configs needing the ignore entry).
+(estimate configs needing the ignore entry).
 38. Manual look at `template-arch-lint/template-configs/.golangci.yml`
-    (matched BOTH scans — superseded linters AND camelCase keys).
+(matched BOTH scans — superseded linters AND camelCase keys).
 39. House snippet for the wrapcheck `ignore-sig-regexps` entry in
-    crush-config/docs so every repo adopts it identically.
+crush-config/docs so every repo adopts it identically.
 40. Fleet-wide `migrate --dry-run` audit (read-only) for v1-only keys
-    beyond my scan list.
+beyond my scan list.
 41. go-error-family docs: "returns are pre-classified — wrapcheck config"
-    pattern for consumers.
+pattern for consumers.
 42. Post-sweep drift inventory: `configure --check` across all 160 repos.
 
 **Docs/process:**
 43. docs/references/release-process.md: "bump pins + schema snapshot +
-    ExpectedGolangCILintVersion together" checklist entry.
+ExpectedGolangCILintVersion together" checklist entry.
 44. AGENTS.md gotcha candidate: wrapcheck 2.13 in-module cross-package
-    flagging + house fix.
+flagging + house fix.
 45. Cross-link this report ↔ the 00-18 telemetry report (shared files:
-    `.golangci.yml`, `commands.go`, `TODO_LIST.md`).
+`.golangci.yml`, `commands.go`, `TODO_LIST.md`).
 46. docs/status/README.md index: add this report.
 47. After telemetry lands: lint their files green (the 12 findings) —
-    coordinate, don't duplicate.
+coordinate, don't duplicate.
 48. Watch golangci-lint releases ≥ v2.16.0; schedule the next audit
-    trigger at release time, not ad-hoc.
+trigger at release time, not ad-hoc.
 49. `migrate` command help text: document the new conversions + dropped
-    keys so users see the behavior without reading source.
+keys so users see the behavior without reading source.
 50. Consider publishing the schema-capture procedure as a script
-    (`scripts/capture-golangci-schema.sh <tag>`) — it's now done twice by
-    hand.
+(`scripts/capture-golangci-schema.sh <tag>`) — it's now done twice by
+hand.
 
 ## g) Questions I cannot answer myself
 
@@ -352,5 +356,5 @@ session.
 
 ---
 
-*Point-in-time snapshot 2026-11-02 03:36 CET — stale by design. Waiting for
-instructions; items 1–8 are the pre-approved continuation default.*
+_Point-in-time snapshot 2026-11-02 03:36 CET — stale by design. Waiting for
+instructions; items 1–8 are the pre-approved continuation default._

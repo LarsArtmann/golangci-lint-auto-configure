@@ -2,7 +2,7 @@ package constants
 
 import (
 	"crypto/sha256"
-	"encoding/json"
+	"encoding/json/v2"
 )
 
 // Managed-settings provenance: when the tool injects a curated settings

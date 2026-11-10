@@ -821,7 +821,7 @@
         }
       }
     },
-    "formats-path" : {
+    "formats-path": {
       "anyOf": [
         {
           "enum": [
@@ -1097,7 +1097,7 @@
           "properties": {
             "use-default-exclusions": {
               "type": "boolean",
-               "default": true
+              "default": true
             },
             "exclusions": {
               "additionalProperties": false,
@@ -1481,7 +1481,7 @@
                 "type": "string"
               }
             },
-            "ignore-patterns":{
+            "ignore-patterns": {
               "description": "List of regular expressions to match type names that should be skipped from checking.",
               "type": "array",
               "items": {
@@ -1495,7 +1495,7 @@
                 "type": "string"
               }
             },
-            "allow-empty":{
+            "allow-empty": {
               "description": "Allows empty structures, effectively excluding them from the check.",
               "type": "boolean",
               "default": false
@@ -1522,7 +1522,7 @@
               "type": "boolean",
               "default": false
             },
-            "explicit-mode":{
+            "explicit-mode": {
               "description": "When true, only types marked with //exhaustruct:enforce directive or matching enforce-rx patterns are checked.",
               "type": "boolean",
               "default": false
@@ -1914,7 +1914,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "paramsOnly" : {
+                    "paramsOnly": {
                       "type": "boolean",
                       "default": true
                     }
@@ -1924,7 +1924,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "minLength" : {
+                    "minLength": {
                       "type": "number",
                       "default": 15
                     }
@@ -1934,7 +1934,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "skipBalanced" : {
+                    "skipBalanced": {
                       "type": "boolean",
                       "default": true
                     }
@@ -1944,7 +1944,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "sizeThreshold" : {
+                    "sizeThreshold": {
                       "type": "number",
                       "default": 80
                     }
@@ -1954,7 +1954,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "minThreshold" : {
+                    "minThreshold": {
                       "type": "number",
                       "default": 2
                     }
@@ -1964,7 +1964,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "bodyWidth" : {
+                    "bodyWidth": {
                       "type": "number",
                       "default": 5
                     }
@@ -1974,11 +1974,11 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "sizeThreshold" : {
+                    "sizeThreshold": {
                       "type": "number",
                       "default": 512
                     },
-                    "skipTestFuncs" : {
+                    "skipTestFuncs": {
                       "type": "boolean",
                       "default": true
                     }
@@ -1988,11 +1988,11 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "sizeThreshold" : {
+                    "sizeThreshold": {
                       "type": "number",
                       "default": 128
                     },
-                    "skipTestFuncs" : {
+                    "skipTestFuncs": {
                       "type": "boolean",
                       "default": true
                     }
@@ -2002,19 +2002,19 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "debug" : {
+                    "debug": {
                       "type": "string"
                     },
-                    "enable" : {
+                    "enable": {
                       "type": "string"
                     },
-                    "disable" : {
+                    "disable": {
                       "type": "string"
                     },
-                    "failOn" : {
+                    "failOn": {
                       "type": "string"
                     },
-                    "rules" : {
+                    "rules": {
                       "type": "string"
                     }
                   }
@@ -2023,7 +2023,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "maxResults" : {
+                    "maxResults": {
                       "type": "number",
                       "default": 5
                     }
@@ -2033,7 +2033,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "skipArchDependent" : {
+                    "skipArchDependent": {
                       "type": "boolean",
                       "default": true
                     }
@@ -2043,7 +2043,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "skipRecvDeref" : {
+                    "skipRecvDeref": {
                       "type": "boolean",
                       "default": true
                     }
@@ -2053,7 +2053,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "checkExported" : {
+                    "checkExported": {
                       "type": "boolean",
                       "default": false
                     }
@@ -3065,7 +3065,7 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "only-two":  {
+            "only-two": {
               "type": "boolean",
               "description": "To check functions with only two return values.",
               "default": true
@@ -4871,7 +4871,7 @@
               "oneOf": [
                 {
                   "properties": {
-                    "type": {"enum": ["module"] }
+                    "type": { "enum": ["module"] }
                   },
                   "required": ["type"]
                 },
@@ -5120,7 +5120,7 @@
             "decorder": {
               "$ref": "#/definitions/settings/definitions/decorderSettings"
             },
-            "depguard":{
+            "depguard": {
               "$ref": "#/definitions/settings/definitions/depguardSettings"
             },
             "dogsled": {
@@ -5189,7 +5189,7 @@
             "godox": {
               "$ref": "#/definitions/settings/definitions/godoxSettings"
             },
-            "interfacebloat":{
+            "interfacebloat": {
               "$ref": "#/definitions/settings/definitions/interfacebloatSettings"
             },
             "goheader": {
@@ -5240,7 +5240,7 @@
             "maintidx": {
               "$ref": "#/definitions/settings/definitions/maintidxSettings"
             },
-            "makezero":{
+            "makezero": {
               "$ref": "#/definitions/settings/definitions/makezeroSettings"
             },
             "loggercheck": {
@@ -5270,7 +5270,7 @@
             "modernize": {
               "$ref": "#/definitions/settings/definitions/modernizeSettings"
             },
-            "nolintlint":{
+            "nolintlint": {
               "$ref": "#/definitions/settings/definitions/nolintlintSettings"
             },
             "reassign": {
@@ -5312,7 +5312,7 @@
             "spancheck": {
               "$ref": "#/definitions/settings/definitions/spancheckSettings"
             },
-            "staticcheck":{
+            "staticcheck": {
               "$ref": "#/definitions/settings/definitions/staticcheckSettings"
             },
             "tagalign": {
@@ -5366,12 +5366,12 @@
             "copyloopvar": {
               "$ref": "#/definitions/settings/definitions/copyloopvarSettings"
             },
-            "custom":{
+            "custom": {
               "$ref": "#/definitions/settings/definitions/customSettings"
             }
           }
         },
-        "exclusions":{
+        "exclusions": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -5427,13 +5427,13 @@
                 ]
               }
             },
-            "paths":  {
+            "paths": {
               "type": "array",
               "items": {
                 "type": "string"
               }
             },
-            "paths-except":  {
+            "paths-except": {
               "type": "array",
               "items": {
                 "type": "string"

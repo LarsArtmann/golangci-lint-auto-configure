@@ -10,6 +10,7 @@
 ## Foreword: What did I forget / could do better / still improve?
 
 **Forgot:**
+
 - **Verify the STAGED snapshot, not the last-tested tree.** Commit ef60545
   shipped the 03-36 session's structural migrate code that landed AFTER my
   last lint run — 7 lint findings + an all-fixtures parity failure went to
@@ -22,6 +23,7 @@
   pkg/linter + pkg/audit suites only).
 
 **Could do better:**
+
 - Never trust a dead session's status report over a live test run: the
   03-36 report claimed the version specs "reference the constant
   dynamically — no hardcoded value to chase" — `version_checker_test.go`
@@ -35,6 +37,7 @@
   previous run's verdict whenever possible.
 
 **Still improve:**
+
 - The auto-commit daemon publishes ALL local commits with any push —
   "exclude in-flight files from my commit" is not a real containment
   strategy. The working posture that survived: make the entire tree green,
@@ -163,37 +166,37 @@
 
 ## f) Things to get done next (live queue, execution order per plan)
 
-| #  | Task                                                                                              | Master |
-| -- | ------------------------------------------------------------------------------------------------- | ------ |
-| 1  | Finish T3: build, captureRecorder.PreviouslyAutoEnabled + e2e + unit specs, docs, commit, push     | T3 |
-| 2  | Watch CI on 89a87b3 (T1) + T3 push; full 19-suite race re-run                                     | gates |
-| 3  | Dogfood: run built CLI `configure` on THIS repo → land arangolint/clickhouselint retractions      | T5-pre |
-| 4  | F16 fleet pre-scan script: per-repo `configure --check --dry-run` bucket counts                   | T5 |
-| 5  | F17 record expectation table across ~/projects/*                                                  | T5 |
-| 6–9 | F18–F21 fleet sweep batches 1–4 (20/40/40/rest + skip-list with reasons)                          | T5 |
-| 10 | F22 fold in 00-03 f9 scan (deadcode/varcheck/structcheck/exhaustivestruct/interfacer/nosnakecase)| T5 |
-| 11 | F23–F25 fleet report + harvest into TODO/CHANGELOG/FEATURES + cross-repo audit-ledger note        | T6 |
-| 12 | F26–F29 schema v2.15 residual: MinGolangCILintVersion derivation re-check (verify 03-36 claim)     | T7 |
-| 13 | F30–F32 T8 residue: README requirements/claims sweep for version names                            | T8 |
-| 14 | F37–F38 bisect upstream for the single-criterion rejection version; CHANGELOG + spec note         | T11 |
-| 15 | F39–F40 verify v2.15 bare-dir behavior at source, then file upstream issue (github-voice)         | T12 |
-| 16 | F41 commit v2.14-style + v2.15-style probe fixtures; parameterize guard spec                      | T13 |
-| 17 | F11–F15 T4: provenance stamp (`# managed-by:` marker), refresh pass, specs, CHANGELOG + gotcha    | T4 |
-| 18 | F42–F45 cosign v3 signs migration, unpin, snapshot sign run, release-dry-run gate                 | T14 |
-| 19 | F50–F52 floating-installer inventory, pin them, action-SHA bump automation decision               | T16 |
-| 20 | F53–F55 release-process.md tag-failure runbook + extended post-release-verify + dry-run vs v0.11  | T17 |
-| 21 | F58–F59 Dependabot policy (prefer continue-on-error for dependabot actors) + green scheduled run  | T19 |
-| 22 | F46–F49 USER-GATED: cosign backfill sigs, syft SBOMs, release-notes caveat, GHCR smoke            | T15 |
-| 23 | F56–F57 USER-GATED: GHCR :master deletion, backfill-image throwaway dispatch                      | T18 |
-| 24 | F60–F64 v0.12.0: CHANGELOG cut, pre-release checklist, full gates, tag, watch, post-verify        | T20 |
-| 25 | F65–F66 markdownlint nested-config repro (boolean vs object keys)                                 | T21 |
-| 26 | F67 FEATURES full re-audit → earn the 2026-11-02 stamp                                            | T21 |
-| 27 | F68 restore going-public b/c table padding (cosmetic, archive)                                    | T21 |
-| 28 | F69–F73 decision packets: buildflow posture, M32, AGENTS size, declined-verdict veto list, KBSK   | T22 |
-| 29 | F74 flake.nix golangci-lint check output; F75 check-rows upstream fix; F76 erraudit calendar      | T22 |
-| 30 | Absorb the live parallel session's landing (M5–M7) into docs/CHANGELOG when it commits            | co-tenant |
-| 31 | README "Optional OpenTelemetry" section + SECURITY telemetry paragraph (OTEL session's M8 debt)   | M8-debt |
-| 32 | OTEL session's M9/M10 residue: their full-gates + curated push when their tree settles            | M9-M10-debt |
+| #   | Task                                                                                              | Master      |
+| --- | ------------------------------------------------------------------------------------------------- | ----------- |
+| 1   | Finish T3: build, captureRecorder.PreviouslyAutoEnabled + e2e + unit specs, docs, commit, push    | T3          |
+| 2   | Watch CI on 89a87b3 (T1) + T3 push; full 19-suite race re-run                                     | gates       |
+| 3   | Dogfood: run built CLI `configure` on THIS repo → land arangolint/clickhouselint retractions      | T5-pre      |
+| 4   | F16 fleet pre-scan script: per-repo `configure --check --dry-run` bucket counts                   | T5          |
+| 5   | F17 record expectation table across ~/projects/*                                                  | T5          |
+| 6–9 | F18–F21 fleet sweep batches 1–4 (20/40/40/rest + skip-list with reasons)                          | T5          |
+| 10  | F22 fold in 00-03 f9 scan (deadcode/varcheck/structcheck/exhaustivestruct/interfacer/nosnakecase) | T5          |
+| 11  | F23–F25 fleet report + harvest into TODO/CHANGELOG/FEATURES + cross-repo audit-ledger note        | T6          |
+| 12  | F26–F29 schema v2.15 residual: MinGolangCILintVersion derivation re-check (verify 03-36 claim)    | T7          |
+| 13  | F30–F32 T8 residue: README requirements/claims sweep for version names                            | T8          |
+| 14  | F37–F38 bisect upstream for the single-criterion rejection version; CHANGELOG + spec note         | T11         |
+| 15  | F39–F40 verify v2.15 bare-dir behavior at source, then file upstream issue (github-voice)         | T12         |
+| 16  | F41 commit v2.14-style + v2.15-style probe fixtures; parameterize guard spec                      | T13         |
+| 17  | F11–F15 T4: provenance stamp (`# managed-by:` marker), refresh pass, specs, CHANGELOG + gotcha    | T4          |
+| 18  | F42–F45 cosign v3 signs migration, unpin, snapshot sign run, release-dry-run gate                 | T14         |
+| 19  | F50–F52 floating-installer inventory, pin them, action-SHA bump automation decision               | T16         |
+| 20  | F53–F55 release-process.md tag-failure runbook + extended post-release-verify + dry-run vs v0.11  | T17         |
+| 21  | F58–F59 Dependabot policy (prefer continue-on-error for dependabot actors) + green scheduled run  | T19         |
+| 22  | F46–F49 USER-GATED: cosign backfill sigs, syft SBOMs, release-notes caveat, GHCR smoke            | T15         |
+| 23  | F56–F57 USER-GATED: GHCR :master deletion, backfill-image throwaway dispatch                      | T18         |
+| 24  | F60–F64 v0.12.0: CHANGELOG cut, pre-release checklist, full gates, tag, watch, post-verify        | T20         |
+| 25  | F65–F66 markdownlint nested-config repro (boolean vs object keys)                                 | T21         |
+| 26  | F67 FEATURES full re-audit → earn the 2026-11-02 stamp                                            | T21         |
+| 27  | F68 restore going-public b/c table padding (cosmetic, archive)                                    | T21         |
+| 28  | F69–F73 decision packets: buildflow posture, M32, AGENTS size, declined-verdict veto list, KBSK   | T22         |
+| 29  | F74 flake.nix golangci-lint check output; F75 check-rows upstream fix; F76 erraudit calendar      | T22         |
+| 30  | Absorb the live parallel session's landing (M5–M7) into docs/CHANGELOG when it commits            | co-tenant   |
+| 31  | README "Optional OpenTelemetry" section + SECURITY telemetry paragraph (OTEL session's M8 debt)   | M8-debt     |
+| 32  | OTEL session's M9/M10 residue: their full-gates + curated push when their tree settles            | M9-M10-debt |
 
 ## g) Questions I can NOT figure out myself
 

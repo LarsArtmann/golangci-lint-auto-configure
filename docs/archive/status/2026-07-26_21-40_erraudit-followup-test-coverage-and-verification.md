@@ -183,32 +183,32 @@ The auto-commit daemon committed my formatting fix as `b22e2ee "implementations"
 22. ~~**Run `nix flake check`** to verify the full Nix build pipeline.~~ done (docs-health pass 2026-10-07)
 23. ~~**Update `FEATURES.md`** to reflect the error-handling improvements.~~ **Won't implement — internal concern, not a user-facing feature.**
 24. ~~**Update `TODO_LIST.md`** with the remaining erraudit follow-up items.~~ done (docs-health pass 2026-10-07)
-~~25. **Consider a `/dev/full` test helper** in a shared test utilities package — it's a useful pattern for testing write-error paths across the codebase.~~ **declined-for-now — the `/dev/full` pattern is visible in `generator_test.go` itself**
-~~26. **Add benchmarks for `rewriteLedger`** with large ledgers — verify compaction performance doesn't degrade.~~ **declined-for-now — no perf concern at real ledger sizes**
-27. ~~**Review all `fmt.Errorf` wrapping in the codebase** for consistency with `errorfamily.Wrap*` pattern.~~ done (docs-health pass 2026-10-07)
-~~28. **Add a test that verifies `PurgeRetention` actually removes old entries** — the existing test covers `PurgeOlder` but not the `Ledger.PurgeRetention` method that calls it.~~ **done — `PurgeOlder`/`PurgeRetention` specs cover it**
-~~29. **Document the `/dev/full` test pattern** in `docs/references/testing-style-and-patterns.md`.~~ **declined — the test is the documentation**
-~~30. **Consider adding `errcheck` exclusions** for the intentional `_ =` sites in detector.go if errcheck is not already excluding them.~~ **declined — do-not-suppress policy (AGENTS #26)**
-~~31. **Review whether `closeFile` should log close errors** — currently completely silent, which is a common Go pattern but may hide resource leaks.~~ **declined — documented as intentional (AGENTS #26)**
-~~32. **Add a test for `hasSwaggoInCode` with a directory that has no .go files** — verify it returns `(false, nil)` not an error.~~ **declined-for-now**
-~~33. **Add a test for `hasMainPackage` with an empty directory** — verify it returns `false` without error.~~ **declined-for-now**
-34. ~~**Verify the `golden_test.go` golden file is still current** after the generator changes.~~ done (docs-health pass 2026-10-07)
-35. **Consider splitting `detector.go` into smaller files** — it's 462 lines with multiple concerns (project type detection, swaggo detection, database driver detection). **→ declined-for-now — split not worth the churn while the file is stable**
-~~36. **Add godoc comments to unexported functions** in detector.go that lack them (`hasMainPackage`, `hasAPICodePatterns`, etc.).~~ **declined-for-now — godoc coverage tracked by lint config**
-~~37. **Review the `Merger.logAndContinue` pattern** — consider accumulating errors into the `MergeResult` instead of just logging.~~ **declined — log-and-continue is the decided graceful-degradation pattern**
-~~38. **Add a test for `SaveMergedConfig` with a read-only filesystem** — verify backup failure is logged but doesn't prevent the save.~~ **declined-for-now — backup failure path is covered by merger specs**
-~~39. **Consider a `Debugf` vs `Warnf` audit** — some "best-effort" failures may warrant `Warnf` (user-visible) while others should be `Debugf` (developer-only).~~ **declined — levels were re-balanced in the 22-07 session**
-40. ~~**Review the `cmd_audit.go` `log` import warnings** — gopls reports `undefined: log` at 5 sites, which may indicate a stale import or a build tag issue.~~ **Won't implement — stale gopls warning; import is used.**
-~~41. **Add a CI step that runs erraudit and uploads results as an artifact** — non-blocking, but visible.~~ **declined — erraudit is NOT a CI gate (AGENTS #26)**
-42. ~~**Review whether `encoding/json/v2` migration is complete** — 27 gopls warnings about `go1.27 or later` suggest the experiment flag may not be fully understood by tooling.~~ **Won't implement — done — json/v2 migration complete (CHANGELOG).**
-43. ~~**Consider a Go 1.27 upgrade plan** — once released, `GOEXPERIMENT=jsonv2` becomes the default and the gopls warnings go away.~~ **Won't implement — done — Go 1.27 shipped 2026-09-28; jsonv2 non-experimental.**
-~~44. **Add a test that verifies the audit ledger handles concurrent `Record` calls** — the mutex should prevent interleaving.~~ **declined-for-now — single-process mutex; no concurrent-writer contract**
-~~45. **Review the `Scanner` buffer sizes** in ledger.go (`scannerMinBuffer`, `scannerMaxBuffer`) — are they sufficient for large audit entries?~~ **declined-for-now — entries are small; no overflow observed**
-~~46. **Add a test for `NewLedger` with an unwritable directory** — verify it degrades to disabled.~~ **done — `newRunLedger` disabled→NoopRecorder specs cover the unwritable-path class**
-~~47. **Consider adding a `Validate()` method to `MergeResult`** — catch inconsistencies before saving.~~ **declined-for-now — YAGNI**
-~~48. **Review the `Detector` caching behavior** — `Detect()` caches the result, but `HasSwaggo()`, `HasClickHouse()`, etc. don't. Is this intentional?~~ **declined — intentional: `Detect()` caches; `Has*` probes are cheap and independent**
-~~49. **Add a test for `RecommendPresets`** — verify the preset list is correctly ordered and deduplicated.~~ **declined-for-now**
-~~50. **Consider an end-to-end integration test** that runs the full `configure` command on a fixture project and verifies the generated config, audit ledger, and HTML report.~~ **done — capability e2e specs + T18 dispatch specs cover the full-path class**
+    ~~25. **Consider a `/dev/full` test helper** in a shared test utilities package — it's a useful pattern for testing write-error paths across the codebase.~~ **declined-for-now — the `/dev/full` pattern is visible in `generator_test.go` itself**
+    ~~26. **Add benchmarks for `rewriteLedger`** with large ledgers — verify compaction performance doesn't degrade.~~ **declined-for-now — no perf concern at real ledger sizes**
+25. ~~**Review all `fmt.Errorf` wrapping in the codebase** for consistency with `errorfamily.Wrap*` pattern.~~ done (docs-health pass 2026-10-07)
+    ~~28. **Add a test that verifies `PurgeRetention` actually removes old entries** — the existing test covers `PurgeOlder` but not the `Ledger.PurgeRetention` method that calls it.~~ **done — `PurgeOlder`/`PurgeRetention` specs cover it**
+    ~~29. **Document the `/dev/full` test pattern** in `docs/references/testing-style-and-patterns.md`.~~ **declined — the test is the documentation**
+    ~~30. **Consider adding `errcheck` exclusions** for the intentional `_ =` sites in detector.go if errcheck is not already excluding them.~~ **declined — do-not-suppress policy (AGENTS #26)**
+    ~~31. **Review whether `closeFile` should log close errors** — currently completely silent, which is a common Go pattern but may hide resource leaks.~~ **declined — documented as intentional (AGENTS #26)**
+    ~~32. **Add a test for `hasSwaggoInCode` with a directory that has no .go files** — verify it returns `(false, nil)` not an error.~~ **declined-for-now**
+    ~~33. **Add a test for `hasMainPackage` with an empty directory** — verify it returns `false` without error.~~ **declined-for-now**
+26. ~~**Verify the `golden_test.go` golden file is still current** after the generator changes.~~ done (docs-health pass 2026-10-07)
+27. **Consider splitting `detector.go` into smaller files** — it's 462 lines with multiple concerns (project type detection, swaggo detection, database driver detection). **→ declined-for-now — split not worth the churn while the file is stable**
+    ~~36. **Add godoc comments to unexported functions** in detector.go that lack them (`hasMainPackage`, `hasAPICodePatterns`, etc.).~~ **declined-for-now — godoc coverage tracked by lint config**
+    ~~37. **Review the `Merger.logAndContinue` pattern** — consider accumulating errors into the `MergeResult` instead of just logging.~~ **declined — log-and-continue is the decided graceful-degradation pattern**
+    ~~38. **Add a test for `SaveMergedConfig` with a read-only filesystem** — verify backup failure is logged but doesn't prevent the save.~~ **declined-for-now — backup failure path is covered by merger specs**
+    ~~39. **Consider a `Debugf` vs `Warnf` audit** — some "best-effort" failures may warrant `Warnf` (user-visible) while others should be `Debugf` (developer-only).~~ **declined — levels were re-balanced in the 22-07 session**
+28. ~~**Review the `cmd_audit.go` `log` import warnings** — gopls reports `undefined: log` at 5 sites, which may indicate a stale import or a build tag issue.~~ **Won't implement — stale gopls warning; import is used.**
+    ~~41. **Add a CI step that runs erraudit and uploads results as an artifact** — non-blocking, but visible.~~ **declined — erraudit is NOT a CI gate (AGENTS #26)**
+29. ~~**Review whether `encoding/json/v2` migration is complete** — 27 gopls warnings about `go1.27 or later` suggest the experiment flag may not be fully understood by tooling.~~ **Won't implement — done — json/v2 migration complete (CHANGELOG).**
+30. ~~**Consider a Go 1.27 upgrade plan** — once released, `GOEXPERIMENT=jsonv2` becomes the default and the gopls warnings go away.~~ **Won't implement — done — Go 1.27 shipped 2026-09-28; jsonv2 non-experimental.**
+    ~~44. **Add a test that verifies the audit ledger handles concurrent `Record` calls** — the mutex should prevent interleaving.~~ **declined-for-now — single-process mutex; no concurrent-writer contract**
+    ~~45. **Review the `Scanner` buffer sizes** in ledger.go (`scannerMinBuffer`, `scannerMaxBuffer`) — are they sufficient for large audit entries?~~ **declined-for-now — entries are small; no overflow observed**
+    ~~46. **Add a test for `NewLedger` with an unwritable directory** — verify it degrades to disabled.~~ **done — `newRunLedger` disabled→NoopRecorder specs cover the unwritable-path class**
+    ~~47. **Consider adding a `Validate()` method to `MergeResult`** — catch inconsistencies before saving.~~ **declined-for-now — YAGNI**
+    ~~48. **Review the `Detector` caching behavior** — `Detect()` caches the result, but `HasSwaggo()`, `HasClickHouse()`, etc. don't. Is this intentional?~~ **declined — intentional: `Detect()` caches; `Has*` probes are cheap and independent**
+    ~~49. **Add a test for `RecommendPresets`** — verify the preset list is correctly ordered and deduplicated.~~ **declined-for-now**
+    ~~50. **Consider an end-to-end integration test** that runs the full `configure` command on a fixture project and verifies the generated config, audit ledger, and HTML report.~~ **done — capability e2e specs + T18 dispatch specs cover the full-path class**
 
 ---
 

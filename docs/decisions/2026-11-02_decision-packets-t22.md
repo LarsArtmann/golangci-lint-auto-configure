@@ -64,7 +64,7 @@ docs/; split per-topic reference docs and shrink gotchas to one-liners.
 
 **Recommendation**: keep. 175/220 leaves headroom; the doc's job is
 session-context density, and every gotcha cites its spec. Prune trigger: when
-the 220-line warning fires, promote the longest gotchas' *detail* into
+the 220-line warning fires, promote the longest gotchas' _detail_ into
 docs/references/ and keep their one-line rule here.
 
 **Cost of deciding now**: zero; the trigger is mechanical.

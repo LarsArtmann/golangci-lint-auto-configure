@@ -164,7 +164,7 @@ The validation script prints "All 1 never-auto-enable linters" — grammatically
 15. **Unify the three tier maps into a typed enum** — `map[LinterName]LinterManagementTier` where tier is `Disabled | NeverAutoEnable | PragmaticNoise | Default`. Eliminates the "check 3 maps" pattern in categorizer + fixer_enforce. **→ declined-for-now — three maps documented; enum not worth the churn**
 16. ~~**Extract shared `ValidateTiers()` function** — single source of truth for tier constraints, called by both Ginkgo tests and the standalone script.~~ **Won't implement — resolved YAGNI in-file — duplication kept, Ginkgo specs are the gate.**
 17. ~~**Consider whether the `migrate` command should handle exhaustruct** — when migrating v1→v2, if exhaustruct is enabled in v1, should it be preserved? Currently yes (migrate doesn't use categorizer skip logic). Verify this is intentional.~~ done (docs-health pass 2026-10-07)
-~~18. **Review interaction with `--check` mode** — configs with exhaustruct disabled won't trigger a "you should enable exhaustruct" diff. Verify.~~ **done — desired-state rendering excludes NeverAutoEnable tiers; `--check` converges**
+    ~~18. **Review interaction with `--check` mode** — configs with exhaustruct disabled won't trigger a "you should enable exhaustruct" diff. Verify.~~ **done — desired-state rendering excludes NeverAutoEnable tiers; `--check` converges**
 
 ### Documentation debt
 
@@ -193,8 +193,8 @@ The validation script prints "All 1 never-auto-enable linters" — grammatically
 32. ~~**Standardize all "tool-level" language across the codebase** — grep for "tool-level disabled" and "tool-level managed" and make consistent.~~ done (docs-health pass 2026-10-07)
 33. **Add `NeverAutoEnableLinters` to the `analyze --json` output** — so programmatic consumers can detect tool-managed linters. **→ declined-for-now — analyze output stays minimal**
 34. **Consider a `--force-enable exhaustruct` flag** — for users who want the old behavior. **→ declined-for-now — YAGNI; never-enable section covers the need**
-~~35. **Review `pkg/finding/categories.go:66`** — exhaustruct is mapped to `CategoryTypeSafety`; verify this is still correct.~~ **moot — exhaustruct deprecated (→ exhaustruct_v5 since v2.13); category mapping unchanged and correct**
-36. ~~**Consider migration path for existing configs** — configs auto-generated with exhaustruct enabled are now "stranded" (enabled but never recommended); should the tool warn?~~ done (docs-health pass 2026-10-07)
+    ~~35. **Review `pkg/finding/categories.go:66`** — exhaustruct is mapped to `CategoryTypeSafety`; verify this is still correct.~~ **moot — exhaustruct deprecated (→ exhaustruct_v5 since v2.13); category mapping unchanged and correct**
+35. ~~**Consider migration path for existing configs** — configs auto-generated with exhaustruct enabled are now "stranded" (enabled but never recommended); should the tool warn?~~ done (docs-health pass 2026-10-07)
 
 ### Cleanup
 

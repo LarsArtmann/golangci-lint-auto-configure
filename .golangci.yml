@@ -433,11 +433,11 @@ linters:
         linters:
           - revive
       - path: pkg/types/
-        text: 'var-naming: avoid meaningless package names'
+        text: "var-naming: avoid meaningless package names"
         linters:
           - revive
       - path: pkg/utils/
-        text: 'var-naming: avoid meaningless package names'
+        text: "var-naming: avoid meaningless package names"
         linters:
           - revive
       - path: pkg/errors/errors_test\.go
