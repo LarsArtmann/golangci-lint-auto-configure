@@ -7,10 +7,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"strings"
+
 	"charm.land/log/v2"
 	finding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/config"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/linter"
+	"github.com/larsartmann/golangci-lint-auto-configure/pkg/policy"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/types"
 )
 
@@ -79,6 +82,10 @@ func (failingPlanner) PlanDeviations(context.Context, string, types.LinterPriori
 	return nil, errors.New("planner boom")
 }
 
+func (failingPlanner) Evaluate(context.Context, string, types.LinterPriority) (*linter.Evaluation, error) {
+	return nil, errors.New("planner boom")
+}
+
 func TestDeviationsToFindings(t *testing.T) {
 	changes := []linter.Change{
 		{
@@ -139,5 +146,65 @@ func TestDeviationsToFindingsEmpty(t *testing.T) {
 
 	if len(findings) != 0 {
 		t.Errorf("expected 0 findings for empty plan, got %d", len(findings))
+	}
+}
+
+// TestDeviationDetectorDetectSurfacesNeverEnable pins the sidecar contract
+// on the DETECT side: a never-enable'd linter produces no warning or error
+// finding (the suppression must not re-flag the gate on every run), and the
+// suppression itself stays visible as exactly one info finding
+// (suppressed-re-enable) instead of vanishing silently.
+func TestDeviationDetectorDetectSurfacesNeverEnable(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, ".golangci.yml")
+	configContent := `version: "2"
+run:
+  timeout: 5m
+linters:
+  disable:
+    - errcheck
+`
+	sidecarContent := `never-enable:
+  errcheck:
+    reason: "error returns are asserted via must(t) helpers"
+    category: convention
+`
+
+	if err := os.WriteFile(configPath, []byte(configContent), 0o644); err != nil {
+		t.Fatalf("failed to write test config: %v", err)
+	}
+
+	sidecarPath := filepath.Join(tempDir, policy.SidecarFileName)
+	if err := os.WriteFile(sidecarPath, []byte(sidecarContent), 0o644); err != nil {
+		t.Fatalf("failed to write sidecar: %v", err)
+	}
+
+	logger := log.NewWithOptions(os.Stdout, log.Options{Level: log.ErrorLevel})
+	detector := NewDeviationDetector(newDeviationTestFixer(logger), configPath, types.LinterPriorityMedium)
+
+	findings, err := detector.Detect(context.Background())
+	if err != nil {
+		t.Fatalf("Detect failed: %v", err)
+	}
+
+	suppressedInfo := false
+
+	for _, f := range findings {
+		if strings.Contains(strings.ToLower(f.Message), "errcheck") &&
+			(f.Severity == finding.SeverityWarning || f.Severity == finding.SeverityError) {
+			t.Errorf(
+				"never-enable'd linter must not warn or error: rule=%q severity=%q msg=%q",
+				f.Rule, f.Severity, f.Message,
+			)
+		}
+
+		if f.Rule == RuleIDSuppressedReEnable && f.Severity == finding.SeverityInfo &&
+			strings.Contains(f.Message, "errcheck") {
+			suppressedInfo = true
+		}
+	}
+
+	if !suppressedInfo {
+		t.Fatal("suppressed-re-enable info finding for errcheck missing: the suppression must stay visible")
 	}
 }

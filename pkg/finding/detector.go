@@ -10,16 +10,18 @@ import (
 )
 
 // DeviationPlanner is the narrowest interface the detector needs: the
-// reconciler's report-only change plan for one config. Decouples pkg/finding
+// reconciler's report-only evaluation for one config. Decouples pkg/finding
 // from pkg/linter's fixer plumbing.
 type DeviationPlanner interface {
 	PlanDeviations(ctx context.Context, configPath string, priority types.LinterPriority) ([]linter.Change, error)
+
+	Evaluate(ctx context.Context, configPath string, priority types.LinterPriority) (*linter.Evaluation, error)
 }
 
 // DeviationDetector reports desired-state drift as findings. It runs the
-// converge engine's plan phase in report-only mode and converts every
-// planned Change into one finding — lint mode and apply mode consume the
-// identical change set, so detect/repair drift is structurally impossible.
+// converge engine's report-only evaluation and converts it — lint mode and
+// apply mode consume the identical evaluation, so detect/repair drift is
+// structurally impossible.
 type DeviationDetector struct {
 	planner    DeviationPlanner
 	configPath string
@@ -45,14 +47,17 @@ func (d *DeviationDetector) Name() string {
 	return "config-deviation"
 }
 
-// Detect plans the convergence (report-only) and converts the change set
-// into findings.
+// Detect evaluates the convergence (report-only) and converts the
+// evaluation into findings: one per planned Change, plus the
+// suppressed-re-enable and unsupported-recommendation findings a bare
+// change list cannot carry (audit-only events, no config change behind
+// them).
 func (d *DeviationDetector) Detect(ctx context.Context) ([]finding.Finding, error) {
-	changes, err := d.planner.PlanDeviations(ctx, d.configPath, d.priority)
+	evaluation, err := d.planner.Evaluate(ctx, d.configPath, d.priority)
 	if err != nil {
-		return nil, apperrors.WrapClassifiedf(err, "detector.plan",
-			"plan deviations for config %s", d.configPath)
+		return nil, apperrors.WrapClassifiedf(err, "detector.evaluate",
+			"evaluate config %s", d.configPath)
 	}
 
-	return DeviationsToFindings(changes, d.configPath)
+	return EvaluationToFindings(evaluation)
 }
