@@ -78,7 +78,6 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 		return nil
 	}
 
-	// Try JSON output first (more reliable)
 	output, err := a.runVersionCommandWithRetry(ctx, "version", "--json")
 	if err != nil {
 		// Fallback to text parsing if --json not supported or parallel running
