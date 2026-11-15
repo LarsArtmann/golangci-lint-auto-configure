@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json/v2"
 	"fmt"
+	"os"
 	"strings"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -75,8 +76,10 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 	defer a.resolveMu.Unlock()
 
 	if a.detectedVersion != (types.GolangciVersion{}) {
+		fmt.Fprintln(os.Stderr, "PROBE CheckVersion memo-hit, detected:", a.detectedVersion.String(), "go:", a.detectedGoVersion.String())
 		return nil
 	}
+	fmt.Fprintln(os.Stderr, "PROBE CheckVersion real-run")
 
 	output, err := a.runVersionCommandWithRetry(ctx, "version", "--json")
 	if err != nil {
@@ -102,6 +105,7 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 		)
 	}
 
+	fmt.Fprintln(os.Stderr, "PROBE json version:", versionInfo.Version, "go:", versionInfo.GoVersion)
 	a.setDetectedGoVersion(versionInfo.GoVersion)
 
 	return a.validateVersion(versionInfo.Version)
