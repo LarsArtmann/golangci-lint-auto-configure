@@ -65,7 +65,19 @@ func (a *Analyzer) warnUnexpectedVersion(version types.GolangciVersion) {
 }
 
 // CheckVersion verifies golangci-lint is at least the minimum required version.
+// The version subprocess run is memoized per Analyzer: a successful check
+// stores the detected version, and later calls short-circuit — the converge
+// pipeline invoked this three to four times per fix run, each spawning
+// `golangci-lint version --json` afresh. A failed check leaves the memo
+// empty so a later call retries for real.
 func (a *Analyzer) CheckVersion(ctx context.Context) error {
+	a.resolveMu.Lock()
+	defer a.resolveMu.Unlock()
+
+	if a.detectedVersion != (types.GolangciVersion{}) {
+		return nil
+	}
+
 	// Try JSON output first (more reliable)
 	output, err := a.runVersionCommandWithRetry(ctx, "version", "--json")
 	if err != nil {

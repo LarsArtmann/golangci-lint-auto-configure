@@ -28,7 +28,7 @@ import (
 // Detected versions are stored as branded types internally and surfaced as
 // strings through the LinterAnalyzer interface.
 type Analyzer struct {
-	binaryMu          sync.Mutex
+	resolveMu         sync.Mutex
 	golangciLintPath  string
 	logger            *log.Logger
 	detectedVersion   types.GolangciVersion
@@ -161,8 +161,8 @@ type golangciLintFormattersOutput struct {
 // and re-emitted the duplicate-binary warning (2026-11-15 BuildFlow report).
 // A failed lookup keeps the memo empty so a later call retries for real.
 func (a *Analyzer) FindBinary(_ context.Context) error {
-	a.binaryMu.Lock()
-	defer a.binaryMu.Unlock()
+	a.resolveMu.Lock()
+	defer a.resolveMu.Unlock()
 
 	if a.golangciLintPath != "" {
 		return nil
