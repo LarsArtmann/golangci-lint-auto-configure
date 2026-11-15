@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"charm.land/log/v2"
 	"github.com/larsartmann/golangci-lint-auto-configure/pkg/constants"
@@ -27,6 +28,7 @@ import (
 // Detected versions are stored as branded types internally and surfaced as
 // strings through the LinterAnalyzer interface.
 type Analyzer struct {
+	binaryMu          sync.Mutex
 	golangciLintPath  string
 	logger            *log.Logger
 	detectedVersion   types.GolangciVersion
@@ -152,8 +154,20 @@ type golangciLintFormattersOutput struct {
 }
 
 // FindBinary finds the golangci-lint binary in PATH.
-// It warns if multiple golangci-lint binaries are found in different PATH entries.
+// It warns if multiple golangci-lint binaries are found in different PATH entries —
+// exactly once: resolution is memoized per Analyzer, and the converge pipeline
+// calls this five times per fix run (detectVersion, verifyAnalyzerContract,
+// phase-one env, phase-two env, AnalyzeConfig), each of which re-scanned PATH
+// and re-emitted the duplicate-binary warning (2026-11-15 BuildFlow report).
+// A failed lookup keeps the memo empty so a later call retries for real.
 func (a *Analyzer) FindBinary(_ context.Context) error {
+	a.binaryMu.Lock()
+	defer a.binaryMu.Unlock()
+
+	if a.golangciLintPath != "" {
+		return nil
+	}
+
 	path, err := exec.LookPath(constants.GolangciLintBinaryName)
 	if err != nil {
 		return apperrors.NewAnalysisError("golangci-lint not found in PATH", "", err)
