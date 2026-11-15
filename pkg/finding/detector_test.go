@@ -5,9 +5,8 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"testing"
-
 	"strings"
+	"testing"
 
 	"charm.land/log/v2"
 	finding "github.com/larsartmann/go-finding"
