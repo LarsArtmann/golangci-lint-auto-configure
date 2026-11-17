@@ -106,6 +106,11 @@
       perSystem =
         { config, pkgs, ... }:
         {
+          # templ generate output is the freshness oracle (go-standard's
+          # templ-freshness check); treefmt's Go formatters must not reformat
+          # it or the two gates fight (storbi pattern).
+          treefmt.settings.global.excludes = [ "*_templ.go" ];
+
           checks.race = config.packages.default.overrideAttrs (old: {
             doCheck = true;
             checkFlags = [ "-race" ];
