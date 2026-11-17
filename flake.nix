@@ -41,6 +41,7 @@
       imports = [ inputs.go-nix-helpers.flakeModules.go-standard ];
 
       go-standard = {
+        enableTemplFreshnessCheck = true;
         pname = "golangci-lint-auto-configure";
         vendorHash = import ./vendorHash.nix;
         description = "Automatically configure and optimize golangci-lint configurations";

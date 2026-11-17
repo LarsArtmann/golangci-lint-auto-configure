@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json/v2"
 	"fmt"
-	"os"
 	"strings"
 
 	errorfamily "github.com/larsartmann/go-error-family"
@@ -66,21 +65,8 @@ func (a *Analyzer) warnUnexpectedVersion(version types.GolangciVersion) {
 }
 
 // CheckVersion verifies golangci-lint is at least the minimum required version.
-// The version subprocess run is memoized per Analyzer: a successful check
-// stores the detected version, and later calls short-circuit — the converge
-// pipeline invoked this three to four times per fix run, each spawning
-// `golangci-lint version --json` afresh. A failed check leaves the memo
-// empty so a later call retries for real.
 func (a *Analyzer) CheckVersion(ctx context.Context) error {
-	a.resolveMu.Lock()
-	defer a.resolveMu.Unlock()
-
-	if a.detectedVersion != (types.GolangciVersion{}) {
-		fmt.Fprintln(os.Stderr, "PROBE CheckVersion memo-hit, detected:", a.detectedVersion.String(), "go:", a.detectedGoVersion.String())
-		return nil
-	}
-	fmt.Fprintln(os.Stderr, "PROBE CheckVersion real-run")
-
+	// Try JSON output first (more reliable)
 	output, err := a.runVersionCommandWithRetry(ctx, "version", "--json")
 	if err != nil {
 		// Fallback to text parsing if --json not supported or parallel running
@@ -105,7 +91,6 @@ func (a *Analyzer) CheckVersion(ctx context.Context) error {
 		)
 	}
 
-	fmt.Fprintln(os.Stderr, "PROBE json version:", versionInfo.Version, "go:", versionInfo.GoVersion)
 	a.setDetectedGoVersion(versionInfo.GoVersion)
 
 	return a.validateVersion(versionInfo.Version)

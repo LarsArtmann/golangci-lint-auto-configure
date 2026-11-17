@@ -42,6 +42,7 @@ type Analyzer struct {
 // NewAnalyzer creates a new linter analyzer.
 func NewAnalyzer(logger *log.Logger) *Analyzer {
 	return &Analyzer{
+		resolveMu:         sync.Mutex{},
 		golangciLintPath:  "",
 		logger:            logger,
 		detectedVersion:   types.GolangciVersion{},
