@@ -95,16 +95,16 @@ Subsystems with distinct vocabulary.
 | Error Handling | Structured error classification with BSD sysexits exit codes                                              | `pkg/errors/`         |
 | Audit Trail    | Append-only JSONL ledger recording every config mutation                                                  | `pkg/audit/`          |
 | Policy         | Disable-reason sidecar enforcement (anti-gaming), never-enable directives, and regression-loop prevention | `pkg/policy/`         |
-| Linter Data    | Static constants: priorities, reasons, presets, deprecated mappings                                                                       | `pkg/constants/`      |
+| Linter Data    | Static constants: priorities, reasons, presets, deprecated mappings                                       | `pkg/constants/`      |
 
 ## Anti-Language (words this repo deliberately does NOT use)
 
-| Banned | Say instead | Why |
-| ------ | ----------- | --- |
-| blacklist / denylist | never-enable (sidecar section) | Never-Enable row: "listing linters the tool must never add to `enable`, even when recommended or unjustified in `disable`" — the "Strongest protection signal"; a listy name hides that it is a durable, cross-machine directive |
-| mutator (engine) | Fixer / declarative reconciler (converge) | Fixer row: "The engine that applies config mutations: linear, idempotent"; ADR-017 — the declarative reconciler is the ONLY engine, the legacy mutator pipeline was deleted 2026-10 |
-| engine switch | the one declarative engine | ADR-017: "there is no `SetEngine` or engine switch anywhere" — one engine, no selector |
-| banned (tier name) | Disabled / NeverAutoEnable | Linter Management Tier row: "Disabled (never enabled), NeverAutoEnable (never recommended but respected if manually added)" — "banned" erases that NeverAutoEnable linters stay manually enableable |
+| Banned               | Say instead                               | Why                                                                                                                                                                                                                              |
+| -------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| blacklist / denylist | never-enable (sidecar section)            | Never-Enable row: "listing linters the tool must never add to `enable`, even when recommended or unjustified in `disable`" — the "Strongest protection signal"; a listy name hides that it is a durable, cross-machine directive |
+| mutator (engine)     | Fixer / declarative reconciler (converge) | Fixer row: "The engine that applies config mutations: linear, idempotent"; ADR-017 — the declarative reconciler is the ONLY engine, the legacy mutator pipeline was deleted 2026-10                                              |
+| engine switch        | the one declarative engine                | ADR-017: "there is no `SetEngine` or engine switch anywhere" — one engine, no selector                                                                                                                                           |
+| banned (tier name)   | Disabled / NeverAutoEnable                | Linter Management Tier row: "Disabled (never enabled), NeverAutoEnable (never recommended but respected if manually added)" — "banned" erases that NeverAutoEnable linters stay manually enableable                              |
 
 ---
 
